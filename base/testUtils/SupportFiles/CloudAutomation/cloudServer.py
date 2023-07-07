@@ -50,9 +50,11 @@ try:
 except ImportError:
     pass
 
+
 def getCloudAutomationDirectory():
     return os.path.dirname(os.path.abspath(__file__))
     ## os.environ.get('SUP', "supportFiles"), "CloudAutomation"
+
 
 def setupLogging():
     rootLogger = logging.getLogger()
@@ -72,7 +74,7 @@ def setupLogging():
         pass
 
     logfile = os.path.join(LOGDIR, "cloudServer.log")
-    rotatingFileHandler = logging.handlers.RotatingFileHandler(logfile, maxBytes=1024*1024, backupCount=5)
+    rotatingFileHandler = logging.handlers.RotatingFileHandler(logfile, maxBytes=1024 * 1024, backupCount=5)
     rotatingFileHandler.setFormatter(formatter)
     rotatingFileHandler.setLevel(logging.DEBUG)
     rootLogger.addHandler(rotatingFileHandler)
@@ -81,9 +83,10 @@ def setupLogging():
     fileHandler = logging.FileHandler(logfile, mode="w", encoding="UTF-8")
     fileHandler.setFormatter(
         logging.Formatter("%(message)s")
-        )
+    )
     fileHandler.setLevel(logging.DEBUG)
     action_log.addHandler(fileHandler)
+
 
 def getText(node):
     text = []
@@ -92,10 +95,12 @@ def getText(node):
             text.append(n.data)
     return "".join(text)
 
+
 ID = 1001
 TESTTMP = os.environ.get("TESTTMP", "tmp")
 TEST_ROOT = os.environ.get("TEST_ROOT", ".")
 os.environ['OPENSSL_CONF'] = '/dev/null'
+
 
 def openssl():
     p = os.path.join(TEST_ROOT, "bin", "openssl")
@@ -103,6 +108,7 @@ def openssl():
         return p
     else:
         return "openssl"
+
 
 class Command(object):
     def __init__(self):
@@ -119,6 +125,7 @@ class Command(object):
         command = doc.createElement("command")
         commands.appendChild(command)
         idnode = self.createNode(doc, "id", self.m_id)
+
 
 class Policies(object):
     """<?xml version='1.0' encoding='UTF-8'?>
@@ -170,6 +177,7 @@ class Policies(object):
 </policy>
 
 """
+
     def __init__(self):
         self.m_policies = {}
 
@@ -183,13 +191,14 @@ class Policies(object):
                 logger.warning(ude.message)
             return policy
 
-        logger.error("No policy found for %s / %s", app, policyID)
+        logger.error(f"No policy found for {app} / {policyID}")
         return None
 
     def addPolicy(self, policyID, policy):
         assert policy is not None
         assert policy != ""
         self.m_policies[policyID] = policy
+
 
 GL_POLICIES = Policies()
 
@@ -268,6 +277,7 @@ def generatePolicy(revID, endpointCertMap, caCertList, utmCertMap):
     policy.unlink()
     return text
 
+
 # HB Policy
 class HeartbeatEndpointManager(object):
     def __init__(self):
@@ -284,7 +294,7 @@ class HeartbeatEndpointManager(object):
                 {},
                 [self.__m_ca_cert],
                 {"1": self.__m_utm_cert})
-            )
+        )
 
     def policyPending(self):
         return self.__m_policyID is not None
@@ -303,8 +313,8 @@ class HeartbeatEndpointManager(object):
                 self.__m_policyID,
                 self.__m_signedClientCerts,
                 [self.__m_ca_cert],
-                {"1":self.__m_utm_cert})
-            )
+                {"1": self.__m_utm_cert})
+        )
 
     def updateStatus(self, status, configuration):
         """
@@ -312,7 +322,7 @@ class HeartbeatEndpointManager(object):
         """
 
         basedir = getCloudAutomationDirectory()
-        logger.info("HBT update status=%s, configuration=%s", status, configuration)
+        logger.info(f"HBT update status={status}, configuration={configuration}")
         status_xml = xml.dom.minidom.parseString(status)
         addcertNodes = status_xml.getElementsByTagName("addcert")
         if len(addcertNodes) != 1:
@@ -326,7 +336,7 @@ class HeartbeatEndpointManager(object):
                 logger.error("Server received a cert from the endpoint that the server has already seen and signed.")
                 raise Exception("Already signed the cert.")
             self.__m_client_pems.append(pem)
-            logger.info("Client CSR to sign: %s", pem)
+            logger.info(f"Client CSR to sign: {pem}")
             csrPath = os.path.join(TESTTMP, "csr.pem")
             open(csrPath, "w").write(pem)
             destPath = os.path.join(TESTTMP, "clientCert.pem")
@@ -340,9 +350,8 @@ class HeartbeatEndpointManager(object):
                     "-out", destPath,
                     "-days", "365"],
                 cwd=basedir)
-            self.__m_signedClientCerts["FP%d"%(self.__m_signedCertCounter)] = open(destPath).read()
+            self.__m_signedClientCerts[f"FP{self.__m_signedCertCounter}"] = open(destPath).read()
             self.__m_signedCertCounter += 1
-
 
         if len(self.__m_signedClientCerts) == 0:
             logger.debug("No client csr to sign")
@@ -356,9 +365,10 @@ class HeartbeatEndpointManager(object):
                 self.__m_policyID,
                 self.__m_signedClientCerts,
                 [self.__m_ca_cert],
-                {"1":self.__m_utm_cert})
-            )
+                {"1": self.__m_utm_cert})
+        )
         return None
+
 
 # AV Policy
 class SAVEndpointManager(object):
@@ -371,12 +381,12 @@ class SAVEndpointManager(object):
 
     def policyPending(self):
         return self.__m_policyID is not None
-        
+
     def scanNowPending(self):
         return self.__m_scanNow is not None
 
     def clearActionPending(self):
-        ret =  self.__m_clearAction is not None
+        ret = self.__m_clearAction is not None
         if ret:
             self.__m_clearAction = None
         return ret
@@ -413,13 +423,14 @@ class SAVEndpointManager(object):
 
     def updatePolicy(self, policy):
         self.__m_policy = policy
-        self.__m_policyID = "SAV%f"%(time.time())
-        logger.info("Updating SAV policy: %s",self.__m_policyID)
+        self.__m_policyID = f"SAV{time.time()}"
+        logger.info(f"Updating SAV policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
-    
+
     def scanNow(self):
         logger.info("Triggering an on demand scan action")
         self.__m_scanNow = True
+
     def clearNonAsciiAction(self):
         logger.info("Triggering an on demand clear action")
         self.__m_clearAction = True
@@ -472,6 +483,7 @@ class LiveTerminalEndpointManager(object):
         self.__liveTerminalInit = ""
         self.__id = ""
 
+
 # MCS Policy
 class MCSEndpointManager(object):
     def __init__(self):
@@ -498,13 +510,14 @@ class MCSEndpointManager(object):
         self.__m_migration = True
 
     def updatePolicy(self, body):
-        self.__m_policyID = "MCS%f"%(time.time())
+        self.__m_policyID = f"MCS{time.time()}"
         self.__m_policy = body
-        logger.info("Updating MCS policy: %s",self.__m_policyID)
+        logger.info(f"Updating MCS policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
 
     def getPolicy(self):
         return self.__m_policy
+
 
 # ALC Policy
 class ALCEndpointManager(object):
@@ -527,16 +540,16 @@ class ALCEndpointManager(object):
 
     def updateNowPending(self):
         return self.__m_updateNow is not None
-    
+
     def updateNow(self):
         logger.info("Triggering an update now action")
         self.__m_updateNow = True
 
     def updatePolicy(self, body):
         self._counter += 1
-        newId = "ALC{}{}".format(time.time(),self._counter)
+        newId = f"ALC{time.time()}{self._counter}"
         self.__m_policyID.append(newId)
-        logger.info("Updating ALC policy: %s",newId)
+        logger.info(f"Updating ALC policy: {newId}")
         GL_POLICIES.addPolicy(newId, body)
 
 
@@ -557,13 +570,14 @@ class MDREndpointManager(object):
         self.__m_policyID = None
 
     def updatePolicy(self, body):
-        self.__m_policyID = "MCS%f"%(time.time())
+        self.__m_policyID = f"MCS{time.time()}"
         self.__m_policy = body
-        logger.info("Updating MCS policy: %s",self.__m_policyID)
+        logger.info(f"Updating MCS policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
 
     def getPolicy(self):
         return self.__m_policy
+
 
 # LiveQuery POLICY
 class LiveQueryEndpointManager(object):
@@ -582,13 +596,14 @@ class LiveQueryEndpointManager(object):
         self.__m_policyID = None
 
     def updatePolicy(self, body):
-        self.__m_policyID = "LiveQuery%f"%(time.time())
+        self.__m_policyID = f"LiveQuery{time.time()}"
         self.__m_policy = body
-        logger.info("Updating LiveQuery policy: %s",self.__m_policyID)
+        logger.info(f"Updating LiveQuery policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
 
     def getPolicy(self):
         return self.__m_policy
+
 
 # CORE POLICY
 class CoreEndpointManager(object):
@@ -618,9 +633,9 @@ class CoreEndpointManager(object):
         self.__m_resetHealth = None
 
     def updatePolicy(self, body):
-        self.__m_policyID = "Core%f"%(time.time())
+        self.__m_policyID = f"Core{time.time()}"
         self.__m_policy = body
-        logger.info("Updating Core policy: %s",self.__m_policyID)
+        logger.info(f"Updating Core policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
 
     def getPolicy(self):
@@ -641,6 +656,7 @@ class CoreEndpointManager(object):
         self.__command = ""
         self.__id = ""
 
+
 # CORC POLICY
 class CorcEndpointManager(object):
     def __init__(self):
@@ -658,13 +674,14 @@ class CorcEndpointManager(object):
         self.__m_policyID = None
 
     def updatePolicy(self, body):
-        self.__m_policyID = "Corc%f"%(time.time())
+        self.__m_policyID = f"Corc{time.time()}"
         self.__m_policy = body
-        logger.info("Updating Corc policy: %s",self.__m_policyID)
+        logger.info(f"Updating Corc policy: {self.__m_policyID}")
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
 
     def getPolicy(self):
         return self.__m_policy
+
 
 class FlagsEndpointManager(object):
     def __init__(self):
@@ -672,19 +689,20 @@ class FlagsEndpointManager(object):
 
     def updateFlags(self, body):
         self.__m_policy = body
-        logger.info("Updating flags: %s",self.__m_policy)
+        logger.info(f"Updating flags: {self.__m_policy}")
 
     def getFlags(self):
         return self.__m_policy
 
+
 class Endpoint(object):
     def __init__(self, status):
         global ID
-        self.__m_id = "ThisIsAnMCSID+%d"%ID
-        self.__m_tenant_id = "ThisIsATenantID+%d"%ID
-        self.__m_device_id = "ThisIsADeviceID+%d"%ID
+        self.__m_id = f"ThisIsAnMCSID+{ID}"
+        self.__m_tenant_id = f"ThisIsATenantID+{ID}"
+        self.__m_device_id = f"ThisIsADeviceID+{ID}"
         ID += 1
-        self.__m_password= "ThisIsAPassword"
+        self.__m_password = "ThisIsAPassword"
         self.__hb = HeartbeatEndpointManager()
         self.__sav = SAVEndpointManager()
         self.__edr = EDREndpointManager()
@@ -706,7 +724,7 @@ class Endpoint(object):
         self.queued_actions = []
 
     def updateStatus(self, app, status):
-        #~ logger.debug("%s status is %s", app, status)
+        # ~ logger.debug(f"{app} status is {status}")
         if app == "AGENT":
             if self.__m_doc is not None:
                 self.__m_doc.unlink()
@@ -718,17 +736,17 @@ class Endpoint(object):
                 return
             self.__m_name = getText(nameNodes[0])
         elif app == "HBT":
-            logger.info("Heartbeat status = %s", status)
+            logger.info(f"Heartbeat status = {status}")
             doc = xml.dom.minidom.parseString(status.strip())
             statusNode = doc.getElementsByTagName("status")[0]
             status = getText(statusNode).strip()
-            #~ status = xml.sax.saxutils.unescape(status)
+            # ~ status = xml.sax.saxutils.unescape(status)
             configurationNode = doc.getElementsByTagName("configuration")[0]
             configuration = getText(configurationNode).strip()
-            #~ configuration = xml.sax.saxutils.unescape(configuration)
+            # ~ configuration = xml.sax.saxutils.unescape(configuration)
             self.__hb.updateStatus(status, configuration)
         elif app == "SHS":
-            logger.info("Health status = %s", status)
+            logger.info(f"Health status = {status}")
             # Example XML:
             #   <?xml version="1.0" encoding="utf-8"?>
             #   <health activeHeartbeat="true" activeHeartbeatUtmId="000001" version="3.0.0">
@@ -752,16 +770,16 @@ class Endpoint(object):
             for item in items:
                 if item.attributes["name"].value == "health":
                     self.__m_health = item.attributes["value"].value
-                    logger.info("Endpoint health status set to %s", self.__m_health)
+                    logger.info(f"Endpoint health status set to {self.__m_health}")
         elif app in ["ALC", "SAV", "NTP", "APPSPROXY", "MCS", "MDR"]:
-            logger.info("{} status = {}".format(app, status))
+            logger.info(f"{app} status = {status}")
         else:
-            logger.error("Attempting to update status for unknown app: %s", app)
+            logger.error(f"Attempting to update status for unknown app: {app}")
 
     def handleEvent(self, app, event):
-        logger.info("{} event = {}".format(app, event))
+        logger.info(f"{app} event = {event}")
         if app == "ALC":
-            logger.info("ALC event = %s", event)
+            logger.info(f"ALC event = {event}")
 
             """
             <?xml version="1.0"?>
@@ -790,11 +808,11 @@ class Endpoint(object):
             updateSourceNode = updateSourceNodes[0]
             updateSource = getText(updateSourceNode).strip()
             self.__m_updatesource = updateSource
-            logger.info("Endpoint updateSource is reported as: %s", updateSource)
+            logger.info(f"Endpoint updateSource is reported as: {updateSource}")
 
             return
         else:
-            logger.error("Attempting to handle event for unknown app: %s", app)
+            logger.error(f"Attempting to handle event for unknown app: {app}")
 
     def handle_response(self, app_id, correlation_id, response_body):
         # TODO - LINUXDAR-922 revert this when central supports compression
@@ -805,9 +823,9 @@ class Endpoint(object):
         #     decompressed_body = decompressed_fake_file.read()
         #
         # except Exception as e:
-        #     logger.error("Failed to decompress response body content: {}".format(e))
+        #     logger.error(f"Failed to decompress response body content: {e}")
         #     return
-        logger.info("{} response ({}) = {}".format(app_id, correlation_id, decompressed_body.decode()))
+        logger.info(f"{app_id} response ({correlation_id}) = {decompressed_body.decode()}")
         with open(os.path.join(_get_log_dir(), "last_query_response.json"), 'w') as live_query_response_file:
             live_query_response_file.write(decompressed_body.decode())
 
@@ -816,14 +834,13 @@ class Endpoint(object):
             return 400
         return None
 
-
     def handle_datafeed_ep(self, datafeed_id, datafeed_body):
         try:
             decompressed_body = zlib.decompress(datafeed_body)
         except Exception as e:
-            logger.error("Failed to decompress datafeed body content: {}".format(e))
+            logger.error(f"Failed to decompress datafeed body content: {e}")
             return
-        logger.info("{} datafeed = {}".format(datafeed_id, decompressed_body.decode()))
+        logger.info(f"{datafeed_id} datafeed = {decompressed_body.decode()}")
         with open(os.path.join(_get_log_dir(), "last_datafeed_result.json"), 'w') as last_datafeed_file:
             last_datafeed_file.write(decompressed_body.decode())
 
@@ -860,39 +877,39 @@ class Endpoint(object):
 <ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
 </ns:commands>"""
 
-    def policyAssignment(self, app, policyID):
-        return r"""<?xml version="1.0"?>
+    def policyAssignment(self, app, policyID, policyType):
+        return fr"""<?xml version="1.0"?>
 <ns:policyAssignments xmlns:ns="http://www.sophos.com/xml/mcs/policyAssignments">
   <meta protocolVersion="1.0"/>
   <policyAssignment>
-    <appId>%s</appId>
-    <policyId>%s</policyId>
+    <appId policyType="{policyType}">{app}</appId>
+    <policyId>{policyID}</policyId>
   </policyAssignment>
 </ns:policyAssignments>
-"""%(app, policyID)
+"""
 
-    def policyCommand(self, app, policyID):
-        policyAssignment = self.policyAssignment(app, policyID)
-        return r"""<command>
-    <id>%s</id>
+    def policyCommand(self, app, policyID, policyType=0):
+        policyAssignment = self.policyAssignment(app, policyID, policyType)
+        return fr"""<command>
+    <id>{app}</id>
     <seq>1</seq>
     <appId>APPSPROXY</appId>
     <creationTime>2013-05-02T09:50:08Z</creationTime>
     <ttl>PT10000S</ttl>
-    <body>%s</body>
-  </command>"""%(app, xml.sax.saxutils.escape(policyAssignment))
-  
+    <body>{xml.sax.saxutils.escape(policyAssignment)}</body>
+  </command>"""
+
     def updateNowCommand(self, creation_time="FakeTime"):
         body = r"""<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>"""
-        
-        return r"""<command>
+
+        return fr"""<command>
         <id>ALC</id>
         <seq>1</seq>
         <appId>ALC</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{creation_time}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(creation_time, xml.sax.saxutils.escape(body))
+        <body>{xml.sax.saxutils.escape(body)}</body>
+      </command>"""
 
     def migrateCommand(self, creation_time="FakeTime"):
         body = r"""<?xml version="1.0" ?>
@@ -902,101 +919,100 @@ class Endpoint(object):
 </action>
 """
 
-        return r"""<command>
+        return fr"""<command>
         <id>APPSPROXY</id>
         <seq>1</seq>
         <appId>APPSPROXY</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{creation_time}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(creation_time, xml.sax.saxutils.escape(body))
+        <body>{xml.sax.saxutils.escape(body)}</body>
+      </command>"""
 
     def resetHealthCommand(self, creation_time="FakeTime"):
         body = r"""<action type="sophos.core.threat.reset"/>"""
 
-        return r"""<command>
+        return fr"""<command>
         <id>CORE</id>
         <seq>1</seq>
         <appId>CORE</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{creation_time}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(creation_time, xml.sax.saxutils.escape(body))
+        <body>{xml.sax.saxutils.escape(body)}</body>
+      </command>"""
 
     def scanNowCommand(self):
         body = r"""<?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>"""
-        
-        return r"""<command>
+
+        return fr"""<command>
         <id>SAV</id>
         <seq>1</seq>
         <appId>SAV</appId>
         <creationTime>FakeTime</creationTime>
         <ttl>PT10000S</ttl>
-        <body>%s</body>
-      </command>"""%(xml.sax.saxutils.escape(body))
+        <body>{xml.sax.saxutils.escape(body)}</body>
+      </command>"""
 
     def clearNonAsciiCommand(self):
         try:
             nonascii = chr(169) + chr(40960) + chr(1972) + chr(20013) + chr(70000)
-            templatebody = """&lt;?xml version=&quot;1.0&quot;?&gt;&lt;a:action xmlns:a=&quot;com.sophos/msys/action&quot; type=&quot;sophos.mgt.action.SAVClearFromList&quot;&gt;&lt;threat-set&gt;&lt;threat id=&quot;T2398541734956424221&quot; idSource=&quot;Tmd5(dis,vName,path)&quot; item=&quot;/tmp/%s&quot; name=&quot;VirusFile&quot; type=&quot;virus&quot; typeId=&quot;1&quot;/&gt;&lt;/threat-set&gt;&lt;/a:action&gt;"""
-            body = templatebody%(nonascii)
-            body = body.encode('utf-8', 'replace')
-            content = """<command>
+            body = f"""&lt;?xml version=&quot;1.0&quot;?&gt;&lt;a:action xmlns:a=&quot;com.sophos/msys/action&quot; type=&quot;sophos.mgt.action.SAVClearFromList&quot;&gt;&lt;threat-set&gt;&lt;threat id=&quot;T2398541734956424221&quot; idSource=&quot;Tmd5(dis,vName,path)&quot; item=&quot;/tmp/{nonascii}&quot; name=&quot;VirusFile&quot; type=&quot;virus&quot; typeId=&quot;1&quot;/&gt;&lt;/threat-set&gt;&lt;/a:action&gt;""".encode(
+                'utf-8', 'replace')
+            content = f"""<command>
             <id>56</id>
             <seq>1</seq>
             <appId>SAV</appId>
             <creationTime>FakeTime</creationTime>
             <ttl>PT10000S</ttl>
-            <body>%s</body>
-          </command>"""%(body.decode('utf-8'))
+            <body>{body.decode('utf-8')}</body>
+          </command>"""
             return content
         except:
             import traceback
-            logger.error( traceback.format_exc())
+            logger.error(traceback.format_exc())
 
     def liveQueryCommand(self):
         body, id = self.__edr.liveQuery()
         self.__edr.clearLiveQuery()
         now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        return r"""<command>
-        <id>{}</id>
+        return fr"""<command>
+        <id>{id}</id>
         <appId>LiveQuery</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{now}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(id, now, xml.sax.saxutils.escape(body.decode("utf-8")))
+        <body>{xml.sax.saxutils.escape(body.decode('utf-8'))}</body>
+      </command>"""
 
     def coreCommand(self):
         body, id = self.__core.command()
         self.__core.clearCommand()
         now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        return r"""<command>
-        <id>{}</id>
+        return fr"""<command>
+        <id>{id}</id>
         <appId>CORE</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{now}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(id, now, xml.sax.saxutils.escape(body.decode("utf-8")))
+        <body>{xml.sax.saxutils.escape(body.decode('utf-8'))}</body>
+      </command>"""
 
     def liveTerminalCommand(self):
         body, id = self.__liveTerminal.liveTerminal()
         self.__liveTerminal.clearLiveTerminal()
         now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        return r"""<command>
-        <id>{}</id>
+        return fr"""<command>
+        <id>{id}</id>
         <appId>LiveTerminal</appId>
-        <creationTime>{}</creationTime>
+        <creationTime>{now}</creationTime>
         <ttl>PT10000S</ttl>
-        <body>{}</body>
-      </command>""".format(id, now, xml.sax.saxutils.escape(body))
+        <body>{xml.sax.saxutils.escape(body)}</body>
+      </command>"""
 
     def commandXml(self, apps):
-        logger.debug("commandXML - %s", apps)
+        logger.debug(f"commandXML - {apps}")
         commands = []
         if "HBT" in apps and self.__hb.policyPending():
-            commands.append(self.policyCommand("HBT", self.__hb.policyID()))
+            commands.append(self.policyCommand(app="HBT", policyID=self.__hb.policyID()))
         if "SAV" in apps and self.__sav.policyPending():
-            commands.append(self.policyCommand("SAV", self.__sav.policyID()))
+            commands.append(self.policyCommand(app="SAV", policyID=self.__sav.policyID()))
         if "SAV" in apps and self.__sav.scanNowPending():
             commands.append(self.scanNowCommand())
         if "SAV" in apps and self.__sav.clearActionPending():
@@ -1004,7 +1020,7 @@ class Endpoint(object):
         if 'LiveQuery' in apps and self.__edr.liveQueryPending():
             commands.append(self.liveQueryCommand())
         if "MCS" in apps and self.__mcs.policyPending():
-            commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
+            commands.append(self.policyCommand(app="MCS", policyID=self.__mcs.policyID(), policyType=25))
         if "APPSPROXY" in apps and self.__mcs.migrationPending():
             commands.append(self.migrateCommand())
         if "CORE" in apps and self.__core.resetHealthPending():
@@ -1013,17 +1029,17 @@ class Endpoint(object):
             commands.append(self.coreCommand())
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
-                commands.append(self.policyCommand("ALC", policy_id))
+                commands.append(self.policyCommand(app="ALC", policyID=policy_id, policyType=1))
         if "ALC" in apps and self.__alc.updateNowPending():
             commands.append(self.updateNowCommand())
         if "MDR" in apps and self.__mdr.policyPending():
-            commands.append(self.policyCommand("MDR", self.__mdr.policyID()))
+            commands.append(self.policyCommand(app="MDR", policyID=self.__mdr.policyID(), policyType=54))
         if "LiveQuery" in apps and self.__livequery.policyPending():
-            commands.append(self.policyCommand("LiveQuery", self.__livequery.policyID()))
+            commands.append(self.policyCommand(app="LiveQuery", policyID=self.__livequery.policyID(), policyType=56))
         if "CORE" in apps and self.__core.policyPending():
-            commands.append(self.policyCommand("CORE", self.__core.policyID()))
+            commands.append(self.policyCommand(app="CORE", policyID=self.__core.policyID(), policyType=36))
         if "CORC" in apps and self.__corc.policyPending():
-            commands.append(self.policyCommand("CORC", self.__corc.policyID()))
+            commands.append(self.policyCommand(app="CORC", policyID=self.__corc.policyID(), policyType=37))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
@@ -1059,7 +1075,7 @@ class Endpoint(object):
             elif c == "CORC":
                 self.__corc.commandDeleted()
             else:
-                logger.error("Attempting to delete unknown command: %s", c)
+                logger.error(f"Attempting to delete unknown command: {c}")
 
     def updateHbPolicy(self):
         self.__hb.updatePolicy()
@@ -1115,7 +1131,7 @@ class Endpoint(object):
         if response_code == "400":
             self.__m_return_400_next_action_response = True
 
-    def setFlags(self,flags):
+    def setFlags(self, flags):
         self.__flags.updateFlags(flags)
 
     def getFlags(self):
@@ -1146,18 +1162,18 @@ class Endpoint(object):
 
     def report(self):
         return {
-                'name':self.name(),
-                'id':self.id(),
-                'on_access':False,
-                'status':{},
-                }
+            'name': self.name(),
+            'id': self.id(),
+            'on_access': False,
+            'status': {},
+        }
 
     def server(self):
         return {
-                'name':self.name(),
-                'id':self.id(),
-                'status':{},
-                }
+            'name': self.name(),
+            'id': self.id(),
+            'status': {},
+        }
 
     def extract_device_id_from_mcs_policy(self, mcs_policy_xml: str):
         try:
@@ -1173,14 +1189,14 @@ class Endpoints(object):
         self.__m_endpoints = {}
 
     def register(self, status):
-        logger.debug("REGISTER BODY:%s", status)
+        logger.debug(f"REGISTER BODY:{status}")
         action_log.debug("REGISTER")
         e = Endpoint(status)
         self.__m_endpoints[e.name()] = e
         return e.id()
 
     def migration_register(self, status):
-        logger.debug("MIGRATION BODY:%s", status)
+        logger.debug(f"MIGRATION BODY:{status}")
         action_log.debug("MIGRATE")
         e = Endpoint(status)
         self.__m_endpoints[e.name()] = e
@@ -1203,7 +1219,6 @@ class Endpoints(object):
         for e in self.__m_endpoints.values():
             results.append(e.report())
         return results
-
 
     def getDevicebyDeviceID(self, deviceId) -> Endpoint:
         for e in self.__m_endpoints.values():
@@ -1241,7 +1256,7 @@ class Endpoints(object):
         action_log.debug("DELETE COMMANDS")
         endpoint = self.getEndpointByID(eid)
         if endpoint is None:
-            logger.error("Get deleteCommands for unknown endpoint: %s", eid)
+            logger.error(f"Get deleteCommands for unknown endpoint: {eid}")
             return None
         return endpoint.deleteCommands(commandIDs)
 
@@ -1257,7 +1272,7 @@ class Endpoints(object):
             e.updateHbPolicy()
 
     def updateMcsPolicy(self, policy):
-        return self.updatePolicy("MCS",policy)
+        return self.updatePolicy("MCS", policy)
 
     def migrate(self):
         for e in self.__m_endpoints.values():
@@ -1274,19 +1289,19 @@ class Endpoints(object):
             e.updatePolicy(adapter, policy)
 
     def setQuery(self, adapter, query, command_id):
-        logger.info("LiveQuery command {}".format(query))
+        logger.info(f"LiveQuery command {query}")
         assert query != ""
         assert adapter == "LiveQuery"
         for e in self.__m_endpoints.values():
             e.setQuery(query, command_id)
 
     def setCoreAction(self, query, command_id, response_code):
-        logger.info("core command {}".format(query))
+        logger.info(f"core command {query}")
         assert query != ""
         for e in self.__m_endpoints.values():
             e.setCommand(query, command_id, response_code)
 
-    def setFlags(self,flags):
+    def setFlags(self, flags):
         for e in self.__m_endpoints.values():
             e.setFlags(flags)
 
@@ -1305,7 +1320,7 @@ class Endpoints(object):
     def updateNow(self):
         for e in self.__m_endpoints.values():
             e.updateNow()
-    
+
     def scanNow(self):
         for e in self.__m_endpoints.values():
             e.scanNow()
@@ -1319,7 +1334,7 @@ class Endpoints(object):
             e.clearNonAsciiAction()
 
     def initiateLiveTerminal(self, adapter="LiveTerminal", body=None, command_id="LiveTerminal"):
-        logger.info("LiveTerminal command {}".format(body))
+        logger.info(f"LiveTerminal command {body}")
         assert body != ""
         assert adapter == "LiveTerminal"
         for e in self.__m_endpoints.values():
@@ -1328,22 +1343,26 @@ class Endpoints(object):
 
 GL_ENDPOINTS = Endpoints()
 
+
 class MCSHandler(object):
     pass
+
 
 COOKIE = None
 AWSCOOKIE = None
 
+
 def reset_cookies():
     global COOKIE
     global AWSCOOKIE
-    ran = random.randrange(2**128)
-    ran1 = random.randrange(2**512)
+    ran = random.randrange(2 ** 128)
+    ran1 = random.randrange(2 ** 512)
 
-    COOKIE = "SID=%032x"%ran
-    logger.debug("NEW Cookie: %s", COOKIE)
-    AWSCOOKIE = "AWSALB=%124x"%ran1
-    logger.debug("NEW Cookie: %s", AWSCOOKIE)
+    COOKIE = "SID=%032x" % ran
+    logger.debug(f"NEW Cookie: {COOKIE}")
+    AWSCOOKIE = "AWSALB=%124x" % ran1
+    logger.debug(f"NEW Cookie: {AWSCOOKIE}")
+
 
 REREGISTER_NEXT = False
 REGISTER_401 = False
@@ -1374,14 +1393,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def send_cookie(self):
         ## only send cookie to the MCS client
         if self.path.startswith("/mcs") and COOKIE is not None:
-            logger.debug("SEND Cookie: %s", COOKIE + "; Path=/; Secure; HttpOnly")
-            self.send_header("Set-Cookie", COOKIE + "; Path=/; Secure; HttpOnly")
+            logger.debug(f"SEND Cookie: {COOKIE}; Path=/; Secure; HttpOnly")
+            self.send_header("Set-Cookie", f"{COOKIE}; Path=/; Secure; HttpOnly")
 
     def sendAWSCookie(self):
         ## only send cookie to the MCS client
         if self.path.startswith("/mcs") and AWSCOOKIE is not None:
-            logger.debug("SEND Cookie: %s", AWSCOOKIE + "; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
-            self.send_header("Set-Cookie", AWSCOOKIE + "; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
+            logger.debug(f"SEND Cookie: {AWSCOOKIE}; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
+            self.send_header("Set-Cookie", f"{AWSCOOKIE}; Expires=Fri, 18 May 2020 10:25:17 GMT; Path=/")
 
     def ret(self, message=None, code=200, extra_header={}):
         if message is None:
@@ -1407,18 +1426,17 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         self.wfile.write(message)
 
-
     def retJson(self, struct, code=200):
-        return self.ret(json.dumps(struct),code=code)
+        return self.ret(json.dumps(struct), code=code)
 
     def deploymentLocations(self):
         message = [
             {
-                'platform':"Linux",
-                'command':"/opt/sophos-av/engine/register_central.py ThisIsARegToken https://localhost:4443/mcs",
-                'url':'http://localhost:4443/thinInstaller',
+                'platform': "Linux",
+                'command': "/opt/sophos-av/engine/register_central.py ThisIsARegToken https://localhost:4443/mcs",
+                'url': 'http://localhost:4443/thinInstaller',
             },
-            ]
+        ]
         return self.retJson(message)
 
     def do_GET_frontend(self):
@@ -1428,11 +1446,11 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/frontend/api/servers?"):
             return self.retJson(
                 {
-                    "items":GL_ENDPOINTS.computers()
+                    "items": GL_ENDPOINTS.computers()
                 })
         elif self.path.startswith("/frontend/api/servers/"):
             eid = self.path[len("/frontend/api/servers/"):]
-            logger.info("Info for %s",eid)
+            logger.info(f"Info for {eid}")
             return self.retJson(GL_ENDPOINTS.computer(eid))
         # Handle any fake/custom queries that are not actually available on the real cloud api
         elif self.path.startswith("/frontend/api/fake/health"):
@@ -1443,7 +1461,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 health = GL_ENDPOINTS.getEndpointByHostname(hostname).getHealth()
                 return self.retJson(
                     {
-                        "health":health,
+                        "health": health,
                     })
         elif self.path.startswith("/frontend/api/fake/updatesource"):
             parsed = urllib.parse.urlparse(self.path)
@@ -1453,7 +1471,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 updatesource = GL_ENDPOINTS.getEndpointByHostname(hostname).getUpdateSource()
                 return self.retJson(
                     {
-                        "updatesource":updatesource,
+                        "updatesource": updatesource,
                     })
 
         elif self.path.startswith("/frontend/api/policies/servers"):
@@ -1462,24 +1480,24 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/frontend/api/reports/servers"):
             return self.retJson(
                 {
-                    "items":GL_ENDPOINTS.reports()
+                    "items": GL_ENDPOINTS.reports()
                 })
 
-        logger.warn("unknown do_GET_frontend %s", self.path)
-        return self.retJson("frontend-api-not-understood %s"%self.path)
+        logger.warn(f"unknown do_GET_frontend {self.path}")
+        return self.retJson(f"frontend-api-not-understood {self.path}")
 
     def mcs_commands(self):
-        #~ logger.info("mcs_commands: %s", self.path)
+        # ~ logger.info(f"mcs_commands: {self.path}")
         mo = re.match(r"/mcs/commands/applications/([^/]+)/endpoint/(.*)$", self.path)
         if not mo:
-            logger.error("Failed to parse: %s", self.path)
+            logger.error(f"Failed to parse: {self.path}")
             return self.ret("Unknown mcs_commands", code=500)
         apps = mo.group(1).split(";")
         eid = mo.group(2)
-        logger.info("mcs_commands: eid=%s apps=%s", eid, str(apps))
+        logger.info(f"mcs_commands: eid={eid} apps={str(apps)}")
         commands = GL_ENDPOINTS.commandXml(eid, apps)
         if commands is None:
-            logger.error("Unknown eid %s", eid)
+            logger.error(f"Unknown eid {eid}")
             return self.ret("Unknown mcs_commands", code=500)
 
         return self.ret(commands)
@@ -1502,26 +1520,26 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         token = f"JWT_TOKEN-{endpoint.device_id()}"
         if JWT_BROKEN:
             JWT = {
-                "access_token":token,
-                "token_type":"Bearer",
-                "expires_in":630,
-                "role":"endpoint"
+                "access_token": token,
+                "token_type": "Bearer",
+                "expires_in": 630,
+                "role": "endpoint"
             }
         else:
             JWT = {
-                "access_token":token,
-                "token_type":"Bearer",
-                "expires_in":630,
-                "role":"endpoint",
-                "device_id":endpoint.device_id(),
-                "tenant_id":"example-tenant-id"
+                "access_token": token,
+                "token_type": "Bearer",
+                "expires_in": 630,
+                "role": "endpoint",
+                "device_id": endpoint.device_id(),
+                "tenant_id": "example-tenant-id"
             }
 
         return self.ret(json.dumps(JWT, sort_keys=True))
 
     def mcs_policy(self):
         mo = re.match(r"/mcs/policy/application/([^/]+)/([^/]+)", self.path)
-        logger.info("Requesting policy - %s   %s", mo.group(1), mo.group(2))
+        logger.info(f"Requesting policy - {mo.group(1)}   {mo.group(2)}")
         policy = GL_POLICIES.getPolicy(mo.group(1), mo.group(2))
         if policy is not None:
             return self.ret(policy)
@@ -1530,17 +1548,17 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Unknown policy", code=500)
 
     def push_redirect(self):
-        logger.info("Push redirect requested. headers received: {}".format(dict(self.headers)))
+        logger.info(f"Push redirect requested. headers received: {dict(self.headers)}")
         auth = self.headers['Authorization']
-        logger.info("Value for auth: {}".format(auth))
+        logger.info(f"Value for auth: {auth}")
         if 'Basic' not in auth:
             logger.info("Refusing to redirect as unauthorized")
             return self.ret("Unauthorized access to push server", code=401)
-        return self.ret(code=307, extra_header={'Location': 'https://localhost:8459{}'.format(self.path)})
+        return self.ret(code=307, extra_header={'Location': f'https://localhost:8459{self.path}'})
 
     def send_401(self):
         action_log.debug("401")
-        logger.debug("Sending 401 for %s", self.path)
+        logger.debug(f"Sending 401 for {self.path}")
         self.send_response(401, "UNAUTHORIZED")
         self.send_header("www-authenticate", 'Basic realm="register"')
         self.send_header("Content-Length", "0")
@@ -1623,7 +1641,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         else:
             return self.ret("Unknown Error command path, should be /error", code=500)
-            
+
     def do_GET_action(self):
         if self.path == "/action/migrate":
             logger.info("Received migrate trigger")
@@ -1635,14 +1653,15 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         if self.path.startswith("/action/queueupdatenow"):
             logger.info("Received queue update now trigger")
-            creation_time = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('creationtime', ["FakeTime"])[0]
+            creation_time = \
+            urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('creationtime', ["FakeTime"])[0]
             GL_ENDPOINTS.queueUpdateNow(creation_time)
             return self.ret("")
-        elif self.path == "/action/scannow" :
+        elif self.path == "/action/scannow":
             logger.info("Received on demand scan trigger")
             GL_ENDPOINTS.scanNow()
             return self.ret("")
-        elif self.path == "/action/resetHealth" :
+        elif self.path == "/action/resetHealth":
             logger.info("Received on threat health reset")
             GL_ENDPOINTS.resetHealth()
             return self.ret("")
@@ -1659,7 +1678,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
     def send_error_code(self, code, message):
         action_log.debug(code)
-        logger.debug("Sending %s for %s", code, self.path)
+        logger.debug(f"Sending {code} for {self.path}")
         self.send_response(code, message)
         self.send_header("Content-Length", "0")
         ## reset the cookie (this will be ignored by the client in this response)
@@ -1677,8 +1696,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global NULL_NEXT
 
         ua = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
-        logger.debug("GET - %s (%s); Cookie=", self.path, ua)
-        logger.debug("RECV Cookie: %s", self.headers.get("Cookie", "<none>"))
+        logger.debug(f"GET - {self.path} ({ua}); Cookie=")
+        logger.debug(f"RECV Cookie: {self.headers.get('Cookie', '<none>')}")
         self.verify_cookies()
 
         MCSRequestHandler.m_userAgent = self.headers.get("User-Agent", "<unknown>")
@@ -1732,8 +1751,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 logger.debug("Cookies are good!")
                 return
 
-        logger.error("Received mismatched cookie from MCS: %s, expected: %s",
-                     cookie, COOKIE, AWSCOOKIE)
+        logger.error(f"Received mismatched cookie from MCS: {cookie}, expected: {COOKIE} {AWSCOOKIE}")
 
     def do_GET_controller(self):
         global MIGRATE_401
@@ -1760,7 +1778,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             # global MIGRATE_401
             MIGRATE_401 = False
             return self.ret("")
-
 
     def do_GET_dispatcher(self):
         if self.path.startswith("/controller/"):
@@ -1789,8 +1806,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/action/"):
             return self.do_GET_action()
 
-        logger.warn("unknown do_GET: %s", self.path)
-        message = "<html><body>GET REQUEST %s</body></html>"%self.path
+        logger.warn(f"unknown do_GET: {self.path}")
+        message = f"<html><body>GET REQUEST {self.path}</body></html>"
         return self.ret(message, code=404)
 
     def do_GET(self):
@@ -1798,7 +1815,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         try:
             return self.do_GET_dispatcher()
         except Exception as e:
-            logger.warning("Failed to do do_GET with error: {}".format(e))
+            logger.warning(f"Failed to do do_GET with error: {e}")
             raise
 
     def zero(self):
@@ -1808,13 +1825,13 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         """
         return self.ret(json.dumps(
             {
-                "apis":{
-                    "upe":{
-                        "ng_url":"https://localhost:4443/frontend/api",
+                "apis": {
+                    "upe": {
+                        "ng_url": "https://localhost:4443/frontend/api",
                     },
                 },
-                "token":"FOOBAR",
-                "csrf":"01234567901234567890123456789012",
+                "token": "FOOBAR",
+                "csrf": "01234567901234567890123456789012",
             }))
 
     def getBody(self):
@@ -1827,7 +1844,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         if auth.startswith("Basic "):
             auth = auth[len("Basic "):]
             auth = base64.b64decode(auth)
-            logger.info("Register with %s",auth.decode("latin1"))
+            logger.info(f"Register with {auth.decode('latin1')}")
         global REGISTER_401
         if REGISTER_401:
             return self.send_401()
@@ -1835,7 +1852,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         body = self.getBody()
         eid = GL_ENDPOINTS.register(body)
 
-        hash = base64.b64encode("{}:ThisIsThePassword".format(eid).encode('utf-8'))
+        hash = base64.b64encode(f"{eid}:ThisIsThePassword".encode('utf-8'))
         return self.ret(hash)
 
     def mcs_deployment(self):
@@ -1885,7 +1902,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 json_dict["products"].append({"product": product.upper(), "supported": True, "reasons": []})
             else:
                 if product in unsupported_products:
-                    json_dict["products"].append({"product": product.upper(), "supported": False, "reasons": ["UNSUPPORTED_PLATFORM"]})
+                    json_dict["products"].append(
+                        {"product": product.upper(), "supported": False, "reasons": ["UNSUPPORTED_PLATFORM"]})
                 else:
                     return self.send_error_code(400, "product doesn't exist")
         logger.info(json_dict)
@@ -1901,7 +1919,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         auth = self.headers['Authorization']
         if auth.startswith("Bearer "):
             auth = auth[len("Bearer "):]
-            logger.info("Migrating with JWT token: %s", auth)
+            logger.info(f"Migrating with JWT token: {auth}")
         if MIGRATE_401:
             return self.send_401()
 
@@ -1927,7 +1945,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Event for unknown endpoint", 400)
 
         body = self.getBody()
-        #~ logger.debug("BODY1 %s", body)
+        # ~ logger.debug(f"BODY1 {body}")
         doc = xml.dom.minidom.parseString(body)
 
         eventsNode = doc.getElementsByTagName("ns:events")[0]
@@ -1938,8 +1956,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             app = getText(appNode)
             bodyNode = eventNode.getElementsByTagName("body")[0]
             body = getText(bodyNode)
-            #~ body = xml.sax.saxutils.unescape(body)
-            #~ logger.debug("BODY2 %s %s", app, body)
+            # ~ body = xml.sax.saxutils.unescape(body)
+            # ~ logger.debug(f"BODY2 {app} {body}")
             endpoint.handleEvent(app, body)
 
         return self.ret("")
@@ -1989,9 +2007,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         try:
             decompressed_body = zlib.decompress(datafeed_body)
         except Exception as e:
-            logger.error("Failed to decompress datafeed body content: {}".format(e))
+            logger.error(f"Failed to decompress datafeed body content: {e}")
             return
-        logger.info("{} datafeed = {}".format(feed_id, decompressed_body.decode()))
+        logger.info(f"{feed_id} datafeed = {decompressed_body.decode()}")
         with open(os.path.join(_get_log_dir(), "last_datafeed_result.json"), 'w') as last_datafeed_file:
             last_datafeed_file.write(decompressed_body.decode())
         logger.debug("Received and processed data via the v2 method")
@@ -2008,8 +2026,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_migrate()
 
         user_agent = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
-        logger.debug("PUT - %s (%s); Cookie=%s", self.path, user_agent,
-            self.headers.get("Cookie", "<none>"))
+        logger.debug(f"PUT - {self.path} ({user_agent}); Cookie={self.headers.get('Cookie', '<none>')}")
         self.verify_cookies()
 
         MCSRequestHandler.m_userAgent = self.headers.get("User-Agent", "<unknown>")
@@ -2022,14 +2039,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/mcs/authenticate/endpoint/"):
             return self.mcs_jwt_token()
 
-        logger.warning("unknown do_POST_mcs: %s", self.path)
+        logger.warning(f"unknown do_POST_mcs: {self.path}")
         return self.ret("Unknown MCS command", code=500)
 
     def do_POST(self):
         assert os.getppid() == ORIGINAL_PPID
         ua = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
-        logger.debug("POST - %s (%s)", self.path, ua)
-        logger.debug("RECV Cookie: %s", self.headers.get("Cookie", "<none>"))
+        logger.debug(f"POST - {self.path} ({ua})")
+        logger.debug(f"RECV Cookie: {self.headers.get('Cookie', '<none>')}")
         self.verify_cookies()
 
         if self.path == "/api/sessions":
@@ -2039,7 +2056,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/api/customer/flags":
             return self.retJson({})
 
-        logger.warn("unknown do_POST: %s", self.path)
+        logger.warn(f"unknown do_POST: {self.path}")
         message = "<html><body>POST REQUEST</body></html>"
         self.send_response(404, "POST Unknown")
         self.send_header("Content-Length", str(len(message)))
@@ -2061,7 +2078,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Status for unknown endpoint", 400)
 
         body = self.getBody()
-        #~ logger.debug("BODY1 %s", body)
+        # ~ logger.debug(f"BODY1 {body}")
         doc = xml.dom.minidom.parseString(body)
 
         statusesNode = doc.getElementsByTagName("ns:statuses")[0]
@@ -2070,11 +2087,11 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         for statusNode in statusNodes:
             appNode = statusNode.getElementsByTagName("appId")[0]
             app = getText(appNode)
-            logger.debug("Received status with appID: {}".format(app))
+            logger.debug(f"Received status with appID: {app}")
             bodyNode = statusNode.getElementsByTagName("body")[0]
             body = getText(bodyNode)
-            #~ body = xml.sax.saxutils.unescape(body)
-            #~ logger.debug("BODY2 %s %s", app, body)
+            # ~ body = xml.sax.saxutils.unescape(body)
+            # ~ logger.debug(f"BODY2 {app} {body}")
             endpoint.updateStatus(app, body)
 
         return self.ret("")
@@ -2082,17 +2099,17 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def do_PUT_controller(self):
         global GL_ENDPOINTS
         if self.path.lower() == "/controller/mcs/policy":
-            GL_ENDPOINTS.updatePolicy("MCS",self.getBody())
+            GL_ENDPOINTS.updatePolicy("MCS", self.getBody())
         elif self.path.lower() == "/controller/sav/policy":
-            GL_ENDPOINTS.updatePolicy("SAV",self.getBody())
+            GL_ENDPOINTS.updatePolicy("SAV", self.getBody())
         elif self.path.lower() == "/controller/alc/policy":
-            GL_ENDPOINTS.updatePolicy("ALC",self.getBody())
+            GL_ENDPOINTS.updatePolicy("ALC", self.getBody())
         elif self.path.lower() == "/controller/livequery/policy":
-            GL_ENDPOINTS.updatePolicy("LiveQuery",self.getBody())
+            GL_ENDPOINTS.updatePolicy("LiveQuery", self.getBody())
         elif self.path.lower() == "/controller/core/policy":
-            GL_ENDPOINTS.updatePolicy("CORE",self.getBody())
+            GL_ENDPOINTS.updatePolicy("CORE", self.getBody())
         elif self.path.lower() == "/controller/corc/policy":
-            GL_ENDPOINTS.updatePolicy("CORC",self.getBody())
+            GL_ENDPOINTS.updatePolicy("CORC", self.getBody())
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
@@ -2102,7 +2119,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.lower() == "/controller/flags":
             GL_ENDPOINTS.setFlags(self.getBody())
         else:
-            logger.warn("unknown do_PUT_controller: %s", self.path)
+            logger.warn(f"unknown do_PUT_controller: {self.path}")
             message = "<html><body>UNKNOWN PUT REQUEST</body></html>"
             return self.ret(message, code=404)
 
@@ -2111,8 +2128,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def do_PUT_mcs(self):
         global REREGISTER_NEXT
         ua = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
-        logger.debug("PUT - %s (%s); Cookie=%s", self.path, ua,
-            self.headers.get("Cookie", "<none>"))
+        logger.debug(f"PUT - {self.path} ({ua}); Cookie={self.headers.get('Cookie', '<none>')}")
         self.verify_cookies()
         if self.path.startswith("/mcs/statuses/endpoint/"):
             if MCSRequestHandler.options.reregister or REREGISTER_NEXT:
@@ -2124,8 +2140,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         if self.path.startswith("/mcs/events/migrate/"):
             return self.ret("OK", code=200)
 
-        logger.warn("unknown do_PUT_mcs: %s", self.path)
-        message = "<html><body>UNKNOWN PUT REQUEST %s</body></html>"%self.path
+        logger.warn(f"unknown do_PUT_mcs: {self.path}")
+        message = f"<html><body>UNKNOWN PUT REQUEST {self.path}</body></html>"
         return self.ret(message, code=404)
 
     def do_PUT(self):
@@ -2135,14 +2151,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/controller/"):
             return self.do_PUT_controller()
 
-        logger.warn("unknown do_PUT: %s", self.path)
+        logger.warn(f"unknown do_PUT: {self.path}")
         message = "<html><body>UNKNOWN PUT REQUEST</body></html>"
         return self.ret(message, code=404)
 
     def deleteCommands(self):
         mo = re.match(r"/mcs/commands/endpoint/([^/]+)/([^/]+)", self.path)
         if not mo:
-            logger.warn("Unknown MCS delete command: %s", self.path)
+            logger.warn(f"Unknown MCS delete command: {self.path}")
             return self.ret("Unknown MCS delete command", code=500)
         GL_ENDPOINTS.deleteCommands(mo.group(1), mo.group(2).split(";"))
         return self.ret("")
@@ -2151,8 +2167,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         assert os.getppid() == ORIGINAL_PPID
         if self.path.startswith("/mcs/"):
             ua = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
-            logger.debug("DELETE - %s (%s)", self.path, ua)
-            logger.debug("RECV Cookie: %s", self.headers.get("Cookie", "<none>"))
+            logger.debug(f"DELETE - {self.path} ({ua})")
+            logger.debug(f"RECV Cookie: {self.headers.get('Cookie', '<none>')}")
             self.verify_cookies()
 
             MCSRequestHandler.m_userAgent = self.headers.get("User-Agent", "<unknown>")
@@ -2160,8 +2176,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             if self.path.startswith("/mcs/commands/endpoint/"):
                 return self.deleteCommands()
 
-        logger.warn("unknown do_DELETE: %s", self.path)
-        message = "<html><body>UNKNOWN DELETE REQUEST %s</body></html>"%self.path
+        logger.warn(f"unknown do_DELETE: {self.path}")
+        message = f"<html><body>UNKNOWN DELETE REQUEST {self.path}</body></html>"
         return self.ret(message, code=404)
 
     def version_string(self):
@@ -2184,14 +2200,14 @@ def getServerCert():
 
 
 def daemonise():
-    logger.info("Daemonising cloudServer %d", os.getpid())
+    logger.info(f"Daemonising cloudServer {os.getpid()}")
     try:
         pid = os.fork()
         if pid > 0:
             # exit first parent
             sys.exit(0)
     except OSError as e:
-        logger.fatal("fork #1 failed: %d (%s)\n", e.errno, e.strerror)
+        logger.fatal(f"fork #1 failed: {e.errno} ({e.strerror})\n")
         sys.exit(1)
 
     os.setsid()
@@ -2203,26 +2219,26 @@ def daemonise():
             # exit from second parent
             sys.exit(0)
     except OSError as e:
-        logger.fatal("fork #2 failed: %d (%s)\n", e.errno, e.strerror)
+        logger.fatal(f"fork #2 failed: {e.errno} ({e.strerror})\n")
         sys.exit(1)
 
-    logger.info("Daemonised cloudServer %d", os.getpid())
+    logger.info(f"Daemonised cloudServer {os.getpid()}")
     return os.getppid()
 
 
 def runServer(options):
     port = int(options.port) if options.port else 4443
-    logger.info("localhost CloudServer pid={} on port {}".format(os.getpid(), port))
+    logger.info(f"localhost CloudServer pid={os.getpid()} on port {port}")
     MCSRequestHandler.options = options
     MCSRequestHandler.m_userAgent = "<unknown>"
 
     httpd = http.server.HTTPServer(('localhost', port), MCSRequestHandler)
     certfile = getServerCert()
-    logger.info("Cert path: %s", certfile)
+    logger.info(f"Cert path: {certfile}")
     protocol = ssl.PROTOCOL_TLS
     if options.tls:
         protocol = options.tls
-    logger.info("SSL version: %s", options.tls)
+    logger.info(f"SSL version: {options.tls}")
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile=certfile, server_side=True, ssl_version=protocol)
     if options.daemon:
         daemonise()
@@ -2264,6 +2280,7 @@ def deletePidFile(options):
     except EnvironmentError:
         pass
 
+
 def setDefaultPolicies(options):
     global INITIAL_ALC_POLICY
     global INITIAL_MCS_POLICY
@@ -2297,6 +2314,8 @@ def setDefaultPolicies(options):
 
     with open(options.INITIAL_FLAGS) as policy_file:
         INITIAL_FLAGS = policy_file.read()
+
+
 def main(argv):
     try:
         setupLogging()
@@ -2320,7 +2339,7 @@ def main(argv):
         reset_cookies()
         runServer(options)
     except Exception as e:
-        logger.exception("Exception from cloudServer.py: %s", e)
+        logger.exception(f"Exception from cloudServer.py: {e}")
         return 1
     logger.info("Server stopped")
     return 0
