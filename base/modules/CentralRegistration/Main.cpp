@@ -186,12 +186,11 @@ namespace CentralRegistration
     MCS::ConfigOptions registerAndObtainMcsOptions(MCS::ConfigOptions& configOptions)
     {
         CentralRegistration centralRegistration;
-        std::shared_ptr<MCS::IAdapter> agentAdapter = std::make_shared<MCS::AgentAdapter>();
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
-            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        std::shared_ptr<MCS::MCSHttpClient> mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], client);
+        auto agentAdapter = std::make_shared<MCS::AgentAdapter>();
+        auto curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        auto client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(
+            configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], client);
 
         centralRegistration.registerWithCentral(configOptions, mcsHttpClient, agentAdapter);
         // return updated configOptions
