@@ -27,6 +27,7 @@ import shutil
 import subprocess
 import sys
 import time
+import uuid
 import zipfile
 
 import requests
@@ -47,6 +48,7 @@ ROOT = os.path.dirname(BASE)
 ARTIFACT_CACHE = os.path.join(ROOT, 'inputs', 'artifact')
 
 VERSION = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['version']
+STATIC = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['static']
 
 # Map of fileset -> package target
 FILESET_TO_PKGTARGET = {}
@@ -521,7 +523,17 @@ def add_launchdarkly_flag(launchdarkly_flags, sus, tag, suitedef, suite_src):
         'version': suitedef['package_version'],
     }
 
-
+def add_static_flags(static_flags,product,suitedef,suite_src):
+    subscription = suitedef['line-id']
+    if product not in static_flags:
+        static_flags[product] = {}
+    flags = static_flags[product]
+    if subscription not in flags:
+        flags[subscription] = {}
+    flags[subscription] = {
+        'suite': suite_src,
+        'version': suitedef['package_version'],
+    }
 def write_launchdarkly_flags(launchdarkly_flags):
     flagsdir = os.path.join(ROOT, 'output', 'launchdarkly')
     if os.path.exists(flagsdir):
@@ -533,11 +545,35 @@ def write_launchdarkly_flags(launchdarkly_flags):
             with open(mock_flag_value, 'w') as f:
                 json.dump(launchdarkly_flags[entry][flag], f, indent=2, sort_keys=True)
 
+def write_static_flags(static_flags):
+
+    flagsdir = os.path.join(ROOT, 'output', 'prod-sdds3-static-suites')
+    if os.path.exists(flagsdir):
+        shutil.rmtree(flagsdir)
+    os.makedirs(flagsdir)
+
+    for entry in static_flags:
+        newflag = {}
+        newflag['device_class'] = entry
+        newflag['name'] = f'{STATIC} ' + static_flags[entry]['ServerProtectionLinux-Base']['version']
+        newflag['suite_info'] = {}
+
+        for suite in static_flags[entry]:
+            print(suite)
+            newflag['suite_info'][suite] ={}
+
+            newflag['suite_info'][suite]['suite'] = static_flags[entry][suite]['suite']
+            newflag['suite_info'][suite]['display_version'] = f'{STATIC} ' + static_flags[entry][suite]['version']
+        newflag['token'] = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(newflag)))
+        mock_flag_value = os.path.join(flagsdir, f'{entry}.json')
+        with open(mock_flag_value, 'w') as f:
+            json.dump(newflag, f, indent=2, sort_keys=True)
 
 # pylint: disable=R0914     # too many local variables. Honestly.
 def emit_suite_rules(rulefh, suites, common_component_data):
     # Generate LaunchDarkly flags content so we can configure the dev version of LD.
     launchdarkly_flags = {}
+    static_flags = {}
 
     for suite in suites:
         suitemeta = suites[suite]
@@ -588,7 +624,9 @@ build_sdds3_suite(
             for product in suitemeta['sus']:
                 for tag in instance['tags']:
                     add_launchdarkly_flag(launchdarkly_flags, product, tag, instance['def'], suite_src)
+                add_static_flags(static_flags, product, instance['def'],suite_src)
 
+    write_static_flags(static_flags)
     write_launchdarkly_flags(launchdarkly_flags)
     write_mock_sus_responses(launchdarkly_flags)
 
