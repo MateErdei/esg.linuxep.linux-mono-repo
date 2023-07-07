@@ -53,7 +53,7 @@ Setup base Install
     ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
 
 Setup Thininstaller Test
-    Start Local Cloud Server
+    Start Local Cloud Server    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_only_VUT.xml
     Setup Thininstaller Test Without Local Cloud Server
 
 Setup Thininstaller Test Without Local Cloud Server
