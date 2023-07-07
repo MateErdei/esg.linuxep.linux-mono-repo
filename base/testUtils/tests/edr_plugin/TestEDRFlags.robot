@@ -29,7 +29,7 @@ Flags Are Only Sent To EDR and Not MTR
     Wait Until Keyword Succeeds
     ...  10
     ...  1
-    ...  Check Managementagent Log Contains  flags.json applied to 2 plugins
+    ...  Check Managementagent Log Contains  flags.json applied to 1 plugins
 
     Wait Until Keyword Succeeds
     ...  10
