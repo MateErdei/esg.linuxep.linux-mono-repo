@@ -544,6 +544,8 @@ add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
+check_for_upgrade  "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
+
 # Var directories
 makedir 711 "${SOPHOS_INSTALL}/var"
 makedir 710 "${SOPHOS_INSTALL}/var/ipc"
@@ -842,11 +844,8 @@ CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
-check_for_upgrade  "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
-
-run_upgrade  ${PRODUCT_LINE_ID}
 
 #copy flags-warehouse file into place
 FLAGS_SRC="${DIST}/sspl_flags/files/base/etc/sophosspl/flags-warehouse.json"

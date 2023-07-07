@@ -57,18 +57,16 @@ then
     "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" --quiet &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
 fi
 
+check_for_upgrade  "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
+
 #Create plugin registration file
 TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
 sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
 "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
 rm -f ${TEMP_REG_FILE}
 
-check_for_upgrade  "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
-
 #Install files
 find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy"  || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
-
-run_upgrade  ${PRODUCT_LINE_ID}
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
