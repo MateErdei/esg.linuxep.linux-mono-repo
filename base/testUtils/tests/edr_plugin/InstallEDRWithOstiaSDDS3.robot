@@ -152,73 +152,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Install master of base and edr and mtr and upgrade to edr 999
-    [Timeout]  10 minutes
-    Setup SUS all develop
-    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-
-    Wait for first update
-
-    Mark Edr Log
-    Mark Sul Log
-    Setup SUS only edr 999
-    Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
-
-    Wait Until Keyword Succeeds
-    ...  150 secs
-    ...  5 secs
-    ...  Check Marked Sul Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Marked Sul Log Contains     Update success
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Is Running
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-    ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should not contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 9.99.9
-    # Ensure EDR was restarted during upgrade.
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
-
-    Wait For Suldownloader To Finish
-    Mark Known Upgrade Errors
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
+Upgrade VUT to 999
     [Timeout]  10 minutes
     Setup SUS all develop
     Install EDR SDDS3  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -227,68 +161,42 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Base-component version: 99.9.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
 
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
+    check_watchdog_log_does_not_contain    wdctl <> stop edr
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-    Wait for first update
-
-    Check SulDownloader Log Contains String N Times   Update success  2
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains   Update success
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
 
     Setup SUS all 999
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Mark Sul Log
 
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
-
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  5 secs
-    ...  Check Marked Sul Log Contains     Product installed: ServerProtectionLinux-Base-component
+    wait_for_log_contains_from_mark  ${sul_mark}  Installing product: ServerProtectionLinux-Base-component version: 99.9.9    120
+    wait_for_log_contains_from_mark  ${sul_mark}  Product installed: ServerProtectionLinux-Base-component    180
 
     # When waiting for install messages, the order here may not be the actual order, although we are waiting 120 seconds
     # each time, this should take a lot less time overall, max time should be around 120 seconds total for all installing send messages
     # to appear.
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9.999
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99             120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9                        120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9                        120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9                         120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9             120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999     120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9.999        120
+
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -318,10 +226,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check MDR Plugin Installed
 
     # wait for current update to complete.
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    wait_for_log_contains_from_mark  ${sul_mark}    Update success    200
 
     # Check for warning that there is a naming collision in the map of query tags
     Wait Until Keyword Succeeds
@@ -398,11 +303,11 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Install master of base and edr and mtr and upgrade to base 999
+Install develop of base and edr and mtr and upgrade to base 999
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    check_suldownloader_log_should_not_contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9
 
     Setup SUS only base 999
     Send ALC Policy And Prepare For Upgrade  ${Base999Policy}
@@ -424,7 +329,7 @@ Install master of base and edr and mtr and upgrade to base 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -474,6 +379,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
 
     # ensure MTR is not installed.
     Wait Until MDR Uninstalled
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
@@ -483,11 +389,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
-
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
     Wait Until MDR Installed
 
     # ensure Plugins are running after update
@@ -519,6 +421,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait For EDR to be Installed
 
     # Transition to EDR Only
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
 
     Wait Until Keyword Succeeds
@@ -527,11 +430,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
 
     Wait Until MDR Uninstalled
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
 
     # ensure EDR still running after update
     EDR Plugin Is Running
