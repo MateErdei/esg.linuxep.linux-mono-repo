@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
+static const std::string UPDATE_POLICY_WITH_CACHE{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <AUConfig platform="Linux">
@@ -228,7 +228,7 @@ static const std::string incorrectPolicyTypeXml{ R"sophos(<?xml version="1.0"?>
 )sophos" };
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-static const std::string cacheCertificates{ R"sophos(-----BEGIN CERTIFICATE-----
+static const std::string CACHE_CERTS{ R"sophos(-----BEGIN CERTIFICATE-----
 MIIDxDCCAqygAwIBAgIQEFgFEJ0SYXZx+dHI2UTIVzANBgkqhkiG9w0BAQsFADBh
 MQswCQYDVQQGEwJHQjEPMA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3Mx
 EjAQBgNVBAsMCUhlYXJ0YmVhdDEcMBoGA1UEAwwTSGVhcnRiZWF0LWV1LXdlc3Qt
@@ -1072,12 +1072,12 @@ TEST_F(TestALCPolicy, periodTooBig)
 
 TEST_F(TestALCPolicy, update_cache)
 {
-    ALCPolicy obj{ updatePolicyWithCache };
+    ALCPolicy obj{ UPDATE_POLICY_WITH_CACHE };
 
     auto cacheId = obj.cacheID("2k12-64-ld55-df.eng.sophos:8191");
     EXPECT_EQ(cacheId, "4092822d-0925-4deb-9146-fbc8532f8c55");
     auto certificates = obj.getUpdateCertificatesContent();
-    EXPECT_STREQ(certificates.c_str(), cacheCertificates.c_str());
+    EXPECT_STREQ(certificates.c_str(), CACHE_CERTS.c_str());
 
     auto hosts = obj.getUpdateSettings().getLocalUpdateCacheHosts();
     EXPECT_EQ(3, hosts.size());

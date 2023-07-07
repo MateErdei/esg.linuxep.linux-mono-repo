@@ -331,7 +331,15 @@ void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& a
         {
             certificateFileContent += "\n";
         }
-        certificateFileContent += Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
+        std::string certString = attributes.contents();
+        // The UC certs are generated on a Windows machine, so we have to fix them on the point before using them.
+        // Remove any xml escaped carriage returns
+        certString = UtilityImpl::StringUtils::replaceAll(certString, "&#13;", "");
+        // Replace any non-escaped carriage returns
+        certString = UtilityImpl::StringUtils::replaceAll(certString, "\r", "");
+        // Fix up double new line in certs. We don't want 2 lines between the cert data and "-----END CERTIFICATE-----"
+        certString = UtilityImpl::StringUtils::replaceAll(certString, "\n\n", "\n");
+        certificateFileContent += certString;
     }
     update_certificates_content_ = certificateFileContent;
 }

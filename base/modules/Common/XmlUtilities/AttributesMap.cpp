@@ -114,11 +114,10 @@ namespace
 
     void SimpleXmlParser::onTextHandler(const std::string& content)
     {
-        std::string strippedContent = Common::UtilityImpl::StringUtils::rTrim(content);
-        if (!strippedContent.empty() && !m_stack.empty())
+        if (!content.empty() && !m_stack.empty())
         {
             auto& topElement = m_stack.top();
-            topElement.appendText(strippedContent);
+            topElement.appendText(content);
         }
     }
 
