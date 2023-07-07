@@ -332,7 +332,7 @@ void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& a
             certificateFileContent += "\n";
         }
         std::string certString = attributes.contents();
-        // The UC certs are generated on a Windows machine, so we have to fix them on the point before using them.
+        // The UC certs are generated on a Windows machine, so we have to fix them up before using them.
         // Remove any xml escaped carriage returns
         certString = UtilityImpl::StringUtils::replaceAll(certString, "&#13;", "");
         // Replace any non-escaped carriage returns
