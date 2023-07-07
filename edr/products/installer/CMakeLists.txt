@@ -17,19 +17,15 @@ install(DIRECTORY ${OSQUERY_LENSES_DIR}
 
 install(FILES  ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json DESTINATION files/base/pluginRegistry)
 
-install(FILES ${PROJECT_BINARY_DIR}/install.sh
-        DESTINATION .
-        PERMISSIONS OWNER_READ OWNER_EXECUTE
-        )
-install(FILES ${DISTRIBUTION_TOOL_DIR}/cleanupinstall.sh
+install(FILES
+        ${PROJECT_BINARY_DIR}/install.sh
+        ${DISTRIBUTION_TOOL_DIR}/cleanupinstall.sh
+        ${DISTRIBUTION_TOOL_DIR}/checkAndRunExtraUpgrade.sh
+        ${PROJECT_BINARY_DIR}/cleanuprealm.dat
         DESTINATION .
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
-install(FILES ${PROJECT_BINARY_DIR}/cleanuprealm.dat
-        DESTINATION .
-        PERMISSIONS OWNER_READ OWNER_EXECUTE
-        )
 
 install(FILES ${PROJECT_BINARY_DIR}/uninstall.sh
         DESTINATION files/plugins/${PLUGIN_NAME}/bin/
