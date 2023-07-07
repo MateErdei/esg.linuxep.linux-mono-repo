@@ -23,7 +23,7 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.25" build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
             <development-version branch="develop"/>
-            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="input/monorepo-boost"/>
