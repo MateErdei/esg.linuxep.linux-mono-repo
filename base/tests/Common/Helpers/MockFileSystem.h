@@ -73,4 +73,5 @@ public:
     MOCK_METHOD(std::string, calculateDigest, (Common::SslImpl::Digest digestName, int fd), (const, override));
     MOCK_METHOD(std::filesystem::space_info, getDiskSpaceInfo, (const Path& path), (const, override));
     MOCK_METHOD(std::filesystem::space_info, getDiskSpaceInfo, (const Path& path, std::error_code& ec), (const, override));
+    MOCK_METHOD(std::string, getSystemCommandExecutablePath, (const std::string& path), (const, override));
 };

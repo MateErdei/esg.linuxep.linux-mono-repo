@@ -245,11 +245,9 @@ SDDS3 updates supplements
     File Should Not Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  "tests"
     Generate Warehouse From Local Base Input  "{\"tests\":\"false\"}"
     Setup Dev Certs for sdds3
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...    80s
-    ...    5s
-    ...    Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      80
     File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  tests
 
 

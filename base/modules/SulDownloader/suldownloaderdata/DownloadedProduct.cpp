@@ -66,7 +66,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
     {
         LOGINFO(
             "Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
-        LOGSUPPORT("Run installer: " << installShFile);
+        LOGDEBUG("Run installer: " << installShFile);
 
         fileSystem->makeExecutable(installShFile);
 
@@ -99,7 +99,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         {
             LOGERROR("Installation failed");
             // cppcheck-suppress shiftNegative
-            LOGSUPPORT("Installer exit code: " << exitCode);
+            LOGDEBUG("Installer exit code: " << exitCode);
             LOGDEBUG("Possible reason: " << Common::UtilityImpl::StrError(exitCode));
             if (exitCode == ENOEXEC)
             {

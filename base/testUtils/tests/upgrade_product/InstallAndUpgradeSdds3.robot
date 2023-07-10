@@ -108,9 +108,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
@@ -136,15 +138,18 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
     Check SulDownloader Log Contains   Running SDDS3 update
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
@@ -161,9 +166,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
 
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    # Not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    # TODO LINUXDAR-2972 - expected till task is in released version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
 
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
@@ -172,7 +181,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
     Run Keyword And Expect Error  *
-    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
+    ...     Check Log Contains String N times  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -225,13 +234,15 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check Current Release With AV Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -272,10 +283,12 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
     Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
 
-    # Wait for successful update (all up to date) after downgrading
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
+    # Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check SulDownloader Log Contains String N Times    Update success    1
     Check SulDownloader Log Contains   Running SDDS3 update
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
@@ -288,9 +301,13 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
 
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    # TODO LINUXDAR-2972 - expected till task is in released version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
 
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
@@ -315,7 +332,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
-    # Upgrade back to develop to check we can upgrade from a downgraded product
+    # Upgrade back to master to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -379,9 +396,11 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
@@ -389,6 +408,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -401,9 +421,12 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
     Check SulDownloader Log Contains    Running SDDS3 update
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
@@ -421,9 +444,14 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+
+    # TODO LINUXDAR-2972 - expected till task is in released version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
 
     #Required because release doesnt have libcrypto.so installed with the below plugins so they will encounter the error still
     #TODO LINUXDAR-7114 remove once SPL 2023.2 is released
@@ -491,13 +519,15 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check Current Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
@@ -536,11 +566,13 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
-    # Wait for successful update (all up to date) after downgrading
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
     wait_for_log_contains_from_mark  ${ma_mark}  Action ALC_action_FakeTime.xml sent to     15
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
+    # Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    SulDownloader Log    Update success    1
     Check SulDownloader Log Contains    Running SDDS3 update
 
     Wait Until Keyword Succeeds
@@ -557,9 +589,14 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    # Not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+
+    # TODO LINUXDAR-2972 - expected till bugfix is in released version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
 
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
@@ -570,7 +607,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
-    # Upgrade back to develop to check we can upgrade from a downgraded product
+    # Upgrade back to master to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -613,13 +650,12 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  1
     Override LogConf File as Global Level  DEBUG
     Create Dummy Local SDDS2 Cache Files
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -643,7 +679,10 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     ...   10 secs
     ...   Directory Should Exist   ${sdds3_primary}/ServerProtectionLinux-Base-component/
 
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    300
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check Suldownloader Log Contains In Order    Update success    Purging local SDDS2 cache    Update success
 
     Check Local SDDS2 Cache Is Empty
@@ -661,13 +700,12 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
 
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  3
+
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      80
     #core plugins should be installed
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
@@ -676,14 +714,15 @@ SDDS3 updating respects ALC feature codes
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
-    check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/    ${sul_mark}
+    Check Marked Sul Log Does Not Contain   Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
 
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  4
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr
@@ -699,7 +738,7 @@ SDDS3 updating with changed unused feature codes do not change version
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
 
     ${BaseVersionBeforeUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -710,13 +749,9 @@ SDDS3 updating with changed unused feature codes do not change version
     ${EJVersionBeforeUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
 
     Override LogConf File as Global Level  DEBUG
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
-
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  3
-
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
     #TODO once defect LINUXDAR-4592 is done check here that no plugins are reinstalled as well
     ${BaseVersionAfterUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -725,7 +760,6 @@ SDDS3 updating with changed unused feature codes do not change version
     ${AVVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     ${RuntimeDetectionsVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     ${EJVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-
     Should Be Equal As Strings  ${RuntimeDetectionsVersionBeforeUpdate}  ${RuntimeDetectionsVersionAfterUpdate}
     Should Be Equal As Strings  ${MtrVersionBeforeUpdate}  ${MtrVersionAfterUpdate}
     Should Be Equal As Strings  ${EdrVersionBeforeUpdate}  ${EdrVersionAfterUpdate}
@@ -745,12 +779,14 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
 
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  2
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    Check SulDownloader Log Contains String N Times   Generating the report file  3
 
     check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
@@ -765,21 +801,24 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains  Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Contains     Running SDDS3 update
 
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    Mark Sul Log
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
-    check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Installing product    ${sul_mark}
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Marked Sul Log Contains   Update success
+    Check Marked Sul Log Does Not Contain  Installing product
 
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
 
     All Products In Update Report Are Up To Date  ${latest_report_result.stdout.strip()}
@@ -794,7 +833,7 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds

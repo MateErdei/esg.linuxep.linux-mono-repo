@@ -1442,4 +1442,16 @@ namespace
         EXPECT_GE(diskSpaceInfo.free, diskSpaceInfo.available);
         EXPECT_GT(diskSpaceInfo.available, 0);
     }
+
+    TEST_F(FileSystemImplTest, getSystemCommandExecutablePathSucess)
+    {
+        auto filepath = m_fileSystem->getSystemCommandExecutablePath("touch");
+        EXPECT_GT(filepath.size(), 0);
+        EXPECT_TRUE(m_fileSystem->isExecutable(filepath));
+    }
+
+    TEST_F(FileSystemImplTest, getSystemCommandExecutablePathFailed)
+    {
+        EXPECT_THROW(m_fileSystem->getSystemCommandExecutablePath("notARealExe"),IFileSystemException);
+    }
 } // namespace

@@ -440,7 +440,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsSelinuxOk) // NOLINT
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(selinuxStatusTelemetryConfig, {});
 
-    EXPECT_CALL(*mockFileSystem, isExecutable(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, getSystemCommandExecutablePath(_)).WillOnce(Return("path"));
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
     EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));

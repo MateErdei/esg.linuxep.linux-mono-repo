@@ -260,7 +260,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesUsersAndGroupsNotInActu
     EXPECT_TRUE(appenderContains("Will not update the ID of user1 as it is not associated with SPL"));
 }
 
-// TODO LINUXDAR-2972 remove when this defect is closed
+// TODO LINUXDAR-7532 remove when this task is completed
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsDoesNotLogWarningWhenSPLUserIsNotInActualConfig)
 {
     UsingMemoryAppender memoryAppender(*this);

@@ -27,7 +27,6 @@ Force Tags  LOAD5
 *** Variables ***
 ${TELEMETRY_SUCCESS}    0
 ${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
-${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
 UpdateScheduler SulDownloader Report Sync With Warehouse Success

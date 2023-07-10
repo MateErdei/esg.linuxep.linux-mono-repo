@@ -1,8 +1,17 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "SulDownloaderUtils.h"
+#include "Logger.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+
+#include <map>
+
 
 using namespace Common::Policy;
 
@@ -64,4 +73,179 @@ namespace SulDownloader
         return false;
     }
 
+    bool SulDownloaderUtils::isProductRunning()
+    {
+        auto process = ::Common::Process::createProcess();
+        int exitCode = 0;
+        try
+        {
+            std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
+            std::vector<std::string> args = {"status","sophos-spl"};
+            process->exec(path, args);
+            auto status = process->wait(Common::Process::Milliseconds(100), 20);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGERROR("Timeout getting product status");
+                process->kill();
+            }
+            auto output = process->output();
+            LOGDEBUG("systemctl status sophos-spl output: " <<output);
+            exitCode = process->exitCode();
+        }
+        catch (Common::Process::IProcessException& ex)
+        {
+            LOGERROR(ex.what());
+            exitCode = -1;
+        }
+        if (exitCode == 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    void SulDownloaderUtils::stopProduct()
+    {
+        auto process = ::Common::Process::createProcess();
+        int exitCode = 0;
+        try
+        {
+            std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
+            std::vector<std::string> args = {"stop","sophos-spl"};
+            process->exec(path, args);
+            auto status = process->wait(Common::Process::Milliseconds(1000), 60);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGERROR("Timeout waiting for product to stop");
+                process->kill();
+            }
+            auto output = process->output();
+            LOGDEBUG("systemctl stop output: " << output);
+            exitCode = process->exitCode();
+        }
+        catch (Common::Process::IProcessException& ex)
+        {
+            LOGERROR(ex.what());
+            exitCode = -1;
+        }
+        if (exitCode != 0)
+        {
+            // cppcheck-suppress shiftNegative
+            LOGDEBUG("systemctl status sophos-spl exit code: " << exitCode);
+        }
+        else
+        {
+            LOGINFO("Successfully stopped product");
+        }
+    }
+
+    void SulDownloaderUtils::startProduct()
+    {
+        auto process = ::Common::Process::createProcess();
+        int exitCode = 0;
+        try
+        {
+            std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
+            std::vector<std::string> args = {"start","sophos-spl"};
+            process->exec(path, args);
+            auto status = process->wait(Common::Process::Milliseconds(1000), 60);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGERROR("Timeout waiting for product to start");
+                process->kill();
+            }
+            auto output = process->output();
+            LOGDEBUG("systemctl start output: " << output);
+            exitCode = process->exitCode();
+        }
+        catch (Common::Process::IProcessException& ex)
+        {
+            LOGERROR(ex.what());
+            exitCode = -1;
+        }
+        if (exitCode != 0)
+        {
+            LOGERROR("Failed to start product");
+            // cppcheck-suppress shiftNegative
+            LOGDEBUG("systemctl restart sophos-spl exit code: " << exitCode);
+        }
+        else
+        {
+            LOGINFO("Successfully started product");
+        }
+    }
+
+    std::vector<std::string> SulDownloaderUtils::checkUpdatedComponentsAreRunning()
+    {
+        std::vector<std::string> listOfFailedProducts;
+        std::map<std::string,std::string> products;
+        std::string trackerFile = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(trackerFile))
+        {
+            LOGINFO("Checking that updated components are running");
+            std::vector<std::string> lines = fs->readLines(trackerFile);
+            for (const auto& line: lines)
+            {
+                std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(line,",");
+                if (parts.size() != 2)
+                {
+                    LOGWARN("line " << line << " in tracker file " << trackerFile << " is malformed, discarding it");
+                    continue ;
+                }
+
+                if (!waitForComponentToRun(parts[0]))
+                {
+                    listOfFailedProducts.emplace_back(parts[1]);
+                }
+            }
+        }
+        return listOfFailedProducts;
+    }
+
+    bool SulDownloaderUtils::waitForComponentToRun(const std::string& component)
+    {
+        LOGINFO("Checking if component " << component << " is running");
+        int i = 0;
+        while (i < 30)
+        {
+            i++;
+            if (isComponentIsRunning(component))
+            {
+                LOGDEBUG("Component " << component << " is running");
+                return true;
+            }
+        }
+        LOGWARN("Component " << component << " is not running");
+        return false;
+    }
+
+    bool SulDownloaderUtils::isComponentIsRunning(const std::string& component)
+    {
+        auto process = ::Common::Process::createProcess();
+        int exitCode = 0;
+        try
+        {
+            std::string path = Common::ApplicationConfiguration::applicationPathManager().getWdctlPath();
+            std::vector<std::string> args = {"isrunning",component};
+            process->exec(path, args);
+            auto status = process->wait(Common::Process::Milliseconds(1000), 2);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGERROR("Timeout waiting for wdctl IsRunning to return");
+                process->kill();
+            }
+            exitCode = process->exitCode();
+        }
+        catch (Common::Process::IProcessException& ex)
+        {
+            LOGERROR(ex.what());
+            exitCode = -1;
+        }
+        if (exitCode == 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

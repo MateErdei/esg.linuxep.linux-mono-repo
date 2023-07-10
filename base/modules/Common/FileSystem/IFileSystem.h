@@ -440,6 +440,14 @@ namespace Common
              */
             [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path) const = 0;
             [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec) const = 0;
+
+            /**
+             * Gets full path of system executable
+             * @param name of executable
+             * @return absolute path of executable if it exists
+             * @throw IFileSystemException if we cannot find a path for the given executable
+             */
+            [[nodiscard]] virtual std::string getSystemCommandExecutablePath(const std::string& executableName) const = 0;
         };
 
         /**

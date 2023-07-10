@@ -485,6 +485,57 @@ public:
         return serialized;
     }
 
+    std::unique_ptr<Common::Process::IProcess> mockBaseInstall(int exitCode = 0)
+    {
+        auto* mockProcess = new StrictMock<MockProcess>();
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    }
+
+    std::unique_ptr<Common::Process::IProcess> mockEDRInstall(int exitCode = 0)
+    {
+        auto* mockProcess = new StrictMock<MockProcess>();
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    }
+
+    std::unique_ptr<Common::Process::IProcess> mockSystemctlStatus(int exitCode = 4)
+    {
+        auto* mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> stop_args = {"status","sophos-spl"};
+        EXPECT_CALL(*mockProcess, exec("systemctl", stop_args)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("watchdog running!"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    }
+
+    std::unique_ptr<Common::Process::IProcess> mockSystemctlStop(int exitCode = 0)
+    {
+        auto* mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> start_args = {"stop","sophos-spl"};
+        EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    }
+    std::unique_ptr<Common::Process::IProcess> mockSystemctlStart(int exitCode = 0)
+    {
+        auto* mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> start_args = {"start","sophos-spl"};
+        EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    }
 protected:
     MockSdds3Repository* m_mockptr = nullptr;
     Tests::ScopedReplaceFileSystem m_replacer;
@@ -591,28 +642,31 @@ TEST_F(
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
     int counter = 0;
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+        if (counter == 0 || counter == 3)
+        {
+           counter++;
+           return mockSystemctlStatus();
+        }
+      else if (counter == 1)
       {
-          auto* mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
       }
       else
       {
-          auto* mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -1458,32 +1512,35 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
-      else
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin\nsimulate failure"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
-    });
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+        if (counter == 0 || counter == 3)
+        {
+            counter++;
+            return mockSystemctlStatus();
+        }
+        else if (counter == 1)
+        {
+            counter++;
+            return mockBaseInstall();
+        }
+        else if (counter == 2)
+        {
+            counter++;
+            return mockEDRInstall(5);
+        }
+        else
+        {
+            counter++;
+            return mockSystemctlStart();
+        }
+   });
 
     ProductReportVector productReports = defaultProductReports();
     productReports[1].errorDescription = "Product ServerProtectionLinux-Plugin-EDR failed to install";
@@ -1562,31 +1619,33 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
 
-    int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
-      else
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
+    int counter = 0;
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+        if (counter == 0 || counter == 3)
+        {
+           counter++;
+           return mockSystemctlStatus();
+        }
+        else if (counter == 1)
+        {
+           counter++;
+           return mockBaseInstall();
+        }
+        else if (counter == 2)
+        {
+           counter++;
+           return mockEDRInstall();
+        }
+        else
+        {
+           counter++;
+           return mockSystemctlStart();
+        }
     });
 
     ProductReportVector productReports = defaultProductReports();
@@ -1658,34 +1717,47 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
 
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(0);
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
-      else
-      {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
+       if (counter == 0 || counter == 3)
+       {
+           counter++;
+           return mockSystemctlStatus();
+       }
+     else if (counter == 1)
+     {
+         counter++;
+         auto mockProcess = new StrictMock<MockProcess>();
+
+         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
+         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+         EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(0);
+         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+     }
+     else if (counter == 2)
+     {
+         counter++;
+         auto mockProcess = new StrictMock<MockProcess>();
+         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
+         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+         EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
+         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+     }
+     else
+     {
+         counter++;
+         return mockSystemctlStart();
+     }
     });
 
     ProductReportVector productReports = defaultProductReports();
@@ -1730,7 +1802,241 @@ TEST_F(
     EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
 
 }
+TEST_F(
+    SULDownloaderSdds3Test,
+    runSULDownloader_SuccessfulUpdateToNewVersionShouldCheckPluginIsRunning)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    MockSdds3Repository& mock = repositoryMocked();
+    DownloadedProductVector products = defaultProducts();
 
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+    std::vector<std::string> installProducts = {"edr,ServerProtectionLinux-Plugin-EDR"};
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(installProducts));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+
+       if (counter == 1)
+       {
+           counter++;
+           return mockBaseInstall();
+       }
+       else if (counter == 2)
+       {
+           counter++;
+           return mockEDRInstall();
+       }
+       else if (counter == 0 || counter == 3)
+       {
+           counter++;
+           return mockSystemctlStatus();
+       }
+       else if (counter == 4)
+       {
+           counter++;
+           return mockSystemctlStart();
+       }
+       else
+       {
+           counter++;
+           auto* mockProcess = new StrictMock<MockProcess>();
+           std::vector<std::string> start_args = {"isrunning","edr"};
+           EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
+           EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+       }
+   });
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
+    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
+                                                          "",
+                                                          productReports,
+                                                          true,
+                                                          productsInfo({ products[0], products[1] }) };
+
+    auto configurationData = configData(defaultSettings());
+    Common::Policy::UpdateSettings previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
+
+}
+
+TEST_F(
+    SULDownloaderSdds3Test,
+    runSULDownloader_SuldownloaderWillStopProductIfItIsrunningBeforeUpdate)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    MockSdds3Repository& mock = repositoryMocked();
+    DownloadedProductVector products = defaultProducts();
+
+    for (auto& product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+    std::vector<std::string> installProducts = {"edr,ServerProtectionLinux-Plugin-EDR"};
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(installProducts));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+
+   if (counter == 2)
+   {
+       counter++;
+       return mockBaseInstall();
+   }
+   if (counter == 1)
+   {
+       counter++;
+       return mockSystemctlStop();
+   }
+   else if (counter == 3)
+   {
+       counter++;
+       return mockEDRInstall();
+   }
+   else if (counter == 0)
+   {
+       counter++;
+       return mockSystemctlStatus(0);
+   }
+   else if (counter == 4)
+   {
+       counter++;
+       return mockSystemctlStatus();
+   }
+   else if (counter == 5)
+   {
+       counter++;
+       return mockSystemctlStart();
+   }
+   else
+   {
+       counter++;
+       auto* mockProcess = new StrictMock<MockProcess>();
+       std::vector<std::string> start_args = {"isrunning","edr"};
+       EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
+       EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+       return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+   }
+});
+
+    ProductReportVector productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
+    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
+                                                          "",
+                                                          productReports,
+                                                          true,
+                                                          productsInfo({ products[0], products[1] }) };
+
+    auto configurationData = configData(defaultSettings());
+    Common::Policy::UpdateSettings previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto calculatedReport =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+    EXPECT_PRED_FORMAT2(downloadReportSimilar, expectedDownloadReport, calculatedReport);
+    auto productsAndSubscriptions = calculatedReport.getProducts();
+    ASSERT_EQ(productsAndSubscriptions.size(), 2);
+    EXPECT_EQ(productsAndSubscriptions[0].rigidName, products[0].getLine());
+    EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
+
+}
 
 TEST_F(
     SULDownloaderSdds3Test,
@@ -1761,14 +2067,20 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.0");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+       if (counter == 1 || counter == 4)
+       {
+           counter++;
+           return mockSystemctlStatus();
+       }
+      else if (counter == 0)
       {
           counter++;
           auto mockProcess = new StrictMock<MockProcess>();
@@ -1778,33 +2090,21 @@ TEST_F(
           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
       }
-      else if (counter == 1)
-      {
-          counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
       else if (counter == 2)
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+
+          return mockBaseInstall();
+      }
+      else if (counter == 3)
+      {
+          counter++;
+          return mockEDRInstall();
       }
       else
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          return mockSystemctlStart();
       }
     });
 
@@ -1879,13 +2179,14 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
     setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.0");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
       if (counter == 0)
       {
           counter++;
@@ -1896,33 +2197,25 @@ TEST_F(
           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
       }
-      else if (counter == 1)
-      {
-          counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-      }
       else if (counter == 2)
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          return mockBaseInstall();
+      }
+      else if (counter == 3)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 1 || counter == 4)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          return mockSystemctlStart();
       }
     });
 
@@ -1998,30 +2291,33 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+      if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2103,30 +2399,32 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+      if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2208,30 +2506,32 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+      if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2309,30 +2609,32 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+      if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2417,30 +2719,32 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+      if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2518,30 +2822,34 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
-      if (counter++ == 0)
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+
+        if (counter == 1)
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockBaseInstall();
+      }
+      else if (counter == 2)
+      {
+          counter++;
+          return mockEDRInstall();
+      }
+      else if (counter == 0 || counter == 3)
+      {
+          counter++;
+          return mockSystemctlStatus();
       }
       else
       {
-          auto mockProcess = new StrictMock<MockProcess>();
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-          EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          counter++;
+          return mockSystemctlStart();
       }
     });
 
@@ -2910,37 +3218,32 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
 
     EXPECT_CALL(
         mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
+    EXPECT_CALL(mockFileSystem, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-        [&counter]()
-        {
-            ++counter;
+        [&counter,this](){
+
             if (counter == 1)
             {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/"
-                        "install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
+                counter++;
+                return mockBaseInstall();
+            }
+            else if (counter == 2)
+            {
+                counter++;
+                return mockEDRInstall();
+            }
+            else if (counter == 0 || counter == 3)
+            {
+                counter++;
+                return mockSystemctlStatus();
             }
             else
             {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
+                counter++;
+                return mockSystemctlStart();
             }
         });
 
@@ -3020,33 +3323,16 @@ TEST_F(
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-        [&counter]()
+        [&counter,this]()
         {
             ++counter;
             if (counter == 1)
             {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/"
-                        "install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
+                return mockBaseInstall();
             }
             else
             {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
+                return mockEDRInstall();
             }
         });
 
@@ -3078,39 +3364,34 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
 
     EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
         .Times(1);
+    EXPECT_CALL(mockFileSystem, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-        [&counter]()
+    [&counter,this](){
+
+        if (counter == 1)
         {
-            ++counter;
-            if (counter == 1)
-            {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/"
-                        "install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
-            }
-            else
-            {
-                auto mockProcess = std::make_unique<MockProcess>();
-                EXPECT_CALL(
-                    *mockProcess,
-                    exec(
-                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh",
-                        _,
-                        _));
-                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
-                return mockProcess;
-            }
-        });
+            counter++;
+            return mockBaseInstall();
+        }
+        else if (counter == 2)
+        {
+            counter++;
+            return mockEDRInstall();
+        }
+        else if (counter == 0 || counter == 3)
+        {
+            counter++;
+            return mockSystemctlStatus();
+        }
+        else
+        {
+            counter++;
+            return mockSystemctlStart();
+        }
+    });
 
     const auto supplementOnly = false;
     SulDownloader::runSULDownloader(

@@ -111,10 +111,10 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
+    Create Local SDDS3 Override
     Register With Local Cloud Server
     Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
-    Create Local SDDS3 Override
-    Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
@@ -166,10 +166,10 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
+    Create Local SDDS3 Override
     Register With Local Cloud Server
     Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
-    Create Local SDDS3 Override
-    Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s

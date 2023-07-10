@@ -156,7 +156,7 @@ EOF
 
 function stopSsplService()
 {
-    systemctl stop sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
+    systemctl stop sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to stop sophos-spl service"
 }
 
 function startSsplService()
@@ -238,6 +238,12 @@ function waitForProcess()
     done
 
     return 1
+}
+
+function is_watchdog_running()
+{
+  confirmProcessRunning  "${SOPHOS_INSTALL}/base/bin/watchdog"  && return 0
+  return 1
 }
 
 function makedir()
@@ -1023,23 +1029,28 @@ then
 else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
-        stopSsplService
+        if is_watchdog_running
+        then
+          stopSsplService
 
-        perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+          perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
 
-        startSsplService
+          startSsplService
 
-        waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+          waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
-        # Provide time to Watchdog to start all managed services
-        sleep  2
+          # Provide time to Watchdog to start all managed services
+          sleep  2
+        else
+          perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+        fi
     fi
 fi
 
 
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
-
+echo "managementagent,${PRODUCT_LINE_ID}"  >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}

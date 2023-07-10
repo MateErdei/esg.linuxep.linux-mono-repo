@@ -403,11 +403,26 @@ namespace SulDownloader
         }
 
         // try to install all products and report error for those that failed (if any)
-
+        std::string trackerFile = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
+        fileSystem->removeFile(trackerFile, true);
+        bool fullRestart = false;
         for (auto& product : products)
         {
             if ( (product.productHasChanged() || product.forceProductReinstall()) && !product.getProductIsBeingUninstalled())
             {
+                if ((product.getLine() == "ServerProtectionLinux-Base-component"))
+                {
+                    if (SulDownloaderUtils::isProductRunning())
+                    {
+                        LOGDEBUG("Triggering stopProduct");
+                        SulDownloaderUtils::stopProduct();
+                    }
+                    else
+                    {
+                        LOGDEBUG("This is a fresh install so not triggering product stop before installing component");
+                    }
+                    fullRestart = true;
+                }
                 product.install(configurationData.getInstallArguments());
             }
             else
@@ -415,6 +430,29 @@ namespace SulDownloader
                 LOGINFO("Downloaded Product line: '" << product.getLine() << "' is up to date.");
             }
         }
+
+        if (fullRestart && !SulDownloaderUtils::isProductRunning())
+        {
+            LOGDEBUG("Triggering startProduct");
+            SulDownloaderUtils::startProduct();
+        }
+
+        std::vector<std::string> failedProducts = SulDownloaderUtils::checkUpdatedComponentsAreRunning();
+        for (const auto& failed: failedProducts)
+        {
+            for (auto& product : products)
+            {
+                if (product.getLine() == failed)
+                {
+                    RepositoryError error;
+                    error.Description = std::string("Product ") + product.getLine() + " failed to install";
+                    error.status = RepositoryStatus::INSTALLFAILED;
+                    product.setError(error);
+                    continue;
+                }
+            }
+        }
+        fileSystem->removeFile(trackerFile, true);
 
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());
         if (productChanging)

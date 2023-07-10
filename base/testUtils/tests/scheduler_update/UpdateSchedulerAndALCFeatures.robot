@@ -20,9 +20,6 @@ Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
 Force Tags  LOAD6
 
-*** Variables ***
-${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-
 *** Test Cases ***
 #TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Delayed Updating

@@ -67,6 +67,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getLocalSdds3Repository() const = 0;
         [[nodiscard]] virtual std::string getLocalSdds3DistributionRepository() const = 0;
         [[nodiscard]] virtual std::string getSdds3PackageConfigPath() const = 0;
+        [[nodiscard]] virtual std::string getSulDownloaderInstalledTrackerFile() const = 0;
         [[nodiscard]] virtual std::string getSdds3OverrideSettingsFile() const = 0;
         [[nodiscard]] virtual std::string getSulDownloaderSynLogPath() const = 0;
 
@@ -78,6 +79,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getLocalUninstallSymLinkPath() const = 0;
         [[nodiscard]] virtual std::string getLocalVersionSymLinkPath() const = 0;
         [[nodiscard]] virtual std::string getLocalBaseUninstallerPath() const = 0;
+        [[nodiscard]] virtual std::string getWdctlPath() const = 0;
 
         [[nodiscard]] virtual std::string getUpdateCertificatesPath() const = 0;
         [[nodiscard]] virtual std::string getUpdateCacheCertificateFilePath() const = 0;

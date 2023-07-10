@@ -1,11 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos All rights reserved.
 #include "SystemTelemetryCollectorImpl.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -54,11 +51,11 @@ namespace Telemetry
                                                      << ", exception: " << processException.what());
                 continue;
             }
-            catch (const std::invalid_argument& invalidArg)
+            catch (const Common::FileSystem::IFileSystemException& exception)
             {
                 LOGWARN(
                     "Failed to get telemetry item: " << name << ", could not find executable for command: " << command
-                                                     << ", exception: " << invalidArg.what());
+                                                     << ", exception: " << exception.what());
             }
 
             T values;
@@ -103,7 +100,7 @@ namespace Telemetry
         processPtr->setOutputLimit(GL_outputSize);
 
         // search for command executable full path
-        auto commandExecutablePath = getSystemCommandExecutablePath(command);
+        auto commandExecutablePath = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath(command);
         // gather raw telemetry, ignoring failures
         processPtr->exec(commandExecutablePath, args);
         if (processPtr->wait(Common::Process::milli(m_waitTimeMilliSeconds), m_waitMaxRetries) !=
@@ -213,17 +210,4 @@ namespace Telemetry
         return !values.empty();
     }
 
-    std::string SystemTelemetryCollectorImpl::getSystemCommandExecutablePath(const std::string& executableName) const
-    {
-        std::vector<std::string> folderLocations = { "/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin" };
-        for (const auto& folder : folderLocations)
-        {
-            Path path = Common::FileSystem::join(folder, executableName);
-            if (Common::FileSystem::fileSystem()->isExecutable(path))
-            {
-                return path;
-            }
-        }
-        throw std::invalid_argument("Executable " + executableName + " is not installed.");
-    }
 } // namespace Telemetry

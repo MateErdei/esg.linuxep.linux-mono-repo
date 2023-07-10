@@ -4,10 +4,12 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Policy/UpdateSettings.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/MockProcess.h"
 
 #include <gtest/gtest.h>
 
@@ -170,4 +172,37 @@ TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnFalseWhenMa
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
     EXPECT_CALL(*m_fileSystemMock, isFile(pausedMarkerFile)).WillOnce(Return(true));
     ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
+}
+
+TEST_F(SulDownloaderUtilsTestFiles, testComponentRunning)
+{
+    std::vector<std::string> lines = {"edr,ServerProtectionLinux-Plugin-EDR"};
+    std::vector<std::string> failed = {};
+    EXPECT_CALL(*m_fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readLines(_)).WillOnce(Return(lines));
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&]() {
+            auto* mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> start_args = {"isrunning","edr"};
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);});
+    ASSERT_EQ(failed,SulDownloader::SulDownloaderUtils::checkUpdatedComponentsAreRunning());
+}
+
+TEST_F(SulDownloaderUtilsTestFiles, testComponentNotRunning)
+{
+    std::vector<std::string> lines = {"edr,ServerProtectionLinux-Plugin-EDR"};
+    std::vector<std::string> failed = {"ServerProtectionLinux-Plugin-EDR"};
+    EXPECT_CALL(*m_fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readLines(_)).WillOnce(Return(lines));
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&]() {
+                                                                       auto* mockProcess = new StrictMock<MockProcess>();
+                                                                       std::vector<std::string> start_args = {"isrunning","edr"};
+                                                                       EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
+                                                                       EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                                                                       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(4));
+                                                                       return std::unique_ptr<Common::Process::IProcess>(mockProcess);});
+    ASSERT_EQ(failed, SulDownloader::SulDownloaderUtils::checkUpdatedComponentsAreRunning());
 }

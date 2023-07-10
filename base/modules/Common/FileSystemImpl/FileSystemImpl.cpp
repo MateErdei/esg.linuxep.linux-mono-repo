@@ -1053,6 +1053,20 @@ namespace Common
         {
             return std::filesystem::space(path, ec);
         }
+
+        std::string FileSystemImpl::getSystemCommandExecutablePath(const std::string& executableName) const
+        {
+            std::vector<std::string> folderLocations = { "/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin" };
+            for (const auto& folder : folderLocations)
+            {
+                Path path = join(folder, executableName);
+                if (isExecutable(path))
+                {
+                    return path;
+                }
+            }
+            throw IFileSystemException("Executable " + executableName + " is not installed.");
+        }
     } // namespace FileSystem
 } // namespace Common
 
