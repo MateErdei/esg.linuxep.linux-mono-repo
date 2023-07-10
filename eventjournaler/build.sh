@@ -299,6 +299,7 @@ function build()
         fi
         untar_input JournalLib
         untar_input capnproto
+        chmod +x ${REDIST}/sdds3/*
     else
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
@@ -311,7 +312,6 @@ function build()
       cp -r $REDIST/googletest $BASE/tests
     fi
 
-    cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
     if [[ ${BULLSEYE} == 1 ]]
     then
