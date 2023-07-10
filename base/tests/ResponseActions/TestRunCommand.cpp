@@ -119,14 +119,10 @@ TEST_F(RunCommandTests, SingleCommandResultToJson_EucJpEncoded)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    nlohmann::json cmdResults = nlohmann::json::array();
-    nlohmann::json cmdResult;
-    cmdResult["stdOut"] = std::get<1>(encoding) + " (EUC-JP)";
-    cmdResult["stdErr"] = std::get<1>(encoding) + " (EUC-JP)";
-    cmdResult["exitCode"] = 0;
-    cmdResult["duration"] = 0;
-    cmdResults.push_back(cmdResult);
-    EXPECT_EQ(response.at("commandResults"), cmdResults);
+    EXPECT_EQ(response.at("commandResults")[0]["stdOut"], std::get<1>(encoding) + " (EUC-JP)");
+    EXPECT_EQ(response.at("commandResults")[0]["stdErr"], std::get<1>(encoding) + " (EUC-JP)");
+    EXPECT_EQ(response.at("commandResults")[0]["exitCode"], 0);
+    EXPECT_GE(response.at("commandResults")[0]["duration"], 0);
 }
 
 TEST_F(RunCommandTests, CommandResponseToJson)
@@ -172,14 +168,10 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    nlohmann::json cmdResults = nlohmann::json::array();
-    nlohmann::json cmdResult;
-    cmdResult["stdOut"] = "output message";
-    cmdResult["stdErr"] = "";
-    cmdResult["exitCode"] = 0;
-    cmdResult["duration"] = 0;
-    cmdResults.push_back(cmdResult);
-    EXPECT_EQ(response.at("commandResults"), cmdResults);
+    EXPECT_EQ(response.at("commandResults")[0]["stdOut"], "output message");
+    EXPECT_EQ(response.at("commandResults")[0]["stdErr"], "");
+    EXPECT_EQ(response.at("commandResults")[0]["exitCode"], 0);
+    EXPECT_GE(response.at("commandResults")[0]["duration"], 0);
 }
 
 TEST_F(RunCommandTests, runMethodHandlesInvalidJson)

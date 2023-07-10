@@ -349,16 +349,25 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
-def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False):
+def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False):
 
-    listOfFiles = ["/tmp/download.txt"]
+    if subDirectories:
+        listOfFiles = ["/tmp/subDir1/subDir2/download.txt"]
+    else:
+        listOfFiles = ["/tmp/download.txt"]
 
     if multipleFiles:
         for fileNo in range(10):
-            listOfFiles.append("/tmp/download.txt" + str(fileNo))
+            if subDirectories:
+                listOfFiles.append(f"/tmp/{str(fileNo)}/download.txt{str(fileNo)}")
+            else:
+                listOfFiles.append(f"/tmp/download.txt{str(fileNo)}")
 
     with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipf:
         for file in listOfFiles:
+            dirName = os.path.dirname(file)
+            if not os.path.exists(dirName):
+                os.makedirs(dirName)
             with open(file, 'w') as f:
                 f.write("content")
                 f.close()

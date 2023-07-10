@@ -115,19 +115,19 @@ public:
         Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
     }
 
-    void addListFilesExpectsToMockFileSystem(const bool decompress = false, const bool multipleFiles = false)
+    void addListFilesExpectsToMockFileSystem(const bool decompress = false, const bool multipleFiles = false, const Path subDirs = "")
     {
         std::vector<std::string> zippedList { m_raTmpFile };
         EXPECT_CALL(*m_mockFileSystem, listFiles(m_raTmpDir)).WillOnce(Return(zippedList));
 
         if (decompress)
         {
-            std::vector<std::string> unzippedList { m_raExtractTmpDir + "/" + m_testExtractedFile };
+            std::vector<std::string> unzippedList { m_raExtractTmpDir + "/" + subDirs + m_testExtractedFile };
             if (multipleFiles)
             {
                 for (int i = 1; i != 4; i++)
                 {
-                    auto tmpString = m_raExtractTmpDir + "/" + m_testExtractedFile + (std::to_string(i));
+                    auto tmpString = m_raExtractTmpDir + "/" + subDirs + m_testExtractedFile + (std::to_string(i));
                     unzippedList.push_back(tmpString);
                 }
             }
@@ -136,7 +136,7 @@ public:
         }
     }
 
-    void addDownloadAndExtractExpectsToMockFileSystem(const std::string& targetPath, const bool decompress = false)
+    void addDownloadAndExtractExpectsToMockFileSystem(const std::string& targetPath, const bool decompress = false, const Path subDirs = "")
     {
         std::string filename = m_testZipFile;
 
@@ -153,6 +153,12 @@ public:
         EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
         EXPECT_CALL(*m_mockFileSystem, exists(targetPath)).WillOnce(Return(false));
         EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
+        if (!subDirs.empty())
+        {
+            Path subDirNoSlash = subDirs;
+            subDirNoSlash.pop_back();
+            EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + subDirNoSlash)).Times(AnyNumber());
+        }
     }
 
     void addSingleCleanupChecksToMockFileSystem(const bool downloadExists = false, const bool extractExists = false)
@@ -398,6 +404,44 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
     EXPECT_TRUE(appenderContains("Downloading directly"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
+}
+
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInTargetPath_WithSubDirectories)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    bool decompress = true;
+    Path subDirs = "subDir1/subDir2/";
+    setupMockZipUtils();
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem(decompress, false, subDirs);
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + subDirs + m_testExtractedFile, decompress, subDirs);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + subDirs + m_testExtractedFile, m_destPath + subDirs + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+
+    nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Extracted 1 file from archive"));
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/"));
+    EXPECT_TRUE(appenderContains("Downloading directly"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/subDir1/subDir2/download.txt downloaded successfully"));
 }
 
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_NoFileNameInTargetPath)

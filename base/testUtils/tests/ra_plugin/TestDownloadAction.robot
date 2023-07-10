@@ -166,6 +166,30 @@ RA Plugin downloads and extracts multiple files successfully
     ...  Check Cloud Server Log Contains   \"httpStatus\":200,\"result\":0
 
 
+RA Plugin downloads and extracts multiple files and multiple subdirectories successfully
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
+
+    Send_Download_File_From_Fake_Cloud    ${TRUE}  ${DOWNLOAD_TARGET_PATH}   multipleFiles=${TRUE}    subDirectories=${TRUE}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+
+    Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
+    File Should Exist   ${DOWNLOAD_TARGET_PATH}/tmp/subDir1/subDir2/${DOWNLOAD_FILENAME_TXT}
+
+    FOR    ${item}    IN    0    1    2    3    4    5    6    7    8    9
+        File Should Exist     ${DOWNLOAD_TARGET_PATH}/tmp/${item}/${DOWNLOAD_FILENAME_TXT}${item}
+    END
+
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains   \"httpStatus\":200,\"result\":0
+
 RA Plugin cleans up before starting download action
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}

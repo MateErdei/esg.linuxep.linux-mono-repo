@@ -423,18 +423,21 @@ namespace ResponseActionsImpl
 
     void DownloadFileAction::handleMovingSingleExtractedFile(const Path& destDir, const Path& targetPath, const Path& extractedFile)
     {
-        Path fileName;
+        Path subFilePath;
         if (destDir.back() != '/')
         {
-            fileName = FileSystem::basename(targetPath);
+            subFilePath = targetPath;
         }
         else
         {
-            fileName = FileSystem::basename(extractedFile);
+            subFilePath = extractedFile;
         }
-        if (!fileAlreadyExists(destDir + fileName))
+
+        subFilePath = getSubDirsInTmpDir(subFilePath);
+
+        if (!fileAlreadyExists(destDir + subFilePath))
         {
-            moveFile(destDir, fileName, extractedFile);
+            moveFile(destDir, FileSystem::basename(subFilePath), extractedFile);
         }
     }
 
@@ -452,8 +455,9 @@ namespace ResponseActionsImpl
         //We need to fail entirely if any one file already exists
         for (const auto& filePath : extractedFiles)
         {
-            auto fileName = FileSystem::basename(filePath);
-            if (fileAlreadyExists(destDir + fileName))
+            Path subFilePath = getSubDirsInTmpDir(filePath);
+
+            if (fileAlreadyExists(destDir + subFilePath))
             {
                 anyFileExists = true;
                 //A warning in the response is added in fileAlreadyExists
@@ -549,6 +553,14 @@ namespace ResponseActionsImpl
 
         try
         {
+            Path dirName = FileSystem::dirName(filePathToMove);
+            dirName = getSubDirsInTmpDir(dirName);
+
+            if(!dirName.empty())
+            {
+                m_fileSystem->makedirs(destDir + dirName);
+                destPath = destDir + dirName + "/" + fileName;
+            }
             m_fileSystem->moveFileTryCopy(filePathToMove, destPath);
         }
         catch (const FileSystem::IFileSystemException& e)
@@ -591,5 +603,19 @@ namespace ResponseActionsImpl
         {
             m_fileSystem->removeFileOrDirectory(m_tmpExtractPath);
         }
+    }
+    // Determine whether the filePath to move is in an extract directory or not
+    Path DownloadFileAction::getSubDirsInTmpDir(const Path& filePath)
+    {
+        Path subFilePath = filePath;
+        if(filePath.rfind(m_tmpExtractPath, 0) == 0)
+        {
+            subFilePath.erase(0, m_tmpExtractPath.size() + 1);
+        }
+        else
+        {
+            subFilePath.erase(0, m_raTmpDir.size());
+        }
+        return subFilePath;
     }
 }
