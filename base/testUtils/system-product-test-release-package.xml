@@ -79,8 +79,9 @@
 
         <build-asset project="em" repo="esg">
             <development-version branch="develop"/>
-            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="sdds3"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="sdds3"/>
         </build-asset>
+
 
         <!--
                     local warehouses

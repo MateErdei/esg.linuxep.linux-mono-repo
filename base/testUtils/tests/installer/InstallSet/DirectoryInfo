@@ -1,7 +1,5 @@
 1770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/tmp
 o700, root, root, /opt/sophos-spl/base/update/cache
-o700, root, root, /opt/sophos-spl/base/update/cache/primary
-o700, root, root, /opt/sophos-spl/base/update/cache/primarywarehouse
 o700, root, root, /opt/sophos-spl/base/update/rootcerts
 o700, root, root, /opt/sophos-spl/base/update/ServerProtectionLinux-Base-component
 o700, root, root, /opt/sophos-spl/base/update/var/installedproducts

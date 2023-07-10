@@ -339,11 +339,6 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/bin/telemetry");
         }
 
-        std::string ApplicationPathManager::getSophosAliasFilePath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/var/sophos_alias.txt");
-        }
-
         std::string ApplicationPathManager::getAlcStatusFilePath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/mcs/status/ALC_status.xml");

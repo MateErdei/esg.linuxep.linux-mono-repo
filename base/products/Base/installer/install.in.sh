@@ -695,7 +695,6 @@ then
 fi
 
 makedir 711 "${SOPHOS_INSTALL}/base"
-
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
 makedir 750 "${SOPHOS_INSTALL}/base/etc/sophosspl"
 chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
@@ -704,8 +703,7 @@ makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 makedir 710 "${SOPHOS_INSTALL}/base/update"
-makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
-makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
+makedir 700 "${SOPHOS_INSTALL}/base/update/cache/"
 makedir 700 "${SOPHOS_INSTALL}/base/update/rootcerts"
 makedir 710 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"

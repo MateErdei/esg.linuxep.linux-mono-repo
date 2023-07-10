@@ -80,8 +80,6 @@ namespace Common::ApplicationConfigurationImpl
         std::string getTelemetryExeConfigFilePath() const override;
         std::string getTelemetryExecutableFilePath() const override;
 
-        std::string getSophosAliasFilePath() const override;
-
         std::string getAlcStatusFilePath() const override;
         std::string getAlcPolicyFilePath() const override;
         std::string getMachineIdFilePath() const override;

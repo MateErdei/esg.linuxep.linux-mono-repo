@@ -24,7 +24,8 @@ add_executable(UpdateSchedulerTests
         TestStateMachineData.cpp
         StateMachineDataBase.h
         TestStateMachineProcessor.cpp
-        TestUpdateSchedulerPluginUtils.cpp)
+        TestUpdateSchedulerPluginUtils.cpp
+        TestUpdateSchedulerProcessor.cpp)
 
 target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR} "${PROJECT_SOURCE_DIR}")
 target_link_libraries(UpdateSchedulerTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} updateschedulerimpl filesystemimpl testhelpers processimpl suldownloaderdata)

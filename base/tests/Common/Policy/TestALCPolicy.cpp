@@ -433,37 +433,6 @@ TEST_F(TestALCPolicy, sdds2_update_server)
     EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 }
 
-TEST_F(TestALCPolicy, sdds2_update_server_uses_sophos_alias_file)
-{
-    const std::string filePath = Common::ApplicationConfiguration::applicationPathManager().getSophosAliasFilePath();
-    const std::string expectValue = "Iamaconnectionaddress";
-
-    auto mockFileSystem = std::make_unique<MockFileSystem>();
-    EXPECT_CALL(*mockFileSystem, isFile(filePath)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, readFile(filePath)).WillOnce(Return(expectValue));
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(mockFileSystem));
-
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" ConnectionAddress="http://dci.sophosupd.com/cloudupdate"/>
-</primary_location>
-<schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    ALCPolicy obj{ minPolicy };
-    auto settings = obj.getUpdateSettings();
-    auto urls = settings.getSophosLocationURLs();
-    ASSERT_EQ(urls.size(), 3);
-    EXPECT_EQ(urls[0], expectValue);
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
-}
-
 //Cloud Subscription Tests
 
 TEST_F(TestALCPolicy, cloud_subscriptions)

@@ -882,62 +882,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
     EXPECT_EQ(schedule.minute, 0);
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet)
-{
-    auto* mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-    UpdatePolicyTranslator translator;
-
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/sophos_alias.txt")).WillOnce(Return(true));
-    std::string customerFileUrl("http://ostia.eng.sophos/customer");
-    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(customerFileUrl));
-
-    auto settingsHolder = translator.translatePolicy(mdrSSPLBasePolicy);
-    auto config = settingsHolder.configurationData;
-
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
-    EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
-    ASSERT_EQ(config.getInstallArguments().size(), 2);
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-
-    auto urls = config.getSophosLocationURLs();
-    ASSERT_EQ(urls.size(), 3);
-    EXPECT_EQ(urls[0], customerFileUrl);
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
-
-    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
-
-    const auto& primarySubscription = config.getPrimarySubscription();
-    EXPECT_EQ(primarySubscription.baseVersion(), "");
-    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
-    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixedVersion(), "");
-
-    const auto& productsSubscription = config.getProductsSubscription();
-    ASSERT_EQ(productsSubscription.size(), 1);
-    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
-    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
-
-    const auto& features = config.getFeatures();
-    std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
-    EXPECT_EQ(features, expectedFeatures);
-
-    EXPECT_EQ(config.getPolicyProxy(), Proxy());
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    auto schedule = settingsHolder.weeklySchedule;
-    EXPECT_EQ(schedule.enabled, true);
-    EXPECT_EQ(schedule.weekDay, 3);
-    EXPECT_EQ(schedule.hour, 11);
-    EXPECT_EQ(schedule.minute, 0);
-}
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog)
 {

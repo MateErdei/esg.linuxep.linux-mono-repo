@@ -225,19 +225,8 @@ std::string ALCPolicy::cacheID(const std::string& hostname) const
 
 void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation)
 {
-    auto* filesystem = Common::FileSystem::fileSystem();
 
-    std::string connectionAddress;
-
-    if (filesystem->isFile(applicationPathManager().getSophosAliasFilePath()))
-    {
-        connectionAddress = filesystem->readFile(applicationPathManager().getSophosAliasFilePath());
-        LOGINFO("Using connection address provided by sophos_alias.txt file.");
-    }
-    else
-    {
-        connectionAddress = primaryLocation.value("ConnectionAddress");
-    }
+    std::string connectionAddress = primaryLocation.value("ConnectionAddress");
 
     std::vector<std::string> sophosUpdateLocations{UpdateSettings::DefaultSophosLocationsURL};
     if (!connectionAddress.empty())

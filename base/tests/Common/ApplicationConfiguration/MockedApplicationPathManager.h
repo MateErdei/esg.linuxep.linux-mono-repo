@@ -84,7 +84,6 @@ public:
 
     MOCK_METHOD(std::string, getTelemetryExeConfigFilePath, (), (const, override));
     MOCK_METHOD(std::string, getTelemetryExecutableFilePath, (), (const, override));
-    MOCK_METHOD(std::string, getSophosAliasFilePath, (), (const, override));
 
     MOCK_METHOD(std::string, getAlcPolicyFilePath, (), (const, override));
     MOCK_METHOD(std::string, getAlcStatusFilePath, (), (const, override));

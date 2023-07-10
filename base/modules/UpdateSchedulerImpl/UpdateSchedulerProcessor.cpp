@@ -35,30 +35,6 @@
 
 using namespace std::chrono;
 
-namespace
-{
-    // FIXME: remove after LINUXDAR-1942
-    bool detectedUpgradeWithBrokenLiveResponse()
-    {      
-        auto* fs = Common::FileSystem::fileSystem();
-        std::string fileMarkOfUpgrade{"/opt/sophos-spl/tmp/.upgradeToNewWarehouse"}; 
-        if (fs->exists(fileMarkOfUpgrade))
-        {
-            try{
-                fs->removeFile(fileMarkOfUpgrade); 
-            }
-            catch( std::exception & ex)
-            {
-                LOGWARN("Failed to remove file: " << fileMarkOfUpgrade << ". Reason: " << ex.what()); 
-            }
-            
-            LOGINFO("Upgrade to new warehouse structure detected. Triggering a new out-of-sync update");
-            return true;
-        }
-        return false;
-    }
-} // namespace
-
 namespace UpdateSchedulerImpl
 {
     std::vector<std::string> readInstalledFeatures()
@@ -624,13 +600,7 @@ namespace UpdateSchedulerImpl
     {
         auto* iFileSystem = Common::FileSystem::fileSystem();
 
-        if (detectedUpgradeWithBrokenLiveResponse())
-        {
-            UpdateScheduler::SchedulerTask task;
-            task.taskType = UpdateScheduler::SchedulerTask::TaskType::ScheduledUpdate;
-            m_queueTask->push(UpdateScheduler::SchedulerTask{ task });
-            return {};
-        }
+
 
         if (processLatestReport)
         {

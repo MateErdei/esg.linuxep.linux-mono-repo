@@ -79,7 +79,6 @@ PS_ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "rootcerts", 
 ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "rootca.crt")
 PS_ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "ps_rootca.crt")
 
-SOPHOS_ALIAS_EXTENSION = os.path.join("base", "update", "var", "sophos_alias.txt")
 
 
 def _get_sophos_install_path():
