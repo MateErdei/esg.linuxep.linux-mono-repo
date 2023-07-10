@@ -12,6 +12,7 @@ Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../GeneralUtilsResources.robot
 
 *** Variables ***
 ${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
@@ -285,16 +286,6 @@ Install Register And Wait First MCS Policy With MCS Policy
     Start MCSRouter
     Wait For MCS Router To Be Running
     Wait New MCS Policy Downloaded
-
-File Should Contain
-    [Arguments]  ${file_path}  ${expected_contents}
-    ${contents}=  Get File   ${file_path}
-    Should Contain  ${contents}   ${expected_contents}
-
-File Should Not Contain
-    [Arguments]  ${file_path}  ${expected_contents}
-    ${contents}=  Get File   ${file_path}
-    Should Not Contain  ${contents}   ${expected_contents}
 
 JWT Token Is Updated In MCS Config
     # Whenever the token is requested and received, it is also stored in mcs.config

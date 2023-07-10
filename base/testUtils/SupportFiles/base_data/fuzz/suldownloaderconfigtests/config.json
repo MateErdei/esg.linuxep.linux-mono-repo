@@ -15,16 +15,37 @@
    "proxyType": ""
   }
  },
- "cacheUpdateSslPath": "",
- "releaseTag": "RECOMMENDED",
- "baseVersion": "0",
- "primary": "ServerProtectionLinux-Base",
- "prefixNames": [
-  "ServerProtectionLinux-Plugin"
- ],
+ "JWToken": "2dda9f6c9adf53ee9befc1f928988b98da2b64dd4e6bece3308cd61111111111",
+ "tenantId": "example-tenant-id",
+ "deviceId": "ThisIsADeviceID+1001",
+ "versigPath": "",
  "installArguments": [
   "--instdir",
   "/opt/sophos-spl"
  ],
- "logLevel": "VERBOSE"
+ "logLevel": "VERBOSE",
+ "manifestNames": [
+  "manifest.dat"
+ ],
+ "optionalManifestNames": [
+  "flags_manifest.dat",
+  "sophos-scheduled-query-pack.manifest.dat"
+ ],
+ "primarySubscription": {
+  "rigidName": "ServerProtectionLinux-Base",
+  "baseVersion": "",
+  "tag": "RECOMMENDED",
+  "fixedVersion": "2022.7.22.7"
+ },
+ "features": [
+  "CORE"
+ ],
+ "useSlowSupplements": true,
+ "updateCacheCertPath": "",
+ "forceUpdate": false,
+ "forcePausedUpdate": false,
+ "esmVersion": {
+  "token": "f4d41a16-b751-4195-a7b2-1f109d49469d",
+  "name": "LTS 2023.1.1"
+ }
 }

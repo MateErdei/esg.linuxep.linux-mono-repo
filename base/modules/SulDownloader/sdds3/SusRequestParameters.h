@@ -17,5 +17,6 @@ namespace SulDownloader
         std::string jwt;
         int timeoutSeconds = 0;
         Common::Policy::Proxy proxy;
+        Common::Policy::ESMVersion esmVersion;
     };
 }

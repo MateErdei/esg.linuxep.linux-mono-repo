@@ -24,7 +24,7 @@ Resource    ../liveresponse_plugin/LiveResponseResources.robot
 Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../sul_downloader/SulDownloaderResources.robot
 
-Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
+Default Tags   EDR_PLUGIN  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 Force Tags  LOAD4
 
 
@@ -46,7 +46,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
-    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all 999
     Install EDR SDDS3  ${BaseAndMTREdr999Policy}
@@ -474,23 +474,6 @@ Wait for first update
 Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-Check Installed Plugins Are VUT Versions
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    ${edr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
-    Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    ${mtr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
-    Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
-    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    ${liveresponse_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
-    Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
-    ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EventJournaler
-    Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
-    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
-    Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
 
 Wait For Suldownloader To Finish
     Wait Until Keyword Succeeds

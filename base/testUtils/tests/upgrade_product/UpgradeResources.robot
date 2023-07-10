@@ -335,3 +335,20 @@ Get Expected Versions
     ...    mtrVersion=${ExpectedMTRReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
+
+Check Installed Plugins Are VUT Versions
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut    ServerProtectionLinux-Plugin-EDR
+    Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    ${mtr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-MDR
+    Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
+    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-liveresponse
+    Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
+    ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-EventJournaler
+    Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
+    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-RuntimeDetections
+    Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}

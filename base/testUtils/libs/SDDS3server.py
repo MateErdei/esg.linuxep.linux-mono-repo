@@ -276,35 +276,56 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             self.send_error(HTTPStatus.BAD_REQUEST, 'Missing subscriptions')
             return
 
-        for subscription in doc['subscriptions']:
+        if 'fixed_version_token' not in doc:
+            self.log_message('No fixed_version_token for ESM')
 
-            if 'id' not in subscription or 'tag' not in subscription:
-                self.send_error(HTTPStatus.BAD_REQUEST, 'Missing subscriptions')
+            for subscription in doc['subscriptions']:
+
+                if 'id' not in subscription or 'tag' not in subscription:
+                    self.send_error(HTTPStatus.BAD_REQUEST, 'Missing subscriptions')
+                    return
+
+                line_id = subscription['id']
+                tag = subscription['tag']
+                self.log_message('line_id '+ line_id)
+                self.log_message('tag '+ tag)
+                fixedVersion = subscription.get('fixedVersion', False)
+                if fixedVersion:
+                    self.log_message(f"{line_id} fixedVersion: {fixedVersion} requested")
+                flag = f'{self.data}/release.{product}.{line_id}.json'
+                self.log_message('flag data file ' + flag)
+                if not os.path.exists(flag):
+                    continue
+
+                with open(flag, 'r') as f:
+                    flagdata = json.load(f)
+
+                if tag in flagdata:
+                    self.log_message(flagdata[tag]['suite'])
+                    suites.append(flagdata[tag]['suite'])
+                else:
+                    # We found the subscription, but the tag isn't found
+                    # Return an error??
+                    # ==> use RECOMMENDED for now
+                    suites.append(flagdata['RECOMMENDED']['suite'])
+        else:
+            fixed_version_token = doc['fixed_version_token']
+            self.log_message(f'fixed_version_token {fixed_version_token}')
+            filepath = f'{self.data}/linuxep.json'
+            if not os.path.exists(filepath):
+                self.log_message('could not find linuxep.json file')
                 return
 
-            line_id = subscription['id']
-            tag = subscription['tag']
-            self.log_message('line_id '+ line_id)
-            self.log_message('tag '+ tag)
-            fixedVersion = subscription.get('fixedVersion', False)
-            if fixedVersion:
-                self.log_message(f"{line_id} fixedVersion: {fixedVersion} requested")
-            flag = f'{self.data}/release.{product}.{line_id}.json'
-            self.log_message('flag data file ' + flag)
-            if not os.path.exists(flag):
-                continue
+            with open(filepath, 'r') as f:
+                suiteinfo = json.load(f)
 
-            with open(flag, 'r') as f:
-                flagdata = json.load(f)
+            if fixed_version_token != suiteinfo['token']:
+                self.log_message(f'Incorrect token {fixed_version_token} provided ' + suiteinfo['token'])
 
-            if tag in flagdata:
-                self.log_message(flagdata[tag]['suite'])
-                suites.append(flagdata[tag]['suite'])
-            else:
-                # We found the subscription, but the tag isn't found
-                # Return an error??
-                # ==> use RECOMMENDED for now
-                suites.append(flagdata['RECOMMENDED']['suite'])
+            jsonsuites = suiteinfo['suite_info']
+            for suite in jsonsuites:
+                suites.append(jsonsuites[suite]['suite'])
+
 
         data = json.dumps({
             'suites': suites,

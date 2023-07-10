@@ -198,6 +198,7 @@ namespace SulDownloader
             requestParameters.jwt = updateSettings.getJWToken();
             requestParameters.timeoutSeconds = DEFAULT_TIMEOUT_S;
             requestParameters.proxy = connectionSetup.getProxy();
+            requestParameters.esmVersion = updateSettings.getEsmVersion();
 
             auto susResponse = susRequester_->request(requestParameters);
             if (susResponse.success)

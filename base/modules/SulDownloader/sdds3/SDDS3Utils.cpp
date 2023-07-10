@@ -22,6 +22,7 @@ namespace SulDownloader
         json["server"] = parameters.isServer;
         json["platform_token"] = parameters.platformToken;
         json["subscriptions"] = nlohmann::json::array();
+
         for (const auto& subscription : parameters.subscriptions)
         {
             std::map<std::string, std::string> subscriptionMap = { { "id", subscription.rigidName() }, { "tag", subscription.tag() }};
@@ -30,6 +31,11 @@ namespace SulDownloader
                 subscriptionMap.insert({ "fixedVersion", subscription.fixedVersion() });
             }
             json["subscriptions"].push_back(subscriptionMap);
+        }
+
+        if (parameters.esmVersion.isEnabled())
+        {
+            json["fixed_version_token"] = parameters.esmVersion.token();
         }
 
         return json.dump();

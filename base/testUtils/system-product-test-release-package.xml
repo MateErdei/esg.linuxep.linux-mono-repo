@@ -95,7 +95,8 @@
             <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
             <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
-
+            <include artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
+            <include artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
         </build-asset>
     </inputs>
 

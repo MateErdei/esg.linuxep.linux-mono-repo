@@ -82,7 +82,7 @@ Sul Downloader fails update if expected product missing from SUS
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -212,7 +212,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  BASE_DOWNGRADE
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -371,7 +371,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -497,7 +497,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  BASE_DOWNGRADE
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut

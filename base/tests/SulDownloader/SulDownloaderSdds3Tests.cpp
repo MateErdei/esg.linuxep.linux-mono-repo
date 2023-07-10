@@ -550,6 +550,19 @@ TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsRet
     EXPECT_TRUE(confData.isVerified());
 }
 
+TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfSettingsWithESMReturnsTrue)
+{
+    setupFileSystemAndGetMock(1, 0, 0);
+    auto settings = defaultSettings();
+    auto esmMutable = settings.mutable_esmversion();
+    esmMutable->set_token("token");
+    esmMutable->set_name("name");
+    auto confData = configData(defaultSettings());
+
+    confData.verifySettingsAreValid();
+    EXPECT_TRUE(confData.isVerified());
+}
+
 TEST_F(SULDownloaderSdds3Test, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
 {
     char** argsNotUsed = nullptr;
