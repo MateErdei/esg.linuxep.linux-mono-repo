@@ -111,7 +111,7 @@ Thin Installer fails to download test file from warehouse if certificate is not 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Start Local Cloud Server   --tls   tlsv1_1
+    Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_only_VUT.xml
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
     Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
@@ -207,7 +207,6 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
     [Teardown]  Teardown With Large Group Creation
     Setup Group File With Large Group Creation
     Setup warehouse With sdds3 base
-    Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
@@ -222,7 +221,6 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 Thin Installer Installs Product Successfully With Product Arguments
     [Teardown]  Restore warehouse with fake sdds3 base
     Setup warehouse With sdds3 base
-    Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
@@ -261,7 +259,6 @@ Thin Installer Force Works
     [Teardown]  Restore warehouse with fake sdds3 base
     Setup warehouse With sdds3 base
     Run Full Installer
-    Start Local Cloud Server
 
     # Remove install directory
     Should Exist  ${REGISTER_CENTRAL}

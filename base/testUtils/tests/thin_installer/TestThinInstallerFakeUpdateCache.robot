@@ -46,8 +46,6 @@ Clear Environment Proxy
 
 *** Test Case ***
 Thin Installer can install via Update Cache and Fallback from broken update cache
-    Require Uninstalled
-    Start Local Cloud Server
     Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
@@ -60,8 +58,6 @@ Thin Installer can install via Update Cache and Fallback from broken update cach
 
 Thin Installer can install via Update Cache With Bad Proxy
     Set Bad Environment Proxy
-    Require Uninstalled
-    Start Local Cloud Server
     Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}

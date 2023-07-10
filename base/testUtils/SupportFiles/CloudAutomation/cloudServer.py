@@ -2238,7 +2238,7 @@ def runServer(options):
     protocol = ssl.PROTOCOL_TLS
     if options.tls:
         protocol = options.tls
-    logger.info(f"SSL version: {options.tls}")
+    logger.info("SSL version: %s", options.tls)
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile=certfile, server_side=True, ssl_version=protocol)
     if options.daemon:
         daemonise()
