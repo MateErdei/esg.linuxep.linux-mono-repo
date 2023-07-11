@@ -444,54 +444,54 @@ public:
 
     std::unique_ptr<Common::Process::IProcess> mockBaseInstall(int exitCode = 0)
     {
-        auto* mockProcess = new StrictMock<MockProcess>();
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        return mockProcess;
     }
 
     std::unique_ptr<Common::Process::IProcess> mockEDRInstall(int exitCode = 0)
     {
-        auto* mockProcess = new StrictMock<MockProcess>();
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        return mockProcess;
     }
 
     std::unique_ptr<Common::Process::IProcess> mockSystemctlStatus(int exitCode = 4)
     {
-        auto* mockProcess = new StrictMock<MockProcess>();
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> stop_args = {"status","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", stop_args)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("watchdog running!"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        return mockProcess;
     }
 
     std::unique_ptr<Common::Process::IProcess> mockSystemctlStop(int exitCode = 0)
     {
-        auto* mockProcess = new StrictMock<MockProcess>();
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> start_args = {"stop","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        return mockProcess;
     }
     std::unique_ptr<Common::Process::IProcess> mockSystemctlStart(int exitCode = 0)
     {
-        auto* mockProcess = new StrictMock<MockProcess>();
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> start_args = {"start","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        return mockProcess;
     }
 protected:
     std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
