@@ -437,10 +437,91 @@ TEST(TestXmlUtilities, CommandPoll)
 
     for (const auto& command : a2)
     {
-        PRINT(command
-            << map.lookup(command + "/body").contents()
-            << map.lookup(command + "/appId").contents()
-            << map.lookup(command + "/id").contents()
-              );
+        PRINT(
+            command << map.lookup(command + "/body").contents() << map.lookup(command + "/appId").contents()
+                    << map.lookup(command + "/id").contents());
     }
+}
+
+TEST(TestXmlUtilities, edrPolicyExample)
+{
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                  "    <configuration>\n"
+                                  "        <scheduled>\n"
+                                  "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                  "            <queryPacks>\n"
+                                  "                <queryPack id=\"queryPackId\" />\n"
+                                  "            </queryPacks>\n"
+                                  "            <customQueries>\n"
+                                  "                  <customQuery queryName=\"blah\">\n"
+                                  "                      <description>basic query</description>\n"
+                                  "                      <query>SELECT * FROM stuff</query>\n"
+                                  "                      <interval>10</interval>\n"
+                                  "                      <tag>DataLake</tag>\n"
+                                  "                      <removed>false</removed>\n"
+                                  "                      <denylist>false</denylist>\n"
+                                  "                  </customQuery>\n"
+                                  "                  <customQuery queryName=\"blah2\">\n"
+                                  "                      <description>a different \n"
+                                  "basic \n"
+                                  "query</description>\n"
+                                  "                      <query>SELECT * FROM otherstuff</query>\n"
+                                  "                      <interval>5</interval>\n"
+                                  "                      <tag>stream</tag>\n"
+                                  "                      <removed>true</removed>\n"
+                                  "                      <denylist>true</denylist>\n"
+                                  "                  </customQuery>\n"
+                                  "                  <customQuery queryName=\"blah3\">\n"
+                                  "                      <description>a different basic query</description>\n"
+                                  "                      <query>SELECT * FROM otherstuff</query>\n"
+                                  "                      <interval>10</interval>\n"
+                                  "                      <tag>stream</tag>\n"
+                                  "                      <removed>true</removed>\n"
+                                  "                      <denylist>true</denylist>\n"
+                                  "                  </customQuery>\n"
+                                  "                  <customQuery queryName=\"blah4\">\n"
+                                  "                      <description>a different basic query</description>\n"
+                                  "                      <query>SELECT * FROM otherstuff</query>\n"
+                                  "                      <interval>10</interval>\n"
+                                  "                      <tag>stream</tag>\n"
+                                  "                      <removed>true</removed>\n"
+                                  "                      <denylist>true</denylist>\n"
+                                  "                  </customQuery>\n"
+                                  "            </customQueries>\n"
+                                  "        </scheduled>\n"
+                                  "    </configuration>\n"
+                                  "</policy>";
+
+    auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
+
+    const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
+    const std::string queryTag = "customQuery";
+    std::string suffix = "_0"; // ""=1st,  "_0"=2nd,  "_1"=3rd, hence queryname checked below is "blah2".
+    std::string key = customQueriesPath + "/" + queryTag + suffix;
+    Common::XmlUtilities::Attributes customQuery = map.lookup(key);
+    std::string queryName = customQuery.value("queryName", "");
+    std::string query = map.lookup(key + "/query").value("TextId", "");
+    std::string interval = map.lookup(key + "/interval").value("TextId", "");
+    std::string description = map.lookup(key + "/description").value("TextId", "");
+    EXPECT_EQ(queryName, "blah2");
+    EXPECT_EQ(description, "a different \nbasic \nquery");
+}
+
+TEST(TestXmlUtilities, whitespace)
+{
+    auto simpleXml = parseXml(
+        R"(<xml>
+<a>
+ abc with space preceding
+
+abc
+</a>
+<a>
+ thing
+</a></xml>)");
+    auto attributesList = simpleXml.lookupMultiple("xml/a");
+    ASSERT_EQ(attributesList.size(), 2);
+    EXPECT_EQ(attributesList[0].contents(), " abc with space preceding\nabc");
+    EXPECT_EQ(attributesList[1].contents(), " thing");
 }

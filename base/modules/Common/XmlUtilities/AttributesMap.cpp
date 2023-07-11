@@ -25,7 +25,11 @@ namespace
     /** AttributesEntry **/
     void AttributesEntry::appendText(const std::string& appendContent)
     {
-        content += appendContent;
+        if (appendContent.empty())
+        {
+            return;
+        }
+        content += appendContent + "\n";
     }
 
     /** general utility function **/
@@ -105,6 +109,8 @@ namespace
         assert(topElement.fullpath.find(element) != std::string::npos);
         if (!topElement.content.empty())
         {
+            // Trim off trailing new lines from xml element content
+            topElement.content = Common::UtilityImpl::StringUtils::rTrim(topElement.content);
             topElement.attributes.push_back(AttributePair{ Attributes::TextId, topElement.content });
         }
         m_attributesMap[topElement.fullpath] =
@@ -114,7 +120,18 @@ namespace
 
     void SimpleXmlParser::onTextHandler(const std::string& content)
     {
-        if (!content.empty() && !m_stack.empty())
+        if (content.empty())
+        {
+            return;
+        }
+
+        // only whitespace
+        if (Common::UtilityImpl::StringUtils::trim(content).empty())
+        {
+            return;
+        }
+
+        if (!m_stack.empty())
         {
             auto& topElement = m_stack.top();
             topElement.appendText(content);
