@@ -83,11 +83,12 @@ public:
           ON_CALL(*versig, verify(_, _)).WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
           return versig;
         });
-        m_mockptr = nullptr;
 
         auto mockPidLockFileUtilsPtr = std::make_unique<NiceMock<MockPidLockFileUtils>>();
         ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
         Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtilsPtr));
+
+       mockSdds3Repo_ = std::make_unique<NaggyMock<MockSdds3Repository>>();
     }
 
     /**
@@ -247,20 +248,6 @@ public:
         plugin.downloadedVersion = "10.3.5";
         plugin.productStatus = ProductReport::ProductStatus::UpToDate;
         return ProductReportVector{ base, plugin };
-    }
-
-    MockSdds3Repository& repositoryMocked()
-    {
-        if (m_mockptr == nullptr)
-        {
-            m_mockptr = new MockSdds3Repository();
-            EXPECT_CALL(*m_mockptr, tryConnect).WillRepeatedly(Return(true));
-            EXPECT_CALL(*m_mockptr, synchronize).WillRepeatedly(Return(true));
-            TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() {
-              return suldownloaderdata::ISDDS3RepositoryPtr(this->m_mockptr);
-            });
-        }
-        return *m_mockptr;
     }
 
     /**
@@ -509,7 +496,7 @@ public:
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     }
 protected:
-    MockSdds3Repository* m_mockptr = nullptr;
+    std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
     Tests::ScopedReplaceFileSystem m_replacer;
 
 };
@@ -577,29 +564,30 @@ TEST_F(
     main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 1);
-    MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     std::vector<std::string> emptyFileList;
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
@@ -661,28 +649,28 @@ TEST_F(
 TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -726,29 +714,29 @@ TEST_F(
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultEnsuringInvalidPreviousReportFilesAreIgnored)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
 
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -801,29 +789,29 @@ TEST_F(
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    MockSdds3Repository& mock = repositoryMocked();
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1")))
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getProductDistributionPath(isProduct("productRemove1")))
         .WillOnce(Return("/opt/sophos-spl/base/update/cache/sdds3primary/productRemove1"));
 
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -853,7 +841,6 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
-
     setupExpectanceWriteAtomically(
         fileSystemMock,
         toString(RepositoryStatus::SUCCESS));
@@ -880,28 +867,28 @@ TEST_F(
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -1016,8 +1003,8 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSuppleme
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     // Not supplement-only
     bool supplementOnly = false;
@@ -1047,9 +1034,8 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndSupplementO
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
-
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     // Supplement-only
     bool supplementOnly = true;
     const auto [exitCode, reportContent, baseDowngraded] = SulDownloader::configAndRunDownloader(
@@ -1065,25 +1051,24 @@ TEST_F(
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::CONNECTIONERROR;
     std::string statusError = toString(wError.status);
     DownloadedProductVector emptyProducts;
 
-    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillRepeatedly(Return(false)); // failed tryConnect call
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasImmediateFailError()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillRepeatedly(Return(false)); // failed tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
-    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
@@ -1109,7 +1094,7 @@ TEST_F(
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReportContainingPreviousReportDFata)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
-    MockSdds3Repository& mock = repositoryMocked();
+
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::CONNECTIONERROR;
@@ -1132,18 +1117,18 @@ TEST_F(
     };
     DownloadReport previousDownloadReport = DownloadReport::toReport(previousReportAsString);
 
-    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillRepeatedly(Return(false)); // failed tryConnect call
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasImmediateFailError()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillRepeatedly(Return(false)); // failed tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
-    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
     auto configurationData = configData(defaultSettings());
@@ -1170,25 +1155,25 @@ TEST_F(
     runSULDownloader_supplement_only_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
-    MockSdds3Repository& mock = repositoryMocked();
+
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::CONNECTIONERROR;
     std::string statusError = toString(wError.status);
     DownloadedProductVector emptyProducts;
 
-    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
-    EXPECT_CALL(mock, tryConnect(_, true, _)).WillRepeatedly(Return(false)); // failed tryConnect call
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasImmediateFailError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, true, _)).WillRepeatedly(Return(false)); // failed tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
-    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
@@ -1213,34 +1198,33 @@ TEST_F(
     runSULDownloader_RepositorySynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::PACKAGESOURCEMISSING;
     std::string statusError = toString(wError.status);
     DownloadedProductVector emptyProducts;
 
-    EXPECT_CALL(mock, hasError())
+    EXPECT_CALL(*mockSdds3Repo_, hasError())
         .WillOnce(Return(false)) // connection
         .WillOnce(Return(true))  // synchronization
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
-    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
@@ -1261,7 +1245,6 @@ TEST_F(
 TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::DOWNLOADFAILED;
@@ -1282,29 +1265,29 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
     productReports[1].errorDescription = productError.Description;
     productReports[1].productStatus = ProductReport::ProductStatus::SyncFailed;
 
-    EXPECT_CALL(mock, hasError())
+    EXPECT_CALL(*mockSdds3Repo_, hasError())
         .WillOnce(Return(false)) // connection
         .WillOnce(Return(false)) // synchronization
         .WillOnce(Return(true))  // distribute
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
 
-    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
-    EXPECT_CALL(mock, getProducts()).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
+    EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
 
-    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
@@ -1329,7 +1312,6 @@ TEST_F(
     runSULDownloader_RepositorySynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
 
@@ -1338,22 +1320,22 @@ TEST_F(
         product.setProductHasChanged(false);
     }
 
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -1361,7 +1343,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -1395,7 +1377,6 @@ TEST_F(
     runSULDownloader_UpdateFailForInvalidSignature)
 {
     MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
@@ -1437,22 +1418,22 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::VerifyFailed;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
-    EXPECT_CALL(mock, getProducts()).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
-    EXPECT_CALL(mock, getSourceURL());
-
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{
         RepositoryStatus::INSTALLFAILED, "Update failed", productReports, false, {}
     };
@@ -1471,7 +1452,6 @@ TEST_F(
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
 
@@ -1535,23 +1515,24 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::InstallFailed;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::INSTALLFAILED,
                                                      "Update failed",
@@ -1579,7 +1560,6 @@ TEST_F(
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1638,23 +1618,24 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1680,7 +1661,6 @@ TEST_F(
     runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1750,23 +1730,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -1792,7 +1774,6 @@ TEST_F(
     runSULDownloader_SuccessfulUpdateToNewVersionShouldCheckPluginIsRunning)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1862,23 +1843,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                           "",
                                                           productReports,
@@ -1905,7 +1888,6 @@ TEST_F(
     runSULDownloader_SuldownloaderWillStopProductIfItIsrunningBeforeUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1985,23 +1967,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                           "",
                                                           productReports,
@@ -2028,7 +2012,6 @@ TEST_F(
     runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2098,23 +2081,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2140,7 +2125,6 @@ TEST_F(
     runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2209,23 +2193,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2251,7 +2237,6 @@ TEST_F(
     runSULDownloader_SuccessfulFullUpdateWithSubscriptionsDifferentFromProductsShouldBeReportedCorrectly)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2311,24 +2296,26 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions)
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions)
         .WillOnce(Return(subscriptionsInfo({ products[0] }))); // only product 0 in the subscriptions
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2358,7 +2345,6 @@ TEST_F(
     runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2418,23 +2404,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2465,7 +2453,6 @@ TEST_F(
     runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2525,23 +2512,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2572,7 +2561,6 @@ TEST_F(
     runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2628,23 +2616,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2678,7 +2668,6 @@ TEST_F(
     runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2738,23 +2727,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2785,7 +2776,6 @@ TEST_F(
     runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2843,23 +2833,25 @@ TEST_F(
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    EXPECT_CALL(mock, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
+
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
@@ -2883,7 +2875,6 @@ TEST_F(
     runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
 
@@ -2892,22 +2883,22 @@ TEST_F(
         product.setProductHasChanged(false);
     }
 
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, false, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -2916,7 +2907,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -2947,7 +2938,6 @@ TEST_F(
     runSULDownloader_supplement_only_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
-    MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
     for (auto& product : products)
@@ -2955,22 +2945,22 @@ TEST_F(
         product.setProductHasChanged(false);
     }
 
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, true, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -2980,7 +2970,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
-
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
@@ -3075,27 +3065,27 @@ TEST_F(
     runSULDownloader_failureToPurgeSDDS2CacheDoesNotHaltSync)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
 
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
-    EXPECT_CALL(mock, synchronize(_,_,_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, distribute());
+    EXPECT_CALL(*mockSdds3Repo_, purge());
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).Times(2).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     TimeTracker timeTracker;
@@ -3197,9 +3187,9 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
         DownloadReport::Report("", products, {}, {},
                                &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
-    MockSdds3Repository& mock = repositoryMocked();
-    EXPECT_CALL(mock, getProducts).WillRepeatedly(Return(products));
-    EXPECT_CALL(mock, hasError).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, hasError).WillRepeatedly(Return(false));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(
         mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
@@ -3253,8 +3243,8 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
     DownloadReport previousDownloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
         .Times(0);
@@ -3299,8 +3289,8 @@ TEST_F(
     DownloadReport previousDownloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(
         mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _)).Times(0);
@@ -3344,8 +3334,8 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
     DownloadReport previousDownloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
         .Times(1);
@@ -3401,8 +3391,8 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDo
     DownloadReport previousDownloadReport =
         DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
-    MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
         .Times(0);
