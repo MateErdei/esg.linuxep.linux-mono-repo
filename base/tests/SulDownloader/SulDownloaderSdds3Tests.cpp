@@ -357,7 +357,8 @@ public:
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         EXPECT_CALL(mockFileSystem, moveFile(_, Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath())).Times(installedFeaturesWritesExpected);
-        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+
+        auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
         EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("/opt/sophos-spl/tmp"), sophos::updateSchedulerUser(), "root"));
         mode_t expectedFilePermissions = S_IRUSR | S_IWUSR;
         EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
@@ -369,10 +370,7 @@ public:
         EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), "root", sophos::group())).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).WillRepeatedly(Return());
 
-        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-
+        Tests::replaceFilePermissions(std::move(mockFilePermissions));
     }
 
     ::testing::AssertionResult downloadReportSimilar(
