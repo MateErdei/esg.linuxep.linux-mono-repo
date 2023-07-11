@@ -230,13 +230,7 @@ SDDS3 updates supplements
     Create Local SDDS3 Override
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s

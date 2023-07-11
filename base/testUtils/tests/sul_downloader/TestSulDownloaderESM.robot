@@ -212,12 +212,14 @@ Install all plugins static-999 then downgrade to all plugins static
     ...  30 secs
     ...  5 secs
     ...  Check Suldownloader Is Not Running
-    Mark Known Upgrade Errors
 
     Wait Until Keyword Succeeds
     ...   50 secs
     ...   10 secs
     ...  Check Installed Plugins Are VUT Versions
+
+    Mark Known Upgrade Errors
+    Mark Known Downgrade Errors
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical

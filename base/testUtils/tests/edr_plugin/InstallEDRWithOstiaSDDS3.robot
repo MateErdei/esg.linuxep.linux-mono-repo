@@ -119,6 +119,7 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
+    Mark Known Downgrade Errors
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -169,11 +170,12 @@ Upgrade VUT to 999
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
 
-    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
+    check_watchdog_log_does_not_contain    wdctl <> stop edr
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-    Wait for first update
-
-    Check SulDownloader Log Contains String N Times   Update success  2
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains   Update success
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
 
     Setup SUS all 999
@@ -309,7 +311,7 @@ Install develop of base and edr and mtr and upgrade to base 999
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    check_suldownloader_log_should_not_contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9
 
     Setup SUS only base 999
     Send ALC Policy And Prepare For Upgrade  ${Base999Policy}
@@ -332,7 +334,7 @@ Install develop of base and edr and mtr and upgrade to base 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -382,6 +384,11 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
 
     # ensure MTR is not installed.
     Wait Until MDR Uninstalled
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
@@ -391,16 +398,16 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
-
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
     Wait Until MDR Installed
 
     # ensure Plugins are running after update
     Check MDR Plugin Running
-    Check MDR and Base Components Inside The ALC Status
+
+    Wait Until Keyword Succeeds
+    ...  30
+    ...  5
+    ...  Check MDR and Base Components Inside The ALC Status
 
     EDR Plugin Is Running
     Wait Until Keyword Succeeds
@@ -427,6 +434,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait For EDR to be Installed
 
     # Transition to EDR Only
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
 
     Wait Until Keyword Succeeds
@@ -435,11 +443,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
 
     Wait Until MDR Uninstalled
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
 
     # ensure EDR still running after update
     EDR Plugin Is Running

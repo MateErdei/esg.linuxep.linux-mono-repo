@@ -108,11 +108,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
@@ -138,18 +136,15 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     Trigger Update Now
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
     Check SulDownloader Log Contains   Running SDDS3 update
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
@@ -234,15 +229,13 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check Current Release With AV Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -283,12 +276,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
     Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
 
-    Trigger Update Now
     # Wait for successful update (all up to date) after downgrading
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check SulDownloader Log Contains String N Times    Update success    1
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    Trigger Update Now
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
     Check SulDownloader Log Contains   Running SDDS3 update
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
@@ -332,7 +323,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
-    # Upgrade back to master to check we can upgrade from a downgraded product
+    # Upgrade back to develop to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -396,11 +387,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
@@ -408,7 +397,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -421,12 +409,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
     Check SulDownloader Log Contains    Running SDDS3 update
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
@@ -519,15 +504,13 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
     Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check Current Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
@@ -566,13 +549,11 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
+    # Wait for successful update (all up to date) after downgrading
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
     wait_for_log_contains_from_mark  ${ma_mark}  Action ALC_action_FakeTime.xml sent to     15
-    # Wait for successful update (all up to date) after downgrading
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    SulDownloader Log    Update success    1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
     Check SulDownloader Log Contains    Running SDDS3 update
 
     Wait Until Keyword Succeeds
@@ -607,7 +588,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
-    # Upgrade back to master to check we can upgrade from a downgraded product
+    # Upgrade back to develop to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -650,12 +631,13 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  1
+    ...   Check SulDownloader Log Contains   Update success
     Override LogConf File as Global Level  DEBUG
     Create Dummy Local SDDS2 Cache Files
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -679,10 +661,7 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     ...   10 secs
     ...   Directory Should Exist   ${sdds3_primary}/ServerProtectionLinux-Base-component/
 
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    300
     Check Suldownloader Log Contains In Order    Update success    Purging local SDDS2 cache    Update success
 
     Check Local SDDS2 Cache Is Empty
@@ -705,7 +684,7 @@ SDDS3 updating respects ALC feature codes
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
 
-    wait_for_log_contains_from_mark  ${sul_mark}  Update success      80
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
     #core plugins should be installed
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
@@ -714,9 +693,15 @@ SDDS3 updating respects ALC feature codes
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
-    Check Marked Sul Log Does Not Contain   Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/
-    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
+    check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/    ${sul_mark}
+
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   5 secs
+    ...   File Should Contain    ${UPDATE_CONFIG}    AV
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
+    Trigger Update now
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
     Wait Until Keyword Succeeds
     ...   120 secs
@@ -738,7 +723,7 @@ SDDS3 updating with changed unused feature codes do not change version
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
 
     ${BaseVersionBeforeUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -752,6 +737,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
+
     #TODO once defect LINUXDAR-4592 is done check here that no plugins are reinstalled as well
     ${BaseVersionAfterUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -760,6 +746,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${AVVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     ${RuntimeDetectionsVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     ${EJVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
+
     Should Be Equal As Strings  ${RuntimeDetectionsVersionBeforeUpdate}  ${RuntimeDetectionsVersionAfterUpdate}
     Should Be Equal As Strings  ${MtrVersionBeforeUpdate}  ${MtrVersionAfterUpdate}
     Should Be Equal As Strings  ${EdrVersionBeforeUpdate}  ${EdrVersionAfterUpdate}
@@ -779,14 +766,12 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
 
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
-    Check SulDownloader Log Contains String N Times   Generating the report file  3
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Check SulDownloader Log Contains String N Times   Generating the report file  2
 
     check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
@@ -801,24 +786,21 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains  Update success
     Check SulDownloader Log Contains     Running SDDS3 update
 
-    Mark Sul Log
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Marked Sul Log Contains   Update success
-    Check Marked Sul Log Does Not Contain  Installing product
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
+    check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Installing product    ${sul_mark}
 
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
 
     All Products In Update Report Are Up To Date  ${latest_report_result.stdout.strip()}
@@ -833,7 +815,7 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains   Update success
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
