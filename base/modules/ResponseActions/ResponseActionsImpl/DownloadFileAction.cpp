@@ -550,10 +550,10 @@ namespace ResponseActionsImpl
     {
         assert(destDir.back() == '/');
         auto destPath = destDir + fileName;
+        Path dirName = FileSystem::dirName(filePathToMove);
 
         try
         {
-            Path dirName = FileSystem::dirName(filePathToMove);
             dirName = getSubDirsInTmpDir(dirName);
 
             if(!dirName.empty())
@@ -561,6 +561,26 @@ namespace ResponseActionsImpl
                 m_fileSystem->makedirs(destDir + dirName);
                 destPath = destDir + dirName + "/" + fileName;
             }
+        }
+        catch (const FileSystem::IFileSystemException& e)
+        {
+            std::stringstream error;
+            error << "Unable to make directories " << destDir + dirName << ": " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
+            return;
+        }
+        catch (const std::exception& e)
+        {
+            std::stringstream error;
+            error << "Unknown error when trying to make directories " << destDir + dirName << ": " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
+            return;
+        }
+
+        try
+        {
             m_fileSystem->moveFileTryCopy(filePathToMove, destPath);
         }
         catch (const FileSystem::IFileSystemException& e)
