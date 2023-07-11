@@ -461,9 +461,11 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Check Event Journaler Executable Running
-    Wait For RuntimeDetections to be Installed
-    Check AV Plugin Permissions
 
+    Wait For RuntimeDetections to be Installed
+    Check RuntimeDetections Installed Correctly
+
+    Check AV Plugin Permissions
     Wait Until Keyword Succeeds
     ...  180 secs
     ...  1 secs
