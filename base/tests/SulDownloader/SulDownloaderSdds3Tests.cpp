@@ -977,9 +977,10 @@ TEST_F(
     SULDownloaderSdds3Test,
     configAndRunDownloaderInvalidSettingsReportError_RepositoryStatus_UNSPECIFIED)
 {
-    //TODO this test fails now we have a expectatino on the mock
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(_)).Times(10).WillRepeatedly(Return(""));
     m_replacer.replace(std::move(mockFileSystem));
+
     std::string reportContent;
     int exitCode = 0;
     auto settings = defaultSettings();
@@ -1004,10 +1005,6 @@ TEST_F(
 
 TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSupplementOnlyThenWritesToFeaturesFile)
 {
-    //TODO do we need this
-    auto mockFilePermissions = std::make_unique<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions(std::move(mockFilePermissions));
-
     // Expect that features are written
     const int expectedInstalledFeatures = 1;
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, expectedInstalledFeatures);
