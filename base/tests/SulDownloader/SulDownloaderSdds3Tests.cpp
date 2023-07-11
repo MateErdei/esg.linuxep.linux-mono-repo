@@ -56,11 +56,10 @@ namespace
 
     void setupInstalledFeaturesPermissions()
     {
-        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
         EXPECT_CALL(*mockFilePermissions, chown(::testing::HasSubstr("installed_features.json"), sophos::updateSchedulerUser(), sophos::group()));
         EXPECT_CALL(*mockFilePermissions, chmod(::testing::HasSubstr("installed_features.json"), S_IRUSR | S_IWUSR | S_IRGRP));
-        auto mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        Tests::replaceFilePermissions(std::move(mockFilePermissions));
     }
 
 } // namespace
@@ -493,6 +492,26 @@ public:
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
     }
+
+    std::unique_ptr<Common::Process::IProcess> mockIsEdrRunning(int exitCode = 0)
+    {
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
+        std::vector<std::string> start_args = {"isrunning","edr"};
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
+        EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return mockProcess;
+    }
+
+    std::unique_ptr<Common::Process::IProcess> mockSimpleExec(const std::string& substr, int exitCode = 0)
+    {
+        auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
+        EXPECT_CALL(*mockProcess, exec(HasSubstr(substr), _, _)).Times(1);
+        EXPECT_CALL(*mockProcess, output()).Times(1);
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
+        return mockProcess;
+    }
+
 protected:
     std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
     Tests::ScopedReplaceFileSystem m_replacer;
@@ -1816,12 +1835,7 @@ TEST_F(
        else
        {
            counter++;
-           auto* mockProcess = new StrictMock<MockProcess>();
-           std::vector<std::string> start_args = {"isrunning","edr"};
-           EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
-           EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+           return mockIsEdrRunning();
        }
    });
 
@@ -1907,47 +1921,42 @@ TEST_F(
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
 
-   if (counter == 2)
-   {
-       counter++;
-       return mockBaseInstall();
-   }
-   if (counter == 1)
-   {
-       counter++;
-       return mockSystemctlStop();
-   }
-   else if (counter == 3)
-   {
-       counter++;
-       return mockEDRInstall();
-   }
-   else if (counter == 0)
-   {
-       counter++;
-       return mockSystemctlStatus(0);
-   }
-   else if (counter == 4)
-   {
-       counter++;
-       return mockSystemctlStatus();
-   }
-   else if (counter == 5)
-   {
-       counter++;
-       return mockSystemctlStart();
-   }
-   else
-   {
-       counter++;
-       auto* mockProcess = new StrictMock<MockProcess>();
-       std::vector<std::string> start_args = {"isrunning","edr"};
-       EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
-       EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-       return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-   }
-});
+       if (counter == 2)
+       {
+           counter++;
+           return mockBaseInstall();
+       }
+       if (counter == 1)
+       {
+           counter++;
+           return mockSystemctlStop();
+       }
+       else if (counter == 3)
+       {
+           counter++;
+           return mockEDRInstall();
+       }
+       else if (counter == 0)
+       {
+           counter++;
+           return mockSystemctlStatus(0);
+       }
+       else if (counter == 4)
+       {
+           counter++;
+           return mockSystemctlStatus();
+       }
+       else if (counter == 5)
+       {
+           counter++;
+           return mockSystemctlStart();
+       }
+       else
+       {
+           counter++;
+           return mockIsEdrRunning();
+       }
+    });
 
     ProductReportVector productReports = defaultProductReports();
     productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
@@ -2038,12 +2047,7 @@ TEST_F(
       else if (counter == 0)
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, output()).Times(1);
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          return mockSimpleExec("bin/uninstall.sh");
       }
       else if (counter == 2)
       {
@@ -2146,12 +2150,7 @@ TEST_F(
       if (counter == 0)
       {
           counter++;
-          auto mockProcess = new StrictMock<MockProcess>();
-
-          EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(1);
-          EXPECT_CALL(*mockProcess, output()).Times(1);
-          EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-          return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+          return mockSimpleExec("ServerProtectionLinux-Plugin-EDR.sh");
       }
       else if (counter == 2)
       {
@@ -3418,26 +3417,24 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJson
 TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWrittenToJsonFile)
 {
     setupInstalledFeaturesPermissions();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock,writeFile(::testing::HasSubstr("installed_features.json"), "[]"));
     EXPECT_CALL(*filesystemMock,moveFile(_,
                  Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()));
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::move(filesystemMock) };
     std::vector<std::string> features = {};
     SulDownloader::writeInstalledFeatures(features);
 }
 
 TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSystemError)
 {
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *filesystemMock,
         writeFile(::testing::HasSubstr("installed_features.json"),"[\"feature1\",\"feature2\"]"))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
 
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::move(filesystemMock) };
 
     std::vector<std::string> features = { "feature1", "feature2" };
     EXPECT_NO_THROW(SulDownloader::writeInstalledFeatures(features));
