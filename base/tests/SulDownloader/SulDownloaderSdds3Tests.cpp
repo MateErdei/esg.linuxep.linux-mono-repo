@@ -136,17 +136,10 @@ public:
         return settings;
     }
 
-    ConfigurationSettings newFeatureSettings()
+    ConfigurationSettings newFeatureSettings(const std::string& feature = "SOME_FEATURE")
     {
         ConfigurationSettings settings = defaultSettings();
-        settings.add_features("SOME_FEATURE");
-        return settings;
-    }
-
-    ConfigurationSettings newDifferentFeatureSettings()
-    {
-        ConfigurationSettings settings = defaultSettings();
-        settings.add_features("DIFF_FEATURE");
+        settings.add_features(feature);
         return settings;
     }
 
@@ -2769,7 +2762,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(newFeatureSettings());
-    auto configurationData = configData(newDifferentFeatureSettings());
+    auto configurationData = configData(newFeatureSettings("DIFF_FEATURE"));
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
