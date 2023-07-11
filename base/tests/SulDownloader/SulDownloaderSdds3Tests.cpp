@@ -86,11 +86,9 @@ public:
         });
         m_mockptr = nullptr;
 
-        auto* mockPidLockFileUtilsPtr = new NiceMock<MockPidLockFileUtils>();
+        auto mockPidLockFileUtilsPtr = std::make_unique<NiceMock<MockPidLockFileUtils>>();
         ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
-        std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-            std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtilsPtr));
     }
 
     /**
