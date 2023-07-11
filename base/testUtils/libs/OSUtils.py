@@ -38,6 +38,16 @@ def ensure_owner_and_group_matches(filepath, username, groupname):
         raise AssertionError(f"Filepath {filepath} belongs to group {group}. Expected {groupname}")
 
 
+def get_process_owner(pid) -> str:
+    proc_stat_file = os.stat(f"/proc/{pid}")
+    uid = proc_stat_file.st_uid
+    return pwd.getpwuid(uid)[0]
+
+def get_process_group(pid) -> str:
+    proc_stat_file = os.stat(f"/proc/{pid}")
+    gid = proc_stat_file.st_gid
+    return grp.getgrgid(gid).gr_name
+
 def pids_of_file(file_path):
     if not os.path.exists(file_path):
         raise AssertionError(f"Not a valid path: {file_path}")
@@ -418,7 +428,8 @@ def find_most_recent_edit_time_from_list_of_files(list_of_files):
 
 def install_system_ca_cert(certificate_path):
     script = os.path.join(PathManager.get_support_file_path(), "InstallCertificateToSystem.sh")
-    command = ["bash", "-x", script, certificate_path]
+    os.chmod(script, 0o755)
+    command = [script, certificate_path]
     logger.info(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
@@ -502,10 +513,19 @@ def append_to_file_if_not_in_file(file_path, to_append):
             f.write(f"\n{to_append}")
 
 
-def generate_file(file_path, size_in_mb):
+
+def generate_file(file_path, size_in_kib):
+    size_in_kib = int(size_in_kib)
+    #       12345678901234567890123456789012
+    text = "GENERATED FILE CONTENTS01234567\n"
+    assert len(text) == 32
+    text = text * 32
+    text = text.encode("UTF-8")
+    assert len(text) == 1024
     with open(file_path, 'wb') as fout:
-        for i in range(1024):
-            fout.write(os.urandom(int(size_in_mb)))
+        for i in range(size_in_kib):
+            fout.write(text)
+
 
 
 def replace_service_with_sleep(service_name):
