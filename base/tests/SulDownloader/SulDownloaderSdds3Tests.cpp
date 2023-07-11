@@ -79,10 +79,9 @@ public:
     void SetUp() override
     {
         VersigFactory::instance().replaceCreator([]() {
-          auto* versig = new NiceMock<MockVersig>();
-          ON_CALL(*versig, verify(_, _))
-              .WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
-          return std::unique_ptr<IVersig>(versig);
+          auto versig = std::make_unique<NiceMock<MockVersig>>();
+          ON_CALL(*versig, verify(_, _)).WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
+          return versig;
         });
         m_mockptr = nullptr;
 
