@@ -546,10 +546,9 @@ TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectEr
 
 TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectErrorCode)
 {
-    auto filesystemMock = new MockFileSystem();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
+    auto filesystemMock = std::make_unique<NaggyMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
+    m_replacer.replace(std::move(filesystemMock));
 
     // directory can not be replaced by file
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "input.json", "/opt/sophos-spl/directorypath" }, {});
@@ -849,11 +848,11 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
-      auto mockProcess = new StrictMock<MockProcess>();
+      auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
       EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
       EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-      return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      return mockProcess;
     });
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
@@ -925,11 +924,11 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
-      auto mockProcess = new StrictMock<MockProcess>();
+      auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
       EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
       EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
-      return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+      return mockProcess;
     });
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
@@ -943,11 +942,11 @@ TEST_F(
     SULDownloaderSdds3Test,
     fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
-    auto filesystemMock = new MockFileSystem();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto filesystemMock = std::make_unique<NaggyMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillRepeatedly(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
+    m_replacer.replace(std::move(filesystemMock));
 
     EXPECT_THROW(
         SulDownloader::fileEntriesAndRunDownloader("/dir/input.json", "/dir/path/that/cannot/be/created/output.json", ""),
@@ -959,7 +958,9 @@ TEST_F(
     SULDownloaderSdds3Test,
     configAndRunDownloaderInvalidSettingsReportError_RepositoryStatus_UNSPECIFIED)
 {
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(new MockFileSystem()));
+    //TODO this test fails now we have a expectatino on the mock
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    m_replacer.replace(std::move(mockFileSystem));
     std::string reportContent;
     int exitCode = 0;
     auto settings = defaultSettings();
@@ -984,6 +985,7 @@ TEST_F(
 
 TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSupplementOnlyThenWritesToFeaturesFile)
 {
+    //TODO do we need this
     auto mockFilePermissions = std::make_unique<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions(std::move(mockFilePermissions));
 
@@ -1396,7 +1398,7 @@ TEST_F(
 
 
     VersigFactory::instance().replaceCreator([&counter]() {
-      auto versig = new StrictMock<MockVersig>();
+      auto versig = std::make_unique<StrictMock<MockVersig>>();
       if (counter++ == 0)
       {
           EXPECT_CALL(*versig, verify(_, "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component"))
@@ -1408,7 +1410,7 @@ TEST_F(
               .WillOnce(Return(IVersig::VerifySignature::SIGNATURE_FAILED));
       }
 
-      return std::unique_ptr<IVersig>(versig);
+      return versig;
     });
 
     ProductReportVector productReports = defaultProductReports();
@@ -1688,39 +1690,26 @@ TEST_F(
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
 
-       if (counter == 0 || counter == 3)
-       {
-           counter++;
-           return mockSystemctlStatus();
-       }
-     else if (counter == 1)
-     {
-         counter++;
-         auto mockProcess = new StrictMock<MockProcess>();
-
-         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
-         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-         EXPECT_CALL(*mockProcess, exec(HasSubstr("bin/uninstall.sh"), _, _)).Times(0);
-         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-     }
-     else if (counter == 2)
-     {
-         counter++;
-         auto mockProcess = new StrictMock<MockProcess>();
-         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
-         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-         EXPECT_CALL(*mockProcess, exec(HasSubstr("installedproducts/ServerProtectionLinux-Plugin-EDR.sh"), _, _)).Times(0);
-         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-     }
-     else
-     {
+        if (counter == 0 || counter == 3)
+        {
+            counter++;
+            return mockSystemctlStatus();
+        }
+        else if (counter == 1)
+        {
+             counter++;
+             return mockBaseInstall();
+        }
+         else if (counter == 2)
+        {
+             counter++;
+             return mockEDRInstall();
+        }
+        else
+        {
          counter++;
          return mockSystemctlStart();
-     }
+        }
     });
 
     ProductReportVector productReports = defaultProductReports();
