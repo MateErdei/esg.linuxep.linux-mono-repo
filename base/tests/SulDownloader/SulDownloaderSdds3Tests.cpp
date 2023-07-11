@@ -150,34 +150,16 @@ public:
         return settings;
     }
 
-    ConfigurationSettings newSubscriptionSettings()
+    ConfigurationSettings newSubscriptionSettings(const std::string& rigidname = "Plugin_1")
     {
         ConfigurationSettings settings = defaultSettings();
         auto* proto_subscriptions = settings.mutable_products();
 
         PolicyProto::ConfigurationSettings_Subscription proto_subscription;
 
-        proto_subscription.set_rigidname("Plugin_1");
+        proto_subscription.set_rigidname(rigidname);
         proto_subscription.set_baseversion("");
-        proto_subscription.set_tag("RECOMMMENDED");
-        proto_subscription.set_fixedversion("");
-
-        proto_subscriptions->Add(
-            dynamic_cast<PolicyProto::ConfigurationSettings_Subscription&&>(proto_subscription));
-
-        return settings;
-    }
-
-    ConfigurationSettings newDifferentSubscriptionSettings()
-    {
-        ConfigurationSettings settings = defaultSettings();
-        auto proto_subscriptions = settings.mutable_products();
-
-        PolicyProto::ConfigurationSettings_Subscription proto_subscription;
-
-        proto_subscription.set_rigidname("Plugin_2");
-        proto_subscription.set_baseversion("");
-        proto_subscription.set_tag("RECOMMMENDED");
+        proto_subscription.set_tag("RECOMMENDED");
         proto_subscription.set_fixedversion("");
 
         proto_subscriptions->Add(
@@ -2677,7 +2659,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(newSubscriptionSettings());
-    auto configurationData = configData(newDifferentSubscriptionSettings());
+    auto configurationData = configData(newSubscriptionSettings("Plugin_2"));
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
