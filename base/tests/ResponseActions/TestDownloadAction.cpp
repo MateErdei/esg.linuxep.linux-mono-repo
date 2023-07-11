@@ -737,6 +737,56 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt3 downloaded successfully"));
 }
 
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPathIsDirectory_WithSubDirectories)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    bool decompress = true;
+    Path subDirs = "subDir1/subDir2/";
+
+    setupMockZipUtils();
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem(decompress, true, subDirs);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + subDirs + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + subDirs + m_testExtractedFile + "1")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + subDirs + m_testExtractedFile + "2")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + subDirs + m_testExtractedFile + "3")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
+    Path subDirNoSlash = subDirs;
+    subDirNoSlash.pop_back();
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + subDirNoSlash)).Times(AnyNumber());
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).Times(4);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/"));
+    EXPECT_TRUE(appenderContains("Downloaded file: /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
+    EXPECT_TRUE(appenderContains("Extracted 4 files from archive"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/subDir1/subDir2/download.txt downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/subDir1/subDir2/download.txt1 downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/subDir1/subDir2/download.txt2 downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/subDir1/subDir2/download.txt3 downloaded successfully"));
+}
+
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPathIsFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
