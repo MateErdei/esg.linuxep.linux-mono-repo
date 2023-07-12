@@ -82,7 +82,7 @@ Sul Downloader fails update if expected product missing from SUS
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  MY_TEST
 
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
@@ -183,7 +183,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check Current Release With AV Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+
     Wait For RuntimeDetections to be Installed
+    Check RuntimeDetections Installed Correctly
+
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Check Event Journaler Executable Running
@@ -362,7 +365,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  MY_TEST
 
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}

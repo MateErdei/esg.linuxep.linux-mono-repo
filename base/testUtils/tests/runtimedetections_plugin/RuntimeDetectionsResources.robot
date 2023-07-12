@@ -5,35 +5,31 @@ Resource  ../upgrade_product/UpgradeResources.robot
 
 *** Variables ***
 # Telemetry variables
-${COMPONENT_TEMP_DIR}  /tmp/RTD_component
 ${RTD_PLUGIN_PATH}     ${SOPHOS_INSTALL}/plugins/runtimedetections
 ${RTD_EXECUTABLE}      ${RTD_PLUGIN_PATH}/bin/runtimedetections
 
-
 *** Keywords ***
 Wait For RuntimeDetections to be Installed
-    Wait Until Keyword Succeeds
-    ...   40 secs
-    ...   10 secs
-    ...   File Should exist    ${RTD_EXECUTABLE}
+    Wait Until Created   ${RTD_EXECUTABLE}   timeout=40s
 
     Wait Until Keyword Succeeds
     ...   40 secs
-    ...   2 secs
+    ...   1 secs
     ...   RuntimeDetections Plugin Is Running
 
+    Wait Until Created    ${RTD_PLUGIN_PATH}/var/run/sensor.sock   timeout=30s
 
 RuntimeDetections Plugin Is Running
     ${result} =    Run Process  pgrep  -f  ${RTD_EXECUTABLE}
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin not running
 
 RuntimeDetections Plugin Is Not Running
     ${result} =    Run Process  pgrep  -f  ${RTD_EXECUTABLE}
     Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin still running
 
 Install RuntimeDetections Directly
-    ${RTD_SDDS_DIR} =  Get SSPL RuntimeDetections Plugin SDDS
-    ${result} =    Run Process  bash -x ${RTD_SDDS_DIR}/install.sh 2> /tmp/rtd_install.log   shell=True
+    ${RTD_SDDS_DIR} =   Get SSPL RuntimeDetections Plugin SDDS
+    ${result} =   Run Process  bash -x ${RTD_SDDS_DIR}/install.sh 2> /tmp/rtd_install.log   shell=True
     ${stderr} =   Get File  /tmp/rtd_install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
@@ -43,7 +39,6 @@ Install RuntimeDetections Directly
 
 Check RuntimeDetections Installed Correctly
     Verify Component Permissions
-    Check RuntimeDetections Plugin Is Running
     Verify Running Component Permissions
 
 Verify Permissions
@@ -89,14 +84,13 @@ Verify Component Permissions
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/  0o750    root   sophos-spl-group
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/dummy.bpf.o  0o640    root   sophos-spl-group
 
-
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/run/  0o750    sophos-spl-user   sophos-spl-group
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/VERSION.ini  0o640    root   sophos-spl-group
 
     # if the content supplement includes BPF, verify that it was installed
-    ${dirExists}=    Directory Exists    ${COMPONENT_RULES_PATH}/bpf
-    IF    ${dirExists} is True
+    ${RTD_SDDS_DIR} =   Get SSPL RuntimeDetections Plugin SDDS
+    IF   ${{os.path.isdir("${RTD_SDDS_DIR}/content_rules/bpf")}}
         Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf  0o750    root   sophos-spl-group
         Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/test.bpf.c  0o640    root   sophos-spl-group
         Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/test.bpf.o  0o640    root   sophos-spl-group
