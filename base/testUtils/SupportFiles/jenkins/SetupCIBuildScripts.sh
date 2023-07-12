@@ -27,7 +27,8 @@ SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 PYTHONCOMMAND=python3
 if [[ -d /home/jenkins ]]
 then
-  PYTHONCOMMAND=python3.8
+  PYTHON38="$(which python3.8)"
+  [[ -x "${PYTHON38}" ]] && PYTHONCOMMAND=python3.8
 fi
 try_command_with_backoff  $PYTHONCOMMAND -m pip install --upgrade pip
 try_command_with_backoff  $PYTHONCOMMAND -m pip install --ignore-installed PyYAML

@@ -46,7 +46,8 @@ fi
 PYTHONCOMMAND=python3
 if [[ -d /home/jenkins ]]
 then
-  PYTHONCOMMAND=python3.8
+  PYTHON38="$(which python3.8)"
+  [[ -x "${PYTHON38}" ]] && PYTHONCOMMAND=python3.8
 fi
 # Create venv
 # undo set -eu because venv/bin/activate script produces errors.
