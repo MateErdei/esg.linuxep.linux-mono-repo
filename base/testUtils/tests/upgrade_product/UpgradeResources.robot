@@ -148,6 +148,10 @@ Start Local SDDS3 Server
     ...  stdout=${sdds3_server_output}
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Can Curl Url    https://localhost:8080
 
     [Return]  ${handle}
 
