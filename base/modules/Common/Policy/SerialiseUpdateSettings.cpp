@@ -3,7 +3,7 @@
 #include "SerialiseUpdateSettings.h"
 
 #include "ConfigurationSettings.pb.h"
-#include "PolicyParseException.h"
+
 
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
@@ -14,12 +14,6 @@ using namespace Common::Policy;
 
 namespace
 {
-    class UpdatePolicySerialisationException : public PolicyParseException
-    {
-    public:
-        using PolicyParseException::PolicyParseException;
-    };
-
     ProductSubscription getSubscription(
         const PolicyProto::ConfigurationSettings_Subscription& proto_subscription)
     {

@@ -2,10 +2,17 @@
 
 #pragma once
 
+#include "PolicyParseException.h"
 #include "UpdateSettings.h"
 
 namespace Common::Policy
 {
+    class UpdatePolicySerialisationException : public PolicyParseException
+    {
+    public:
+        using PolicyParseException::PolicyParseException;
+    };
+
     class SerialiseUpdateSettings
     {
     public:

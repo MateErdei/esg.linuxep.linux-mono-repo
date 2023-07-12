@@ -1,9 +1,11 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "TestUpdateSettingsBase.h"
+
 #include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Policy/PolicyParseException.h"
 
-#include "TestUpdateSettingsBase.h"
+#include "tests/Common/UtilityImpl/TestStringGenerator.h"
 
 #include <gtest/gtest.h>
 
@@ -276,6 +278,44 @@ TEST_F(TestSerialiseUpdateSettings, validJsonStringWithEmptyValueInInstallArgume
     EXPECT_FALSE(updateSettings.verifySettingsAreValid());
 }
 
+namespace ESMFaultInjection
+{
+    static std::string getJsonWithESM(const std::string& esmVersion)
+    {
+        auto json = R"({
+                    "sophosURLs": [
+                                       "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
+                    ],
+                    "credential": {
+                       "username": "administrator",
+                       "password": "password"
+                    },
+                    "proxy": {
+                      "url": "noproxy:",
+                      "credential": {
+                          "username": "",
+                          "password": ""
+                      }
+                    },
+                    "JWToken": "token",
+                    "tenantId": "tenantid",
+                    "deviceId": "deviceid",
+                    "primarySubscription": {
+                      "rigidName": "ServerProtectionLinux-Base-component",
+                      "baseVersion": "",
+                      "tag": "RECOMMMENDED",
+                      "fixedVersion": ""
+                    },
+                    "features": [
+                                   "CORE"
+                    ],)"
+                    + esmVersion +
+                    R"(})";
+
+        return json;
+    }
+}
+
 //ESM fault injection
 class TestSerialiseUpdateSettingsParameterized
     :  public ::testing::TestWithParam<std::pair<std::string, bool>>
@@ -289,42 +329,8 @@ class TestSerialiseUpdateSettingsParameterized
         }
         std::unique_ptr<MockFileSystem> mockFileSystem_;
         Common::Logging::ConsoleLoggingSetup loggingSetup_;
-
-        static std::string getJsonWithESM(const std::string& esmVersion)
-        {
-            auto json = R"({
-                "sophosURLs": [
-                                   "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
-                ],
-                "credential": {
-                   "username": "administrator",
-                   "password": "password"
-                },
-                "proxy": {
-                  "url": "noproxy:",
-                  "credential": {
-                      "username": "",
-                      "password": ""
-                  }
-                },
-                "JWToken": "token",
-                "tenantId": "tenantid",
-                "deviceId": "deviceid",
-                "primarySubscription": {
-                  "rigidName": "ServerProtectionLinux-Base-component",
-                  "baseVersion": "",
-                  "tag": "RECOMMMENDED",
-                  "fixedVersion": ""
-                },
-                "features": [
-                               "CORE"
-                ],)"
-                        + esmVersion +
-                        R"(})";
-
-            return json;
-        }
 };
+
 
 INSTANTIATE_TEST_SUITE_P(
     TestSerialiseUpdateSettings,
@@ -341,7 +347,10 @@ INSTANTIATE_TEST_SUITE_P(
         //Both are empty
         std::make_pair(R"("esmVersion": { "token": "", "name": "" })", true),
         //Both are missing
-        std::make_pair(R"("esmVersion": {})", true)));
+        std::make_pair(R"("esmVersion": {})", true),
+        //Large Strings
+        std::make_pair(R"("esmVersion": { "token": ")" + std::string(30000, 't') + R"(", "name": "name" })", true),
+        std::make_pair(R"("esmVersion": { "token": "token", "name": ")" + std::string(30000, 't') + R"(" })", true)));
 
 TEST_P(TestSerialiseUpdateSettingsParameterized, esmVersionValidity)
 {
@@ -349,31 +358,38 @@ TEST_P(TestSerialiseUpdateSettingsParameterized, esmVersionValidity)
     fsReplacer.replace(std::move(mockFileSystem_));
 
     auto [esmVersion, isValid] = GetParam();
-    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(ESMFaultInjection::getJsonWithESM(esmVersion));
     EXPECT_EQ(isValid, updateSettings.verifySettingsAreValid());
 }
 
-/*TEST_F(TestSerialiseUpdateSettings, esmHasTokenMissing)
+TEST_F(TestSerialiseUpdateSettings, nonUtf8EsmInputThrows)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     setupFileSystemAndGetMock();
-    auto esmVersion = R"("esmVersion": { "name": "name" })";
-    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
-    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+    auto nonUtf8Str = generateNonUTF8String();
 
-    EXPECT_TRUE(appenderContains("ESM feature is not valid. Name: name and Token: "));
+    try
+    {
+        auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(ESMFaultInjection::getJsonWithESM(nonUtf8Str));
+        FAIL() <<  "didnt throw due to non-utf8";
+    }
+    catch (const std::invalid_argument& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Not a valid utf-a string");
+    }
 }
 
-TEST_F(TestSerialiseUpdateSettings, esmHasDuplicatedNameFields)
+TEST_F(TestSerialiseUpdateSettings, xmlInESMField)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     setupFileSystemAndGetMock();
-    auto esmVersion = R"("esmVersion": { "name": "name" })";
-    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
-    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+    std::string esmVersion(R"("esmVersion": <?xml version="1.0"?> <token>token</token>})");
 
-    EXPECT_TRUE(appenderContains("ESM feature is not valid. Name: name and Token: "));
-}*/
-
+    try
+    {
+        auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(ESMFaultInjection::getJsonWithESM(esmVersion));
+        FAIL() <<  "Didnt throw due to xml in field";
+    }
+    catch (const UpdatePolicySerialisationException& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Failed to process json message with error: INVALID_ARGUMENT:Expected a value.\n<?xml version=\"1.0\"?\n^");
+    }
+}
