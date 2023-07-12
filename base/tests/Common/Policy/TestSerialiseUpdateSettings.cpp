@@ -5,6 +5,8 @@
 
 #include "TestUpdateSettingsBase.h"
 
+#include <gtest/gtest.h>
+
 using namespace Common::Policy;
 
 namespace
@@ -273,3 +275,105 @@ TEST_F(TestSerialiseUpdateSettings, validJsonStringWithEmptyValueInInstallArgume
     auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString));
     EXPECT_FALSE(updateSettings.verifySettingsAreValid());
 }
+
+//ESM fault injection
+class TestSerialiseUpdateSettingsParameterized
+    :  public ::testing::TestWithParam<std::pair<std::string, bool>>
+{
+    public:
+        void SetUp() override
+        {
+            loggingSetup_ = Common::Logging::LOGOFFFORTEST();
+            mockFileSystem_ = std::make_unique<NaggyMock<MockFileSystem>>();
+            ON_CALL(*mockFileSystem_, isDirectory(_)).WillByDefault(Return(true));
+        }
+        std::unique_ptr<MockFileSystem> mockFileSystem_;
+        Common::Logging::ConsoleLoggingSetup loggingSetup_;
+
+        static std::string getJsonWithESM(const std::string& esmVersion)
+        {
+            auto json = R"({
+                "sophosURLs": [
+                                   "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
+                ],
+                "credential": {
+                   "username": "administrator",
+                   "password": "password"
+                },
+                "proxy": {
+                  "url": "noproxy:",
+                  "credential": {
+                      "username": "",
+                      "password": ""
+                  }
+                },
+                "JWToken": "token",
+                "tenantId": "tenantid",
+                "deviceId": "deviceid",
+                "primarySubscription": {
+                  "rigidName": "ServerProtectionLinux-Base-component",
+                  "baseVersion": "",
+                  "tag": "RECOMMMENDED",
+                  "fixedVersion": ""
+                },
+                "features": [
+                               "CORE"
+                ],)"
+                        + esmVersion +
+                        R"(})";
+
+            return json;
+        }
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    TestSerialiseUpdateSettings,
+    TestSerialiseUpdateSettingsParameterized,
+    ::testing::Values(
+        //One is missing
+        std::make_pair(R"("esmVersion": { "token": "token" })", false),
+        std::make_pair(R"("esmVersion": { "name": "name" })", false),
+        //One is empty
+        std::make_pair(R"("esmVersion": { "token": "token", "name": "" })", false),
+        std::make_pair(R"("esmVersion": { "token": "", "name": "name" })", false),
+        //Duplicate
+        std::make_pair(R"("esmVersion": { "token": "token", "token": "token2", "name": "name" })", true),
+        //Both are empty
+        std::make_pair(R"("esmVersion": { "token": "", "name": "" })", true),
+        //Both are missing
+        std::make_pair(R"("esmVersion": {})", true)));
+
+TEST_P(TestSerialiseUpdateSettingsParameterized, esmVersionValidity)
+{
+    Tests::ScopedReplaceFileSystem fsReplacer;
+    fsReplacer.replace(std::move(mockFileSystem_));
+
+    auto [esmVersion, isValid] = GetParam();
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
+    EXPECT_EQ(isValid, updateSettings.verifySettingsAreValid());
+}
+
+/*TEST_F(TestSerialiseUpdateSettings, esmHasTokenMissing)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    setupFileSystemAndGetMock();
+    auto esmVersion = R"("esmVersion": { "name": "name" })";
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+
+    EXPECT_TRUE(appenderContains("ESM feature is not valid. Name: name and Token: "));
+}
+
+TEST_F(TestSerialiseUpdateSettings, esmHasDuplicatedNameFields)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    setupFileSystemAndGetMock();
+    auto esmVersion = R"("esmVersion": { "name": "name" })";
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(getJsonWithESM(esmVersion));
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+
+    EXPECT_TRUE(appenderContains("ESM feature is not valid. Name: name and Token: "));
+}*/
+
