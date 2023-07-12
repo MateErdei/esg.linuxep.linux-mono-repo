@@ -508,20 +508,22 @@ TEST(TestXmlUtilities, edrPolicyExample)
     EXPECT_EQ(description, "a different \nbasic \nquery");
 }
 
-TEST(TestXmlUtilities, whitespace)
+TEST(TestXmlUtilities, newlinesAndWhitespaceHandling)
 {
     auto simpleXml = parseXml(
         R"(<xml>
 <a>
- abc with space preceding
+               abc with space preceding
 
 abc
+
 </a>
 <a>
  thing
 </a></xml>)");
     auto attributesList = simpleXml.lookupMultiple("xml/a");
     ASSERT_EQ(attributesList.size(), 2);
-    EXPECT_EQ(attributesList[0].contents(), " abc with space preceding\nabc");
-    EXPECT_EQ(attributesList[1].contents(), " thing");
+    // We trim whitespace at each end of the element data but not the middle.
+    EXPECT_EQ(attributesList[0].contents(), "abc with space preceding\n\nabc");
+    EXPECT_EQ(attributesList[1].contents(), "thing");
 }
