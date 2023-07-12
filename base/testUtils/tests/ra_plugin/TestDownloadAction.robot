@@ -56,10 +56,10 @@ RA Plugin downloads and extracts a single file successfully
 
     wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT} downloaded successfully
+    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
-    File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
+    File Should Exist   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT}
     File Should Not Exist    ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
@@ -152,10 +152,10 @@ RA Plugin downloads and extracts multiple files successfully
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
-    File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
+    File Should Exist   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT}
 
     FOR    ${item}    IN    0    1    2    3    4    5    6    7    8    9
-        File Should Exist     ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}${item}
+        File Should Exist     ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT}${item}
     END
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
