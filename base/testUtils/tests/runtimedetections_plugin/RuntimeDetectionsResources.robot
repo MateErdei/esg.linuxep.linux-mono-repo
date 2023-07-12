@@ -31,13 +31,6 @@ RuntimeDetections Plugin Is Not Running
     ${result} =    Run Process  pgrep  -f  ${RTD_EXECUTABLE}
     Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin still running
 
-Wait Keyword Succeed
-    [Arguments]  ${keyword}
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  5 secs
-    ...  ${keyword}
-
 Install RuntimeDetections Directly
     ${RTD_SDDS_DIR} =  Get SSPL RuntimeDetections Plugin SDDS
     ${result} =    Run Process  bash -x ${RTD_SDDS_DIR}/install.sh 2> /tmp/rtd_install.log   shell=True
