@@ -64,6 +64,8 @@ Verify Component Permissions
     ...    shell=True   stderr=STDOUT
     Log   ${result.stdout}
 
+    Verify Permissions  ${RTD_PLUGIN_PATH}/  0o750    root   sophos-spl-group
+
     Verify Permissions  ${RTD_PLUGIN_PATH}/bin/  0o710    root   sophos-spl-group
     Verify Permissions  ${RTD_PLUGIN_PATH}/bin/runtimedetections  0o710    root   sophos-spl-group
     Verify Permissions  ${RTD_PLUGIN_PATH}/bin/uninstall.sh  0o710    root   sophos-spl-group
@@ -83,6 +85,7 @@ Verify Component Permissions
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/  0o750    root   sophos-spl-group
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/dummy.bpf.o  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/dummy.bpf.c  0o640    root   sophos-spl-group
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/run/  0o750    sophos-spl-user   sophos-spl-group
 
@@ -92,8 +95,15 @@ Verify Component Permissions
     ${RTD_SDDS_DIR} =   Get SSPL RuntimeDetections Plugin SDDS
     IF   ${{os.path.isdir("${RTD_SDDS_DIR}/content_rules/bpf")}}
         Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf  0o750    root   sophos-spl-group
-        Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/test.bpf.c  0o640    root   sophos-spl-group
-        Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/test.bpf.o  0o640    root   sophos-spl-group
+
+        @{BPF_OBJS}=   List Files In Directory   ${RTD_PLUGIN_PATH}/etc/content_rules/bpf   *.bpf.o
+        IF   @{BPF_OBJS} != @{EMPTY}
+            # Verify permissions of the first object we find
+            ${BPF_OBJ}=   Get From List   ${BPF_OBJS}   0
+            Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/${BPF_OBJ}  0o640    root   sophos-spl-group
+            ${BPF_SRC}=   Replace String Using Regexp    ${BPF_OBJ}    .o$    .c
+            Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/bpf/${BPF_SRC}  0o640    root   sophos-spl-group
+        END
     END
 
 Verify Running Component Permissions
