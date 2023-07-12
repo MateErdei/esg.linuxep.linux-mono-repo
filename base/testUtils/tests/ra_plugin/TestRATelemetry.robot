@@ -79,8 +79,6 @@ Telemetry Reported For Run Command Action Timeout Exceeded
 
 
 Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
-    # Exclude on SLES until LINUXDAR-7306 is fixed
-    [Tags]  EXCLUDE_SLES12
     ${id} =  Set Variable  id3
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -99,8 +97,6 @@ Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
 
 #Upload File Action
 Telemetry Reported For Upload File Action Expired
-    # Exclude on SLES until LINUXDAR-7306 is fixed
-    [Tags]  EXCLUDE_SLES12
     ${id} =  Set Variable  id4
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
