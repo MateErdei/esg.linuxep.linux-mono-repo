@@ -77,12 +77,12 @@ Verify Component Permissions
     Log   ${result.stdout}
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/bin/  0o710    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/bin/runtimedetections.0  0o710    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/bin/uninstall.sh.0  0o710    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/bin/runtimedetections  0o710    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/bin/uninstall.sh  0o710    root   sophos-spl-group
     
     Verify Permissions  ${RTD_PLUGIN_PATH}/etc  0o750    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/etc/sensor.yaml.0  0o640    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/etc/analytics.yaml.0  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/etc/sensor.yaml  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/etc/analytics.yaml  0o640    root   sophos-spl-group
     Verify Permissions  ${RTD_PLUGIN_PATH}/etc/content_rules/rules.yaml  0o640    root   sophos-spl-group
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/log/  0o700    sophos-spl-user   sophos-spl-group
@@ -91,15 +91,15 @@ Verify Component Permissions
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/  0o750    root   sophos-spl-group
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/  0o750    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/struct_layouts.json.0  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/struct_layouts.json  0o640    root   sophos-spl-group
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/  0o750    root   sophos-spl-group
-    Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/dummy.bpf.o.0  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/var/lib/bpf/dummy.bpf.o  0o640    root   sophos-spl-group
 
 
     Verify Permissions  ${RTD_PLUGIN_PATH}/var/run/  0o750    sophos-spl-user   sophos-spl-group
 
-    Verify Permissions  ${RTD_PLUGIN_PATH}/VERSION.ini.0  0o640    root   sophos-spl-group
+    Verify Permissions  ${RTD_PLUGIN_PATH}/VERSION.ini  0o640    root   sophos-spl-group
 
     # if the content supplement includes BPF, verify that it was installed
     ${dirExists}=    Directory Exists    ${COMPONENT_RULES_PATH}/bpf
