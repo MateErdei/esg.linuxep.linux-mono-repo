@@ -6,6 +6,7 @@
 #include "PolicyParseException.h"
 
 #include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <google/protobuf/util/json_util.h>
 
@@ -46,6 +47,8 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
 {
     using namespace google::protobuf::util;
     using PolicyProto::ConfigurationSettings;
+
+    Common::UtilityImpl::StringUtils::enforceUTF8(settingsString);
 
     ConfigurationSettings settings;
     JsonParseOptions jsonParseOptions;
