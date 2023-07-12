@@ -169,14 +169,6 @@ Check Scheduled Query Log Contains
     ${SCHEDULED_QUERY_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/scheduledquery.log
     Should Contain  ${SCHEDULED_QUERY_LOG_CONTENT}   ${string_to_contain}
 
-Wait Keyword Succeed
-    [Arguments]  ${keyword}
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  5 secs
-    ...  ${keyword}
-
-
 EDR Suite Setup
     Upgrade Resources Suite Setup
     Generate Local Ssl Certs If They Dont Exist
