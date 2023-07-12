@@ -82,7 +82,7 @@ Sul Downloader fails update if expected product missing from SUS
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  MY_TEST
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
@@ -365,7 +365,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  MY_TEST
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
