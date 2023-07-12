@@ -754,27 +754,27 @@ class Endpoint(object):
 <ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
 </ns:commands>"""
 
-    def policyAssignment(self, app, policyID):
-        return r"""<?xml version="1.0"?>
+    def policyAssignment(self, app, policyID, policyType):
+        return fr"""<?xml version="1.0"?>
 <ns:policyAssignments xmlns:ns="http://www.sophos.com/xml/mcs/policyAssignments">
   <meta protocolVersion="1.0"/>
   <policyAssignment>
-    <appId>%s</appId>
-    <policyId>%s</policyId>
+    <appId policyType="{policyType}">{app}</appId>
+    <policyId>{policyID}</policyId>
   </policyAssignment>
 </ns:policyAssignments>
-"""%(app, policyID)
+"""
 
-    def policyCommand(self, app, policyID):
-        policyAssignment = self.policyAssignment(app, policyID)
-        return r"""<command>
-    <id>%s</id>
+    def policyCommand(self, app, policyID, policyType=0):
+        policyAssignment = self.policyAssignment(app, policyID, policyType)
+        return fr"""<command>
+    <id>{app}</id>
     <seq>1</seq>
     <appId>APPSPROXY</appId>
     <creationTime>2013-05-02T09:50:08Z</creationTime>
     <ttl>PT10000S</ttl>
-    <body>%s</body>
-  </command>"""%(app, xml.sax.saxutils.escape(policyAssignment))
+    <body>{xml.sax.saxutils.escape(policyAssignment)}</body>
+  </command>"""
   
     def updateNowCommand(self, creation_time="FakeTime"):
         body = r"""<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>"""
@@ -857,16 +857,16 @@ class Endpoint(object):
         if 'LiveQuery' in apps and self.__edr.liveQueryPending():
             commands.append(self.liveQueryCommand())
         if "MCS" in apps and self.__mcs.policyPending():
-            commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
+            commands.append(self.policyCommand(app="MCS", policyID=self.__mcs.policyID(), policyType=25))
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
-                commands.append(self.policyCommand("ALC", policy_id))
+                commands.append(self.policyCommand(app="ALC", policyID=policy_id, policyType=1))
         if "ALC" in apps and self.__alc.updateNowPending():
             commands.append(self.updateNowCommand())
         if "MDR" in apps and self.__mdr.policyPending():
-            commands.append(self.policyCommand("MDR", self.__mdr.policyID()))
+            commands.append(self.policyCommand(app="MDR", policyID=self.__mdr.policyID(), policyType=54))
         if "LiveQuery" in apps and self.__livequery.policyPending():
-            commands.append(self.policyCommand("LiveQuery", self.__livequery.policyID()))
+            commands.append(self.policyCommand(app="LiveQuery", policyID=self.__livequery.policyID(), policyType=56))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
