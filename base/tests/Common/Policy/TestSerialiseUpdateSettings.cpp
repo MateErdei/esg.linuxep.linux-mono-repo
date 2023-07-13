@@ -3,11 +3,8 @@
 #include "TestUpdateSettingsBase.h"
 
 #include "Common/Policy/SerialiseUpdateSettings.h"
-#include "Policy/PolicyParseException.h"
 
 #include "tests/Common/UtilityImpl/TestStringGenerator.h"
-
-#include <gtest/gtest.h>
 
 using namespace Common::Policy;
 
@@ -278,6 +275,8 @@ TEST_F(TestSerialiseUpdateSettings, validJsonStringWithEmptyValueInInstallArgume
     EXPECT_FALSE(updateSettings.verifySettingsAreValid());
 }
 
+
+//ESM fault injection
 namespace ESMFaultInjection
 {
     static std::string getJsonWithESM(const std::string& esmVersion)
@@ -316,7 +315,6 @@ namespace ESMFaultInjection
     }
 }
 
-//ESM fault injection
 class TestSerialiseUpdateSettingsParameterized
     :  public ::testing::TestWithParam<std::pair<std::string, bool>>
 {
