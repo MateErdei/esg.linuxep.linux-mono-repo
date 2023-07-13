@@ -12,7 +12,6 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/ProcessImpl/ArgcAndEnv.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
@@ -64,56 +63,19 @@ namespace
 
 } // namespace
 
-class SULDownloaderSdds3Test : public MemoryAppenderUsingTests
+class TestSulDownloaderSdds3Base
 {
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
-
-public:
-    SULDownloaderSdds3Test() : MemoryAppenderUsingTests("suldownloader")
-    {}
-    /**
-     * Setup directories and files expected by SULDownloader to enable its execution.
-     * Use TempDir
-     */
-    void SetUp() override
-    {
-        VersigFactory::instance().replaceCreator([]() {
-          auto versig = std::make_unique<NiceMock<MockVersig>>();
-          ON_CALL(*versig, verify(_, _)).WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
-          return versig;
-        });
-
-        auto mockPidLockFileUtilsPtr = std::make_unique<NiceMock<MockPidLockFileUtils>>();
-        ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
-        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtilsPtr));
-
-       mockSdds3Repo_ = std::make_unique<NaggyMock<MockSdds3Repository>>();
-    }
-
-    /**
-     * Remove the temporary directory.
-     */
-    void TearDown() override
-    {
-        Common::FileSystemImpl::restorePidLockUtils();
-        VersigFactory::instance().restoreCreator();
-        TestSdds3RepositoryHelper::restoreSdds3RepositoryFactory();
-        Tests::restoreFilePermissions();
-        Common::ApplicationConfiguration::restoreApplicationPathManager();
-        Tests::restoreFileSystem();
-        Test::TearDown();
-    }
-
-    static std::vector<std::string> defaultOverrideSettings()
-    {
+    public:
+        static std::vector<std::string> defaultOverrideSettings()
+        {
         std::vector<std::string> lines = {
             "URLS = http://127.0.0.1:8080" ,
             "USE_SDDS3 = true",
             "USE_HTTP = true"};
         return lines;
-    }
-    static ConfigurationSettings defaultSettings()
-    {
+        }
+        static ConfigurationSettings defaultSettings()
+        {
         ConfigurationSettings settings;
         Credentials credentials;
 
@@ -134,17 +96,17 @@ public:
         settings.mutable_deviceid()->assign("deviceid");
         settings.mutable_tenantid()->assign("tenantid");
         return settings;
-    }
+        }
 
-    ConfigurationSettings newFeatureSettings(const std::string& feature = "SOME_FEATURE")
-    {
+        ConfigurationSettings newFeatureSettings(const std::string& feature = "SOME_FEATURE")
+        {
         ConfigurationSettings settings = defaultSettings();
         settings.add_features(feature);
         return settings;
-    }
+        }
 
-    ConfigurationSettings newSubscriptionSettings(const std::string& rigidname = "Plugin_1")
-    {
+        ConfigurationSettings newSubscriptionSettings(const std::string& rigidname = "Plugin_1")
+        {
         ConfigurationSettings settings = defaultSettings();
         auto* proto_subscriptions = settings.mutable_products();
 
@@ -159,21 +121,21 @@ public:
             dynamic_cast<PolicyProto::ConfigurationSettings_Subscription&&>(proto_subscription));
 
         return settings;
-    }
+        }
 
-    std::string jsonSettings(const ConfigurationSettings& configSettings)
-    {
+        std::string jsonSettings(const ConfigurationSettings& configSettings)
+        {
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(configSettings);
-    }
+        }
 
-    UpdateSettings configData(const ConfigurationSettings& configSettings)
-    {
+        UpdateSettings configData(const ConfigurationSettings& configSettings)
+        {
         std::string json_output = jsonSettings(configSettings);
         return ConfigurationData::fromJsonSettings(json_output);
-    }
+        }
 
-    DownloadedProductVector defaultProducts()
-    {
+        DownloadedProductVector defaultProducts()
+        {
         DownloadedProductVector products;
         for (auto& metadata : defaultMetadata())
         {
@@ -184,10 +146,10 @@ public:
         products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
         products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
         return products;
-    }
+        }
 
-    std::vector<suldownloaderdata::ProductInfo> productsInfo(const DownloadedProductVector& products)
-    {
+        std::vector<suldownloaderdata::ProductInfo> productsInfo(const DownloadedProductVector& products)
+        {
         std::vector<suldownloaderdata::ProductInfo> info;
         for (auto& product : products)
         {
@@ -199,10 +161,10 @@ public:
             info.push_back(pInfo);
         }
         return info;
-    }
+        }
 
-    std::vector<suldownloaderdata::SubscriptionInfo> subscriptionsInfo(const DownloadedProductVector& products)
-    {
+        std::vector<suldownloaderdata::SubscriptionInfo> subscriptionsInfo(const DownloadedProductVector& products)
+        {
         std::vector<suldownloaderdata::SubscriptionInfo> subInfos;
         for (auto& product : products)
         {
@@ -213,10 +175,10 @@ public:
             subInfos.push_back(pInfo);
         }
         return subInfos;
-    }
+        }
 
-    std::vector<ProductMetadata> defaultMetadata()
-    {
+        std::vector<ProductMetadata> defaultMetadata()
+        {
         ProductMetadata base;
         base.setDefaultHomePath("ServerProtectionLinux-Base-component");
         base.setLine("ServerProtectionLinux-Base-component");
@@ -232,10 +194,10 @@ public:
         plugin.setTags({ { "RECOMMENDED", "10", "Plugin-label" } });
 
         return std::vector<ProductMetadata>{ base, plugin };
-    }
+        }
 
-    ProductReportVector defaultProductReports()
-    {
+        ProductReportVector defaultProductReports()
+        {
         ProductReport base;
         base.name = "ServerProtectionLinux-Base-component-Product";
         base.rigidName = "ServerProtectionLinux-Base-component";
@@ -247,13 +209,13 @@ public:
         plugin.downloadedVersion = "10.3.5";
         plugin.productStatus = ProductReport::ProductStatus::UpToDate;
         return ProductReportVector{ base, plugin };
-    }
+        }
 
-    /**
+        /**
      * @return BORROWED reference to MockFileSystem
-     */
-    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
-    {
+         */
+        MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
+        {
         Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/opt/sophos-spl");
 
@@ -295,16 +257,16 @@ public:
         auto* pointer = filesystemMock.get();
         m_replacer.replace(std::move(filesystemMock));
         return *pointer;
-    }
+        }
 
-    void setupFileVersionCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
-    {
+        void setupFileVersionCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+        {
         setupBaseVersionFileCalls(fileSystemMock, currentVersion, newVersion);
         setupPluginVersionFileCalls(fileSystemMock, currentVersion, newVersion);
-    }
+        }
 
-    static void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
-    {
+        static void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+        {
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
 
@@ -317,10 +279,10 @@ public:
         EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/VERSION.ini"))
             .WillRepeatedly(Return(currentVersionContents));
 
-    }
+        }
 
-    void setupPluginVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
-    {
+        void setupPluginVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+        {
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
 
@@ -332,26 +294,26 @@ public:
             .WillRepeatedly(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
             .WillRepeatedly(Return(currentVersionContents));
-    }
+        }
 
-    void setupExpectanceWriteProductUpdate(MockFileSystem& mockFileSystem)
-    {
+        void setupExpectanceWriteProductUpdate(MockFileSystem& mockFileSystem)
+        {
         EXPECT_CALL(
             mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
-        ).Times(::testing::AtMost(1));
+                ).Times(::testing::AtMost(1));
         EXPECT_CALL(
             mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "/opt/sophos-spl/base/bin")
-        ).Times(::testing::AtMost(1));
+                ).Times(::testing::AtMost(1));
         EXPECT_CALL(
             mockFileSystem, removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
-        ).Times(::testing::AtMost(1));
+                ).Times(::testing::AtMost(1));
         EXPECT_CALL(
             mockFileSystem, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
-        ).Times(::testing::AtMost(1));
-    }
+                ).Times(::testing::AtMost(1));
+        }
 
-    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains, int installedFeaturesWritesExpected = 1)
-    {
+        void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains, int installedFeaturesWritesExpected = 1)
+        {
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
@@ -370,29 +332,29 @@ public:
         EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).WillRepeatedly(Return());
 
         Tests::replaceFilePermissions(std::move(mockFilePermissions));
-    }
+        }
 
-    ::testing::AssertionResult downloadReportSimilar(
-        const char* m_expr,
-        const char* n_expr,
-        const Sdds3SimplifiedDownloadReport& expected,
-        const DownloadReport& resulted)
-    {
+        ::testing::AssertionResult downloadReportSimilar(
+            const char* m_expr,
+            const char* n_expr,
+            const Sdds3SimplifiedDownloadReport& expected,
+            const DownloadReport& resulted)
+        {
         std::stringstream s;
         s << m_expr << " and " << n_expr << " failed: ";
 
         if (expected.Status != resulted.getStatus())
         {
             return ::testing::AssertionFailure()
-                << s.str()
-                << " status differ: \n expected: " << toString(expected.Status)
-                << "\n result: " << toString(resulted.getStatus());
+                   << s.str()
+                   << " status differ: \n expected: " << toString(expected.Status)
+                   << "\n result: " << toString(resulted.getStatus());
         }
         if (expected.Description != resulted.getDescription())
         {
             return ::testing::AssertionFailure()
-                << s.str() << " Description differ: \n expected: " << expected.Description
-                << "\n result: " << resulted.getDescription();
+                   << s.str() << " Description differ: \n expected: " << expected.Description
+                   << "\n result: " << resulted.getDescription();
         }
 
         std::string expectedProductsSerialized = productsToString(expected.Products);
@@ -400,8 +362,8 @@ public:
         if (expectedProductsSerialized != resultedProductsSerialized)
         {
             return ::testing::AssertionFailure()
-                << s.str() << " Different products. \n expected: " << expectedProductsSerialized
-                << "\n result: " << resultedProductsSerialized;
+                   << s.str() << " Different products. \n expected: " << expectedProductsSerialized
+                   << "\n result: " << resultedProductsSerialized;
         }
 
         if (expected.shouldContainSyncTime)
@@ -416,16 +378,16 @@ public:
             if (!resulted.getSyncTime().empty())
             {
                 return ::testing::AssertionFailure()
-                    << s.str() << "Expected SyncTime to be empty, but found it: " << resulted.getSyncTime();
+                       << s.str() << "Expected SyncTime to be empty, but found it: " << resulted.getSyncTime();
             }
         }
 
         return listProductInfoIsEquivalent(
             m_expr, n_expr, expected.WarehouseComponents, resulted.getRepositoryComponents());
-    }
+        }
 
-    std::string productsToString(const ProductReportVector& productsReport)
-    {
+        std::string productsToString(const ProductReportVector& productsReport)
+        {
         std::stringstream stream;
         for (auto& productReport : productsReport)
         {
@@ -439,30 +401,30 @@ public:
             return "{empty}";
         }
         return serialized;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockBaseInstall(int exitCode = 0)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockBaseInstall(int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockEDRInstall(int exitCode = 0)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockEDRInstall(int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockSystemctlStatus(int exitCode = 4)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockSystemctlStatus(int exitCode = 4)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> stop_args = {"status","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", stop_args)).Times(1);
@@ -470,10 +432,10 @@ public:
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("watchdog running!"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockSystemctlStop(int exitCode = 0)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockSystemctlStop(int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> start_args = {"stop","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
@@ -481,9 +443,9 @@ public:
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
-    std::unique_ptr<Common::Process::IProcess> mockSystemctlStart(int exitCode = 0)
-    {
+        }
+        std::unique_ptr<Common::Process::IProcess> mockSystemctlStart(int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> start_args = {"start","sophos-spl"};
         EXPECT_CALL(*mockProcess, exec("systemctl", start_args)).Times(1);
@@ -491,31 +453,71 @@ public:
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockIsEdrRunning(int exitCode = 0)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockIsEdrRunning(int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         std::vector<std::string> start_args = {"isrunning","edr"};
         EXPECT_CALL(*mockProcess, exec(HasSubstr("wdctl"), start_args)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
-    }
+        }
 
-    std::unique_ptr<Common::Process::IProcess> mockSimpleExec(const std::string& substr, int exitCode = 0)
-    {
+        std::unique_ptr<Common::Process::IProcess> mockSimpleExec(const std::string& substr, int exitCode = 0)
+        {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr(substr), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, output()).Times(1);
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
+        }
+
+    protected:
+        std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
+        Tests::ScopedReplaceFileSystem m_replacer;
+};
+
+class SULDownloaderSdds3Test : public MemoryAppenderUsingTests, public TestSulDownloaderSdds3Base
+{
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
+
+public:
+    SULDownloaderSdds3Test() : MemoryAppenderUsingTests("suldownloader")
+    {}
+    /**
+     * Setup directories and files expected by SULDownloader to enable its execution.
+     * Use TempDir
+     */
+    void SetUp() override
+    {
+        VersigFactory::instance().replaceCreator([]() {
+          auto versig = std::make_unique<NiceMock<MockVersig>>();
+          ON_CALL(*versig, verify(_, _)).WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
+          return versig;
+        });
+
+        auto mockPidLockFileUtilsPtr = std::make_unique<NiceMock<MockPidLockFileUtils>>();
+        ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtilsPtr));
+
+       mockSdds3Repo_ = std::make_unique<NaggyMock<MockSdds3Repository>>();
     }
 
-protected:
-    std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
-    Tests::ScopedReplaceFileSystem m_replacer;
-
+    /**
+     * Remove the temporary directory.
+     */
+    void TearDown() override
+    {
+        Common::FileSystemImpl::restorePidLockUtils();
+        VersigFactory::instance().restoreCreator();
+        TestSdds3RepositoryHelper::restoreSdds3RepositoryFactory();
+        Tests::restoreFilePermissions();
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
+        Tests::restoreFileSystem();
+        Test::TearDown();
+    }
 };
 
 TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue)
@@ -3435,4 +3437,197 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSys
 
     std::vector<std::string> features = { "feature1", "feature2" };
     EXPECT_NO_THROW(SulDownloader::writeInstalledFeatures(features));
+}
+
+/*
+ * Fault Injection
+ */
+std::string getUpdateConfig(const std::string& esmVersion)
+{
+    auto config = R"({
+    "sophosURLs": [
+                       "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
+    ],
+    "credential": {
+       "username": "administrator",
+       "password": "password"
+    },
+    "proxy": {
+      "url": "noproxy:",
+      "credential": {
+          "username": "",
+          "password": ""
+      }
+    },
+    "JWToken": "token",
+    "tenantId": "tenantid",
+    "deviceId": "deviceid",
+    "primarySubscription": {
+      "rigidName": "ServerProtectionLinux-Base-component",
+      "baseVersion": "",
+      "tag": "RECOMMMENDED",
+      "fixedVersion": ""
+    },
+    "features": [
+                   "CORE"
+    ],)"
+
+    + esmVersion +
+
+    R"(})";
+
+    return config;
+}
+
+class TestSulDownloaderParameterizedInvalidESM
+    :  public ::testing::TestWithParam<std::string>, public TestSulDownloaderSdds3Base
+{
+public:
+    void SetUp() override
+    {
+        loggingSetup_ = Common::Logging::LOGOFFFORTEST();
+    }
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+        Test::TearDown();
+    }
+
+    Common::Logging::ConsoleLoggingSetup loggingSetup_;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    SULDownloaderSdds3Test,
+    TestSulDownloaderParameterizedInvalidESM,
+    ::testing::Values(
+        //One is missing
+        R"("esmVersion": { "token": "token" })",
+        R"("esmVersion": { "name": "name" })",
+        //One is empty
+        R"("esmVersion": { "token": "token", "name": "" })",
+        R"("esmVersion": { "token": "", "name": "name" })"));
+
+
+TEST_P(TestSulDownloaderParameterizedInvalidESM, invalidESMInputs)
+{
+    auto esmVersion = GetParam();
+    auto updateConfig = getUpdateConfig(esmVersion);
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(false));
+    m_replacer.replace(std::move(mockFileSystem));
+
+    auto [exitCode, reportContent, baseDowngraded] =
+        SulDownloader::configAndRunDownloader("inputFile", "", "");
+
+    EXPECT_NE(exitCode, 0);
+    EXPECT_TRUE(reportContent.find(toString(RepositoryStatus::SUCCESS)) == std::string::npos);
+    EXPECT_FALSE(reportContent.find(toString(RepositoryStatus::UNSPECIFIED)) == std::string::npos);
+}
+
+class TestSulDownloaderParameterizedValidESM
+    :  public ::testing::TestWithParam<std::string>, public TestSulDownloaderSdds3Base
+{
+public:
+    void SetUp() override
+    {
+        loggingSetup_ = Common::Logging::LOGOFFFORTEST();
+
+        VersigFactory::instance().replaceCreator([]() {
+                                                     auto versig = std::make_unique<NiceMock<MockVersig>>();
+                                                     ON_CALL(*versig, verify(_, _)).WillByDefault(Return(IVersig::VerifySignature::SIGNATURE_VERIFIED));
+                                                     return versig;
+                                                 });
+
+        auto mockPidLockFileUtilsPtr = std::make_unique<NiceMock<MockPidLockFileUtils>>();
+        ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtilsPtr));
+
+        mockSdds3Repo_ = std::make_unique<NaggyMock<MockSdds3Repository>>();
+    }
+
+    /**
+     * Remove the temporary directory.
+     */
+    void TearDown() override
+    {
+        Common::FileSystemImpl::restorePidLockUtils();
+        VersigFactory::instance().restoreCreator();
+        TestSdds3RepositoryHelper::restoreSdds3RepositoryFactory();
+        Tests::restoreFilePermissions();
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
+        Tests::restoreFileSystem();
+        Test::TearDown();
+    }
+
+    std::unique_ptr<MockFileSystem> mockFileSystem_;
+    Common::Logging::ConsoleLoggingSetup loggingSetup_;
+};
+
+
+INSTANTIATE_TEST_SUITE_P(
+    SULDownloaderSdds3Test,
+    TestSulDownloaderParameterizedValidESM,
+    ::testing::Values(
+        //Duplicate
+        R"("esmVersion": { "token": "token", "token": "token2", "name": "name" })",
+        //Both are empty
+        R"("esmVersion": { "token": "", "name": "" })",
+        //Both are missing
+        R"("esmVersion": {})",
+        //Large Strings
+        R"("esmVersion": { "token": ")" + std::string(30000, 't') + R"(", "name": "name" })",
+        R"("esmVersion": { "token": "token", "name": ")" + std::string(30000, 't') + R"(" })"));
+
+
+TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
+{
+    const std::string everest_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh";
+    auto esmVersion = GetParam();
+    auto updateConfig = getUpdateConfig(esmVersion);
+
+    auto products = defaultProducts();
+    products[0].setProductHasChanged(false);
+    products[0].setForceProductReinstall(false);
+    products[0].setProductWillBeDowngraded(false);
+    products.erase(std::next(products.begin()));
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
+    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(11).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).Times(5).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/base/VERSION.ini")).Times(4).WillRepeatedly(Return(std::vector<std::string> {"PRODUCT_VERSION = 1.1.3.703"}));
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(3).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, isDirectory(_)).Times(3).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository())).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository())).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, removeFile(_, _)).Times(5);
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(std::vector<Path> {}));
+    EXPECT_CALL(*mockFileSystem, currentWorkingDirectory()).Times(1);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
+    EXPECT_CALL(*mockFileSystem, makeExecutable(_)).Times(1);
+    EXPECT_CALL(*mockFileSystem, getSystemCommandExecutablePath(_)).Times(3);
+    m_replacer.replace(std::move(mockFileSystem));
+
+    EXPECT_CALL(*mockSdds3Repo_, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, hasError()).Times(3).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSdds3Repo_, synchronize(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSdds3Repo_, getProducts()).Times(2).WillRepeatedly(Return(products));
+    EXPECT_CALL(*mockSdds3Repo_, distribute()).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, getSourceURL()).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, purge()).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(std::vector<suldownloaderdata::SubscriptionInfo> {}));
+    EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts).WillOnce(Return(productsInfo({ products[0] })));
+    TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([&]() { return std::move(mockSdds3Repo_); });
+
+    auto [exitCode, reportContent, baseDowngraded] =
+        SulDownloader::configAndRunDownloader("inputFile", "", "");
+    PRINT(reportContent);
+    EXPECT_EQ(exitCode, 103);
+    //We dont care the install failed, just that the esm duplicate didnt cause us to not request
+    EXPECT_FALSE(reportContent.find(toString(RepositoryStatus::INSTALLFAILED)) == std::string::npos);
 }
