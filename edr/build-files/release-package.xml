@@ -23,8 +23,8 @@
 <!--            <development-version branch="develop"/>-->
 <!--            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>-->
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
-            <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="/build/redist/livequery"/>
-            <include artifact-path="common/livequery/include" dest-dir="/build/redist/livequery/common/livequery"/>
+            <include artifact-path="livequery/linux_x86-64" dest-dir="/build/redist/livequery"/>
+            <include artifact-path="livequery/include" dest-dir="/build/redist/livequery/common/livequery"/>
 
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
