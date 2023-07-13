@@ -418,7 +418,7 @@ def find_most_recent_edit_time_from_list_of_files(list_of_files):
 
 def install_system_ca_cert(certificate_path):
     script = os.path.join(PathManager.get_support_file_path(), "InstallCertificateToSystem.sh")
-    command = [script, certificate_path]
+    command = ["bash", "-x", script, certificate_path]
     logger.info(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
