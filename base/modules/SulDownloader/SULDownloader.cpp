@@ -890,7 +890,6 @@ namespace SulDownloader
         catch (const std::exception& ex)
         {
             LOGERROR(ex.what());
-
         }
 
         auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);

@@ -30,6 +30,7 @@
 #include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/UtilityImpl/TestStringGenerator.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -3630,4 +3631,44 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
     EXPECT_EQ(exitCode, 103);
     //We dont care the install failed, just that the esm duplicate didnt cause us to not request
     EXPECT_FALSE(reportContent.find(toString(RepositoryStatus::INSTALLFAILED)) == std::string::npos);
+}
+
+TEST_F(SULDownloaderSdds3Test, NonUTF8InConfig)
+{
+    UsingMemoryAppender memoryAppender(*this);
+
+    auto esmVersion = generateNonUTF8String();
+    auto updateConfig = getUpdateConfig(esmVersion);
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
+    m_replacer.replace(std::move(mockFileSystem));
+
+    auto [exitCode, reportContent, baseDowngraded] =
+        SulDownloader::configAndRunDownloader("inputFile", "", "");
+
+    EXPECT_NE(exitCode, 0);
+    EXPECT_TRUE(reportContent.find(toString(RepositoryStatus::SUCCESS)) == std::string::npos);
+    EXPECT_FALSE(reportContent.find(toString(RepositoryStatus::UNSPECIFIED)) == std::string::npos);
+    EXPECT_TRUE(appenderContains("Not a valid utf-a string"));
+}
+
+TEST_F(SULDownloaderSdds3Test, xmlInConfig)
+{
+    UsingMemoryAppender memoryAppender(*this);
+
+    std::string esmVersion(R"("esmVersion": <?xml version="1.0"?> <token>token</token>})");
+    auto updateConfig = getUpdateConfig(esmVersion);
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(_)).Times(10).WillRepeatedly(Return(updateConfig));
+    m_replacer.replace(std::move(mockFileSystem));
+
+    auto [exitCode, reportContent, baseDowngraded] =
+        SulDownloader::configAndRunDownloader("inputFile", "", "");
+
+    EXPECT_NE(exitCode, 0);
+    EXPECT_TRUE(reportContent.find(toString(RepositoryStatus::SUCCESS)) == std::string::npos);
+    EXPECT_FALSE(reportContent.find(toString(RepositoryStatus::UNSPECIFIED)) == std::string::npos);
+    EXPECT_TRUE(appenderContains("Failed to process json message with error: INVALID_ARGUMENT:Expected a value.\n<?xml version=\"1.0\"?\n^"));
 }
