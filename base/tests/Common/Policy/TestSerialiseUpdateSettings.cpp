@@ -372,7 +372,7 @@ TEST_F(TestSerialiseUpdateSettings, nonUtf8EsmInputThrows)
     }
     catch (const std::invalid_argument& ex)
     {
-        EXPECT_STREQ(ex.what(), "Not a valid utf-a string");
+        EXPECT_STREQ(ex.what(), "Not a valid UTF-8 string");
     }
 }
 

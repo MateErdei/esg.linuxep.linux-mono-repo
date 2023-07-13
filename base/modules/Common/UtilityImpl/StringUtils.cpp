@@ -106,7 +106,7 @@ namespace Common
         {
             if (!isValidUtf8(input))
             {
-                throw std::invalid_argument{ "Not a valid utf-a string" };
+                throw std::invalid_argument{ "Not a valid UTF-8 string" };
             }
         }
     } // namespace UtilityImpl
