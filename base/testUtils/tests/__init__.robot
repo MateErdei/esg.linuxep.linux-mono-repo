@@ -104,6 +104,8 @@ Global Setup Tasks
     Set Global Variable    ${DOGFOOD_WAREHOUSE_ROOT}             ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood
     Set Global Variable    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping
 
+    Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr
+
 Global Cleanup Tasks
     Clean Up System Product Test Output
     Cleanup Temporary Folders
