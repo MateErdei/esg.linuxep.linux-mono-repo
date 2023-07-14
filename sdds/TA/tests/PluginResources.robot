@@ -66,7 +66,7 @@ Check On Access Detects Threats
     ${mark} =  get_on_access_log_mark
     Create File     ${threatPath}    ${eicarString}
 
-    wait for on access log contains after mark  Detected "${threatPath}" is infected with EICAR-AV-Test  mark=${mark}
+    wait for on access log contains after mark  detected "${threatPath}" is infected with EICAR-AV-Test  mark=${mark}
     Remove File  ${threatPath}
 
 Wait Until Threat Detector Running
