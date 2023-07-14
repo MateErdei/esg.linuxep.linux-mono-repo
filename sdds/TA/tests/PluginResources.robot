@@ -18,7 +18,7 @@ ${safeStoreBin}             ${AV_DIR}/sbin/safestore
 ${CLSPath}                  ${AV_DIR}/bin/avscanner
 
 ${cleanString}                    I am not a virus
-${eicarString}                    X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${eicarString}                    X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${virusDetectedResult}            ${24}
 
 ${rtdBin}     ${RTD_DIR}/bin/runtimedetections
