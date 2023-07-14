@@ -46,6 +46,7 @@
 # For sprint builds, you additionally define version.sprint, which changes the
 # generated marketing versions.
 
+# REMINDER: Update the default current shipping/previous dogfood branch in the CIJenkinsFile for sprint/release builds
 version:
   major: 2023.2       # increment this for each major release
   minor: 0            # increment this for each "planned" minor release
