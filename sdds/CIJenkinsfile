@@ -22,7 +22,7 @@ def params = [
     booleanParam(name: 'run_sles_15', defaultValue: false, description: 'Run TAP on SLES 15'),
     booleanParam(name: 'run_ubuntu_18_04', defaultValue: true, description: 'Run TAP on Ubuntu 18.04'),
     booleanParam(name: 'run_ubuntu_20_04', defaultValue: true, description: 'Run TAP on Ubuntu 20.04'),
-    booleanParam(name: 'run_ubuntu_22_04', defaultValue: false, description: 'Run TAP on Ubuntu 22.04'),
+    booleanParam(name: 'run_ubuntu_22_04', defaultValue: true, description: 'Run TAP on Ubuntu 22.04'),
     string(name: 'previous_dogfood_branch', defaultValue: 'release--2023-28', description: 'Release branch used for the dogfood warehouse'),
     string(name: 'current_shipping_branch', defaultValue: 'release--2023.2', description: 'Release branch used for the current shipping warehouse'),
 ]
