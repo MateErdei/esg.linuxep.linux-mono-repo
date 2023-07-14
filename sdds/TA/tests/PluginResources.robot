@@ -53,21 +53,18 @@ Enable On Access Via Policy
 
 Check AV Plugin Can Scan Files
     [Arguments]  ${dirtyFile}=/tmp/dirty_excluded_file
-    Create File     /tmp/clean_file    ${cleanString}
-    Create File     ${dirty_file}    ${eicarString}
+    Create Temporary File     /tmp/clean_file    ${cleanString}
+    Create Temporary File     ${dirty_file}    ${eicarString}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLSPath} /tmp/clean_file ${dirtyFile}
     Should Be Equal As Integers  ${rc}  ${virusDetectedResult}
-    Remove File    /tmp/clean_file
-    Remove File    ${dirtyFile}
 
 Check On Access Detects Threats
     ${threatPath} =  Set Variable  /tmp/eicar.com
     ${mark} =  get_on_access_log_mark
-    Create File     ${threatPath}    ${eicarString}
+    Create Temporary File     ${threatPath}    ${eicarString}
 
     wait for on access log contains after mark  detected "${threatPath}" is infected with EICAR-AV-Test  mark=${mark}
-    Remove File  ${threatPath}
 
 Wait Until Threat Detector Running
     Wait Until Keyword Succeeds

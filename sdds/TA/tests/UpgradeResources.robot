@@ -6,6 +6,7 @@ Library    ${LIB_FILES}/CentralUtils.py
 Library    ${LIB_FILES}/FullInstallerUtils.py
 Library    ${LIB_FILES}/MCSRouter.py
 Library    ${LIB_FILES}/OSUtils.py
+Library    ${LIB_FILES}/OnFail.py
 Library    ${LIB_FILES}/TeardownTools.py
 Library    ${LIB_FILES}/WarehouseUtils.py
 
@@ -32,6 +33,7 @@ Upgrade Resources Test Setup
 Upgrade Resources SDDS3 Test Teardown
     Stop Local SDDS3 Server
     General Test Teardown
+    run_cleanup_functions
     Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
     Remove File    /tmp/preserve-sul-downgrade
     stop_local_cloud_server
