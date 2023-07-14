@@ -520,20 +520,17 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains   Update success
+    ...   check_suldownloader_log_contains_string_n_times   Update success  2
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
 
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
-    #core plugins should be installed
+    # Core plugins should be installed
     Directory Should Exist   ${EVENTJOURNALER_DIR}
     Directory Should Exist   ${RTD_DIR}
-    #other plugins should be uninstalled
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    Directory Should Not Exist    ${AV_DIR}
+    # Other plugins should be uninstalled
+    Directory Should Not Exist    ${AV_DIR}
     Directory Should Not Exist   ${EDR_DIR}
     Directory Should Not Exist   ${LIVERESPONSE_DIR}
     Directory Should Not Exist   ${PLUGINS_DIR}/mtr
