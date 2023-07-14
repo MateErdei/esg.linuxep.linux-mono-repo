@@ -6,7 +6,7 @@ Library    ${LIB_FILES}/LogUtils.py
 Library    ${LIB_FILES}/MCSRouter.py
 
 *** Variables ***
-${SHS_STATUS_FILE}    ${MCS_DIR}/status/SHS_status.xml
+${shsStatusFile}    ${MCS_DIR}/status/SHS_status.xml
 
 *** Keywords ***
 Check Watchdog Running
@@ -34,15 +34,14 @@ Check Expected Base Processes Except SDU Are Running
 
 
 SHS Status File Contains
-    [Arguments]  ${content_to_contain}    ${shsStatusFile}=${SHS_STATUS_FILE}
+    [Arguments]  ${content_to_contain}
     ${shsStatus} =  Get File   ${shsStatusFile}
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
 
 Check MCS Router Running
-    [Arguments]    ${baseLogsDir}=${BASE_LOGS_DIR}
     ${pid} =  check_mcs_router_process_running    require_running=True
-    Wait Until Created   ${baseLogsDir}/sophosspl/mcsrouter.log    timeout=5 secs
+    Wait Until Created   ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log    timeout=5 secs
     [Return]    ${pid}
 
 Check MCS Envelope Contains Event Success On N Event Sent

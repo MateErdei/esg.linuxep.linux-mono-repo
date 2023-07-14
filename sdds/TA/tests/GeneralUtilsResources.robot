@@ -2,8 +2,6 @@
 Library    OperatingSystem
 Library    Process
 
-Library    ${LIB_FILES}/OnFail.py
-
 *** Keywords ***
 Run Shell Process
     [Arguments]  ${command}   ${onError}   ${timeout}=20s
@@ -11,10 +9,6 @@ Run Shell Process
     Should Be Equal As Integers  ${result.rc}  ${0}   ${onError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}
     [Return]  ${result}
 
-Create Temporary File
-    [Arguments]    ${filePath}    ${fileContents}
-    Create File    ${filePath}    ${fileContents}
-    register_cleanup    Remove File    ${filePath}
 
 File Should Contain
     [Arguments]  ${filePath}  ${expectedContents}

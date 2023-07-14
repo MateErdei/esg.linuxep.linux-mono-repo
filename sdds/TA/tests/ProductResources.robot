@@ -18,6 +18,7 @@ ${InstalledAVPluginVersionFile}                 ${AV_DIR}/VERSION.ini
 ${InstalledEDRPluginVersionFile}                ${EDR_DIR}/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${EVENTJOURNALER_DIR}/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${LIVERESPONSE_DIR}/VERSION.ini
+${InstalledMDRPluginVersionFile}                ${PLUGINS_DIR}/mtr/VERSION.ini
 ${InstalledRAPluginVersionFile}                 ${RESPONSE_ACTIONS_DIR}/VERSION.ini
 ${InstalledRTDPluginVersionFile}                ${RTD_DIR}/VERSION.ini
 
@@ -28,7 +29,7 @@ Get Current Installed Versions
     ${EDRReleaseVersion} =      get_version_number_from_ini_file        ${InstalledEDRPluginVersionFile}
     ${EJReleaseVersion} =       get_version_number_from_ini_file        ${InstalledEJPluginVersionFile}
     ${LRReleaseVersion} =       get_version_number_from_ini_file        ${InstalledLRPluginVersionFile}
-    ${RAReleaseVersion} =       get_version_number_from_ini_file        ${InstalledRAPluginVersionFile}
+    ${MTRReleaseVersion} =      get_version_number_from_ini_file        ${InstalledMDRPluginVersionFile}
     ${RTDReleaseVersion} =      get_rtd_version_number_from_ini_file    ${InstalledRTDPluginVersionFile}
 
     &{versions} =    Create Dictionary
@@ -37,7 +38,7 @@ Get Current Installed Versions
     ...    edrVersion=${EDRReleaseVersion}
     ...    ejVersion=${EJReleaseVersion}
     ...    lrVersion=${LRReleaseVersion}
-    ...    raVersion=${RAReleaseVersion}
+    ...    mtrVersion=${MTRReleaseVersion}
     ...    rtdVersion=${RTDReleaseVersion}
     [Return]    &{versions}
 
@@ -48,7 +49,7 @@ Get Expected Versions
     ${ExpectedEDRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EDR
     ${ExpectedEJReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EventJournaler
     ${ExpectedLRReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedRAReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-responseactions
+    ${ExpectedMTRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-MDR
     ${ExpectedRTDReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
@@ -56,7 +57,7 @@ Get Expected Versions
     ...    edrVersion=${ExpectedEDRReleaseVersion}
     ...    ejVersion=${ExpectedEJReleaseVersion}
     ...    lrVersion=${ExpectedLRReleaseVersion}
-    ...    raVersion=${ExpectedRAReleaseVersion}
+    ...    mtrVersion=${ExpectedMTRReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
 
@@ -95,7 +96,7 @@ Wait For Version Files to Update
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  version_number_in_ini_file_should_be    ${InstalledRAPluginVersionFile}    ${expectedVersions["raVersion"]}
+    ...  version_number_in_ini_file_should_be    ${InstalledMDRPluginVersionFile}    ${expectedVersions["mtrVersion"]}
     
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -117,6 +118,7 @@ Check EAP Release Installed Correctly
 
     Check AV Plugin Installed
     Check Event Journaler Executable Running
+    Check RuntimeDetections Installed Correctly
 
 Check Current Release Installed Correctly
     Check Installed Correctly
@@ -125,14 +127,6 @@ Check Current Release Installed Correctly
     Check AV Plugin Installed
     Check Event Journaler Executable Running
     Check RuntimeDetections Installed Correctly
-    Check MDR Is Not Installed
-
-Check MDR Is Not Installed
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
-    ${result} =    Run Process    pgrep    mtr
-    Should Not Be Equal As Integers    ${result.rc}    0
-    ${result} =    Run Process    pgrep    -f    dbos/SophosMTR
-    Should Not Be Equal As Integers    ${result.rc}    0
 
 Check N Update Reports Processed
     [Arguments]  ${updateReportCount}
@@ -162,45 +156,49 @@ Override LogConf File as Global Level
     Create File  ${loggerConfPath}  [global]\n${key} = ${logLevel}\n
 
 Display All SSPL Files Installed
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
-    ${handle}=  Start Process  find ${installDir}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/logs -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/bin -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/bin -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/var -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/var -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/etc -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/etc -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
 
 Display All SSPL Plugins Files Installed
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
-    ${handle}=  Start Process  find ${installDir}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${AV_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${PLUGINS_DIR}/mtr -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/liveresponse -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${EDR_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/eventjournaler | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${LIVERESPONSE_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/rtd | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${EVENTJOURNALER_DIR} | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/responseactions | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${RTD_DIR} | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    ${handle}=  Start Process  find ${PLUGINS_DIR}/heartbeat | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    ${handle}=  Start Process  find ${RESPONSE_ACTIONS_DIR} | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}

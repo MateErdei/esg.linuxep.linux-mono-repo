@@ -3,14 +3,12 @@ Library    Collections
 Library    OperatingSystem
 
 Library    ${LIB_FILES}/FullInstallerUtils.py
-Library    ${LIB_FILES}/LiveQueryUtils.py
 Library    ${LIB_FILES}/LogUtils.py
 Library    ${LIB_FILES}/MCSRouter.py
 Library    ${LIB_FILES}/OSUtils.py
 Library    ${LIB_FILES}/SafeStoreUtils.py
 Library    ${LIB_FILES}/ThinInstallerUtils.py
 Library    ${LIB_FILES}/UpdateSchedulerHelper.py
-Library    ${LIB_FILES}/UpgradeUtils.py
 Library    ${LIB_FILES}/WarehouseUtils.py
 
 Resource    BaseProcessesResources.robot
@@ -22,7 +20,7 @@ Resource    UpgradeResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       require_uninstalled
+Test Setup       Upgrade Resources Test Setup
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
@@ -30,7 +28,12 @@ Force Tags    PACKAGE
 
 
 *** Variables ***
+${BaseEdrAndMtrAndAVDogfoodPolicy}    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
+${BaseEdrAndMtrAndAVReleasePolicy}    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_Release.xml
+${BaseEdrAndMtrAndAVVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
+
 ${SULDownloaderLog}                   ${BASE_LOGS_DIR}/suldownloader.log
+${SULDownloaderLogDowngrade}          ${BASE_LOGS_DIR}/downgrade-backup/suldownloader.log
 ${Sophos_Scheduled_Query_Pack}        ${EDR_DIR}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 ${updateConfig}                       ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 
@@ -40,10 +43,6 @@ ${SDDS3PrimaryRepository}             ${SOPHOS_INSTALL}/base/update/cache/sdds3p
 ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 
-# Thin installer appends sophos-spl to the argument
-${CUSTOM_INSTALL_DIRECTORY}    /home/sophos-spl
-${CUSTOM_INSTALL_DIRECTORY_ARG}    /home
-${RPATHCheckerLog}                          /tmp/rpath_checker.log
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
@@ -57,7 +56,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
 
-    start_local_cloud_server
+    start_local_cloud_server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
     # Enable OnAccess
     send_policy_file    core    ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -73,7 +72,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times    Update success    1
+    ...   check_suldownloader_log_contains_string_n_times    Update success    2
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
@@ -89,9 +88,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrading to VUT
-    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
-
+    Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  check_policy_written_match_file    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
@@ -116,6 +118,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     check_watchdog_service_file_has_correct_kill_mode
 
     Mark Known Upgrade Errors
+    # If the policy comes down fast enough SophosMtr will not have started by the time MTR plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     # TODO LINUXDAR-2972 - expected till task is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -155,54 +162,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
-    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
-    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
-
-Install VUT and Check RPATH of Every Binary
-    [Timeout]    3 minutes
-
-    start_local_cloud_server
-
-    Start Local SDDS3 Server
-
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_suldownloader_log_contains   Update success
-    check_suldownloader_log_contains    Running SDDS3 update
-
-    # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
-    trigger_update_now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-
-    # Run Process can hang with large outputs which RPATHChecker.sh can have
-    # So redirecting RPATHChecker.sh output to a file rather than console
-    Run Process    chmod    +x    ${SUPPORT_FILES}/RPATHChecker.sh
-    ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
-    log file    ${RPATHCheckerLog}
-    Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
-    IF    $result.rc != 0
-        IF    $result.rc == 1
-            Fail    Insecure RPATH(s) found,
-        ELSE
-            Fail    ERROR: Unknown return code
-        END
-    END
-
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
-    start_local_cloud_server
+    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -232,6 +197,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
+    Directory Should Not Exist   ${BASE_LOGS_DIR}/downgrade-backup
 
     ${sspl_user_uid} =       get_uid_from_username    sophos-spl-user
     ${sspl_local_uid} =      get_uid_from_username    sophos-spl-local
@@ -242,6 +208,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Start Local Dogfood SDDS3 Server
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     trigger_update_now
@@ -249,7 +220,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
     ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
@@ -258,8 +229,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     check_suldownloader_log_contains   Running SDDS3 update
 
     Mark Known Upgrade Errors
-    Mark Known Downgrade Errors
-
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     # TODO LINUXDAR-2972 - expected till task is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -278,11 +252,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
-    ...    check_log_contains    Successfully restored old SafeStore database    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log    AV Install Log
+    ...    check_log_contains    Successfully restored old SafeStore database    /tmp/preserve-sul-downgrade    Downgrade Log
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
-
-    Check For downgraded logs
 
     # Check users haven't been removed and added back
     ${new_sspl_user_uid} =       get_uid_from_username    sophos-spl-user
@@ -295,9 +267,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     trigger_update_now
     Wait For Version Files to Update    &{expectedVUTVersions}
-
+    
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Check AV Plugin Can Scan Files
@@ -325,7 +298,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
 
-    start_local_cloud_server
+    start_local_cloud_server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -340,7 +313,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times   Update success  1
+    ...   check_suldownloader_log_contains_string_n_times   Update success  2
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
@@ -354,8 +327,12 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrade to VUT
-    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
     ...  210 secs
@@ -374,6 +351,11 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     file_exists_with_permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
     Mark Known Upgrade Errors
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     # TODO LINUXDAR-2972 - expected till task is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -412,15 +394,12 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
-    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
-    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
-
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
-    start_local_cloud_server
+    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -446,6 +425,8 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check Current Release Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
+    Directory Should Not Exist   ${BASE_LOGS_DIR}/downgrade-backup
+
     Stop Local SDDS3 Server
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
@@ -455,6 +436,11 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Should Exist  ${MCS_DIR}/action/testfile
     Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${MCS_DIR}/action/testfile
 
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     trigger_update_now
@@ -462,7 +448,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade  backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
 
     # Wait for successful update (all up to date) after downgrading
@@ -477,8 +463,11 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   Should Not Exist  ${MCS_DIR}/action/testfile
 
     Mark Known Upgrade Errors
-    Mark Known Downgrade Errors
-
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     # TODO LINUXDAR-2972 - expected till bugfix is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -487,7 +476,6 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     mark_expected_error_in_log  ${AV_DIR}/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 2] No such file or directory: '/opt/sophos-spl/base/pluginRegistry
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
@@ -496,11 +484,11 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     Check EAP Release Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
-    Check For downgraded logs
 
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     trigger_update_now
     Wait For Version Files to Update    &{expectedVUTVersions}
 
@@ -525,29 +513,33 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 SDDS3 updating respects ALC feature codes
-    start_local_cloud_server
+    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times   Update success  1
+    ...   check_suldownloader_log_contains   Update success
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
 
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
-    # Core plugins should be installed
+    #core plugins should be installed
     Directory Should Exist   ${EVENTJOURNALER_DIR}
-    # Other plugins should be uninstalled
-    Directory Should Not Exist   ${AV_DIR}
+    Directory Should Exist   ${RTD_DIR}
+    #other plugins should be uninstalled
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    Directory Should Not Exist    ${AV_DIR}
     Directory Should Not Exist   ${EDR_DIR}
     Directory Should Not Exist   ${LIVERESPONSE_DIR}
-    Directory Should Not Exist   ${RTD_DIR}
+    Directory Should Not Exist   ${PLUGINS_DIR}/mtr
     check_log_does_not_contain_after_mark    ${SULDownloaderLog}    Failed to remove path. Reason: Failed to delete file: ${SDDS3Primary}    ${sul_mark}
 
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   5 secs
@@ -563,7 +555,7 @@ SDDS3 updating respects ALC feature codes
 
     Directory Should Exist   ${EDR_DIR}
     Directory Should Exist   ${LIVERESPONSE_DIR}
-    Directory Should Exist   ${RTD_DIR}
+    Directory Should Exist   ${PLUGINS_DIR}/mtr
 
 SDDS3 updating with changed unused feature codes do not change version
     start_local_cloud_server
@@ -579,14 +571,31 @@ SDDS3 updating with changed unused feature codes do not change version
     &{installedVersionsBeforeUpdate} =    Get Current Installed Versions
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
+    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
 
     &{installedVersionsAfterUpdate} =    Get Current Installed Versions
     Dictionaries Should Be Equal    ${installedVersionsBeforeUpdate}    ${installedVersionsAfterUpdate}
 
-Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
+SDDS3 updating when warehouse files have not changed does not extract the zip files
     start_local_cloud_server
+    Start Local SDDS3 Server
+
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   check_suldownloader_log_contains   Update success
+
+    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    trigger_update_now
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    check_suldownloader_log_contains_string_n_times   Generating the report file  2
+    check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
+
+Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
+    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
@@ -602,7 +611,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     check_log_does_not_contain_after_mark    ${SULDownloaderLog}    Installing product    ${sul_mark}
 
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-responseactions' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
@@ -611,10 +620,9 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
 
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
     all_products_in_update_report_are_up_to_date  ${latest_report_result.stdout.strip()}
-    check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
-    start_local_cloud_server
+    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
@@ -643,130 +651,3 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     ${scheduled_query_pack_mtr} =         Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     ${scheduled_query_pack_next_mtr} =    Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
-
-
-SPL Can Be Installed To A Custom Location
-    [Tags]    CUSTOM_INSTALL_PATH
-    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
-    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
-
-    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
-    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
-    Start Local SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
-    ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  15 secs
-    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-    SHS Status File Contains    ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-
-    # Confirm that the warehouse flags supplement is installed
-    file_exists_with_permissions    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
-    check_watchdog_service_file_has_correct_kill_mode
-
-    check_custom_install_is_set_in_plugin_registry_files    ${CUSTOM_INSTALL_DIRECTORY}
-
-    # Basic Installion Checks
-    Should Exist    ${CUSTOM_INSTALL_DIRECTORY}
-    check_correct_mcs_password_and_id_for_local_cloud_saved    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/mcs.config
-    ${result}=  Run Process  stat  -c  "%A"  /etc
-    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
-    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-
-    Check Watchdog Running
-    Check Management Agent Running
-    Check Update Scheduler Running
-    Check Telemetry Scheduler Is Running
-    Check MCS Router Running    ${CUSTOM_INSTALL_DIRECTORY}/logs/base
-
-    # Checks for AV Plugin
-    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
-    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    Enable On Access Via Policy
-    Check On Access Detects Threats
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-    # Threat health returns to good after threat is cleaned up
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-
-    # Checks for Event Journaler
-    Check Event Journaler Executable Running
-
-    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
-
-    Directory Should Not Exist    /opt/sophos-spl
-    check_all_product_logs_do_not_contain_error
-    check_all_product_logs_do_not_contain_critical
-
-Installing New Plugins Respects Custom Installation Location
-    [Tags]    CUSTOM_INSTALL_PATH
-    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
-    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
-
-    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
-    Start Local SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
-    ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  15 secs
-    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-    SHS Status File Contains    ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-
-    #core plugins should be installed
-    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/eventjournaler
-    #other plugins should be uninstalled
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
-
-    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   5 secs
-    ...   File Should Contain    ${CUSTOM_INSTALL_DIRECTORY}/base/update/var/updatescheduler/update_config.json    AV
-    ${sul_mark} =  mark_log_size  ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log
-    trigger_update_now
-    wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
-
-    # Checks for AV Plugin
-    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
-    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    Enable On Access Via Policy
-    Check On Access Detects Threats
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-    # Threat health returns to good after threat is cleaned up
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
-
-    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
-

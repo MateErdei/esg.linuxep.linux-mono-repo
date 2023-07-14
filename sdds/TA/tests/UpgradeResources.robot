@@ -6,16 +6,11 @@ Library    ${LIB_FILES}/CentralUtils.py
 Library    ${LIB_FILES}/FullInstallerUtils.py
 Library    ${LIB_FILES}/MCSRouter.py
 Library    ${LIB_FILES}/OSUtils.py
-Library    ${LIB_FILES}/OnFail.py
 Library    ${LIB_FILES}/TeardownTools.py
-Library    ${LIB_FILES}/UpdateServer.py
 Library    ${LIB_FILES}/WarehouseUtils.py
 
 Resource    GeneralTeardownResources.robot
 
-
-*** Variables ***
-${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
 Upgrade Resources Suite Setup
@@ -29,15 +24,18 @@ Upgrade Resources Suite Setup
 Upgrade Resources Suite Teardown
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
+Upgrade Resources Test Setup
+    require_uninstalled
+    Should Not Exist    ${SOPHOS_INSTALL}
+    Set Environment Variable    CORRUPTINSTALL    no
+
 Upgrade Resources SDDS3 Test Teardown
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Stop Local SDDS3 Server
-    General Test Teardown    ${installDir}
-    run_cleanup_functions
+    General Test Teardown
     Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
     Remove File    /tmp/preserve-sul-downgrade
     stop_local_cloud_server
-    Uninstall_SSPL    ${installDir}    ${True}
+    require_uninstalled
 
 
 Install Local SSL Server Cert To System
@@ -68,20 +66,8 @@ Generate Local Fake Cloud Certificates
 
 Start Local SDDS3 Server
     [Arguments]    ${launchdarklyPath}=${INPUT_DIRECTORY}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_REPO_ROOT}
-    ${handle}=  Start Process
-    ...  bash  -x
-    ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
-    ...  python3  ${LIB_FILES}/SDDS3server.py
-    ...  --launchdarkly  ${launchdarklyPath}
-    ...  --sdds3  ${sdds3repoPath}
-    ...  stdout=${sdds3_server_output}
-    ...  stderr=STDOUT
-    Set Suite Variable    $GL_handle    ${handle}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
-    ...  Can Curl Url    https://localhost:8080
-    [Return]  ${handle}
+    ${handle}=  Start Process  python3 ${LIB_FILES}/SDDS3server.py --launchdarkly ${launchdarklyPath} --sdds3 ${sdds3repoPath}  shell=true
+    Set Suite Variable    ${GL_handle}    ${handle}
 
 Start Local Dogfood SDDS3 Server
     Start Local SDDS3 Server    ${INPUT_DIRECTORY}/dogfood_launch_darkly    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
@@ -89,21 +75,11 @@ Start Local Dogfood SDDS3 Server
 Start Local Current Shipping SDDS3 Server
     Start Local SDDS3 Server    ${INPUT_DIRECTORY}/current_shipping_launch_darkly    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
 
-Debug Local SDDS3 Server
-    ${result} =  Run Process  pstree  -a  stderr=STDOUT
-    Log  pstree: ${result.rc} : ${result.stdout}
-    ${result} =  Run Process  netstat  --pl  --inet  stderr=STDOUT
-    Log  netstat: ${result.rc} : ${result.stdout}
-    ${result} =  Run Process  ss  -plt  stderr=STDOUT
-    Log  ss: ${result.rc} : ${result.stdout}
-
 Stop Local SDDS3 Server
     return from keyword if    "${GL_handle}" == "${EMPTY}"
-    Run Keyword and Ignore Error  Run Keyword If Test Failed  Debug Local SDDS3 Server
-    ${result} =  Terminate Process    ${GL_handle}    True
-    Set Suite Variable    $GL_handle    ${EMPTY}
-    Dump Teardown Log    ${sdds3_server_output}
-    Log  SDDS3_server rc = ${result.rc}
+    Terminate Process    ${GL_handle}    True
+    Set Suite Variable    ${GL_handle}    ${EMPTY}
+    dump_teardown_log    /tmp/sdds3_server.log
     Terminate All Processes  True
 
 
@@ -116,34 +92,10 @@ Prepare Installation For Upgrade Using Policy
     [Arguments]    ${policyPath}
     install_upgrade_certs_for_policy  ${policyPath}
 
-Check For downgraded logs
-    # AV logs
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
 
-    # Liveresponse logs
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
-
-    # Event journaler logs
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
-    # Edr
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
-
-    # Response actions logs
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
-
-    # RTD logs
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 Mark Known Upgrade Errors
     # TODO LINUXDAR-7318 - expected till bugfix is in released version
     mark_expected_error_in_log    ${BASE_LOGS_DIR}/watchdog.log  /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
 
     # LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     mark_expected_error_in_log    ${RTD_DIR}/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process
-
-Mark Known Downgrade Errors
-    # TODO LINUXDAR-5983 - expected till this ticket is in released version
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
