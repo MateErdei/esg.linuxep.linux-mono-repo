@@ -178,7 +178,11 @@ Install all plugins static-999 then downgrade to all plugins static
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -225,7 +229,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Check All Product Logs Do Not Contain Critical
 
 
-Install all plugins static then uppgrade to all plugins static-999
+Install all plugins static then upgrade to all plugins static-999
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS static
@@ -261,7 +265,11 @@ Install all plugins static then uppgrade to all plugins static-999
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+
     Trigger Update Now
 
     Wait Until Keyword Succeeds
