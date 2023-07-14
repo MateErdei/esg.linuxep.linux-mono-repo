@@ -138,7 +138,7 @@ Create Local SDDS3 Override
     Create File    ${SDDS3_OVERRIDE_FILE}    content=${override_file_contents}
 
 Start Local SDDS3 Server
-    [Arguments]    ${launchdarklyPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly    ${sdds3repoPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
+    [Arguments]    ${launchdarklyPath}=${VUT_WAREHOUSE_ROOT}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_ROOT}/repo
     ${handle}=  Start Process
     ...  bash  -x
     ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
@@ -156,11 +156,11 @@ Start Local SDDS3 Server
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
+    ${handle}=    Start Local SDDS3 Server    ${VUT_WAREHOUSE_ROOT}/launchdarkly    ${VUT_WAREHOUSE_ROOT}/repo
     [Return]  ${handle}
 
 Start Local Release SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/repo
+    ${handle}=    Start Local SDDS3 Server    ${VUT_WAREHOUSE_ROOT}/launchdarkly    ${VUT_WAREHOUSE_ROOT}/repo
     [Return]  ${handle}
 
 Start Local SDDS3 Server With Empty Repo
@@ -327,14 +327,14 @@ Get Current Installed Versions
     [Return]    &{versions}
 
 Get Expected Versions
-    [Arguments]    ${releaseType}
-    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Base-component
-    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-MDR
-    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-RuntimeDetections
+    [Arguments]    ${warehouseRepoRoot}
+    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Base-component
+    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}
@@ -347,17 +347,17 @@ Get Expected Versions
 
 Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut    ServerProtectionLinux-Plugin-EDR
+    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-EDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    ${mtr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-MDR
+    ${mtr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-MDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-liveresponse
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-liveresponse
     Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-EventJournaler
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-EventJournaler
     Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   vut   ServerProtectionLinux-Plugin-RuntimeDetections
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
     Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}

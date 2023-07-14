@@ -100,6 +100,10 @@ Global Setup Tasks
     Generate Real Warehouse Alc Files
     Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
+    Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3
+    Set Global Variable    ${DOGFOOD_WAREHOUSE_ROOT}             ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood
+    Set Global Variable    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping
+
 Global Cleanup Tasks
     Clean Up System Product Test Output
     Cleanup Temporary Folders

@@ -84,8 +84,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    12 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
-    &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
-    &{expectedVUTVersions} =    Get Expected Versions    vut
+    &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
@@ -209,8 +209,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  BASE_DOWNGRADE
 
-    &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
-    &{expectedVUTVersions} =    Get Expected Versions    vut
+    &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -364,8 +364,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
-    &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
-    &{expectedVUTVersions} =    Get Expected Versions    vut
+    &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
@@ -484,8 +484,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  BASE_DOWNGRADE
 
-    &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
-    &{expectedVUTVersions} =    Get Expected Versions    vut
+    &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}

@@ -487,28 +487,25 @@ class WarehouseUtils(object):
             shell=True)
         return version.strip().decode()
 
-    def get_version_for_rigidname_in_sdds3_warehouse(self, release_type, rigidname):
-        if release_type == "vut":
-            warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo", "package")
-        else:
-            warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo", "package")
+    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_root, rigidname):
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
 
+        warehouse_package_path = os.path.join(warehouse_root, "package")
         try:
-            packages = os.listdir(warehouse_root)
+            packages = os.listdir(warehouse_package_path)
         except EnvironmentError:
-            logger.error("Can't list warehouse_root: %s" % warehouse_root)
+            logger.error(f"Can't list warehouse_root: {warehouse_package_path}")
             log = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "GatherReleaseWarehouses.log")
             if os.path.isfile(log):
                 contents = str(open(log).read())
-                logger.error("GatherReleaseWarehouses.log: %s" % contents)
+                logger.error(f"GatherReleaseWarehouses.log: {contents}")
             raise
         for package in packages:
             if package.startswith(product_name):
                 version = package[len(product_name)+1:-15]
                 if not re.match(r"^((?:(9+)\.)?){3}(\*|\d+)$", version):
                     return version
-        raise AssertionError(f"Did not find {rigidname} in {warehouse_root}")
+        raise AssertionError(f"Did not find {rigidname} in {warehouse_package_path}")
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
