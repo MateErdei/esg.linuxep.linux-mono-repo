@@ -76,7 +76,6 @@ def get_test_machines(test_inputs, parameters):
     if parameters.run_ubuntu_20_04 != "false":
         test_environments["ubuntu2004"] = "ubuntu2004_x64_aws_server_en_us"
 
-    # TODO: LINUXDAR-7306 set CIJenkins to default=true once python3.10 issues are resolved
     if parameters.run_ubuntu_22_04 != "false":
         test_environments["ubuntu2204"] = "ubuntu2204_x64_aws_server_en_us"
 
