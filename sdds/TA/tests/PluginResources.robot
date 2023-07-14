@@ -58,14 +58,16 @@ Check AV Plugin Can Scan Files
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLSPath} /tmp/clean_file ${dirtyFile}
     Should Be Equal As Integers  ${rc}  ${virusDetectedResult}
+    Remove File    /tmp/clean_file
+    Remove File    ${dirtyFile}
 
 Check On Access Detects Threats
     ${threatPath} =  Set Variable  /tmp/eicar.com
     ${mark} =  get_on_access_log_mark
     Create File     ${threatPath}    ${eicarString}
-    Register Cleanup  Remove File  ${threatPath}
 
     wait for on access log contains after mark  Detected "${threatPath}" is infected with EICAR-AV-Test  mark=${mark}
+    Remove File  ${threatPath}
 
 Wait Until Threat Detector Running
     Wait Until Keyword Succeeds
