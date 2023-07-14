@@ -9,7 +9,7 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-25" build-id="20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa"/>
+            <release-version branch="release/2023-28" build-id="20230711131508-6907e89ddfe3e57d2f0cf6cf6dfb6663e5a1964a-Rq6aTd"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
@@ -21,9 +21,10 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.25" build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="input/sdds3"/>
+            <release-version branch="release/2023-28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
+<!--            <development-version branch="release/SPRINT-2023.28"/>-->
+<!--            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="input/sdds3"/>-->
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="input/monorepo-boost"/>
