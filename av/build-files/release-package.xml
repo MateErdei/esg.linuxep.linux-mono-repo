@@ -21,10 +21,10 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/2023-28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
-<!--            <development-version branch="release/SPRINT-2023.28"/>-->
+            <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
+<!--            <development-version branch="develop"/>-->
 <!--            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="input/sdds3"/>-->
-            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="input/monorepo-boost"/>
