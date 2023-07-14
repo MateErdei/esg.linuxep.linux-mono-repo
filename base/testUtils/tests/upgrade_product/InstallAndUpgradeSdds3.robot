@@ -706,7 +706,8 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
+    ...   Check Current Release With AV Installed Correctly
+    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
 
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse

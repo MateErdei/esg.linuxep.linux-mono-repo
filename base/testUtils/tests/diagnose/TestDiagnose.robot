@@ -267,21 +267,23 @@ Diagnose Tool Run Twice Creates Two Tar Files
 
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
     Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
     # Check diagnose tar created
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}
     ${fileCount} =    Get length    ${Files}
     Should Be Equal As Numbers  ${fileCount}  1
-
+    Should Contain    ${Files[0]}    sspl-diagnose_
+    Should Contain    ${Files[0]}    .tar.gz
+    Move file    ${TAR_FILE_DIRECTORY}/${Files}[0]    ${TAR_FILE_DIRECTORY}/old_diagnose.tar
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
-
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     # Check diagnose tar created
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}
     ${fileCount} =    Get length    ${Files}
     Should Be Equal As Numbers  ${fileCount}  2
 
-    Should Contain    ${Files[0]}    sspl-diagnose_
-    Should Contain    ${Files[0]}    .tar.gz
     Should Contain    ${Files[1]}    sspl-diagnose_
     Should Contain    ${Files[1]}    .tar.gz
 
