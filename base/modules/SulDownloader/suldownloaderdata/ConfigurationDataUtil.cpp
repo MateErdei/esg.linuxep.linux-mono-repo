@@ -6,7 +6,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationDataUtil.h"
 
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "Logger.h"
 
