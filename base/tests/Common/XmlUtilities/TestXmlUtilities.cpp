@@ -134,6 +134,55 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 )sophos" };
 
 // NOLINTNEXTLINE(cert-err58-cpp)
+static std::string liveQueryPolicy = { R"sophos(<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="100" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>250000000</dailyDataLimit>
+            <queryPacks>
+                <queryPack id="queryPackId" />
+            </queryPacks>
+            <customQueries>
+                  <customQuery queryName="blah">
+                      <description>basic query</description>
+                      <query>SELECT * FROM stuff</query>
+                      <interval>10</interval>
+                      <tag>DataLake</tag>
+                      <removed>false</removed>
+                      <denylist>false</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah2">
+                      <description>a different 
+basic 
+query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>5</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah3">
+                      <description>a different basic query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>10</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah4">
+                      <description>a different basic query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>10</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+            </customQueries>
+        </scheduled>
+    </configuration>
+</policy>)sophos" };
+
+// NOLINTNEXTLINE(cert-err58-cpp)
 static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
 <!ENTITY a "1234567890" >
 <!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;">
@@ -445,59 +494,9 @@ TEST(TestXmlUtilities, CommandPoll)
 
 TEST(TestXmlUtilities, edrPolicyExample)
 {
-    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
-                                  "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
-                                  "    <configuration>\n"
-                                  "        <scheduled>\n"
-                                  "            <dailyDataLimit>250000000</dailyDataLimit>\n"
-                                  "            <queryPacks>\n"
-                                  "                <queryPack id=\"queryPackId\" />\n"
-                                  "            </queryPacks>\n"
-                                  "            <customQueries>\n"
-                                  "                  <customQuery queryName=\"blah\">\n"
-                                  "                      <description>basic query</description>\n"
-                                  "                      <query>SELECT * FROM stuff</query>\n"
-                                  "                      <interval>10</interval>\n"
-                                  "                      <tag>DataLake</tag>\n"
-                                  "                      <removed>false</removed>\n"
-                                  "                      <denylist>false</denylist>\n"
-                                  "                  </customQuery>\n"
-                                  "                  <customQuery queryName=\"blah2\">\n"
-                                  "                      <description>a different \n"
-                                  "basic \n"
-                                  "query</description>\n"
-                                  "                      <query>SELECT * FROM otherstuff</query>\n"
-                                  "                      <interval>5</interval>\n"
-                                  "                      <tag>stream</tag>\n"
-                                  "                      <removed>true</removed>\n"
-                                  "                      <denylist>true</denylist>\n"
-                                  "                  </customQuery>\n"
-                                  "                  <customQuery queryName=\"blah3\">\n"
-                                  "                      <description>a different basic query</description>\n"
-                                  "                      <query>SELECT * FROM otherstuff</query>\n"
-                                  "                      <interval>10</interval>\n"
-                                  "                      <tag>stream</tag>\n"
-                                  "                      <removed>true</removed>\n"
-                                  "                      <denylist>true</denylist>\n"
-                                  "                  </customQuery>\n"
-                                  "                  <customQuery queryName=\"blah4\">\n"
-                                  "                      <description>a different basic query</description>\n"
-                                  "                      <query>SELECT * FROM otherstuff</query>\n"
-                                  "                      <interval>10</interval>\n"
-                                  "                      <tag>stream</tag>\n"
-                                  "                      <removed>true</removed>\n"
-                                  "                      <denylist>true</denylist>\n"
-                                  "                  </customQuery>\n"
-                                  "            </customQueries>\n"
-                                  "        </scheduled>\n"
-                                  "    </configuration>\n"
-                                  "</policy>";
-
     auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
 
     const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
-    Common::XmlUtilities::Attributes customQueriesAttr = map.lookup(customQueriesPath);
-    EXPECT_TRUE(customQueriesAttr.empty());
     const std::string queryTag = "customQuery";
     std::string suffix = "_0"; // ""=1st,  "_0"=2nd,  "_1"=3rd, hence queryname checked below is "blah2".
     std::string key = customQueriesPath + "/" + queryTag + suffix;
@@ -508,6 +507,16 @@ TEST(TestXmlUtilities, edrPolicyExample)
     std::string description = map.lookup(key + "/description").value("TextId", "");
     EXPECT_EQ(queryName, "blah2");
     EXPECT_EQ(description, "a different \nbasic \nquery");
+}
+
+TEST(TestXmlUtilities, tagAttributesCanBeEmpty)
+{
+    // This test ensures we do not populate empty attributes with "TextId" and empty strings
+    auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
+    
+    const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
+    Common::XmlUtilities::Attributes customQueriesAttr = map.lookup(customQueriesPath);
+    EXPECT_TRUE(customQueriesAttr.empty());
 }
 
 TEST(TestXmlUtilities, newlinesAndWhitespaceHandling)
