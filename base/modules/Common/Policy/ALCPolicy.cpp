@@ -155,7 +155,19 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
     updateSettings_.setUseSlowSupplements(get_attr_bool(delay_supplements.value("enabled", "false")));
 
-    telemetryHost_ = attributesMap.lookup("AUConfigurations/server_names/telemetry").contents();
+    const auto telemetryHosts = attributesMap.lookupMultiple("AUConfigurations/server_names/telemetry");
+    if (telemetryHosts.empty())
+    {
+        telemetryHost_ = std::nullopt;
+    }
+    else if (telemetryHosts.size() == 1)
+    {
+        telemetryHost_ = telemetryHosts[0].contents();
+    }
+    else
+    {
+        throw PolicyParseException(LOCATION, "More than one telemetry host");
+    }
 
     logVersion();
 }

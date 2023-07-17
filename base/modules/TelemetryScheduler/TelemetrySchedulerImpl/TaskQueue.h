@@ -21,6 +21,7 @@ namespace TelemetrySchedulerImpl
         void push(SchedulerTask) override;
         void pushPriority(SchedulerTask) override;
         SchedulerTask pop() override;
+        bool pop(SchedulerTask& task, int timeout) override;
 
     private:
         std::mutex m_mutex;

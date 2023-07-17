@@ -10,9 +10,12 @@ add_library(telemetryschedulerimpl SHARED
         SchedulerStatus.cpp
         SchedulerStatusSerialiser.cpp
         SchedulerStatusSerialiser.h
+        ServerURLHandler.cpp
+        ServerURLHandler.h
         SleepyThread.cpp
         SleepyThread.h
-        ITaskQueue.h)
+        ITaskQueue.h
+        RequestToStopException.h)
 
 include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 

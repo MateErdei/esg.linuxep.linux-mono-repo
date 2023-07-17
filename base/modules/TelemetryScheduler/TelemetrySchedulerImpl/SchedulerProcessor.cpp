@@ -8,21 +8,19 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerStatusSerialiser.h"
 #include "SchedulerTask.h"
+#include "RequestToStopException.h"
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/OSUtilitiesImpl/SXLMachineID.h>
-#include <Common/Process/IProcess.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/TelemetryConfigImpl/Serialiser.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <TelemetryScheduler/LoggerImpl/Logger.h>
-
-namespace
-{
-    constexpr unsigned int dayInSeconds(86400);
-}
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/OSUtilitiesImpl/SXLMachineID.h"
+#include "Common/Policy/ALCPolicy.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/TelemetryConfigImpl/Serialiser.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/Policy/PolicyParseException.h"
+#include "TelemetryScheduler/LoggerImpl/Logger.h"
 
 namespace TelemetrySchedulerImpl
 {
@@ -51,26 +49,38 @@ namespace TelemetrySchedulerImpl
         {
             auto task = m_taskQueue->pop();
 
-            switch (task)
+            switch (task.taskType)
             {
-                case SchedulerTask::InitialWaitToRunTelemetry:
+                case SchedulerTask::TaskType::InitialWaitToRunTelemetry:
                     waitToRunTelemetry(true);
                     break;
 
-                case SchedulerTask::WaitToRunTelemetry:
+                case SchedulerTask::TaskType::WaitToRunTelemetry:
                     waitToRunTelemetry(false);
                     break;
 
-                case SchedulerTask::RunTelemetry:
+                case SchedulerTask::TaskType::RunTelemetry:
                     runTelemetry();
                     break;
 
-                case SchedulerTask::CheckExecutableFinished:
+                case SchedulerTask::TaskType::CheckExecutableFinished:
                     checkExecutableFinished();
                     break;
 
-                case SchedulerTask::Shutdown:
+                case SchedulerTask::TaskType::Shutdown:
                     return;
+
+                case SchedulerTask::TaskType::Policy:
+                    if (task.appId == "ALC")
+                    {
+                        LOGDEBUG("Processing " << task.appId << " policy: " << task.content);
+                        processALCPolicy(task.content);
+                    }
+                    else
+                    {
+                        LOGWARN("Received unexpected " << task.appId << " policy: " << task.content);
+                    }
+                    break;
 
                 default:
                     throw std::logic_error("unexpected task type");
@@ -270,6 +280,11 @@ namespace TelemetrySchedulerImpl
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
         // externally updated.
 
+        if (!m_alcPolicyProcessed)
+        {
+            waitForPolicy(5, "ALC");
+        }
+
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
         auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
@@ -277,7 +292,7 @@ namespace TelemetrySchedulerImpl
 
         if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, configFileValid))
         {
-            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+            m_taskQueue->push(SchedulerTask::TaskType::WaitToRunTelemetry);
             return;
         }
 
@@ -356,5 +371,98 @@ namespace TelemetrySchedulerImpl
         }
 
         m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+    }
+
+    void SchedulerProcessor::processALCPolicy(const std::string& policyXml)
+    {
+        try
+        {
+            Common::Policy::ALCPolicy alcPolicy{ policyXml };
+            auto [config, isValid] = getConfigFromFile();
+            const auto telemetryHost = alcPolicy.getTelemetryHost();
+
+            if (!telemetryHost) // <Telemetry> field did not exist in ALC policy
+            {
+                config.setServer("t1.sophosupd.com"); // Fallback to hardcoded value
+            }
+            else if ( telemetryHost->empty() ) // Value of <Telemetry> field was empty
+            {
+                config.setServer(""); // Don't do Telemetry
+            }
+            else
+            {
+                const auto isHostValid = checkTelemetryHostValid(*telemetryHost);
+                if (isHostValid)
+                {
+                    config.setServer(*telemetryHost);
+                }
+                else // TelemetryHost from ALC policy was not valid so not doing any Telemetry
+                {
+                    config.setServer("");
+                }
+            }
+
+            const auto configString = Serialiser::serialise(config);
+            const auto& fileSystem = *Common::FileSystem::fileSystem();
+            fileSystem.writeFile(m_pathManager.getTelemetrySupplementaryFilePath(), configString);
+
+            m_alcPolicyProcessed = true;
+        } catch (const Common::Policy::PolicyParseException& ex) {
+            LOGERROR("Failed to parse ALC policy: " << ex.what());
+
+            return;
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to write telemetry config to file: " << ex.what());
+            return;
+        }
+    }
+
+    bool SchedulerProcessor::checkTelemetryHostValid(const std::string& basicString)
+    {
+        const std::vector<std::string> validDomains {".com", ".net", ".us"};
+        // localhost is valid
+        // No alphanumeric
+        // Only UTF-8
+        // Not too long
+
+
+        return true;
+    }
+
+    std::string SchedulerProcessor::waitForPolicy(int maxTasksThreshold, const std::string& policyAppId)
+    {
+        std::vector<SchedulerTask> nonPolicyTasks;
+        std::string policyContent;
+        for (int i = 0; i < maxTasksThreshold; i++)
+        {
+            SchedulerTask task;
+            if (!m_taskQueue->pop(task, QUEUE_TIMEOUT))
+            {
+                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+                break;
+            }
+            if (task.taskType == SchedulerTask::TaskType::Policy && task.appId == policyAppId)
+            {
+                policyContent = task.content;
+                LOGINFO("First " << policyAppId << " policy received.");
+                break;
+            }
+            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
+            nonPolicyTasks.emplace_back(task);
+            if (task.taskType == SchedulerTask::TaskType::Shutdown)
+            {
+                LOGINFO("Abort waiting for the first policy as Stop signal received.");
+                throw RequestToStopException("");
+            }
+        }
+        LOGDEBUG("Return from waitForPolicy");
+
+        for (auto it = nonPolicyTasks.rbegin(); it != nonPolicyTasks.rend(); ++it)
+        {
+            m_taskQueue->pushPriority(*it);
+        }
+        return policyContent;
     }
 } // namespace TelemetrySchedulerImpl

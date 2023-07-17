@@ -19,9 +19,15 @@ namespace TelemetrySchedulerImpl
         LOGDEBUG("Plugin callback started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& policyXml)
+    void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
     {
-        LOGSUPPORT("Not applying unexpected new policy: " << policyXml);
+        LOGERROR("Attempted to apply new policy without AppId: This method should never be called.");
+    }
+
+    void PluginCallback::applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
+    {
+        LOGDEBUG("Applying new policy");
+        m_taskQueue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml, appId });
     }
 
     void PluginCallback::queueAction(const std::string& /*actionXml*/) { LOGSUPPORT("Received unexpected action"); }
@@ -29,7 +35,7 @@ namespace TelemetrySchedulerImpl
     void PluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
-        m_taskQueue->pushPriority(SchedulerTask::Shutdown);
+        m_taskQueue->pushPriority({ .taskType = SchedulerTask::TaskType::Shutdown });
     }
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)

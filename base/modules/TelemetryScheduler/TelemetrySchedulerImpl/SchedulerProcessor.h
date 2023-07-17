@@ -89,5 +89,10 @@ namespace TelemetrySchedulerImpl
         std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
         const seconds m_configurationCheckDelay;
         const seconds m_telemetryExeCheckDelay;
+        void processALCPolicy(const std::string& policyXml);
+        bool checkTelemetryHostValid(const std::string& telemetryHost);
+        bool m_alcPolicyProcessed = false;
+        std::string waitForPolicy(int maxTasksThreshold, const std::string& policyAppId);
+        constexpr const static inline int QUEUE_TIMEOUT = 5;
     };
 } // namespace TelemetrySchedulerImpl
