@@ -31,6 +31,11 @@ namespace Common::Policy
                 return !name_.empty() && !token_.empty();
             }
 
+            bool operator!=(const ESMVersion& rhs) const
+            {
+                return (token_ != rhs.token_ && name_ != rhs.name_);
+            }
+
         private:
             std::string name_;
             std::string token_;

@@ -30,6 +30,14 @@ namespace SulDownloader
                 return true;
             }
 
+            auto newEsmVersion = updateSettings.getEsmVersion();
+            auto previousEsmVerion = previousUpdateSettings.getEsmVersion();
+
+            if (newEsmVersion != previousEsmVerion)
+            {
+                return true;
+            }
+
             for (auto &newSubscription : updateSettings.getProductsSubscription())
             {
                 for (auto &previousSubscription : previousUpdateSettings.getProductsSubscription())

@@ -19,6 +19,15 @@ static Common::Policy::UpdateSettings getValidUpdateSettings()
 
 
 //checkIfShouldForceUpdate
+TEST(TestConfigurationDataUtils, returnFalseIfESMVersionIsSame)
+{
+    auto newSettings = getValidUpdateSettings();
+    newSettings.setEsmVersion(ESMVersion("name", "token"));
+    auto previousSettings = getValidUpdateSettings();
+    previousSettings.setEsmVersion(ESMVersion("name", "token"));
+    EXPECT_FALSE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
+}
+
 TEST(TestConfigurationDataUtils, returnTrueIfESMVersionChanges)
 {
     auto newSettings = getValidUpdateSettings();
@@ -26,4 +35,5 @@ TEST(TestConfigurationDataUtils, returnTrueIfESMVersionChanges)
     auto previousSettings = getValidUpdateSettings();
     EXPECT_TRUE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
 }
+
 

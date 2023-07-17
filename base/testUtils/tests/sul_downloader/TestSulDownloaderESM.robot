@@ -81,11 +81,13 @@ Fixed Version Token is requested by SulDownloader Immediately When It Changes
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
 
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Require Fresh Install
+    Override LogConf File as Global Level  DEBUG
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
 
@@ -99,7 +101,6 @@ Fixed Version Token is requested by SulDownloader Immediately When It Changes
     wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
 
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Wait Until Keyword Succeeds
     ...   10 secs
