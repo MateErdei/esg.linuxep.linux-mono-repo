@@ -20,8 +20,8 @@ namespace SulDownloader
             * either the subscription tag, or the subscription fixedVersion differ from previous configuration,
             * will return false otherwise.
             */
-            static bool checkIfShouldForceUpdate(const Common::Policy::UpdateSettings& configurationData,
-                                                 const Common::Policy::UpdateSettings &previousConfigurationData);
+            static bool checkIfShouldForceUpdate(const Common::Policy::UpdateSettings& updateSettings,
+                                                 const Common::Policy::UpdateSettings& previousUpdateSettings);
 
             /**
              * Function will return true If:
