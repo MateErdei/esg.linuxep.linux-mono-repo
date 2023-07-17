@@ -21,8 +21,12 @@ def queries_in_pack(config: dict) -> (str, dict):
         yield query_name, query
     #for query in packs
     for pack in config.get("packs", {}).values():
-        for query_name, query in pack["queries"].items():
-            yield query_name, query
+        discovery = pack.get("discovery", "")
+        logger.debug("Discovery: {}".format(discovery))
+        # Exclude queries which only run on Windows
+        if "osquery_registry" not in str(discovery):
+            for query_name, query in pack["queries"].items():
+                yield query_name, query
 
 def replace_query_bodies_with_sql_that_always_gives_results(config_path):
     if os.path.exists(config_path):
@@ -152,7 +156,7 @@ def check_all_query_results_contain_correct_tag(results_directory: str, *config_
 
     results_dict = {}
     for file in os.listdir(results_directory):
-        print(f"file: {file}")
+        logger.info(f"File: {file}")
         with open(os.path.join(results_directory, file), 'r') as f:
             results_json_string = f.read()
 
@@ -168,7 +172,7 @@ def check_all_query_results_contain_correct_tag(results_directory: str, *config_
         config = json.loads(config_json_string)
 
         for query_name, query_dict in linux_queries_in_pack(config):
-            print(f"Checking {query_name}")
+            logger.info(f"Checking {query_name}")
             assert(query_dict["tag"] == results_dict[query_name]["tag"])
 
 
