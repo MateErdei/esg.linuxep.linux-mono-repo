@@ -148,8 +148,7 @@ namespace
 
 std::string Telemetry::getTelemetry(
     const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls,
-    Common::FileSystem::IFileSystem* fileSystem,
-    long health)
+    Common::FileSystem::IFileSystem* fileSystem)
 {
     LOGSUPPORT("Received get telemetry request");
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
@@ -159,7 +158,6 @@ std::string Telemetry::getTelemetry(
     telemetry.set("vdl-ide-count", getIdeCount());
     telemetry.set("vdl-version", getVirusDataVersion());
     telemetry.set("version", common::getPluginVersion());
-    telemetry.set("health", health);
 
     auto processInfo = getThreatScannerProcessinfo(sysCalls, fileSystem);
     telemetry.set("threatMemoryUsage", processInfo.first);

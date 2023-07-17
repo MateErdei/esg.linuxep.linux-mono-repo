@@ -19,8 +19,7 @@ namespace Plugin
     public:
         static std::string getTelemetry(
             const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>&,
-            Common::FileSystem::IFileSystem* fs,
-            long health);
+            Common::FileSystem::IFileSystem* fs);
 
     TEST_PUBLIC:
         static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(

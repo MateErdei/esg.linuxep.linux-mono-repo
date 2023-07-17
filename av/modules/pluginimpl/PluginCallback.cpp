@@ -124,9 +124,13 @@ namespace Plugin
         telemetry.set("threatHealth", m_threatStatus);
 
         auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
-        auto* fileSystem = Common::FileSystem::fileSystem();
         auto health = calculateHealth(sysCalls);
-        auto telemetryJson = telemetry_.getTelemetry(std::move(sysCalls), fileSystem, health);
+        telemetry.set("health", health);
+
+        auto* fileSystem = Common::FileSystem::fileSystem();
+        auto telemetryJson = telemetry_.getTelemetry(std::move(sysCalls), fileSystem);
+
+        // Reset threatHealth
         telemetry.set("threatHealth", m_threatStatus);
         return telemetryJson;
     }
