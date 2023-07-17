@@ -28,6 +28,13 @@ TEST(TestConfigurationDataUtils, returnFalseIfESMVersionIsSame)
     EXPECT_FALSE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
 }
 
+TEST(TestConfigurationDataUtils, returnFalseIfESMVersionIsntSet)
+{
+    auto newSettings = getValidUpdateSettings();
+    auto previousSettings = getValidUpdateSettings();
+    EXPECT_FALSE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
+}
+
 TEST(TestConfigurationDataUtils, returnTrueIfESMVersionChanges)
 {
     auto newSettings = getValidUpdateSettings();
@@ -36,4 +43,11 @@ TEST(TestConfigurationDataUtils, returnTrueIfESMVersionChanges)
     EXPECT_TRUE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
 }
 
-
+TEST(TestConfigurationDataUtils, returnTrueIfOneFieldForESMVersionChanges)
+{
+    auto newSettings = getValidUpdateSettings();
+    newSettings.setEsmVersion(ESMVersion("name", "token"));
+    auto previousSettings = getValidUpdateSettings();
+    newSettings.setEsmVersion(ESMVersion("name", "oldtoken"));
+    EXPECT_TRUE(ConfigurationDataUtil::checkIfShouldForceUpdate(newSettings, previousSettings));
+}
