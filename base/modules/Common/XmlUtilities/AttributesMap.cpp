@@ -107,7 +107,10 @@ namespace
         {
             // Trim off preceding and trailing new lines and whitespace from xml element content
             topElement.content = Common::UtilityImpl::StringUtils::trim(topElement.content);
-            topElement.attributes.push_back(AttributePair{ Attributes::TextId, topElement.content });
+            if (!topElement.content.empty())
+            {
+                topElement.attributes.push_back(AttributePair{ Attributes::TextId, topElement.content });
+            }
         }
         m_attributesMap[topElement.fullpath] =
             Attributes(std::move(topElement.attributes), std::move(topElement.content));

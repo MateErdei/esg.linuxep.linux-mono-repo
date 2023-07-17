@@ -496,6 +496,8 @@ TEST(TestXmlUtilities, edrPolicyExample)
     auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
 
     const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
+    Common::XmlUtilities::Attributes customQueriesAttr = map.lookup(customQueriesPath);
+    EXPECT_TRUE(customQueriesAttr.empty());
     const std::string queryTag = "customQuery";
     std::string suffix = "_0"; // ""=1st,  "_0"=2nd,  "_1"=3rd, hence queryname checked below is "blah2".
     std::string key = customQueriesPath + "/" + queryTag + suffix;
