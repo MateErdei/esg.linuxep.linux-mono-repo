@@ -146,9 +146,16 @@ namespace
     }
 }
 
-std::string Telemetry::getTelemetry(
+Telemetry::Telemetry(
     const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls,
-    Common::FileSystem::IFileSystem* fileSystem)
+    Common::FileSystem::IFileSystem* fs)
+        : syscalls_(sysCalls),
+          filesystem_(fs)
+{
+}
+
+
+std::string Telemetry::getTelemetry()
 {
     LOGSUPPORT("Received get telemetry request");
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
@@ -159,7 +166,7 @@ std::string Telemetry::getTelemetry(
     telemetry.set("vdl-version", getVirusDataVersion());
     telemetry.set("version", common::getPluginVersion());
 
-    auto processInfo = getThreatScannerProcessinfo(sysCalls, fileSystem);
+    auto processInfo = getThreatScannerProcessinfo();
     telemetry.set("threatMemoryUsage", processInfo.first);
     telemetry.set("threatProcessAge", processInfo.second);
 
@@ -247,6 +254,10 @@ std::pair<unsigned long, unsigned long> Telemetry::getThreatScannerProcessinfo(
 std::pair<unsigned long, unsigned long> Telemetry::getThreatScannerProcessinfo(
     const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
 {
-    auto* fileSystem = Common::FileSystem::fileSystem();
-    return getThreatScannerProcessinfo(sysCalls, fileSystem);
+    return getThreatScannerProcessinfo(sysCalls, filesystem_);
+}
+
+std::pair<unsigned long, unsigned long> Telemetry::getThreatScannerProcessinfo()
+{
+    return getThreatScannerProcessinfo(syscalls_, filesystem_);
 }

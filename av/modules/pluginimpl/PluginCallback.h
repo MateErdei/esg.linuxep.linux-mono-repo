@@ -94,7 +94,6 @@ namespace Plugin
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
         std::string m_savStatus;
-        Telemetry telemetry_;
         std::atomic_bool m_running = false;
         std::atomic_bool m_safeStoreEnabled = false;
         std::atomic_bool m_onAccessEnabled = false;

@@ -128,7 +128,8 @@ namespace Plugin
         telemetry.set("health", health);
 
         auto* fileSystem = Common::FileSystem::fileSystem();
-        auto telemetryJson = telemetry_.getTelemetry(std::move(sysCalls), fileSystem);
+        Telemetry telemetryCalculator{sysCalls, fileSystem};
+        auto telemetryJson = telemetryCalculator.getTelemetry();
 
         // Reset threatHealth
         telemetry.set("threatHealth", m_threatStatus);

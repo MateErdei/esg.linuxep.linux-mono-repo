@@ -17,18 +17,23 @@ namespace Plugin
     class Telemetry
     {
     public:
-        static std::string getTelemetry(
+        Telemetry(
             const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>&,
             Common::FileSystem::IFileSystem* fs);
+
+        std::string getTelemetry();
 
     TEST_PUBLIC:
         static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(
             const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls,
             Common::FileSystem::IFileSystem* fileSystem);
-        static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(
+        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(
             const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
-
+        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo();
     private:
+        std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper> syscalls_;
+        Common::FileSystem::IFileSystem* filesystem_;
+
         static std::string getVirusDataVersion();
     };
 }

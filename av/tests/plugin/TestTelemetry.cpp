@@ -38,7 +38,7 @@ namespace
 
             m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-            m_pluginCallback = std::make_unique<Plugin::Telemetry>();
+            m_pluginCallback = std::make_unique<Plugin::Telemetry>(m_mockSysCalls, m_mockFileSystem.get());
         }
 
         void TearDown() override
@@ -83,10 +83,9 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
 
     EXPECT_CALL(*m_mockFileSystem, readFile(threatDetectorPidFile)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("File does not exist.")));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0, 0);
-    auto telemetry = std::make_unique<Plugin::Telemetry>();
+    auto telemetry = std::make_unique<Plugin::Telemetry>(m_mockSysCalls, m_mockFileSystem.get());
     std::pair<long, long> result = telemetry->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Error accessing pid file: "));
@@ -288,7 +287,9 @@ TEST_F(TestTelemetry, getTelemetry_version)
 
     auto realSyscalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
     auto* realFilesystem = Common::FileSystem::fileSystem();
-    auto initialTelemetry = json::parse(m_pluginCallback->getTelemetry(realSyscalls, realFilesystem));
+    Plugin::Telemetry telemetry{realSyscalls, realFilesystem};
+
+    auto initialTelemetry = json::parse(telemetry.getTelemetry());
 
     EXPECT_EQ(initialTelemetry["version"], m_initialExpectedVersion);
 
@@ -301,6 +302,6 @@ TEST_F(TestTelemetry, getTelemetry_version)
     versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
     versionFileStream.close();
 
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry(realSyscalls, realFilesystem));
+    json modifiedTelemetry = json::parse(telemetry.getTelemetry());
     EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
 }
