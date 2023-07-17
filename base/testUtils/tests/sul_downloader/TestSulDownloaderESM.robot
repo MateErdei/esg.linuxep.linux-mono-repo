@@ -20,6 +20,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
+Resource    ../edr_plugin/EDRResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../update/SDDS3Resources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
@@ -32,55 +33,23 @@ Force Tags  LOAD6
 *** Variables ***
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${tmpPolicy} =                               /tmp/tmpALC.xml
 ${tmpLaunchDarkly} =                        /tmp/launchdarkly
 ${staticflagfile} =                         linuxep.json
-${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
-
+${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
+${BaseAndEdrAndMtrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 
 *** Test Cases ***
 
 
 Fixed Version Token is requested by SulDownloader Immediately In Normal Mode
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-
     ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Require Fresh Install
-    Override LogConf File as Global Level  DEBUG
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-    Create Local SDDS3 Override
-
-    Register With Local Cloud Server
-
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-
-    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
-    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-
-Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
-    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
-    Register Cleanup  Remove File  ${tmpPolicy}
-
-    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
 
     Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
     ${handle}=  Start Local SDDS3 Server With Empty Repo
@@ -98,75 +67,7 @@ Fixed Version Token is requested by SulDownloader Immediately In Paused Updating
     ...    Log File    ${UPDATE_CONFIG}
 
     wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
-    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-
-Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
-    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
-    Register Cleanup  Remove File  ${tmpPolicy}
-
-    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-
-    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Require Fresh Install
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-    Create Local SDDS3 Override
-
-    Register With Local Cloud Server
-
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-
-    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
-    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-
-
-Fixed Version Token is requested by SulDownloader Immediately When It Changes
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
-    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
-    Register Cleanup  Remove File  ${tmpPolicy}
-
-    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Require Fresh Install
-    Override LogConf File as Global Level  DEBUG
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-    Create Local SDDS3 Override
-
-    Register With Local Cloud Server
-
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-
-    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
+    wait_for_log_contains_from_mark  ${update_mark}  Detected product configuration change, triggering update.
 
     File Should Contain  ${UPDATE_CONFIG}     JWToken
 
@@ -175,11 +76,73 @@ Fixed Version Token is requested by SulDownloader Immediately When It Changes
     ...   2 secs
     ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
+
+#Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
+#    Send Non ESM ALC Policy And Wait Until Processed
+#
+#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+#    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
+#
+#    Remove File  ${tmpPolicy}
+#    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+#    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+#    Send Policy File  alc    ${tmpPolicy}
+#
+#    Wait Until Keyword Succeeds
+#    ...    10s
+#    ...    1s
+#    ...    Log File    ${UPDATE_CONFIG}
+#
+#    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
+#
+#    File Should Contain  ${UPDATE_CONFIG}     JWToken
+#
+#    Wait Until Keyword Succeeds
+#    ...   10 secs
+#    ...   2 secs
+#    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
+#    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
+
+
+
+#Fixed Version Token is requested by SulDownloader Immediately When It Changes
+#    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+#    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+#    Register Cleanup  Remove File  ${tmpPolicy}
+#
+#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+#    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+#
+#    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
+#    ${handle}=  Start Local SDDS3 Server With Empty Repo
+#    Set Suite Variable    ${GL_handle}    ${handle}
+#
+#    Require Fresh Install
+#    Override LogConf File as Global Level  DEBUG
+#    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+#    Create Local SDDS3 Override
+#
+#    Register With Local Cloud Server
+#
+#    Wait Until Keyword Succeeds
+#    ...    10s
+#    ...    1s
+#    ...    Log File    ${UPDATE_CONFIG}
+#
+#    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
+#
+#    File Should Contain  ${UPDATE_CONFIG}     JWToken
+#
+#    Wait Until Keyword Succeeds
+#    ...   10 secs
+#    ...   2 secs
+#    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
+#    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
 Request is not made by SulDownloader when ESM is invalid
     #Invalid because we are only providing a name for the fixed_version
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    LTS 2023.1.1
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1
     Create File    ${tmpPolicy}    ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
@@ -231,6 +194,183 @@ Fixed Version Token is not requested by SulDownloader when ESM not present in AL
     File Should Not Contain  ${UPDATE_CONFIG}     fixed_version_token
 
 
+Fixed Version Token is not requested by SulDownloader Immediately With Scheduled Updates
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+
+    Setup SUS all develop
+    Remove File  ${tmpPolicy}
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    Register Cleanup    Remove File    ${tmpPolicy}
+
+    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
+
+    # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true    timeout=10s
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Wait For Suldownloader To Finish
+
+    Setup SUS static
+    ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
+    Remove File  ${tmpPolicy}
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+
+    Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+
+    Check Suldownloader Is Not Running
+
+
+Fixed Version Token is requested by SulDownloader Immediately With Scheduled Updates And Update Now
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+
+    Setup SUS all develop
+    Remove File  ${tmpPolicy}
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    Register Cleanup    Remove File    ${tmpPolicy}
+
+    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
+
+    # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true    timeout=10s
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Wait For Suldownloader To Finish
+
+    Setup SUS static
+    ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
+    Remove File  ${tmpPolicy}
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+
+    Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    Trigger Update Now
+
+    wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
+    wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
+
+
+Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+
+    Setup SUS all develop
+    Remove File  ${tmpPolicy}
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    Register Cleanup    Remove File    ${tmpPolicy}
+
+    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
+
+    # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true    timeout=10s
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Wait For Suldownloader To Finish
+
+    Setup SUS static
+    ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    ${fixed_version_name}    ${fixed_version_token}
+    Remove File  ${tmpPolicy}
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
+    Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+
+    wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
+    wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
+
+
+Fixed Version Token is requested by SulDownloader Immediately
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+
+    Setup SUS all develop
+    Remove File  ${tmpPolicy}
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    Register Cleanup    Remove File    ${tmpPolicy}
+
+    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
+
+    # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true    timeout=10s
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Wait For Suldownloader To Finish
+
+    Setup SUS static
+    ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    ${fixed_version_name}    ${fixed_version_token}
+    Remove File  ${tmpPolicy}
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
+    Send Policy File  alc    ${tmpPolicy}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+
+    wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
+    wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
+
+
+
 
 Install all plugins static-999 then downgrade to all plugins static
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
@@ -238,7 +378,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
@@ -276,7 +416,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
 
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
@@ -338,7 +478,7 @@ Install all plugins static then upgrade to all plugins static-999
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
 
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
@@ -363,7 +503,7 @@ Install all plugins static then upgrade to all plugins static-999
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
 
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
@@ -432,3 +572,37 @@ Setup SUS static 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  ${tmpLaunchDarkly}
+
+#
+#Send Non ESM ALC Policy And Wait Until Processed
+#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+#    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+#
+#    ${standard_alc_policy} =    populate_only_cloud_subscription
+#    Create File  ${tmpPolicy}   ${standard_alc_policy}
+#    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
+#
+#    ${handle}=  Start Local SDDS3 Server With Empty Repo
+#    Set Suite Variable    ${GL_handle}    ${handle}
+#
+#    Require Fresh Install
+#    Override LogConf File as Global Level  DEBUG
+#    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+#    Create Local SDDS3 Override
+#
+#    Register With Local Cloud Server
+#
+#    Wait Until Keyword Succeeds
+#    ...    10s
+#    ...    1s
+#    ...    Log File    ${UPDATE_CONFIG}
+#
+#    wait_for_log_contains_from_mark  ${update_mark}  Using version RECOMMENDED
+#    File Should Contain  ${UPDATE_CONFIG}     JWToken
+#
+#
+#    Wait Until Keyword Succeeds
+#    ...   10 secs
+#    ...   2 secs
+#    ...   File Should Contain    ${sdds3_server_output}     tag RECOMMENDED
+#        wait_for_log_contains_from_mark  ${sul_mark}  Generating the report file in: /opt/sophos-spl/base/update/var/updatescheduler
