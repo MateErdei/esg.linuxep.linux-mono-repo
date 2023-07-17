@@ -14,6 +14,9 @@
 #include "Common/Helpers/MockSysCalls.h"
 #include "PluginMemoryAppenderUsingTests.h"
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
+using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
 namespace
@@ -43,7 +46,27 @@ namespace
             fs::remove_all(m_basePath);
         }
 
+        void setupInitialVersionFile()
+        {
+            m_versionFile = m_basePath;
+            m_versionFile /= "VERSION.ini";
+
+            std::ofstream versionFileStream;
+            versionFileStream.open(m_versionFile);
+            versionFileStream << "PRODUCT_NAME = SPL-Anti-Virus-Plugin" << std::endl;
+            versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
+            versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
+            versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
+            versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
+            versionFileStream.close();
+        }
+
         fs::path m_basePath;
+        fs::path m_versionFile;
+        std::string m_initialExpectedVersion = "1.2.3.456";
+        std::string m_initialExpectedCommitHash = "dd9f7b10bb62c4b5f8eee1fede4bb4f4100a75c5";
+        std::string m_initialExpectedPluginApiCommitHash = "93b8ec8736dcb5b4266f85b1b08110ebe19c7f03";
+
         std::unique_ptr<MockFileSystem> m_mockFileSystem;
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
         std::unique_ptr<Plugin::Telemetry> m_pluginCallback;
@@ -256,4 +279,28 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenAccess
 
     EXPECT_TRUE(appenderContains("Error reading threat detector stat proc file due to: "));
     ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestTelemetry, getTelemetry_version)
+{
+    setupInitialVersionFile();
+    std::string modifiedVersion = "1.2.3.457";
+
+    auto realSyscalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
+    auto* realFilesystem = Common::FileSystem::fileSystem();
+    auto initialTelemetry = json::parse(m_pluginCallback->getTelemetry(realSyscalls, realFilesystem));
+
+    EXPECT_EQ(initialTelemetry["version"], m_initialExpectedVersion);
+
+    std::ofstream versionFileStream;
+    versionFileStream.open(m_versionFile);
+    versionFileStream << "PRODUCT_NAME = SPL-Anti-Virus-Plugin" << std::endl;
+    versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
+    versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
+    versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
+    versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
+    versionFileStream.close();
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry(realSyscalls, realFilesystem));
+    EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
 }

@@ -193,28 +193,6 @@ namespace
     };
 }
 
-TEST_F(TestPluginCallback, getTelemetry_version)
-{
-    std::string modifiedVersion = "1.2.3.457";
-
-    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
-    EXPECT_EQ(initialTelemetry["version"], m_initialExpectedVersion);
-
-    std::ofstream versionFileStream;
-    versionFileStream.open(m_versionFile);
-    versionFileStream << "PRODUCT_NAME = SPL-Anti-Virus-Plugin" << std::endl;
-    versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
-    versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
-    versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
-    versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
-    versionFileStream.close();
-
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
-    EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
-}
-
 TEST_F(TestPluginCallback, getTelemetry_version_fileDoesNotExist)
 {
     fs::remove(m_versionFile);
