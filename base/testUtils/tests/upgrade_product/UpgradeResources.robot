@@ -156,11 +156,11 @@ Start Local SDDS3 Server
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${VUT_WAREHOUSE_ROOT}/launchdarkly    ${VUT_WAREHOUSE_ROOT}/repo
+    ${handle}=    Start Local SDDS3 Server    ${DOGFOOD_WAREHOUSE_ROOT}/launchdarkly    ${DOGFOOD_WAREHOUSE_ROOT}/repo
     [Return]  ${handle}
 
-Start Local Release SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${VUT_WAREHOUSE_ROOT}/launchdarkly    ${VUT_WAREHOUSE_ROOT}/repo
+Start Local Current Shipping SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}/launchdarkly    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}/repo
     [Return]  ${handle}
 
 Start Local SDDS3 Server With Empty Repo

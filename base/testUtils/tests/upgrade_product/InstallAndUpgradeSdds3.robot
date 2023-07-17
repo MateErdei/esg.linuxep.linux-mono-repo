@@ -370,7 +370,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local Release SDDS3 Server
+    ${handle}=    Start Local Current Shipping SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
@@ -525,7 +525,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Stop Local SDDS3 Server
-    ${handle}=    Start Local Release SDDS3 Server
+    ${handle}=    Start Local Current Shipping SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
     Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
