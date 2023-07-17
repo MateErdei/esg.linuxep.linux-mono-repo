@@ -31,9 +31,9 @@ namespace SulDownloader
             }
 
             auto newEsmVersion = updateSettings.getEsmVersion();
-            auto previousEsmVerion = previousUpdateSettings.getEsmVersion();
+            auto previousEsmVersion = previousUpdateSettings.getEsmVersion();
 
-            if (newEsmVersion != previousEsmVerion)
+            if (newEsmVersion != previousEsmVersion)
             {
                 return true;
             }
