@@ -101,7 +101,11 @@ def check_all_queries_run(log_path: str, config_path: str):
         packs = config.get("packs", {})
 
         for pack in packs.values():
-            flattened_queries = {**flattened_queries, **pack["queries"]}
+            discovery = pack.get("discovery", "")
+            logger.debug("Discovery: {}".format(discovery))
+            # Exclude queries which only run on Windows
+            if "osquery_registry" not in str(discovery):
+                flattened_queries = {**flattened_queries, **pack["queries"]}
 
         flattened_queries = {**flattened_queries, **config["schedule"]}
 
