@@ -166,9 +166,9 @@ std::string Telemetry::getTelemetry()
     telemetry.set("vdl-version", getVirusDataVersion());
     telemetry.set("version", common::getPluginVersion());
 
-    auto processInfo = getThreatScannerProcessinfo();
-    telemetry.set("threatMemoryUsage", processInfo.first);
-    telemetry.set("threatProcessAge", processInfo.second);
+    auto [memoryUsage, processAge] = getThreatScannerProcessinfo();
+    telemetry.set("threatMemoryUsage", memoryUsage);
+    telemetry.set("threatProcessAge", processAge);
 
     telemetry.increment("scan-now-count", 0ul);
     telemetry.increment("scheduled-scan-count", 0ul);
