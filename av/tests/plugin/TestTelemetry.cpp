@@ -38,7 +38,7 @@ namespace
 
             m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-            m_pluginCallback = std::make_unique<Plugin::Telemetry>(m_mockSysCalls, m_mockFileSystem.get());
+            telemetry_ = std::make_unique<Plugin::Telemetry>(m_mockSysCalls, m_mockFileSystem.get());
         }
 
         void TearDown() override
@@ -69,7 +69,7 @@ namespace
 
         std::unique_ptr<MockFileSystem> m_mockFileSystem;
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
-        std::unique_ptr<Plugin::Telemetry> m_pluginCallback;
+        std::unique_ptr<Plugin::Telemetry> telemetry_;
     };
 }
 
@@ -105,7 +105,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesIfPidFileContentsAreMalformed)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0, 0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Failed to read Pid file to int due to: "));
     ASSERT_EQ(result, expectedResult);
@@ -126,7 +126,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMissing)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0,0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Process no longer running: "));
     ASSERT_EQ(result, expectedResult);
@@ -148,7 +148,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHasAFile
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0,0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Error accessing proc directory of pid: 1234 due to: "));
     ASSERT_EQ(result, expectedResult);
@@ -172,7 +172,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0,0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("The proc stat for 1234 is not of expected size"));
     ASSERT_EQ(result, expectedResult);
@@ -201,7 +201,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidSysInf
     long expectedMemoryValue = 500;
     long expectedAgeValue = 0;
     std::pair<long, long> expectedResult(expectedMemoryValue,expectedAgeValue);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Failed to retrieve system info, cant calculate process duration."));
 
@@ -227,7 +227,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsCorrectValuesWhenSuccessful)
     long expectedMemoryValue = 500;
     long expectedAgeValue = sysCallUptime.second - (450/sysconf(_SC_CLK_TCK));
     std::pair<long, long> expectedResult(expectedMemoryValue,expectedAgeValue);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     ASSERT_EQ(result, expectedResult);
 }
@@ -250,7 +250,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRead)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0,0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Stat file of Pid: 1234 is empty. Cannot report on Threat Detector Process to Telemetry: "));
     ASSERT_EQ(result, expectedResult);
@@ -274,7 +274,7 @@ TEST_F(TestTelemetry, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenAccess
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     std::pair<long, long> expectedResult(0,0);
-    std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(m_mockSysCalls);
+    std::pair<long, long> result = telemetry_->getThreatScannerProcessinfo(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Error reading threat detector stat proc file due to: "));
     ASSERT_EQ(result, expectedResult);

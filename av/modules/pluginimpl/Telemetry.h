@@ -17,6 +17,10 @@ namespace Plugin
     class Telemetry
     {
     public:
+        /**
+         *
+         * @param fs BORROWED pointer to filesystem implementation
+         */
         Telemetry(
             const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>&,
             Common::FileSystem::IFileSystem* fs);
