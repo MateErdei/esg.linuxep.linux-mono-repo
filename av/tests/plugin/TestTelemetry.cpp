@@ -355,3 +355,20 @@ TEST_F(TestTelemetry, getTelemetry_vdlIdeCount)
 
     EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
 }
+
+TEST_F(TestTelemetry, getTelemetry_vdl_newest)
+{
+    auto telemetry = realTelemetry();
+
+    constexpr unsigned long initialExpectedVdlIdeCount = 3;
+    createIdes(initialExpectedVdlIdeCount, m_vdlDirPath);
+
+    json initialTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(initialTelemetry["vdl-ide-count"], initialExpectedVdlIdeCount);
+
+    constexpr unsigned long modifiedExpectedVdlIdeCount = 4;
+    createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath);
+    json modifiedTelemetry = json::parse(telemetry.getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
+}

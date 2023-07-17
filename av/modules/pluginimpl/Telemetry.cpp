@@ -56,11 +56,17 @@ namespace
         return "unknown";
     }
 
-    unsigned long getIdeCount()
+    fs::path getVdbDir()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path vdbDir(appConfig.getData("PLUGIN_INSTALL"));
         vdbDir /= "chroot/susi/update_source/vdl";
+        return vdbDir;
+    }
+
+    unsigned long getIdeCount()
+    {
+        auto vdbDir = getVdbDir();
 
         unsigned long ideCount = 0;
         if (fs::is_directory(vdbDir))
@@ -84,7 +90,37 @@ namespace
 
     void add_vdl_telemetry(Common::Telemetry::TelemetryHelper& telemetry)
     {
-        telemetry.set("vdl-ide-count", getIdeCount());
+        auto vdbDir = getVdbDir();
+        if (!fs::is_directory(vdbDir))
+        {
+            telemetry.set("vdl-ide-count", 0L);
+            return;
+        }
+
+        auto constexpr ide_filter = [](const fs::path& p) {
+            return p.extension() == ".ide";
+        };
+
+        long ideCount = 0;
+        fs::path lastIde;
+        uintmax_t combinedSize = 0;
+        for (const auto& item : fs::directory_iterator(vdbDir))
+        {
+            if (ide_filter(item))
+            {
+                ideCount++;
+                auto stem = item.path().stem();
+                if (stem > lastIde)
+                {
+                    lastIde = stem;
+                }
+            }
+            combinedSize += fs::file_size(item);
+        }
+
+        telemetry.set("vdl-ide-count", ideCount);
+        telemetry.set("vdl-newest-ide", lastIde);
+        telemetry.set("vdl-size", combinedSize);
     }
 
     std::string getMlModelVersion()
