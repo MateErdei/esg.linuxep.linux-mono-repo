@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """HTTP Server that exposes locally-built SDDS3 repo over HTTP port 8080"""
+import traceback
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from http import HTTPStatus
 
@@ -60,14 +61,8 @@ def json_b64u_encode(obj):
     return b64u_encode(json.dumps(obj).encode('utf-8'))
 
 
-def get_cert(name):
-    result = subprocess.run([
-        'digest_sign',
-        '--key', 'manifest_sha384',
-        '--get_cert', name,
-    ], check=True, capture_output=True)
-
-    cert = result.stdout.decode('utf-8')
+def get_cert(content):
+    cert = content
 
     # remove the begin,end and newlines from the certificate or signature passed in.
     cert = cert.replace('-----BEGIN CERTIFICATE-----', '')
@@ -77,33 +72,105 @@ def get_cert(name):
     cert = cert.replace('\n', '')
     return cert
 
-
-def get_signature(data):
+def get_signature(data: bytes):
+    """
+    Use openssl to generate a signature for input data.
+    """
     with tempfile.TemporaryDirectory() as tmpdir:
-        # cannot use tempfile.NamedTemporaryFile(), because we must close it
-        # but it gets deleted on close.
-        #
-        # TemporaryDirectory() deletes the whole directory on close.
+        tmpcertfile = os.path.join(tmpdir, 'cert.pem')
         tmpfile = os.path.join(tmpdir, 'data')
         with open(tmpfile, 'wb') as f:
             f.write(data)
-
+        with open(tmpcertfile, 'w') as f:
+            f.write(PRIVATE_KEY)
         try:
             result = subprocess.run([
-                'digest_sign',
-                '--key', 'manifest_sha384',
-                '--algorithm', 'sha384',
-                '--file', tmpfile,
-                '--base64',
-            ], check=True, capture_output=True)
-            return result.stdout
+                'openssl',
+                'dgst', '-sha384',
+                '-sign', tmpcertfile,
+                '-keyform', 'pem',
+                tmpfile
+            ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,timeout=5)
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"Signing failed.\nReturn Code:{result.returncode}\nOutput:\n{result.stdout}\n{result.stderr}.")
         except subprocess.CalledProcessError as e:
-            print(f'Failed: {e}: {e.stderr}')
-            raise
+            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        return base64.b64encode(result.stdout).decode()
 
-
-SIG_CERT = get_cert('pub')
-INT_CERT = get_cert('ca')
+INT_CERT = """
+MIIDozCCAougAwIBAgIBNjANBgkqhkiG9w0BAQwFADCBjzEnMCUGA1UEAwweU29w
+aG9zIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MSIwIAYJKoZIhvcNAQkBFhNzb3Bo
+b3NjYUBzb3Bob3MuY29tMRQwEgYDVQQIDAtPeGZvcmRzaGlyZTELMAkGA1UEBhMC
+VUsxDzANBgNVBAoMBlNvcGhvczEMMAoGA1UECwwDRVNHMB4XDTIyMDcxOTAwMDAw
+MFoXDTQwMDEwMTAwMDAwMFowgYcxHzAdBgNVBAMMFlNvcGhvcyBCdWlsZCBBdXRo
+b3JpdHkxIjAgBgkqhkiG9w0BCQEWE3NvcGhvc2NhQHNvcGhvcy5jb20xFDASBgNV
+BAgMC094Zm9yZHNoaXJlMQswCQYDVQQGEwJVSzEPMA0GA1UECgwGU29waG9zMQww
+CgYDVQQLDANFU0cwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDb/wjO
+JnTnTnVnqOUNeQyvCwlM9EoclTYPITK04TMAS1z8rC0qsUyvBiOh9mwtiNFH5rBe
+3sWdwRh5VNZRyQTass2KfbFbxhbCHppjkbYhAt2LlLdBJoXZsUxMWB81Fhe3H2hr
+jMNxlXBKYclyCREOoBNfpBFEvb/ixW0DYihChQFzEnONfAU20zBsl16fiNegomcf
+Jk6zkcNpt/v181TeudReFQ7gpuSA8VHZuYsYMSntQoCEFQBweb4PqWaf/i+AKT0k
+265CE2VBkX4/kyDu1kgXW/quf/OJKZ+Gwh0+vchAkmSbNVOtorxN1uKny/77wU/N
+jRQqGm+d++wa3pEDAgMBAAGjEDAOMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEM
+BQADggEBAA4uedsR4LLAY8keZkNRXPGOEgOObmIyfVKQB3/AgDx+12jK2YaZZd+l
+aDLIZLFGcrp+spvxCNagSZB0L9GhG7pPcki5OYqjFe8sGQ8O80N8zW/cxlM9sqwX
+Bqvk011Vocu6aOdh0Wj1/iQG8HTI9TgOsHgpD2xZaTiEWOQ8qeLvWl1HIq7TRKQu
+B2/shyv+Cw6b28iEKinEhh8ynrUub2r1ddYMpx2IOZNs7ohZJJ1QqeyObee575mp
+q6InPHuNGeBL6rRlgIKIER3gvkdkPtH6f7Q7YZvo6YA3uQDc05LGb/y2mrrdZ2rH
+5gjCs552y8i7fnSYP84yQgB7UU4lfMI=
+"""
+SIG_CERT = """
+MIIDojCCAoqgAwIBAgIBNzANBgkqhkiG9w0BAQwFADCBhzEfMB0GA1UEAwwWU29w
+aG9zIEJ1aWxkIEF1dGhvcml0eTEiMCAGCSqGSIb3DQEJARYTc29waG9zY2FAc29w
+aG9zLmNvbTEUMBIGA1UECAwLT3hmb3Jkc2hpcmUxCzAJBgNVBAYTAlVLMQ8wDQYD
+VQQKDAZTb3Bob3MxDDAKBgNVBAsMA0VTRzAeFw0yMTAxMDEwMDAwMDFaFw0zNTA5
+MTMwMDAwMDBaMIGRMRswGQYDVQQDDBJEYWlseSBCdWlsZCBzaGEzODQxJDAiBgkq
+hkiG9w0BCQEWFURhaWx5QnVpbGRAc29waG9zLmNvbTEUMBIGA1UECAwLT3hmb3Jk
+c2hpcmUxCzAJBgNVBAYTAlVLMRMwEQYDVQQKDApTb3Bob3MgUGxjMRQwEgYDVQQL
+DAtEZXZlbG9wbWVudDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALkf
+f8z24cIf2qhkfRc7KDBTXh5abwVLjCGzA3okmpQJy+3ena/Rrt+wChLAQciv+tgc
+ry0tymqxhgpMwYezNvigZWNsIurVwBI1aXDB2rYvi10npZLsLHSbUErWtc1bv2xt
+cHSbhlFAcDQ2b7P7JCYCVKfoJ72qj3wNakpFxVeCYr58WaSkwe05JqXUBV6C8iwb
+S3dHca6vebdXB1cRl3OCT96I7q7hXUcpPCl8IkMdk4cocVKRW4JV1C2OncBNRTbQ
+SDp/0xhQOozUWaxafN6cxyEkeQHQ972OJucOMwTrhFo8CDtLrzCCePbsEJy7KWsa
+HRVdP2x2l0D/EteGyC0CAwEAAaMNMAswCQYDVR0TBAIwADANBgkqhkiG9w0BAQwF
+AAOCAQEAqFianpqzxBvPhnp4nFYJ+9MA7y64Ugaq+47yl2q59BZKwbo/TUOgDvp/
+Fwf2MLBDXHQ7PKDJL4qCyokN50ZXnzNQ6IV/TYFXp1If/GcsIW/ay0SA113pqJjJ
+hN2JbDoCeT88UKMNFy5KZV/dkkdVIsNwVr3EZwY2DGV6k/y1jMUce3DzJcoJHYZ2
+HD9eoMjRMdsOaZPcX4QLAxzRsbln31gA+U5HaZzbzWpx1sKhxT4jNFE2rjRkuLPB
+SkMH5+l6g2pW3v/bfROdrE4r6i6AYBsqOIes2yJftyWzCNhPQ/gtGC82aNgacoDv
+9Hfe7YzJjXh61dVgD/gZcRkOs0O3Xw==
+"""
+PRIVATE_KEY="""
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAuR9/zPbhwh/aqGR9FzsoMFNeHlpvBUuMIbMDeiSalAnL7d6d
+r9Gu37AKEsBByK/62ByvLS3KarGGCkzBh7M2+KBlY2wi6tXAEjVpcMHati+LXSel
+kuwsdJtQSta1zVu/bG1wdJuGUUBwNDZvs/skJgJUp+gnvaqPfA1qSkXFV4JivnxZ
+pKTB7TkmpdQFXoLyLBtLd0dxrq95t1cHVxGXc4JP3ojuruFdRyk8KXwiQx2Thyhx
+UpFbglXULY6dwE1FNtBIOn/TGFA6jNRZrFp83pzHISR5AdD3vY4m5w4zBOuEWjwI
+O0uvMIJ49uwQnLspaxodFV0/bHaXQP8S14bILQIDAQABAoIBAQCgmgstriE9YJU5
+8bP0K4Y6JplIi/w1A82Wjs89b/QK6lTZEICMv8SOmxKiIdjwWnuscXYoI8mvtkMr
+PFvJdlkCaWSMVIwWX0o6gcvv3r33wFePgY3LYMlQgE2wH4Wpmyb+0hL1ltd4Ngch
+xPgzlHVP5EW9RVL04LuKS7kiplUGDMYASIdJJHQi0mJGefx4et8elxEfJ+URRjSA
+8ytChGUlBLXAxwep7BzBRiwyTm0t6T0tWYtgxR6zrmB2P1s3LnIkhpXZa0V6zZdi
+4aI4RPbfvTb+AQQhiFJIrnbDyT2/CN3yK+of7wVmaiw8Tg/HtHf6w2DQYJ6GSFXn
+HdHFzJuhAoGBAN4fc+7V3ys8P85N+nFxA0jyYniTqDxXydHS1wcsEl+Y45lCb+vf
+kPNWDvpXJ7rMGEpQzOwlP1eyAPwif8ftYeepE6w9SfDjo7pWyiNgcJ+RdCrIeCLX
+kibv+drLDAwDUDiEGd6i79S4n2W72/MQm/vRN+ASncFFhXvtf1oLWFXnAoGBANVb
+bax3VRuchVXIJMargvDUCxi91NxBMqRwOevTnKqumBvpYHlsD0tMwyuO/raC17Sr
+Nv3ojet/AnIVXFhxJsIAmphQoTHSCPTYKj9mt3mliQtP4lJ6u1vEUY2fBCBpyPv2
+8KaIuHmVdkfBhLJJkntyEMwRi87OxJoob/DUZsbLAoGANjmZdMHTZFul+/g/XnhH
+ZASAE42AcZLA2y9MfRy+M4ZAccatSfjfCviEWYrzUP/IIkRNcoy5RPBYmzTU2vrR
+fttgyRiBN4RrEO9lE3PUqq+4m0UrRt43eLf21/nfrAMXD2T4Z8iBIf4cM5rD3De+
+zJ/LszD4QBl3t8RH5bSFURsCgYBpkRp8CnOO/OwwXJ5turFITfLLpCntbUkMegb+
+u665+TeEH/4/Ngt/O5UaOV+omKb4WvsTuPx3uFlSb2VI0XvW5AuaL9MCXqVV2JtW
+0ZEY3KIpebZHDzkjF8kuZK7bBtyOZ0n9bIqyhhSHPqZUvPiAohjTkB74DfDTQgzZ
+QY807wKBgB2QmOvHUFUhFA2218I0uAl4YstzxMgRG7+/Nsd7TCu0gxDWLW6xDGgd
+bIzgYmUHyt59sOMDghfPS2BklBmcFZwjIMSJ+joOuXxrMpwSCIFkfJYyxqw9R812
+4o8o8CKOvH0jgncQYmUClkmoZw7AigjYyeRBgABwZV6dxcseibbw
+-----END RSA PRIVATE KEY-----
+"""
 dictOfRequests ={}
 
 def sign_response(data):
@@ -111,7 +178,7 @@ def sign_response(data):
     header = json_b64u_encode({
         'typ': 'JWT',
         'alg': 'RS384',
-        'x5c': [SIG_CERT, INT_CERT],
+        'x5c': [get_cert(SIG_CERT), get_cert(INT_CERT)],
     })
 
     iat = datetime.datetime.utcnow()
@@ -256,7 +323,13 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             return
 
         self.log_message('Signing Mock SUS response...')
-        sig = sign_response(data)
+
+        try:
+            sig = sign_response(data)
+        except Exception as ex:
+            self.log_message(traceback.format_exc())
+            self.log_message('Calculating signature of SUS failed with error: %s', ex)
+
         self.log_message('SUS response: %s', data)
 
         self.send_response(HTTPStatus.OK)
@@ -333,8 +406,13 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         }).encode('utf-8')
 
         self.log_message('Signing LaunchDarkly SUS response...')
-        sig = sign_response(data)
+        try:
+            sig = sign_response(data)
+        except Exception as ex:
+            self.log_message(traceback.format_exc())
+            self.log_message('Calculating signature of SUS failed with error: %s', ex)
         self.log_message('SUS response: %s', data)
+        self.log_message('SUS sign: %s', sig)
 
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
