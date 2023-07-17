@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos All rights reserved.
 
+# define TEST_PUBLIC public
+
 #include "pluginimpl/Telemetry.h"
 
 #include "datatypes/sophos_filesystem.h"
