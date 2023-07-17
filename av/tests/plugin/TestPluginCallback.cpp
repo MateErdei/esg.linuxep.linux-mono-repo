@@ -295,21 +295,6 @@ TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist)
     EXPECT_EQ(telemetry["lr-data-hash"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount)
-{
-    unsigned long modifiedExpectedVdlIdeCount = 4;
-
-    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
-    EXPECT_EQ(initialTelemetry["vdl-ide-count"], m_initialExpectedVdlIdeCount);
-
-    createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath);
-
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
-    EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
-}
-
 TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist)
 {
     fs::remove_all(m_vdlDirPath);

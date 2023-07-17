@@ -82,6 +82,11 @@ namespace
         return ideCount;
     }
 
+    void add_vdl_telemetry(Common::Telemetry::TelemetryHelper& telemetry)
+    {
+        telemetry.set("vdl-ide-count", getIdeCount());
+    }
+
     std::string getMlModelVersion()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -162,13 +167,14 @@ std::string Telemetry::getTelemetry()
     telemetry.set("lr-data-hash", getLrDataHash());
     telemetry.set("ml-lib-hash", getMlLibHash());
     telemetry.set("ml-pe-model-version", getMlModelVersion());
-    telemetry.set("vdl-ide-count", getIdeCount());
     telemetry.set("vdl-version", getVirusDataVersion());
     telemetry.set("version", common::getPluginVersion());
 
     auto [memoryUsage, processAge] = getThreatScannerProcessinfo();
     telemetry.set("threatMemoryUsage", memoryUsage);
     telemetry.set("threatProcessAge", processAge);
+
+    add_vdl_telemetry(telemetry);
 
     telemetry.increment("scan-now-count", 0ul);
     telemetry.increment("scheduled-scan-count", 0ul);

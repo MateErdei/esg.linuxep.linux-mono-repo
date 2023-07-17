@@ -36,6 +36,10 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("PLUGIN_INSTALL", m_basePath);
 
+            //creating file for vdl version
+            m_vdlDirPath = m_basePath;
+            m_vdlDirPath /= "chroot/susi/update_source/vdl";
+
             m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             telemetry_ = std::make_unique<Plugin::Telemetry>(m_mockSysCalls, m_mockFileSystem.get());
@@ -63,6 +67,7 @@ namespace
 
         fs::path m_basePath;
         fs::path m_versionFile;
+        fs::path m_vdlDirPath;
         std::string m_initialExpectedVersion = "1.2.3.456";
         std::string m_initialExpectedCommitHash = "dd9f7b10bb62c4b5f8eee1fede4bb4f4100a75c5";
         std::string m_initialExpectedPluginApiCommitHash = "93b8ec8736dcb5b4266f85b1b08110ebe19c7f03";
@@ -70,6 +75,34 @@ namespace
         std::unique_ptr<MockFileSystem> m_mockFileSystem;
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
         std::unique_ptr<Plugin::Telemetry> telemetry_;
+
+        static Plugin::Telemetry realTelemetry()
+        {
+            auto realSyscalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
+            auto* realFilesystem = Common::FileSystem::fileSystem();
+            return Plugin::Telemetry{realSyscalls, realFilesystem};
+        }
+
+        static void createIdes(const unsigned long &count, const fs::path &dirPath)
+        {
+            fs::create_directories(dirPath);
+
+            for (unsigned long i=0; i<count; ++i)
+            {
+                std::stringstream ideFileName;
+                ideFileName << "test" << i << ".ide";
+                fs::path ideFilePath = dirPath / ideFileName.str();
+                std::ofstream ideFs(ideFilePath);
+                ideFs.close();
+
+                std::stringstream vdbFileName;
+                vdbFileName << "test" << i << ".vdb";
+                fs::path vdbFilePath = dirPath / vdbFileName.str();
+                std::ofstream vdbFs(vdbFilePath);
+                vdbFs.close();
+            }
+        }
+
     };
 }
 
@@ -304,4 +337,21 @@ TEST_F(TestTelemetry, getTelemetry_version)
 
     json modifiedTelemetry = json::parse(telemetry.getTelemetry());
     EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
+}
+
+TEST_F(TestTelemetry, getTelemetry_vdlIdeCount)
+{
+    auto telemetry = realTelemetry();
+
+    constexpr unsigned long initialExpectedVdlIdeCount = 3;
+    createIdes(initialExpectedVdlIdeCount, m_vdlDirPath);
+
+    json initialTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(initialTelemetry["vdl-ide-count"], initialExpectedVdlIdeCount);
+
+    constexpr unsigned long modifiedExpectedVdlIdeCount = 4;
+    createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath);
+    json modifiedTelemetry = json::parse(telemetry.getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
 }
