@@ -29,6 +29,8 @@ sophos_add_library(pluginimpl SHARED
         StringUtils.h
         TaskQueue.cpp
         TaskQueue.h
+        Telemetry.cpp
+        Telemetry.h
         ThreatDatabase.cpp
         ThreatDatabase.h
         ../common/config.h

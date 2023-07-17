@@ -8,6 +8,7 @@
 
 #include "HealthStatus.h"
 #include "TaskQueue.h"
+#include "Telemetry.h"
 
 #include "datatypes/sophos_filesystem.h"
 
@@ -43,7 +44,6 @@ namespace Plugin
         std::string getHealth() override;
 
         long calculateHealth(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
-        static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
 
         /**
          * Change the revID of the SAV policy and send if it's changed.
@@ -68,13 +68,7 @@ namespace Plugin
 
     private:
         std::string generateSAVStatusXML();
-        static unsigned long getIdeCount();
-        static std::string getLrDataHash();
-        static std::string getMlLibHash();
-        static std::string getMlModelVersion();
-        static std::string getVirusDataVersion();
 
-        static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid(Common::FileSystem::IFileSystem* fileSystem) const;
 
         /**
@@ -100,6 +94,7 @@ namespace Plugin
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
         std::string m_savStatus;
+        Telemetry telemetry_;
         std::atomic_bool m_running = false;
         std::atomic_bool m_safeStoreEnabled = false;
         std::atomic_bool m_onAccessEnabled = false;

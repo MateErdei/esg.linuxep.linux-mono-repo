@@ -22,6 +22,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestSafeStoreWorker.cpp
             TestStringUtils.cpp
             TestTaskQueue.cpp
+            TestTelemetry.cpp
             TestThreatDatabase.cpp
             PROJECTS pluginimpl fanotifyhandler
             LIBS ${pluginapilib} ${testhelperslib}
