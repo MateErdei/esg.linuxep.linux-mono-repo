@@ -6,6 +6,8 @@ import xml.dom.minidom
 from robot.api import logger
 
 ALC_POLICY_TEMPLATE_PATH = os.path.join(PathManager.get_support_file_path(), "CentralXml/ALC_SDDS3Template.xml")
+DEFAULT_CLOUD_SUBSCRIPTION = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>'
+CLOUD_SUBSCRIPTION_WITH_PAUSED = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>'
 
 def get_version_from_policy(policy_file):
     policy = xml.dom.minidom.parse(policy_file)
@@ -16,13 +18,22 @@ def get_version_from_policy(policy_file):
     logger.info("cloud subscription fixed version: {}".format(cloud_subscription_fixed_version))
     return cloud_subscription_fixed_version
 
-def populate_esm_fixed_version(name: str, token = ''):
 
+def populate_alc_policy(name: str, token: str, cloudsub: str):
+    fixed_version = f'<fixed_version> \n <token>{token}</token> \n <name>{name}</name> \n </fixed_version>'
     with open(ALC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
-        fixed_version = f'<fixed_version> \n <token>{token}</token> \n <name>{name}</name> \n </fixed_version>'
         policy = policy.replace("{{fixed_version}}", fixed_version)
+        policy = policy.replace("{{Subscriptions}}", cloudsub)
         return policy
+
+def populate_fixed_version_with_normal_cloud_sub(name: str, token = ''):
+    return populate_alc_policy(name, token, DEFAULT_CLOUD_SUBSCRIPTION)
+
+def populate_fixed_version_with_paused_updates(name: str, token = ''):
+    return populate_alc_policy(name, token, CLOUD_SUBSCRIPTION_WITH_PAUSED)
+
+
 
 def read_token_from_warehouse_linuxep_json(path: str) -> str:
     with open(path, 'r') as f:

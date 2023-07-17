@@ -39,8 +39,8 @@ ${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
 
 *** Test Cases ***
-Fixed Version Token is requested by SulDownloader
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+Fixed Version Token is requested by SulDownloader Immediately Update Now
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
@@ -74,9 +74,43 @@ Fixed Version Token is requested by SulDownloader
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
+Fixed Version Token is requested by SulDownloader Immediately When It Changes
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+    Register Cleanup  Remove File  ${tmpPolicy}
+
+    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+
+    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+
+    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
+
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
+    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
+
+
 Request is not made by SulDownloader when ESM is invalid
     #Invalid because we are only providing a name for the fixed_version
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    LTS 2023.1.1
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    LTS 2023.1.1
     Create File    ${tmpPolicy}    ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
@@ -135,7 +169,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
@@ -173,7 +207,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
 
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
@@ -235,7 +269,7 @@ Install all plugins static then upgrade to all plugins static-999
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
 
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
@@ -260,7 +294,7 @@ Install all plugins static then upgrade to all plugins static-999
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_esm_fixed_version    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub_    ${fixed_version_name}    ${fixed_version_token}
 
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
@@ -302,8 +336,6 @@ Install all plugins static then upgrade to all plugins static-999
     Mark Known Upgrade Errors
 
     Check Current Release With AV Installed Correctly
-
-
 
 *** Keywords ***
 Check MCS Envelope Contains Event with Update cache
