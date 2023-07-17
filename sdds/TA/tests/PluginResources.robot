@@ -145,8 +145,8 @@ Runtime Detections Plugin Is Running
 
 Check RuntimeDetections Installed Correctly
     Wait For RuntimeDetections to be Installed
-#    Verify RTD Component Permissions
-#    Verify Running RTD Component Permissions
+    Verify RTD Component Permissions
+    Verify Running RTD Component Permissions
 
 Wait For RuntimeDetections to be Installed
     Wait Until Created    ${rtdBin}    timeout=40s

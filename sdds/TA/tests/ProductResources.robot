@@ -118,7 +118,6 @@ Check EAP Release Installed Correctly
 
     Check AV Plugin Installed
     Check Event Journaler Executable Running
-    Check RuntimeDetections Installed Correctly
 
 Check Current Release Installed Correctly
     Check Installed Correctly
