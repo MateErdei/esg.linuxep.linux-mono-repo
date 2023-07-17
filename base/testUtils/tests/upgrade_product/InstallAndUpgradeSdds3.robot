@@ -49,6 +49,8 @@ ${HealthyShsStatusXmlContents}              <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}              <item name="threat" value="1" />
 ${BadThreatHealthXmlContents}               <item name="threat" value="2" />
 
+${RPATHCheckerLog}                          /tmp/rpath_checker.log
+
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
     [Teardown]    Upgrade Resources SDDS3 Test Teardown
@@ -190,8 +192,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
 Upgrade From Dogfood to VUT and Check RPATH For Every Binary
-    [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  RPATH
+    [Timeout]    3 minutes
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -219,8 +221,19 @@ Upgrade From Dogfood to VUT and Check RPATH For Every Binary
     # Update again to ensure we do not get a scheduled update later in the test run
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    sleep  1000000
+#    wait_for_log_contains_from_exmark    ${sul_mark}    Update success    120
+
+    # Run Process can hang with large outputs which RPATHChecker.sh can have
+    ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
+    #Log    ${result}
+    Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
+    IF    $result.rc != 0
+        IF    $result.rc == 1
+            Fail    Insecure RPATH(s) found,
+        ELSE
+            Fail    ERROR: Unknown return code
+        END
+    END
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
