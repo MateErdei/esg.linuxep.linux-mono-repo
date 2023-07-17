@@ -1,5 +1,7 @@
 {
-  "policyAppIds": [],
+  "policyAppIds": [
+    "ALC"
+  ],
   "statusAppIds": [],
   "pluginName": "tscheduler",
   "executableFullPath": "base/bin/tscheduler",
