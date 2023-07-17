@@ -277,6 +277,14 @@ else
   exit 1
 fi
 
+WAREHOUSE_DIR=$(realpath "$BASEDIR/../esg.linuxep.sspl-warehouse")
+if [[ -d "$WAREHOUSE_DIR" ]]
+then
+  echo "Linking base testUtils to warehouse repo"
+  ln -s $BASEDIR/testUtils/libs $WAREHOUSE_DIR/TA/libs
+  ln -s $BASEDIR/testUtils/SupportFiles $WAREHOUSE_DIR/TA/SupportFiles
+fi
+
 echo "---"
 echo "Done"
 echo "To build, you can use one of these options:"
