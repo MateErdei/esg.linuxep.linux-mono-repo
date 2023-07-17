@@ -107,7 +107,7 @@ Multiple Liveresponse Sessions Work Concurrently
     Log  ${files}
 
     ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Should Be Equal As Integers  ${count}  10
+    Should Be Equal As Integers  ${count}  ${10}
 
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
