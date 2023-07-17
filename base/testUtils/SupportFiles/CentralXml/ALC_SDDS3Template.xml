@@ -20,6 +20,7 @@
         </cloud_subscriptions>
         {{fixed_version}}
         <delay_supplements enabled="true"/>
+        {{delay_updating}}
     </AUConfig>
     <Features>
         <Feature id="APPCNTRL"/>
