@@ -33,7 +33,7 @@ namespace Common::Policy
 
             bool operator!=(const ESMVersion& rhs) const
             {
-                return (token_ != rhs.token_ && name_ != rhs.name_);
+                return (token_ != rhs.token_ || name_ != rhs.name_);
             }
 
         private:
