@@ -1,13 +1,9 @@
 .idea/
 /build/dev.xml.new.xml
 /build/dev.xml.orig.xml
-TA/log.html
-TA/output.xml
-TA/report.html
-TA/SupportFiles/https/*.txt*
-TA/SupportFiles/https/localhost.*
-TA/SupportFiles/https/*.pem
-TA/SupportFiles/https/serial
-TA/SupportFiles/https/serial.old
-TA/SupportFiles/https/ca/
+/TA/log.html
+/TA/output.xml
+/TA/report.html
+/TA/SupportFiles/
+/TA/libs/
 
