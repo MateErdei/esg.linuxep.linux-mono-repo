@@ -26,3 +26,9 @@ Setup Install SDDS3 Base
     Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini  ${SOPHOS_INSTALL}/base/VERSION.ini.0
     Setup Dev Certs for sdds3
+
+Wait For Suldownloader To Finish
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Suldownloader Is Not Running

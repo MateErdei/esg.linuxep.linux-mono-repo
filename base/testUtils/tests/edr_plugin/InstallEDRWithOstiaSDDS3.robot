@@ -473,9 +473,3 @@ Wait for first update
 Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-Wait For Suldownloader To Finish
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check Suldownloader Is Not Running
