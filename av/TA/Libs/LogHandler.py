@@ -154,13 +154,14 @@ class LogMark:
         else:
             return contents.find(expected)
 
-    def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+    def wait_for_possible_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
+        sleep_time = min(0.5, timeout / 10)
         old_contents = ""
         while time.time() < start + timeout:
             contents = self.get_contents()
-            if contents is not None:
+            if contents is not None and old_contents != contents:
                 if len(contents) > len(old_contents):
                     logger.debug(contents[:len(old_contents)])
 
@@ -174,7 +175,33 @@ class LogMark:
 
                 old_contents = contents
 
-            time.sleep(0.5)
+            time.sleep(sleep_time)
+
+        logger.info("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
+        return self
+
+    def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+        expected = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        sleep_time = min(0.5, timeout / 10)
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = self.get_contents()
+            if contents is not None and old_contents != contents:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+
+                pos = self.__find_str_in_contents(expected, contents)
+                if pos >= 0:
+                    absolute_pos = pos + self.get_size()
+                    stat = os.stat(self.__m_log_path)
+                    if stat.st_size < absolute_pos:
+                        absolute_pos = stat.st_size
+                    return LogMark(self.__m_log_path, absolute_pos)
+
+                old_contents = contents
+
+            time.sleep(sleep_time)
 
         logger.error("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
         self.dump_marked_log()

@@ -591,9 +591,15 @@ On Access Receives Close Event On Cached File
     Create File  ${cleanfile}  ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
-    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
+    ${oamark2} =  wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
     # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    #  There are 2 cases:
+    #  1. Event(open), Scan (open), cache (open), Event(close), Scan (close), cache (close)
+    #  2. Event(open), Event(close) - skipped as Event(open) pending, Scan (open), cache (open)
     wait for on access log contains after mark  caching ${cleanfile}  mark=${oamark}
+    # wait for 200ms in case of case 1.
+    # but don't fail in case of case 2.
+    wait for possible log contains from mark  ${oamark2}  caching ${cleanfile} (Close-Write)  timeout=${0.2}
 
     #Check we are cached
     ${oamark} =  get_on_access_log_mark

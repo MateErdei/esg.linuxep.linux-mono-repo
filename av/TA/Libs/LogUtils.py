@@ -949,6 +949,15 @@ File Log Contains
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
+    def wait_for_possible_log_contains_from_mark(self,
+                                                 mark: LogHandler.LogMark,
+                                                 expected: typing.Union[list, str, bytes],
+                                                 timeout: float = 10) -> LogHandler.LogMark:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_possible_log_contains_from_mark"
+        return mark.wait_for_possible_log_contains_from_mark(expected, timeout)
+
     def wait_for_log_contains_from_mark(self,
                                         mark: LogHandler.LogMark,
                                         expected: typing.Union[list, str, bytes],
@@ -1111,7 +1120,7 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_on_access_log_after_mark"
         self.dump_marked_log(self.oa_log, mark)
 
-    def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
+    def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: float = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_on_access_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.oa_log, expected, mark, timeout=timeout)
 
