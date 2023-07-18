@@ -167,11 +167,11 @@ Fixed Version Token is not requested by SulDownloader Immediately With Scheduled
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Send Policy File  alc    ${tmpPolicy}
     wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
-
-    Check Suldownloader Is Not Running
+    wait_for_log_contains_from_mark  ${sul_mark}    Doing supplement-only update
 
 
 Fixed Version Token is requested by SulDownloader Immediately With Scheduled Updates And Update Now
