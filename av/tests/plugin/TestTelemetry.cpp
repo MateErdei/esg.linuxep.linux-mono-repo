@@ -83,22 +83,24 @@ namespace
             return Plugin::Telemetry{realSyscalls, realFilesystem};
         }
 
-        static void createIdes(const unsigned long &count, const fs::path &dirPath)
+        static void createIdes(const unsigned long &count, const fs::path &dirPath, const char* contents="")
         {
             fs::create_directories(dirPath);
 
             for (unsigned long i=0; i<count; ++i)
             {
                 std::stringstream ideFileName;
-                ideFileName << "test" << i << ".ide";
+                ideFileName << "202306" << std::setfill('0') << std::setw(2) << i+1 << "01.ide";
                 fs::path ideFilePath = dirPath / ideFileName.str();
                 std::ofstream ideFs(ideFilePath);
+                ideFs << contents;
                 ideFs.close();
 
                 std::stringstream vdbFileName;
-                vdbFileName << "test" << i << ".vdb";
+                vdbFileName << "vdla" << std::setfill('0') << std::setw(2) << i+1 << ".vdb";
                 fs::path vdbFilePath = dirPath / vdbFileName.str();
                 std::ofstream vdbFs(vdbFilePath);
+                vdbFs << contents;
                 vdbFs.close();
             }
         }
@@ -364,11 +366,27 @@ TEST_F(TestTelemetry, getTelemetry_vdl_newest)
     createIdes(initialExpectedVdlIdeCount, m_vdlDirPath);
 
     json initialTelemetry = json::parse(telemetry.getTelemetry());
-    EXPECT_EQ(initialTelemetry["vdl-ide-count"], initialExpectedVdlIdeCount);
+    EXPECT_EQ(initialTelemetry["vdl-newest-ide"], "2023060301");
 
     constexpr unsigned long modifiedExpectedVdlIdeCount = 4;
     createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath);
     json modifiedTelemetry = json::parse(telemetry.getTelemetry());
 
-    EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
+    EXPECT_EQ(modifiedTelemetry["vdl-newest-ide"], "2023060401");
+}
+
+TEST_F(TestTelemetry, getTelemetry_vdl_size)
+{
+    auto telemetry = realTelemetry();
+
+    constexpr unsigned long initialExpectedVdlIdeCount = 3;
+    createIdes(initialExpectedVdlIdeCount, m_vdlDirPath);
+
+    json initialTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(initialTelemetry["vdl-size"], 0);
+
+    constexpr unsigned long modifiedExpectedVdlIdeCount = 3;
+    createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath, "abcdefghij");
+    json modifiedTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["vdl-size"], 60);
 }

@@ -64,30 +64,6 @@ namespace
         return vdbDir;
     }
 
-    unsigned long getIdeCount()
-    {
-        auto vdbDir = getVdbDir();
-
-        unsigned long ideCount = 0;
-        if (fs::is_directory(vdbDir))
-        {
-            auto constexpr ide_filter = [](const fs::path& p) {
-                return p.extension() == ".ide";
-            };
-
-            try
-            {
-                ideCount = std::count_if(fs::directory_iterator(vdbDir), fs::directory_iterator{}, static_cast<bool(*)(const fs::path&)>(ide_filter) );
-            }
-            catch (const fs::filesystem_error& e)
-            {
-                LOGERROR("Failed to count the number of IDES: " << e.what());
-            }
-        }
-
-        return ideCount;
-    }
-
     void add_vdl_telemetry(Common::Telemetry::TelemetryHelper& telemetry)
     {
         auto vdbDir = getVdbDir();
