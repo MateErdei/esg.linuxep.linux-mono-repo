@@ -40,13 +40,6 @@ UC Error Test Teardown
     Upgrade Resources Test Teardown
 
 
-*** Variables ***
-${fixed_version_policy}                     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml
-
-${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-
-${sdds3_server_output}                      /tmp/sdds3_server.log
-
 *** Test Cases ***
 Test that SDDS3 can Handle 202s from Update Caches
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
@@ -61,11 +54,11 @@ Test that SDDS3 can Handle 202s from Update Caches
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override  CDN_URL=https://localhost:8081
 
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}   JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${400}
     wait_for_log_contains_from_mark  ${mark}  Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 202
@@ -82,13 +75,12 @@ Test that SDDS3 can Handle 404s from Update Caches
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override  CDN_URL=https://localhost:8081
-
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${50}
     wait_for_log_contains_from_mark  ${mark}  Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
@@ -106,13 +98,12 @@ Test that SDDS3 can Handle 202 then 404s from Update Caches
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override  CDN_URL=https://localhost:8081
-
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${50}
     Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
@@ -130,13 +121,12 @@ Test that SDDS3 can Handle 202 then success from Update Caches
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override  CDN_URL=https://localhost:8081
-
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${100}
     Check Sul Downloader log does not contain    Connecting to update source directly
@@ -154,13 +144,12 @@ Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8081   URLS=https://localhost:8081
-    # should be purged before SDDS3 sync
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${60}
     Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 0
@@ -178,13 +167,12 @@ Sul Downloader fails back to direct if UC fails to install supplements
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8081   URLS=https://localhost:8081
-    # should be purged before SDDS3 sync
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
-    Trigger Update Now
+
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${60}
     Check Sul Downloader log does not contain    Connecting to update source directly
@@ -213,13 +201,14 @@ Sul Downloader fails update if it cannot download fresh supplements
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8081   URLS=https://localhost:8081
-    # should be purged before SDDS3 sync
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Register With Local Cloud Server
     wait until created  ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
+    wait_for_log_contains_from_mark  ${mark}  Update success  timeout=${60}
     Remove file   ${SDDS3_FAKESUPPLEMENT}/sdds3.SSPLFLAGS.dat
-    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
+
     Trigger Update Now
     wait_for_log_contains_from_mark  ${mark}  Trying update via update cache: https://localhost:8080  timeout=${20}
     wait_for_log_contains_from_mark  ${mark}  Update failed  timeout=${60}

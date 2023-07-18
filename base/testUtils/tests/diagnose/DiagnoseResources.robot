@@ -187,7 +187,7 @@ Mimic LR Component Files
 Mimic Base Component Files
     [Documentation]  Creates files to simulate Full Base plugin being installed
     [Arguments]     ${installLocation}
-    Create File  ${installLocation}/base/etc/sophosspl/current_proxy
+    Create File  ${installLocation}/base/etc/sophosspl/current_proxy    {}
     Create Directory  ${installLocation}/logs/base/downgrade-backup
     Create File  ${installLocation}/logs/base/downgrade-backup/watchdog.log
     Create File  ${installLocation}/logs/base/downgrade-backup/backup.log
