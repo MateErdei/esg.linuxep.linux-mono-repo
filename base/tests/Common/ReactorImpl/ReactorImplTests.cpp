@@ -284,7 +284,7 @@ TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // 
  */
 TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert) // NOLINT
 {
-    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    GTEST_FLAG_SET(death_test_style, "threadsafe");
 
     MockCallBackListener mockCallBackListener;
 

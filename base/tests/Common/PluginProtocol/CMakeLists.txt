@@ -9,10 +9,8 @@ target_include_directories(TestPluginProtocol
         ${CMAKE_SOURCE_DIR}/modules
         ${CMAKE_SOURCE_DIR}
         )
-target_link_libraries(TestPluginProtocol
-        ${GTEST_LIBRARY}
-        ${GTEST_MAIN_LIBRARY}
-       )
+target_link_libraries(TestPluginProtocol ${GTEST_MAIN_LIBRARY}
+        )
 target_link_libraries(TestPluginProtocol pluginprotocol testhelpers logging)
 gtest_discover_tests(TestPluginProtocol)
 SET_TARGET_PROPERTIES(TestPluginProtocol

@@ -7,6 +7,7 @@ option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 option(PythonCoverage "Turn ON/OFF the instrumentation for producing python coverage results" OFF)
 option(STRACE_SUPPORT "Prevent sanitize options that break strace" OFF)
 option(DISABLE_SANITIZER "Disable sanitizer (libasan) for debug build" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
 set(SOPHOS_SPL_GROUP "sophos-spl-group")
@@ -350,30 +351,25 @@ find_library(LOG4CPLUS_LIBRARY
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
-if(${DisabledImplicitInitialization} EQUAL -1)
-    string( APPEND ERRORMESSAGE
-    "Log4cplus (${LOG4CPLUS_LIBRARY}) needs to be built with --disable-implicit-initialization to work in the presence of fork. \n"
-    "Make sure you have fetched the inputs and build with build.sh at least once\n"
-    "1. Run the full build script with no build flag:\n"
-    "    ./build.sh --setup --no-build\n")
-    message( FATAL_ERROR ${ERRORMESSAGE})
-endif()
+if (${DisabledImplicitInitialization} EQUAL -1)
+    string(APPEND ERRORMESSAGE
+            "Log4cplus (${LOG4CPLUS_LIBRARY}) needs to be built with --disable-implicit-initialization to work in the presence of fork. \n"
+            "Make sure you have fetched the inputs and build with build.sh at least once\n"
+            "1. Run the full build script with no build flag:\n"
+            "    ./build.sh --setup --no-build\n")
+    message(FATAL_ERROR ${ERRORMESSAGE})
+endif ()
 
-set( GTEST_INCLUDE ${GTEST_INPUT}/googletest/include )
-find_library(GTEST_LIBRARY
-        NAMES gtest
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY
-        NAMES gtest_main
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
+set(GTEST_INCLUDE ${GTEST_INPUT}/include)
+set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
+if (NOT EXISTS ${GTEST_MAIN_LIBRARY})
+    message("Library not found: ${GTEST_MAIN_LIBRARY}")
+endif ()
 
 ## Allow this to be redirected for python development
-if(NOT DEFINED PYTHON_INPUT)
-    set( PYTHON_INPUT ${INPUT}/python)
-endif()
+if (NOT DEFINED PYTHON_INPUT)
+    set(PYTHON_INPUT ${INPUT}/python)
+endif ()
 set(PYTHON_ZIP python311.zip)
 set(PYTHON_VERSION python3.11)
 set(PYTHON_LIB_DIR "${PYTHON_INPUT}/lib/${PYTHON_VERSION}")

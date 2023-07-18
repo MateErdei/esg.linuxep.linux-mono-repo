@@ -5,8 +5,8 @@ add_executable(PolicyReceiverImplTests
         )
 target_include_directories(PolicyReceiverImplTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(PolicyReceiverImplTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(PolicyReceiverImplTests  ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-target_link_libraries(PolicyReceiverImplTests policyreceiverimpl testhelpers )
+target_link_libraries(PolicyReceiverImplTests ${GTEST_MAIN_LIBRARY})
+target_link_libraries(PolicyReceiverImplTests policyreceiverimpl testhelpers)
 
 gtest_discover_tests(PolicyReceiverImplTests)
 SET_TARGET_PROPERTIES(PolicyReceiverImplTests

@@ -9,7 +9,6 @@ target_include_directories(CommonPluginCommunicationImplTests SYSTEM BEFORE PUBL
 target_include_directories(CommonPluginCommunicationImplTests BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(CommonPluginCommunicationImplTests
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         plugincommunicationimplcommon
         testhelpers

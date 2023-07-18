@@ -10,7 +10,6 @@ target_include_directories(TestPolicy SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${LO
 target_include_directories(TestPolicy BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(TestPolicy
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         policy
         testhelpersobject)

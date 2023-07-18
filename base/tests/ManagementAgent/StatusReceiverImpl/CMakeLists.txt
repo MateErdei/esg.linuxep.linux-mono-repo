@@ -6,8 +6,8 @@ add_executable(TestStatusReceiverImpl
         )
 target_include_directories(TestStatusReceiverImpl SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(TestStatusReceiverImpl BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestStatusReceiverImpl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-target_link_libraries(TestStatusReceiverImpl statusreceiverimpl testhelpers )
+target_link_libraries(TestStatusReceiverImpl ${GTEST_MAIN_LIBRARY})
+target_link_libraries(TestStatusReceiverImpl statusreceiverimpl testhelpers)
 
 gtest_discover_tests(TestStatusReceiverImpl)
 SET_TARGET_PROPERTIES(TestStatusReceiverImpl

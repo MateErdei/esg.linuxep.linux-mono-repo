@@ -7,7 +7,7 @@ add_executable(TestTelemetryHelperImpl
         TestTelemetryHelper.cpp
         TestTelemetryJsonToMap.cpp)
 target_include_directories(TestTelemetryHelperImpl SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${NLOHMANN_JSON_INCLUDE_DIR})
-target_link_libraries(TestTelemetryHelperImpl testhelpers ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+target_link_libraries(TestTelemetryHelperImpl testhelpers ${GTEST_MAIN_LIBRARY})
 target_link_libraries(TestTelemetryHelperImpl telemetryhelperimpl threads)
 gtest_discover_tests(TestTelemetryHelperImpl)
 SET_TARGET_PROPERTIES(TestTelemetryHelperImpl

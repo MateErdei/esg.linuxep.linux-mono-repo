@@ -12,7 +12,6 @@ target_include_directories(McsRouterPluginCommunicationImplTests SYSTEM BEFORE P
 target_include_directories(McsRouterPluginCommunicationImplTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(McsRouterPluginCommunicationImplTests
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         xmlutilities
         mcsrouterplugincommunicationimpl

@@ -7,8 +7,8 @@ add_executable(filesystemimpltestsexe
         TestPidLockFile.cpp
         MockPidLockFileUtils.h
         )
-target_include_directories(filesystemimpltestsexe SYSTEM BEFORE PUBLIC  ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
-target_link_libraries(filesystemimpltestsexe ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+target_include_directories(filesystemimpltestsexe SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
+target_link_libraries(filesystemimpltestsexe ${GTEST_MAIN_LIBRARY})
 target_link_libraries(filesystemimpltestsexe filesystemimpl testhelpers)
 gtest_discover_tests(filesystemimpltestsexe)
 SET_TARGET_PROPERTIES(filesystemimpltestsexe

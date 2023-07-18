@@ -14,12 +14,7 @@ target_include_directories(HttpRequesterTests SYSTEM BEFORE PUBLIC
         ${GTEST_INCLUDE}
         )
 
-target_link_libraries(HttpRequesterTests
-        HttpRequestsImpl
-        ${GTEST_LIBRARY}
-        ${GTEST_MAIN_LIBRARY}
-        testhelpers
-        )
+target_link_libraries(HttpRequesterTests HttpRequestsImpl ${GTEST_MAIN_LIBRARY} testhelpers)
 
 set_target_properties(HttpRequesterTests PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs")
@@ -42,17 +37,16 @@ target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
 
 target_link_libraries(HttpRequesterLiveNetworkTests
         HttpRequestsImpl
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         testhelpers
         )
 
 set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "/opt/sophos-spl/base/lib64/:$ORIGIN" )
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64/:$ORIGIN")
 
 install(TARGETS HttpRequesterLiveNetworkTests
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
 
-install(FILES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
+install(FILES ${GTEST_MAIN_LIBRARY}
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)

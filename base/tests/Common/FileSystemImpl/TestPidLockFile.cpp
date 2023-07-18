@@ -121,23 +121,22 @@ TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
 
 TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
 {
-    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    GTEST_FLAG_SET(death_test_style, "threadsafe");
     Tests::TempDir tempDir;
     std::string lockfile = tempDir.absPath("mypid.lock");
     auto holder = Common::FileSystem::acquireLockFile(lockfile);
     ASSERT_TRUE(holder);
 
-
     EXPECT_DEATH(
+        {
+            try
             {
-                try
-                {
-                    Common::FileSystem::acquireLockFile(lockfile);
-                }
-                catch (std::system_error& )
-                {
-                    _exit(1);
-                }
-            },
-            ""); // NOLINT
+                Common::FileSystem::acquireLockFile(lockfile);
+            }
+            catch (std::system_error&)
+            {
+                _exit(1);
+            }
+        },
+        ""); // NOLINT
 }

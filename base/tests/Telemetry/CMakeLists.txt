@@ -18,7 +18,6 @@ target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUD
 target_include_directories(TelemetryTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
 target_link_libraries(TelemetryTests
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         -L"${CMAKE_BINARY_DIR}/libs"
         telemetryimpl

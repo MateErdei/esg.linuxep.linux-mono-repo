@@ -126,26 +126,30 @@ namespace
     // cppcheck-suppress syntaxError
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
-        testing::FLAGS_gtest_death_test_style="threadsafe";
+        GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
-            Requester requester(serveraddress, zmq_context);
-            return requester.sendReceive("hello");
-        });
+        auto futureRequester = std::async(
+            std::launch::async,
+            [serveraddress, zmq_context]()
+            {
+                Requester requester(serveraddress, zmq_context);
+                return requester.sendReceive("hello");
+            });
 
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
         std::string actual("");
 
-        try {
+        try
+        {
             // this throws.  "No Incomming data"?
             actual = futureRequester.get();
         }
-        catch(std::exception& e)
+        catch (std::exception& e)
         {
             std::string s = e.what();
             std::cout << s;
@@ -157,16 +161,19 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
     {
-        testing::FLAGS_gtest_death_test_style="threadsafe";
+        GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
-            Replier replier(serveraddress, zmq_context);
-            replier.serveRequest();
-        });
+        auto futureReplier = std::async(
+            std::launch::async,
+            [serveraddress, zmq_context]()
+            {
+                Replier replier(serveraddress, zmq_context);
+                replier.serveRequest();
+            });
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
         EXPECT_NO_THROW(futureReplier.get()); // NOLINT
     }
@@ -262,29 +269,32 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails) // NOLINT
     {
-        testing::FLAGS_gtest_death_test_style="threadsafe";
+        GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
-            Replier replier(serveraddress, zmq_context, 10000);
-            try
+        auto futureReplier = std::async(
+            std::launch::async,
+            [serveraddress, zmq_context]()
             {
-                replier.serveRequest();
-            }
-            catch (std::exception& ex)
-            {
-                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what()
-                          << std::endl;
-                // the first one may or may not throw, but the second must not throw.
-            }
-            PRINT("Served first request by " << getpid());
+                Replier replier(serveraddress, zmq_context, 10000);
+                try
+                {
+                    replier.serveRequest();
+                }
+                catch (std::exception& ex)
+                {
+                    std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what()
+                              << std::endl;
+                    // the first one may or may not throw, but the second must not throw.
+                }
+                PRINT("Served first request by " << getpid());
 
-            try
-            {
-                replier.serveRequest();
+                try
+                {
+                    replier.serveRequest();
             }
             catch (std::exception& ex)
             {

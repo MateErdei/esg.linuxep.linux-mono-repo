@@ -2,7 +2,7 @@ include(GoogleTest)
 add_executable(TestZipUtilities
         TestZipUtils.cpp)
 target_include_directories(TestZipUtilities SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestZipUtilities ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} testhelpers ziputilities)
+target_link_libraries(TestZipUtilities ${GTEST_MAIN_LIBRARY} testhelpers ziputilities)
 target_link_libraries(TestZipUtilities)
 gtest_discover_tests(TestZipUtilities)
 SET_TARGET_PROPERTIES(TestZipUtilities

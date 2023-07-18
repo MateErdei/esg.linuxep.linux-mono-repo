@@ -8,7 +8,7 @@ add_executable(TestEventReceiverImpl
 
 target_include_directories(TestEventReceiverImpl SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}")
 target_include_directories(TestEventReceiverImpl BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestEventReceiverImpl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+target_link_libraries(TestEventReceiverImpl ${GTEST_MAIN_LIBRARY})
 target_link_libraries(TestEventReceiverImpl eventreceiverimpl testhelpers)
 gtest_discover_tests(TestEventReceiverImpl)
 SET_TARGET_PROPERTIES(TestEventReceiverImpl

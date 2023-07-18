@@ -1,12 +1,11 @@
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/googletest)
-    message( FATAL_ERROR "googletest directory not present. \nPlease, run ${CMAKE_SOURCE_DIR}/build.sh which will setup the directory")
-endif()
+# We need to tell gtest we have abseil libs because of how it's built in mono repo.
+add_compile_definitions(GTEST_HAS_ABSL)
 
-add_subdirectory(googletest EXCLUDE_FROM_ALL)
 add_custom_target(echogTest
         COMMAND echo gtest_SOURCE_DIR=${gtest_SOURCE_DIR}
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
+add_dependencies(echogTest copy_libs)
 add_subdirectory(manualTools)
 add_subdirectory(cmscrouter)
 add_subdirectory(Common)

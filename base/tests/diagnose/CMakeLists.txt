@@ -5,7 +5,6 @@ add_executable(TestDiagnose
         SystemCommandsTests.cpp)
 target_include_directories(TestDiagnose BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ${CMAKE_SOURCE_DIR})
 target_link_libraries(TestDiagnose
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         diagnoseimpl
         testhelpers

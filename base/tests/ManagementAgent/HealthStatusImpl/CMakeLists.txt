@@ -8,7 +8,6 @@ target_include_directories(HealthStatusTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUD
 target_include_directories(HealthStatusTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(HealthStatusTests
-        ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         xmlutilities
         mcsrouterplugincommunicationimpl

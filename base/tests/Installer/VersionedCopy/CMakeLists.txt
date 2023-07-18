@@ -4,7 +4,7 @@ target_include_directories(TestVersionedCopy SYSTEM BEFORE PUBLIC "${GTEST_INCLU
 target_include_directories(TestVersionedCopy BEFORE PUBLIC "${CMAKE_SOURCE_DIR}" )
 
 
-set (TestVersionedCopy_RPATH "${CMAKE_BINARY_DIR}/libs:${BOOST_LIB_DIRS}" )
+set(TestVersionedCopy_RPATH "${CMAKE_BINARY_DIR}/libs:${BOOST_LIB_DIRS}")
 
 SET_TARGET_PROPERTIES(TestVersionedCopy
         PROPERTIES
@@ -12,8 +12,8 @@ SET_TARGET_PROPERTIES(TestVersionedCopy
         BUILD_RPATH "${TestVersionedCopy_RPATH}"
         )
 
-target_link_libraries(TestVersionedCopy ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-target_link_libraries(TestVersionedCopy versionedcopylib testhelpers )
+target_link_libraries(TestVersionedCopy ${GTEST_MAIN_LIBRARY})
+target_link_libraries(TestVersionedCopy versionedcopylib testhelpers)
 gtest_discover_tests(TestVersionedCopy)
 
 add_dependencies(TestVersionedCopy

@@ -2,7 +2,7 @@ include(GoogleTest)
 function(addTest TEST)
     add_executable(${TEST} ${TEST}.cpp)
     target_include_directories(${TEST} SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE})
-    target_link_libraries(${TEST} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} threads pthread)
+    target_link_libraries(${TEST} ${GTEST_MAIN_LIBRARY} threads pthread)
     gtest_discover_tests(${TEST})
 endfunction()
 
