@@ -43,7 +43,7 @@ ${BaseAndEdrAndMtrVUTPolicy}                ${GeneratedWarehousePolicies}/base_e
 *** Test Cases ***
 
 
-Fixed Version Token is requested by SulDownloader
+Valid ESM Entry Is Requested By Suldownloader
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
@@ -77,7 +77,7 @@ Fixed Version Token is requested by SulDownloader
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
-Request is not made by SulDownloader when ESM is invalid
+Invalid ESM Policy Entry Is Caught By Suldownloader
     #Invalid because we are only providing a name for the fixed_version
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1
     Create File    ${tmpPolicy}    ${esm_enabled_alc_policy}
@@ -108,7 +108,7 @@ Request is not made by SulDownloader when ESM is invalid
     wait_for_log_contains_from_mark  ${sul_mark}   ESM feature is not valid. Name: LTS 2023.1.1 and Token:
 
 
-Fixed Version Token is not requested by SulDownloader when ESM not present in ALC
+Absent ESM Field Does Not Appear In Update Config
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
 
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
@@ -131,13 +131,13 @@ Fixed Version Token is not requested by SulDownloader when ESM not present in AL
     File Should Not Contain  ${UPDATE_CONFIG}     fixed_version_token
 
 
-Fixed Version Token is not requested by SulDownloader Immediately With Scheduled Updates
+New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates Are Enabled
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
-    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    ${non_esm_alc_policy_delayed_updating} =    populate_only_cloud_subscription    ${TRUE}
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy_delayed_updating}
     Register Cleanup    Remove File    ${tmpPolicy}
 
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
@@ -162,7 +162,7 @@ Fixed Version Token is not requested by SulDownloader Immediately With Scheduled
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_scheduled_updates    ${fixed_version_name}    ${fixed_version_token}
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
 
@@ -174,7 +174,7 @@ Fixed Version Token is not requested by SulDownloader Immediately With Scheduled
     wait_for_log_contains_from_mark  ${sul_mark}    Doing supplement-only update
 
 
-Fixed Version Token is requested by SulDownloader Immediately With Scheduled Updates And Update Now
+New Fixed Version Token Does Trigger Immediate Update With Update Now When Scheduled Updates Are Enabled
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all develop
@@ -220,7 +220,7 @@ Fixed Version Token is requested by SulDownloader Immediately With Scheduled Upd
     wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
 
 
-Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
+New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are Enabled
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all develop
@@ -265,7 +265,7 @@ Fixed Version Token is requested by SulDownloader Immediately In Paused Updating
     wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
 
 
-Fixed Version Token is requested by SulDownloader Immediately
+New Fixed Version Token Does Trigger Immediate Update
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all develop
@@ -296,7 +296,7 @@ Fixed Version Token is requested by SulDownloader Immediately
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
 
@@ -307,8 +307,6 @@ Fixed Version Token is requested by SulDownloader Immediately
 
     wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
     wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
-
-
 
 
 Install all plugins static-999 then downgrade to all plugins static
