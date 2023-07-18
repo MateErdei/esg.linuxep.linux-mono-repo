@@ -144,16 +144,11 @@ find_library(LZMA_LIBRARY
         PATHS ${XZUTILS_INPUT}
         NO_DEFAULT_PATH)
 
-set(GTEST_INCLUDE ${GTEST_INPUT}/googletest/include)
-find_library(GTEST_LIBRARY
-        NAMES gtest
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY
-        NAMES gtest_main
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-set(GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include)
+set(GTEST_INCLUDE ${GTEST_INPUT}/include)
+set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
+if (NOT EXISTS ${GTEST_MAIN_LIBRARY})
+    message("Library not found: ${GTEST_MAIN_LIBRARY}")
+endif ()
 
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so*)
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so*)
