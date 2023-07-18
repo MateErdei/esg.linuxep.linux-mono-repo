@@ -327,14 +327,14 @@ Get Current Installed Versions
     [Return]    &{versions}
 
 Get Expected Versions
-    [Arguments]    ${warehouseRepoRoot}
-    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Base-component
-    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-MDR
-    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRepoRoot}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
+    [Arguments]    ${warehouseRoot}
+    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Base-component
+    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}

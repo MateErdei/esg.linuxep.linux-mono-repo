@@ -487,10 +487,10 @@ class WarehouseUtils(object):
             shell=True)
         return version.strip().decode()
 
-    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_root, rigidname):
+    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_repo_root, rigidname):
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
 
-        warehouse_package_path = os.path.join(warehouse_root, "package")
+        warehouse_package_path = os.path.join(warehouse_repo_root, "package")
         try:
             packages = os.listdir(warehouse_package_path)
         except EnvironmentError:
