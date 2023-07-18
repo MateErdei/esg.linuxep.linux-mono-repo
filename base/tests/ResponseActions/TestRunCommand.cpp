@@ -168,10 +168,10 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    EXPECT_EQ(response.at("commandResults")[0]["stdOut"], "output message");
-    EXPECT_EQ(response.at("commandResults")[0]["stdErr"], "");
-    EXPECT_EQ(response.at("commandResults")[0]["exitCode"], 0);
-    EXPECT_GE(response.at("commandResults")[0]["duration"], 0);
+    EXPECT_EQ(response.at("commandResults").at(0).at("stdOut"), "output message");
+    EXPECT_EQ(response.at("commandResults")[0].at("stdErr"), "");
+    EXPECT_EQ(response.at("commandResults")[0].at("exitCode"), 0);
+    EXPECT_GE(response.at("commandResults")[0].at("duration"), 0);
 }
 
 TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
@@ -219,14 +219,14 @@ TEST_F(RunCommandTests, runMethodHandlesJsonOutputOrError)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    nlohmann::json cmdResults = nlohmann::json::array();
-    nlohmann::json cmdResult;
-    cmdResult["stdOut"] = output;
-    cmdResult["stdErr"] = error;
-    cmdResult["exitCode"] = 0;
-    cmdResult["duration"] = 0;
-    cmdResults.push_back(cmdResult);
-    EXPECT_EQ(response.at("commandResults"), cmdResults);
+    const auto& actualCmdResults = response.at("commandResults");
+    ASSERT_EQ(actualCmdResults.size(), 1);
+    const auto& actualCmdResult = actualCmdResults.at(0);
+    EXPECT_EQ(actualCmdResult.at("stdOut"), output);
+    EXPECT_EQ(actualCmdResult.at("stdErr"), error);
+    EXPECT_EQ(actualCmdResult.at("exitCode"), 0);
+    EXPECT_GE(actualCmdResult.at("duration"), 0); // Can't rely on the duration always being 0
+    EXPECT_LE(actualCmdResult.at("duration"), 5);
 }
 
 TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
@@ -289,14 +289,14 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 2);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    nlohmann::json cmdResults = nlohmann::json::array();
-    nlohmann::json cmdResult;
-    cmdResult["stdOut"] = "output message";
-    cmdResult["stdErr"] = "";
-    cmdResult["exitCode"] = 15;
-    cmdResult["duration"] = 0;
-    cmdResults.push_back(cmdResult);
-    EXPECT_EQ(response.at("commandResults"), cmdResults);
+    const auto& actualCmdResults = response.at("commandResults");
+    ASSERT_EQ(actualCmdResults.size(), 1);
+    const auto& actualCmdResult = actualCmdResults.at(0);
+    EXPECT_EQ(actualCmdResult.at("stdOut"), "output message");
+    EXPECT_EQ(actualCmdResult.at("stdErr"), "");
+    EXPECT_EQ(actualCmdResult.at("exitCode"), 15);
+    EXPECT_GE(actualCmdResult.at("duration"), 0); // Can't rely on the duration always being 0
+    EXPECT_LE(actualCmdResult.at("duration"), 5);
 }
 
 TEST_F(RunCommandTests, runCommandsExpired)
@@ -400,8 +400,8 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
     EXPECT_GT(response.startedAt, 1679055498);
     EXPECT_GE(response.duration, 0);
 
-    EXPECT_EQ(response.commandResults.size(), 1);
-    EXPECT_EQ(response.commandResults[0].stdOut, "output message");
+    ASSERT_EQ(response.commandResults.size(), 1);
+    EXPECT_EQ(response.commandResults.at(0).stdOut, "output message");
     EXPECT_EQ(response.commandResults[0].stdErr, "");
     EXPECT_EQ(response.commandResults[0].exitCode, 0);
     EXPECT_GE(response.commandResults[0].duration, 0);
@@ -435,7 +435,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
     EXPECT_GT(response.startedAt, 1679055498);
     EXPECT_GE(response.duration, 0);
 
-    EXPECT_EQ(response.commandResults.size(), 2);
+    ASSERT_EQ(response.commandResults.size(), 2);
     EXPECT_EQ(response.commandResults[0].stdOut, "output message");
     EXPECT_EQ(response.commandResults[0].stdErr, "");
     EXPECT_EQ(response.commandResults[0].exitCode, 0);
