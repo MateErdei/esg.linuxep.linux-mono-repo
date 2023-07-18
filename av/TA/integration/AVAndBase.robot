@@ -81,10 +81,8 @@ AV plugin runs scan now while CLS is running
     Register Cleanup    Terminate Process  ${cls_handle}
 
     # check CLS is scanning
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  File Log Contains  ${LOG_FILE}  Scanning
+    ${cls_mark} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}  timeout=60
 
     # Start Scan Now
     Configure scan now
@@ -347,27 +345,25 @@ AV plugin runs scheduled scan while CLS is running
     Process Should Be Running   ${cls_handle}
 
     # check CLS is scanning
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  File Log Contains  ${LOG_FILE}  Scanning
+    ${cls_mark} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}  timeout=${60}
 
     ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
     Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 1  ${av_mark}
-    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=${150}
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
     ${cls_mark} =  Mark Log Size  ${LOG_FILE}
-    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}  timeout=${60}
 
-    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=${180}
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
     ${cls_mark2} =  Mark Log Size  ${LOG_FILE}
-    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}  timeout=${60}
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
