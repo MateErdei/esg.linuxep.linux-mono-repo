@@ -1,6 +1,6 @@
 
 import json
-import datetime as datetime
+import datetime
 import calendar
 import os
 import PathManager
@@ -11,6 +11,10 @@ ALC_POLICY_TEMPLATE_PATH = os.path.join(PathManager.get_support_file_path(), "Ce
 DEFAULT_CLOUD_SUBSCRIPTION = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>'
 CLOUD_SUBSCRIPTION_WITH_PAUSED = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>'
 
+def _get_delayed_update_time() -> str:
+    dayno = datetime.datetime.now().weekday() + 1
+    daystr = calendar.day_name[dayno]
+    return f'<delay_updating Day="{daystr}" Time="12:00:00"/>'
 
 def get_version_from_policy(policy_file):
     policy = xml.dom.minidom.parse(policy_file)
@@ -32,12 +36,16 @@ def populate_alc_policy(name: str, token: str, cloudsub: str, delayupdate: str):
         return policy
 
 
-def populate_only_cloud_subscription():
+def populate_only_cloud_subscription(delayupdating: bool):
     with open(ALC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
         policy = policy.replace("{{fixed_version}}", '')
         policy = policy.replace("{{Subscriptions}}", DEFAULT_CLOUD_SUBSCRIPTION)
-        policy = policy.replace("{{delay_updating}}", '')
+        if delayupdating:
+            delayed_update = _get_delayed_update_time()
+            policy = policy.replace("{{delay_updating}}", delayed_update)
+        else:
+            policy = policy.replace("{{delay_updating}}", '')
         return policy
 
 
@@ -50,9 +58,7 @@ def populate_fixed_version_with_paused_updates(name: str, token = ''):
 
 
 def populate_fixed_version_with_scheduled_updates(name: str, token: str):
-    dayno = datetime.now().weekday() + 1
-    daystr = calendar.day_name[dayno]
-    delayed_update = f'<delay_updating Day="{daystr}" Time="12:00:00"/>'
+    delayed_update = _get_delayed_update_time()
     return populate_alc_policy(name, token, DEFAULT_CLOUD_SUBSCRIPTION, delayed_update)
 
 

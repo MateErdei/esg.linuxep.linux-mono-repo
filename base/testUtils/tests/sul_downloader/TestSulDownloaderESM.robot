@@ -43,13 +43,13 @@ ${BaseAndEdrAndMtrVUTPolicy}                ${GeneratedWarehousePolicies}/base_e
 *** Test Cases ***
 
 
-Fixed Version Token is requested by SulDownloader Immediately In Normal Mode
+Fixed Version Token is requested by SulDownloader
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
     ${handle}=  Start Local SDDS3 Server With Empty Repo
@@ -67,7 +67,6 @@ Fixed Version Token is requested by SulDownloader Immediately In Normal Mode
     ...    Log File    ${UPDATE_CONFIG}
 
     wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-    wait_for_log_contains_from_mark  ${update_mark}  Detected product configuration change, triggering update.
 
     File Should Contain  ${UPDATE_CONFIG}     JWToken
 
@@ -76,68 +75,6 @@ Fixed Version Token is requested by SulDownloader Immediately In Normal Mode
     ...   2 secs
     ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-
-#Fixed Version Token is requested by SulDownloader Immediately In Paused Updating Mode
-#    Send Non ESM ALC Policy And Wait Until Processed
-#
-#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-#    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
-#
-#    Remove File  ${tmpPolicy}
-#    ${esm_enabled_alc_policy} =    populate_fixed_version_with_paused_updates    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
-#    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
-#    Send Policy File  alc    ${tmpPolicy}
-#
-#    Wait Until Keyword Succeeds
-#    ...    10s
-#    ...    1s
-#    ...    Log File    ${UPDATE_CONFIG}
-#
-#    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-#
-#    File Should Contain  ${UPDATE_CONFIG}     JWToken
-#
-#    Wait Until Keyword Succeeds
-#    ...   10 secs
-#    ...   2 secs
-#    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
-#    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-
-
-
-#Fixed Version Token is requested by SulDownloader Immediately When It Changes
-#    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
-#    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
-#    Register Cleanup  Remove File  ${tmpPolicy}
-#
-#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-#    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-#
-#    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
-#    ${handle}=  Start Local SDDS3 Server With Empty Repo
-#    Set Suite Variable    ${GL_handle}    ${handle}
-#
-#    Require Fresh Install
-#    Override LogConf File as Global Level  DEBUG
-#    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-#    Create Local SDDS3 Override
-#
-#    Register With Local Cloud Server
-#
-#    Wait Until Keyword Succeeds
-#    ...    10s
-#    ...    1s
-#    ...    Log File    ${UPDATE_CONFIG}
-#
-#    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
-#
-#    File Should Contain  ${UPDATE_CONFIG}     JWToken
-#
-#    Wait Until Keyword Succeeds
-#    ...   10 secs
-#    ...   2 secs
-#    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
-#    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
 Request is not made by SulDownloader when ESM is invalid
@@ -165,7 +102,7 @@ Request is not made by SulDownloader when ESM is invalid
 
     wait_for_log_contains_from_mark  ${update_mark}  Using version RECOMMENDED
 
-    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Trigger Update Now
     wait_for_log_contains_from_mark  ${sul_mark}   ESM feature is not valid. Name: LTS 2023.1.1 and Token:
@@ -199,7 +136,7 @@ Fixed Version Token is not requested by SulDownloader Immediately With Scheduled
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
     Create File  ${tmpPolicy}   ${non_esm_alc_policy}
     Register Cleanup    Remove File    ${tmpPolicy}
 
@@ -218,7 +155,7 @@ Fixed Version Token is not requested by SulDownloader Immediately With Scheduled
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
 
     Wait For Suldownloader To Finish
 
@@ -242,8 +179,8 @@ Fixed Version Token is requested by SulDownloader Immediately With Scheduled Upd
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription
-    Create File  ${tmpPolicy}   ${non_esm_alc_policy}
+    ${non_esm_alc_policy_delayed_updating} =    populate_only_cloud_subscription     ${TRUE}
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy_delayed_updating}
     Register Cleanup    Remove File    ${tmpPolicy}
 
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
@@ -261,18 +198,19 @@ Fixed Version Token is requested by SulDownloader Immediately With Scheduled Upd
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
 
     Wait For Suldownloader To Finish
 
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
-    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    ${fixed_version_name}    ${fixed_version_token}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_scheduled_updates    ${fixed_version_name}    ${fixed_version_token}
     Remove File  ${tmpPolicy}
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Send Policy File  alc    ${tmpPolicy}
     wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
@@ -287,7 +225,7 @@ Fixed Version Token is requested by SulDownloader Immediately In Paused Updating
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
     Create File  ${tmpPolicy}   ${non_esm_alc_policy}
     Register Cleanup    Remove File    ${tmpPolicy}
 
@@ -306,7 +244,7 @@ Fixed Version Token is requested by SulDownloader Immediately In Paused Updating
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
 
     Wait For Suldownloader To Finish
 
@@ -319,6 +257,7 @@ Fixed Version Token is requested by SulDownloader Immediately In Paused Updating
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
+
     Send Policy File  alc    ${tmpPolicy}
     wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
 
@@ -331,7 +270,7 @@ Fixed Version Token is requested by SulDownloader Immediately
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription
+    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
     Create File  ${tmpPolicy}   ${non_esm_alc_policy}
     Register Cleanup    Remove File    ${tmpPolicy}
 
@@ -350,7 +289,7 @@ Fixed Version Token is requested by SulDownloader Immediately
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
 
     Wait For Suldownloader To Finish
 
@@ -397,7 +336,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
@@ -497,7 +436,7 @@ Install all plugins static then upgrade to all plugins static-999
     Wait Until Keyword Succeeds
     ...   80 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
     Check Current Release With AV Installed Correctly
 
     Setup SUS static 999
@@ -576,7 +515,7 @@ Setup SUS static 999
 #
 #Send Non ESM ALC Policy And Wait Until Processed
 #    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-#    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+#    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 #
 #    ${standard_alc_policy} =    populate_only_cloud_subscription
 #    Create File  ${tmpPolicy}   ${standard_alc_policy}
