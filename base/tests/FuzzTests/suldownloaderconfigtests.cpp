@@ -48,7 +48,11 @@ int main()
     {
         (void)SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(content);
     }
-    catch (Common::Policy::PolicyParseException&)
+    catch (const Common::Policy::PolicyParseException&)
+    {
+        return 2;
+    }
+    catch (const std::invalid_argument&)
     {
         return 2;
     }
