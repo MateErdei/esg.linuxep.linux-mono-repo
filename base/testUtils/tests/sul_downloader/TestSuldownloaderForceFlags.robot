@@ -137,7 +137,10 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="7"
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-
+    Wait Until Keyword Succeeds
+      ...  60 secs
+      ...  5 secs
+      ...  File Should contain  ${UPDATE_CONFIG}    "forcePausedUpdate": true
     Stop Update Scheduler
 
     create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
@@ -192,7 +195,10 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="7"
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-
+    Wait Until Keyword Succeeds
+      ...  60 secs
+      ...  5 secs
+      ...  File Should contain  ${UPDATE_CONFIG}    "forceUpdate": true
     Stop Update Scheduler
 
     create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
