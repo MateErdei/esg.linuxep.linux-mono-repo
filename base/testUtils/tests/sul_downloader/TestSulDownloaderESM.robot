@@ -136,8 +136,8 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy_delayed_updating} =    populate_only_cloud_subscription    ${TRUE}
-    Create File  ${tmpPolicy}   ${non_esm_alc_policy_delayed_updating}
+    ${non_esm_alc_policy_scheduled} =    populate_cloud_subscription_with_scheduled
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy_scheduled}
     Register Cleanup    Remove File    ${tmpPolicy}
 
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
@@ -179,8 +179,8 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy_delayed_updating} =    populate_only_cloud_subscription     ${TRUE}
-    Create File  ${tmpPolicy}   ${non_esm_alc_policy_delayed_updating}
+    ${non_esm_alc_policy_scheduled} =    populate_cloud_subscription_with_scheduled
+    Create File  ${tmpPolicy}   ${non_esm_alc_policy_scheduled}
     Register Cleanup    Remove File    ${tmpPolicy}
 
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
@@ -225,7 +225,7 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
+    ${non_esm_alc_policy} =    populate_cloud_subscription_with_paused
     Create File  ${tmpPolicy}   ${non_esm_alc_policy}
     Register Cleanup    Remove File    ${tmpPolicy}
 
@@ -270,7 +270,7 @@ New Fixed Version Token Does Trigger Immediate Update
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
-    ${non_esm_alc_policy} =    populate_only_cloud_subscription    ${FALSE}
+    ${non_esm_alc_policy} =    populate_cloud_subscription
     Create File  ${tmpPolicy}   ${non_esm_alc_policy}
     Register Cleanup    Remove File    ${tmpPolicy}
 
