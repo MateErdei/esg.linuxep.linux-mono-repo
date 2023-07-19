@@ -162,14 +162,14 @@ TEST_F(TestStringUtils, TestPluralize) // NOLINT
     EXPECT_EQ(common::pluralize(0, "single", "plural"), "plural");
 }
 
-TEST_F(TestStringUtils, testgetSuSiStyleTimestamp) //NOLINT
+TEST_F(TestStringUtils, testgetSuSiStyleTimestamp)
 {
     const std::regex expected_regex("([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)");
 
     EXPECT_TRUE( std::regex_match(getSusiStyleTimestamp(), expected_regex));
 }
 
-TEST_F(TestStringUtils, escapePathForLogging) //NOLINT
+TEST_F(TestStringUtils, escapePathForLogging)
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6"
                              " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
@@ -182,7 +182,7 @@ TEST_F(TestStringUtils, escapePathForLogging) //NOLINT
                           " \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
-TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotes) //NOLINT
+TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotes)
 {
     std::string threatPath = "/tmp/A path with spaces that looks horrible in the logs";
     auto escapedAndSingleQuoted = pathForLogging(threatPath);
@@ -193,7 +193,7 @@ TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotes) //NOLINT
     EXPECT_EQ(escapedAndSingleQuoted, "''");
 }
 
-TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotesAndEscapes) //NOLINT
+TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotesAndEscapes)
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6"
                              " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
