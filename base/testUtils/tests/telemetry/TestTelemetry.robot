@@ -227,6 +227,27 @@ Telemetry Executable Generates Update Scheduler Telemetry With Scheduled Updatin
     ...    install_state=0
     ...    download_state=0
 
+Telemetry Executable Generates Update Scheduler Telemetry With ESM Set In Policy
+    ${esmname} =  Set Variable   LTS 2023.1.1
+    # Make sure there are no left over update telemetry items.
+    Cleanup Telemetry Server
+    Require Fresh Install
+
+    Create Empty SulDownloader Config
+    setup mcs config with JWT token
+    Drop ALC Policy With ESM Into Place     ${esmname}    f4d41a16-b751-4195-a7b2-1f109d49469d
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log File   ${TELEMETRY_OUTPUT_JSON}
+    Check Update Scheduler Telemetry Json Is Correct
+
 Telemetry Executable Log Has Correct Permissions
     [Documentation]    Telemetry Executable Log Has Correct Permissions
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
