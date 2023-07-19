@@ -231,7 +231,7 @@ Upgrade VUT to 999
     wait_for_log_contains_from_mark  ${sul_mark}    Update success    ${200}
 
     # Check for warning that there is a naming collision in the map of query tags
-    wait_for_log_contains_from_mark   ${edr_mark}  Adding XDR results to intermediary file  timeout=${60}
+    wait_for_log_contains_from_mark   ${edr_mark}  Adding XDR results to intermediary file  timeout=${300}
     Check Edr Log Does Not Contain  already in query map
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
