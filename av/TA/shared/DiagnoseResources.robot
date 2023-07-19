@@ -9,10 +9,7 @@ Library         DateTime
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
-${AV} =    /PluginFiles/av
-${AVVar} =    ${AV}/var
-${TDLog} =    ${AV}/chroot/log
-${TDVar} =    ${AV}/chroot/var
+
 *** Keywords ***
 
 Run Diagnose
@@ -32,7 +29,7 @@ Get DiagnoseOutput
     Should Be Equal As Integers  ${result.rc}  ${0}
     Log  ${result.stdout}
     ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
-    Set Suite Variable  ${DiagnoseOutput}  ${folder}    children=True
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
 
 
 Run Diagnose And Get DiagnoseOutput
@@ -51,8 +48,8 @@ Check Diagnose Tar Created
 
 
 Check Diagnose Collects Correct AV Files
-    ${AVPFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${AV}
-    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${TDLog}
+    ${AVPFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av/chroot/log
 
     Should Contain  ${AVPFiles}  av.log
     Should Contain  ${AVPFiles}  Scan Now.log
@@ -65,13 +62,13 @@ Check Diagnose Collects Correct AV Files
 
 Check Diagnose Contains File In TD Var
     [arguments]    ${file}
-    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${TDVar}
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av/chroot/var
     Should Contain  ${SophosThreatDetectorFiles}  ${file}
 
 
 Check Diagnose Contains File In AV Var
     [arguments]    ${file}
-    ${AVFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${AVVar}
+    ${AVFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av/var
     Should Contain  ${AVFiles}  ${file}
 
 
