@@ -4,6 +4,12 @@ Resource    BaseResources.robot
 
 Library         ../Libs/CoreDumps.py
 
+*** Variables ***
+${SUSI_DISTRIBUTION_VERSION}        ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
+${SUSI_UPDATE_SOURCE}               ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
+${VDL_DIRECTORY}                    ${SUSI_UPDATE_SOURCE}/vdl
+${VDL_TEMP_DESTINATION}             ${COMPONENT_ROOT_PATH}/moved_vdl
+
 *** Keywords ***
 
 AV and Base Setup
@@ -222,14 +228,10 @@ Reset ThreatDatabase
 
 
 Create SUSI Initialisation Error
-    ${SUSI_DISTRIBUTION_VERSION} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
-    ${SUSI_UPDATE_SOURCE} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
-    ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
-    ${VDL_TEMP_DESTINATION} =   Set Variable   ${COMPONENT_ROOT_PATH}/moved_vdl
-
     Stop sophos_threat_detector
     Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  ${true}
     Move Directory  ${VDL_DIRECTORY}  ${VDL_TEMP_DESTINATION}
+    Register Cleanup    Remove Directory    ${VDL_TEMP_DESTINATION}  recursive=True
     ${td_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
     Wait until threat detector running after mark  ${td_mark}

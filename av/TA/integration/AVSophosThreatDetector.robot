@@ -660,10 +660,8 @@ Threat Detector Can Bootstrap New SUSI After A Failed Initialization
     Log   ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
-    #Reset update source and set lost permissions
-    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
-    Run Process  chown  -R  sophos-spl-threat-detector:sophos-spl-group  ${VDL_DIRECTORY}
-    Run Process  chmod  -R  770  ${VDL_DIRECTORY}
+    #Restore vdl files
+    Move Directory  ${VDL_TEMP_DESTINATION}  ${VDL_DIRECTORY}
 
     #Attempt to initialize SUSI, a clean result means sucessfull initialization
     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${AVSCANNER}
