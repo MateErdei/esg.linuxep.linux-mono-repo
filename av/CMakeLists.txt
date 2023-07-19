@@ -161,16 +161,11 @@ set(log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus.so)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*.*.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
 
-set(GTEST_INCLUDE ${GTEST_INPUT}/googletest/include)
-find_library(GTEST_LIBRARY
-        NAMES gtest
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY
-        NAMES gtest_main
-        PATHS ${GTEST_INPUT}
-        NO_DEFAULT_PATH)
-set(GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
+set(GTEST_INCLUDE ${GTEST_INPUT}/include)
+set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
+if (NOT EXISTS ${GTEST_MAIN_LIBRARY})
+    message("Library not found: ${GTEST_MAIN_LIBRARY}")
+endif ()
 
 if(NOT DEFINED SUSIPATH)
     SET( SUSIPATH ${REDIST}/susi_build)

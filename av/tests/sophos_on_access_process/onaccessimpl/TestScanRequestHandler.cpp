@@ -393,7 +393,7 @@ using TestScanRequestHandlerDeathTest = TestScanRequestHandler;
 TEST_F(TestScanRequestHandlerDeathTest, cacheFdError)
 {
     //starts test in a new child process and tries to ensure safety of the main test process
-    (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
+    GTEST_FLAG_SET(death_test_style, "threadsafe");
     testing::Mock::AllowLeak(m_mockFanotifyHandler.get());
     testing::Mock::AllowLeak(m_mockDeviceUtil.get());
 
