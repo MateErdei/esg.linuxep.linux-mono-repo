@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -22,11 +18,11 @@ class ResultsSender : public ResultsSenderInterface
 {
 public:
     ResultsSender(
-        const std::string& intermediaryPath,
-        const std::string& datafeedPath,
-        const std::string& osqueryXDRConfigFilePath,
-        const std::string& osqueryMTRConfigFilePath,
-        const std::string& osqueryCustomConfigFilePath,
+        std::string  intermediaryPath,
+        std::string  datafeedPath,
+        std::string  osqueryXDRConfigFilePath,
+        std::string  osqueryMTRConfigFilePath,
+        std::string  osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
         unsigned long long int dataLimit,
         unsigned int periodInSeconds,
@@ -76,5 +72,5 @@ private:
 
     void loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath);
 
-    bool updateFoldingTelemetry(const Json::Value& results);
+//    bool updateFoldingTelemetry(const Json::Value& results);
 };

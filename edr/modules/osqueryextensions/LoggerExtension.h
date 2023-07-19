@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -27,10 +23,9 @@ public:
             std::function<void(void)> dataExceededCallback,
             unsigned int maxBatchSeconds,
             uintmax_t maxBatchBytes);
-    ~LoggerExtension();
+    ~LoggerExtension() override;
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
-    // cppcheck-suppress virtualCallInConstructor
-    void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) override;
+    void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) final;
     void setDataLimit(unsigned long long int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
@@ -40,7 +35,7 @@ public:
     void setFoldingRules(const std::vector<Json::Value>& foldingRules);
     std::vector<Json::Value> getCurrentFoldingRules();
     bool compareFoldingRules(const std::vector<Json::Value>& newFoldingRules);
-    std::vector<std::string> getFoldableQueries() const;
+    [[nodiscard]] std::vector<std::string> getFoldableQueries() const;
     int GetExitCode() override;
 
 private:

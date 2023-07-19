@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 #include <string>
@@ -14,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class IServiceExtension
 {
 public:
+    virtual ~IServiceExtension() = default;
     virtual void Start(const std::string& socket,
             bool verbose,
             std::shared_ptr<std::atomic_bool> extensionFinished) = 0;

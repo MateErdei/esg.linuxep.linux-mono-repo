@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "LoggerExtension.h"
 #include "Logger.h"
@@ -11,6 +7,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <LoggerPlugin/SophosLoggerPlugin.h>
 #include <functional>
+#include <utility>
 
 
 
@@ -35,7 +32,7 @@ LoggerExtension::LoggerExtension(
         pluginVarDir,
         dataLimit,
         periodInSeconds,
-        dataExceededCallback),
+        std::move(dataExceededCallback)),
     m_maxBatchBytes(maxBatchBytes),
     m_maxBatchSeconds(maxBatchSeconds)
 {

@@ -12,22 +12,23 @@
 
 
 #include <iostream>
+#include <utility>
 
 ResultsSender::ResultsSender(
-    const std::string& intermediaryPath,
-    const std::string& datafeedPath,
-    const std::string& osqueryXDRConfigFilePath,
-    const std::string& osqueryMTRConfigFilePath,
-    const std::string& osqueryCustomConfigFilePath,
+    std::string intermediaryPath,
+    std::string datafeedPath,
+    std::string osqueryXDRConfigFilePath,
+    std::string osqueryMTRConfigFilePath,
+    std::string osqueryCustomConfigFilePath,
     const std::string& pluginVarDir,
     unsigned long long int dataLimit,
     unsigned int periodInSeconds,
     std::function<void(void)> dataExceededCallback) :
-    m_intermediaryPath(intermediaryPath),
-    m_datafeedPath(datafeedPath),
-    m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
-    m_osqueryMTRConfigFilePath(osqueryMTRConfigFilePath),
-    m_osqueryCustomConfigFilePath(osqueryCustomConfigFilePath),
+    m_intermediaryPath(std::move(intermediaryPath)),
+    m_datafeedPath(std::move(datafeedPath)),
+    m_osqueryXDRConfigFilePath(std::move(osqueryXDRConfigFilePath)),
+    m_osqueryMTRConfigFilePath(std::move(osqueryMTRConfigFilePath)),
+    m_osqueryCustomConfigFilePath(std::move(osqueryCustomConfigFilePath)),
     m_currentDataUsage(pluginVarDir, "xdrDataUsage", 0),
     m_periodStartTimestamp(
         pluginVarDir,
@@ -35,7 +36,7 @@ ResultsSender::ResultsSender(
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     m_dataLimit(dataLimit),
     m_periodInSeconds(pluginVarDir, "xdrPeriodInSeconds", periodInSeconds),
-    m_dataExceededCallback(dataExceededCallback),
+    m_dataExceededCallback(std::move(dataExceededCallback)),
     m_hitLimitThisPeriod(pluginVarDir, "xdrLimitHit", false)
 {
     LOGDEBUG("Created results sender");
