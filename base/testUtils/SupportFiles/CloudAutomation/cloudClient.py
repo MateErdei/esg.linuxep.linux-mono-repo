@@ -1796,14 +1796,6 @@ class CloudClient(object):
                 return platform['url']
         assert False, "Failed to find thin-installer URL"
 
-    def getSSPLThinInstallerURL(self):
-        url = self.upe_api + "/deployment/agent/location?platform=sspl&product_types=mdr"
-        request = urllib.request.Request(url, headers=self.default_headers)
-        response = self.retry_request_url(request)
-        response = json_loads(response)
-        if response['platform'] == "SSPL" and response['url'] != None:
-            return response['url']
-        assert False, "Failed to find sspl thin-installer URL"
 
     def setFlag(self, flag, value):
         url = self.host + "/api/customer/flags"

@@ -15,7 +15,6 @@ Suite Teardown   Local Suite Teardown
 Default Tags   FAULTINJECTION
 
 *** Variables ***
-${MDR_PLUGIN_PATH}              ${SOPHOS_INSTALL}/plugins/mtr/
 ${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger
 ${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger
 ${StockLoggerConfLocation}      /opt/sophos-spl/base/etc/logger.conf.0

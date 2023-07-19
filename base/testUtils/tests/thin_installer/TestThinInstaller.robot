@@ -111,7 +111,7 @@ Thin Installer fails to download test file from warehouse if certificate is not 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_only_VUT.xml
+    Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
     Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules

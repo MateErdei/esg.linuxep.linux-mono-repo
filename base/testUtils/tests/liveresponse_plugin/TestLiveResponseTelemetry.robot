@@ -1,18 +1,18 @@
 *** Settings ***
 Documentation    Suite description
 Library     ${LIBS_DIRECTORY}/ActionUtils.py
+Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 
 Resource  ../installer/InstallerResources.robot
+Resource    ../mcs_router/McsRouterResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 Resource  LiveResponseResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
-Resource  ../mdr_plugin/MDRResources.robot
+
 
 Test Setup  LiveResponse Telemetry Test Setup
 Test Teardown  LiveResponse Telemetry Test Teardown

@@ -537,7 +537,6 @@ UpdateScheduler Send Status After Receiving Policy
 
 UpdateScheduler Performs Update After Receiving Policy For The First Time
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -549,7 +548,6 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
 
 UpdateScheduler sends a status after recieving a policy that does not change feature list
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -560,7 +558,7 @@ UpdateScheduler sends a status after recieving a policy that does not change fea
     ...  90 secs
     ...  10 secs
     ...  check_updatescheduler_log_contains_string_n_times   Sending status to Central  1
-    Send Policy To UpdateScheduler  ALC_policy_direct_local_warehouse.xml
+    Send Policy To UpdateScheduler  ALC_BaseOnlyBetaPolicy.xml
     Wait Until Keyword Succeeds
     ...  90 secs
     ...  10 secs
@@ -624,7 +622,6 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -646,7 +643,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
 
 UpdateScheduler Performs Update After Receiving Policy With Different Subscriptions
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -667,7 +663,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
 
 UpdateScheduler Performs Update After Receiving Policy With Different Primary Subscription release tag Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -688,7 +683,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
 
 UpdateScheduler Performs Update After Receiving Policy With Different Primary Subscription Fixed Version Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -713,7 +707,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
 
 UpdateScheduler Performs Update After Receiving Policy With Different Non Primary Subscription release tag Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
@@ -735,7 +728,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
 
 UpdateScheduler Performs Update After Receiving Policy With Different Non Primary Subscription Fixed Version Values
     [Setup]  Setup Current Update Scheduler Environment Without Policy
-    Configure Hosts File
     Remove File  ${statusPath}
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler

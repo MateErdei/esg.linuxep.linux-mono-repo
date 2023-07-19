@@ -239,24 +239,6 @@ def get_registration_command():
     return client.getRegistrationCommand()
 
 
-def get_sspl_thinstaller_url():
-    client = getClient()
-    return client.getSSPLThinInstallerURL()
-
-
-def get_sspl_registration():
-    bashfile = os.path.join(PathManager.get_support_file_path(),
-                            "CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh")
-    command = ["bash", bashfile, get_sspl_thinstaller_url()]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout = process.communicate()[0]
-    if process.wait() != 0:
-        raise AssertionError("error with get registration command: {}".format(stdout.decode('utf-8')))
-    with open('/tmp/registerCommand', 'r') as file:
-        registerCommand = file.read()
-    return registerCommand
-
-
 def get_registration_token_and_url():
     command = get_registration_command()
     args = command.split()

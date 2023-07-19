@@ -2,7 +2,7 @@
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    UC Error Test Teardown
 
 Force Tags  LOAD6

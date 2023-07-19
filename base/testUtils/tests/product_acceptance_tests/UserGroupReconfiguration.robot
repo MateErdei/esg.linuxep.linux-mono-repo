@@ -9,13 +9,10 @@ Resource    ../watchdog/WatchdogResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Force Tags  LOAD9
-
-*** Variables ***
-${BaseEdrAndMtrAndAVVUTPolicy}              ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
 
 *** Test Cases ***
 Reconfigure All Sophos Users And Groups In Installed Product
@@ -23,7 +20,7 @@ Reconfigure All Sophos Users And Groups In Installed Product
     [Tags]    WATCHDOG    SMOKE    EXCLUDE_SLES15
 
     # Install VUT product
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle} =    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -110,7 +107,7 @@ Reconfigure All Sophos Users And Groups When Installing Product Using Thin Insta
     # TODO LINUXDAR-7327: Fix and re-enable for SLES15
     [Tags]    THININSTALLER    WATCHDOG    SMOKE    EXCLUDE_SLES15
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle} =    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 

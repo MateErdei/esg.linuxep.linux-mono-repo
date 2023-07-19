@@ -16,9 +16,6 @@ Setup Update Tests
     Regenerate Certificates
     Set Local CA Environment Variable
 
-Cleanup Update Tests
-    Cleanup System Ca Certs
-    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Setup sdds3 Update Tests
     Set Suite Variable    ${GL_handle}    ${EMPTY}
@@ -53,12 +50,11 @@ Setup base Install
     ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
 
 Setup Thininstaller Test
-    Start Local Cloud Server    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_only_VUT.xml
+    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
     Setup Thininstaller Test Without Local Cloud Server
 
 Setup Thininstaller Test Without Local Cloud Server
     Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
     Get Thininstaller
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections

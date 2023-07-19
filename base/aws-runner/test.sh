@@ -118,7 +118,7 @@ ${PYTHONCMD} -m pip install -i https://pypi.org/simple -r requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
-EXCLUSIONS='-e MANUAL -e PUB_SUB -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
+EXCLUSIONS='-e MANUAL -e PUB_SUB -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e EXAMPLE_PLUGIN'
 ${PYTHONCMD}  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} "$@" tests || RESULT=$?
 
 [[ ${RERUNFAILED} == true ]] || exit 0

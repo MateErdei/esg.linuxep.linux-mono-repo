@@ -6,11 +6,7 @@
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="ServerProtectionLinux-Base" version="1.0.0.331" displayVersion="1.0.0.331"/>
-        <subscription rigidName="ServerProtectionLinux-Plugin-MDR" version="1.0.0.133" displayVersion="1.0.0.133"/></subscriptions>
     <products>
         <product rigidName="ServerProtectionLinux-Base" productName="Sophos Linux Base" downloadedVersion="1.0.0.331" installedVersion="1.0.0.331"/>
-        <product rigidName="ServerProtectionLinux-MDR-Control-Component" productName="SPL-Managed-Threat-Response-Plugin" downloadedVersion="1.0.0.133" installedVersion="1.0.0.133"/>
-        <product rigidName="ServerProtectionLinux-MDR-DBOS-Component" productName="Sophos Managed Threat Response for Linux" downloadedVersion="1.0.1.75.33" installedVersion="1.0.1.75.33"/>
-        <product rigidName="ServerProtectionLinux-MDR-osquery-Component" productName="Sophos Live Query" downloadedVersion="3.3.2.33" installedVersion="3.3.2.33"/>
     </products>
 </status>

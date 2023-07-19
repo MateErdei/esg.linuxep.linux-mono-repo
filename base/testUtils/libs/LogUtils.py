@@ -80,8 +80,6 @@ class LogUtils(object):
         self.ej_log = os.path.join(self.install_path, "plugins", "eventjournaler", "log", "eventjournaler.log")
         self.liveresponse_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "liveresponse.log")
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
-        self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
-        self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
 
         # SSPL-AV chroot log files
@@ -918,25 +916,6 @@ class LogUtils(object):
     def check_sessions_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.sessions_log, "sessions")
 
-    # MTR Log Utils
-    def remove_mtr_plugin_log(self):
-        if os.path.isfile(self.mdr_log):
-            os.remove(self.mdr_log)
-
-    def check_mdr_log_contains(self, string_to_contain):
-        self.check_log_contains(string_to_contain, self.mdr_log, "MDR")
-
-    def check_mtr_log_does_not_contain(self, string_to_not_contain):
-        self.check_log_does_not_contain(string_to_not_contain, self.mdr_log, "MTR Plugin Log")
-
-    def check_mdr_log_contains_in_order(self, *args):
-        log_contains_in_order(self.mdr_log, "MDR", args)
-
-    def osquery_watcher_log_should_contain(self, string_to_contain):
-        self.check_log_contains(string_to_contain, self.osquery_watcher_log, "osquery watcher log")
-
-    def osquery_watcher_log_should_not_contain(self, string_to_not_contain):
-        self.check_log_does_not_contain(string_to_not_contain, self.osquery_watcher_log, "osquery watcher log")
 
     def get_value_from_ini_file(self, key: str, file: str, section: str = "fake_section") -> str:
         config = configparser.ConfigParser()

@@ -18,30 +18,19 @@ Resource    ../av_plugin/AVResources.robot
 Resource    ../av_plugin/SafeStoreResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
 
 
 *** Variables ***
-${warehousedir}                                 ./tmp
 ${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
-${InstalledMDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
 ${InstalledAVPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
-${InstalledMDRSuiteVersionFile}                 ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
 ${InstalledEDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
 ${InstalledRTDPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
 ${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
-${WarehouseBaseVersionFileExtension}            ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
-${WarehouseMDRPluginVersionFileExtension}       ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
-${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
 ${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
-Upgrade Resources Test Setup
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-
 Upgrade Resources SDDS3 Test Teardown
     Stop Local SDDS3 Server
     Upgrade Resources Test Teardown
@@ -76,34 +65,14 @@ Cleanup Local Warehouse And Thininstaller
     Stop Proxy Servers
     Stop Update Server
     Cleanup Files
-    Empty Directory  ${warehousedir}
-
-Send ALC Policy And Prepare For Upgrade
-    [Arguments]  ${PolicyPath}
-    Prepare Installation For Upgrade Using Policy  ${PolicyPath}
-    Send Policy File  alc  ${PolicyPath}  wait_for_policy=${True}
-
-Prepare Installation For Upgrade Using Policy
-    [Arguments]  ${PolicyPath}
-    Install Upgrade Certs For Policy  ${PolicyPath}
 
 Install Local SSL Server Cert To System
     Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
-Wait For Initial Update To Fail
-    #Only to be used when expecting the first update to fail after using the thininstaller
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains  suldownloaderdata <> Update failed
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Remove File  ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
-    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-
-Check MDR and Base Components Inside The ALC Status
+Check AV and Base Components Inside The ALC Status
     ${statusContent} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-    Should Contain  ${statusContent}  ServerProtectionLinux-Plugin-MDR
+    Should Contain  ${statusContent}  ServerProtectionLinux-Plugin-AV
     Should Contain  ${statusContent}  ServerProtectionLinux-Base
 
 Check Status Has Changed
@@ -178,17 +147,11 @@ Stop Local SDDS3 Server
 
 Check EAP Release With AV Installed Correctly
     Check MCS Router Running
-    Check MDR Plugin Installed
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check MDR Log Contains  Run SophosMTR
     Check AV Plugin Installed
     Check Installed Correctly
 
 Check Current Release With AV Installed Correctly
     Check MCS Router Running
-    Check MDR Plugin Installed
     Check AV Plugin Installed
     Check SafeStore Installed Correctly
     Check Installed Correctly
@@ -238,32 +201,6 @@ Check Update Reports Have Been Processed
     Should Not Contain    ${filesInProcessedDir}[0]    update_report.json
     Should Contain    ${filesInUpdateVar}    ${filesInProcessedDir}[0]
 
-Check For MTR Recovery
-    Remove File  ${MDR_PLUGIN_PATH}/var/policy/mtr.xml
-    Check MDR Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  5 secs
-    ...  Check Marked Watchdog Log Contains   watchdog <> Starting mtr
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Marked Managementagent Log Contains   managementagent <> Policy ${SOPHOS_INSTALL}/base/mcs/policy/MDR_policy.xml applied to 1 plugins
-    Check File Exists  ${MDR_PLUGIN_PATH}/var/policy/mtr.xml
-
-Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
-    ${EvaluationBool} =  Does Management Agent Log Contain    managementagent <> Failure on sending message to mtr. Reason: No incoming data
-    Run Keyword If
-    ...  ${EvaluationBool} == ${True}
-    ...  Check For MTR Recovery
-
-Check Mtr Reconnects To Management Agent After Upgrade
-    Check MDR Log Contains In Order
-    ...  mtr <> Plugin Finished.
-    ...  mtr <> Entering the main loop
-    ...  Received new policy
-    ...  RevID of the new policy
 
 Check Expected Versions Against Installed Versions
     [Arguments]    &{expectedVersions}
@@ -296,12 +233,7 @@ Wait For Version Files to Update
     ...  200 secs
     ...  5 secs
     ...  Version Number In Ini File Should Be    ${InstalledLRPluginVersionFile}    ${expectedVersions["lrVersion"]}
-    
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledMDRPluginVersionFile}    ${expectedVersions["mtrVersion"]}
-    
+
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
@@ -313,7 +245,6 @@ Get Current Installed Versions
     ${EDRReleaseVersion} =      Get Version Number From Ini File        ${InstalledEDRPluginVersionFile}
     ${EJReleaseVersion} =       Get Version Number From Ini File        ${InstalledEJPluginVersionFile}
     ${LRReleaseVersion} =       Get Version Number From Ini File        ${InstalledLRPluginVersionFile}
-    ${MTRReleaseVersion} =      Get Version Number From Ini File        ${InstalledMDRPluginVersionFile}
     ${RTDReleaseVersion} =      Get RTD Version Number From Ini File    ${InstalledRTDPluginVersionFile}
 
     &{versions} =    Create Dictionary
@@ -322,7 +253,6 @@ Get Current Installed Versions
     ...    edrVersion=${EDRReleaseVersion}
     ...    ejVersion=${EJReleaseVersion}
     ...    lrVersion=${LRReleaseVersion}
-    ...    mtrVersion=${MTRReleaseVersion}
     ...    rtdVersion=${RTDReleaseVersion}
     [Return]    &{versions}
 
@@ -333,7 +263,6 @@ Get Expected Versions
     ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EDR
     ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EventJournaler
     ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-MDR
     ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
@@ -341,7 +270,6 @@ Get Expected Versions
     ...    edrVersion=${ExpectedEDRReleaseVersion}
     ...    ejVersion=${ExpectedEJReleaseVersion}
     ...    lrVersion=${ExpectedLRReleaseVersion}
-    ...    mtrVersion=${ExpectedMTRReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
 
@@ -349,9 +277,6 @@ Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-EDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    ${mtr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-MDR
-    Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-liveresponse
     Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}

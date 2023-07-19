@@ -27,19 +27,13 @@ Resource    ../GeneralUtilsResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
 Force Tags  LOAD9
 
 *** Variables ***
-${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
-${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_Release.xml
-${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
-${BaseEdrAndMtrAndAVVUTPolicy}              ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
-
-${LocalWarehouseDir}                        ./local_warehouses
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderSyncLog}                     ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
@@ -87,7 +81,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
-    Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     ${handle}=    Start Local Dogfood SDDS3 Server
@@ -122,11 +116,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
@@ -134,8 +123,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
-    Mark Watchdog Log
-    Mark Managementagent Log
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     Trigger Update Now
@@ -155,11 +142,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Watchdog Service File Has Correct Kill Mode
 
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time MTR plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
 
     # TODO LINUXDAR-2972 - expected till task is in released version
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -216,7 +198,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     ${handle}=    Start Local SDDS3 Server
@@ -262,14 +244,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local Dogfood SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
-    Mark Watchdog Log
-    Mark Managementagent Log
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Trigger Update Now
@@ -285,14 +260,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
     Check SulDownloader Log Contains   Running SDDS3 update
 
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
 
     # TODO LINUXDAR-2972 - expected till task is in released version
@@ -330,7 +298,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Trigger Update Now
 
@@ -370,7 +337,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
-    Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
+    Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     ${handle}=    Start Local Current Shipping SDDS3 Server
@@ -400,11 +367,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
+
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
@@ -423,15 +386,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     # Confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
-    Check Mtr Reconnects To Management Agent After Upgrade
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+
 
     # TODO LINUXDAR-2972 - expected till task is in released version
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -445,7 +402,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     #TODO LINUXDAR-7114 remove once SPL 2023.2 is released
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler died with exit code 127
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/responseactions/bin/responseactions died with exit code 127
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with exit code 127
 
 
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
@@ -493,7 +449,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     ${handle}=    Start Local SDDS3 Server
@@ -536,14 +492,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
 
-    Mark Watchdog Log
-    Mark Managementagent Log
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Trigger Update Now
@@ -566,14 +515,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   10 secs
     ...   Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
 
     # TODO LINUXDAR-2972 - expected till bugfix is in released version
@@ -597,7 +540,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Trigger Update Now
 
@@ -627,7 +569,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}   --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
+    Start Local Cloud Server    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -673,9 +615,8 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
 
     Check SulDownloader Log Contains String N Times   Generating the report file  2
 
-
 SDDS3 updating respects ALC feature codes
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -697,7 +638,7 @@ SDDS3 updating respects ALC feature codes
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/av
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
+
     check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/    ${sul_mark}
 
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
@@ -716,8 +657,6 @@ SDDS3 updating respects ALC feature codes
 
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr
-
 
 SDDS3 updating with changed unused feature codes do not change version
     Start Local Cloud Server
@@ -732,7 +671,6 @@ SDDS3 updating with changed unused feature codes do not change version
     ...   Check SulDownloader Log Contains   Update success
 
     ${BaseVersionBeforeUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${LrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     ${AVVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
@@ -746,7 +684,6 @@ SDDS3 updating with changed unused feature codes do not change version
 
     #TODO once defect LINUXDAR-4592 is done check here that no plugins are reinstalled as well
     ${BaseVersionAfterUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${LrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     ${AVVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
@@ -754,7 +691,6 @@ SDDS3 updating with changed unused feature codes do not change version
     ${EJVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
 
     Should Be Equal As Strings  ${RuntimeDetectionsVersionBeforeUpdate}  ${RuntimeDetectionsVersionAfterUpdate}
-    Should Be Equal As Strings  ${MtrVersionBeforeUpdate}  ${MtrVersionAfterUpdate}
     Should Be Equal As Strings  ${EdrVersionBeforeUpdate}  ${EdrVersionAfterUpdate}
     Should Be Equal As Strings  ${LrVersionBeforeUpdate}  ${LrVersionAfterUpdate}
     Should Be Equal As Strings  ${AVVersionBeforeUpdate}  ${AVVersionAfterUpdate}
@@ -762,28 +698,10 @@ SDDS3 updating with changed unused feature codes do not change version
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
 
-SDDS3 updating when warehouse files have not changed does not extract the zip files
-    Start Local Cloud Server
-    ${handle}=  Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
-
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  2
-
-    check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
 
 Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -801,7 +719,6 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Installing product    ${sul_mark}
 
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
@@ -810,10 +727,11 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
 
     All Products In Update Report Are Up To Date  ${latest_report_result.stdout.strip()}
+    check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 

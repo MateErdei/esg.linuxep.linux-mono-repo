@@ -12,7 +12,6 @@ Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
-Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../edr_plugin/EDRResources.robot
 
 Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
@@ -75,7 +74,6 @@ Endpoint Updates Via Update Cache Without Errors
 
 
 *** Keywords ***
-
 ALC contains Update Cache
     ${alc} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
     Should Contain  ${alc}  hostname="
@@ -89,3 +87,10 @@ Check Installed Correctly
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+
+Register With Real Update Cache and Message Relay Account
+    [Arguments]   ${messageRelayOptions}=
+    Mark All Logs  Registering with Real Update Cache and Message Relay account
+    # Remove the file so that we can use the "SulDownloader Reports Finished" function.
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Register With Central  ${regCommand} ${messageRelayOptions}

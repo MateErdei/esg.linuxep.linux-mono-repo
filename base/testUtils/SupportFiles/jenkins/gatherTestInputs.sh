@@ -31,8 +31,6 @@ TEST_PACKAGE_XML=system-product-test-release-package.xml
 MODE=system-test
 if [[ -n ${BASE_COVERAGE:-} ]]; then
   MODE=base-coverage
-elif [[ -n ${MDR_COVERAGE:-} ]]; then
-  MODE=mdr-coverage
 elif [[ -n ${LIVERESPONSE_COVERAGE:-} ]]; then
   MODE=lr-coverage
 elif [[ -n ${EDR_COVERAGE:-} ]]; then

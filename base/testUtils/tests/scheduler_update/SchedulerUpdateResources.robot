@@ -223,7 +223,6 @@ Simulate Send Policy And Run Update And Return Event Path
 Simulate Send Policy And Run Update
     [Arguments]  ${Policy}  &{kwargs}
     Remove File   ${statusPath}
-    Prepare Installation For Upgrade Using Policy  ${Policy}
     Send Policy To UpdateScheduler  ${Policy}  &{kwargs}
     Simulate Update Now
     Wait Until Keyword Succeeds
@@ -234,7 +233,6 @@ Simulate Send Policy And Run Update
 Simulate Send Policy And Simulate Update Now
     [Arguments]  ${Policy}  &{kwargs}
     Remove File   ${statusPath}
-    Prepare Installation For Upgrade Using Policy  ${Policy}
     Send Policy To UpdateScheduler  ${Policy}  &{kwargs}
     Simulate Update Now
 
@@ -249,12 +247,6 @@ Send Policy With Host Redirection And Run Update And Check Success
     Check Update Success  ${eventPath}
     [Return]  ${eventPath}
 
-Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event
-    [Arguments]    &{kwargs}
-    Send Policy With Host Redirection And Run Update And Return Event Path  ALC_policy_local_warehouse_mdr.xml  &{kwargs}
-    ${eventPath} =  Get Oldest File In Directory  /opt/sophos-spl/base/mcs/event/
-    Check Update Success  ${eventPath}
-    [Return]  ${eventPath}
 
 Get Oldest File In Directory
     [Arguments]    ${directory}
@@ -274,13 +266,8 @@ Simulate Send Policy And Run Update And Check Success
     Check Update Success  ${eventPath}
     [Return]  ${eventPath}
 
-Check ALC Status Sent To Central Contains MDR Subscription
-    Check Status Report Contain  rigidName\=\"ServerProtectionLinux-Plugin-MDR\"
 
 Log Settings Files
-    Run Keyword And Ignore Error   Log File  ${tmpdir}/temp_warehouse/ServerProtectionLinux-Base/sdds/SDDS-Import.xml
-    Run Keyword And Ignore Error   Log File  ${tmpdir}/temp_warehouse/ServerProtectionLinux-Plugin-EventProcessor/sdds/SDDS-Import.xml
-    Run Keyword And Ignore Error   Log File  ${tmpdir}/temp_warehouse/ServerProtectionLinux-Plugin-AuditPlugin/sdds/SDDS-Import.xml
     Run Keyword And Ignore Error   Log File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
     Run Keyword And Ignore Error   Log File  ${statusPath}
 
@@ -305,19 +292,6 @@ Teardown Servers For Update Scheduler
     Remove Directory   ${tmpdir}  recursive=True
 
 
-Check MDR Installed
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/bin
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/bin/mtr
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/SophosMTR
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/certificate.crt
-    Check MDR Plugin Installed
-
-Check Sensors Not Installed
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/AuditPlugin/bin
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/EventProcessor/bin
-
 Teardown For Test
     Run Keyword If Test Failed   Log Settings Files
     Teardown Servers For Update Scheduler
@@ -340,15 +314,6 @@ Management Agent Contains
     [Arguments]  ${Contents}
     ${ManagementAgentLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log
     Should Contain  ${ManagementAgentLog}  ${Contents}
-
-Configure Hosts File
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
-
 
 
 Check report was a product update

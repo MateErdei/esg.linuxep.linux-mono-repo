@@ -11,7 +11,6 @@ Resource  ../watchdog/WatchdogResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 Resource  EDRResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
-Resource  ../mdr_plugin/MDRResources.robot
 
 Test Setup  EDR Telemetry Test Setup With Debug Logging
 Test Teardown  EDR Telemetry Test Teardown

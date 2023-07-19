@@ -2,15 +2,13 @@
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    Run Keywords
 ...                Remove Environment Variable  http_proxy    AND
 ...                Remove Environment Variable  https_proxy  AND
 ...                Stop Proxy If Running    AND
 ...                Stop Proxy Servers   AND
 ...                Clean up fake warehouse  AND
-...                Remove Environment Variable  COMMAND  AND
-...                Remove Environment Variable  EXITCODE  AND
 ...                Upgrade Resources SDDS3 Test Teardown
 
 Library    DateTime
@@ -265,7 +263,7 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
 
 
 New Fixed Version Token Does Trigger Immediate Update
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER 
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -336,8 +334,6 @@ Install all plugins static-999 then downgrade to all plugins static
     ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
@@ -388,7 +384,6 @@ Install all plugins static-999 then downgrade to all plugins static
     Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-MDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
 
     Wait Until Keyword Succeeds
@@ -463,8 +458,6 @@ Install all plugins static then upgrade to all plugins static-999
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
@@ -496,7 +489,6 @@ Setup SUS static
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  ${tmpLaunchDarkly}
 
 
 Setup SUS static 999
@@ -507,4 +499,3 @@ Setup SUS static 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  ${tmpLaunchDarkly}

@@ -11,34 +11,13 @@ Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../GeneralTeardownResource.robot
+Resource  ../GeneralUtilsResources.robot
 Resource    EDRResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
 
 Default Tags   EDR_PLUGIN  FAKE_CLOUD
 Force Tags  LOAD1
 
 *** Test Cases ***
-Flags Are Only Sent To EDR and Not MTR
-    Install MDR Directly
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  Check MCS Router Running
-    Wait Until EDR OSQuery Running  30
-
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check Managementagent Log Contains  flags.json applied to 1 plugins
-
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check EDR Log Contains  Applying new policy with APPID: FLAGS
-
-    Check MTR Log Does Not Contain  Applying new policy with APPID: FLAGS
-
-
 EDR runs sophos extension when XDR is enabled
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
@@ -106,15 +85,6 @@ EDR disables curl tables when network available flag becomes false
     Should Contain  ${contents}   network_tables=0
 
 *** Keywords ***
-File Should Contain
-    [Arguments]  ${file_path}  ${expected_contents}
-    ${contents}=  Get File   ${file_path}
-    Should Contain  ${contents}   ${expected_contents}
-
-File Should Not Contain
-    [Arguments]  ${file_path}  ${expected_contents}
-    ${contents}=  Get File   ${file_path}
-    Should Not Contain  ${contents}   ${expected_contents}
 
 EDR Test Setup
     Start Local Cloud Server   --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml

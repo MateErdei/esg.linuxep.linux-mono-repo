@@ -129,9 +129,6 @@ Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/mtr -not -type d | grep -v lenses | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
@@ -245,25 +242,6 @@ Verify Sophos Users And Sophos Groups Are Created
     Verify Group Created  sophos-spl-group
     Verify User Created   sophos-spl-local
     Verify User Created   sophos-spl-updatescheduler
-
-Combine MTR Develop Component Suite
-    ${source} =   Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite
-    ${dest} =     Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-sdds
-    Combine MTR Component Suite  ${source}  ${dest}
-
-Combine MTR 0-6-0 Component Suite
-    ${source} =   Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-0-6-0
-    ${dest} =     Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-0-6-0-sdds
-    Combine MTR Component Suite  ${source}  ${dest}
-
-Combine MTR Component Suite
-     [Arguments]  ${source}  ${dest}
-
-     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-DBOS-COMPONENT   ${dest}  1
-     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT  ${dest}
-     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT-SUITE  ${dest}
-
-
 
 Should Not Have A Given Message In Journalctl Since Certain Time
     [Arguments]  ${message}  ${time}

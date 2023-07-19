@@ -2,7 +2,7 @@
 Suite Setup      EDR Suite Setup
 Suite Teardown   EDR Suite Teardown
 
-Test Setup       EDR Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    EDR Test Teardown
 
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
@@ -12,7 +12,6 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../av_plugin/AVResources.robot
 Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../GeneralTeardownResource.robot
@@ -29,14 +28,6 @@ Force Tags  LOAD4
 
 
 *** Variables ***
-${querypackPolicy}              ${GeneratedWarehousePolicies}/old_query_pack.xml
-${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
-${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
-${BaseEdrAndMtrAndAVVUTPolicy}      ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
-${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
-${Base999Policy}              ${GeneratedWarehousePolicies}/mtr_edr_vut_and_base_999.xml
-${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
-${BaseAndMTREdrAV999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_av_999.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
@@ -49,7 +40,7 @@ Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     Setup SUS all 999
-    Install EDR SDDS3  ${BaseAndMTREdr999Policy}
+    Install EDR SDDS3  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Wait Until EDR OSQuery Running  30
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
@@ -57,8 +48,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Wait for first update
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
@@ -72,7 +61,7 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Override LogConf File as Global Level  DEBUG
     Setup SUS all develop
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    Trigger Update Now
     Wait Until Keyword Succeeds
     ...   90 secs
     ...   5 secs
@@ -94,7 +83,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-MDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -124,46 +112,17 @@ Install all plugins 999 then downgrade to all plugins develop
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Update Run that Does Not Change The Product Does not ReInstall The Product
-    Setup SUS all develop
-    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
-
-    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-    Wait for first update
-    Prepare Installation For Upgrade Using Policy   ${BaseAndEdrAndMtrVUTPolicy}
-
-    Override LogConf File as Global Level  DEBUG
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
-
-    Run Keyword And Expect Error   *1 times not the requested 2 times*   Upgrade Installs EDR Twice
-
-    Check MDR Plugin Installed
-    Check Event Journaler Installed
-
-    Wait For Suldownloader To Finish
-    Mark Known Upgrade Errors
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
 
 Upgrade VUT to 999
     [Timeout]  10 minutes
     Setup SUS all develop
-    Install EDR SDDS3  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Install EDR SDDS3  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
 
-    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
-    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Base-component version: 99.9.9
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
@@ -172,14 +131,15 @@ Upgrade VUT to 999
 
     check_watchdog_log_does_not_contain    wdctl <> stop edr
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-    # "Update success" in suldownloader log checked inside "Install EDR SDDS3" keyword
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains   Update success
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
-    ${edr_mark} =  mark_log_size  ${EDR_LOG_PATH}
 
     Setup SUS all 999
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
+    Trigger Update Now
+
 
     wait_for_log_contains_from_mark  ${sul_mark}  Successfully stopped product    120
 
@@ -191,7 +151,6 @@ Upgrade VUT to 999
     # to appear.
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99             120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9                        120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9                        120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9                         120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9             120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999     120
@@ -225,13 +184,14 @@ Upgrade VUT to 999
     ...  5 secs
     ...  RuntimeDetections Plugin Is Running
 
-    Check MDR Plugin Installed
-
     # wait for current update to complete.
-    wait_for_log_contains_from_mark  ${sul_mark}    Update success    ${200}
+    wait_for_log_contains_from_mark  ${sul_mark}    Update success    200
 
     # Check for warning that there is a naming collision in the map of query tags
-    wait_for_log_contains_from_mark   ${edr_mark}  Adding XDR results to intermediary file  timeout=${300}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check EDR Log Contains  Adding XDR results to intermediary file
     Check Edr Log Does Not Contain  already in query map
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
@@ -240,8 +200,6 @@ Upgrade VUT to 999
     Should contain   ${ra_version_contents}   PRODUCT_VERSION = 99.9.9
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
     ${av_version_contents} =  Get File   ${AV_DIR}/VERSION.ini
     Should contain   ${av_version_contents}   PRODUCT_VERSION = 9.99.9
     ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
@@ -257,10 +215,6 @@ Upgrade VUT to 999
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
 
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop mtr
-    ...  wdctl <> start mtr
 
     Check Log Contains In Order
     ...  ${WDCTL_LOG_PATH}
@@ -302,69 +256,9 @@ Upgrade VUT to 999
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Install develop of base and edr and mtr and upgrade to base 999
+Install Base And Edr Vut Then Transition To Base Edr And AV Vut
     Setup SUS all develop
-    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
-
-    check_suldownloader_log_should_not_contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9
-
-    Setup SUS only base 999
-    Send ALC Policy And Prepare For Upgrade  ${Base999Policy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-
-    Wait Until Keyword Succeeds
-    ...   90 secs
-    ...   1 secs
-    ...   File Should exist   ${UPGRADING_MARKER_FILE}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   File Should not exist   ${UPGRADING_MARKER_FILE}
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check SulDownloader Log Contains   Update success
-    # check plugins are running.
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  EDR Plugin Is Running
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check Live Response Plugin Running
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check Event Journaler Executable Running
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  RuntimeDetections Plugin Is Running
-
-    Check MDR Plugin Installed
-
-    ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
-    Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
-
-    Wait For Suldownloader To Finish
-    Mark Known Upgrade Errors
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-
-Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
-    Setup SUS all develop
-    Install EDR SDDS3  ${BaseAndEdrVUTPolicy}
+    Install EDR SDDS3  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_no_av.xml
 
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
     Wait Until Keyword Succeeds
@@ -377,32 +271,27 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     # ensure EDR plugin is installed and running
     Wait For EDR to be Installed
 
-    # ensure MTR is not installed.
-    Wait Until MDR Uninstalled
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
-    # Install MTR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+    # Install AV
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
 
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV
 
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
-    Wait Until MDR Installed
 
-    # ensure Plugins are running after update
-    Check MDR Plugin Running
 
     Wait Until Keyword Succeeds
     ...  30
     ...  5
-    ...  Check MDR and Base Components Inside The ALC Status
+    ...  Check AV and Base Components Inside The ALC Status
 
     EDR Plugin Is Running
     Wait Until Keyword Succeeds
@@ -420,24 +309,32 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
+
+Install Base Edr And AV Vut Then Transition To Base Edr Vut
     Setup SUS all develop
-    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
+    Install EDR SDDS3  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
 
     # ensure initial plugins are installed and running
-    Wait Until MDR Installed
+    Check AV Plugin Installed Directly
     Wait For EDR to be Installed
 
     # Transition to EDR Only
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_no_av.xml
 
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
+    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-AV since it was removed from warehouse
 
-    Wait Until MDR Uninstalled
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  Check AV Plugin Executable Not Running
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...   File Should not Exist    ${AVPLUGIN_PATH}/bin/avscanner
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
 
     # ensure EDR still running after update

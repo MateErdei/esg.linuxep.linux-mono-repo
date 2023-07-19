@@ -553,32 +553,6 @@ class ALCEndpointManager(object):
         GL_POLICIES.addPolicy(newId, body)
 
 
-# MDR Policy
-class MDREndpointManager(object):
-    def __init__(self):
-        self.__m_policyID = "INITIAL_MDR_POLICY_ID"
-        self.__m_policy = INITIAL_MDR_POLICY
-        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
-
-    def policyPending(self):
-        return self.__m_policyID is not None
-
-    def policyID(self):
-        return self.__m_policyID
-
-    def commandDeleted(self):
-        self.__m_policyID = None
-
-    def updatePolicy(self, body):
-        self.__m_policyID = f"MCS{time.time()}"
-        self.__m_policy = body
-        logger.info(f"Updating MCS policy: {self.__m_policyID}")
-        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
-
-    def getPolicy(self):
-        return self.__m_policy
-
-
 # LiveQuery POLICY
 class LiveQueryEndpointManager(object):
     def __init__(self):
@@ -710,7 +684,6 @@ class Endpoint(object):
         self.__mcs = MCSEndpointManager()
         self.__core = CoreEndpointManager()
         self.__alc = ALCEndpointManager()
-        self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
         self.__corc = CorcEndpointManager()
         self.__flags = FlagsEndpointManager()
@@ -771,7 +744,7 @@ class Endpoint(object):
                 if item.attributes["name"].value == "health":
                     self.__m_health = item.attributes["value"].value
                     logger.info(f"Endpoint health status set to {self.__m_health}")
-        elif app in ["ALC", "SAV", "NTP", "APPSPROXY", "MCS", "MDR"]:
+        elif app in ["ALC", "SAV", "NTP", "APPSPROXY", "MCS"]:
             logger.info(f"{app} status = {status}")
         else:
             logger.error(f"Attempting to update status for unknown app: {app}")
@@ -1032,8 +1005,6 @@ class Endpoint(object):
                 commands.append(self.policyCommand(app="ALC", policyID=policy_id, policyType=1))
         if "ALC" in apps and self.__alc.updateNowPending():
             commands.append(self.updateNowCommand())
-        if "MDR" in apps and self.__mdr.policyPending():
-            commands.append(self.policyCommand(app="MDR", policyID=self.__mdr.policyID(), policyType=54))
         if "LiveQuery" in apps and self.__livequery.policyPending():
             commands.append(self.policyCommand(app="LiveQuery", policyID=self.__livequery.policyID(), policyType=56))
         if "CORE" in apps and self.__core.policyPending():
@@ -1066,8 +1037,6 @@ class Endpoint(object):
                 self.__mcs.commandDeleted()
             elif c == "ALC":
                 self.__alc.commandDeleted()
-            elif c == "MDR":
-                self.__mdr.commandDeleted()
             elif c == "LiveQuery":
                 self.__livequery.commandDeleted()
             elif c == "CORE":
@@ -1085,9 +1054,6 @@ class Endpoint(object):
         if extracted_device_id:
             self.__m_device_id = extracted_device_id
         self.__mcs.updatePolicy(body)
-
-    def updateMdrPolicy(self, body):
-        self.__mdr.updatePolicy(body)
 
     def updateLiveQueryPolicy(self, body):
         self.__livequery.updatePolicy(body)
@@ -1108,8 +1074,6 @@ class Endpoint(object):
             self.updateMcsPolicy(body)
         elif adapter == "ALC":
             self.__alc.updatePolicy(body)
-        elif adapter == "MDR":
-            self.__mdr.updatePolicy(body)
         elif adapter == "LiveQuery":
             self.__livequery.updatePolicy(body)
         elif adapter == "CORE":
@@ -2285,7 +2249,6 @@ def setDefaultPolicies(options):
     global INITIAL_ALC_POLICY
     global INITIAL_MCS_POLICY
     global INITIAL_SAV_POLICY
-    global INITIAL_MDR_POLICY
     global INITIAL_LIVEQUERY_POLICY
     global INITIAL_CORE_POLICY
     global INITIAL_CORC_POLICY
@@ -2299,9 +2262,6 @@ def setDefaultPolicies(options):
 
     with open(options.INITIAL_SAV_POLICY) as policy_file:
         INITIAL_SAV_POLICY = policy_file.read()
-
-    with open(options.INITIAL_MDR_POLICY) as policy_file:
-        INITIAL_MDR_POLICY = policy_file.read()
 
     with open(options.INITIAL_LIVEQUERY_POLICY) as policy_file:
         INITIAL_LIVEQUERY_POLICY = policy_file.read()

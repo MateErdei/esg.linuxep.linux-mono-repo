@@ -17,14 +17,12 @@
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>
-            <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA" FixedVersion="1.0.2"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
     </AUConfig>
     <Features>
         <Feature id="CORE"/>
         <Feature id="LIVETERMINAL"/>
-        <Feature id="MDR"/>
         <Feature id="SDU"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>

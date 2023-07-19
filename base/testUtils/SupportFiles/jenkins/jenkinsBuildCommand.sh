@@ -98,13 +98,6 @@ if [[ -n "${BASE_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-base-combined
   export BULLSEYE_UPLOAD=1
   export UPLOAD_PATH=UnifiedPipelines/linuxep/everest-base
-elif [[ -n "${MDR_COVERAGE:-}" ]]; then
-  mv $COVERAGE_STAGING/sspl-mtr-unittest.cov $COVERAGE_STAGING/sspl-mtr-combined.cov
-  export COVFILE=$COVERAGE_STAGING/sspl-mtr-combined.cov
-  export htmldir=$COVERAGE_STAGING/sspl-mtr-combined
-  export COV_HTML_BASE=sspl-mtr-combined
-  export BULLSEYE_UPLOAD=1
-  export UPLOAD_PATH=UnifiedPipelines/linuxep/sspl-plugin-mdr-component
 elif [[ -n "${EDR_COVERAGE:-}" ]]; then
   # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
   export FILESTODOWNLOAD=sspl-plugin-edr-taptest/sspl-plugin-edr-tap.cov
@@ -191,7 +184,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" || -n "${PLUGIN_TEMPLATE_COVERAGE:-}" || -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" || -n "${PLUGIN_TEMPLATE_COVERAGE:-}" || -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
   export COVERAGE_SCRIPT="$SYSTEMPRODUCT_TEST_INPUT/bazel-tools/tools/src/bullseye/test_coverage.py"
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi

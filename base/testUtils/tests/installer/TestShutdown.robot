@@ -6,12 +6,11 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Resource  ../event_journaler/EventJournalerResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
 Resource  ../edr_plugin/EDRResources.robot
-Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN
+Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
@@ -19,7 +18,7 @@ Test Components Shutdown Cleanly
     Override LogConf File as Global Level  DEBUG
     Wait For Base Processes To Be Running
 
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mtr]\nVERBOSITY=DEBUG\n[watchdog]\nVERBOSITY=DEBUG\n
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [watchdog]\nVERBOSITY=DEBUG\n
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running
 
@@ -32,11 +31,7 @@ Test Components Shutdown Cleanly
     ...  1 secs
     ...  Check Event Journaler Installed
     Install Response Actions Directly
-    Block Connection Between EndPoint And FleetManager
-    Install MDR Directly
-    Check MDR Component Suite Installed Correctly
-    Insert MTR Policy
-    Wait for MDR Executable To Be Running
+
 
     #WARNING installing edr should be the last plugin installed to avoid watchdog going down due to the defect LINUXDAR-3732
     Mark Edr Log
@@ -51,10 +46,6 @@ Test Components Shutdown Cleanly
     ...  1 secs
     ...  Check EDR Log Contains  Plugin Finished
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Check Mdr Log Contains   Plugin Finished
 
     Wait Until Keyword Succeeds
     ...  30 secs

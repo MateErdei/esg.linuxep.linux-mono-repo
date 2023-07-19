@@ -2,7 +2,7 @@
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    Run Keywords
 ...                Remove Environment Variable  http_proxy    AND
 ...                Remove Environment Variable  https_proxy  AND
@@ -51,10 +51,6 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     ...   2 secs
     ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 2022.1.0.40 requested
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
-    Wait Until Keyword Succeeds
-    ...   2 secs
-    ...   1 secs
-    ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Plugin-MDR fixedVersion: 1.0.2 requested
 
 Update Now action triggers a product update even when updates are scheduled
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml

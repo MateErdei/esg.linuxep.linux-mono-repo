@@ -91,15 +91,6 @@ Check Diagnose Output For Additional EDR Plugin File
     Should Contain  ${ScheduledQueryConfFiles}    sophos-scheduled-query-pack.conf
     Should Contain  ${ScheduledQueryConfFiles}    sophos-scheduled-query-pack.mtr.conf
 
-Check Diagnose Output For Additional MDR Plugin File
-    [Documentation]  Requires 'Mimic MDR Files' to be executed first
-    ${DBOSLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr/dbos/data/logs
-    ${MTRVersionFile} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr
-    ${MTRDBOSVersionFile} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr/dbos/data/
-    Should Contain  ${DBOSLogFiles}    some.log.file
-    Should Contain  ${MTRDBOSVersionFile}    osquery.flags
-    Should Contain  ${MTRVersionFile}    VERSION.ini
-    Should Contain  ${MTRDBOSVersionFile}    VERSION.ini
 
 Check Diagnose Output For Additional LR Plugin Files
     ${LRLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/liveresponse
@@ -172,11 +163,6 @@ Check Diagnose Output For System Files
 
     List Should Contain Sub List  ${Files}    ${ExpectedFilesOnOs}
 
-Mimic MDR Component Files
-    [Documentation]  Creates files to simulate Full MTR plugin being installed
-    [Arguments]     ${installLocation}
-    Create File  ${installLocation}/plugins/mtr/dbos/data/logs/some.log.file
-    Create File  ${installLocation}/plugins/mtr/dbos/data/osquery.flags
 
 Mimic LR Component Files
     [Documentation]  Creates files to simulate LR plugin being installed and run

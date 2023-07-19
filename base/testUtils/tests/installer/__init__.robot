@@ -5,7 +5,7 @@ Library    OperatingSystem
 
 Suite Setup  Installer Suite Setup
 
-Force Tags  LOAD2
+Force Tags  LOAD4
 
 *** Variables ***
 ${TMP_DIR}      ${CURDIR}/../../temp

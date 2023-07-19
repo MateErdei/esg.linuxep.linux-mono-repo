@@ -12,7 +12,6 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Resource  SchedulerUpdateResources.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 

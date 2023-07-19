@@ -30,7 +30,7 @@ def add_mcs_fuzz_tests_args(parser):
 
 def add_mcsrouter_fuzz_tests_args(parser):
     parser.add_argument("--suite", default='mcs', type=str, \
-                        help="Specify policy to fuzz", choices=['alc', 'mcs', 'mdr'])
+                        help="Specify policy to fuzz", choices=['alc', 'mcs'])
     parser.add_argument("--using-python",
                         help="specify is test is ran using python './mcs_fuzz_test_runner.py' or via robot or not",
                         action="store_true", default=False)
@@ -90,7 +90,6 @@ def add_cloudserver_args(parser):
     parser.add_argument("--initial-alc-policy", help="define the initial alc policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml"), dest="INITIAL_ALC_POLICY")
     parser.add_argument("--initial-mcs-policy", help="define the initial mcs policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml"), dest="INITIAL_MCS_POLICY")
     parser.add_argument("--initial-sav-policy", help="define the initial sav policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_SAV_policy.xml"), dest="INITIAL_SAV_POLICY")
-    parser.add_argument("--initial-mdr-policy", help="define the initial mdr policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MDR_policy.xml"), dest="INITIAL_MDR_POLICY")
     parser.add_argument("--initial-core-policy", help="define the initial core policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORE_policy.xml"), dest="INITIAL_CORE_POLICY")
     parser.add_argument("--initial-corc-policy", help="define the initial corc policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORC_policy.xml"), dest="INITIAL_CORC_POLICY")
     parser.add_argument("--initial-livequery-policy", help="define the initial livequery policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_LiveQuery_policy.xml"), dest="INITIAL_LIVEQUERY_POLICY")

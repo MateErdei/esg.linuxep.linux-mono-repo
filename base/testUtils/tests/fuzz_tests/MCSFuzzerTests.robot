@@ -11,7 +11,6 @@ Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 
 Resource   ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../mdr_plugin/MDRResources.robot
 
 Suite Setup     Run Keywords
 ...             Regenerate Certificates
@@ -37,12 +36,6 @@ ${MCS_FUZZER_PATH}   ${SUPPORT_FILES}/fuzz_tests/mcs_fuzz_test_runner.py
 
 Test MCS Policy Fuzzer
     Run MCS Router Fuzzer   mcs  8
-
-Test MDR Policy Fuzzer
-    Start Watchdog
-    Install MDR Directly
-    Stop System Watchdog
-    Run MCS Router Fuzzer   mdr  2
 
 Test ALC Policy Fuzzer
     Run MCS Router Fuzzer  alc  9

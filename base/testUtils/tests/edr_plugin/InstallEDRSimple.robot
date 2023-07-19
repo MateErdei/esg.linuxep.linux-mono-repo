@@ -1,6 +1,6 @@
 *** Settings ***
 
-Test Setup       EDR Test Setup
+Test Setup       Require Uninstalled
 Test Teardown    EDR Test Teardown
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
@@ -8,7 +8,6 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    EDRResources.robot

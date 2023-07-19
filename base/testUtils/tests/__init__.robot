@@ -48,7 +48,6 @@ Global Setup Tasks
     Set Global Variable  ${SULDOWNLOADER_LOG_PATH}      ${BASE_LOGS_DIR}/suldownloader.log
     Set Global Variable  ${PLUGIN_REGISTRY_DIR}         ${SOPHOS_INSTALL}/base/pluginRegistry
     Set Global Variable  ${UPDATE_DIR}                  ${SOPHOS_INSTALL}/base/update
-    Set Global Variable  ${MTR_DIR}                     ${SOPHOS_INSTALL}/plugins/mtr
     Set Global Variable  ${EDR_DIR}                     ${SOPHOS_INSTALL}/plugins/edr
     Set Global Variable  ${RUNTIMEDETECTIONS_DIR}       ${SOPHOS_INSTALL}/plugins/runtimedetections
     Set Global Variable  ${AV_DIR}                      ${SOPHOS_INSTALL}/plugins/av
@@ -82,14 +81,12 @@ Global Setup Tasks
     ${placeholder}=  PathManager.get_libs_path
     Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
 
-    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-event-journaler-manual-tools
-    Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
-    ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-edr-plugin-manual-tools
-    Set Global Variable  ${EDR_PLUGIN_MANUAL_TOOLS}  ${placeholder}
-
     ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}
     ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"
+
+    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-event-journaler-manual-tools
+    Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
 
     Set Global Variable   ${OPENSSL_BIN_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
     Set Global Variable   ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
@@ -97,8 +94,6 @@ Global Setup Tasks
     Log To Console  \n${colored_message} \n
 
 
-    Generate Real Warehouse Alc Files
-    Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
     Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3
     Set Global Variable    ${DOGFOOD_WAREHOUSE_ROOT}             ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood

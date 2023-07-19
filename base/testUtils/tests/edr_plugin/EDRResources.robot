@@ -128,34 +128,6 @@ Report On MCS_CA
     Log  ${result.stdout}
     Log File  ${mcs_ca}
 
-Check AuditD Executable Running
-    ${result} =    Run Process  pgrep  ^auditd
-    Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-Check AuditD Executable Not Running
-    ${result} =    Run Process  pgrep  ^auditd
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-Check AuditD Service Disabled
-    ${result} =    Run Process  systemctl  is-enabled  auditd
-    log  ${result.stdout}
-    log  ${result.stderr}
-    log  ${result.rc}
-    Should Not Be Equal As Integers    ${result.rc}    0
-
-Check EDR Log Shows AuditD Has Been Disabled
-    ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
-    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to disable AuditD
-    Should Contain  ${EDR_LOG_CONTENT}   Successfully stopped service: auditd
-    Should Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
-    Should Not Contain  ${EDR_LOG_CONTENT}   Failed to mask journald audit socket
-
-Check EDR Log Shows AuditD Has Not Been Disabled
-    ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
-    Should Not Contain  ${EDR_LOG_CONTENT}   Successfully disabled service: auditd
-    Should Contain  ${EDR_LOG_CONTENT}   EDR configuration set to not disable AuditD
-    Should Contain  ${EDR_LOG_CONTENT}   AuditD is running, it will not be possible to obtain event data.
-
 Check EDR Log Contains
     [Arguments]  ${string_to_contain}
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
@@ -170,6 +142,7 @@ Check Scheduled Query Log Contains
     [Arguments]  ${string_to_contain}
     ${SCHEDULED_QUERY_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/scheduledquery.log
     Should Contain  ${SCHEDULED_QUERY_LOG_CONTENT}   ${string_to_contain}
+
 
 EDR Suite Setup
     Upgrade Resources Suite Setup
@@ -194,7 +167,6 @@ Setup SUS all develop
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 
 Setup SUS all 999
@@ -203,7 +175,6 @@ Setup SUS all 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 Setup SUS only edr 999
     Remove Directory   /tmp/launchdarkly   recursive=True
@@ -211,7 +182,6 @@ Setup SUS only edr 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 Setup SUS only base 999
     Remove Directory   /tmp/launchdarkly   recursive=True
@@ -219,7 +189,6 @@ Setup SUS only base 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 Setup SUS all non-base plugins 999
     Remove Directory   /tmp/launchdarkly   recursive=True
@@ -227,7 +196,6 @@ Setup SUS all non-base plugins 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 EDR Test Setup
     Upgrade Resources Test Setup
@@ -278,6 +246,31 @@ Install EDR Directly
     Log  ${result.stderr}
     Wait For EDR to be Installed
 
+Check Osquery Executable Not Running
+    ${result} =    Run Process  pgrep  -a  osquery
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Kill OSQuery
+    ${result} =  Run Process  pgrep osquery | xargs kill -9  shell=true
+    Should Be Equal As Strings  ${result.rc}  0
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 secs
+    ...  Check Osquery Executable Not Running
+    Dump All Sophos Processes
+
+Kill OSQuery And Wait Until Osquery Running Again
+    #TODO LINUXDAR-3974 : timeouts in this keyword are very long to smooth flakiness out of tests.
+    # When/if a product change is made please reduce them to more reasonable lengths.
+    Kill OSQuery
+    # We expect edr to restart osquery ~10s after noticing it's died, but osquery 5.0.1 can trigger backoffs on launching the osquery worker
+    # process which throws our timing off. the product does reliably stabilise though.
+    Wait Until EDR OSQuery Running  40
+    # osquery 5.0.1 is behaving differently and can take longer to stabilize when restarting quickly, this sleep forces
+    # the test to give it time to stabilize before continuing
+    sleep  10
+
 Check EDR Osquery Executable Running
     #Check both osquery instances are running
     ${result} =    Run Process  pgrep -a osquery | grep plugins/edr | wc -l  shell=true
@@ -287,6 +280,13 @@ Check EDR Osquery Executable Not Running
     ${result} =    Run Process  pgrep  -a  osquery | grep plugins/edr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Wait Until EDR OSQuery Running
+    [Arguments]  ${WaitInSecs}=30
+    Wait Until Keyword Succeeds
+    ...  ${WaitInSecs} secs
+    ...  1 secs
+    ...  Check EDR Osquery Executable Running
 
 Check EDR Plugin Uninstalled
     EDR Plugin Is Not Running

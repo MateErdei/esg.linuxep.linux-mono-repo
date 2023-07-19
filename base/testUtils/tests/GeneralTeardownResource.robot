@@ -49,10 +49,6 @@ Dump All Logs
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/liveresponse.log
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/sessions.log
 
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/dbos.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osquery.watcher.log
-
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/av.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/soapd.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log
@@ -80,16 +76,12 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
     Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
 
-    Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
-    Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
-    Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/responseactions/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
 
