@@ -16,6 +16,8 @@ ${EXTENSION_CRASH} =  SELECT * FROM memorycrashtable;
 ${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
 ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 ${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
+${EDR_LOG_PATH} =     ${EDR_PLUGIN_PATH}/log/edr.log
+
 
 *** Keywords ***
 

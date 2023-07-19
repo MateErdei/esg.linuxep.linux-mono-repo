@@ -128,7 +128,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
+    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
     Wait for first update
     Prepare Installation For Upgrade Using Policy   ${BaseAndEdrAndMtrVUTPolicy}
 
@@ -157,9 +157,9 @@ Upgrade VUT to 999
     Setup SUS all develop
     Install EDR SDDS3  ${BaseEdrAndMtrAndAVVUTPolicy}
 
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
+    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
+    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Base-component version: 99.9.9
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9
@@ -172,11 +172,9 @@ Upgrade VUT to 999
 
     check_watchdog_log_does_not_contain    wdctl <> stop edr
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
+    # "Update success" in suldownloader log checked inside "Install EDR SDDS3" keyword
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
+    ${edr_mark} =  mark_log_size  ${EDR_LOG_PATH}
 
     Setup SUS all 999
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
@@ -230,13 +228,10 @@ Upgrade VUT to 999
     Check MDR Plugin Installed
 
     # wait for current update to complete.
-    wait_for_log_contains_from_mark  ${sul_mark}    Update success    200
+    wait_for_log_contains_from_mark  ${sul_mark}    Update success    ${200}
 
     # Check for warning that there is a naming collision in the map of query tags
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  2 secs
-    ...  Check EDR Log Contains  Adding XDR results to intermediary file
+    wait_for_log_contains_from_mark   ${edr_mark}  Adding XDR results to intermediary file  timeout=${60}
     Check Edr Log Does Not Contain  already in query map
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
