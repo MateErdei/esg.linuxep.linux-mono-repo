@@ -78,6 +78,21 @@ system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | 
 # Ensure override is unset so that it can only be set when explicitly passed in by the user with --allow-override-mcs-ca
 unset ALLOW_OVERRIDE_MCS_CA
 
+function dump_suldownloader_logs()
+{
+  if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]
+  then
+      echo "-- Output from suldownloader log:"
+      cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
+  fi
+
+  if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log" ]]
+  then
+    echo "-- Output from suldownloader sync log:"
+    cat "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log"
+  fi
+}
+
 function cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
@@ -94,12 +109,20 @@ function failure()
     fi
 
     echo "$2" >&2
+    dump_suldownloader_logs
     # only remove files if we didnt get far enough through the process to install or
     # the install directory existed already and we didnt create it
     if [[ ${removeinstall} -eq 1 ]] && ! is_sspl_installed
     then
       if [[ -n ${SOPHOS_INSTALL} ]]
       then
+        if [[ -n "$OVERRIDE_INSTALLER_CLEANUP" ]]
+        then
+          echo "Copying SPL logs to ${SOPHOS_TEMP_DIRECTORY}/logs"
+          cp -Lr "${SOPHOS_INSTALL}/logs" "${SOPHOS_TEMP_DIRECTORY}" 2>/dev/null
+          mkdir -p "${SOPHOS_TEMP_DIRECTORY}/logs/plugins"
+          cp -Lr "${SOPHOS_INSTALL}/plugins/*/log/*" "${SOPHOS_TEMP_DIRECTORY}/logs/plugins" 2>/dev/null
+        fi
         echo "Removing ${SOPHOS_INSTALL}"
         rm -rf ${SOPHOS_INSTALL}
       fi
@@ -656,14 +679,31 @@ MCS_TOKEN="$CLOUD_TOKEN"
 MCS_URL="$CLOUD_URL"
 
 mkdir -p "${SOPHOS_INSTALL}/base/etc/sophosspl"
-echo "[global]" > "${SOPHOS_INSTALL}/base/etc/logger.conf"
-echo "VERBOSITY = INFO" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
+
+if [[ -n "$SOPHOS_LOG_LEVEL" ]]
+  then
+      cat <<EOF >"${SOPHOS_INSTALL}/base/etc/logger.conf"
+[global]
+VERBOSITY = $SOPHOS_LOG_LEVEL
+EOF
+else
+  cat <<EOF >"${SOPHOS_INSTALL}/base/etc/logger.conf"
+[global]
+VERBOSITY = INFO
+EOF
+fi
+
+if [[ -n "$DEBUG_THIN_INSTALLER" ]]
+then
+    echo "[suldownloader]" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
+    echo "VERBOSITY = DEBUG" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
+fi
 
 # Avoid new-line at end of file
 echo -n $(hostname -f) >${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
 export SOPHOS_HOSTNAME_F=${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
 
-FORCE_UNINSTALL_SAV=$FORCE_UNINSTALL_SAV ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
+FORCE_UNINSTALL_SAV=$FORCE_UNINSTALL_SAV ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS} ${SOPHOS_LOG_LEVEL}
 handle_register_errorcodes $?
 #setup for running suldownloader
 mkdir -p "${SOPHOS_INSTALL}/base/update/rootcerts"
@@ -708,7 +748,8 @@ fi
 
 INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" || failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install successfully"
 inst_ret=$?
-handle_installer_errorcodes $?
+[[ ! ${inst_ret} -eq 0 || -n ${DEBUG_THIN_INSTALLER} ]] && dump_suldownloader_logs
+handle_installer_errorcodes ${inst_ret}
 
 cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
