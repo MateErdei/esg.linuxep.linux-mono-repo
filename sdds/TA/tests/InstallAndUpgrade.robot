@@ -20,7 +20,7 @@ Resource    UpgradeResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Upgrade Resources Test Setup
+Test Setup       require_uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
@@ -28,10 +28,6 @@ Force Tags    PACKAGE
 
 
 *** Variables ***
-${BaseEdrAndMtrAndAVDogfoodPolicy}    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
-${BaseEdrAndMtrAndAVReleasePolicy}    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_Release.xml
-${BaseEdrAndMtrAndAVVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
-
 ${SULDownloaderLog}                   ${BASE_LOGS_DIR}/suldownloader.log
 ${SULDownloaderLogDowngrade}          ${BASE_LOGS_DIR}/downgrade-backup/suldownloader.log
 ${Sophos_Scheduled_Query_Pack}        ${EDR_DIR}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -56,7 +52,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
 
-    start_local_cloud_server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    start_local_cloud_server
     # Enable OnAccess
     send_policy_file    core    ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -89,11 +85,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     # Upgrading to VUT
     Start Local SDDS3 Server
-    Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  check_policy_written_match_file    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
+
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
@@ -167,7 +159,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
-    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -208,11 +200,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Start Local Dogfood SDDS3 Server
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     trigger_update_now
@@ -267,7 +254,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     trigger_update_now
     Wait For Version Files to Update    &{expectedVUTVersions}
     
@@ -298,7 +284,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
 
-    start_local_cloud_server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
+    start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -328,11 +314,6 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
 
     # Upgrade to VUT
     Start Local SDDS3 Server
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
     ...  210 secs
@@ -399,7 +380,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
-    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
@@ -436,11 +417,6 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Should Exist  ${MCS_DIR}/action/testfile
     Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${MCS_DIR}/action/testfile
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  check_policy_written_match_file  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     trigger_update_now
@@ -488,7 +464,6 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     trigger_update_now
     Wait For Version Files to Update    &{expectedVUTVersions}
 
@@ -513,7 +488,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 SDDS3 updating respects ALC feature codes
-    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
@@ -574,25 +549,8 @@ SDDS3 updating with changed unused feature codes do not change version
     &{installedVersionsAfterUpdate} =    Get Current Installed Versions
     Dictionaries Should Be Equal    ${installedVersionsBeforeUpdate}    ${installedVersionsAfterUpdate}
 
-SDDS3 updating when warehouse files have not changed does not extract the zip files
-    start_local_cloud_server
-    Start Local SDDS3 Server
-
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_suldownloader_log_contains   Update success
-
-    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
-    trigger_update_now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    check_suldownloader_log_contains_string_n_times   Generating the report file  2
-    check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
-
 Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
-    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
@@ -617,9 +575,10 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
 
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
     all_products_in_update_report_are_up_to_date  ${latest_report_result.stdout.strip()}
+    check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
-    start_local_cloud_server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 

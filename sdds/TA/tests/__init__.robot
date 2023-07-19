@@ -43,8 +43,6 @@ Global Setup Tasks
     Set Global Variable    ${OPENSSL_BIN_PATH}    ${BASE_TEST_UTILS}/SystemProductTestOutput
     Set Global Variable    ${OPENSSL_LIB_PATH}    ${BASE_TEST_UTILS}/SystemProductTestOutput
 
-    generate_real_warehouse_alc_files
-    Set Global Variable    ${GeneratedWarehousePolicies}    ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
     ${placeholder} =  Get Environment Variable    VUT_WAREHOUSE_REPO_ROOT    default=${INPUT_DIRECTORY}/repo
     Set Global Variable    ${VUT_WAREHOUSE_REPO_ROOT}                 ${placeholder}
