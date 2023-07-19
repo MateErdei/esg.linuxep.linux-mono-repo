@@ -20,7 +20,7 @@
         </build-asset>
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
-            <development-version branch="develop"/>
+            <development-version branch="exp/thirdparty/export_absl_and_re2_for_tests"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
 
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
