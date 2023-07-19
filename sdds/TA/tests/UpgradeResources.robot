@@ -25,11 +25,6 @@ Upgrade Resources Suite Setup
 Upgrade Resources Suite Teardown
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
-Upgrade Resources Test Setup
-    require_uninstalled
-    Should Not Exist    ${SOPHOS_INSTALL}
-    Set Environment Variable    CORRUPTINSTALL    no
-
 Upgrade Resources SDDS3 Test Teardown
     Stop Local SDDS3 Server
     General Test Teardown
