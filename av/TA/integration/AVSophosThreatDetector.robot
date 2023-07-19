@@ -34,8 +34,9 @@ ${VDL_DIRECTORY}  ${SUSI_UPDATE_SOURCE}/vdl
 *** Test Cases ***
 Test Global Rep works in chroot
     Restart Sophos Threat Detector
+    ${mark} =  Mark Log Size    ${SUSI_DEBUG_LOG_PATH}
     scan GR test file
-    check sophos_threat_dector log for successful global rep lookup
+    check sophos_threat_dector log for successful global rep lookup  ${mark}
 
 Sophos Threat Detector Has No Unnecessary Capabilities
     # ensure that threat_detector is fully started up
@@ -978,7 +979,8 @@ restart sophos_threat_detector
 
 
 check sophos_threat_dector log for successful global rep lookup
-    Susi Debug Log Contains  [GR] Connection \#0 to host 4.sophosxl.net left intact
+    [Arguments]  ${mark}
+    Check Log Contains After Mark    ${SUSI_DEBUG_LOG_PATH}   [GR] Connection \#0 to host 4.sophosxl.net left intact    ${mark}
 
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup
