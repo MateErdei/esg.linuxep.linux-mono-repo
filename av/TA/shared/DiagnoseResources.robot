@@ -9,7 +9,10 @@ Library         DateTime
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
-
+${AV} =    /PluginFiles/av
+${AVVar} =    ${AV}/var
+${TDLog} =    ${AV}/chroot/log
+${TDVar} =    ${AV}/chroot/var
 *** Keywords ***
 
 Run Diagnose
@@ -20,6 +23,23 @@ Run Diagnose
     ${retcode} =  Run And Return Rc  ${SOPHOS_INSTALL}/bin/sophos_diagnose ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  ${0}
 
+Get DiagnoseOutput
+    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
+    Register Cleanup   Remove Directory  ${UNPACK_DIRECTORY}  recursive=True
+    Create Directory  ${UNPACK_DIRECTORY}
+    Empty Directory  ${UNPACK_DIRECTORY}
+    ${result} =   Run Process   tar    xvzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
+    Should Be Equal As Integers  ${result.rc}  ${0}
+    Log  ${result.stdout}
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}    children=True
+
+
+Run Diagnose And Get DiagnoseOutput
+    Run Diagnose
+    Get DiagnoseOutput
+
+
 Check Diagnose Tar Created
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     ${fileCount} =    Get length    ${Files}
@@ -29,18 +49,10 @@ Check Diagnose Tar Created
     Should Not Contain   ${Files}  SystemFiles
     Should Not Contain   ${Files}  PluginFiles
 
-Check Diagnose Collects Correct AV Files
-    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    Register Cleanup   Remove Directory  ${UNPACK_DIRECTORY}  recursive=True
-    Create Directory  ${UNPACK_DIRECTORY}
-    Empty Directory  ${UNPACK_DIRECTORY}
-    ${result} =   Run Process   tar    xvzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
-    Should Be Equal As Integers  ${result.rc}  ${0}
-    Log  ${result.stdout}
 
-    ${TopLevelDirs} =  List Directories In Directory  ${UNPACK_DIRECTORY}
-    ${AVPFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${TopLevelDirs[0]}/PluginFiles/av
-    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${TopLevelDirs[0]}/PluginFiles/av/chroot/log
+Check Diagnose Collects Correct AV Files
+    ${AVPFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${AV}
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${TDLog}
 
     Should Contain  ${AVPFiles}  av.log
     Should Contain  ${AVPFiles}  Scan Now.log
@@ -51,9 +63,19 @@ Check Diagnose Collects Correct AV Files
     Should Contain  ${AVPFiles}  VERSION.ini.0
 
 
+Check Diagnose Contains File In TD Var
+    [arguments]    ${file}
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${TDVar}
+    Should Contain  ${SophosThreatDetectorFiles}  ${file}
+
+
+Check Diagnose Contains File In AV Var
+    [arguments]    ${file}
+    ${AVFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}${AVVar}
+    Should Contain  ${AVFiles}  ${file}
+
+
 Check Diagnose Logs
-    ${TopLevelDirs} =  List Directories In Directory  ${UNPACK_DIRECTORY}
-    ${contents} =  Get File  ${UNPACK_DIRECTORY}/${TopLevelDirs[0]}/BaseFiles/diagnose.log
+    ${contents} =  Get File  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles/diagnose.log
     Should Contain  ${contents}  Completed gathering files
     Should Not Contain  ${contents}  ERROR
-
