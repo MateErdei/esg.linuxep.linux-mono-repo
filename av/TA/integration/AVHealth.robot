@@ -376,18 +376,7 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     Register Cleanup    Remove File    ${OA_LOCAL_SETTINGS}
     Restart soapd
 
-    ${SUSI_DISTRIBUTION_VERSION} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
-    ${SUSI_UPDATE_SOURCE} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
-    ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
-    ${VDL_TEMP_DESTINATION} =   Set Variable   ${COMPONENT_ROOT_PATH}/moved_vdl
-
-    #Fake a bad update_source directory
-    Stop sophos_threat_detector
-    Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  ${true}
-    Move Directory  ${VDL_DIRECTORY}  ${VDL_TEMP_DESTINATION}
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
-    Start sophos_threat_detector
-    Wait until threat detector running after mark  ${td_mark}
+    Create SUSI Initialisation Error
 
     On-access Scan Clean File
 
