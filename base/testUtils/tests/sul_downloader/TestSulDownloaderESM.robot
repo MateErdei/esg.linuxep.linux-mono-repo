@@ -34,11 +34,10 @@ Force Tags  LOAD6
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-${tmpPolicy} =                               /tmp/tmpALC.xml
-${tmpLaunchDarkly} =                        /tmp/launchdarkly
-${staticflagfile} =                         linuxep.json
+${tmpPolicy}                                /tmp/tmpALC.xml
+${tmpLaunchDarkly}                          /tmp/launchdarkly
+${staticflagfile}                           linuxep.json
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
-${BaseAndEdrAndMtrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 
 *** Test Cases ***
 
@@ -132,7 +131,7 @@ Absent ESM Field Does Not Appear In Update Config
 
 
 New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -175,7 +174,7 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
 
 
 New Fixed Version Token Does Trigger Immediate Update With Update Now When Scheduled Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -221,7 +220,7 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
 
 
 New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -266,7 +265,7 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
 
 
 New Fixed Version Token Does Trigger Immediate Update
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER 
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -310,7 +309,7 @@ New Fixed Version Token Does Trigger Immediate Update
 
 
 Install all plugins static-999 then downgrade to all plugins static
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -410,7 +409,7 @@ Install all plugins static-999 then downgrade to all plugins static
 
 
 Install all plugins static then upgrade to all plugins static-999
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
 
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -509,37 +508,3 @@ Setup SUS static 999
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
     Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  ${tmpLaunchDarkly}
-
-#
-#Send Non ESM ALC Policy And Wait Until Processed
-#    ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
-#    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
-#
-#    ${standard_alc_policy} =    populate_only_cloud_subscription
-#    Create File  ${tmpPolicy}   ${standard_alc_policy}
-#    Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
-#
-#    ${handle}=  Start Local SDDS3 Server With Empty Repo
-#    Set Suite Variable    ${GL_handle}    ${handle}
-#
-#    Require Fresh Install
-#    Override LogConf File as Global Level  DEBUG
-#    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-#    Create Local SDDS3 Override
-#
-#    Register With Local Cloud Server
-#
-#    Wait Until Keyword Succeeds
-#    ...    10s
-#    ...    1s
-#    ...    Log File    ${UPDATE_CONFIG}
-#
-#    wait_for_log_contains_from_mark  ${update_mark}  Using version RECOMMENDED
-#    File Should Contain  ${UPDATE_CONFIG}     JWToken
-#
-#
-#    Wait Until Keyword Succeeds
-#    ...   10 secs
-#    ...   2 secs
-#    ...   File Should Contain    ${sdds3_server_output}     tag RECOMMENDED
-#        wait_for_log_contains_from_mark  ${sul_mark}  Generating the report file in: /opt/sophos-spl/base/update/var/updatescheduler
