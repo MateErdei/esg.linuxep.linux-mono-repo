@@ -15,6 +15,8 @@ namespace TelemetrySchedulerImpl
     class ITaskQueue
     {
     public:
+        virtual ~ITaskQueue() = default;
+
         virtual void push(SchedulerTask) = 0;
         virtual void pushPriority(SchedulerTask) = 0;
         virtual SchedulerTask pop() = 0;

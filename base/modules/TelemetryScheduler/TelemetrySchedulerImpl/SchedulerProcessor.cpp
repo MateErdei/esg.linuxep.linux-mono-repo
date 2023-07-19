@@ -60,7 +60,14 @@ namespace TelemetrySchedulerImpl
                     break;
 
                 case SchedulerTask::TaskType::RunTelemetry:
-                    runTelemetry();
+                    try
+                    {
+                        runTelemetry();
+                    }
+                    catch (const RequestToStopException& ex)
+                    {
+                        LOGINFO("Have not received first ALC policy yet so not running Telemetry: " << ex.what());
+                    }
                     break;
 
                 case SchedulerTask::TaskType::CheckExecutableFinished:
@@ -216,7 +223,7 @@ namespace TelemetrySchedulerImpl
 
         const system_clock::time_point epoch;
 
-        return (statusFileValid && previousScheduledTime == epoch) || !configFileValid || interval == 0;
+        return (statusFileValid && previousScheduledTime == epoch) || !configFileValid || interval == 0 || m_telemetryHost.empty();
     }
 
     void SchedulerProcessor::waitToRunTelemetry(bool runScheduledInPastNow)
@@ -237,13 +244,15 @@ namespace TelemetrySchedulerImpl
             delayBeforeQueueingTask(
                 system_clock::now() + m_configurationCheckDelay,
                 m_delayBeforeCheckingConfiguration,
-                SchedulerTask::InitialWaitToRunTelemetry);
+                {.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry});
             return;
         }
 
         const system_clock::time_point epoch;
         system_clock::time_point scheduledTime;
 
+        // runScheduledInPastNow means that if telemetry status has a time which is in the past, we should run telemetry
+        // immediately, rather than select a new time in the future and wait for that.
         // This logic is dependent on the logic that checks whether telemetry is disabled.
         if (statusFileValid && (previousScheduledTime > system_clock::now() || runScheduledInPastNow))
         {
@@ -272,7 +281,7 @@ namespace TelemetrySchedulerImpl
             Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
         LOGINFO("Telemetry reporting is scheduled to run at " << formattedScheduledTime);
 
-        delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
+        delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, {.taskType = SchedulerTask::TaskType::RunTelemetry});
     }
 
     void SchedulerProcessor::runTelemetry()
@@ -280,19 +289,31 @@ namespace TelemetrySchedulerImpl
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
         // externally updated.
 
-        if (!m_alcPolicyProcessed)
-        {
-            waitForPolicy(5, "ALC");
-        }
+//        if (!m_alcPolicyProcessed)
+//        {
+//            // After install want Telemetry to wait for the first ALC policy to be received (and give a safe hostname)
+//            // No need to do this again after first ALC policy has been received and processed
+//            // This waits up to 25s, (aka QUEUE_TIMEOUT * maxTasksThreshold), (maxTasksThreshold is the first parameter
+//            // of waitForPolicy), for the policy
+//            std::string policyContent = waitForPolicy(5, "ALC");
+//            if (policyContent.empty())
+//            {
+//                LOGINFO("Not running telemetry as ALC policy hasn't been received yet");
+//                return;
+//            }
+//            processALCPolicy(policyContent);
+//        }
 
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
-        auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
+        auto [telemetryConfig, configFileValid] = getConfigFromFile();
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
         auto interval = telemetryConfig.getInterval();
 
         if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, configFileValid))
         {
-            m_taskQueue->push(SchedulerTask::TaskType::WaitToRunTelemetry);
+            // Waits until either the scheduled time, or updates the scheduled time to be in the future again and waits
+            // until then
+            m_taskQueue->push({.taskType = SchedulerTask::TaskType::WaitToRunTelemetry});
             return;
         }
 
@@ -311,7 +332,7 @@ namespace TelemetrySchedulerImpl
                 delayBeforeQueueingTask(
                     system_clock::now() + m_configurationCheckDelay,
                     m_delayBeforeCheckingConfiguration,
-                    SchedulerTask::InitialWaitToRunTelemetry);
+                    {.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry});
                 return;
             }
 
@@ -323,7 +344,7 @@ namespace TelemetrySchedulerImpl
             std::string resourceName = machineId + ".json";
 
             Config telemetryExeConfig =
-                Common::TelemetryConfigImpl::Config::buildExeConfigFromTelemetryConfig(telemetryConfig, resourceName);
+                Common::TelemetryConfigImpl::Config::buildExeConfigFromTelemetryConfig(telemetryConfig, m_telemetryHost, resourceName);
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(), Serialiser::serialise(telemetryExeConfig));
@@ -338,17 +359,17 @@ namespace TelemetrySchedulerImpl
                 "Telemetry executable's state will be checked in " << m_telemetryExeCheckDelay.count() << " seconds");
             const auto timeToCheckExeState = system_clock::now() + m_telemetryExeCheckDelay;
             delayBeforeQueueingTask(
-                timeToCheckExeState, m_delayBeforeCheckingExe, SchedulerTask::CheckExecutableFinished);
+                timeToCheckExeState, m_delayBeforeCheckingExe, {SchedulerTask::TaskType::CheckExecutableFinished});
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGERROR("File access error writing " << m_pathManager.getTelemetryExeConfigFilePath() << ": " << e.what());
-            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+            m_taskQueue->push({SchedulerTask::TaskType::WaitToRunTelemetry});
         }
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Running telemetry executable failed: " << processException.what());
-            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+            m_taskQueue->push({SchedulerTask::TaskType::WaitToRunTelemetry});
         }
     }
 
@@ -370,7 +391,7 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+        m_taskQueue->push({.taskType = SchedulerTask::TaskType::WaitToRunTelemetry});
     }
 
     void SchedulerProcessor::processALCPolicy(const std::string& policyXml)
@@ -378,35 +399,41 @@ namespace TelemetrySchedulerImpl
         try
         {
             Common::Policy::ALCPolicy alcPolicy{ policyXml };
-            auto [config, isValid] = getConfigFromFile();
+//            auto [config, isValid] = getConfigFromFile();
             const auto telemetryHost = alcPolicy.getTelemetryHost();
 
             if (!telemetryHost) // <Telemetry> field did not exist in ALC policy
             {
-                config.setServer("t1.sophosupd.com"); // Fallback to hardcoded value
+                m_telemetryHost = "t1.sophosupd.com"; // Fallback to hardcoded value
             }
             else if ( telemetryHost->empty() ) // Value of <Telemetry> field was empty
             {
-                config.setServer(""); // Don't do Telemetry
+                m_telemetryHost = ""; // Don't do Telemetry
             }
             else
             {
                 const auto isHostValid = checkTelemetryHostValid(*telemetryHost);
                 if (isHostValid)
                 {
-                    config.setServer(*telemetryHost);
+                    m_telemetryHost = *telemetryHost;
                 }
                 else // TelemetryHost from ALC policy was not valid so not doing any Telemetry
                 {
-                    config.setServer("");
+                    m_telemetryHost = "";
                 }
             }
 
-            const auto configString = Serialiser::serialise(config);
-            const auto& fileSystem = *Common::FileSystem::fileSystem();
-            fileSystem.writeFile(m_pathManager.getTelemetrySupplementaryFilePath(), configString);
-
+            bool wasAlcPolicyProcessedBefore = m_alcPolicyProcessed;
             m_alcPolicyProcessed = true;
+
+            if (!wasAlcPolicyProcessedBefore)
+            {
+//                delayBeforeQueueingTask(
+//                        system_clock::now() + m_configurationCheckDelay,
+//                        m_delayBeforeCheckingConfiguration,
+//                        {.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry});
+                m_taskQueue->push({.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry, .content="", .appId=""});
+            }
         } catch (const Common::Policy::PolicyParseException& ex) {
             LOGERROR("Failed to parse ALC policy: " << ex.what());
 
@@ -428,9 +455,12 @@ namespace TelemetrySchedulerImpl
         // Not too long
 
 
+        std::ignore = basicString;
+
         return true;
     }
 
+    /*
     std::string SchedulerProcessor::waitForPolicy(int maxTasksThreshold, const std::string& policyAppId)
     {
         std::vector<SchedulerTask> nonPolicyTasks;
@@ -465,4 +495,5 @@ namespace TelemetrySchedulerImpl
         }
         return policyContent;
     }
+*/
 } // namespace TelemetrySchedulerImpl

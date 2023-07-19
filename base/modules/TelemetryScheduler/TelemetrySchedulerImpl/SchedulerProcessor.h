@@ -94,5 +94,6 @@ namespace TelemetrySchedulerImpl
         bool m_alcPolicyProcessed = false;
         std::string waitForPolicy(int maxTasksThreshold, const std::string& policyAppId);
         constexpr const static inline int QUEUE_TIMEOUT = 5;
+        std::string m_telemetryHost;
     };
 } // namespace TelemetrySchedulerImpl

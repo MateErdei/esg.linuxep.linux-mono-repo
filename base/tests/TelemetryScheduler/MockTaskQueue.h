@@ -15,7 +15,8 @@ using namespace ::testing;
 class MockTaskQueue : public TelemetrySchedulerImpl::ITaskQueue
 {
 public:
-    MOCK_METHOD1(push, void(TelemetrySchedulerImpl::SchedulerTask));
-    MOCK_METHOD1(pushPriority, void(TelemetrySchedulerImpl::SchedulerTask));
-    MOCK_METHOD0(pop, TelemetrySchedulerImpl::SchedulerTask());
+    MOCK_METHOD(void, push, (TelemetrySchedulerImpl::SchedulerTask), (override));
+    MOCK_METHOD(void, pushPriority, (TelemetrySchedulerImpl::SchedulerTask), (override));
+    MOCK_METHOD(TelemetrySchedulerImpl::SchedulerTask, pop, (), (override));
+    MOCK_METHOD(bool, pop, (TelemetrySchedulerImpl::SchedulerTask& task, int timeout), (override));
 };

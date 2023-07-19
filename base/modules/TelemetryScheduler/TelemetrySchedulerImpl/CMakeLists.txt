@@ -26,6 +26,7 @@ target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryconfigimpl
         utilityimpl
         osutilitiesimpl
+        policy
         )
 
 SET_TARGET_PROPERTIES(telemetryschedulerimpl

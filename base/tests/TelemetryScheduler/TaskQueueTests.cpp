@@ -5,7 +5,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -18,7 +17,7 @@ using TelemetrySchedulerImpl::TaskQueue;
 TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
+    const SchedulerTask taskIn = { SchedulerTask::TaskType::InitialWaitToRunTelemetry };
     queue.push(taskIn);
     SchedulerTask taskOut = queue.pop();
     EXPECT_EQ(taskOut, taskIn);
@@ -27,11 +26,11 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const std::vector<SchedulerTask> tasksIn = { SchedulerTask::Shutdown,
-                                                 SchedulerTask::InitialWaitToRunTelemetry,
-                                                 SchedulerTask::RunTelemetry };
+    const std::vector<SchedulerTask> tasksIn = { {SchedulerTask::TaskType::Shutdown },
+                                                   {SchedulerTask::TaskType::InitialWaitToRunTelemetry },
+                                                 {SchedulerTask::TaskType::RunTelemetry} };
 
-    for (auto task : tasksIn)
+    for (const auto& task : tasksIn)
     {
         queue.push(task);
     }
@@ -62,7 +61,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     EXPECT_FALSE(done);
 
-    const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
+    const SchedulerTask taskIn = {SchedulerTask::TaskType::InitialWaitToRunTelemetry};
     queue.push(taskIn);
 
     for (int i = 0; i < 200; i++)
@@ -84,8 +83,8 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
 {
     TaskQueue queue;
-    const SchedulerTask priorityTask = SchedulerTask::Shutdown;
-    const SchedulerTask normalTask = SchedulerTask::InitialWaitToRunTelemetry;
+    const SchedulerTask priorityTask = {SchedulerTask::TaskType::Shutdown};
+    const SchedulerTask normalTask = {SchedulerTask::TaskType::InitialWaitToRunTelemetry};
 
     queue.push(normalTask);
     queue.pushPriority(priorityTask);

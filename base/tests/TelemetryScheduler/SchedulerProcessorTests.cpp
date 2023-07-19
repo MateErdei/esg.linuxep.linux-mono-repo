@@ -3,23 +3,25 @@
 #include "DerivedSchedulerProcessor.h"
 #include "MockTaskQueue.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/TelemetryConfigImpl/Constants.h>
-#include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
-#include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/TelemetryConfigImpl/Constants.h"
+#include "TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h"
+#include "TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h"
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockProcess.h"
+
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockProcess.h>
+#include <json.hpp>
 
 #include <chrono>
 #include <thread>
@@ -145,7 +147,7 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 
     EXPECT_EQ(stage, 1);
 
-    queue->pushPriority(SchedulerTask::Shutdown);
+    queue->pushPriority({SchedulerTask::TaskType::Shutdown});
 
     for (int i = 0; i < 300; i++)
     {
@@ -168,8 +170,8 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     PluginCallback pluginCallback(mockQueue);
     std::atomic<bool> done(false);
 
-    EXPECT_CALL(*mockQueue, pushPriority(TelemetrySchedulerImpl::SchedulerTask::Shutdown));
-    EXPECT_CALL(*mockQueue, pop()).WillOnce(Return(TelemetrySchedulerImpl::SchedulerTask::Shutdown));
+    EXPECT_CALL(*mockQueue, pushPriority(SchedulerTask{TelemetrySchedulerImpl::SchedulerTask::TaskType::Shutdown}));
+    EXPECT_CALL(*mockQueue, pop()).WillOnce(Return(SchedulerTask{TelemetrySchedulerImpl::SchedulerTask::TaskType::Shutdown}));
 
     pluginCallback.onShutdown();
 
@@ -207,7 +209,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
     processor.waitToRunTelemetry(true);
 
     auto task = queue->pop();
-    EXPECT_EQ(task, SchedulerTask::RunTelemetry);
+    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::RunTelemetry});
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -292,7 +294,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_RescheduleWithValidStatusFile
     processor.waitToRunTelemetry(false);
 
     auto task = queue->pop();
-    EXPECT_EQ(task, SchedulerTask::RunTelemetry);
+    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::RunTelemetry});
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -564,7 +566,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
         .WillOnce(Return(R"({"scheduled-time":"invalid"})"));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":86400})"));
+        .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -591,7 +593,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileBigNumber) /
             .WillOnce(Return(R"({"scheduled-time": 12000000000000000})"));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":86400})"));
+            .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -618,7 +620,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileNegativeNumb
             .WillOnce(Return(R"({"scheduled-time": -1})"));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":86400})"));
+            .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -666,11 +668,11 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableIsSuccessful) // NOLIN
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::CheckExecutableFinished});
 
     processor.checkExecutableFinished();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runningTelemetryWithTelemetryDisabledViaConfig) // NOLINT
@@ -700,7 +702,7 @@ TEST_F(SchedulerProcessorTests, runningTelemetryWithTelemetryDisabledViaConfig) 
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runningTelemetryWithTelemetryDisabledViaStatus) // NOLINT
@@ -730,7 +732,7 @@ TEST_F(SchedulerProcessorTests, runningTelemetryWithTelemetryDisabledViaStatus) 
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runningTelemetryExecutableTimesOut) // NOLINT
@@ -767,11 +769,11 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableTimesOut) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::CheckExecutableFinished});
 
     processor.checkExecutableFinished();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLINT
@@ -809,11 +811,11 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLIN
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::CheckExecutableFinished});
 
     processor.checkExecutableFinished();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_ErrorReadingConfig) // NOLINT
@@ -843,7 +845,7 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorReadingConfig) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_ConfigHasInvalidJson) // NOLINT
@@ -873,7 +875,7 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ConfigHasInvalidJson) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_NoMachineId) // NOLINT
@@ -905,7 +907,7 @@ TEST_F(SchedulerProcessorTests, runTelemetry_NoMachineId) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::InitialWaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_ErrorWritingExeConfig) // NOLINT
@@ -939,7 +941,7 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorWritingExeConfig) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
@@ -975,5 +977,91 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
 
     processor.runTelemetry();
 
-    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
+
+//TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe)
+//{
+//    const auto policy = R"sophos(<?xml version="1.0"?>
+//<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+//  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+//<AUConfig platform="Linux">
+//<primary_location>
+//  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+//</primary_location>
+//</AUConfig>
+//<server_names>
+//  <telemetry>test.sophosupd.com</telemetry>
+//</server_names>
+//</AUConfigurations>
+//)sophos";
+//
+//    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+//    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
+//    EXPECT_CALL(
+//        *m_mockFileSystem,
+//        readFile(
+//            m_telemetryStatusFilePath,
+//            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+//        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
+//    EXPECT_CALL(
+//        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+//        .WillOnce(Return(m_validTelemetryConfigJson));
+//    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+//    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
+//    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
+//    EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+//    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }))
+//        .WillOnce(Throw(Common::Process::IProcessException("error")));
+//
+//    auto queue = std::make_shared<TaskQueue>();
+//    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+//    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+//
+//    std::thread processorThread([&] {
+//        processor.run();
+//    });
+//
+//    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryConfigFilePath, _))
+//        .WillOnce(Invoke(
+//            [](const std::string&, const std::string& content)
+//            {
+//                auto j = nlohmann::json::parse(content);
+//                EXPECT_EQ(j["server"], "test.sophosupd.com");
+//            }));
+//
+//    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(1);
+//
+//    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+//
+//    // add policy task
+//    // it should write config
+//    // wait for telemetry executable to run
+//    // send the shutdown task
+//
+//    processorThread.join();
+//
+//    setupFakeSophosThreatDetectorConfig();
+//    WaitForEvent serverWaitGuard;
+//
+//    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+//
+//    EXPECT_CALL(*mockThreatReportCallback, processMessage(_))
+//        .Times(1)
+//        .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+//
+//    ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
+//
+//    threatReporterServer.start();
+//
+//    // connect after we start
+//    ThreatReporterClientSocket threatReporterSocket(m_socketPath);
+//
+//    threatReporterSocket.sendThreatDetection(createThreatDetectedWithRealFd({}));
+//
+//    serverWaitGuard.wait();
+//
+//    processor.run();
+//
+//    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
+//}

@@ -15,6 +15,7 @@ namespace TelemetrySchedulerImpl
         enum class TaskType
         {
             Shutdown,
+            // If the schedule is in the past, this will run telemetry immediately, rather than scheduling a new time
             InitialWaitToRunTelemetry,
             WaitToRunTelemetry,
             RunTelemetry,
@@ -23,7 +24,12 @@ namespace TelemetrySchedulerImpl
         };
 
         TaskType taskType;
-        std::string content;
-        std::string appId;
+        std::string content = "";
+        std::string appId = "";
+
+        bool operator==(SchedulerTask other) const
+        {
+            return (taskType == other.taskType && content == other.content && appId == other.appId);
+        };
     };
 } // namespace TelemetrySchedulerImpl
