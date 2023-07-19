@@ -281,8 +281,8 @@ WAREHOUSE_DIR=$(realpath "$BASEDIR/../esg.linuxep.sspl-warehouse")
 if [[ -d "$WAREHOUSE_DIR" ]]
 then
   echo "Linking base testUtils to warehouse repo"
-  ln -s $BASEDIR/testUtils/libs $WAREHOUSE_DIR/TA/libs
-  ln -s $BASEDIR/testUtils/SupportFiles $WAREHOUSE_DIR/TA/SupportFiles
+  ln -sf $BASEDIR/testUtils/libs $WAREHOUSE_DIR/TA/libs
+  ln -sf $BASEDIR/testUtils/SupportFiles $WAREHOUSE_DIR/TA/SupportFiles
 fi
 
 echo "---"
