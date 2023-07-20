@@ -121,7 +121,6 @@ Start Local SDDS3 Server
     ...  10 secs
     ...  2 secs
     ...  Can Curl Url    https://localhost:8080
-
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
