@@ -26,11 +26,12 @@
 #include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 
 // StringUtils is required for debug builds!
+#include "UpdateSchedulerTelemetryConsts.h"
+
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <json.hpp>
-
 #include <chrono>
+#include <json.hpp>
 #include <thread>
 
 using namespace std::chrono;
@@ -329,16 +330,20 @@ namespace UpdateSchedulerImpl
                 m_subscriptionRigidNamesInPolicy.push_back(productSubscription.rigidName());
             }
 
+            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingEnabled, weeklySchedule_.enabled);
             if (weeklySchedule_.enabled)
             {
-                char buffer[20];
+                char updateDay[20];
+                char updateTime[20];
                 std::tm scheduledTime{};
                 scheduledTime.tm_wday = weeklySchedule_.weekDay;
                 scheduledTime.tm_hour = weeklySchedule_.hour;
                 scheduledTime.tm_min = weeklySchedule_.minute;
-                if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
+                if (strftime(updateDay, sizeof(updateDay), "%A", &scheduledTime) && strftime(updateTime, sizeof(updateTime), "%H:%M", &scheduledTime))
                 {
-                    LOGINFO("Scheduling product updates for " << buffer);
+                    Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingDay, std::string(updateDay));
+                    Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingTime, std::string(updateTime));
+                    LOGINFO("Scheduling product updates for " << updateDay << " at " << updateTime);
                     LOGINFO("Scheduling data updates every "<< updatePeriod << " minutes");
                 }
             }
@@ -715,10 +720,9 @@ namespace UpdateSchedulerImpl
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
-            Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", true);
-            Common::Telemetry::TelemetryHelper::getInstance().set(
-                "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
-            Common::Telemetry::TelemetryHelper::getInstance().set("sdds-mechanism", UpdateSchedulerUtils::getSDDSMechanism(true));
+            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, true);
+            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::successfulUpdateTime, duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::sddsMechanism, UpdateSchedulerUtils::getSDDSMechanism(true));
 
             // on successful update copy the current update configuration to previous update configuration
             // the previous configuration file will be used on the next policy change and by suldownloader
@@ -748,21 +752,21 @@ namespace UpdateSchedulerImpl
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
         }
 
-        Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", false);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, false);
+        Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedUpdateCount, 1UL);
         return std::string();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)
     {
         LOGERROR("SulDownloader failed to Start with the following error: " << errorMessage);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedDownloaderCount, 1UL);
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderTimedOut()
     {
         LOGERROR("SulDownloader failed to complete its job in 10 minutes");
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedDownloaderCount, 1UL);
 
         waitForSulDownloaderToFinish();
     }

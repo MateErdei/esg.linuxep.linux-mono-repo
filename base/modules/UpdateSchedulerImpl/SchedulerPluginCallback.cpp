@@ -1,24 +1,25 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#include "SchedulerPluginCallback.h"
+
 #include "Logger.h"
 #include "UpdateSchedulerProcessor.h"
-#include "SchedulerPluginCallback.h"
+#include "UpdateSchedulerTelemetryConsts.h"
 #include "UpdateSchedulerUtils.h"
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <Common/PluginApi/ApiException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
+
 #include <json.hpp>
-#include <utility>
 #include <unistd.h>
+#include <utility>
 
 namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
-        m_task(std::move(task)),
-        m_statusInfo(),
-        m_shutdownReceived(false)
+        m_task(std::move(task)), m_statusInfo(), m_shutdownReceived(false)
     {
         std::string noPolicySetStatus{
             R"sophos(<?xml version="1.0" encoding="utf-8" ?>
@@ -56,16 +57,16 @@ namespace UpdateSchedulerImpl
     void SchedulerPluginCallback::onShutdown()
     {
         LOGDEBUG("Shutdown signal received");
-        std::unique_lock lock{runningMutex_};
+        std::unique_lock lock{ runningMutex_ };
         m_shutdownReceived = true;
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
 
         int timeoutCounter = 0;
         int shutdownTimeout = 30;
-        while(isRunningLocked(lock) && timeoutCounter < shutdownTimeout)
+        while (isRunningLocked(lock) && timeoutCounter < shutdownTimeout)
         {
             LOGDEBUG("Shutdown waiting for all processes to complete");
-            runningConditionVariable_.wait_for(lock, std::chrono::seconds{1});
+            runningConditionVariable_.wait_for(lock, std::chrono::seconds{ 1 });
             timeoutCounter++;
         }
     }
@@ -83,7 +84,7 @@ namespace UpdateSchedulerImpl
 
     std::string SchedulerPluginCallback::getHealth()
     {
-        nlohmann::json healthjson =  nlohmann::json::parse(UpdateSchedulerUtils::calculateHealth(m_stateMachineData));
+        nlohmann::json healthjson = nlohmann::json::parse(UpdateSchedulerUtils::calculateHealth(m_stateMachineData));
         nlohmann::json healthResponseMessage;
         healthResponseMessage["Health"] = healthjson["overall"];
         return healthResponseMessage.dump();
@@ -104,36 +105,33 @@ namespace UpdateSchedulerImpl
         LOGDEBUG("Received get telemetry request");
 
         // Ensure counts are always reported:
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 0UL);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedUpdateCount, 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedDownloaderCount, 0UL);
         nlohmann::json health = nlohmann::json::parse(UpdateSchedulerUtils::calculateHealth(m_stateMachineData));
         long overallHealth = health["overall"];
-        Common::Telemetry::TelemetryHelper::getInstance().set("health",overallHealth);
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, overallHealth);
         long installState = health["installState"];
-        Common::Telemetry::TelemetryHelper::getInstance().set("install-state",installState);
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::installState, installState);
         long downloadState = health["downloadState"];
-        Common::Telemetry::TelemetryHelper::getInstance().set("download-state",downloadState);
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::downloadState, downloadState);
         return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
-    std::string SchedulerPluginCallback::getHealth()
+    bool SchedulerPluginCallback::shutdownReceived()
     {
-        LOGDEBUG("Received health request");
-        return "{}";
+        return m_shutdownReceived;
     }
-
-    bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }
 
     void SchedulerPluginCallback::setRunning(bool running)
     {
-        std::lock_guard guard{runningMutex_};
+        std::lock_guard guard{ runningMutex_ };
         m_running = running;
         runningConditionVariable_.notify_all();
     }
 
     bool SchedulerPluginCallback::isRunning()
     {
-        std::unique_lock lock{runningMutex_};
+        std::unique_lock lock{ runningMutex_ };
         return isRunningLocked(lock);
     }
 

@@ -1,22 +1,26 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "UpdateScheduler/SchedulerTaskQueue.h"
-#include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
-#include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
 #include "MockAsyncDownloaderRunner.h"
-#include "tests/Common/Helpers/MockApiBaseServices.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/UniformIntDistribution.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
 #include "UpdateSchedulerImpl/UpdateSchedulerProcessor.h"
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
+#include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
+#include "UpdateSchedulerImpl/UpdateSchedulerTelemetryConsts.h"
 #include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockApiBaseServices.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
-#include "Common/UtilityImpl/UniformIntDistribution.h"
+
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+
+#include <json.hpp>
+#include <utility>
 
 using namespace Common::UtilityImpl;
 using namespace ::testing;
@@ -82,490 +86,324 @@ std::string jsonString = R"({
                                "/opt/sophos-av"
                                ]
                                })";
-class TestUpdateSchedulerProcessor : public LogInitializedTests
-{
-};
-
-TEST_F(TestUpdateSchedulerProcessor, teststartupAndShutdown)
-{
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
-
-
-    taskQueue->pushStop();
-
-    EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
-
-}
 
 ACTION_P(QueueStopTask, taskQueue)
 {
     taskQueue->pushStop();
 }
 
-TEST_F(TestUpdateSchedulerProcessor, NoUpdateTriggeredIfpolicyIsSameAsExistingConfig)
+class TestUpdateSchedulerProcessor : public LogInitializedTests
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
+public:
+    void SetUp() override
+    {
+        taskQueue_ = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
+        sharedPluginCallBack_ = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue_);
+        cronThread_ = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
+            taskQueue_,
+            std::chrono::seconds(distribution_.next()),
+            std::chrono::minutes(60)
+            );
 
+        baseServiceMock_ = std::make_unique<StrictMock<MockApiBaseServices>>();
+        EXPECT_NE(baseServiceMock_, nullptr);
+        EXPECT_CALL(*baseServiceMock_, requestPolicies("ALC")).WillRepeatedly(Return());
+        EXPECT_CALL(*baseServiceMock_, requestPolicies("FLAGS"));
 
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
+        downloaderRunnerMock_ = std::make_unique<MockAsyncDownloaderRunner>();
+        fileSystemMock_ = std::make_unique<StrictMock<MockFileSystem>>();
 
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
+        pidLockFileUtilsMock_ = std::make_unique<NaggyMock<MockPidLockFileUtils>>();
+        EXPECT_CALL(*pidLockFileUtilsMock_, open(_,_,_)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*pidLockFileUtilsMock_, flock(_)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*pidLockFileUtilsMock_, ftruncate(_,_)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*pidLockFileUtilsMock_, write(_,_,_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*pidLockFileUtilsMock_, getpid()).WillRepeatedly(Return(2));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(pidLockFileUtilsMock_));
+    }
+    ~TestUpdateSchedulerProcessor() override
+    {
+        sharedPluginCallBack_->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
+        Common::FileSystemImpl::restorePidLockUtils();
+    }
 
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
+    void addRunnerExpectCalls() const
+    {
+        EXPECT_CALL(*downloaderRunnerMock_.get(), isRunning()).WillOnce(Return(false));
+        EXPECT_CALL(*downloaderRunnerMock_.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue_));
+    }
 
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+    void addFileSystemExpectCalls(const std::string& updateConfigJsonString, bool supplementOnlyMarker=true) const
+    {
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
+        EXPECT_CALL(*fileSystemMock_, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
+        EXPECT_CALL(*fileSystemMock_, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
+        EXPECT_CALL(*fileSystemMock_, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*fileSystemMock_, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(updateConfigJsonString));
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
+        EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
+        if (supplementOnlyMarker)
+        {
+            EXPECT_CALL(*fileSystemMock_, removeFile(HasSubstr("supplement_only.marker"),true));
+        }
+        EXPECT_CALL(*fileSystemMock_, listFiles(_)).WillRepeatedly(Return(std::vector<std::string>{}));
+        EXPECT_CALL(*fileSystemMock_, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
+    }
 
+    UpdateScheduler::SchedulerTask::TaskType policy_ = UpdateScheduler::SchedulerTask::TaskType::Policy;
+    Common::UtilityImpl::UniformIntDistribution distribution_ = Common::UtilityImpl::UniformIntDistribution(300, 600);
 
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(jsonString));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    std::unique_ptr<MockApiBaseServices> baseServiceMock_;
+    std::unique_ptr<MockAsyncDownloaderRunner> downloaderRunnerMock_;
+    std::unique_ptr<MockFileSystem> fileSystemMock_;
+    std::unique_ptr<MockPidLockFileUtils> pidLockFileUtilsMock_;
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+    std::unique_ptr<UpdateSchedulerImpl::cronModule::CronSchedulerThread> cronThread_;
+    std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> taskQueue_;
+    std::shared_ptr<UpdateSchedulerImpl::SchedulerPluginCallback> sharedPluginCallBack_;
+};
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, updatePolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
-    taskQueue->pushStop();
+TEST_F(TestUpdateSchedulerProcessor, teststartupAndShutdown)
+{
+    auto updateScheduler = UpdateSchedulerImpl::UpdateSchedulerProcessor(
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_)
+    );
+    taskQueue_->pushStop();
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
+}
 
+TEST_F(TestUpdateSchedulerProcessor, NoUpdateTriggeredIfpolicyIsSameAsExistingConfig)
+{
+    addFileSystemExpectCalls(jsonString, false);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
+
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, updatePolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->pushStop();
+
+    EXPECT_NO_THROW(updateScheduler.mainLoop());
+    scopedReplaceFileSystem.reset();
 }
 
 TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeature)
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-    EXPECT_CALL(*mockRunner.get(), isRunning()).WillOnce(Return(false));
-    EXPECT_CALL(*mockRunner.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue));
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(jsonString));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, removeFile(HasSubstr("supplement_only.marker"),true));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    addRunnerExpectCalls();
+    addFileSystemExpectCalls(jsonString);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
-    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicy,"<Feature id=\"CORE\"/>\n","<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>");
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, ALCPolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
+    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
+        updatePolicy,
+        "<Feature id=\"CORE\"/>\n",
+        "<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>"
+        );
+
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
-
+    scopedReplaceFileSystem.reset();
 }
 
 TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeatureEvenWhenPaused)
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-    EXPECT_CALL(*mockRunner.get(), isRunning()).WillOnce(Return(false));
-    EXPECT_CALL(*mockRunner.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue));
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    std::string configJson = Common::UtilityImpl::StringUtils::replaceAll(jsonString,
-                                                                          "<\"fixedVersion\" : \"\"",
-                                                                          "\"fixedVersion\" : \"2022.1.0.40\"");
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(configJson));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, removeFile(HasSubstr("supplement_only.marker"),true));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    addRunnerExpectCalls();
+    std::string configJson = Common::UtilityImpl::StringUtils::replaceAll(
+        jsonString,
+        R"(<"fixedVersion" : "")",
+        R"("fixedVersion" : "2022.1.0.40")"
+        );
+    addFileSystemExpectCalls(configJson);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
-    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicy,"<Feature id=\"CORE\"/>\n","<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>");
+    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
+        updatePolicy,
+        "<Feature id=\"CORE\"/>\n",
+        "<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>"
+        );
     ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         ALCPolicy,
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\"/>",
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\" FixedVersion=\"2022.1.0.40\"/>");
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, ALCPolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>)",
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>)");
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
-
+    scopedReplaceFileSystem.reset();
 }
-
 
 TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEvenWhenPaused)
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-    EXPECT_CALL(*mockRunner.get(), isRunning()).WillOnce(Return(false));
-    EXPECT_CALL(*mockRunner.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue));
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    std::string configJson = Common::UtilityImpl::StringUtils::replaceAll(jsonString,
-                                                                          "<\"fixedVersion\" : \"\"",
-                                                                          "\"fixedVersion\" : \"2022.1.0.40\"");
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(configJson));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, removeFile(HasSubstr("supplement_only.marker"),true));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    addRunnerExpectCalls();
+    std::string configJson = Common::UtilityImpl::StringUtils::replaceAll(
+        jsonString,
+        R"(<"fixedVersion" : "")",
+        R"("fixedVersion" : "2022.1.0.40")"
+        );
+    addFileSystemExpectCalls(configJson);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
     std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         updatePolicy,
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\"/>",
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-MDR\" Tag=\"RECOMMENDED\" FixedVersion=\"2022.1.0.40\"/>");
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, ALCPolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>)",
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-MDR" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>)"
+        );
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
-
+    scopedReplaceFileSystem.reset();
 }
 
 
 TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeatureEvenWhenScheduled)
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-    EXPECT_CALL(*mockRunner.get(), isRunning()).WillOnce(Return(false));
-    EXPECT_CALL(*mockRunner.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue));
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(jsonString));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, removeFile(HasSubstr("supplement_only.marker"),true));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    addRunnerExpectCalls();
+    addFileSystemExpectCalls(jsonString);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
-    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicy,"<Feature id=\"CORE\"/>\n","<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>");
+    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
+        updatePolicy,
+        "<Feature id=\"CORE\"/>\n",
+        "<Feature id=\"CORE\"/>\n<Feature id=\"EXTRA\"/>"
+        );
     ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         ALCPolicy,
-        "<delay_supplements enabled=\"true\"/>",
-        "<delay_updating Day=\"Wednesday\" Time=\"22:05:00\"/>");
+        R"(<delay_supplements enabled="true"/>)",
+        R"(<delay_updating Day="Wednesday" Time="22:05:00"/>)"
+        );
 
-
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, ALCPolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
-
+    scopedReplaceFileSystem.reset();
 }
 
 
 TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEvenWhenScheduled)
 {
-    auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(taskQueue);
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillRepeatedly(Return());
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS"));
-
-
-    Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
-
-    auto cronThread = std::make_unique<UpdateSchedulerImpl::cronModule::CronSchedulerThread>(
-        taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-    auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-
-    auto mockRunner = std::make_unique<MockAsyncDownloaderRunner>();
-    EXPECT_CALL(*mockRunner.get(), isRunning()).WillOnce(Return(false));
-    EXPECT_CALL(*mockRunner.get(), triggerSulDownloader()).WillOnce(QueueStopTask(taskQueue));
-
-
-    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, open(_,_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, ftruncate(_,_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockPidLockFileUtilsPtr, getpid()).WillRepeatedly(Return(2));
-    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
-        std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-
-
-    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
-    
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(jsonString));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
-    EXPECT_CALL(*filesystemMock, removeFile(HasSubstr("supplement_only.marker"),true));
-    std::vector<std::string> list = {};
-    EXPECT_CALL(*filesystemMock, listFiles(_)).WillRepeatedly(Return(list));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(_,_,_)).WillRepeatedly(Return());
-    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    addRunnerExpectCalls();
+    addFileSystemExpectCalls(jsonString);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-        taskQueue,
-        std::move(mockBaseService),
-        sharedPluginCallBack,
-        std::move(cronThread),
-        std::move(mockRunner));
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
 
-    auto Policy = UpdateScheduler::SchedulerTask::TaskType::Policy;
     std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         updatePolicy,
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\"/>",
-        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-MDR\" Tag=\"RECOMMENDED\"/>");
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>)",
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-MDR" Tag="RECOMMENDED"/>)"
+        );
     ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         ALCPolicy,
-        "<delay_supplements enabled=\"true\"/>",
-        "<delay_updating Day=\"Wednesday\" Time=\"22:05:00\"/>");
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, ALCPolicy ,"ALC"});
-    taskQueue->push(UpdateScheduler::SchedulerTask{ Policy, "{}" ,"FLAGS"});
+        R"(<delay_supplements enabled="true"/>)",
+        R"(<delay_updating Day="Wednesday" Time="22:05:00"/>)"
+        );
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
-    sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
+    scopedReplaceFileSystem.reset();
+}
 
+TEST_F(TestUpdateSchedulerProcessor, TelemetryWithScheduledUpdatingEnabled)
+{
+    addRunnerExpectCalls();
+    addFileSystemExpectCalls(jsonString);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
+
+    std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
+        updatePolicy,
+        R"(<delay_supplements enabled="true"/>)",
+        R"(<delay_updating Day="Wednesday" Time="17:00:00"/>)"
+        );
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
+
+    EXPECT_NO_THROW(updateScheduler.mainLoop());
+
+    auto telemetry = nlohmann::json::parse(Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset());
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingEnabled], true);
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingDay], "Wednesday");
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingTime], "17:00");
+
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(TestUpdateSchedulerProcessor, TelemetryWithoutScheduledUpdatingEnabled)
+{
+    addRunnerExpectCalls();
+    addFileSystemExpectCalls(jsonString);
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        taskQueue_,
+        std::move(baseServiceMock_),
+        sharedPluginCallBack_,
+        std::move(cronThread_),
+        std::move(downloaderRunnerMock_));
+
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, updatePolicy ,"ALC"});
+
+    EXPECT_NO_THROW(updateScheduler.mainLoop());
+
+    auto telemetry = nlohmann::json::parse(Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset());
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingEnabled], false);
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingDay], nullptr);
+    EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingTime], nullptr);
+
+    scopedReplaceFileSystem.reset();
 }

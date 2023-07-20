@@ -24,11 +24,9 @@ Force Tags  LOAD6
 UpdateScheduler Delayed Updating
     [Tags]  UPDATE_SCHEDULER  TESTFAILURE
     #Removed [Setup]  Setup For Test With Warehouse Containing Base
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Send Policy To UpdateScheduler  ALC_policy_delayed_updating.xml
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains   Scheduling product updates for Sunday 12:00    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Scheduling product updates for Sunday at 12:00    ${10}
 
 #TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Should Fail if Warehouse is missing multiple packages

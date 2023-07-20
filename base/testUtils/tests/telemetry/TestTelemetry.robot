@@ -1,24 +1,24 @@
 *** Settings ***
 Documentation     Test the Telemetry executable
 
-Library           ${LIBS_DIRECTORY}/CentralUtils.py
-Library           ${LIBS_DIRECTORY}/MCSRouter.py
-Library           ${LIBS_DIRECTORY}/SystemInfo.py
-Library           OperatingSystem
-Library           ${LIBS_DIRECTORY}/LogUtils.py
-Library           ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library    OperatingSystem
 
-Library     ${LIBS_DIRECTORY}/ActionUtils.py
-Library     ${LIBS_DIRECTORY}/EventUtils.py
-Library     ${LIBS_DIRECTORY}/OnFail.py
+Library    ${LIBS_DIRECTORY}/ActionUtils.py
+Library    ${LIBS_DIRECTORY}/CentralUtils.py
+Library    ${LIBS_DIRECTORY}/EventUtils.py
+Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/OnFail.py
+Library    ${LIBS_DIRECTORY}/SystemInfo.py
 
-Resource  TelemetryResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../installer/InstallerResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource  ../management_agent/ManagementAgentResources.robot
+Resource    TelemetryResources.robot
 
+Resource    ../GeneralTeardownResource.robot
+Resource    ../installer/InstallerResources.robot
+Resource    ../management_agent/ManagementAgentResources.robot
+Resource    ../mcs_router/McsRouterResources.robot
+Resource    ../scheduler_update/SchedulerUpdateResources.robot
 
 Suite Setup      Setup Telemetry Tests
 Suite Teardown   Cleanup Telemetry Tests
@@ -164,18 +164,21 @@ Telemetry Executable Generates Update Scheduler Telemetry
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy Into Place
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
 
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=NotAUserName  set_edr=True  set_av=True  install_state=0  download_state=0
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
+    ...    sddsid=NotAUserName
+    ...    set_edr=True
+    ...    set_av=True
+    ...    install_state=0
+    ...    download_state=0
 
 Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And Tag In Policy
     # Make sure there are no left over update telemetry items.
@@ -184,18 +187,45 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy With Fixed Version Into Place
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
 
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}   0  base_fixed_version=2022.1.0.40  sddsid=NotAUserName  install_state=0  download_state=0
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}   0
+    ...    base_fixed_version=2022.1.0.40
+    ...    sddsid=NotAUserName
+    ...    install_state=0
+    ...    download_state=0
+
+Telemetry Executable Generates Update Scheduler Telemetry With Scheduled Updating
+    # Make sure there are no left over update telemetry items.
+    Cleanup Telemetry Server
+    Require Fresh Install
+
+    Create Empty SulDownloader Config
+    setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Drop ALC Policy With Scheduled Updating Into Place
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Scheduling product updates for Sunday at 12:00    ${10}
+
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log File   ${TELEMETRY_OUTPUT_JSON}
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}   0
+    ...    scheduled_updating_enabled=${True}
+    ...    scheduled_updating_day=Sunday
+    ...    scheduled_updating_time=12:00
+    ...    sddsid=regruser
+    ...    install_state=0
+    ...    download_state=0
 
 Telemetry Executable Log Has Correct Permissions
     [Documentation]    Telemetry Executable Log Has Correct Permissions

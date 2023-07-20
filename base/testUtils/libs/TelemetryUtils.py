@@ -227,9 +227,10 @@ class TelemetryUtils:
         return json.dumps(self.generate_base_telemetry_dict())
 
     def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
-                                            successful_update_time, base_fixed_version, base_tag,
-                                            sddsid,set_edr,set_av,
-                                            install_state,download_state, sdds_mechanism):
+                                            successful_update_time, base_fixed_version, base_tag, sddsid, set_edr,
+                                            set_av, install_state, download_state, sdds_mechanism,
+                                            scheduled_updating_enabled, scheduled_updating_day,
+                                            scheduled_updating_time, alc_policy_received):
         health = 0
         if not(download_state == 0 and install_state == 0):
             health = 1
@@ -238,7 +239,7 @@ class TelemetryUtils:
             "failed-downloader-count": 0,
             "install-state": install_state,
             "download-state": download_state,
-            "health": health
+            "health": health,
         }
 
         if most_recent_update_successful is not None:
@@ -252,12 +253,20 @@ class TelemetryUtils:
         else:
             telemetry["subscriptions-ServerProtectionLinux-Base"] = base_fixed_version
 
-
         if set_edr:
             telemetry["subscriptions-ServerProtectionLinux-Plugin-EDR"] = "RECOMMENDED"
 
         if set_av:
             telemetry["subscriptions-ServerProtectionLinux-Plugin-AV"] = "RECOMMENDED"
+
+        if alc_policy_received:
+            telemetry["scheduled-updating-enabled"] = scheduled_updating_enabled
+
+        if scheduled_updating_day:
+            telemetry["scheduled-updating-day"] = scheduled_updating_day
+
+        if scheduled_updating_time:
+            telemetry["scheduled-updating-time"] = scheduled_updating_time
 
         warehouse = {"sddsid": sddsid}
 
@@ -387,10 +396,11 @@ class TelemetryUtils:
     def check_update_scheduler_telemetry_json_is_correct(self, json_string, number_failed_updates,
                                                          most_recent_update_successful=None,
                                                          successful_update_time=None, timing_tolerance=10,
-                                                         base_fixed_version="", base_tag="RECOMMENDED",
-                                                         sddsid="",
-                                                         set_edr=False, set_av=False, install_state=0,download_state=0,
-                                                         sdds_mechanism=None):
+                                                         base_fixed_version="", base_tag="RECOMMENDED", sddsid="",
+                                                         set_edr=False, set_av=False, install_state=0, download_state=0,
+                                                         sdds_mechanism=None, scheduled_updating_enabled=False,
+                                                         scheduled_updating_day=None, scheduled_updating_time=None,
+                                                         alc_policy_received=True):
         ignore_sdds_mechanism = sdds_mechanism is None
         expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates,
                                                                                             most_recent_update_successful,
@@ -398,7 +408,11 @@ class TelemetryUtils:
                                                                                             base_fixed_version, base_tag,
                                                                                             sddsid,set_edr,set_av,
                                                                                             install_state,download_state,
-                                                                                            sdds_mechanism)
+                                                                                            sdds_mechanism,
+                                                                                            scheduled_updating_enabled,
+                                                                                            scheduled_updating_day,
+                                                                                            scheduled_updating_time,
+                                                                                            alc_policy_received)
         actual_update_scheduler_telemetry_dict = json.loads(json_string)["updatescheduler"]
 
         self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict,

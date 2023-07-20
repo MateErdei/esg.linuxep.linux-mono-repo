@@ -205,6 +205,9 @@ Drop ALC Policy Into Place
 Drop ALC Policy With Fixed Version Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
+Drop ALC Policy With Scheduled Updating Into Place
+    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_policy_delayed_updating.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+
 Drop MCS Config Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/base_data/mcs.config  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
