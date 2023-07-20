@@ -6,6 +6,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             MockDetectionHandler.h
             TestActionUtils.cpp
             TestDetectionQueue.cpp
+            TestHealthStatus.cpp
             TestOnAccessStatusMonitor.cpp
             TestPolicyProcessor.cpp
             TestPolicyProcessor.h

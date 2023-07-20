@@ -9,6 +9,7 @@ namespace Plugin
     std::string getMetadataRescanSocketPath();
     std::string getOnAccessUnhealthyFlagPath();
     std::string getThreatDetectorUnhealthyFlagPath();
+    std::string getThreatDetectorSusiUpdateStatusPath();
     std::string getPersistThreatDatabaseFilePath();
     std::string getPluginChrootDirPath();
     std::string getPluginChrootVarDirPath();

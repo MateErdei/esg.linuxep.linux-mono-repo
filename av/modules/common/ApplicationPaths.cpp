@@ -104,6 +104,11 @@ namespace Plugin
         return getPluginChrootVarDirPath() + "/threatdetector_unhealthy_flag";
     }
 
+    std::string getThreatDetectorSusiUpdateStatusPath()
+    {
+        return getPluginChrootVarDirPath() + "/update_status.json";
+    }
+
     std::string getRelativeSafeStoreRescanIntervalConfigPath()
     {
         return "/var/safeStoreRescanInterval";

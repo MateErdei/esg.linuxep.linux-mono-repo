@@ -25,8 +25,6 @@
 #include <string>
 #include <thread>
 #include <chrono>
-// Std C
-#include <unistd.h>
 
 namespace fs = sophos_filesystem;
 
@@ -351,6 +349,14 @@ namespace Plugin
             if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
             {
                 LOGWARN("Sophos Threat Detector Process is not running, turning service health to red");
+            }
+            m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else if (susiUpdateFailed())
+        {
+            if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("SUSI update failed, turning service health to red");
             }
             m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;
         }

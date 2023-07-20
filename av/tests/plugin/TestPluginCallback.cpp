@@ -17,6 +17,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Helpers/MockSysCalls.h"
@@ -166,6 +167,12 @@ namespace
                 assert(val >= 0);
                 datafile << static_cast<unsigned char>(static_cast<unsigned>(val) & 0xff);
             }
+        }
+
+        void expectAbsentSusiStatusFile()
+        {
+            auto path = Plugin::getThreatDetectorSusiUpdateStatusPath();
+            EXPECT_CALL(*m_mockFileSystem, readFile(StrEq(path))).WillOnce(Throw(Common::FileSystem::IFileNotFoundException("FOOBAR")));
         }
 
         std::shared_ptr<Plugin::TaskQueue> m_taskQueue;
@@ -458,6 +465,7 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
 TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFilesAndStatusHealthy)
 {
     int fileDescriptor = 123;
+    expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
@@ -474,6 +482,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFil
 TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCannotBeTakenOnPidFilesButStatusUnhealthy)
 {
     int fileDescriptor = 123;
+    expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
@@ -532,6 +541,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     int other_fd = 123;
     int soapd_fd = 321;
 
+    expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
@@ -561,7 +571,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafeStoreP
 
     int other_fd = 123;
     int soapd_fd = 321;
-    
+
+    expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
@@ -628,6 +639,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
+    expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, exists(shutdownFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillRepeatedly(Return(false));

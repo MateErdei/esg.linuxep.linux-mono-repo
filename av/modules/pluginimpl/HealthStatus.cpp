@@ -1,7 +1,13 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "HealthStatus.h"
 
+#include "common/ApplicationPaths.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+
+#include <thirdparty/nlohmann-json/json.hpp>
 
 std::string_view Plugin::threatHealthToString(E_HEALTH_STATUS status)
 {
@@ -14,4 +20,21 @@ std::string_view Plugin::threatHealthToString(E_HEALTH_STATUS status)
         default:
             return "unknown";
     }
+}
+
+bool Plugin::susiUpdateFailed()
+{
+    auto* fileSystem = Common::FileSystem::fileSystem();
+
+    try
+    {
+        auto contents = fileSystem->readFile(Plugin::getThreatDetectorSusiUpdateStatusPath());
+        auto json = nlohmann::json::parse(contents);
+        return !json.at("success");
+    }
+    catch (const Common::FileSystem::IFileNotFoundException&)
+    {
+        // Assume success if the file isn't present
+    }
+    return false;
 }
