@@ -573,7 +573,7 @@ namespace Plugin
                     LOGWARN("Failed to send threat health: " << e.what());
                 }
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            m_taskQueue->stoppableSleep(std::chrono::milliseconds(50));
         }
     }
 
