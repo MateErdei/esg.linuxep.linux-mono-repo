@@ -24,10 +24,20 @@ namespace
             statusFilePath_ = Plugin::getThreatDetectorSusiUpdateStatusPath();
         }
 
-        void setPluginInstall(const char* pluginInstall="/opt/sophos-spl/plugins/av")
+        static void setPluginInstall(const char* pluginInstall="/opt/sophos-spl/plugins/av")
         {
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+        }
+
+        [[nodiscard]] auto& expectReadStatusFile() const
+        {
+            return EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_)));
+        }
+
+        void expectReadStatusFileAndReturn(const char* contents) const
+        {
+            expectReadStatusFile().WillOnce(Return(contents));
         }
 
         std::unique_ptr<MockFileSystem> mockFileSystem_;
@@ -37,49 +47,49 @@ namespace
 
 TEST_F(TestHealthStatus, susiUpdateFailed_absentFile)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Throw(Common::FileSystem::IFileNotFoundException("FOOBAR")));
+    expectReadStatusFile().WillOnce(Throw(Common::FileSystem::IFileNotFoundException("FOOBAR")));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_emptyFile)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return(""));
+    expectReadStatusFileAndReturn("");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_invalid_json)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return("FOOBAR"));
+    expectReadStatusFileAndReturn("FOOBAR");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_emptyMap)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return("{}"));
+    expectReadStatusFileAndReturn("{}");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_incorrectTypeForSuccessKey)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return("{\"success\":5}"));
+    expectReadStatusFileAndReturn("{\"success\":5}");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_true)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return("{\"success\":false}"));
+    expectReadStatusFileAndReturn("{\"success\":false}");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_TRUE(Plugin::susiUpdateFailed());
 }
 
 TEST_F(TestHealthStatus, susiUpdateFailed_false)
 {
-    EXPECT_CALL(*mockFileSystem_, readFile(StrEq(statusFilePath_))).WillOnce(Return("{\"success\":true}"));
+    expectReadStatusFileAndReturn("{\"success\":true}");
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(mockFileSystem_)};
     EXPECT_FALSE(Plugin::susiUpdateFailed());
 }
