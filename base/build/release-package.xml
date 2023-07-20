@@ -24,24 +24,28 @@
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="em" repo="esg">
-            <!--            <release-version branch="release/SPRINT-2023.28"-->
-            <!--                             build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>-->
-            <development-version branch="develop"/>
-            <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
-            <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="/build/redist/sophlib/lib64"/>
-            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
+            <release-version branch="release/SPRINT-2023.28"
+                             build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
+<!--            <development-version branch="develop"/>-->
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
             <include artifact-path="thirdparty/zmq-linux-opt" dest-dir="/build/redist/zeromq"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
             <include artifact-path="thirdparty/expat-linux-opt" dest-dir="/build/redist/expat"/>
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
-            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
+            <include artifact-path="thirdparty/minizip-lzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
             <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
             <include artifact-path="thirdparty/pugixml-linux-opt" dest-dir="/build/redist/pugixml"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="/build/redist/boost"/>
             <include artifact-path="thirdparty/log4cplus-linux-opt" dest-dir="/build/redist/log4cplus"/>
+        </build-asset>
+
+        <build-asset project="em" repo="esg">
+            <development-version branch="feature--sophlib--LINUXDAR-7439-url-validation"/>
+            <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="/build/redist/sophlib/lib64"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
+            <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">

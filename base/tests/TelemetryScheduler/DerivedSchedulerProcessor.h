@@ -37,4 +37,5 @@ public:
 
     bool delayingTelemetryRun() override { return SchedulerProcessor::delayingTelemetryRun(); }
     bool delayingConfigurationCheck() override { return SchedulerProcessor::delayingConfigurationCheck(); }
+    void processALCPolicy(const std::string& policyXml) override { SchedulerProcessor::processALCPolicy(policyXml); };
 };

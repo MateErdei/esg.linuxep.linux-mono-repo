@@ -19,6 +19,8 @@
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "sophlib/hostname/Validate.h"
 
+#include "sophlib/hostname/Validate.h"
+
 using namespace Common::ApplicationConfiguration;
 using namespace Common::Policy;
 
@@ -162,7 +164,15 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     }
     else if (telemetryHosts.size() == 1)
     {
-        telemetryHost_ = telemetryHosts[0].contents();
+        try
+        {
+            telemetryHost_ = telemetryHosts[0].contents();
+            sophlib::hostname::validate(*telemetryHost_);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            throw PolicyParseException(LOCATION, "Invalid telemetry host '" + *telemetryHost_ + "'");
+        }
     }
     else
     {

@@ -375,6 +375,15 @@ namespace TelemetrySchedulerImpl
 
     void SchedulerProcessor::checkExecutableFinished()
     {
+//        assert(m_telemetryExeProcess != nullptr);
+
+        // Telemetry executable should have been run before this point, hence early exit if
+        // m_telemetryExeProcess == nullptr
+        if (m_telemetryExeProcess == nullptr)
+        {
+            return;
+        }
+
         if (m_telemetryExeProcess->getStatus() != Common::Process::ProcessStatus::FINISHED)
         {
             m_telemetryExeProcess->kill();
@@ -398,29 +407,27 @@ namespace TelemetrySchedulerImpl
     {
         try
         {
+            // Note: If malformed hostname given by ALC Policy then a PolicyParse Exception is thrown
+            // No more tasks end up on queue so TelemetryScheduler just waits for another ALC Policy
+            // good behaviour... i hope :)
             Common::Policy::ALCPolicy alcPolicy{ policyXml };
 //            auto [config, isValid] = getConfigFromFile();
             const auto telemetryHost = alcPolicy.getTelemetryHost();
 
             if (!telemetryHost) // <Telemetry> field did not exist in ALC policy
             {
+                LOGDEBUG("Didn't get telemetry host from ALC policy");
                 m_telemetryHost = "t1.sophosupd.com"; // Fallback to hardcoded value
             }
             else if ( telemetryHost->empty() ) // Value of <Telemetry> field was empty
             {
+                LOGDEBUG("Got empty host from ALC policy");
                 m_telemetryHost = ""; // Don't do Telemetry
             }
             else
             {
-                const auto isHostValid = checkTelemetryHostValid(*telemetryHost);
-                if (isHostValid)
-                {
-                    m_telemetryHost = *telemetryHost;
-                }
-                else // TelemetryHost from ALC policy was not valid so not doing any Telemetry
-                {
-                    m_telemetryHost = "";
-                }
+                LOGDEBUG("Got telemetry host '" << *telemetryHost << "' from ALC policy");
+                m_telemetryHost = *telemetryHost;
             }
 
             bool wasAlcPolicyProcessedBefore = m_alcPolicyProcessed;
@@ -436,7 +443,6 @@ namespace TelemetrySchedulerImpl
             }
         } catch (const Common::Policy::PolicyParseException& ex) {
             LOGERROR("Failed to parse ALC policy: " << ex.what());
-
             return;
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
@@ -444,20 +450,6 @@ namespace TelemetrySchedulerImpl
             LOGERROR("Failed to write telemetry config to file: " << ex.what());
             return;
         }
-    }
-
-    bool SchedulerProcessor::checkTelemetryHostValid(const std::string& basicString)
-    {
-        const std::vector<std::string> validDomains {".com", ".net", ".us"};
-        // localhost is valid
-        // No alphanumeric
-        // Only UTF-8
-        // Not too long
-
-
-        std::ignore = basicString;
-
-        return true;
     }
 
     /*

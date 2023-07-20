@@ -80,6 +80,8 @@ namespace TelemetrySchedulerImpl
             unsigned int interval,
             bool configFileValid);
 
+        virtual void processALCPolicy(const std::string& policyXml);
+
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
@@ -89,7 +91,6 @@ namespace TelemetrySchedulerImpl
         std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
         const seconds m_configurationCheckDelay;
         const seconds m_telemetryExeCheckDelay;
-        void processALCPolicy(const std::string& policyXml);
         bool checkTelemetryHostValid(const std::string& telemetryHost);
         bool m_alcPolicyProcessed = false;
         std::string waitForPolicy(int maxTasksThreshold, const std::string& policyAppId);

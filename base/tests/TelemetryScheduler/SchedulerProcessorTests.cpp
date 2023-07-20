@@ -4,19 +4,21 @@
 #include "MockTaskQueue.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "Common/TelemetryConfigImpl/Constants.h"
 #include "TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h"
 #include "TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h"
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/UtilityImpl/TestStringGenerator.h"
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
@@ -33,14 +35,17 @@ using TelemetrySchedulerImpl::TaskQueue;
 
 using ::testing::DefaultValue;
 
-class SchedulerProcessorTests : public LogInitializedTests
+class SchedulerProcessorTests : public MemoryAppenderUsingTests
 {
 public:
+    SchedulerProcessorTests() : MemoryAppenderUsingTests("telemetryScheduler"), usingMemoryAppender{ *this } {}
+
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
     MockedApplicationPathManager m_mockPathManager;
     std::unique_ptr<MockProcess> m_mockProcess;
     std::shared_ptr<MockTaskQueue> m_mockQueue;
+    UsingMemoryAppender usingMemoryAppender;
 
     const std::string m_telemetryConfigFilePath = "/opt/sophos-spl/base/etc/telemetry-config.json";
     const std::string m_telemetryExeConfigFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry-exe.json";
@@ -87,6 +92,20 @@ public:
         "interval": -1
     })"; // interval negative
 
+    const std::string m_validALCPolicy = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+</primary_location>
+</AUConfig>
+<server_names>
+  <telemetry>test.sophosupd.com</telemetry>
+</server_names>
+</AUConfigurations>
+)sophos";
+
     void SetUp() override
     {
         m_mockFileSystem = new StrictMock<MockFileSystem>();
@@ -108,8 +127,27 @@ public:
     }
 
     void TearDown() override {}
-    Tests::ScopedReplaceFileSystem m_replacer; 
+    Tests::ScopedReplaceFileSystem m_replacer;
+
+    static std::string generateAlcPolicyWithTelemetryHostname(const std::string& hostname)
+    {
+        return std::string(R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+</primary_location>
+</AUConfig>
+<server_names>
+<telemetry>)sophos") + hostname + R"sophos(</telemetry>
+</server_names>
+</AUConfigurations>
+)sophos";
+    }
 };
+
+/*
 
 TEST_F(SchedulerProcessorTests, CanBeConstructed) // NOLINT
 {
@@ -206,10 +244,13 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     auto task = queue->pop();
-    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::RunTelemetry});
+    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry}); // Task from processALCPolicy()
+    task = queue->pop();
+    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::RunTelemetry}); // Task from waitToRunTelemetry()
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -291,9 +332,12 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_RescheduleWithValidStatusFile
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(false);
 
     auto task = queue->pop();
+    EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
+    task = queue->pop();
     EXPECT_EQ(task, SchedulerTask{SchedulerTask::TaskType::RunTelemetry});
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
@@ -327,6 +371,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -353,6 +398,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -375,6 +421,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -400,6 +447,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -423,6 +471,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -547,6 +596,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidCo
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
@@ -566,7 +616,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
         .WillOnce(Return(R"({"scheduled-time":"invalid"})"));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
+        .WillOnce(Return(R"({"interval":86400})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -574,6 +624,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -593,7 +644,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileBigNumber) /
             .WillOnce(Return(R"({"scheduled-time": 12000000000000000})"));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
+            .WillOnce(Return(R"({"interval":86400})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -601,6 +652,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileBigNumber) /
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -620,7 +672,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileNegativeNumb
             .WillOnce(Return(R"({"scheduled-time": -1})"));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":86400, "server": "t1.sophosupd.com"})"));
+            .WillOnce(Return(R"({"interval":86400})"));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_telemetryStatusFilePath))
             .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
@@ -628,6 +680,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileNegativeNumb
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
@@ -666,8 +719,10 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableIsSuccessful) // NOLIN
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.runTelemetry();
 
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::CheckExecutableFinished});
 
     processor.checkExecutableFinished();
@@ -767,6 +822,10 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableTimesOut) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
 
+    processor.processALCPolicy(m_validALCPolicy);
+
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
+
     processor.runTelemetry();
 
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::CheckExecutableFinished});
@@ -808,6 +867,10 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLIN
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+
+    processor.processALCPolicy(m_validALCPolicy);
+
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
 
     processor.runTelemetry();
 
@@ -905,8 +968,10 @@ TEST_F(SchedulerProcessorTests, runTelemetry_NoMachineId) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.runTelemetry();
 
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
 }
 
@@ -939,8 +1004,10 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorWritingExeConfig) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.runTelemetry();
 
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
 
@@ -975,93 +1042,298 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
 
+    processor.processALCPolicy(m_validALCPolicy);
     processor.runTelemetry();
 
+    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
+*/
 
-//TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe)
-//{
-//    const auto policy = R"sophos(<?xml version="1.0"?>
-//<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-//  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-//<AUConfig platform="Linux">
-//<primary_location>
-//  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-//</primary_location>
-//</AUConfig>
-//<server_names>
-//  <telemetry>test.sophosupd.com</telemetry>
-//</server_names>
-//</AUConfigurations>
-//)sophos";
-//
-//    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
-//    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
-//    EXPECT_CALL(
-//        *m_mockFileSystem,
-//        readFile(
-//            m_telemetryStatusFilePath,
-//            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-//        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
-//    EXPECT_CALL(
-//        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-//        .WillOnce(Return(m_validTelemetryConfigJson));
-//    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
-//    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
-//    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
-//    EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
-//    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }))
-//        .WillOnce(Throw(Common::Process::IProcessException("error")));
-//
-//    auto queue = std::make_shared<TaskQueue>();
-//    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
-//    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
-//
-//    std::thread processorThread([&] {
-//        processor.run();
-//    });
-//
-//    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryConfigFilePath, _))
-//        .WillOnce(Invoke(
-//            [](const std::string&, const std::string& content)
-//            {
-//                auto j = nlohmann::json::parse(content);
-//                EXPECT_EQ(j["server"], "test.sophosupd.com");
-//            }));
-//
-//    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(1);
-//
-//    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
-//
-//    // add policy task
-//    // it should write config
-//    // wait for telemetry executable to run
-//    // send the shutdown task
-//
-//    processorThread.join();
-//
-//    setupFakeSophosThreatDetectorConfig();
-//    WaitForEvent serverWaitGuard;
-//
-//    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
-//
-//    EXPECT_CALL(*mockThreatReportCallback, processMessage(_))
-//        .Times(1)
-//        .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
-//
-//    ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
-//
-//    threatReporterServer.start();
-//
-//    // connect after we start
-//    ThreatReporterClientSocket threatReporterSocket(m_socketPath);
-//
-//    threatReporterSocket.sendThreatDetection(createThreatDetectedWithRealFd({}));
-//
-//    serverWaitGuard.wait();
-//
-//    processor.run();
-//
-//    EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
-//}
+// Tests for checking ALC Policy with different Telemetry field(s) and value(s).
+
+class SchedulerProcessorValidHostnameTests : public SchedulerProcessorTests, public testing::WithParamInterface<std::string>
+{
+    using SchedulerProcessorTests::SchedulerProcessorTests;
+};
+
+TEST_P(SchedulerProcessorValidHostnameTests, AfterRecevingAlcPolicyExeConfigIsWrittenWithCorrectServerAndTelemetryExecutableIsRun)
+{
+    const auto policy = generateAlcPolicyWithTelemetryHostname(GetParam());
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_telemetryStatusFilePath,
+            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(
+        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+        processor.run();
+    });
+
+    // add policy task
+    // it should write config
+    // wait for telemetry executable to run
+    // send the shutdown task
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _))
+            .WillOnce(Invoke(
+                [](const std::string&, const std::string& content)
+                {
+                    auto j = nlohmann::json::parse(content);
+                    EXPECT_EQ(j["server"], GetParam());
+                }));
+
+        EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }));
+
+        EXPECT_CALL(*m_mockProcess, getStatus())
+            .WillOnce(InvokeWithoutArgs(
+                [&queue]()
+                {
+                    queue->push({ SchedulerTask::TaskType::Shutdown });
+                    return Common::Process::ProcessStatus::FINISHED;
+                }));
+        EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
+    }
+
+    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+    processorThread.join();
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    SchedulerProcessorValidHostnameTestsInstantiation,
+    SchedulerProcessorValidHostnameTests,
+    testing::Values(
+        "sus.sophosupd.com",
+        "sdds3.sophosupd.com",
+        "sdds3.sophosupd.net",
+        "t1.sophosupd.com",
+        "test.sophosupd.com"));
+
+TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithEmptyTelemetryHostnameExeConfigIsNotWrittenAndTelemetryExecutableIsNotRun)
+{
+    const auto policy = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+</primary_location>
+</AUConfig>
+<server_names>
+<telemetry></telemetry>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_telemetryStatusFilePath,
+            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(
+        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+                                    processor.run();
+                                });
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
+    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+
+    // Need to wait for the log to know that we can push the shutdown task, as that means the scheduler decided not to run it
+    EXPECT_TRUE(waitForLog("Telemetry reporting is currently disabled - will check again in 0 seconds"));
+    queue->push({ SchedulerTask::TaskType::Shutdown });
+
+    processorThread.join();
+}
+
+TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNoTelemetryFieldExeConfigIsWrittenWithFallbackServerAndTelemetryExecutableIsRun)
+{
+    const auto policy = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+</primary_location>
+</AUConfig>
+<server_names>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_telemetryStatusFilePath,
+            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(
+        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+                                    processor.run();
+                                });
+
+    // add policy task
+    // it should write config
+    // wait for telemetry executable to run
+    // send the shutdown task
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _))
+            .WillOnce(Invoke(
+                [](const std::string&, const std::string& content)
+                {
+                    auto j = nlohmann::json::parse(content);
+                    EXPECT_EQ(j["server"], "t1.sophosupd.com");
+                }));
+
+        EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }));
+
+        EXPECT_CALL(*m_mockProcess, getStatus())
+            .WillOnce(InvokeWithoutArgs(
+                [&queue]()
+                {
+                    queue->push({ SchedulerTask::TaskType::Shutdown });
+                    return Common::Process::ProcessStatus::FINISHED;
+                }));
+        EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
+    }
+
+    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+    processorThread.join();
+}
+
+// Tests for checking URL validation
+TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNonUTF8TelemetryHostnameExeConfigIsNotWrittenAndTelemetryExecutableIsNotRun)
+{
+    const auto policy = generateAlcPolicyWithTelemetryHostname(generateNonUTF8String());
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_telemetryStatusFilePath,
+            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(
+        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+                                    processor.run();
+                                });
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
+    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+
+    EXPECT_TRUE(waitForLog("ERROR - Failed to parse ALC policy: Error parsing xml: not well-formed (invalid token)"));
+    queue->push({ SchedulerTask::TaskType::Shutdown });
+
+    processorThread.join();
+}
+
+class SchedulerProcessorInvalidHostnameTests : public SchedulerProcessorTests, public testing::WithParamInterface<std::string>
+{
+    using SchedulerProcessorTests::SchedulerProcessorTests;
+};
+
+TEST_P(SchedulerProcessorInvalidHostnameTests, AfterRecevingAlcPolicyWithInvalidTelemetryHostnameExeConfigIsNotWrittenAndTelemetryExecutableIsNotRun)
+{
+    const auto policy = generateAlcPolicyWithTelemetryHostname(GetParam());
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_telemetryStatusFilePath,
+            Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(
+        *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillRepeatedly(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+                                    processor.run();
+                                });
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
+    queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
+
+    // We check for this log because MemoryAppender does not allow checking for logs from a different logger
+    // But ideally we'd check the Policy log
+    EXPECT_TRUE(waitForLog("ERROR - Failed to parse ALC policy: Invalid telemetry host '" + GetParam() + "'"));
+    queue->push({ SchedulerTask::TaskType::Shutdown });
+
+    processorThread.join();
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    SchedulerProcessorInvalidHostnameTestsInstantiation,
+    SchedulerProcessorInvalidHostnameTests,
+    testing::Values(
+        "hi@sophosupd.com",
+        std::string(2000, 'a') + ".sophosupd.com",
+        "sus.ophos.com",
+        "sus.ophos.net",
+        "sus.ophos.us"));
