@@ -228,7 +228,7 @@ endfunction()
 
 monorepo_library(pugixml ${INPUT}/pugixml/libpugixml ${INPUT}/pugixml)
 monorepo_library(bzip2 ${INPUT}/bzip2/libbzip2 ${INPUT}/bzip2)
-monorepo_library(lzma ${INPUT}/lzma/liblzma ${INPUT}/lzma/lib/liblzma/api/lzma)
+monorepo_library(lzma ${INPUT}/lzma/liblzma ${INPUT}/lzma/src/liblzma/api)
 monorepo_library(minizip ${INPUT}/minizip/minizip/libminizip ${INPUT}/minizip)
 monorepo_library(zlib ${INPUT}/zlib/libzlib ${INPUT}/zlib)
 monorepo_library(curl_library ${CURL_INPUT}/libcurl ${CURL_INPUT}/include)

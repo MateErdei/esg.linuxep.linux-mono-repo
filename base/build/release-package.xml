@@ -35,7 +35,7 @@
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
             <include artifact-path="thirdparty/expat-linux-opt" dest-dir="/build/redist/expat"/>
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
-            <include artifact-path="thirdparty/minizip-lzma-linux-opt" dest-dir="/build/redist/lzma"/>
+            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
             <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
             <include artifact-path="thirdparty/pugixml-linux-opt" dest-dir="/build/redist/pugixml"/>
