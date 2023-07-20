@@ -15,6 +15,8 @@
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
 #include <gtest/gtest.h>
 
 using namespace  threat_scanner;
@@ -28,8 +30,8 @@ namespace
 
         void SetUp() override
         {
+            setPluginInstall("/plugin");
             testPath_ = createTestSpecificDirectory();
-
         }
 
         void TearDown() override
@@ -359,9 +361,9 @@ TEST_F(TestSusiGlobalHandler, initPassesConfig)
 TEST_F(TestSusiGlobalHandler, updateAfterInit)
 {
     setChroot(testPath_.c_str());
-    fs::create_directories(testPath_ / "tmp"); // Needed for atomic write
-    fs::create_directories(testPath_ / "var"); // Needed for status write
-    setPluginInstall("/plugin");
+    const auto tmp = testPath_ / "tmp";
+    const auto var = testPath_ / "var";
+    const auto status_path = var / "update_status.json";
     auto mockSusiApi = std::make_shared<StrictMock<MockSusiApi>>();
     std::string config;
     setExpectationForInit(*mockSusiApi, config);
@@ -371,6 +373,55 @@ TEST_F(TestSusiGlobalHandler, updateAfterInit)
     auto globalHandler = SusiGlobalHandler(mockSusiApi);
     globalHandler.initializeSusi(config);
 
+    // Mock filesystem
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    std::string contents;
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(
+                                     status_path.native(),
+                                     _,
+                                     tmp.native(),
+                                     0640
+                                     )).WillOnce(SaveArg<1>(&contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::move(filesystemMock)};
+
     UsingMemoryAppender memoryAppenderHolder(*this);
     globalHandler.update(updateDir, testPath_ / "lock_file");
+    auto parsed = nlohmann::json::parse(contents);
+    EXPECT_TRUE(parsed.at("success"));
+    EXPECT_EQ(parsed.at("result"), SUSI_S_OK);
+}
+
+TEST_F(TestSusiGlobalHandler, corruptUpdateAfterInit)
+{
+    setChroot(testPath_.c_str());
+    const auto tmp = testPath_ / "tmp";
+    const auto var = testPath_ / "var";
+    const auto status_path = var / "update_status.json";
+
+    setPluginInstall("/plugin");
+    auto mockSusiApi = std::make_shared<StrictMock<MockSusiApi>>();
+    std::string config;
+    setExpectationForInit(*mockSusiApi, config);
+    auto updateDir = testPath_ / "update_path";
+    EXPECT_CALL(*mockSusiApi, SUSI_Update(Eq(updateDir))).WillOnce(Return(SUSI_E_CORRUPTDATA));
+
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.initializeSusi(config);
+
+    // Mock filesystem
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    std::string contents;
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(
+                                     status_path.native(),
+                                     _,
+                                     tmp.native(),
+                                     0640
+                                     )).WillOnce(SaveArg<1>(&contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::move(filesystemMock)};
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    globalHandler.update(updateDir, testPath_ / "lock_file");
+    auto parsed = nlohmann::json::parse(contents);
+    EXPECT_FALSE(parsed.at("success"));
+    EXPECT_EQ(parsed.at("result"), SUSI_E_CORRUPTDATA);
 }
