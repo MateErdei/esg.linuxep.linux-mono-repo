@@ -191,17 +191,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
-Upgrade From Dogfood to VUT and Check RPATH For Every Binary
+Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
-    &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
-    &{expectedVUTVersions} =    Get Expected Versions    vut
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
 
-    Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-
-    ${handle}=    Start Local Dogfood SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
@@ -211,17 +207,14 @@ Upgrade From Dogfood to VUT and Check RPATH For Every Binary
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Contains   Running SDDS3 update
+    ...   Check SulDownloader Log Contains   Update success
+    Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-#    wait_for_log_contains_from_exmark    ${sul_mark}    Update success    120
 
     # Run Process can hang with large outputs which RPATHChecker.sh can have
     ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
