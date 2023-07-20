@@ -218,12 +218,12 @@ set(SOPHLIB_INCLUDE ${INPUT}/sophlib/include )
 
 function(add_sophlib_library name)
     # Linked statically to avoid name clashes with our libraries
-    add_imported_library(sophlib_${name} STATIC FALSE ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${SOPHLIB_INCLUDE})
+    add_imported_library(sophlib_${name} STATIC FALSE ${INPUT}/sophlib/lib64/${name}/lib${name}.a ${SOPHLIB_INCLUDE})
 endfunction()
 
 function(monorepo_library name location include_directory)
     add_imported_library(${name} SHARED TRUE ${location}.so ${include_directory})
-    add_imported_library(${name}_static STATIC FALSE ${location}.pic.a ${include_directory})
+    add_imported_library(${name}_static STATIC FALSE ${location}.a ${include_directory})
 endfunction()
 
 monorepo_library(pugixml ${INPUT}/pugixml/libpugixml ${INPUT}/pugixml)
@@ -252,7 +252,7 @@ add_sophlib_library(sdds3)
 add_sophlib_library(string)
 add_sophlib_library(time)
 add_sophlib_library(zip)
-add_imported_library(sophlib_sdds3_delta STATIC FALSE ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.pic.a ${INPUT}/sophlib/include)
+add_imported_library(sophlib_sdds3_delta STATIC FALSE ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.a ${INPUT}/sophlib/include)
 
 # Define dependencies between imported libraries (based on Bazel dependencies in monorepo)
 target_link_libraries(minizip INTERFACE bzip2 lzma openssl_crypto zlib)
