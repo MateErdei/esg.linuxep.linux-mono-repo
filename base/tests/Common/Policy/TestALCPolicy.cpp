@@ -17,7 +17,7 @@ static const std::string UPDATE_POLICY_WITH_CACHE{ R"sophos(<?xml version="1.0"?
   <AUConfig platform="Linux">
     <sophos_address address="http://es-web.sophos.com/update"/>
     <primary_location>
-      <server BandwidthLimit="0" AutoDial="false" Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+      <server BandwidthLimit="0" AutioDial="false" Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </primary_location>
     <secondary_location>
@@ -428,7 +428,7 @@ TEST_F(TestALCPolicy, emptyTelemetryHostInPolicyGivesEmptyString)
     EXPECT_EQ(obj.getTelemetryHost(), "");
 }
 
-TEST_F(TestALCPolicy, invalidTelemetryHostInPolicyGivesEmptyString)
+TEST_F(TestALCPolicy, invalidTelemetryHostInPolicyThrowsException)
 {
     constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -443,9 +443,7 @@ TEST_F(TestALCPolicy, invalidTelemetryHostInPolicyGivesEmptyString)
 </server_names>
 </AUConfigurations>
 )sophos";
-
-    ALCPolicy obj{ minPolicy };
-    EXPECT_EQ(obj.getTelemetryHost(), "");
+    EXPECT_THROW(ALCPolicy obj{ minPolicy }, PolicyParseException);
 }
 
 //sdds2 Update Server Tests

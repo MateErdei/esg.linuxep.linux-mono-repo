@@ -147,8 +147,6 @@ public:
     }
 };
 
-/*
-
 TEST_F(SchedulerProcessorTests, CanBeConstructed) // NOLINT
 {
     auto queue = std::make_shared<TaskQueue>();
@@ -1048,7 +1046,6 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::InitialWaitToRunTelemetry});
     EXPECT_EQ(queue->pop(), SchedulerTask{SchedulerTask::TaskType::WaitToRunTelemetry});
 }
-*/
 
 // Tests for checking ALC Policy with different Telemetry field(s) and value(s).
 
@@ -1076,12 +1073,6 @@ TEST_P(SchedulerProcessorValidHostnameTests, AfterRecevingAlcPolicyExeConfigIsWr
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
 
     auto queue = std::make_shared<TaskQueue>();
-    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
-    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
-
-    std::thread processorThread([&] {
-        processor.run();
-    });
 
     // add policy task
     // it should write config
@@ -1111,6 +1102,13 @@ TEST_P(SchedulerProcessorValidHostnameTests, AfterRecevingAlcPolicyExeConfigIsWr
                 }));
         EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
     }
+
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+        processor.run();
+    });
 
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
     processorThread.join();
@@ -1156,6 +1154,9 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithEmptyTelemetryHostname
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
 
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
     auto queue = std::make_shared<TaskQueue>();
     auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
     DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
@@ -1163,9 +1164,6 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithEmptyTelemetryHostname
     std::thread processorThread([&] {
                                     processor.run();
                                 });
-
-    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
-    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
 
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
 
@@ -1206,12 +1204,6 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNoTelemetryFieldExeCon
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
 
     auto queue = std::make_shared<TaskQueue>();
-    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
-    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
-
-    std::thread processorThread([&] {
-                                    processor.run();
-                                });
 
     // add policy task
     // it should write config
@@ -1242,6 +1234,13 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNoTelemetryFieldExeCon
         EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
     }
 
+    auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
+    DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
+
+    std::thread processorThread([&] {
+                                    processor.run();
+                                });
+
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
     processorThread.join();
 }
@@ -1265,6 +1264,9 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNonUTF8TelemetryHostna
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
 
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
     auto queue = std::make_shared<TaskQueue>();
     auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
     DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
@@ -1272,9 +1274,6 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNonUTF8TelemetryHostna
     std::thread processorThread([&] {
                                     processor.run();
                                 });
-
-    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
-    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
 
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
 
@@ -1307,6 +1306,9 @@ TEST_P(SchedulerProcessorInvalidHostnameTests, AfterRecevingAlcPolicyWithInvalid
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillRepeatedly(Return("machineId"));
 
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
+
     auto queue = std::make_shared<TaskQueue>();
     auto pathManager = std::make_shared<Common::ApplicationConfigurationImpl::ApplicationPathManager>();
     DerivedSchedulerProcessor processor(queue, *pathManager, 0s, 0s);
@@ -1315,13 +1317,8 @@ TEST_P(SchedulerProcessorInvalidHostnameTests, AfterRecevingAlcPolicyWithInvalid
                                     processor.run();
                                 });
 
-    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)).Times(0);
-    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath })).Times(0);
-
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
 
-    // We check for this log because MemoryAppender does not allow checking for logs from a different logger
-    // But ideally we'd check the Policy log
     EXPECT_TRUE(waitForLog("ERROR - Failed to parse ALC policy: Invalid telemetry host '" + GetParam() + "'"));
     queue->push({ SchedulerTask::TaskType::Shutdown });
 
