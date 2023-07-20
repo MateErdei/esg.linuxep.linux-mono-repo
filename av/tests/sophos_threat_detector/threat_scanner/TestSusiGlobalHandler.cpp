@@ -10,7 +10,7 @@
 #include "MockSusiApi.h"
 
 #include "../../common/LogInitializedTests.h"
-#include "common/MemoryAppender.h"
+#include "common/TestSpecificDirectory.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -21,10 +21,52 @@ using namespace  threat_scanner;
 
 namespace
 {
-    class TestSusiGlobalHandler : public MemoryAppenderUsingTests
+    class TestSusiGlobalHandler : public TestSpecificDirectory
     {
     public:
-        TestSusiGlobalHandler() : MemoryAppenderUsingTests("ThreatScanner") {}
+        TestSusiGlobalHandler() : TestSpecificDirectory("ThreatScanner") {}
+
+        void SetUp() override
+        {
+            testPath_ = createTestSpecificDirectory();
+
+        }
+
+        void TearDown() override
+        {
+            removeTestSpecificDirectory(testPath_);
+        }
+
+        sophos_filesystem::path testPath_;
+        SusiVersionResult version_;
+
+        void setPluginInstall(const char* pluginInstall) const
+        {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+        }
+
+        void setChroot(const char* chroot) const
+        {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("CHROOT", chroot);
+        }
+
+        void setExpectationForInit(MockSusiApi& mockSusiApi, const std::string& config)
+        {
+            EXPECT_CALL(mockSusiApi, SUSI_SetLogCallback(_)).WillRepeatedly(Return(SUSI_S_OK));
+            EXPECT_CALL(mockSusiApi, SUSI_Install(_,_)).WillOnce(Return(SUSI_S_OK));
+            EXPECT_CALL(mockSusiApi, SUSI_Initialize(config.c_str(), _)).WillOnce(Return(SUSI_S_OK));
+            version_.version = 34;
+            version_.versionResultJson = const_cast<char*>("this is not actually json"); // Assumes our code is never going to try to modify this
+            EXPECT_CALL(mockSusiApi, SUSI_GetVersion(_)).WillRepeatedly(DoAll(
+                SetArgPointee<0>(&version_),
+                Return(SUSI_S_OK)
+                    ));
+            EXPECT_CALL(mockSusiApi, SUSI_FreeVersionResult(&version_)).WillRepeatedly(Return(SUSI_S_OK));
+            EXPECT_CALL(mockSusiApi, SUSI_Terminate()).WillOnce(Return(SUSI_S_OK));
+        }
+
     };
 }
 
@@ -271,8 +313,7 @@ TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsTrue_IfSusiSettingsAllowL
 
 TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsFalse_IfSusiSettingsAllowLists)
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+    setPluginInstall("/plugin");
     const std::string allowedPath = "/AllowedPath";
 
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -286,4 +327,50 @@ TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsFalse_IfSusiSettingsAllow
 
     EXPECT_FALSE(globalHandler.IsAllowlistedPath(&globalHandler, allowedPath.c_str()));
     EXPECT_TRUE(appenderContains("Denied allow list by path for: " + allowedPath));
+}
+
+TEST_F(TestSusiGlobalHandler, updateUninit)
+{
+    setPluginInstall("/plugin");
+    auto mockSusiApi = std::make_shared<StrictMock<MockSusiApi>>();
+    EXPECT_CALL(*mockSusiApi, SUSI_SetLogCallback(_)).WillRepeatedly(Return(SUSI_S_OK));
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    globalHandler.update("/update_path", "/lock_file");
+    EXPECT_TRUE(appenderContains("Threat scanner update is pending"));
+}
+
+TEST_F(TestSusiGlobalHandler, initPassesConfig)
+{
+    setChroot(testPath_.c_str());
+    setPluginInstall("/plugin");
+    auto mockSusiApi = std::make_shared<StrictMock<MockSusiApi>>();
+    std::string config{"{}"};
+    setExpectationForInit(*mockSusiApi, config);
+
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    globalHandler.initializeSusi(config);
+    EXPECT_TRUE(appenderContains("Initializing SUSI"));
+    EXPECT_TRUE(appenderContains("Initialising Global Susi successful"));
+}
+
+TEST_F(TestSusiGlobalHandler, updateAfterInit)
+{
+    setChroot(testPath_.c_str());
+    fs::create_directories(testPath_ / "tmp"); // Needed for atomic write
+    fs::create_directories(testPath_ / "var"); // Needed for status write
+    setPluginInstall("/plugin");
+    auto mockSusiApi = std::make_shared<StrictMock<MockSusiApi>>();
+    std::string config;
+    setExpectationForInit(*mockSusiApi, config);
+    auto updateDir = testPath_ / "update_path";
+    EXPECT_CALL(*mockSusiApi, SUSI_Update(Eq(updateDir))).WillOnce(Return(SUSI_S_OK));
+
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.initializeSusi(config);
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    globalHandler.update(updateDir, testPath_ / "lock_file");
 }

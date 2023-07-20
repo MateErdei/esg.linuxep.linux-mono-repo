@@ -6,13 +6,14 @@
 #include "ThrowIfNotOk.h"
 #include "ThreatScannerException.h"
 
-
 #include "common/ApplicationPaths.h"
 #include "common/ShuttingDownException.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/LoggerConfig.h>
+
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -122,8 +123,8 @@ namespace threat_scanner
 
     SusiResult SusiGlobalHandler::bootstrap()
     {
-        std::filesystem::path updateSource = "/susi/update_source";
-        std::filesystem::path installDest = "/susi/distribution_version";
+        std::filesystem::path updateSource = getChrootDir() / "susi/update_source";
+        std::filesystem::path installDest = getChrootDir() / "susi/distribution_version";
 
         LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
         SusiResult susiResult =  m_susiWrapper->SUSI_Install(updateSource.c_str(), installDest.c_str());
@@ -199,27 +200,7 @@ namespace threat_scanner
         // SUSI is always initialised by the time we get here
         LOGDEBUG("Calling SUSI_Update");
         SusiResult updateResult =  m_susiWrapper->SUSI_Update(path.c_str());
-        if (updateResult == SUSI_I_UPTODATE)
-        {
-            LOGDEBUG("Threat scanner is already up to date");
-        }
-        else if (!SUSI_FAILURE(updateResult))
-        {
-            LOGINFO("Threat scanner successfully updated");
-            if (updateResult == SUSI_W_OLDDATA)
-            {
-                LOGWARN("SUSI Loaded old data");
-            }
-            m_susiVersionAlreadyLogged = true;
-            logSusiVersion();
-        }
-        else
-        {
-            std::ostringstream ost;
-            ost << "Failed to update SUSI: 0x" << std::hex << updateResult << std::dec;
-            LOGERROR(ost.str());
-        }
-
+        recordUpdateResult(updateResult);
         m_updatePending.store(false, std::memory_order_release);
         if (releaseLock(fd))
         {
@@ -252,7 +233,7 @@ namespace threat_scanner
             return false;
         }
 
-        if(std::filesystem::is_directory("/susi/distribution_version"))
+        if(std::filesystem::is_directory(getChrootDir() / "susi/distribution_version"))
         {
             LOGINFO("SUSI already bootstrapped");
         }
@@ -274,7 +255,7 @@ namespace threat_scanner
             LOGERROR(ost.str());
             LOGINFO("Attempting to re-install SUSI");
 
-            std::filesystem::remove_all("/susi/distribution_version");
+            std::filesystem::remove_all(getChrootDir() / "susi/distribution_version");
 
             auto bootstrapResult = bootstrap();
             throwFailedToInitIfNotOk(bootstrapResult, "Bootstrapping SUSI at re-initialization failed, exiting");
@@ -333,6 +314,8 @@ namespace threat_scanner
             throw ThreatScannerException(LOCATION, ost.str());
         }
 
+        assert(result != nullptr);
+        assert(result->versionResultJson != nullptr);
         LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
         if (res == SUSI_W_OLDDATA)
         {
@@ -492,6 +475,48 @@ namespace threat_scanner
         (void)size;
 
         return false;
+    }
+
+    void SusiGlobalHandler::recordUpdateResult(SusiResult updateResult)
+    {
+        bool failure = SUSI_FAILURE(updateResult);
+
+        nlohmann::json record;
+        auto* filesystem = Common::FileSystem::fileSystem();
+
+        record["result"] = updateResult;
+        record["success"] = !failure;
+
+        if (updateResult == SUSI_I_UPTODATE)
+        {
+            LOGDEBUG("Threat scanner is already up to date");
+        }
+        else if (!failure)
+        {
+            LOGINFO("Threat scanner successfully updated");
+            if (updateResult == SUSI_W_OLDDATA)
+            {
+                LOGWARN("SUSI Loaded old data");
+                record["message"] = "SUSI Loaded old data";
+            }
+            m_susiVersionAlreadyLogged = true;
+            logSusiVersion();
+        }
+        else if (updateResult == SUSI_E_CORRUPTDATA)
+        {
+            LOGERROR("Failed to update SUSI: Corrupt data in update_source: 0x" << std::hex << updateResult << std::dec);
+            record["message"] = "Corrupt data in update_source";
+        }
+        else
+        {
+            std::ostringstream ost;
+            ost << "Failed to update SUSI: 0x" << std::hex << updateResult << std::dec;
+            LOGERROR(ost.str());
+            record["message"] = ost.str();
+        }
+
+        auto contents = record.dump();
+        filesystem->writeFileAtomically(getChrootDir() / "var/update_status.json", contents, getChrootDir() / "tmp", 0640);
     }
 
 } // namespace threat_scanner

@@ -148,6 +148,8 @@ namespace threat_scanner
 
         void logSusiVersion();
 
+        void recordUpdateResult(SusiResult);
+
         SusiCallbackTable my_susi_callbacks{
             .version = SUSI_CALLBACK_TABLE_VERSION,
             .token = nullptr,
