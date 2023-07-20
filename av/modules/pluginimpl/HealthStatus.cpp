@@ -36,5 +36,11 @@ bool Plugin::susiUpdateFailed()
     {
         // Assume success if the file isn't present
     }
+    catch (const nlohmann::json::exception &)
+    {
+        // Assume success if the file can't be parsed
+        // Assume success if the file has missing success key
+        // Assume success if the file has "success" item has wrong type
+    }
     return false;
 }
