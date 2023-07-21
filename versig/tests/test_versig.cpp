@@ -121,9 +121,9 @@ namespace
     TEST(versig_test, empty_valid_manifest)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.empty_valid",
-                                        "-f" TESTS "/data_files/manifest.dat.empty_valid",
-                                        "--allow-sha1-signature" };
+                                        "-c" TESTS "/cert_files/empty_valid/rootca.crt",
+                                        "-f" TESTS "/data_files/manifest.dat.empty_valid"
+        };
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }
@@ -131,7 +131,7 @@ namespace
     TEST(versig_test, spaces_in_filename)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid",
+                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT(bugprone-suspicious-missing-comma)
                                         "-f" TESTS "/data_files/manifest.dat.spaces",
                                         "-d" TESTS "/data_files/data_spaces",
                                         "--allow-sha1-signature" };
@@ -189,7 +189,7 @@ namespace
     TEST(versig_test, wrong_root_ca)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.empty_valid", // NOLINT
+                                        "-c" TESTS "/cert_files/empty_valid/rootca.crt", // NOLINT
                                         "-f" TESTS "/data_files/manifest.dat.valid",
                                          "--silent-off",
                                         "--allow-sha1-signature"};

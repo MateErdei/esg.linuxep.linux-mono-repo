@@ -1,0 +1,4 @@
+*.csr
+*.srl
+inter.key.pem
+rootca.key.pem
