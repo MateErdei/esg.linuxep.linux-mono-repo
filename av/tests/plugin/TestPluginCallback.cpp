@@ -126,7 +126,7 @@ namespace
             fs::remove_all(m_basePath);
         }
 
-        void createIdes(const unsigned long &count, const fs::path &dirPath)
+        static void createIdes(const unsigned long &count, const fs::path &dirPath)
         {
             for (unsigned long i=0; i<count; ++i)
             {
@@ -144,14 +144,14 @@ namespace
             }
         }
 
-        void createDataSetAFile(const std::string& path)
+        static void createDataSetAFile(const std::string& path)
         {
             std::ofstream vdlVersionFileStream;
             vdlVersionFileStream.open(path);
             vdlVersionFileStream.close();
         }
 
-        void writeHexStringToFile(const std::string &hexString, const fs::path &filePath)
+        static void writeHexStringToFile(const std::string &hexString, const fs::path &filePath)
         {
             std::ofstream datafile(filePath, std::ios_base::binary | std::ios_base::out);
 
@@ -169,7 +169,7 @@ namespace
             }
         }
 
-        void expectAbsentSusiStatusFile()
+        void expectAbsentSusiStatusFile() const
         {
             auto path = Plugin::getThreatDetectorSusiUpdateStatusPath();
             EXPECT_CALL(*m_mockFileSystem, readFile(StrEq(path))).WillOnce(Throw(Common::FileSystem::IFileNotFoundException("FOOBAR")));
@@ -713,6 +713,35 @@ TEST_F(TestPluginCallback, calculateThreatDetectorStatusDetectsUnhealthyFlagFile
     m_pluginCallback->calculateThreatDetectorHealthStatus(m_sysCalls);
     ASSERT_EQ(m_pluginCallback->m_threatDetectorServiceStatus, E_HEALTH_STATUS_BAD);
     EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is unhealthy, turning service health to red"));
+}
+
+TEST_F(TestPluginCallback, calculateThreatDetectorStatus_bad_susi_update)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto mockScannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+
+    // SUSI update status - returns red unhealthy
+    {
+        auto path = Plugin::getThreatDetectorSusiUpdateStatusPath();
+        EXPECT_CALL(*m_mockFileSystem, readFile(StrEq(path))).WillOnce(Return(R"({
+        "success":false
+    })"));
+    }
+    // Unhealth file check - returns green healthy
+    {
+        auto path = Plugin::getThreatDetectorUnhealthyFlagPath();
+        EXPECT_CALL(*m_mockFileSystem, isFile(StrEq(path))).WillOnce(Return(false));
+    }
+
+    // PID check - returns green healthy
+    EXPECT_CALL(*m_mockSysCalls, _open).WillOnce(Return(42));
+    EXPECT_CALL(*m_mockSysCalls, flock(42, _)).WillOnce(SetErrnoAndReturn(EAGAIN, -1));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
+    auto ret = m_pluginCallback->calculateThreatDetectorHealthStatus(m_mockSysCalls);
+    EXPECT_EQ(ret, E_HEALTH_STATUS_BAD);
+    EXPECT_EQ(m_pluginCallback->m_threatDetectorServiceStatus, E_HEALTH_STATUS_BAD);
+    EXPECT_TRUE(appenderContains("SUSI update failed, turning service health to red"));
 }
 
 TEST_F(TestPluginCallback, sendStatus)

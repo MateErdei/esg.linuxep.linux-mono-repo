@@ -331,7 +331,7 @@ namespace Plugin
         }
     }
 
-    void PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
+    long PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
@@ -369,6 +369,7 @@ namespace Plugin
 
             m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;
         }
+        return m_threatDetectorServiceStatus;
     }
 
     std::string PluginCallback::getHealth()

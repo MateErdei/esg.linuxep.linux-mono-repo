@@ -106,7 +106,7 @@ TEST_PUBLIC:
         long m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
         long m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
 
-        void calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
+        long calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
         void calculateSoapHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
         void calculateSafeStoreHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
     };
