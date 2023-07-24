@@ -10,14 +10,17 @@ VALID_RPATHS=(
   "\$ORIGIN/../lib64"
   "\$ORIGIN:ORIGIN"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN"
-  "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../lib"
+  "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../lib",
+  "\$ORIGIN/../chroot/lib64:\$ORIGIN/../lib64",
+  "\$ORIGIN/../base/lib64"
 )
 
 DEBUG_OUTPUT_ON=0 # 0 = off, 1 = on
 
 INSECURE_RPATH_EXISTS=0
 printf "Starting search for binaries and checking rpaths\n"
-for executable_path in $(find /opt/sophos-spl/ -type f ! -size 0 -exec grep -IL . "{}" \;) # Finding binaries in /opt/sophos-spl/
+
+for executable_path in $(find /opt/sophos-spl/ -type f ! -size 0 ! -name "*.ide" ! -name "*.vdb" -exec grep -IL . "{}" \;) # Finding binaries in /opt/sophos-spl/
 do
   if [[ $DEBUG_OUTPUT_ON -eq 1 ]]
   then
