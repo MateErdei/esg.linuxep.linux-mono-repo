@@ -82,22 +82,22 @@ int main()
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
-        LOGERROR("Exception caught from plugin at top level (ApiException): " << apiException.what());
+        LOGERROR("Exception caught from plugin at top level (ApiException): " << apiException.what_with_location());
         ret = 45;
     }
     catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
     {
-        LOGERROR("Exception caught from plugin at top level (IIPCTimeoutException): " << ex.what());
+        LOGERROR("Exception caught from plugin at top level (IIPCTimeoutException): " << ex.what_with_location());
         ret = 44;
     }
     catch (const Common::ZeroMQWrapper::IIPCException& ex)
     {
-        LOGERROR("Exception caught from plugin at top level (IIPCException): " << ex.what());
+        LOGERROR("Exception caught from plugin at top level (IIPCException): " << ex.what_with_location());
         ret = 43;
     }
     catch (const Common::Exceptions::IException& ex)
     {
-        LOGERROR("Exception caught from plugin at top level (IException): " << ex.what());
+        LOGERROR("Exception caught from plugin at top level (IException): " << ex.what_with_location());
         ret = 42;
     }
     catch (const std::runtime_error& ex)
