@@ -432,41 +432,4 @@ namespace TelemetrySchedulerImpl
             return;
         }
     }
-
-    /*
-    std::string SchedulerProcessor::waitForPolicy(int maxTasksThreshold, const std::string& policyAppId)
-    {
-        std::vector<SchedulerTask> nonPolicyTasks;
-        std::string policyContent;
-        for (int i = 0; i < maxTasksThreshold; i++)
-        {
-            SchedulerTask task;
-            if (!m_taskQueue->pop(task, QUEUE_TIMEOUT))
-            {
-                LOGINFO(policyAppId << " policy has not been sent to the plugin");
-                break;
-            }
-            if (task.taskType == SchedulerTask::TaskType::Policy && task.appId == policyAppId)
-            {
-                policyContent = task.content;
-                LOGINFO("First " << policyAppId << " policy received.");
-                break;
-            }
-            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
-            nonPolicyTasks.emplace_back(task);
-            if (task.taskType == SchedulerTask::TaskType::Shutdown)
-            {
-                LOGINFO("Abort waiting for the first policy as Stop signal received.");
-                throw RequestToStopException("");
-            }
-        }
-        LOGDEBUG("Return from waitForPolicy");
-
-        for (auto it = nonPolicyTasks.rbegin(); it != nonPolicyTasks.rend(); ++it)
-        {
-            m_taskQueue->pushPriority(*it);
-        }
-        return policyContent;
-    }
-*/
 } // namespace TelemetrySchedulerImpl

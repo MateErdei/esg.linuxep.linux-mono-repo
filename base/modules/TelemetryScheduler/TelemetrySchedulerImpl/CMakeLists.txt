@@ -10,8 +10,6 @@ add_library(telemetryschedulerimpl SHARED
         SchedulerStatus.cpp
         SchedulerStatusSerialiser.cpp
         SchedulerStatusSerialiser.h
-        ServerURLHandler.cpp
-        ServerURLHandler.h
         SleepyThread.cpp
         SleepyThread.h
         ITaskQueue.h

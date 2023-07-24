@@ -361,10 +361,7 @@ Telemetry Scheduler Starts, Receives Policy And Runs Executable Then Receives A 
     # Receiving different policy and checking
     Simulate Send Policy    ALC_policy_with_telemetry_hostname.xml
 
-    # "wait until created" waits for 1 minute before failing
-    # Wanted to give enough time for telemetry scheduler to go through all the steps and running executable so
-    # Need "wait until created" to repeat a few times, chose to have it repeat 5 times hence the "300 seconds"
-    wait until keyword succeeds    300 seconds   1 seconds    wait until created    ${TELEMETRY_OUTPUT_JSON}
+    wait until created    ${TELEMETRY_OUTPUT_JSON}    timeout=5 minutes
 
     # Hostname received from new policy should be: test.sophusupd.net (telemetry hostname found in ALC_policy_with_telemetry_hostname.xml)
     check tscheduler log contains    test.sophosupd.net
