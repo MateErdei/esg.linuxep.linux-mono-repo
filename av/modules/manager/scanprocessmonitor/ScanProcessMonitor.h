@@ -25,6 +25,11 @@ namespace plugin::manager::scanprocessmonitor
          * Causes sophos_threat_detector to reload susi config.
          */
         void policy_configuration_changed();
+        /**
+         * Externally drive a configuration change event.
+         * Causes sophos_threat_detector to restart.
+         */
+        void restart_threat_detector();
 
         void setSXL4LookupsEnabled(bool isEnabled);
 
@@ -33,6 +38,7 @@ namespace plugin::manager::scanprocessmonitor
         bool getSXL4LookupsEnabled();
         Common::Threads::NotifyPipe m_config_changed;
         Common::Threads::NotifyPipe m_policy_changed;
+        Common::Threads::NotifyPipe restart_threat_detector_pipe_;
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         std::string m_processControllerSocketPath;
         std::shared_ptr<common::NotifyPipeSleeper> m_sleeper;

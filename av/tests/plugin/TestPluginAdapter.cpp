@@ -260,7 +260,9 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
     // We now see all of the restart events
     EXPECT_EQ(appenderCount("Processing request to restart sophos threat detector"), 3);
-    EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
+    // 1st and 3rd policies will required a restart - but the restart will be delayed till
+    // the 3rd policy has been processed
+    EXPECT_EQ(appenderCount("Requesting scan monitor to restart threat detector"), 1);
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresDuplicates)

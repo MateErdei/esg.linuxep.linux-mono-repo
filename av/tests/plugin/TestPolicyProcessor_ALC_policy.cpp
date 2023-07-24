@@ -186,11 +186,13 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
 
     auto attributeMap = parseFullPolicy();
     proc.processAlcPolicy(attributeMap);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.restartThreatDetector());
+    EXPECT_TRUE(proc.reloadThreatDetectorConfiguration());
 
     attributeMap = Common::XmlUtilities::parseXml(GL_POLICY_2);
     proc.processAlcPolicy(attributeMap);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.restartThreatDetector());
+    EXPECT_TRUE(proc.reloadThreatDetectorConfiguration());
 }
 
 

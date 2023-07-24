@@ -71,6 +71,7 @@ namespace plugin::manager::scanprocessmonitor
             { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
             { .fd = m_config_changed.readFd(), .events = POLLIN, .revents = 0 },
             { .fd = m_policy_changed.readFd(), .events = POLLIN, .revents = 0 },
+            { .fd = restart_threat_detector_pipe_.readFd(), .events = POLLIN, .revents = 0 }
         };
 
         // this is also triggering the m_config_changed pipe
@@ -108,6 +109,12 @@ namespace plugin::manager::scanprocessmonitor
                 break;
             }
 
+            if ((fds[3].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Scan Process Monitor, error from restart notify pipe");
+                break;
+            }
+
             if ((fds[0].revents & POLLIN) != 0)
             {
                 if (stopRequested())
@@ -141,6 +148,13 @@ namespace plugin::manager::scanprocessmonitor
                     sendRequestToThreatDetector(scan_messages::E_SHUTDOWN);
                 }
             }
+
+            if ((fds[3].revents & POLLIN) != 0)
+            {
+                clearPipe(restart_threat_detector_pipe_);
+                LOGINFO("Restarting sophos_threat_detector as the configuration has changed");
+                sendRequestToThreatDetector(scan_messages::E_SHUTDOWN);
+            }
         }
         LOGSUPPORT("Exiting sophos_threat_detector monitor");
     }
@@ -149,6 +163,12 @@ namespace plugin::manager::scanprocessmonitor
     {
         LOGDEBUG("External notification of policy configuration changed");
         m_policy_changed.notify();
+    }
+
+    void ScanProcessMonitor::restart_threat_detector()
+    {
+        LOGDEBUG("External notification of policy configuration changed");
+        restart_threat_detector_pipe_.notify();
     }
 
     bool ScanProcessMonitor::getSXL4LookupsEnabled()

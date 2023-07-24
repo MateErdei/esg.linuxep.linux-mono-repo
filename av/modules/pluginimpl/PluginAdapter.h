@@ -110,10 +110,15 @@ namespace Plugin
         {
             m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector;
         }
+        void setReloadThreatDetector(bool reload)
+        {
+            reloadThreatDetectorConfiguration_ = reload || reloadThreatDetectorConfiguration_;
+        }
 
         PolicyProcessor m_policyProcessor;
         ThreatDatabase m_threatDatabase;
         bool m_restartSophosThreatDetector = false;
+        bool reloadThreatDetectorConfiguration_ = false;
 
         std::mutex m_detectionMutex; // Ensures detections are handled atomically
 

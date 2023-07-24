@@ -85,6 +85,15 @@ namespace Plugin
         }
 
         /**
+         * Indicates if the previous policy requires ThreatDetector to update SUSI configuration.
+         * Only valid between policy changes.
+         */
+        [[nodiscard]] bool reloadThreatDetectorConfiguration() const
+        {
+            return reloadThreatDetectorConfiguration_;
+        }
+
+        /**
          * Try and send a reload request to SOAPD if we can
          */
         virtual void notifyOnAccessProcessIfRequired();
@@ -138,10 +147,17 @@ namespace Plugin
 
         /**
          * Temporary boolean.
-         * Indicates if the previous policy requires ThreatDetector to update SUSI configuration.
+         * Indicates if the previous policy requires ThreatDetector to restart.
          * Only valid between policy changes.
          */
         bool m_restartThreatDetector = false;
+
+        /**
+         * Temporary boolean.
+         * Indicates if the previous policy requires ThreatDetector to update SUSI configuration.
+         * Only valid between policy changes.
+         */
+        bool reloadThreatDetectorConfiguration_ = false;
 
         bool m_susiSettingsWritten = false;
 

@@ -298,7 +298,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 }
 
-TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
+TEST_F(TestPolicyProcessor_SAV_policy, sxl_changes_cause_restart)
 {
     expectReadSoapdConfig();
     expectConstructorCalls();
@@ -532,7 +532,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithPuas)
     EXPECT_TRUE(proc.restartThreatDetector());
 }
 
-TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithNewPuasNeedsThreatdetectorRestart)
+TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithNewPuasNeedsThreatdetectorReload)
 {
     expectWriteSoapdConfig();
     expectReadSoapdConfig();
@@ -568,11 +568,15 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithNewPuasNeedsThreatdet
     auto policyMap2 = Common::XmlUtilities::parseXml(policyXml2);
 
     proc.processSavPolicy(policyMap1);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_TRUE(proc.reloadThreatDetectorConfiguration());
+    // Restart may be true depending on default
 
     proc.processSavPolicy(policyMap2);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_TRUE(proc.reloadThreatDetectorConfiguration());
+    EXPECT_FALSE(proc.restartThreatDetector());
 
+    // Repeat policy, so nothing should change
     proc.processSavPolicy(policyMap2);
+    EXPECT_FALSE(proc.reloadThreatDetectorConfiguration());
     EXPECT_FALSE(proc.restartThreatDetector());
 }

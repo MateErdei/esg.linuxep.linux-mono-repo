@@ -172,17 +172,18 @@ namespace Plugin
             m_gotFirstAlcPolicy = true;
         }
 
+        m_restartThreatDetector = false;
+        reloadThreatDetectorConfiguration_ = false;
+
         if (m_customerId.empty())
         {
             LOGWARN("Failed to find customer ID from ALC policy");
-            m_restartThreatDetector = false;
             return;
         }
 
         if (m_customerId == oldCustomerId)
         {
             // customer ID not changed
-            m_restartThreatDetector = false;
             return;
         }
 
@@ -199,7 +200,7 @@ namespace Plugin
         fs->writeFile(dest, m_customerId);
         ::chmod(dest.c_str(), 0640);
 
-        m_restartThreatDetector = true; // Only restart sophos_threat_detector if it changes
+        reloadThreatDetectorConfiguration_ = true; // Only reload config for sophos_threat_detector if it changes
     }
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
@@ -310,6 +311,9 @@ namespace Plugin
 
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
+        m_restartThreatDetector = false;
+        reloadThreatDetectorConfiguration_ = false;
+
         processOnAccessSettingsFromSAVpolicy(policy);
         bool needToSave = false;
 
@@ -319,6 +323,7 @@ namespace Plugin
         if (oldLookupEnabled != lookupEnabledInPolicy || !m_gotFirstSavPolicy)
         {
             m_threatDetectorSettings.setSxlLookupEnabled(lookupEnabledInPolicy);
+            m_restartThreatDetector = true;
             needToSave = true;
         }
 
@@ -344,10 +349,6 @@ namespace Plugin
         if (needToSave)
         {
             saveSusiSettings("SAV");
-        }
-        else
-        {
-            m_restartThreatDetector = false;
         }
 
         if (!m_gotFirstSavPolicy)
@@ -685,7 +686,7 @@ namespace Plugin
         dest = Plugin::getPluginInstall() + "/chroot" + dest;
         m_threatDetectorSettings.saveSettings(dest, 0640);
         // Make SUSI reload config
-        m_restartThreatDetector = true;
+        reloadThreatDetectorConfiguration_ = true;
         LOGINFO("Saved Threat Detector SUSI settings for " << policyName << " policy");
         m_susiSettingsWritten = true;
     }

@@ -270,9 +270,20 @@ namespace Plugin
             LOGDEBUG("Processing request to restart sophos threat detector");
             if (!m_taskQueue->queueContainsPolicyTask())
             {
+                LOGDEBUG("Requesting scan monitor to restart threat detector");
+                m_threatDetector->restart_threat_detector();
+                m_restartSophosThreatDetector = false;
+                reloadThreatDetectorConfiguration_ = false; // Already handled by restart
+            }
+        }
+        else if (reloadThreatDetectorConfiguration_)
+        {
+            LOGDEBUG("Processing request to reload sophos threat detector");
+            if (!m_taskQueue->queueContainsPolicyTask())
+            {
                 LOGDEBUG("Requesting scan monitor to reload susi");
                 m_threatDetector->policy_configuration_changed();
-                m_restartSophosThreatDetector = false;
+                reloadThreatDetectorConfiguration_ = false;
             }
         }
     }
@@ -362,6 +373,8 @@ namespace Plugin
                 LOGDEBUG("Ignoring unknown policy with APPID: " << appId << ", content: " << policyXml);
             }
             // Check if ThreatDetector should reload SUSI config
+            setReloadThreatDetector(m_policyProcessor.reloadThreatDetectorConfiguration());
+            // Check if ThreatDetector should be restarted
             setResetThreatDetector(m_policyProcessor.restartThreatDetector());
         }
         catch (const Common::XmlUtilities::XmlUtilitiesException& e)
