@@ -235,18 +235,20 @@ Telemetry Executable Generates Update Scheduler Telemetry With ESM Set In Policy
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy With ESM Into Place     ${esmname}    f4d41a16-b751-4195-a7b2-1f109d49469d
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
-
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}   0
+    ...    base_fixed_version=${esmname}
+    ...    sddsid=NotAUserName
+    ...    install_state=0
+    ...    download_state=0
+
 
 Telemetry Executable Log Has Correct Permissions
     [Documentation]    Telemetry Executable Log Has Correct Permissions
