@@ -615,6 +615,11 @@ namespace sspl::sophosthreatdetectorimpl
             LOGFATAL("ThreatDetectorMain: InnerMainException caught at top level: " << ex.what_with_location());
             return common::E_INNER_MAIN_EXCEPTION;
         }
+        catch (const SusiUpdateFailedException& ex)
+        {
+            LOGFATAL("Failed to update SUSI - restarting to try to recover");
+            return common::E_QUICK_RESTART_SUCCESS;
+        }
         catch (const ThreatDetectorException& ex)
         {
             LOGFATAL("ThreatDetectorMain: ThreatDetectorException caught at top level: " << ex.what_with_location());

@@ -10,4 +10,10 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         using datatypes::AVException::AVException;
     };
+
+    class SusiUpdateFailedException : public ThreatDetectorException
+    {
+    public:
+        using ThreatDetectorException::ThreatDetectorException;
+    };
 }

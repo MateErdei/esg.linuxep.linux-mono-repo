@@ -275,7 +275,11 @@ namespace threat_scanner
         if (m_updatePending.load(std::memory_order_acquire))
         {
             LOGDEBUG("Threat scanner triggering pending update");
-            internal_update(m_updatePath, m_lockFile);
+            bool success = internal_update(m_updatePath, m_lockFile);
+            if (!success)
+            {
+                LOGERROR("Failed to update Threat scanner after initialisation - continuing to use existing data");
+            }
             LOGDEBUG("Threat scanner pending update completed");
         }
 
