@@ -977,7 +977,7 @@ AV Plugin Does Not Quarantine File When SafeStore Is Disabled
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    Wait For Log Contains From Mark  ${av_mark}  ${SCAN_DIRECTORY}/eicar.com was not quarantined due to SafeStore being disabled
+    Wait For Log Contains From Mark  ${av_mark}  '${SCAN_DIRECTORY}/eicar.com' was not quarantined due to SafeStore being disabled
 
     ${correlation_id} =  Wait Until Base Has Detection Event
     ...  user_id=n/a
@@ -1014,7 +1014,7 @@ SafeStore Does Not Quarantine Ml Detection By Default
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/MLengHighScore.exe was not quarantined due to being reported as an ML detection
+    Wait For Log Contains From Mark  ${av_mark}  '${NORMAL_DIRECTORY}/MLengHighScore.exe' was not quarantined due to being reported as an ML detection
 
     ${correlation_id} =  Wait Until Base Has Detection Event
     ...  user_id=n/a
@@ -1281,7 +1281,7 @@ SafeStore Does Not Fully Rescan Archive If Metadata Rescan Reports Threats
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
 
     # Check SafeStore receives expected metadata from Threat Detector
-    Wait For Log Contains From Mark    ${ss_mark}    File path: ${NORMAL_DIRECTORY}/test.tar
+    Wait For Log Contains From Mark    ${ss_mark}    File path: '${NORMAL_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${ss_mark}    Threat type: virus
     Wait For Log Contains From Mark    ${ss_mark}    Threat name: EICAR-AV-Test
     Wait For Log Contains From Mark    ${ss_mark}    Threat SHA256: ${eicar_sha}
