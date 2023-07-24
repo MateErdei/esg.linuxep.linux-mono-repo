@@ -140,6 +140,37 @@ TEST_F(TestPluginAdapterDetections, QuarantinedDetectionSendsEventsButNoNewHealt
     EXPECT_TRUE(appenderContains("Found 'EICAR-AV-Test' in '/path/to/eicar.txt' which is a new detection", 1));
 }
 
+namespace
+{
+    class PluginAdapterWithCatch : public PluginAdapter
+    {
+    public:
+        using PluginAdapter::PluginAdapter;
+        std::exception_ptr thrownException_;
+
+
+        void mainLoopWithCatch()
+        {
+            try
+            {
+                mainLoop();
+            }
+            catch (const Common::Exceptions::IException& ex)
+            {
+                PRINT("Main Loop threw exception!: " << ex.what_with_location());
+                thrownException_ = std::current_exception();
+                throw;
+            }
+            catch (const std::exception& ex)
+            {
+                PRINT("Main Loop threw std::exception!: " << ex.what());
+                thrownException_ = std::current_exception();
+                throw;
+            }
+        }
+    };
+}
+
 TEST_F(
     TestPluginAdapterDetections,
     DetectionThatSucceedsToQuarantineAfterFailingResolvesBadHealthAndSameCorrelationIdIsUsed)
@@ -182,11 +213,14 @@ TEST_F(
         .Times(1)
         .After(failureSet);
 
-    PluginAdapter pluginAdapter{
+    // Ignore requests for policies
+    EXPECT_CALL(*m_mockApiBaseServices, requestPolicies(_)).WillRepeatedly(Return());
+
+    PluginAdapterWithCatch pluginAdapter{
         m_taskQueue, std::move(m_mockApiBaseServices), m_callback, m_threatEventPublisherSocketPath
     };
 
-    std::thread pluginThread{ &PluginAdapter::mainLoop, &pluginAdapter };
+    std::thread pluginThread{ &PluginAdapterWithCatch::mainLoopWithCatch, &pluginAdapter };
     ASSERT_TRUE(waitForLog("Publishing threat health: good")); // Make sure we are past the startup
     clearMemoryAppender();
 
@@ -197,7 +231,9 @@ TEST_F(
     EXPECT_EQ(detection2.correlationId, "correlationId");
 
     m_taskQueue->pushStop();
+    ASSERT_TRUE(pluginThread.joinable());
     pluginThread.join();
+    EXPECT_EQ(pluginAdapter.thrownException_, nullptr);
 
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
     EXPECT_TRUE(appenderContains("Threat database is not empty, sending suspicious health to Management agent", 1));
