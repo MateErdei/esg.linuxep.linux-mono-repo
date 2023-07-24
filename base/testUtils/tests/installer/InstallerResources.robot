@@ -30,12 +30,6 @@ Require Installed
     ${result}=  SSPL Is Installed
     Run Keyword If   ${result} != True  Require Fresh Install
 
-Run Specific Installer Directly
-    [Arguments]    ${installer_path}
-    Run Process  chmod  +x  ${installer_path}
-    ${result} =  Run Process  ${installer_path}
-    Should Be Equal As Strings  ${result.rc}  0
-
 Kill Sophos Processes That Arent Watchdog
     ${result} =  Run Process   pgrep   -f   ${MANAGEMENT_AGENT}
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}

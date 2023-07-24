@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
 EXIT_FAIL_ADD_GROUP=12
@@ -584,6 +586,7 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/sophosspl"
 # Log directories
 makedir 711 "${SOPHOS_INSTALL}/logs"
 makedir 711 "${SOPHOS_INSTALL}/logs/base"
+makedir 711 "${SOPHOS_INSTALL}/logs/installation"
 makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"
 chown "root:" "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"

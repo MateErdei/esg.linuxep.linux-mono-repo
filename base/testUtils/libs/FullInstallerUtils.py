@@ -326,21 +326,12 @@ def check_sdds_import_matches_rigid_name(expected_rigidname, source_directory):
 def run_full_installer_expecting_code(expected_code, *args):
     installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
-    return run_full_installer_from_location_expecting_code(installer, expected_code, *args, debug=True)
+    return run_full_installer_from_location_expecting_code(installer, expected_code, *args)
 
-
-def run_full_installer_without_x_set():
-    installer = get_full_installer()
-    logger.info("Installer path: " + str(installer))
-    return run_full_installer_from_location_expecting_code(installer, 0, debug=False)
-
-def run_full_installer_with_truncated_path( *args, debug=True):
+def run_full_installer_with_truncated_path( *args):
     # Robot passes in strings.
     install_script_location = get_full_installer()
-    if debug:
-        arg_list = ["bash", "-x", install_script_location]
-    else:
-        arg_list = ["bash", install_script_location]
+    arg_list = ["bash", install_script_location]
     arg_list += list(args)
     logger.info("Run installer: {}".format(arg_list))
     my_env = os.environ
@@ -353,21 +344,18 @@ def run_full_installer_with_truncated_path( *args, debug=True):
 
     return output
 
-def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args, debug=True):
+def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args):
     # Robot passes in strings.
     expected_code = int(expected_code)
-    if debug:
-        arg_list = ["bash", "-x", install_script_location]
-    else:
-        arg_list = ["bash", install_script_location]
+    arg_list = ["bash", install_script_location]
     arg_list += list(args)
-    logger.debug("Env Variables: {}".format(os.environ))
-    logger.info("Run installer: {}".format(arg_list))
+    logger.debug(f"Env Variables: {os.environ}")
+    logger.info(f"Run installer: {arg_list}")
     output, actual_code = run_proc_with_safe_output(arg_list)
     logger.debug(output)
     if actual_code != expected_code:
         logger.info(output)
-        raise AssertionError("Installer exited with {} rather than {}".format(actual_code, expected_code))
+        raise AssertionError(f"Installer exited with {actual_code} rather than {expected_code}")
 
     return output
 

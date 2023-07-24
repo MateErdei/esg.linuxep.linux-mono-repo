@@ -1,13 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "DownloadedProduct.h"
 
 #include "IVersig.h"
 #include "Logger.h"
+
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -61,11 +59,12 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
     auto fileSystem = ::Common::FileSystem::fileSystem();
 
     std::string installShFile = installerPath();
+    std::string productName = m_productMetadata.getLine();
+    std::string installOutputFile = Common::ApplicationConfiguration::applicationPathManager().getProductInstallLogFilePath(productName);
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {
-        LOGINFO(
-            "Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
+        LOGINFO("Installing product: " << productName << " version: " << m_productMetadata.getVersion());
         LOGDEBUG("Run installer: " << installShFile);
 
         fileSystem->makeExecutable(installShFile);
@@ -87,13 +86,17 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
                 process->kill();
             }
             auto output = process->output();
-            LOGINFO(output);
+            fileSystem->writeFile(installOutputFile, output);
             exitCode = process->exitCode();
         }
-        catch (Common::Process::IProcessException& ex)
+        catch (const Common::Process::IProcessException& ex)
         {
             LOGERROR(ex.what());
             exitCode = -1;
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Failed to write installer output to " << installOutputFile << ": " << ex.what());
         }
         if (exitCode != 0)
         {
@@ -113,7 +116,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         }
         else
         {
-            LOGINFO("Product installed: " << m_productMetadata.getLine());
+            LOGINFO("Product installed: " << productName);
         }
     }
     else

@@ -401,22 +401,24 @@ public:
         return serialized;
     }
 
-    std::unique_ptr<Common::Process::IProcess> mockBaseInstall(int exitCode = 0)
+    std::unique_ptr<Common::Process::IProcess> mockBaseInstall(MockFileSystem& mockFileSystem, int exitCode = 0)
         {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+        EXPECT_CALL(mockFileSystem, writeFile(_,"installing base")).WillOnce(Return());
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
     }
 
-    std::unique_ptr<Common::Process::IProcess> mockEDRInstall(int exitCode = 0)
+    std::unique_ptr<Common::Process::IProcess> mockEDRInstall(MockFileSystem& mockFileSystem, int exitCode = 0)
     {
         auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
         EXPECT_CALL(*mockProcess, exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _)).Times(1);
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+        EXPECT_CALL(mockFileSystem, writeFile(_,"installing plugin")).WillOnce(Return());
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
         return mockProcess;
     }
@@ -636,7 +638,7 @@ TEST_F(
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
     int counter = 0;
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this, &fileSystemMock]() {
         if (counter == 0 || counter == 3)
         {
            counter++;
@@ -645,12 +647,12 @@ TEST_F(
       else if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else
       {
@@ -1500,7 +1502,7 @@ TEST_F(
     int counter = 0;
 
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this, &fileSystemMock]() {
         if (counter == 0 || counter == 3)
         {
             counter++;
@@ -1509,12 +1511,12 @@ TEST_F(
         else if (counter == 1)
         {
             counter++;
-            return mockBaseInstall();
+            return mockBaseInstall(fileSystemMock);
         }
         else if (counter == 2)
         {
             counter++;
-            return mockEDRInstall(5);
+            return mockEDRInstall(fileSystemMock, 5);
         }
         else
         {
@@ -1606,7 +1608,7 @@ TEST_F(
 
 
     int counter = 0;
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this, &fileSystemMock]() {
         if (counter == 0 || counter == 3)
         {
            counter++;
@@ -1615,12 +1617,12 @@ TEST_F(
         else if (counter == 1)
         {
            counter++;
-           return mockBaseInstall();
+           return mockBaseInstall(fileSystemMock);
         }
         else if (counter == 2)
         {
            counter++;
-           return mockEDRInstall();
+           return mockEDRInstall(fileSystemMock);
         }
         else
         {
@@ -1704,7 +1706,7 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
 
         if (counter == 0 || counter == 3)
         {
@@ -1714,12 +1716,12 @@ TEST_F(
         else if (counter == 1)
         {
              counter++;
-             return mockBaseInstall();
+             return mockBaseInstall(fileSystemMock);
         }
          else if (counter == 2)
         {
              counter++;
-             return mockEDRInstall();
+             return mockEDRInstall(fileSystemMock);
         }
         else
         {
@@ -1807,17 +1809,17 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
 
        if (counter == 1)
        {
            counter++;
-           return mockBaseInstall();
+           return mockBaseInstall(fileSystemMock);
        }
        else if (counter == 2)
        {
            counter++;
-           return mockEDRInstall();
+           return mockEDRInstall(fileSystemMock);
        }
        else if (counter == 0 || counter == 3)
        {
@@ -1916,12 +1918,12 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
 
        if (counter == 2)
        {
            counter++;
-           return mockBaseInstall();
+           return mockBaseInstall(fileSystemMock);
        }
        if (counter == 1)
        {
@@ -1931,7 +1933,7 @@ TEST_F(
        else if (counter == 3)
        {
            counter++;
-           return mockEDRInstall();
+           return mockEDRInstall(fileSystemMock);
        }
        else if (counter == 0)
        {
@@ -2035,7 +2037,7 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
        if (counter == 1 || counter == 4)
        {
            counter++;
@@ -2050,12 +2052,12 @@ TEST_F(
       {
           counter++;
 
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 3)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else
       {
@@ -2143,7 +2145,7 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 0)
       {
           counter++;
@@ -2152,12 +2154,12 @@ TEST_F(
       else if (counter == 2)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 3)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 1 || counter == 4)
       {
@@ -2251,16 +2253,16 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -2359,16 +2361,16 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -2467,16 +2469,16 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -2571,16 +2573,16 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -2682,16 +2684,16 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
       if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -2787,17 +2789,17 @@ TEST_F(
 
     int counter = 0;
 
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,this]() {
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter,&fileSystemMock,this]() {
 
         if (counter == 1)
       {
           counter++;
-          return mockBaseInstall();
+          return mockBaseInstall(fileSystemMock);
       }
       else if (counter == 2)
       {
           counter++;
-          return mockEDRInstall();
+          return mockEDRInstall(fileSystemMock);
       }
       else if (counter == 0 || counter == 3)
       {
@@ -3155,10 +3157,10 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion)
 
 TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitScheduledUpdateFlagAndTriesToInstall)
 {
-    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
 
     // Expect an upgrade
-    setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -3175,23 +3177,23 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(
-        mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
-    EXPECT_CALL(mockFileSystem, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
+        fileSystemMock, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-        [&counter,this](){
+        [&counter,&fileSystemMock,this](){
 
             if (counter == 1)
             {
                 counter++;
-                return mockBaseInstall();
+                return mockBaseInstall(fileSystemMock);
             }
             else if (counter == 2)
             {
                 counter++;
-                return mockEDRInstall();
+                return mockEDRInstall(fileSystemMock);
             }
             else if (counter == 0 || counter == 3)
             {
@@ -3258,10 +3260,10 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SupplementOnlyButVersion123DoesNotClearAwaitScheduledUpdateFlagAndTriesToInstall)
 {
-    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
 
     // Expect an upgrade, with the current installed version being >= 1.2.3
-    setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.3.0", "PRODUCT_VERSION = 1.2.5.1");
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.3.0", "PRODUCT_VERSION = 1.2.5.1");
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -3276,21 +3278,21 @@ TEST_F(
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     EXPECT_CALL(
-        mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _)).Times(0);
+        fileSystemMock, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _)).Times(0);
 
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-        [&counter,this]()
+        [&counter,&fileSystemMock,this]()
         {
             ++counter;
             if (counter == 1)
             {
-                return mockBaseInstall();
+                return mockBaseInstall(fileSystemMock);
             }
             else
             {
-                return mockEDRInstall();
+                return mockEDRInstall(fileSystemMock);
             }
         });
 
@@ -3301,12 +3303,12 @@ TEST_F(
 
 TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoesNotExistStillTriesToInstall)
 {
-    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
 
-    EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
 
     // Expect a plugin upgrade
-    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -3320,24 +3322,24 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
     ON_CALL(*mockSdds3Repo_, getProducts).WillByDefault(Return(products));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
+    EXPECT_CALL(fileSystemMock, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
         .Times(1);
-    EXPECT_CALL(mockFileSystem, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
     // Expect both installers to run
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-    [&counter,this](){
+    [&counter,&fileSystemMock,this](){
 
         if (counter == 1)
         {
             counter++;
-            return mockBaseInstall();
+            return mockBaseInstall(fileSystemMock);
         }
         else if (counter == 2)
         {
             counter++;
-            return mockEDRInstall();
+            return mockEDRInstall(fileSystemMock);
         }
         else if (counter == 0 || counter == 3)
         {
@@ -3605,7 +3607,7 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
     EXPECT_CALL(*mockFileSystem, removeFile(_, _)).Times(5);
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(std::vector<Path> {}));
     EXPECT_CALL(*mockFileSystem, currentWorkingDirectory()).Times(1);
-    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(2);
     EXPECT_CALL(*mockFileSystem, makeExecutable(_)).Times(1);
     EXPECT_CALL(*mockFileSystem, getSystemCommandExecutablePath(_)).Times(3);
     m_replacer.replace(std::move(mockFileSystem));

@@ -112,5 +112,6 @@ public:
     MOCK_METHOD(std::string, getMcsCaOverrideFlag, (), (const, override));
 
     MOCK_METHOD(std::string, getOutbreakModeStatusFilePath, (), (const, override));
+    MOCK_METHOD(std::string, getProductInstallLogFilePath, (const std::string& productName), (const, override));
 
 };

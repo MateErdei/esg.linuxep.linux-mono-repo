@@ -124,6 +124,8 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getMcsCaOverrideFlag() const = 0;
 
         [[nodiscard]] virtual std::string getOutbreakModeStatusFilePath() const = 0;
+
+        [[nodiscard]] virtual std::string getProductInstallLogFilePath(const std::string& productName) const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

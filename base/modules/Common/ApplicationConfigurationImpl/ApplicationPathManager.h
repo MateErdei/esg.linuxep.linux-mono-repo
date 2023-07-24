@@ -103,6 +103,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMcsCaOverrideFlag() const override;
 
         [[nodiscard]] std::string getOutbreakModeStatusFilePath() const override;
+        [[nodiscard]] std::string getProductInstallLogFilePath(const std::string& productName) const override;
 
 
     private:

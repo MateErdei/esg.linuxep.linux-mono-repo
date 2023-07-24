@@ -450,6 +450,12 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "var/sophosspl/outbreak_status.json");
         }
 
+        std::string ApplicationPathManager::getProductInstallLogFilePath(const std::string& productName) const
+        {
+            std::string fileName = productName + "_install.log";
+            return Common::FileSystem::join(sophosInstall(), "logs/installation", fileName);
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

@@ -8,7 +8,14 @@ Library    OperatingSystem
 
 *** Keywords ***
 Dump All Logs
-    # new location
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Base-component_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EDR_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EventJournaler_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-RuntimeDetections_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-liveresponse_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-responseactions_install.log
+
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/sophosspl/updatescheduler.log
 

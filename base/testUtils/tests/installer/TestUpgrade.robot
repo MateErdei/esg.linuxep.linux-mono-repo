@@ -1,12 +1,15 @@
 *** Settings ***
+Library    DateTime
+
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    DateTime
+
 Resource  InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../GeneralUtilsResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
+Resource  ../upgrade_product/UpgradeResources.robot
 
 Test Teardown  Upgrade Test Teardown
 Default Tags  INSTALLER  TAP_TESTS
@@ -15,7 +18,7 @@ Default Tags  INSTALLER  TAP_TESTS
 ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
 ${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 ${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
-${ra_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-responseactions/filestodelete.dat
+${ra_files_to_delete}                       ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-responseactions/filestodelete.dat
 
 
 *** Test Cases ***
@@ -193,8 +196,7 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
 
 VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh
-
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
 
     #fake the file being copied to the wrong location
     Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
@@ -210,7 +212,7 @@ VersionCopy File in the Wrong Location Is Removed
 
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/
@@ -218,14 +220,14 @@ VersionCopy File in the Wrong Location Is Removed
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
     Check Files Before Upgrade
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
     Check Files After Upgrade
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     [Tags]  INSTALLER
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
     Install Response Actions Directly
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-responseactions/manifest.dat  /tmp/RA-manifest.dat
@@ -233,7 +235,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Move File  /tmp/RA-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -249,14 +251,14 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 Version Copy Versions All Changed Files When Upgrading
     [Tags]  INSTALLER
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
 
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
     ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
 
-    Run Specific Installer Directly   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh
+    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
 
     ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}

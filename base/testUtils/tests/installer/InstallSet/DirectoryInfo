@@ -19,6 +19,7 @@ o711, root, root, /opt/sophos-spl/base/etc
 o711, root, root, /opt/sophos-spl/base/lib64
 o711, root, root, /opt/sophos-spl/logs
 o711, root, root, /opt/sophos-spl/logs/base
+o711, root, root, /opt/sophos-spl/logs/installation
 o711, root, root, /opt/sophos-spl/shared
 o711, root, root, /opt/sophos-spl/var
 o711, root, root, /opt/sophos-spl/var/cache

@@ -219,13 +219,6 @@ Installer Succeeds If The System Has A Libc Version Greater Than That Of The Bui
     Should Be Equal As Strings  ${SystemGlibcVersion}  ${HighGlibcVersion}
     ${consoleOutput} =  Run Full Installer Expecting Code  0
 
-Test Successfull Install Does Not Contain Error And Noise
-    [Tags]  TAP_TESTS  INSTALLER
-    Ensure Uninstalled
-    Should Not Exist   ${SOPHOS_INSTALL}
-    ${consoleOutput} =  Run Full Installer Without X Set
-    Should Be Equal As Strings  ${consoleOutput}  Installation complete, performing post install steps\n
-
 Version Copy Copies Files When Group Contains Long List Of Users
     [Teardown]  Teardown Clean Up Group File With Large Group Creation
     Require Installed
