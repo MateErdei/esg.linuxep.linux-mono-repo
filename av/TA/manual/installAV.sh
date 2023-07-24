@@ -75,7 +75,8 @@ bash "${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 if [[ $BREAK_UPDATING ]]
 then
   mv /opt/sophos-spl/base/bin/SulDownloader.0 /opt/sophos-spl/base/bin/SulDownloader.bk
-  mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
+  # Just break SulDownloader - UpdateScheduler running helps make health green
+#  mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
   # Need to enable feature with warehouse-flags
   cp ${TEST_SUITE}/resources/flags_policy/flags-warehouse.json ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 fi
