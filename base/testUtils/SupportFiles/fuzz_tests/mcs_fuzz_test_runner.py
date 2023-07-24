@@ -45,10 +45,8 @@ def run_mcs_fuzz_test(testsuite=None):
         model.connect(policy_templates.mcs_policy_fuzzed)
     elif suite == 'alc':
         model.connect(policy_templates.alc_policy_fuzzed)
-    elif suite == 'mdr':
-        model.connect(policy_templates.mdr_policy_fuzzed)
     else:
-        raise AssertionError("Unknown suite name only 'mcs', 'mdr' 'alc' are valid. Given suite {}".format(suite))
+        raise AssertionError("Unknown suite name only 'mcs', 'alc' are valid. Given suite {}".format(suite))
 
     fuzzer.set_model(model)
     fuzzer.set_target(target)

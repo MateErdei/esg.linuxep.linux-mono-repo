@@ -18,32 +18,6 @@ newline_static = Static("\n", name="newline")
 #   XmlAttribute defaults -> fuzz_attribute=False, fuzz_value=True
 #   XmlElement defaults -> fuzz_name=True, fuzz_content=False
 
-### mdr policy ###
-# actively fuzz the policy element and its attributes as its the only part of the policy processed by MCSRouter python code
-mdr_policy = \
-    XmlElement(name="mdr_policy", element_name="policy",
-               attributes=[
-                   XmlAttribute(name="type", attribute="type", value="MDR", fuzz_attribute=True, fuzz_value=True),
-                   XmlAttribute(name='revid', attribute='RevID',
-                                value="f45ecd9e69073a873b10378939d944a1d5e1c1779d3050fcb5ad0de18942a1d4", fuzz_attribute=True, fuzz_value=True),
-                   XmlAttribute(name="policytype", attribute="policyType", value="54", fuzz_attribute=True, fuzz_value=True)
-               ],
-               content=[XmlElement(name="configuration", element_name="configuration",
-                                   content=[
-                                       XmlElement(name="customerId", element_name="customerId",
-                                                  content="da39f66d-23d9-4eb3-bc51-6353eb0185bd", delimiter="\n"),
-                                       XmlElement(name="endpointId", element_name="endpointId",
-                                                  content="838b8d72-be61-406e-aaba-a675ff5ccacf", delimiter="\n"),
-                                       XmlElement(name="url", element_name="url",
-                                                  content="test.endpointintel.darkbytes.io", delimiter="\n"),
-                                       XmlElement(name="enrollmentSecret", element_name="enrollmentSecret",
-                                                  content="da39f66d-23d9-4eb3-bc51-6353eb0185bd", delimiter="\n")
-                                   ], delimiter="\n")
-                        ], delimiter="\n")
-
-mdr_policy_fuzzed = Template(fields=[declaration_static, newline_static, mdr_policy], name="mdr_policy_fuzz")
-
-
 ### mcs policy ###
 # actively fuzz the whole policy and its attributes
 config_element = \
@@ -302,14 +276,6 @@ alc_policy = \
                                                                 XmlAttribute(name="Tag", attribute="Tag",
                                                                              value="RECOMMENDED")
                                                             ], content=[], delimiter="\n"),
-                                                 XmlElement(name="subscription_mdr", element_name="subscription",
-                                                            attributes=[
-                                                                XmlAttribute(name="Id", attribute="Id", value="MDR"),
-                                                                XmlAttribute(name="RigidName", attribute="RigidName",
-                                                                             value="ServerProtectionLinux-Plugin-MDR"),
-                                                                XmlAttribute(name="Tag", attribute="Tag",
-                                                                             value="RECOMMENDED")
-                                                            ], content=[], delimiter="\n")
                                              ], delimiter="\n"),
                                   XmlElement(name="delay_supplements", element_name="delay_supplements",
                                              attributes=[
@@ -320,9 +286,6 @@ alc_policy = \
                               content=[
                                   XmlElement(name="feature_core", element_name="Feature",
                                              attributes=[XmlAttribute(name="id", attribute="id", value="CORE")],
-                                             delimiter="\n"),
-                                  XmlElement(name="Feature_mdr", element_name="Feature",
-                                             attributes=[XmlAttribute(name="id", attribute="id", value="MDR")],
                                              delimiter="\n"),
                                   XmlElement(name="Feature_sdu", element_name="Feature",
                                              attributes=[XmlAttribute(name="id", attribute="id", value="SDU")],
