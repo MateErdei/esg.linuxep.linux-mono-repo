@@ -133,13 +133,6 @@ Restart Telemetry Scheduler
     Stop Telemetry Scheduler
     Start Telemetry Scheduler
     Wait Until Keyword Succeeds  ${TIMING_TOLERANCE}  1 seconds   Check Telemetry Scheduler Is Running
-    Simulate Send Policy    ALC_policy_direct.xml
-
-
-Restart Telemetry Scheduler Without Policy
-    Stop Telemetry Scheduler
-    Start Telemetry Scheduler
-    Wait Until Keyword Succeeds  ${TIMING_TOLERANCE}  1 seconds   Check Telemetry Scheduler Is Running
 
 
 Stop Telemetry Scheduler

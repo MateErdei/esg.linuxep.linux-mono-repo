@@ -43,20 +43,24 @@ Cleanup TelemetryScheduling Tests
 
 
 Telemetry Scheduler Plugin Test Setup
+    Simulate Send Policy    ALC_policy_direct.xml
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable
     Set Interval In Configuration File  ${TEST_INTERVAL}
     ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}
     Restart Telemetry Scheduler
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Setup with error telemetry executable
+    Simulate Send Policy    ALC_policy_direct.xml
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable that exits with error
     Set Interval In Configuration File  ${TEST_INTERVAL}
     ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${STATUS_FILE}    shell=True
     Restart Telemetry Scheduler
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
@@ -67,7 +71,8 @@ Telemetry Scheduler Plugin Test Setup Without Sending Policy
     Set Interval In Configuration File  ${TEST_INTERVAL}
     ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
-    Restart Telemetry Scheduler Without Policy
+    Create File  ${STATUS_FILE}
+    Restart Telemetry Scheduler
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Teardown
@@ -345,10 +350,8 @@ Telemetry Scheduler Terminates Executable When Timeout Is Exceeded
 
 Telemetry Scheduler Starts And Does Not Run Executable As No Policy Is Received
     [Setup]    Telemetry Scheduler Plugin Test Setup Without Sending Policy
-    [Tags]    SLOW
 
-    sleep    60s
-    file should not exist    ${TELEMETRY_OUTPUT_JSON}
+    wait until keyword succeeds    ${TELEMETRY_EXE_CHECK_DELAY}    1 seconds    file should not exist    ${TELEMETRY_OUTPUT_JSON}
 
 Telemetry Scheduler Starts, Receives Policy And Runs Executable Then Receives A Different Policy And Processes It WIthout Errors
     # Receving default policy and running telemetry

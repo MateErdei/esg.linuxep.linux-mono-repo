@@ -61,7 +61,6 @@ namespace TelemetrySchedulerImpl
                 LOGERROR("Failed to request ALC policy with error: "<< exception.what());
             }
 
-//            bool newInstall = !(Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()));
 
             telemetrySchedulerProcessor.run();
 

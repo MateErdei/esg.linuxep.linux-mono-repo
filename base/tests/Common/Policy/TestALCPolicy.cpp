@@ -17,7 +17,7 @@ static const std::string UPDATE_POLICY_WITH_CACHE{ R"sophos(<?xml version="1.0"?
   <AUConfig platform="Linux">
     <sophos_address address="http://es-web.sophos.com/update"/>
     <primary_location>
-      <server BandwidthLimit="0" AutioDial="false" Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+      <server BandwidthLimit="0" AutoDial="false" Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </primary_location>
     <secondary_location>

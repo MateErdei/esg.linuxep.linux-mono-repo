@@ -263,7 +263,7 @@ namespace TelemetrySchedulerImpl
             LOGINFO("This is first time tscheduler is running");
             Common::UtilityImpl::FormattedTime time;
             // run telemetry in ten minutes when first update should have finished
-            auto currentTime = std::chrono::seconds{time.currentEpochTimeInSecondsAsInteger() + interval};
+            auto currentTime = std::chrono::seconds{time.currentEpochTimeInSecondsAsInteger() + 600};
             scheduledTime = std::chrono::system_clock::time_point(currentTime);
             updateStatusFile(scheduledTime);
         }
@@ -288,21 +288,6 @@ namespace TelemetrySchedulerImpl
     {
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
         // externally updated.
-
-//        if (!m_alcPolicyProcessed)
-//        {
-//            // After install want Telemetry to wait for the first ALC policy to be received (and give a safe hostname)
-//            // No need to do this again after first ALC policy has been received and processed
-//            // This waits up to 25s, (aka QUEUE_TIMEOUT * maxTasksThreshold), (maxTasksThreshold is the first parameter
-//            // of waitForPolicy), for the policy
-//            std::string policyContent = waitForPolicy(5, "ALC");
-//            if (policyContent.empty())
-//            {
-//                LOGINFO("Not running telemetry as ALC policy hasn't been received yet");
-//                return;
-//            }
-//            processALCPolicy(policyContent);
-//        }
 
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
         auto [telemetryConfig, configFileValid] = getConfigFromFile();
