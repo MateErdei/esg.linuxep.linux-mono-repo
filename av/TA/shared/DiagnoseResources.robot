@@ -29,7 +29,7 @@ Get DiagnoseOutput
     Should Be Equal As Integers  ${result.rc}  ${0}
     Log  ${result.stdout}
     ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
-    Set Suite Variable  ${DiagnoseOutput}  ${folder}
+    Set Test Variable  ${DiagnoseOutput}  ${folder}
 
 
 Run Diagnose And Get DiagnoseOutput
