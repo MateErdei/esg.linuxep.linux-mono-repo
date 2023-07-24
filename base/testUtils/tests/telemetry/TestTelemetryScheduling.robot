@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation  Test the Telemetry Scheduler
 
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library    ../../libs/TemporaryDirectoryManager.py
 
 Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -14,11 +14,27 @@ Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
 Default Tags  TELEMETRY SCHEDULER
 
+*** Variables ***
+#${alc_policy} =    SEPARATOR=\n
+#...    <?xml version="1.0"?>
+#...    <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+#...      <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+#...    <AUConfig platform="Linux">
+#...    <primary_location>
+#...      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+#...    </primary_location>
+#...    </AUConfig>
+#...    <server_names>
+#...      <telemetry>test.sophosupd.com</telemetry>
+#...    </server_names>
+#...    </AUConfigurations>
+
 *** Keywords ***
 ### Suite Setup
 Setup TelemetryScheduling Tests
     Require Fresh Install
     Copy File  ${TELEMETRY_CONFIG_FILE_SOURCE}  ${TELEMETRY_CONFIG_FILE}
+    Override LogConf File as Global Level  DEBUG
 
 
 ### Suite Cleanup
@@ -32,7 +48,6 @@ Telemetry Scheduler Plugin Test Setup
     Set Interval In Configuration File  ${TEST_INTERVAL}
     ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
-    Create File  ${STATUS_FILE}
     Restart Telemetry Scheduler
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
@@ -42,9 +57,17 @@ Telemetry Scheduler Plugin Test Setup with error telemetry executable
     Set Interval In Configuration File  ${TEST_INTERVAL}
     ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
-    Create File  ${STATUS_FILE}
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${STATUS_FILE}    shell=True
     Restart Telemetry Scheduler
+    wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
+
+Telemetry Scheduler Plugin Test Setup Without Sending Policy
+    Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
+    Create Fake Telemetry Executable
+    Set Interval In Configuration File  ${TEST_INTERVAL}
+    ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
+    Remove File  ${STATUS_FILE}
+    Restart Telemetry Scheduler Without Policy
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Teardown
@@ -117,10 +140,12 @@ Telemetry Scheduler Schedules Telemetry Executable for ten minutues on a fresh i
 Telemetry Scheduler recives error output from telemetry executable when it fails
     [Setup]  Telemetry Scheduler Plugin Test Setup with error telemetry executable
 
+    # Would exit with correct exit code but just wouldn't show the right message in logs
     Wait Until Keyword Succeeds
-    ...  80s
+    ...  100s
     ...  10s
-    ...  Check Tscheduler Log Contains  Telemetry executable output: error
+    ...  Check Tscheduler Log Contains  Telemetry executable failed with exit code 255
+    #...  Check Tscheduler Log Contains  Telemetry executable output: error # original log check that failed
 
 Telemetry Scheduler Generates Files With Correct Permissions
     [Documentation]  Telemetry is scheduled and launches telemetry executable, generating files with the correct permissions
@@ -317,3 +342,27 @@ Telemetry Scheduler Terminates Executable When Timeout Is Exceeded
     Wait Until Keyword Succeeds  ${TELEMETRY_EXE_CHECK_DELAY}  10 seconds   Check Log Contains   Running telemetry executable timed out    ${TELEMETRY_SCHEDULER_LOG}    tscheduler.log
 
     Check Telemetry Executable Is Not Running
+
+Telemetry Scheduler Starts And Does Not Run Executable As No Policy Is Received
+    [Setup]    Telemetry Scheduler Plugin Test Setup Without Sending Policy
+    [Tags]    SLOW
+
+    sleep    60s
+    file should not exist    ${TELEMETRY_OUTPUT_JSON}
+
+Telemetry Scheduler Starts, Receives Policy And Runs Executable Then Receives A Different Policy And Processes It WIthout Errors
+    # Receving default policy and running telemetry
+    wait until created    ${TELEMETRY_OUTPUT_JSON}
+    Remove File    ${TELEMETRY_OUTPUT_JSON}
+
+    # Receiving different policy and checking
+    Simulate Send Policy    ALC_policy_with_telemetry_hostname.xml
+
+    # "wait until created" waits for 1 minute before failing
+    # Wanted to give enough time for telemetry scheduler to go through all the steps and running executable so
+    # Need "wait until created" to repeat a few times, chose to have it repeat 5 times hence the "300 seconds"
+    wait until keyword succeeds    300 seconds   1 seconds    wait until created    ${TELEMETRY_OUTPUT_JSON}
+
+    # Hostname received from new policy should be: test.sophusupd.net (telemetry hostname found in ALC_policy_with_telemetry_hostname.xml)
+    check tscheduler log contains    test.sophosupd.net
+

@@ -263,7 +263,7 @@ namespace TelemetrySchedulerImpl
             LOGINFO("This is first time tscheduler is running");
             Common::UtilityImpl::FormattedTime time;
             // run telemetry in ten minutes when first update should have finished
-            auto currentTime = std::chrono::seconds{time.currentEpochTimeInSecondsAsInteger() + 600};
+            auto currentTime = std::chrono::seconds{time.currentEpochTimeInSecondsAsInteger() + interval};
             scheduledTime = std::chrono::system_clock::time_point(currentTime);
             updateStatusFile(scheduledTime);
         }
@@ -435,10 +435,6 @@ namespace TelemetrySchedulerImpl
 
             if (!wasAlcPolicyProcessedBefore)
             {
-//                delayBeforeQueueingTask(
-//                        system_clock::now() + m_configurationCheckDelay,
-//                        m_delayBeforeCheckingConfiguration,
-//                        {.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry});
                 m_taskQueue->push({.taskType = SchedulerTask::TaskType::InitialWaitToRunTelemetry, .content="", .appId=""});
             }
         } catch (const Common::Policy::PolicyParseException& ex) {

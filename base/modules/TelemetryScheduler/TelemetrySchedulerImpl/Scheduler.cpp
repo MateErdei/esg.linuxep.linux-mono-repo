@@ -6,10 +6,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Scheduler.h"
 
+#include "NoPolicyAvailableException.h"
 #include "PluginCallback.h"
 #include "SchedulerProcessor.h"
 #include "SchedulerTask.h"
 #include "TaskQueue.h"
+
+#include "ZeroMQWrapper/IIPCException.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
@@ -18,8 +21,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
-
-#include <stdexcept>
 #include <sys/stat.h>
 
 namespace TelemetrySchedulerImpl
@@ -45,6 +46,23 @@ namespace TelemetrySchedulerImpl
 
             SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pathManager);
 //            taskQueue->push(SchedulerTask::InitialWaitToRunTelemetry);
+            LOGINFO("Waiting for ALC policy before running Telemetry");
+            try
+            {
+                baseService->requestPolicies("ALC");
+            }
+            catch (const Common::PluginApi::NoPolicyAvailableException&)
+            {
+                LOGINFO("No ALC policy available right now");
+                // Ignore no Policy Available errors
+            }
+            catch (const Common::ZeroMQWrapper::IIPCException& exception)
+            {
+                LOGERROR("Failed to request ALC policy with error: "<< exception.what());
+            }
+
+//            bool newInstall = !(Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()));
+
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

@@ -11,8 +11,9 @@ import os
 from enum import Enum
 from .SetupLogger import setup_logging
 from .messages import Message
+from robot.libraries.BuiltIn import BuiltIn
 
-SYSTEMPRODUCTTESTOUTPUT = os.path.join(os.path.dirname(__file__), "..", "..", "..", "SystemProductTestOutput")
+SYSTEMPRODUCTTESTOUTPUT = BuiltIn().get_variable_value("$SYSTEM_PRODUCT_TEST_OUTPUT_PATH")
 if SYSTEMPRODUCTTESTOUTPUT not in sys.path:
     sys.path.append(SYSTEMPRODUCTTESTOUTPUT)
 
