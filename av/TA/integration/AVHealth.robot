@@ -376,6 +376,7 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     Register Cleanup    Remove File    ${OA_LOCAL_SETTINGS}
     Restart soapd
 
+    ${td_mark} =    Get Sophos Threat Detector Log Mark
     Create SUSI Initialisation Error
 
     On-access Scan Clean File
