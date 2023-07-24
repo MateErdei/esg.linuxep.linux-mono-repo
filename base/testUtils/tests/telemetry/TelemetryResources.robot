@@ -175,14 +175,7 @@ Check Scheduled Time For Fresh installs
     [Arguments]  ${start_time}  ${tolerance}=30
 
     ${scheduled_time} =  Check Status File Is Generated And Return Scheduled Time
-    # Had to change code in SchedulerProcess.cpp, in waitToRunTelemetry function if newInstalls variable is true then
-    # The next scheduled time would be 10 minutes later not matter the value of ${TEST_INTERVAL} (it was a hardocded value of 600 seconds)
-    # This test would not pass anymore due to the changes in "Telemetry Scheduler Plugin Test Setup" (specically creating a fake status file)
-    # Every other test in TestTelemetryScheduling.robot passed except this after the change for the fake status file at the start of setup
-    # Only way to make this test psas would be to change the cpp code and/or change the value it expected here
-    # Best option I could see was to undo the change for the fake status file and change cpp code such that rather than the next scheduled time being 10 minutes later
-    # It was just the interval in the config. This meant other tests could pass as well without the fake status file
-    ${expected_scheduled_time} =  Expected Scheduled Time  ${start_time}  ${TEST_INTERVAL}
+    ${expected_scheduled_time} =  Expected Scheduled Time  ${start_time}  600
 
     ${is_within_range} =  Verify Scheduled Time Is Expected  ${scheduled_time}  ${expected_scheduled_time}  ${tolerance}
     Should Be True  ${is_within_range}  msg="Actual scheduled time ${scheduled_time} is expected to be within +/- ${tolerance} seconds of ${expected_scheduled_time}"
