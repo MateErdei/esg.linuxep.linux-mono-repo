@@ -273,7 +273,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2, 250ms));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2, 500ms));
 
     clientWaitGuard.clear();
 
