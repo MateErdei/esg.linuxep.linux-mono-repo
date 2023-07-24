@@ -239,7 +239,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
-    ...    check_log_contains    Successfully restored old SafeStore database    /tmp/preserve-sul-downgrade    Downgrade Log
+    ...    check_log_contains    Successfully restored old SafeStore database    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log    AV Install Log
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
