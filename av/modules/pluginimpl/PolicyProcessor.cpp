@@ -163,6 +163,9 @@ namespace Plugin
      */
     void PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
+        m_restartThreatDetector = false;
+        reloadThreatDetectorConfiguration_ = false;
+
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
 
@@ -171,9 +174,6 @@ namespace Plugin
             LOGINFO("ALC policy received for the first time.");
             m_gotFirstAlcPolicy = true;
         }
-
-        m_restartThreatDetector = false;
-        reloadThreatDetectorConfiguration_ = false;
 
         if (m_customerId.empty())
         {
@@ -504,6 +504,9 @@ namespace Plugin
 
     void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
     {
+        m_restartThreatDetector = false;
+        reloadThreatDetectorConfiguration_ = false;
+
         processOnAccessSettingsFromCOREpolicy(policy);
         processSusiSettingsFromCOREpolicy(policy);
     }
@@ -629,6 +632,9 @@ namespace Plugin
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
+        m_restartThreatDetector = false;
+        reloadThreatDetectorConfiguration_ = false;
+
         auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
         auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
         bool m_firstPolicy = !m_gotFirstCorcPolicy;

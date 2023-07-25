@@ -52,6 +52,12 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
+
+            auto tmpdir = m_testDir / "tmp";
+            fs::create_directories(tmpdir);
+
+            auto var = m_testDir / "var";
+            fs::create_directories(var);
         }
 
         void setupBase()

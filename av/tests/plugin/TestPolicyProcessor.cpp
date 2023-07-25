@@ -2,8 +2,10 @@
 
 #include "TestPolicyProcessor.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/FileSystem/IFileSystemException.h"
+
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 
@@ -20,11 +22,11 @@ namespace
         }
     };
 
-}
+} // namespace
 
-static const std::string ALC_FULL_POLICY //NOLINT
+static const std::string ALC_FULL_POLICY // NOLINT
     {
-    R"sophos(<?xml version="1.0"?>
+        R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="4d77291c5f5be04f62f04b6f379cf5d80e62c9a13d149c1acce06aba819b83cc" policyType="1"/>
   <AUConfig platform="Linux">
@@ -71,10 +73,9 @@ static const std::string ALC_FULL_POLICY //NOLINT
   <customer id="b67ee4d2-baef-b4b6-6bf9-19b5ddcb2ef7"/>
 </AUConfigurations>
 )sophos"
-};
+    };
 
-
-static const std::string GL_POLICY_2 =  // NOLINT
+static const std::string GL_POLICY_2 = // NOLINT
     R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
@@ -406,4 +407,29 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithUnkownAppId)
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
     auto policyType = PolicyProcessorUnitTestClass::determinePolicyType(attributeMap, "not a known APP ID");
     ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);
+}
+
+TEST_F(TestPolicyProcessor, alc_policy_resets_reload_restart_flags)
+{
+    Plugin::PolicyProcessor proc{nullptr};
+    auto sav = Common::XmlUtilities::parseXml(GL_SAV_POLICY);
+    proc.processSavPolicy(sav);
+    ASSERT_TRUE(proc.restartThreatDetector());
+    ASSERT_TRUE(proc.reloadThreatDetectorConfiguration());
+    auto alc = Common::XmlUtilities::parseXml(ALC_FULL_POLICY);
+
+    constexpr const auto* customerId = "5e259db8da3ae4df8f18a2add2d3d47d";
+    const auto customerIdPath = m_testDir / "var/customer_id.txt";
+
+    auto chrootCustomerIdPath = m_testDir / "chroot";
+    chrootCustomerIdPath += customerIdPath;
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(customerIdPath), StrEq(customerId))).WillOnce(Return());
+    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(chrootCustomerIdPath), StrEq(customerId))).WillOnce(Return());
+
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+
+    proc.processAlcPolicy(alc);
+    EXPECT_FALSE(proc.restartThreatDetector());
 }
