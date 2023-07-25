@@ -133,7 +133,7 @@ else
     then
       mkdir -p "$SOPHOS_INSTALL/tmp/downgrade-backup"
       cp -r "$SOPHOS_INSTALL/$line/"* "$SOPHOS_INSTALL/tmp/downgrade-backup" || failure "Failed to copy $line"  ${FAILURE_TO_BACKUP_FILES}
-      rm -rf "${SOPHOS_INSTALL}/${line}/"*  || failure "Failed to remove $line"  ${FAILURE_TO_BACKUP_FILES}
+      rm -rf "${SOPHOS_INSTALL}/${line}/"* || failure "Failed to remove $line"  ${FAILURE_TO_BACKUP_FILES}
       mv "$SOPHOS_INSTALL/tmp/downgrade-backup" "$SOPHOS_INSTALL/$line/downgrade-backup" || failure "Failed to move $line"  ${FAILURE_TO_BACKUP_FILES}
     fi
   done < "$input"
@@ -158,7 +158,7 @@ function removeUser()
 {
   function check_user_exists()
   {
-    grep  "$1" /etc/passwd &>/dev/null
+    grep "$1" /etc/passwd &>/dev/null
   }
 
   local USERNAME=$1
@@ -186,7 +186,7 @@ function removeUser()
               echo "userdel output:"
               "$USER_DELETER" "$USERNAME"
           fi
-          failure "Failed to delete user: $USERNAME"  ${FAILURE_REMOVE_USER}
+          failure "Failed to delete user: $USERNAME" ${FAILURE_REMOVE_USER}
       fi
   else
       echo "Unable to delete user $USERNAME" >&2
@@ -197,7 +197,7 @@ function removeGroup()
 {
   function check_group_exists()
   {
-    grep  "$1" /etc/group &>/dev/null
+    grep "$1" /etc/group &>/dev/null
   }
 
   local GROUPNAME=$1
@@ -205,7 +205,7 @@ function removeGroup()
   [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
   if [[ -x "$GROUP_DELETER" ]]
   then
-      check_group_exists  "$GROUPNAME"
+      check_group_exists "$GROUPNAME"
       local GROUP_EXISTS=$?
       local GROUP_DELETE_TRIES=0
       while (( $GROUP_EXISTS == 0 && $GROUP_DELETE_TRIES <= 10 ))
@@ -216,7 +216,7 @@ function removeGroup()
           GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
       done
       check_group_exists "$GROUPNAME"
-      [ $? -eq 0 ] && failure "Failed to delete group: $GROUPNAME"  ${FAILURE_REMOVE_GROUP}
+      [ $? -eq 0 ] && failure "Failed to delete group: $GROUPNAME" ${FAILURE_REMOVE_GROUP}
   else
       echo "Unable to delete group $GROUPNAME" >&2
   fi

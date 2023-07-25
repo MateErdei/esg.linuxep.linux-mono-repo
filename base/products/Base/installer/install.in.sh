@@ -244,7 +244,7 @@ function waitForProcess()
 
 function is_watchdog_running()
 {
-  confirmProcessRunning  "${SOPHOS_INSTALL}/base/bin/watchdog"  && return 0
+  confirmProcessRunning "${SOPHOS_INSTALL}/base/bin/watchdog" && return 0
   return 1
 }
 
@@ -253,9 +253,9 @@ function makedir()
     # Creates directory and enforces it's permissions
     if [[ ! -d $2 ]]
     then
-        mkdir -p "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2"
+        mkdir -p "$2" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2"
     fi
-    chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to apply correct permissions: $1 to directory: $2"
+    chmod "$1" "$2" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to apply correct permissions: $1 to directory: $2"
 }
 
 function makeRootDirectory()
@@ -276,7 +276,7 @@ function makeRootDirectory()
     local createDirs=${SOPHOS_INSTALL#$install_path/}
 
     #Following loop requires trailing slash
-    if  [[ ${createDirs:-1} != "/" ]]
+    if [[ ${createDirs:-1} != "/" ]]
     then
         local createDirs=$createDirs/
     fi
@@ -386,7 +386,7 @@ function add_to_group()
     USERMOD="$(which usermod)"
     [[ -x "${USERMOD}" ]] || USERMOD=/usr/sbin/usermod
     [[ -x "${USERMOD}" ]] || failure ${EXIT_FAIL_FIND_USERMOD} "Failed to find usermod to add new user to group"
-    "${USERMOD}" -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
+    "${USERMOD}" -a -G "$groupname" "$username" || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
 }
 
 function generate_local_user_group_id_config()
@@ -473,7 +473,7 @@ function cleanup_comms_component()
   [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
   if [[ -x "$GROUP_DELETER" ]]
   then
-      check_group_exists  "$COMMSUSER"
+      check_group_exists "$COMMSUSER"
       local GROUP_EXISTS=$?
       local GROUP_DELETE_TRIES=0
       while (( $GROUP_EXISTS == 0 && $GROUP_DELETE_TRIES <= 10 ))
@@ -552,7 +552,7 @@ add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
-check_for_upgrade  "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
+check_for_upgrade "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
 
 # Var directories
 makedir 711 "${SOPHOS_INSTALL}/var"
@@ -788,14 +788,14 @@ if [[ -d "${SOPHOS_INSTALL}/tmp/actions" ]]
 then
     chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/actions"
     chmod -R 640 "${SOPHOS_INSTALL}/tmp/actions"
-    chmod  750 "${SOPHOS_INSTALL}/tmp/actions"
+    chmod 750 "${SOPHOS_INSTALL}/tmp/actions"
 fi
 
 if [[ -d "${SOPHOS_INSTALL}/tmp/policy" ]]
 then
     chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/policy"
     chmod -R 640 "${SOPHOS_INSTALL}/tmp/policy"
-    chmod  750 "${SOPHOS_INSTALL}/tmp/policy"
+    chmod 750 "${SOPHOS_INSTALL}/tmp/policy"
 fi
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
@@ -847,7 +847,7 @@ chmod u+x "$DIST/files/base/bin"/*
 "$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
 
 CLEAN_INSTALL=1
-[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat"  "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
+[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat" "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
@@ -926,7 +926,7 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/machineid"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/machineid"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
-chmod go+r  "${SOPHOS_INSTALL}/base/mcs/certs/"*
+chmod go+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
@@ -1000,12 +1000,12 @@ then
         fi
     elif [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT $MCS_MESSAGE_RELAYS $PRODUCT_ARGUMENTS
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
         then
             EXIT_CODE=${EXIT_FAIL_REGISTER}
-            echo  "Failed to register with Sophos Central: $REGISTER_EXIT"
+            echo "Failed to register with Sophos Central: $REGISTER_EXIT"
         fi
     fi
 fi
@@ -1021,12 +1021,12 @@ if (( $CLEAN_INSTALL == 1 ))
 then
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "$EXIT_CODE" == "0" ]]
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" && "$EXIT_CODE" == "0" ]]
     then
         waitForProcess "mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
     # Provide time to Watchdog to start all managed services
-    sleep  2
+    sleep 2
 else
     if software_changed ${DIST} ${PRODUCT_LINE_ID}
     then
@@ -1041,7 +1041,7 @@ else
           waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
           # Provide time to Watchdog to start all managed services
-          sleep  2
+          sleep 2
         else
           perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
         fi
@@ -1051,7 +1051,7 @@ fi
 
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
-echo "managementagent,${PRODUCT_LINE_ID}"  >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
+echo "managementagent,${PRODUCT_LINE_ID}" >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}
