@@ -172,7 +172,8 @@ def get_complete_core_policy(
         exclusion_list=None,
         on_access_enabled=False,
         on_access_on_read=True,
-        on_access_on_write=True):
+        on_access_on_write=True,
+        ml_enabled=True):
     if exclusion_list is None:
         exclusion_list = ["*.glob", "globExample?.txt", "/stemexample/*"]
     policy_builder = _SavPolicyBuilder(CORE_POLICY_TEMPLATE_PATH, None)
@@ -182,6 +183,8 @@ def get_complete_core_policy(
     policy_builder.set_on_access_on_write(on_access_on_write, "onWrite")
     policy_builder.set_posix_exclusions(exclusion_list)
     policy_builder.add_replacement('{{excludeRemoteFiles}}', 'false')
+    policy_builder.add_replacement('{{machineLearningEnabled}}', 'true' if ml_enabled or 'false')
+
     policy_builder.set_revision_id(str(uuid.uuid4()))
     return policy_builder.get_sav_policy()
 
@@ -225,11 +228,14 @@ class _SavPolicyBuilder:
             out.write(content)
 
     def get_sav_policy(self):
+        return self.get_policy()
+
+    def get_policy(self):
         with open(self.path, "r") as xml:
             policy = xml.read()
-            for key, value in self.replacement_map.items():
-                policy = policy.replace(key, value)
-            return policy
+        for key, value in self.replacement_map.items():
+            policy = policy.replace(key, value)
+        return policy
 
     def add_replacement(self, src, replacement):
         self.replacement_map[src] = replacement
