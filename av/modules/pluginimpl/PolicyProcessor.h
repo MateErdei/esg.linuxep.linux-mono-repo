@@ -132,6 +132,11 @@ namespace Plugin
         static nlohmann::json readOnAccessConfig();
         void writeOnAccessConfig(const nlohmann::json& configJson);
 
+
+        inline static const std::string OA_FLAG{ "av.onaccess.enabled" };
+        inline static const std::string SS_FLAG{ "safestore.enabled" };
+        inline static const std::string SS_ML_FLAG{ "safestore.quarantine-ml" };
+
         IStoppableSleeperSharedPtr m_sleeper;
         std::string m_customerId;
         common::ThreatDetector::SusiSettings m_threatDetectorSettings;
@@ -145,6 +150,11 @@ namespace Plugin
         bool m_gotFirstAlcPolicy = false;
         bool m_gotFirstCorcPolicy = false;
 
+        bool m_susiSettingsWritten = false;
+
+        void resetTemporaryMarkerBooleans();
+
+    protected:
         /**
          * Temporary boolean.
          * Indicates if the previous policy requires ThreatDetector to restart.
@@ -159,11 +169,5 @@ namespace Plugin
          */
         bool reloadThreatDetectorConfiguration_ = false;
 
-        bool m_susiSettingsWritten = false;
-
-
-        inline static const std::string OA_FLAG{ "av.onaccess.enabled" };
-        inline static const std::string SS_FLAG{ "safestore.enabled" };
-        inline static const std::string SS_ML_FLAG{ "safestore.quarantine-ml" };
     };
 } // namespace Plugin

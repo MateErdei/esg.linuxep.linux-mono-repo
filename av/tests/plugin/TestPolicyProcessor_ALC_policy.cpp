@@ -20,6 +20,16 @@ namespace
         {
             setupBase();
         }
+
+        template<typename Matcher>
+        void expectWriteCustomerID(const Matcher& id)
+        {
+            assert(m_mockIFileSystemPtr);
+            const std::string customerIdFilePath1 = m_customerIdPath;
+            const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, id)).Times(1);
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, id)).Times(1);
+        }
     };
 }
 
@@ -174,10 +184,8 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_1)).Times(1);
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_2)).Times(1);
+    expectWriteCustomerID(expectedMd5_1);
+    expectWriteCustomerID(expectedMd5_2);
     expectAbsentSusiConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -429,4 +437,36 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyInvalid)
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(proc.restartThreatDetector());
+}
+
+namespace
+{
+    class ExposedPolicyProcessor : public Plugin::PolicyProcessor
+    {
+    public:
+        using Plugin::PolicyProcessor::PolicyProcessor;
+        void setTemporaryMarkerBooleansTrue()
+        {
+            m_restartThreatDetector = true;
+            reloadThreatDetectorConfiguration_ = true;
+        }
+    };
+}
+
+TEST_F(TestPolicyProcessor_ALC_policy, test_markers_reset_by_alc_policy)
+{
+    std::string policyXml = GL_POLICY_2;
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+    expectReadCustomerIdRepeatedly();
+    expectAbsentSusiConfig();
+    expectWriteCustomerID(_);
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    ExposedPolicyProcessor policyProcessor{nullptr};
+    policyProcessor.processAlcPolicy(attributeMap);
+    policyProcessor.setTemporaryMarkerBooleansTrue();
+    policyProcessor.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(policyProcessor.restartThreatDetector());
+    EXPECT_FALSE(policyProcessor.reloadThreatDetectorConfiguration());
 }

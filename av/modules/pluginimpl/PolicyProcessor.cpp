@@ -163,8 +163,7 @@ namespace Plugin
      */
     void PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        m_restartThreatDetector = false;
-        reloadThreatDetectorConfiguration_ = false;
+        resetTemporaryMarkerBooleans();
 
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
@@ -311,8 +310,7 @@ namespace Plugin
 
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        m_restartThreatDetector = false;
-        reloadThreatDetectorConfiguration_ = false;
+        resetTemporaryMarkerBooleans();
 
         processOnAccessSettingsFromSAVpolicy(policy);
         bool needToSave = false;
@@ -504,8 +502,7 @@ namespace Plugin
 
     void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
     {
-        m_restartThreatDetector = false;
-        reloadThreatDetectorConfiguration_ = false;
+        resetTemporaryMarkerBooleans();
 
         processOnAccessSettingsFromCOREpolicy(policy);
         processSusiSettingsFromCOREpolicy(policy);
@@ -630,10 +627,15 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    void PolicyProcessor::resetTemporaryMarkerBooleans()
     {
         m_restartThreatDetector = false;
         reloadThreatDetectorConfiguration_ = false;
+    }
+
+    void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        resetTemporaryMarkerBooleans();
 
         auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
         auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
