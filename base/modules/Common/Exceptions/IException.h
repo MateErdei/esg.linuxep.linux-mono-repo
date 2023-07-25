@@ -45,5 +45,25 @@ namespace Common
             const char* file_;
             const unsigned long line_;
         };
+
+        static std::string expandNestedException(const std::exception& ex, int level = 0)
+        {
+            std::string exceptionString{std::string(level, ' ') + "Exception: "};
+            exceptionString += ex.what();
+            exceptionString += '\n';
+
+            try
+            {
+                std::rethrow_if_nested(ex);
+            }
+            catch (const std::exception& nestedEx)
+            {
+                exceptionString += expandNestedException(nestedEx, level + 1);
+            }
+            catch (...)
+            {}
+
+            return exceptionString;
+        }
     } // namespace Exceptions
 } // namespace Common

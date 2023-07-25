@@ -17,6 +17,7 @@ namespace RemoteDiagnoseImpl
     std::string PluginUtils::processAction(const std::string& actionXml)
     {
         LOGDEBUG("Processing action: " << actionXml);
+        // Can throw nested exception XmlUtilitiesException if parsing fails
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
 
         auto action = attributesMap.lookup("a:action");
@@ -25,7 +26,7 @@ namespace RemoteDiagnoseImpl
         {
             std::stringstream errorMessage;
             errorMessage << "Malformed action received , type is : " << actionType << " not SDURun";
-            throw std::runtime_error(errorMessage.str());
+            std::throw_with_nested(std::runtime_error(errorMessage.str()));
         }
         std::string url = action.value("uploadUrl");
         LOGDEBUG("Upload url: " << url);
@@ -117,7 +118,7 @@ namespace RemoteDiagnoseImpl
         }
 
         std::string noProtocol = url.substr(8);
-        data.resourcePath = noProtocol.substr(noProtocol.find_first_of('/')+1);// plus one so we dont include the first slash
+        data.resourcePath = noProtocol.substr(noProtocol.find_first_of('/')+1);// plus one so we don't include the first slash
         data.domain = noProtocol.substr(0,noProtocol.find_first_of('/'));
 
         if (data.domain.find_first_of(':') != std::string::npos)

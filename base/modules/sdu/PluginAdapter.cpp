@@ -82,7 +82,15 @@ namespace RemoteDiagnoseImpl
     }
 
     void PluginAdapter::processAction(const std::string& actionXml) {
-        m_url = RemoteDiagnoseImpl::PluginUtils::processAction(actionXml);
+        try
+        {
+            m_url = RemoteDiagnoseImpl::PluginUtils::processAction(actionXml);
+        }
+        catch(std::exception& ex)
+        {
+            LOGERROR("Error when processing action in processAction()");
+            LOGERROR(Common::Exceptions::expandNestedException(ex));
+        }
 
         if (!m_diagnoseRunner->isRunning())
         {
@@ -92,7 +100,6 @@ namespace RemoteDiagnoseImpl
         {
             LOGWARN("sophos_diagnose is currently running, we will not try to start it again");
         }
-
     }
     void PluginAdapter::sendStartedStatus()
     {
