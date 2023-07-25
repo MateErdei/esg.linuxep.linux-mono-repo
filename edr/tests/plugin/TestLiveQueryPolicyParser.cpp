@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 #include <modules/pluginimpl/LiveQueryPolicyParser.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
@@ -92,7 +88,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithSwappedTyp
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
     EXPECT_EQ(changeFoldingRules, false);
-    EXPECT_EQ(foldingRules.size(), 0);
+    EXPECT_EQ(foldingRules.size(), 0U);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesForTheSameQuery)
@@ -130,7 +126,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesForTheSameQuer
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(), 2);
+    EXPECT_EQ(foldingRules.size(), 2U);
     size_t count = 0;
     for (const auto& r : foldingRules)
     {
@@ -192,7 +188,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoQueryNam
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(),1);
+    EXPECT_EQ(foldingRules.size(),1U);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoValues)
@@ -226,7 +222,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoValues)
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(),1);
+    EXPECT_EQ(foldingRules.size(),1U);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesEmptyJson)
@@ -298,7 +294,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithVeryLargeJ
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyWithLargeJson, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(), 5001);
+    EXPECT_EQ(foldingRules.size(), 5001U);
 
 }
 
@@ -337,7 +333,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesHandlesExpecte
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
     EXPECT_TRUE(changeFoldingRules);
-    EXPECT_EQ(foldingRules.size(), 2);
+    EXPECT_EQ(foldingRules.size(), 2U);
     size_t count = 0;
     for (const auto& r : foldingRules)
     {
@@ -456,7 +452,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesParsesAllButIn
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
     EXPECT_TRUE(changeFoldingRules);
 
-    EXPECT_EQ(foldingRules.size(), 1);
+    EXPECT_EQ(foldingRules.size(), 1U);
     EXPECT_EQ(foldingRules, expected);
 }
 
@@ -496,7 +492,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesGoodThenBadThe
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(), 2);
+    EXPECT_EQ(foldingRules.size(), 2U);
     size_t count = 0;
     for (const auto& r : foldingRules)
     {
@@ -589,7 +585,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesGoodThenBadThe
     bool changeFoldingRulesSomeBadRules = testableGetFoldingRules(liveQueryPolicyInvalidRules, lastRules);
     EXPECT_EQ(changeFoldingRulesSomeBadRules, true);
     // We keep only the good rule
-    EXPECT_EQ(lastRules.size(), 1);
+    EXPECT_EQ(lastRules.size(), 1U);
     EXPECT_EQ(lastRules, expected);
 }
 
@@ -606,7 +602,7 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                         "        </scheduled>\n"
                                         "    </configuration>\n"
                                         "</policy>";
-    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy100000), 100000);
+    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy100000), 100000U);
 
     std::string liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
                                         "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
@@ -619,7 +615,7 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                         "        </scheduled>\n"
                                         "    </configuration>\n"
                                         "</policy>";
-    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy234567), 234567);
+    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy234567), 234567U);
     std::string liveQueryPolicy1000GB = "<?xml version=\"1.0\"?>\n"
                                         "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                         "    <configuration>\n"
@@ -631,7 +627,7 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                         "        </scheduled>\n"
                                         "    </configuration>\n"
                                         "</policy>";
-    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy1000GB), 100000000000LL);
+    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy1000GB), 100000000000ULL);
     std::string validXmlWithMissingField = "<?xml version=\"1.0\"?>\n"
                                            "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                            "    <configuration>\n"
@@ -643,7 +639,7 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                            "        </scheduled>\n"
                                            "    </configuration>\n"
                                            "</policy>";
-    EXPECT_EQ(testableGetDataLimit(validXmlWithMissingField), 262144000);
+    EXPECT_EQ(testableGetDataLimit(validXmlWithMissingField), 262144000U);
 
     std::string validXmlWithInvalidFieldData = "<?xml version=\"1.0\"?>\n"
                                                "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
@@ -656,7 +652,7 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                                "        </scheduled>\n"
                                                "    </configuration>\n"
                                                "</policy>";
-    EXPECT_EQ(testableGetDataLimit(validXmlWithInvalidFieldData), 262144000);
+    EXPECT_EQ(testableGetDataLimit(validXmlWithInvalidFieldData), 262144000U);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testGetRevID)
@@ -1328,7 +1324,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithRegex)
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyWithRegex, foldingRules);
     EXPECT_EQ(changeFoldingRules, true);
-    EXPECT_EQ(foldingRules.size(),1);
+    EXPECT_EQ(foldingRules.size(),1U);
     EXPECT_EQ(foldingRules[0]["query_name"], "test_folding_query");
     EXPECT_EQ(foldingRules[0]["regex"]["column_name"], "[0-9]+");
 }

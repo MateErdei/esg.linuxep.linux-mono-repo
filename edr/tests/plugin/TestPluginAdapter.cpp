@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "ALCPoliciesExample.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -503,12 +499,12 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithEmptyPolic
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
-    std::string empty = "";
+    const std::string empty;
 
     pluginAdapter.processLiveQueryPolicy(empty);
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "NoRef");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000U);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithMissingField)
@@ -529,7 +525,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithMissingFie
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicyMissingField);
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 262144000);
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 262144000U);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWhenDataLimitHit)
@@ -571,7 +567,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456U);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPolicy)
@@ -584,7 +580,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPol
     pluginAdapter.processLiveQueryPolicy(garbage);
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Failure");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000U);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testHasScheduleEpochEnded)
@@ -818,7 +814,7 @@ TEST_F(PluginAdapterWithMockFileSystem, processPolicyIgnoresDuplicates)
     pluginAdapter.processPolicy(liveQueryPolicy, "LiveQuery");
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456U);
 
     EXPECT_TRUE(appenderContains("Processing LiveQuery Policy", 1));
     EXPECT_TRUE(appenderContains("Policy with app id LiveQuery unchanged, will not be processed", 1));

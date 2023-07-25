@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
@@ -257,7 +253,7 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
     auto actualQueryTagMap = resultsSender.getQueryTagMapOverridden();
-    ASSERT_EQ(actualQueryTagMap.size(), 0);
+    ASSERT_EQ(actualQueryTagMap.size(), 0U);
 }
 
 TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
@@ -444,7 +440,7 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, fileSize(INTERMEDIARY_PATH)).WillOnce(Return(1));
 
     // 3 is due to the 2 added in GetFileSize() (for the , and ] that gets added) and the 1 from the above line mock here
-    ASSERT_EQ(resultsSender.GetFileSize(), 3);
+    EXPECT_EQ(resultsSender.GetFileSize(), 3U);
 }
 
 TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
@@ -467,7 +463,7 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
-    ASSERT_EQ(resultsSender.GetFileSize(), 0);
+    EXPECT_EQ(resultsSender.GetFileSize(), 0U);
 }
 
 TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
