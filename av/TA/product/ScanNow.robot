@@ -8,6 +8,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
@@ -263,7 +264,8 @@ ScanNow Suite TearDown
 ScanNow Test Setup
     Start AV
     Component Test Setup
-    Require Sophos Threat Detector Running
+    Start Sophos Threat Detector Under Fake Watchdog
+    Register Cleanup      Stop Sophos Threat Detector Under Fake Watchdog If Running
     Delete Eicars From Tmp
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
@@ -276,6 +278,7 @@ ScanNow Test Setup
 ScanNow Test Teardown
     Delete Eicars From Tmp
     #terminates all processes
+    Stop Sophos Threat Detector Under Fake Watchdog If Running
     Component Test TearDown
 
     Dump Log On Failure   ${AV_LOG_PATH}

@@ -135,12 +135,21 @@ class FakeWatchdog(object):
         self.__m_td_thread.start()
 
     def stop_sophos_threat_detector_under_fake_watchdog(self):
+        if not self.stop_sophos_threat_detector_under_fake_watchdog_if_running():
+            logger.info("Trying to stop Threat Detector while it is not running")
+
+    def stop_sophos_threat_detector_under_fake_watchdog_if_running(self):
+        """
+        :return: True if Threat Detector was running
+        """
         if self.__m_td_thread is not None:
             self.__m_td_worker.attemptStop()
             self.__m_td_thread.join()
             self.__m_td_worker.log_history()
             self.__m_td_thread = None
             self.__m_td_worker = None
+            return True
+        return False
 
     def dump_log_history(self):
         if self.__m_td_worker is not None:

@@ -99,10 +99,6 @@ Run Sophos Threat Detector Directly
     Register Cleanup   Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     Wait until threat detector running
 
-Restart threat detector once it stops
-    Wait For Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-    Run Sophos Threat Detector Directly
-
 Require Sophos Threat Detector Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
