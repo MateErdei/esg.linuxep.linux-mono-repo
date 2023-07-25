@@ -4,10 +4,10 @@ Library         OperatingSystem
 Library         String
 Library         DateTime
 
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OSLibs.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/FileSystemLibs.py
-Library    LogUtils
 
 Resource    ComponentSetup.robot
 
