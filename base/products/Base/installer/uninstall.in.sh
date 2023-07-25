@@ -168,11 +168,11 @@ function removeUser()
   if [[ -x "$USER_DELETER" ]]
   then
       check_user_exists "$USERNAME"
-      USER_EXISTS=$?
+      local USER_EXISTS=$?
       local USER_DELETE_TRIES=0
-      while [ $USER_EXISTS -eq 0 ] && [ $USER_DELETE_TRIES -le 10 ]
+      while (( $USER_EXISTS == 0 && $USER_DELETE_TRIES <= 10 ))
       do
-          sleep 1
+          (( $USER_DELETE_TRIES > 0 )) && sleep 1
           "$USER_DELETER" "$USERNAME" 2>/dev/null >/dev/null && USER_EXISTS=1
           USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
       done
@@ -206,11 +206,12 @@ function removeGroup()
   if [[ -x "$GROUP_DELETER" ]]
   then
       check_group_exists  "$GROUPNAME"
-      GROUP_EXISTS=$?
-      GROUP_DELETE_TRIES=0
-      while [ $GROUP_EXISTS -eq 0 ] && [ $GROUP_DELETE_TRIES -le 10 ]
+      local GROUP_EXISTS=$?
+      local GROUP_DELETE_TRIES=0
+      while (( $GROUP_EXISTS == 0 && $GROUP_DELETE_TRIES <= 10 ))
       do
-          sleep 1
+          (( $GROUP_DELETE_TRIES > 0 )) && sleep 1
+
           "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null && GROUP_EXISTS=1
           GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
       done
