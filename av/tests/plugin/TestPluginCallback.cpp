@@ -727,7 +727,7 @@ TEST_F(TestPluginCallback, calculateThreatDetectorStatus_bad_susi_update)
         "success":false
     })"));
     }
-    // Unhealth file check - returns green healthy
+    // Unhealthy file check - returns green healthy
     {
         auto path = Plugin::getThreatDetectorUnhealthyFlagPath();
         EXPECT_CALL(*m_mockFileSystem, isFile(StrEq(path))).WillOnce(Return(false));
