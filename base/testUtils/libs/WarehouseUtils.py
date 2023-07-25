@@ -88,6 +88,7 @@ class WarehouseUtils(object):
         "ServerProtectionLinux-Plugin-EDR": "SPL-Endpoint-Detection-and-Response-Plugin",
         "ServerProtectionLinux-Plugin-RuntimeDetections": "SPL-Runtime-Detection-Plugin",
         "ServerProtectionLinux-Plugin-Heartbeat": "Sophos Server Protection Linux - Heartbeat",
+        "ServerProtectionLinux-Plugin-responseactions": "SPL-Response-Actions-Plugin"
     }
 
     update_server = UpdateServer.UpdateServer("ostia_update_server.log")
