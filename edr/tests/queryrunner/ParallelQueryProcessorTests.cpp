@@ -3,6 +3,7 @@
 #include "queryrunner/ParallelQueryProcessor.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Threads/LockableData.h"
 
 #include "Common/Helpers/LogInitializedTests.h"
 
@@ -20,13 +21,16 @@ namespace
 {
     class ConfigurableDelayedQuery : public queryrunner::IQueryRunner
     {
+    public:
+        using counter_t = Common::Threads::LockableData<int>&;
+    private:
         std::future<void> m_fut;
         std::string m_id;
-        std::shared_ptr<std::atomic<int>> m_counter;
+        counter_t m_counter;
         bool triggered = false;
 
     public:
-        explicit ConfigurableDelayedQuery(std::shared_ptr<std::atomic<int>> counter) : m_counter { std::move(counter) }
+        explicit ConfigurableDelayedQuery(counter_t counter) : m_counter { counter }
         {
             triggered = false;
         }
@@ -75,7 +79,10 @@ namespace
         }
         queryrunner::QueryRunnerStatus getResult() override
         {
-            *m_counter += 1;
+            {
+                auto locked = m_counter.lock();
+                *locked += 1;
+            }
             return queryrunner::QueryRunnerStatus {};
         }
         std::unique_ptr<IQueryRunner> clone() override
@@ -94,14 +101,18 @@ namespace
 
 TEST_F(ParallelQueryProcessorTests, addJob)
 {
-    auto counter = std::make_shared<std::atomic<int>>(0);
+    Common::Threads::LockableData<int> counter{0};
     {
         queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::make_unique<ConfigurableDelayedQuery>(counter)};
         parallelQueryProcessor.addJob(buildQuery(1), "1");
         parallelQueryProcessor.addJob(buildQuery(1), "2");
     }
     // whenever parallel is destroyed, all the jobs will have been finished.
-    int value = *counter;
+    int value;
+    {
+        auto locked = counter.lock();
+        value = *locked;
+    }
     // Jobs could be run or not, depending on thread performance
     EXPECT_GE(value, 0);
     EXPECT_LE(value, 2);
@@ -112,9 +123,9 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
 
-    auto counter = std::make_shared<std::atomic<int>>(0);
+    Common::Threads::LockableData<int> counter{0};
     {
-        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::unique_ptr<queryrunner::IQueryRunner>(new ConfigurableDelayedQuery{counter})};
+        queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::make_unique<ConfigurableDelayedQuery>(counter)};
         for(int i=0; i<10;i++)
         {
             parallelQueryProcessor.addJob(buildQuery(1), std::to_string(i));
@@ -122,7 +133,11 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
         }
     }
     // whenever parallel is destroyed, all the jobs will have been finished.
-    int value = *counter;
+    int value;
+    {
+        auto locked = counter.lock();
+        value = *locked;
+    }
     EXPECT_EQ(value, 10);
     std::string logMessage = testing::internal::GetCapturedStderr();
 
