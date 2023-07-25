@@ -552,6 +552,33 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
 
     Check Sophos Threat Detector Has Different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
+Sophos Threat Detector Is Not Shutdown On A New Policy
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+
+    Force SUSI to be initialized
+
+    # restart AV to force policy to be applied & sent to threat detector
+    Stop AV Plugin Process
+    Send CORE Policy To Base  core_policy/CORE-36_ml_disabled.xml
+    Start AV Plugin Process
+    Wait For Sophos Threat Detector Log Contains After Mark  Machine Learning will be disabled  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark  Susi configuration reloaded  ${threat_detector_mark}
+
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    Check avscanner can detect eicar
+    Wait For SUSI Debug Log Contains After Mark    "machineLearning" : false  ${susi_debug_mark}
+
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${susi_debug_mark2} =  Get SUSI Debug Log Mark
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
+    Wait For Sophos Threat Detector Log Contains After Mark  Machine Learning will be enabled  ${threat_detector_mark2}
+    Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed  ${threat_detector_mark2}
+    Check avscanner can detect eicar
+    Wait For SUSI Debug Log Contains After Mark    "machineLearning" : true  ${susi_debug_mark2}
+
+    Check Sophos Threat Detector Has Different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
 Sophos Threat Detector Is Ignoring Reload Request
     #unload susi
     Stop sophos_threat_detector
