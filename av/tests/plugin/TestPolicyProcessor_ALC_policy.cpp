@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "TestPolicyProcessor.h"
 
@@ -131,7 +131,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, customerIDFromPlaceholders)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromMinimalAttributeMap)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -149,7 +149,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromMinimalAttributeMap)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromClearAttributeMap)
 {
-    std::string policyXml = GL_POLICY_2;
+    const std::string policyXml = GL_POLICY_2;
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
@@ -170,9 +170,11 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyNoChangePolicy)
     auto attributeMap = parseFullPolicy();
     proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.reloadThreatDetectorConfiguration());
 
     proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.reloadThreatDetectorConfiguration());
 }
 
 
@@ -206,7 +208,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromEmptyAttributeMap)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -223,7 +225,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromEmptyAttributeMap)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNoAlgorithm)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -240,7 +242,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNoAlgorithm)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapHashed)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -258,7 +260,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapHashed)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNotHashed)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -276,7 +278,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNotHashed)
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyPassword)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -301,7 +303,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyPasswor
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingPassword)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -326,7 +328,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingPassw
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyUserName)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -350,7 +352,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyUserNam
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingUserName)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -375,7 +377,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingUserN
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapInvalidAlgorithm)
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -400,7 +402,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapInvalidAlgor
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromBlankAttributeMap)
 {
-    std::string policyXml {};
+    const std::string policyXml {};
 
     try
     {
@@ -424,7 +426,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyInvalid)
 
     Plugin::PolicyProcessor proc{nullptr};
 
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
     <primary_location>
@@ -437,6 +439,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyInvalid)
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.reloadThreatDetectorConfiguration());
 }
 
 namespace
