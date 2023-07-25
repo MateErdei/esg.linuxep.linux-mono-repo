@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/UserUtils.py
 Library         ../Libs/fixtures/EDRPlugin.py
 
@@ -31,11 +32,10 @@ EDR Plugin Can Receive Actions
     Check EDR Plugin Installed
 
     ${actionContent} =  Set Variable  This is an action test
+    
+    ${mark} =  Mark Log Size    ${EDR_LOG_PATH}
     Send Plugin Action  edr  LiveQuery  corr123  ${actionContent}
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Received new Action
+    Wait For Log Contains From Mark    ${mark}    Received new Action  ${15}
 
 EDR plugin Can Send Status
     create_users_and_group
@@ -73,7 +73,7 @@ EDR Plugin Does Not Hang When OSQuery Socket Is Not Created
     # Check edr.log file to ensure EDR will retry to restart OSQUery if OSQuery has not started correctly.
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
+    ...   5 secs
     ...   Check Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
 
 EDR Plugin Purges OSQuery Database If Event Data Retention Time Check Fails
@@ -98,20 +98,15 @@ EDR Plugin Purges OSQuery Database If Event Data Retention Time Check Fails
             ...  The osquery process finished
             ...  Restarting osquery
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Should Not Exist  ${EDR_PLUGIN_PATH}/var/osquery.db/test_file
+    Wait Until Removed  ${EDR_PLUGIN_PATH}/var/osquery.db/test_file  200 secs
+
 
 EDR Plugin Will Create OSQuery Options File To Configure OSQuery Data Retention Time
     create_users_and_group
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
     Create Directory   ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/
     Check EDR Plugin Installed
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Should Exist  ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/options.conf
+    Wait Until Created   ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/options.conf  200 secs
 
     Log File  ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/options.conf
 

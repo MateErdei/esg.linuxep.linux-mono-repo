@@ -19,19 +19,13 @@ Test Teardown   EDR And Base Teardown
 LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
     Check EDR Plugin Installed With Base
     Simulate Live Query  RequestProcesses.json
-    Wait Until Keyword Succeeds
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
     ...  15 secs
-    ...  1 secs
-    ...  File Should Exist    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
 
 LiveQuery Response is Chowned to Sophos Spl Local on EDR Startup
     Check EDR Plugin Installed With Base
     Create File  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_567-8_response.json
     Stop EDR
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Start EDR
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -124,38 +118,30 @@ EDR Plugin Can Have Logging Level Changed Individually
     Check EDR Plugin Installed With Base
     #setting edr_osquery to DEBUG provides all DEBUG logging (these can be hidden by specifying the component with INFO level)
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=DEBUG\n
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Restart EDR
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: DEBUG
+    Wait For Log Contains From Mark    ${mark}    Logger edr_osquery configured for level: DEBUG  ${15}
 
 EDR Plugin Can Have Logging Level Changed Based On Components
     Check EDR Plugin Installed With Base
     #With edr_osquery being set to INFO, the other sub-components can be set to DEBUG and have the specified logging level
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=INFO\n[edr]\nVERBOSITY=DEBUG\n
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Restart EDR
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
-    EDR Plugin Log Contains   Logger edr configured for level: DEBUG
+    Wait For Log Contains From Mark    ${mark}    Logger edr_osquery configured for level: INFO  ${15}
+    Wait For Log Contains From Mark    ${mark}    Logger edr configured for level: DEBUG  ${1}
 
 EDR clears jrl files when scheduled queries are disabled
     Check EDR Plugin Installed With Base
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 1
+    Wait For Log Contains From Mark    ${mark}    Updating running_mode flag settings to: 1  ${15}
     File Should exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_disabled.xml
 
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 0
+    Wait For Log Contains From Mark    ${mark}    Updating running_mode flag settings to: 0  ${15}
     File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
 
 EDR Recovers From Incomplete Database Purge
@@ -174,15 +160,13 @@ EDR Recovers From Incomplete Database Purge
     Stop EDR
     Create Debug Level Logger Config File
     Corrupt OSQuery Database
+    ${osquery_mark} =   Mark Log Size   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
     Start EDR
 
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  File Log Contains    ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log    Destroying RocksDB database due to corruption
+    Wait For Log Contains From Mark    ${osquery_mark}  Destroying RocksDB database due to corruption  ${120}
 
     Should Not Exist  ${canary_file}
-    ${edrMark} =  Mark File  ${EDR_LOG_PATH}
+    ${edrMark} =  Mark Log Size  ${EDR_LOG_PATH}
 
     # Perform a query to make sure that osquery is now working
     Wait Until Keyword Succeeds
@@ -190,7 +174,7 @@ EDR Recovers From Incomplete Database Purge
     ...  5 secs
     ...  Check Simple Query Works
 
-    Marked File Does Not Contain    ${EDR_LOG_PATH}   Osquery health check failed: write() send(): Broken pipe  ${edrMark}
+    check_log_does_not_contain_after_mark  ${EDR_LOG_PATH}   Osquery health check failed: write() send(): Broken pipe  ${edrMark}
 
 OSQuery Database is Purged When Previously Installed EDR Version is Below 1.1.2
     Check EDR Plugin Installed With Base
@@ -446,11 +430,8 @@ EDR Plugin Stops Without Errors
     ...  30 secs
     ...  1 secs
     ...  Check Osquery Running
-    Stop EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+
+    Stop EDR  ${30}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
@@ -486,15 +467,11 @@ EDR Plugin Can clean up old osquery info and warning files
     Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1009
     Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1010
     Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1011
+
+    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Start EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Removed old osquery WARNING file:
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Removed old osquery INFO file:
+    Wait For Log Contains From Mark    ${mark}    Removed old osquery WARNING file:  ${30}
+    Wait For Log Contains From Mark    ${mark}    Removed old osquery INFO file:  ${30}
 
 sophos_endpoint_info Has installed_versions Field Which Has Base And Edr Version
     Check EDR Plugin Installed With Base

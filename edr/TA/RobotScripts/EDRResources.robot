@@ -352,18 +352,8 @@ Get all sophos processes
     Log  ${result.stdout}
 
 Restart EDR
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Stop EDR
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  edr <> Plugin Finished  ${mark}
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Start EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
 
 File Should Contain
     [Arguments]  ${file}  ${string_to_contain}
@@ -401,10 +391,7 @@ Enable XDR with MTR
     Is XDR Enabled in Plugin Conf
 
 Is XDR Enabled in Plugin Conf
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  File Should Exist    ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Wait Until Created    ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  15 secs
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
@@ -415,9 +402,10 @@ Is XDR Enabled in Plugin Conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Stop EDR
+    [Arguments]  ${timeout}=${15}
     ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
-    wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${15}
+    wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${timeout}
 
 Start EDR
     ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
@@ -442,10 +430,7 @@ Run Live Query and Return Result
     Create File  ${EXAMPLE_DATA_PATH}/temp.json  ${query_json}
     ${response}=  Set Variable  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
     Simulate Live Query  temp.json
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  File Should Exist    ${response}
+    Wait Until Created    ${response}  15 secs
     ${contents} =  Get File  ${response}
     Remove File  ${response}
     Remove File  ${EXAMPLE_DATA_PATH}/temp.json

@@ -37,6 +37,7 @@ def get_log_length(path_to_log):
         contents = log.read()
     return len(contents)
 
+
 def log_contains_in_order(log_location, log_name, args, log_finds=True):
     contents = get_log_contents(log_location)
     index = 0
