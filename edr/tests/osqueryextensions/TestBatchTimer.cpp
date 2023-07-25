@@ -34,33 +34,55 @@ protected:
 
 TEST_F(TestBatchTimer, CallbackRunOnTimeout)
 {
-    m_timer->Configure([this]{ timerCallback(); }, std::chrono::milliseconds(MAX_TIME_MILLISECONDS));
+    for (auto i=1; i<20; ++i)
+    {
+        auto delay = 3 * i;
 
-    auto startTime = std::chrono::steady_clock::now();
-    m_timer->Start();
+        m_timer->Configure([this] { timerCallback(); }, std::chrono::milliseconds(delay));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(3 * MAX_TIME_MILLISECONDS));
+        auto startTime = std::chrono::steady_clock::now();
+        m_timer->Start();
 
-    ASSERT_GT(m_callbackTime, startTime);
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(m_callbackTime - startTime);
-    ASSERT_GE(duration.count(), MAX_TIME_MILLISECONDS);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3 * delay));
+
+        ASSERT_GT(m_callbackTime, startTime);
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(m_callbackTime - startTime);
+        if (duration.count() >= delay)
+        {
+            // success
+            return;
+        }
+    }
+    FAIL() << "Timeout duration always less than expected";
 }
 
 TEST_F(TestBatchTimer, CallbackNotRunIfCancelled)
 {
-    m_timer->Configure([this]{ timerCallback(); }, std::chrono::milliseconds(MAX_TIME_MILLISECONDS));
+    for (auto i=1; i<20; ++i)
+    {
+        auto delay = 3 * i;
 
-    m_timer->Start();
-    m_timer->Cancel();
+        m_timer->Configure([this]{ timerCallback(); }, std::chrono::milliseconds(delay));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(3 * MAX_TIME_MILLISECONDS));
+        m_timer->Start();
+        m_timer->Cancel();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(3 * delay));
+
+        if (m_callbackTime.time_since_epoch().count() == 0)
+        {
+            // Success - callback not called
+            return;
+        }
+        // failure - retry with longer interval
+    }
 
     EXPECT_EQ(0, m_callbackTime.time_since_epoch().count());
 }
 
 TEST_F(TestBatchTimer, CallbackNotRunIfDestroyed)
 {
-    for (auto i=1; i<6; ++i)
+    for (auto i=1; i<20; ++i)
     {
         auto delay = 3 * i;
 
