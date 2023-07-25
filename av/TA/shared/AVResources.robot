@@ -10,6 +10,7 @@ Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/PluginUtils.py
@@ -1279,9 +1280,8 @@ Start AV
     Check SafeStore Not Running
     Check SafeStore PID File Does Not Exist
 
-    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
-    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
-    Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    start_sophos_threat_detector_under_fake_watchdog
+    Register Cleanup   stop_sophos_threat_detector_under_fake_watchdog_if_running
 
     ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
     Set Suite Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
