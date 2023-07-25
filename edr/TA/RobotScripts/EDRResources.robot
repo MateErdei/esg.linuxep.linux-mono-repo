@@ -7,6 +7,7 @@ Library         DateTime
 Library         ../Libs/OSLibs.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/FileSystemLibs.py
+Library    LogUtils
 
 Resource    ComponentSetup.robot
 
@@ -414,33 +415,21 @@ Is XDR Enabled in Plugin Conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Stop EDR
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
+    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Marked File Contains    ${EDR_LOG_PATH}  edr <> Plugin Finished    ${mark}
+    wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${15}
 
 Start EDR
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
+    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Marked File Contains   ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
+    wait for log contains from mark  ${mark}  Plugin preparation complete  ${30}
 
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
-    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Move File Atomically  ${policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  LiveQuery policy has changed. Restarting osquery to apply changes  ${mark}
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Plugin preparation complete  ${mark}
+    wait for log contains from mark  ${mark}  LiveQuery policy has changed. Restarting osquery to apply changes  ${10}
+    wait for log contains from mark  ${mark}  Plugin preparation complete  ${20}
 
 Create Debug Level Logger Config File
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
