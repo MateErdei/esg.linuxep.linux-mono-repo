@@ -183,7 +183,10 @@ class LogMark:
     def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
-        sleep_time = min(0.5, timeout / 10)
+        sleep_time = timeout / 60  # Check by default 60 times during the timeout
+        sleep_time = max(0.01, sleep_time)  # Delay a minimum of 10ms between checks
+        sleep_time = min(10.0, sleep_time)    # Delay a maximum of 10 seconds between checks
+        logger.debug("Sleeping %f seconds between checks" % sleep_time)
         old_contents = ""
         while time.time() < start + timeout:
             contents = self.get_contents()

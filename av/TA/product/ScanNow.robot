@@ -202,7 +202,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     # Wait for Scan Now to actually start
     wait_for_log_contains_from_mark  ${scan_now_mark}  \ Scanning\
 
-    Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    Stop Sophos Threat Detector Under Fake Watchdog If Running
     sleep  60  Waiting for the socket to timeout
     wait_for_log_contains_from_mark  ${scan_now_mark}  Reached total maximum number of reconnection attempts. Aborting scan.
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
@@ -264,7 +264,6 @@ ScanNow Suite TearDown
 ScanNow Test Setup
     Start AV
     Component Test Setup
-    Start Sophos Threat Detector Under Fake Watchdog
     Register Cleanup      Stop Sophos Threat Detector Under Fake Watchdog If Running
     Delete Eicars From Tmp
 
@@ -298,8 +297,7 @@ Start AV
     Clear logs
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
 
-    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+    Start Sophos Threat Detector Under Fake Watchdog
 
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     ${fake_management_log_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
