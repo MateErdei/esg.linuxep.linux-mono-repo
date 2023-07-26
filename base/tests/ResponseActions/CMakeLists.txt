@@ -18,7 +18,7 @@ target_include_directories(ResponseActionsTests BEFORE PUBLIC
         ${CMAKE_BINARY_DIR}/products/PluginApi/tests/include
         )
 
-target_link_libraries(ResponseActionsTests ${GTEST_MAIN_LIBRARY} -L "${CMAKE_BINARY_DIR}/libs"
+target_link_libraries(ResponseActionsTests ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs"
         responseplugin
         responseactionsimpl
         sharedtesthelpers
