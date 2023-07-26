@@ -12,7 +12,7 @@ add_executable(sduTests
 target_include_directories(sduTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" )
 target_include_directories(sduTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(sduTests ${GTEST_MAIN_LIBRARY} -L "${CMAKE_BINARY_DIR}/libs" testhelpers remotediagnoseimpl)
+target_link_libraries(sduTests ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" testhelpers remotediagnoseimpl)
 
 gtest_discover_tests(sduTests)
 
