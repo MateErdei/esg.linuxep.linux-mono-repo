@@ -18,7 +18,6 @@ ${InstalledAVPluginVersionFile}                 ${AV_DIR}/VERSION.ini
 ${InstalledEDRPluginVersionFile}                ${EDR_DIR}/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${EVENTJOURNALER_DIR}/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${LIVERESPONSE_DIR}/VERSION.ini
-${InstalledMDRPluginVersionFile}                ${PLUGINS_DIR}/mtr/VERSION.ini
 ${InstalledRAPluginVersionFile}                 ${RESPONSE_ACTIONS_DIR}/VERSION.ini
 ${InstalledRTDPluginVersionFile}                ${RTD_DIR}/VERSION.ini
 
@@ -29,7 +28,7 @@ Get Current Installed Versions
     ${EDRReleaseVersion} =      get_version_number_from_ini_file        ${InstalledEDRPluginVersionFile}
     ${EJReleaseVersion} =       get_version_number_from_ini_file        ${InstalledEJPluginVersionFile}
     ${LRReleaseVersion} =       get_version_number_from_ini_file        ${InstalledLRPluginVersionFile}
-    ${MTRReleaseVersion} =      get_version_number_from_ini_file        ${InstalledMDRPluginVersionFile}
+    ${RAReleaseVersion} =       get_version_number_from_ini_file        ${InstalledRAPluginVersionFile}
     ${RTDReleaseVersion} =      get_rtd_version_number_from_ini_file    ${InstalledRTDPluginVersionFile}
 
     &{versions} =    Create Dictionary
@@ -38,7 +37,7 @@ Get Current Installed Versions
     ...    edrVersion=${EDRReleaseVersion}
     ...    ejVersion=${EJReleaseVersion}
     ...    lrVersion=${LRReleaseVersion}
-    ...    mtrVersion=${MTRReleaseVersion}
+    ...    raVersion=${RAReleaseVersion}
     ...    rtdVersion=${RTDReleaseVersion}
     [Return]    &{versions}
 
@@ -49,7 +48,7 @@ Get Expected Versions
     ${ExpectedEDRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EDR
     ${ExpectedEJReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EventJournaler
     ${ExpectedLRReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRAReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-responseactions
     ${ExpectedRTDReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
@@ -57,7 +56,7 @@ Get Expected Versions
     ...    edrVersion=${ExpectedEDRReleaseVersion}
     ...    ejVersion=${ExpectedEJReleaseVersion}
     ...    lrVersion=${ExpectedLRReleaseVersion}
-    ...    mtrVersion=${ExpectedMTRReleaseVersion}
+    ...    raVersion=${ExpectedRAReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
 
@@ -96,7 +95,7 @@ Wait For Version Files to Update
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  version_number_in_ini_file_should_be    ${InstalledMDRPluginVersionFile}    ${expectedVersions["mtrVersion"]}
+    ...  version_number_in_ini_file_should_be    ${InstalledRAPluginVersionFile}    ${expectedVersions["raVersion"]}
     
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -126,6 +125,14 @@ Check Current Release Installed Correctly
     Check AV Plugin Installed
     Check Event Journaler Executable Running
     Check RuntimeDetections Installed Correctly
+    Check MDR Is Not Installed
+
+Check MDR Is Not Installed
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
+    ${result} =    Run Process    pgrep    mtr
+    Should Not Be Equal As Integers    ${result.rc}    0
+    ${result} =    Run Process    pgrep    -f    dbos/SophosMTR
+    Should Not Be Equal As Integers    ${result.rc}    0
 
 Check N Update Reports Processed
     [Arguments]  ${updateReportCount}

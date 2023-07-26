@@ -14,10 +14,6 @@ av.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023-28/20230711144804-0f1677863de684eed39822dabb617c50cbf056fd-ItgZh5/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
-mdr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2023-28/20230711144754-db9e92fa8a83970e3efeeab4ad8a939e4e8fa9c4-PNmLvW/mdr/SDDS3-PACKAGE/
-  line-id: ServerProtectionLinux-Plugin-MDR
-  mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-28/20230711131508-6907e89ddfe3e57d2f0cf6cf6dfb6663e5a1964a-Rq6aTd/sspl-base/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Base-component

@@ -110,11 +110,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     check_watchdog_service_file_has_correct_kill_mode
 
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time MTR plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     # TODO LINUXDAR-2972 - expected till task is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -332,11 +327,6 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     file_exists_with_permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
     Mark Known Upgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     # TODO LINUXDAR-2972 - expected till task is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -498,20 +488,19 @@ SDDS3 updating respects ALC feature codes
     ...   check_suldownloader_log_contains_string_n_times   Update success  2
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
 
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
     # Core plugins should be installed
     Directory Should Exist   ${EVENTJOURNALER_DIR}
     Directory Should Exist   ${RTD_DIR}
     # Other plugins should be uninstalled
-    Directory Should Not Exist    ${AV_DIR}
+    Directory Should Not Exist   ${AV_DIR}
     Directory Should Not Exist   ${EDR_DIR}
     Directory Should Not Exist   ${LIVERESPONSE_DIR}
-    Directory Should Not Exist   ${PLUGINS_DIR}/mtr
     check_log_does_not_contain_after_mark    ${SULDownloaderLog}    Failed to remove path. Reason: Failed to delete file: ${SDDS3Primary}    ${sul_mark}
 
-    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   5 secs
@@ -527,7 +516,6 @@ SDDS3 updating respects ALC feature codes
 
     Directory Should Exist   ${EDR_DIR}
     Directory Should Exist   ${LIVERESPONSE_DIR}
-    Directory Should Exist   ${PLUGINS_DIR}/mtr
 
 SDDS3 updating with changed unused feature codes do not change version
     start_local_cloud_server
@@ -543,7 +531,7 @@ SDDS3 updating with changed unused feature codes do not change version
     &{installedVersionsBeforeUpdate} =    Get Current Installed Versions
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
 
     &{installedVersionsAfterUpdate} =    Get Current Installed Versions
@@ -566,7 +554,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     check_log_does_not_contain_after_mark    ${SULDownloaderLog}    Installing product    ${sul_mark}
 
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
-    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-responseactions' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.

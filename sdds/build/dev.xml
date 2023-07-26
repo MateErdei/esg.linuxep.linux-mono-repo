@@ -56,12 +56,6 @@
         <include artifact-path="eventjournaler-999/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="999"/>
     </build-asset>
 
-      <build-asset project="linuxep" repo="sspl-plugin-mdr-component" mode="dev,999">
-          <development-version branch="develop"/>
-          <include artifact-path="mdr/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="dev"/>
-          <include artifact-path="mdr-999/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="999"/>
-      </build-asset>
-
       <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="dev,999">
         <development-version branch="develop"/>
           <include artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="dev"/>
