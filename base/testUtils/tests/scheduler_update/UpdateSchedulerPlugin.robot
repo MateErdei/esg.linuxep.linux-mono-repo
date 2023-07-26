@@ -561,7 +561,7 @@ UpdateScheduler sends a status after recieving a policy that does not change fea
     ...  10 secs
     ...  check_updatescheduler_log_contains_string_n_times   Sending status to Central  2
 
-UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
+UpdateScheduler Performs Scheduled Update
     [Tags]  SLOW  UPDATE_SCHEDULER
     [Timeout]    20 minutes
     [Setup]  Setup Current Update Scheduler Environment Without Policy
@@ -581,32 +581,21 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     Send Policy To UpdateScheduler  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
 
-    #Update on install
+    # Update on install
     ${eventPath} =  Check Event File Generated  wait_time_seconds=60
     Remove File  ${eventPath}
     ${reportPath} =  Get latest report path
-    Log File   ${reportPath}
     Check report was a product update  ${reportPath}
-    Convert report to success  ${reportPath}
-    Log File  ${SULDOWNLOADER_LOG_PATH}
-    Remove File  ${SULDOWNLOADER_LOG_PATH}
+    ${sul_log_mark} =    mark_log_size     ${SULDOWNLOADER_LOG_PATH}
 
-    #Update after 5-10 minutes (boot storm avoiding update)
-    ${reportPath} =  Get latest report path
+    # Update after 5-10 minutes (boot storm avoiding update)
+    Log File   ${reportPath}
     Remove File  ${reportPath}
-    Wait Until Keyword Succeeds
-    ...  600 secs
-    ...  5 secs
-    ...  Check Sul Downloader log contains  Generating the report file
+    wait_for_log_contains_from_mark    ${sul_log_mark}    Generating the report file    ${600}
 
-    #Scheduled update - 7 minutes after the previous update
-    Log File     ${SULDOWNLOADER_LOG_PATH}
-    Remove File  ${SULDOWNLOADER_LOG_PATH}
-    Wait Until Keyword Succeeds
-    ...  480 secs
-    ...  5 secs
-    ...  Check Sul Downloader log contains  Generating the report file
-
+    # Scheduled update - 7 minutes after the previous update
+    ${sul_log_mark} =    mark_log_size     ${SULDOWNLOADER_LOG_PATH}
+    wait_for_log_contains_from_mark    ${sul_log_mark}    Generating the report file    ${480}
     ${reportPath} =  Get latest report path
     Check report was a product update  ${reportPath}
 
