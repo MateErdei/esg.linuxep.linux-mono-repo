@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "Scheduler.h"
 
@@ -45,7 +41,6 @@ namespace TelemetrySchedulerImpl
             Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
             SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pathManager);
-//            taskQueue->push(SchedulerTask::InitialWaitToRunTelemetry);
             LOGINFO("Waiting for ALC policy before running Telemetry");
             try
             {
@@ -58,9 +53,8 @@ namespace TelemetrySchedulerImpl
             }
             catch (const Common::ZeroMQWrapper::IIPCException& exception)
             {
-                LOGERROR("Failed to request ALC policy with error: "<< exception.what());
+                LOGERROR("Failed to request ALC policy with error: " << exception.what());
             }
-
 
             telemetrySchedulerProcessor.run();
 

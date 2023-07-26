@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2019 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
 
 #include <Common/PluginApi/ApiException.h>
-#include <TelemetryScheduler/LoggerImpl/Logger.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <utility>
 
@@ -30,7 +26,10 @@ namespace TelemetrySchedulerImpl
         m_taskQueue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml, appId });
     }
 
-    void PluginCallback::queueAction(const std::string& /*actionXml*/) { LOGSUPPORT("Received unexpected action"); }
+    void PluginCallback::queueAction(const std::string& /*actionXml*/)
+    {
+        LOGSUPPORT("Received unexpected action");
+    }
 
     void PluginCallback::onShutdown()
     {

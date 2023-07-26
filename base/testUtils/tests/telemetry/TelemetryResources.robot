@@ -121,7 +121,6 @@ Kill Telemetry If Running
     Run Keyword If  ${result.rc} == 0  Run Process  kill   ${result.stdout}
 
 Wait For Telemetry Executable To Have Run
-#    [Arguments]    ${test_interval}=16
     Log  Waiting for telemetry executable to run...
     Sleep  ${TIMING_TOLERANCE} seconds
     Wait Until Keyword Succeeds  ${TEST_INTERVAL} seconds  1 seconds   File Should Exist  ${EXE_CONFIG_FILE}

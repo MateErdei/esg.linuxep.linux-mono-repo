@@ -19,8 +19,6 @@
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "sophlib/hostname/Validate.h"
 
-#include "sophlib/hostname/Validate.h"
-
 using namespace Common::ApplicationConfiguration;
 using namespace Common::Policy;
 
@@ -137,8 +135,11 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     }
     revID_ = cscComp.value("RevID");
 
-    extractSDDS3SusUrl(attributesMap);
-    extractSDDS3SophosUrls(attributesMap);
+    // sdds_id comes from SDDS2 user
+    auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
+
+    extractSDDS2SophosUrls(primaryLocation);
+    extractAndSetCredentials(primaryLocation);
     extractUpdateCaches(attributesMap);
     extractUpdateSchedule(attributesMap);
     extractProxyDetails(attributesMap);
@@ -209,10 +210,16 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
         orderedCaches.emplace_back(caches.at(entry.originalIndex));
     }
 
-    std::stable_sort(orderedCaches.begin(), orderedCaches.end(), [](const UpdateCache& a, const UpdateCache& b) {
-        return a.priority < b.priority;
-    });
+    std::stable_sort(
+        orderedCaches.begin(),
+        orderedCaches.end(),
+        [](const UpdateCache& a, const UpdateCache& b) { return a.priority < b.priority; });
     return orderedCaches;
+}
+
+std::string ALCPolicy::calculateSulObfuscated(const std::string& user, const std::string& pass)
+{
+    return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
 }
 
 std::string ALCPolicy::cacheID(const std::string& hostname) const
@@ -234,82 +241,56 @@ std::string ALCPolicy::cacheID(const std::string& hostname) const
     return {};
 }
 
-void ALCPolicy::formatUrl(std::string& url)
+void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation)
 {
-    if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
+    std::string connectionAddress = primaryLocation.value("ConnectionAddress");
+
+    std::vector<std::string> sophosUpdateLocations{ UpdateSettings::DefaultSophosLocationsURL };
+    if (!connectionAddress.empty())
     {
-        url = "https://" + url;
+        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
     }
+    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
 }
 
-void ALCPolicy::extractSDDS3SusUrl(const Common::XmlUtilities::AttributesMap& attributesMap)
+void ALCPolicy::extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation)
 {
-    std::string susUrl = attributesMap.lookup("AUConfigurations/server_names/sdds3/sus").contents();
+    std::string user{ primaryLocation.value("UserName") };
+    std::string pass{ primaryLocation.value("UserPassword") };
+    std::string algorithm{ primaryLocation.value("Algorithm") };
+    bool requireObfuscation = true;
 
-    std::string sophosUpdateSus = UpdateSettings::DefaultSophosSusUrl;
-
-    if (susUrl.empty())
+    // we check that username and password are not empty mainly for fuzzing purposes as in
+    // product we never expect central to send us a policy with empty credentials
+    if (user.empty())
     {
-        LOGWARN("SUS hostname is empty in ALC policy");
+        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
     }
-    else if (validateHostname(susUrl))
+    if (pass.empty())
     {
-        formatUrl(susUrl);
-        sophosUpdateSus = susUrl;
-    }
-
-    updateSettings_.setSophosSusURL(sophosUpdateSus);
-}
-
-void ALCPolicy::extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap& attributesMap)
-{
-    auto cdns = attributesMap.entitiesThatContainPath("AUConfigurations/server_names/sdds3/content_servers/server");
-
-    if (cdns.empty())
-    {
-        LOGWARN("No CDN urls in in ALC policy");
-        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
-        return;
+        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
     }
 
-    std::vector<std::string> cdnUrls;
-    for (const auto& url : cdns)
+    if (algorithm == "AES256")
     {
-        auto attributes = attributesMap.lookup(url);
-        std::string cdnurl = attributes.contents();
-        if (cdnurl.empty())
-        {
-            LOGWARN("CDN hostname is empty in ALC policy");
-            continue ;
-        }
-        if (validateHostname(cdnurl))
-        {
-            formatUrl(cdnurl);
-            cdnUrls.emplace_back(cdnurl);
-        }
+        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
     }
-    if (cdnUrls.empty())
+    else if (user.size() == 32 && user == pass)
     {
-        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
-        return;
+        requireObfuscation = false;
     }
-    updateSettings_.setSophosCDNURLs(cdnUrls);
-}
 
-bool ALCPolicy::validateHostname(const std::string& url)
-{
-
-    try
+    if (requireObfuscation)
     {
-        sophlib::hostname::validate(url);
+        std::string obfuscated = calculateSulObfuscated(user, pass);
+        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
     }
-    catch (const std::runtime_error& ex)
+    else
     {
-        LOGWARN("Invalid host '" << url << "' in ALC policy: " << ex.what());
-
-        return false;
+        updateSettings_.setCredentials(Credentials{ user, pass });
     }
-    return true;
+
+    sdds_id_ = user;
 }
 
 void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap)
@@ -476,7 +457,6 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
     if (!ssplBaseIncluded)
     {
         LOGERROR("SSPL base product name : " << SSPLBaseName << " not in the subscription of the policy.");
-        throw PolicyParseException(LOCATION, "Invalid policy: No base subscription");
     }
 }
 

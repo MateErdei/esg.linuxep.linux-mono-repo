@@ -1,9 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #include "TaskQueue.h"
 
 #include "SchedulerTask.h"
@@ -38,7 +33,7 @@ namespace TelemetrySchedulerImpl
         std::unique_lock<std::mutex> lock(m_mutex);
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        m_cond.wait_until(lock, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        m_cond.wait_until(lock, now + std::chrono::seconds(timeout), [this] { return !m_list.empty(); });
 
         if (m_list.empty())
         {

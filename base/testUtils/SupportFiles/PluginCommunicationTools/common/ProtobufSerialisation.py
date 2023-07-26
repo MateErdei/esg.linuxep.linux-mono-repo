@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2023 Sophos Plc, Oxford, England.
 # All rights reserved.
-
-
 
 
 import sys
@@ -30,6 +28,7 @@ except ImportError:
     from .PluginAPIMessage_pb2 import PluginAPIMessage
 
 LOGGER = setup_logging("protobuf_processing", "protobuf log")
+
 
 class Messages(Enum):
     # from management agent
@@ -71,8 +70,9 @@ def deserialise_message(serialised_message):
         message.acknowledge = pluginapimessage.acknowledge
     message.contents = []
     for item in pluginapimessage.payload:
-      message.contents.append(item.encode("ascii"))
+        message.contents.append(item.encode("ascii"))
     return message
+
 
 def serialise_message(message):
     pluginapimessage = PluginAPIMessage()

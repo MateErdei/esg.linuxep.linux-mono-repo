@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SchedulerStatus.h"
 
@@ -22,9 +18,15 @@ namespace TelemetrySchedulerImpl
         return m_telemetryScheduledTime == rhs.m_telemetryScheduledTime;
     }
 
-    bool SchedulerStatus::operator!=(const SchedulerStatus& rhs) const { return !(rhs == *this); }
+    bool SchedulerStatus::operator!=(const SchedulerStatus& rhs) const
+    {
+        return !(rhs == *this);
+    }
 
-    bool SchedulerStatus::isValid() const { return m_telemetryScheduledTime >= 0; }
+    bool SchedulerStatus::isValid() const
+    {
+        return m_telemetryScheduledTime >= 0;
+    }
 
     system_clock::time_point SchedulerStatus::getTelemetryScheduledTime() const
     {
@@ -38,7 +40,10 @@ namespace TelemetrySchedulerImpl
         m_telemetryScheduledTime = duration_cast<seconds>(scheduledTime.time_since_epoch()).count();
     }
 
-    int SchedulerStatus::getTelemetryScheduledTimeInSecondsSinceEpoch() const { return m_telemetryScheduledTime; }
+    int SchedulerStatus::getTelemetryScheduledTimeInSecondsSinceEpoch() const
+    {
+        return m_telemetryScheduledTime;
+    }
 
     void SchedulerStatus::setTelemetryScheduledTimeInSecondsSinceEpoch(int scheduledTime)
     {

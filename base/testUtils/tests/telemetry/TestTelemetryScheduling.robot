@@ -14,21 +14,6 @@ Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
 Default Tags  TELEMETRY SCHEDULER
 
-*** Variables ***
-#${alc_policy} =    SEPARATOR=\n
-#...    <?xml version="1.0"?>
-#...    <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-#...      <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-#...    <AUConfig platform="Linux">
-#...    <primary_location>
-#...      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-#...    </primary_location>
-#...    </AUConfig>
-#...    <server_names>
-#...      <telemetry>test.sophosupd.com</telemetry>
-#...    </server_names>
-#...    </AUConfigurations>
-
 *** Keywords ***
 ### Suite Setup
 Setup TelemetryScheduling Tests
@@ -150,7 +135,6 @@ Telemetry Scheduler recives error output from telemetry executable when it fails
     ...  100s
     ...  10s
     ...  Check Tscheduler Log Contains  Telemetry executable failed with exit code 255
-    #...  Check Tscheduler Log Contains  Telemetry executable output: error # original log check that failed
 
 Telemetry Scheduler Generates Files With Correct Permissions
     [Documentation]  Telemetry is scheduled and launches telemetry executable, generating files with the correct permissions
