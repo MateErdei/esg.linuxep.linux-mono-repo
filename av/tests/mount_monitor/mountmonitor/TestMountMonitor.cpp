@@ -194,7 +194,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     EXPECT_CALL(*networkDevice, mountPoint()).WillRepeatedly(Return("network"));
 
     EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_sysPaths));
-    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _)).WillRepeatedly(Return(0));
+    expectMarkMounts();
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
@@ -215,6 +215,56 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from scanning";
     EXPECT_TRUE(appenderContains(logMsg.str()));
     EXPECT_TRUE(appenderContains("Mount point network has been excluded from scanning"));
+}
+
+namespace
+{
+    class MountMonitorReplaceAllMountPoints : public MountMonitor
+    {
+    public:
+        using MountMonitor::MountMonitor;
+        mount_monitor::mountinfo::IMountPointSharedVector getAllMountpoints() override
+        {
+            return mountpoints_;
+        }
+        mount_monitor::mountinfo::IMountPointSharedVector mountpoints_;
+    };
+}
+
+TEST_F(TestMountMonitor, openCloseFromConfig)
+{
+    auto localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
+    EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return("/"));
+
+    mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
+    allMountpoints.push_back(localFixedDevice);
+
+    m_config.onOpen = true;
+    m_config.onClose = true;
+
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount("/", true, false)).WillOnce(Return(0));
+
+    MountMonitorReplaceAllMountPoints mountMonitor(m_config, m_sysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+    mountMonitor.mountpoints_ = allMountpoints;
+
+    sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config1{
+        .enabled = true,
+        .onOpen = true,
+        .onClose = false
+    };
+
+    mountMonitor.updateConfig(config1);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount("/", false, true)).WillOnce(Return(0));
+
+    sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config2{
+        .enabled = true,
+        .onOpen = false,
+        .onClose = true
+    };
+    mountMonitor.updateConfig(config2);
 }
 
 TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)

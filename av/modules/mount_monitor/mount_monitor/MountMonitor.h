@@ -36,7 +36,7 @@ namespace mount_monitor::mount_monitor
 
         void updateConfig(const OnAccessConfiguration& config);
 
-        mountinfo::IMountPointSharedVector getAllMountpoints();
+        virtual mountinfo::IMountPointSharedVector getAllMountpoints();
         mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
 
     private:
