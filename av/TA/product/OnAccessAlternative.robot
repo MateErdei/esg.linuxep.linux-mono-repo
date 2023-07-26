@@ -207,6 +207,7 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
 On Access Does Not Detect PUAs In The Allow List
     Register On Fail  dump log  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Register On Fail  dump log  ${AV_VAR_DIR}/on_access_policy.json
+    Force SUSI to be initialized
     ${avmark} =  get_av_log_mark
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>PsExec</puaName>
