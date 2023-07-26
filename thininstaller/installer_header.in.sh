@@ -144,34 +144,45 @@ fi
 function handle_installer_errorcodes()
 {
     errcode=$1
-    if [ ${errcode} -eq 44 ]
+
+    if [[ ${errcode} -eq 0 ]]
     then
-        failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
-    elif [ ${errcode} -eq 0 ]
+      [[ -n ${DEBUG_THIN_INSTALLER} ]] && dump_suldownloader_logs
+      echo "Successfully installed product"
+    elif [[ ${errcode} -eq 103 ]]
     then
-        echo "Successfully installed product"
+      failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install at least one of the packages, see logs for details"
+    elif [[ ${errcode} -eq 107 ]]
+    then
+      failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install: Download failure"
+    elif [[ ${errcode} -eq 111 ]]
+    then
+      failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install: Package source missing from repository"
+    elif [[ ${errcode} -eq 112 ]]
+    then
+      failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install: Connection error - please check your network connections"
     else
-        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
+      failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install (Error code = ${errcode})"
     fi
 }
 
 function handle_register_errorcodes()
 {
     errcode=$1
-    if [ ${errcode} -eq 44 ]
+    if [[ ${errcode} -eq 0 ]]
     then
-        failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
-    elif [ ${errcode} -eq 0 ]
+      echo "Successfully registered with Sophos Central"
+    elif [[ ${errcode} -eq 44 ]]
     then
-        echo "Successfully registered with Sophos Central"
-    elif [ ${errcode} -eq ${EXITCODE_REGISTRATION_FAILED} ]
+      failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
+    elif [[ ${errcode} -eq ${EXITCODE_REGISTRATION_FAILED} ]] # Error code 51
     then
-        failure ${EXITCODE_REGISTRATION_FAILED} "Failed to register with Sophos Central, aborting installation"
-    elif [ ${errcode} -eq ${EXITCODE_AUTHENTICATION_FAILED} ]
+      failure ${EXITCODE_REGISTRATION_FAILED} "Failed to register with Sophos Central, aborting installation"
+    elif [[ ${errcode} -eq ${EXITCODE_AUTHENTICATION_FAILED} ]] # Error code 52
     then
-        failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to authenticate with Sophos Central, aborting installation"
+      failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to authenticate with Sophos Central, aborting installation"
     else
-        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to register with Central (Error code = $errcode)"
+      failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to register with Central (Error code = ${errcode})"
     fi
 }
 function check_free_storage()
@@ -746,9 +757,8 @@ then
     echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
-INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" || failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install successfully"
+INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json"
 inst_ret=$?
-[[ ! ${inst_ret} -eq 0 || -n ${DEBUG_THIN_INSTALLER} ]] && dump_suldownloader_logs
 handle_installer_errorcodes ${inst_ret}
 
 cleanup_and_exit ${inst_ret}
