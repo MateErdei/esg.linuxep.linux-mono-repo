@@ -15,7 +15,7 @@ namespace TelemetrySchedulerImpl
         LOGDEBUG("Plugin callback started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
+    [[maybe_unused]] void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
     {
         LOGERROR("Attempted to apply new policy without AppId: This method should never be called.");
     }

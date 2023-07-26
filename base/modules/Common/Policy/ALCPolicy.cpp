@@ -125,7 +125,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     catch (const Common::XmlUtilities::XmlUtilitiesException& ex)
     {
         LOGERROR("Failed to parse policy: " << ex.what());
-        std::throw_with_nested(Common::Policy::PolicyParseException(ex.what()));
+        std::throw_with_nested(Common::Policy::PolicyParseException(LOCATION, ex.what()));
     }
 
     auto cscComp = attributesMap.lookup("AUConfigurations/csc:Comp");
@@ -172,7 +172,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
         }
         catch (const std::runtime_error& ex)
         {
-            throw PolicyParseException(LOCATION, "Invalid telemetry host '" + *telemetryHost_ + "'");
+            std::throw_with_nested(PolicyParseException(LOCATION, "Invalid telemetry host '" + *telemetryHost_ + "'"));
         }
     }
     else

@@ -423,13 +423,12 @@ namespace TelemetrySchedulerImpl
         }
         catch (const Common::Policy::PolicyParseException& ex)
         {
+            LOGERROR(Common::Exceptions::expandException(ex));
             LOGERROR("Failed to parse ALC policy: " << ex.what());
-            return;
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Failed to write telemetry config to file: " << ex.what());
-            return;
         }
     }
 } // namespace TelemetrySchedulerImpl
