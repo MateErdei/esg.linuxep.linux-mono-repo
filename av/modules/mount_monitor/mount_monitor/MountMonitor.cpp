@@ -137,7 +137,7 @@ namespace mount_monitor::mount_monitor
             std::string mountPointStr = mount->mountPoint();
             if (isIncludedFilesystemType(mount) && isIncludedMountpoint(mount))
             {
-                int ret = m_fanotifyHandler->markMount(mountPointStr, true, true);
+                int ret = m_fanotifyHandler->markMount(mountPointStr, m_config.onOpen, m_config.onClose);
                 if (ret == -1)
                 {
                     LOGWARN(
