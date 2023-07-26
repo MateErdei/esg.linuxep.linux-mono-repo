@@ -12,14 +12,12 @@
 
 #include <ext/stdio_filebuf.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #include <cassert>
 #include <dirent.h>
 #include <fcntl.h>
 #include <filesystem>
 #include <fstream>
-#include <grp.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -562,6 +560,11 @@ namespace Common
 
                 std::ofstream ofs(dest, std::ios::binary);
                 ofs << ifs.rdbuf();
+
+                if (ifs.peek() != EOF)
+                {
+                    throw IFileSystemException("Failed to copy all of source file to destination");
+                }
             }
             if (!fileSystem->exists(dest))
             {
