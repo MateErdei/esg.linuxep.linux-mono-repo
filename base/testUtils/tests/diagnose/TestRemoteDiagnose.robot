@@ -27,28 +27,11 @@ Default Tags  DIAGNOSE
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
-Test Remote Diagnose can process SDU action with no URL
-    Override Local LogConf File for a component   DEBUG  global
-    Run Process  systemctl  restart  sophos-spl
-    Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  1 secs
-        ...  Check Expected Base Processes Are Running
-
-    Simulate SDU Action Now  action_xml_file_name=SDUActionWithNoURL.xml
-    Wait Until Keyword Succeeds
-        ...  140 secs
-        ...  1 secs
-        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
-
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  5 secs
-        ...  Check Log Contains   Cannot process url will not send up diagnose file Error: Malformed url missing protocol   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
-    Wait Until Keyword Succeeds
-        ...  40 secs
-        ...  5 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+Test Remote Diagnose can process multiple SDU actions with malformed URLs
+    [Template]    Test Remote Diagnose can process SDU action with malformed URL
+    # action xml file names        # num_times_status_sent_for_sdu_adapter (increase in increments of 2)
+    SDUActionWithNoURLValue.xml    2
+    SDUActionWithNoURLField.xml    4
 
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
@@ -126,3 +109,27 @@ Simulate SDU Action Now
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}   shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
     Move File   ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}    ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
+
+Test Remote Diagnose can process SDU action with malformed URL
+    [Arguments]    ${input_action_xml_file_name}    ${num_times_status_sent_for_sdu_adapter}
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  Check Expected Base Processes Are Running
+
+    Simulate SDU Action Now  action_xml_file_name=${input_action_xml_file_name}
+    Wait Until Keyword Succeeds
+        ...  140 secs
+        ...  1 secs
+        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check Log Contains   Cannot process url will not send up diagnose file Error: Malformed url missing protocol   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+    Wait Until Keyword Succeeds
+        ...  40 secs
+        ...  5 secs
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   ${num_times_status_sent_for_sdu_adapter}
