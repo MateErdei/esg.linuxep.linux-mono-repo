@@ -19,9 +19,11 @@ namespace sophos_on_access_process::OnAccessConfig
     struct OnAccessConfiguration
     {
         std::vector<common::Exclusion> exclusions;
-        bool enabled;
-        bool excludeRemoteFiles;
-        bool detectPUAs;
+        bool enabled = false;
+        bool excludeRemoteFiles = false;
+        bool detectPUAs = true;
+        bool onOpen = true;
+        bool onClose = true;
     } __attribute__((aligned(32)));
 
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
@@ -29,7 +31,10 @@ namespace sophos_on_access_process::OnAccessConfig
         return lhs.enabled == rhs.enabled
                && lhs.excludeRemoteFiles == rhs.excludeRemoteFiles
                && lhs.exclusions == rhs.exclusions
-               && lhs.detectPUAs == rhs.detectPUAs;
+               && lhs.detectPUAs == rhs.detectPUAs
+               && lhs.onOpen == rhs.onOpen
+               && lhs.onClose == rhs.onClose
+            ;
     }
 
     bool inline operator!=(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)

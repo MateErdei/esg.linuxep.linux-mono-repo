@@ -61,10 +61,10 @@ namespace
         }
 
         std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCallWrapper;
-        std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
-        std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
-        std::shared_ptr<StrictMock<MockSystemPathsFactory>> m_mockSysPathsFactory;
-        std::shared_ptr<StrictMock<MockSystemPaths>> m_mockSysPaths;
+        std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
+        std::shared_ptr<MockFanotifyHandler> m_mockFanotifyHandler;
+        std::shared_ptr<MockSystemPathsFactory> m_mockSysPathsFactory;
+        std::shared_ptr<MockSystemPaths> m_mockSysPaths;
         std::shared_ptr<mount_monitor::mountinfoimpl::SystemPaths> m_sysPaths;
         WaitForEvent m_serverWaitGuard;
         fs::path m_testDir;
@@ -148,7 +148,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     std::vector<common::Exclusion> exclusions;
     exclusions.emplace_back(exclusion);
 
-    std::shared_ptr<NiceMock<MockMountPoint>> localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
+    auto localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));

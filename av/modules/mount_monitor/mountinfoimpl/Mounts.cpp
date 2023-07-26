@@ -71,6 +71,7 @@ std::string octalUnescape(const std::string& input)
  */
 Mounts::Mounts(ISystemPathsSharedPtr systemPaths) : m_systemPaths(std::move(systemPaths))
 {
+    assert(m_systemPaths);
     parseProcMounts();
 }
 
