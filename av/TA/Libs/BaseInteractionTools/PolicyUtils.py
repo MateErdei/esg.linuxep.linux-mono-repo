@@ -183,7 +183,7 @@ def get_complete_core_policy(
     policy_builder.set_on_access_on_write(on_access_on_write, "onWrite")
     policy_builder.set_posix_exclusions(exclusion_list)
     policy_builder.add_replacement('{{excludeRemoteFiles}}', 'false')
-    policy_builder.add_replacement('{{machineLearningEnabled}}', 'true' if ml_enabled or 'false')
+    policy_builder.add_replacement('{{machineLearningEnabled}}', 'true' if ml_enabled else 'false')
 
     policy_builder.set_revision_id(str(uuid.uuid4()))
     return policy_builder.get_sav_policy()
