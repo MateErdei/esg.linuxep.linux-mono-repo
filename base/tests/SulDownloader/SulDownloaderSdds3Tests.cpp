@@ -78,12 +78,9 @@ public:
     static ConfigurationSettings defaultSettings()
     {
         ConfigurationSettings settings;
-        Credentials credentials;
 
-        settings.add_sophosurls("http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid");
-        // settings.add_updatecache("http://192.168.10.10:800/latest/Virt-vShieldInvalid");
-        settings.mutable_credential()->set_username("administrator");
-        settings.mutable_credential()->set_password("password");
+        settings.add_sophoscdnurls("http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid");
+        settings.mutable_sophossusurl()->assign("https://sus.sophosupd.co");
         settings.mutable_proxy()->set_url("noproxy:");
         settings.mutable_proxy()->mutable_credential()->set_username("");
         settings.mutable_proxy()->mutable_credential()->set_password("");
@@ -214,7 +211,7 @@ public:
     /**
  * @return BORROWED reference to MockFileSystem
      */
-    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
+    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 1, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
         Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/opt/sophos-spl");
@@ -581,7 +578,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 1);
+    auto& fileSystemMock = setupFileSystemAndGetMock();
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
@@ -884,7 +881,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
 
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
@@ -986,7 +983,7 @@ TEST_F(
     std::string reportContent;
     int exitCode = 0;
     auto settings = defaultSettings();
-    settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
+    settings.clear_sophoscdnurls(); // no sophos urls, the system can not connect to warehouses
     std::string settingsString = jsonSettings(settings);
     std::string previousSettingString;
     std::string previousReportData;
@@ -1009,7 +1006,7 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSuppleme
 {
     // Expect that features are written
     const int expectedInstalledFeatures = 1;
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, expectedInstalledFeatures);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, expectedInstalledFeatures);
 
     ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
 
@@ -1040,7 +1037,7 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndSupplementO
 
     // Expect features to never be written
     const int expectedInstalledFeatures = 0;
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, expectedInstalledFeatures);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, expectedInstalledFeatures);
 
     ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
 
@@ -1215,7 +1212,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::PACKAGESOURCEMISSING;
@@ -1262,7 +1259,7 @@ TEST_F(
  */
 TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     RepositoryError wError;
     wError.Description = "Error description";
     wError.status = RepositoryStatus::DOWNLOADFAILED;
@@ -1329,7 +1326,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
 
@@ -1394,7 +1391,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_UpdateFailForInvalidSignature)
 {
-    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
@@ -1469,7 +1466,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
 
     DownloadedProductVector products = defaultProducts();
 
@@ -1577,7 +1574,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1678,7 +1675,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1778,7 +1775,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToNewVersionShouldCheckPluginIsRunning)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1887,7 +1884,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuldownloaderWillStopProductIfItIsrunningBeforeUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2006,7 +2003,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2114,7 +2111,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2221,7 +2218,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateWithSubscriptionsDifferentFromProductsShouldBeReportedCorrectly)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2329,7 +2326,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2437,7 +2434,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2545,7 +2542,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2652,7 +2649,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2760,7 +2757,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2859,7 +2856,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
 
@@ -2922,7 +2919,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_supplement_only_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 1, 0);
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
     for (auto& product : products)
@@ -2993,8 +2990,8 @@ TEST_F(
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
-    settings.clear_sophosurls();
-    settings.add_sophosurls("http://localhost/latest/donotexits");
+    settings.clear_sophoscdnurls();
+    settings.add_sophoscdnurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
     auto configurationData = configData(settings);
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -3024,8 +3021,8 @@ TEST_F(
     testing::internal::CaptureStderr();
 
     auto settings = defaultSettings();
-    settings.clear_sophosurls();
-    settings.add_sophosurls("http://localhost/latest/donotexits");
+    settings.clear_sophoscdnurls();
+    settings.add_sophoscdnurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     auto configurationData = configData(settings);
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -3157,7 +3154,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion)
 
 TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitScheduledUpdateFlagAndTriesToInstall)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
@@ -3214,7 +3211,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
 {
     testing::internal::CaptureStderr();
 
-    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade
     setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
@@ -3260,7 +3257,7 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SupplementOnlyButVersion123DoesNotClearAwaitScheduledUpdateFlagAndTriesToInstall)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade, with the current installed version being >= 1.2.3
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.3.0", "PRODUCT_VERSION = 1.2.5.1");
@@ -3303,7 +3300,7 @@ TEST_F(
 
 TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoesNotExistStillTriesToInstall)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(0, 2, 0);
+    auto& fileSystemMock = setupFileSystemAndGetMock(0, 1, 0);
 
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
 
@@ -3360,7 +3357,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
 
 TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDoesNotExistDoesNotInstallAnything)
 {
-    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 1, 0);
 
      EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
 
@@ -3445,13 +3442,10 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSys
 std::string getUpdateConfig(const std::string& esmVersion)
 {
     auto config = R"({
-    "sophosURLs": [
+    "sophosCdnURLs": [
                        "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
     ],
-    "credential": {
-       "username": "administrator",
-       "password": "password"
-    },
+    "sophosSusURL": "https://sus.sophosupd.com",
     "proxy": {
       "url": "noproxy:",
       "credential": {
@@ -3596,7 +3590,7 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
 
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
-    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(11).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(9).WillRepeatedly(Return(false));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).Times(5).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/base/VERSION.ini")).Times(4).WillRepeatedly(Return(std::vector<std::string> {"PRODUCT_VERSION = 1.1.3.703"}));
     EXPECT_CALL(*mockFileSystem, exists(_)).Times(3).WillRepeatedly(Return(true));

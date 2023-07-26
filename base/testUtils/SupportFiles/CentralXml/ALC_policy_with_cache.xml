@@ -105,5 +105,14 @@
             <location hostname="w2k8r2-std-en-df.eng.sophos:8191" priority="1" id="0e1e598b-d6d6-4e4b-9425-9fefd277a353"/>
         </locations>
     </update_cache>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
     <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>

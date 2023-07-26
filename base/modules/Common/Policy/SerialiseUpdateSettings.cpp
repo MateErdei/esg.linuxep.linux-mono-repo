@@ -59,12 +59,12 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
 
     UpdateSettings updateSettings;
 
-    auto sUrls = settings.sophosurls();
+    auto sUrls = settings.sophoscdnurls();
     std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls));
-    updateSettings.setSophosLocationURLs(sophosURLs);
+    updateSettings.setSophosCDNURLs(sophosURLs);
 
-    Credentials credential(settings.credential().username(), settings.credential().password());
-    updateSettings.setCredentials(credential);
+
+    updateSettings.setSophosSusURL(settings.sophossusurl());
 
     auto updateCacheUrls = settings.updatecache();
     std::vector<std::string> updateCaches(std::begin(updateCacheUrls), std::end(updateCacheUrls));
@@ -137,9 +137,9 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     using PolicyProto::ConfigurationSettings;
 
     PolicyProto::ConfigurationSettings settings;
-    for (const auto& url : updateSettings.getSophosLocationURLs())
+    for (const auto& url : updateSettings.getSophosCDNURLs())
     {
-        settings.add_sophosurls()->assign(url);
+        settings.add_sophoscdnurls()->assign(url);
     }
 
     for (const auto& cacheUrl : updateSettings.getLocalUpdateCacheHosts())
@@ -147,8 +147,8 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
         settings.add_updatecache()->assign(cacheUrl);
     }
 
-    settings.mutable_credential()->set_username(updateSettings.getCredentials().getUsername());
-    settings.mutable_credential()->set_password(updateSettings.getCredentials().getPassword());
+    settings.mutable_sophossusurl()->assign(updateSettings.getSophosSusURL());
+
 
     settings.mutable_proxy()->mutable_credential()->set_username(
         updateSettings.getPolicyProxy().getCredentials().getUsername());

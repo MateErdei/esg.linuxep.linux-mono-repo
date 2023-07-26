@@ -22,16 +22,13 @@ public:
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
     {
         std::string jsonString = R"({
-                               "sophosURLs": [
+                               "sophosCdnURLs": [
                                "https://sophosupdate.sophos.com/latest/warehouse"
                                ],
+                                "sophosSusURL": "https://sus.sophosupd.com",
                                "updateCache": [
                                "https://cache.sophos.com/latest/warehouse"
                                ],
-                               "credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },
                                "proxy": {
                                "url": "noproxy:",
                                "credential": {

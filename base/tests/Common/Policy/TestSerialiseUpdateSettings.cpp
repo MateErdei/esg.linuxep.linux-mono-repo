@@ -11,9 +11,10 @@ using namespace Common::Policy;
 namespace
 {
     const std::string VALID_JSON = R"({
-           "sophosURLs": [
+           "sophosCdnURLs": [
            "https://sophosupdate.sophos.com/latest/warehouse"
            ],
+            "sophosSusURL": "https://sus.sophosupd.com",
            "updateCache": [
            "https://cache.sophos.com/latest/warehouse"
            ],
@@ -175,50 +176,35 @@ TEST_F(TestSerialiseUpdateSettings, preserveEsmVersion)
     EXPECT_EQ(before.getEsmVersion().token(), after.getEsmVersion().token());
 }
 
-TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-
-    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
-    std::string newString = R"("credential": {
-                               "username": "",
-                               "password": ""
-                               },)";
-
-    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
-
-    EXPECT_FALSE(settings.verifySettingsAreValid());
-}
-
-TEST_F(TestSerialiseUpdateSettings, missingCredentialDetailsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-
-    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
-    std::string newString = R"("credential": {
-                               },)";
-
-    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
-
-    EXPECT_FALSE(settings.verifySettingsAreValid());
-}
-
-TEST_F(TestSerialiseUpdateSettings, missingCredentialsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-
-    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
-    auto settings = SerialiseUpdateSettings::fromJsonSettings(
-        mutateJson(oldString));
-
-    EXPECT_FALSE(settings.verifySettingsAreValid());
-}
-
 TEST_F(TestSerialiseUpdateSettings, mssingPrimarySubscriptionShouldFailValidation)
 {
     setupFileSystemAndGetMock();
 
     std::string oldString = R"("primarySubscription": {"rigidName" : "BaseProduct-RigidName","baseVersion" : "9","tag" : "RECOMMENDED","fixedVersion" : ""},)";
+
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(
+        mutateJson(oldString));
+
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, mssingCdnUrlsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+
+    std::string oldString = R"("sophosCdnURLs")";
+
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(
+        mutateJson(oldString,"sophos"));
+
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, mssingSusUrlShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+
+    std::string oldString = R"("sophosSusURL": "https://sus.sophosupd.com",)";
 
     auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(
         mutateJson(oldString));
@@ -282,13 +268,10 @@ namespace ESMFaultInjection
     static std::string getJsonWithESM(const std::string& esmVersion)
     {
         auto json = R"({
-                    "sophosURLs": [
+                    "sophosCdnURLs": [
                                        "http://ostia.eng.sophosinvalid/latest/Virt-vShieldInvalid"
                     ],
-                    "credential": {
-                       "username": "administrator",
-                       "password": "password"
-                    },
+                    "sophosSusURL": "https://sus.sophosupd.com",
                     "proxy": {
                       "url": "noproxy:",
                       "credential": {

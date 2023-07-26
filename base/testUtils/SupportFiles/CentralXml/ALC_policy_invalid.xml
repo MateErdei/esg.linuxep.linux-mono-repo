@@ -17,7 +17,6 @@
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
-            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
         <delay_supplements enabled="false"/>
     </AUConfig>

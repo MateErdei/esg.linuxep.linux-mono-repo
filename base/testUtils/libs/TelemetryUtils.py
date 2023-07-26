@@ -227,7 +227,7 @@ class TelemetryUtils:
         return json.dumps(self.generate_base_telemetry_dict())
 
     def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
-                                            successful_update_time, base_fixed_version, base_tag, sddsid, set_edr,
+                                            successful_update_time, base_fixed_version, base_tag, set_edr,
                                             set_av, install_state, download_state, sdds_mechanism,
                                             scheduled_updating_enabled, scheduled_updating_day,
                                             scheduled_updating_time, alc_policy_received):
@@ -268,9 +268,6 @@ class TelemetryUtils:
         if scheduled_updating_time:
             telemetry["scheduled-updating-time"] = scheduled_updating_time
 
-        warehouse = {"sddsid": sddsid}
-
-        telemetry["warehouse"] = warehouse
 
         if sdds_mechanism:
             telemetry['sdds-mechanism'] = sdds_mechanism
@@ -396,7 +393,7 @@ class TelemetryUtils:
     def check_update_scheduler_telemetry_json_is_correct(self, json_string, number_failed_updates,
                                                          most_recent_update_successful=None,
                                                          successful_update_time=None, timing_tolerance=10,
-                                                         base_fixed_version="", base_tag="RECOMMENDED", sddsid="",
+                                                         base_fixed_version="", base_tag="RECOMMENDED",
                                                          set_edr=False, set_av=False, install_state=0, download_state=0,
                                                          sdds_mechanism=None, scheduled_updating_enabled=False,
                                                          scheduled_updating_day=None, scheduled_updating_time=None,
@@ -406,7 +403,7 @@ class TelemetryUtils:
                                                                                             most_recent_update_successful,
                                                                                             successful_update_time,
                                                                                             base_fixed_version, base_tag,
-                                                                                            sddsid,set_edr,set_av,
+                                                                                            set_edr,set_av,
                                                                                             install_state,download_state,
                                                                                             sdds_mechanism,
                                                                                             scheduled_updating_enabled,

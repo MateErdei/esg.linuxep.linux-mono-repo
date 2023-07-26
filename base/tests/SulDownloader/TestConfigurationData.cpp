@@ -60,14 +60,14 @@ public:
             return ::testing::AssertionFailure() << s.str() << "log level differs";
         }
 
-        if (expected.getCredentials() != resulted.getCredentials())
+        if (expected.getSophosSusURL() != resulted.getSophosSusURL())
         {
-            return ::testing::AssertionFailure() << s.str() << "credentials differ";
+            return ::testing::AssertionFailure() << s.str() << "sus url differ";
         }
 
-        if (expected.getSophosLocationURLs() != resulted.getSophosLocationURLs())
+        if (expected.getSophosCDNURLs() != resulted.getSophosCDNURLs())
         {
-            return ::testing::AssertionFailure() << s.str() << "update urls differ";
+            return ::testing::AssertionFailure() << s.str() << "cdn urls differ";
         }
 
         if (expected.getLocalUpdateCacheHosts() != resulted.getLocalUpdateCacheHosts())

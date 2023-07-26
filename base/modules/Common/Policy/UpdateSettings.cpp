@@ -7,8 +7,8 @@
 
 using namespace Common::Policy;
 
-const std::vector<std::string> UpdateSettings::DefaultSophosLocationsURL{ "http://dci.sophosupd.com/update",
-                                                                          "http://dci.sophosupd.net/update" };
+const std::vector<std::string> UpdateSettings::DefaultSophosCDNUrls{"https://sdds3.sophosupd.com:443", "https://sdds3.sophosupd.net:443"};
+const std::string UpdateSettings::DefaultSophosSusUrl="https://sus.sophosupd.com";
 
 
 bool UpdateSettings::isProductSubscriptionValid(const ProductSubscription& productSubscription)
@@ -30,16 +30,14 @@ bool UpdateSettings::verifySettingsAreValid()
 {
     state_ = State::FailedVerified;
 
-    // Must have, primary product, warehouse credentials, update location
-
-    if (sophosLocationURLs_.empty())
+    if (sophosCDNURLs_.empty())
     {
         LOGERROR("Invalid Settings: No sophos update urls provided.");
         return false;
     }
     else
     {
-        for (auto& value : sophosLocationURLs_)
+        for (auto& value : sophosCDNURLs_)
         {
             if (value.empty())
             {
@@ -49,15 +47,9 @@ bool UpdateSettings::verifySettingsAreValid()
         }
     }
 
-    if (credentials_.getUsername().empty())
+    if (sophosSUSUrl_.empty())
     {
-        LOGERROR("Invalid Settings: Credential 'username' cannot be empty string.");
-        return false;
-    }
-
-    if (credentials_.getPassword().empty())
-    {
-        LOGERROR("Invalid Settings: Credential 'password' cannot be empty string.");
+        LOGERROR("Invalid Settings: No SUS URLs provided.");
         return false;
     }
 

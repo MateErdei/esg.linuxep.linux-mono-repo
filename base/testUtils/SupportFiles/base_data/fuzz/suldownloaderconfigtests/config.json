@@ -1,12 +1,8 @@
 {
- "sophosURLs": [
-  "http://dci.sophosupd.com/update",
-  "http://dci.sophosupd.net/update"
+ "sophosCdnURLs": [
+  "https://sophosupdate.sophos.com/latest/warehouse"
  ],
- "credential": {
-  "username": "CSP190408113225",
-  "password": "password"
- },
+ "sophosSusURL": "https://sus.sophosupd.com",
  "proxy": {
   "url": "",
   "credential": {

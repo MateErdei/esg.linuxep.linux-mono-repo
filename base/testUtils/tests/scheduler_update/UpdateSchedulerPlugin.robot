@@ -32,6 +32,10 @@ ${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemet
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
     [Tags]  SMOKE  UPDATE_SCHEDULER  TAP_TESTS
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
+    ${File}=  Get File   ${UPDATE_CONFIG}
+    Should Contain   ${File}  "sophosSusURL": "https://sustest.sophosupd.com"
+    Should Contain   ${File}  "sophosCdnURLs": [
+    Should Contain   ${File}  "https://sdds3test.sophosupd.com
     @{features}=  Create List   CORE
     Setup Base and Plugin Sync and UpToDate  ${features}
     Create File   ${UPGRADING_MARKER_FILE}
@@ -51,21 +55,20 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     Prepare To Run Telemetry Executable
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0  True  ${time}  sddsid=regruser
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0  True  ${time}
     Check Update Scheduler Run as Sophos-spl-user
     File Should Not Exist  ${UPGRADING_MARKER_FILE}
 
-UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
+UpdateScheduler Does Not Create A Config For An Invalid Policy With No Base subscription
     Simulate Send Policy   ALC_policy_invalid.xml
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Log Contains   Invalid policy: Username is empty    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
+    ...  Check Log Contains   Invalid policy: No base subscription   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
-    ${File}=  Get File   ${UPDATE_CONFIG}
-    Should not Contain   ${File}  UserPassword="NotARealPassword"
     Check Update Scheduler Running
+
 
 Systemctl Can Detect SulDownloader Service Runs Without Error After Error Reported
     # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
@@ -182,7 +185,7 @@ UpdateScheduler Report Failure to Update
     Prepare To Run Telemetry Executable
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  1  False  sddsid=regruser  install_state=1
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  1  False  install_state=1
     Cleanup Telemetry Server
 
 Test Updatescheduler Adds Features That Get Installed On Subsequent Update
@@ -448,7 +451,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
     wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  2  False  sddsid=regruser  install_state=1
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  2  False  install_state=1
     Cleanup Telemetry Server
 
     # Failed count should have been reset.
@@ -461,7 +464,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
     wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  1  False  sddsid=regruser  install_state=1    alc_policy_received=${False}
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  1  False  install_state=1    alc_policy_received=${False}
     Cleanup Telemetry Server
 
 
@@ -764,7 +767,7 @@ Failed Download Telemetry Test
     Prepare To Run Telemetry Executable
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0  sddsid=regruser  download_state=1
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0  download_state=1
     Cleanup Telemetry Server
 
 

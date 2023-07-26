@@ -19,7 +19,7 @@ namespace
     public:
         VersigTests()
         {
-            m_configurationData.setSophosLocationURLs({});
+            m_configurationData.setSophosCDNURLs({});
             m_configurationData.setManifestNames({ "manifest.dat" });
             m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
             rootca = "/opt/sophos-spl/base/update/rootcerts";

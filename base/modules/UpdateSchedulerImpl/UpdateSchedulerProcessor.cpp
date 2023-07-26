@@ -203,11 +203,11 @@ namespace UpdateSchedulerImpl
             {
                 if (hasTask)
                 {
-                    LOGERROR("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
+                    LOGWARN("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
                 }
                 else
                 {
-                    LOGERROR("Unexpected error: " << ex.what() << " while attempting to get task");
+                    LOGWARN("Unexpected error: " << ex.what() << " while attempting to get task");
                 }
                 log_exception(ex);
             }

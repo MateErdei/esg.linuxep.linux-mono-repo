@@ -47,5 +47,14 @@
         <Product id="mdr"/>
     </Products>
     <automatic_sdu_submission Enabled="true"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
     <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
 </AUConfigurations>

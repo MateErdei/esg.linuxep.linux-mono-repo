@@ -10,6 +10,7 @@
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/OSUtilitiesImpl/MockDnsLookup.h>
 #include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
+#include <Common/Policy/PolicyParseException.h>
 
 #include <future>
 
@@ -133,6 +134,20 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
     </locations>
   </update_cache>
   <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+<server_names>
+  <sdds3>
+    <sus>sus.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+  <telemetry>t1.sophosupd.com</telemetry>
+  <sdu>
+    <feedback>sdu-feedback.sophos.com</feedback>
+    <repairkit>sdu-auto-upload.sophosupd.com</repairkit>
+  </sdu>
+</server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -176,6 +191,20 @@ static const std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
   </Features>
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+<server_names>
+  <sdds3>
+    <sus>sus.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+  <telemetry>t1.sophosupd.com</telemetry>
+  <sdu>
+    <feedback>sdu-feedback.sophos.com</feedback>
+    <repairkit>sdu-auto-upload.sophosupd.com</repairkit>
+  </sdu>
+</server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -375,6 +404,20 @@ static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
   </Features>
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="8dd8c9f3-a9a1-84e2-49d8-f9320a76298e"/>
+<server_names>
+  <sdds3>
+    <sus>sus.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+  <telemetry>t1.sophosupd.com</telemetry>
+  <sdu>
+    <feedback>sdu-feedback.sophos.com</feedback>
+    <repairkit>sdu-auto-upload.sophosupd.com</repairkit>
+  </sdu>
+</server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -430,17 +473,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
 
     EXPECT_EQ(settingsHolder.updateCacheCertificatesContent, cacheCertificates);
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "c2d584eb505b6a35fbf2dd9740551fe9");
-    EXPECT_EQ(config.getCredentials().getPassword(), "c2d584eb505b6a35fbf2dd9740551fe9");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 
-    auto urls = config.getSophosLocationURLs();
-    ASSERT_EQ(urls.size(), 3);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
+    auto urls = config.getSophosCDNURLs();
+    ASSERT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "https://sdds3test.sophosupd.com");
+    EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net");
 
     auto cacheUrls = config.getLocalUpdateCacheHosts();
     ASSERT_EQ(cacheUrls.size(), 3);
@@ -473,23 +513,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
     EXPECT_EQ(settingsHolder.weeklySchedule.enabled, false);
     Common::OSUtilitiesImpl::restoreDnsLookup();
     Common::OSUtilitiesImpl::restoreLocalIP();
-}
-
-TEST_F(TestUpdatePolicyTranslator, ParseAESCredential)
-{
-    auto* mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-    UpdatePolicyTranslator translator;
-
-    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
-
-    auto settingsHolder = translator.translatePolicy(updatePolicyWithAESCredential);
-    auto config = settingsHolder.configurationData;
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "2d7f952565f299f61e8ee5b713ae32dd");
-    EXPECT_EQ(config.getCredentials().getPassword(), "2d7f952565f299f61e8ee5b713ae32dd");
 }
 
 TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID)
@@ -526,16 +549,15 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
 
     EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "678ca7535f2722d2e633834fde894e40");
-    EXPECT_EQ(config.getCredentials().getPassword(), "678ca7535f2722d2e633834fde894e40");
+
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 
-    auto urls = config.getSophosLocationURLs();
+    auto urls = config.getSophosCDNURLs();
     ASSERT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+    EXPECT_EQ(urls[0], "https://sdds3test.sophosupd.com");
+    EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net");
 
     EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
@@ -692,14 +714,14 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithScheduledUpdate);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED","warehouse":{"sddsid":"QA940267"}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);
     // second time with additional 'extra' value
     Common::Telemetry::TelemetryHelper::getInstance().set("extra", "newvalue");
     std::string expectedTelemetryWithExtra{
-        R"sophos({"extra":"newvalue","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED","warehouse":{"sddsid":"QA940267"}})sophos"
+        R"sophos({"extra":"newvalue","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
     };
     telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetryWithExtra);
@@ -718,7 +740,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty)
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8","warehouse":{"sddsid":"W2YJXI6FED"}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);
@@ -734,7 +756,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8","warehouse":{"sddsid":"W2YJXI6FED"}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
     };
     std::string telemetry1 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string telemetry2 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
@@ -843,16 +865,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
 
     EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
-    EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 
-    auto urls = config.getSophosLocationURLs();
+    auto urls = config.getSophosCDNURLs();
     ASSERT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+    EXPECT_EQ(urls[0], "https://sdds3test.sophosupd.com");
+    EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net");
 
     EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
@@ -984,23 +1004,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
     auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions");
 
     testing::internal::CaptureStderr();
-    auto settingsHolder = translator.translatePolicy(policy);
-    auto config = settingsHolder.configurationData;
-
-    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
-
-    const auto& primarySubscription = config.getPrimarySubscription();
-    EXPECT_EQ(primarySubscription.baseVersion(), "");
-    EXPECT_EQ(primarySubscription.rigidName(), "");
-    EXPECT_EQ(primarySubscription.tag(), "");
-    EXPECT_EQ(primarySubscription.fixedVersion(), "");
-
-    const auto& productsSubscription = config.getProductsSubscription();
-    ASSERT_EQ(productsSubscription.size(), 0);
-
-    const auto& features = config.getFeatures();
-    std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
-    EXPECT_EQ(features, expectedFeatures);
+    EXPECT_THROW(translator.translatePolicy(policy),Common::Exceptions::IException);
 
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(
@@ -1028,45 +1032,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-    auto settingsHolder = translator.translatePolicy(policy);
-    auto config = settingsHolder.configurationData;
 
-    const auto& primarySubscription = config.getPrimarySubscription();
-    EXPECT_EQ(primarySubscription.baseVersion(), "");
-    EXPECT_EQ(primarySubscription.rigidName(), "");
-    EXPECT_EQ(primarySubscription.tag(), "");
-    EXPECT_EQ(primarySubscription.fixedVersion(), "");
-
-    const auto& productsSubscription = config.getProductsSubscription();
-    ASSERT_EQ(productsSubscription.size(), 2);
-    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-NotBase");
-    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
-
-    EXPECT_EQ(productsSubscription[1].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[1].rigidName(), "ServerProtectionLinux-Plugin-MDR");
-    EXPECT_EQ(productsSubscription[1].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[1].fixedVersion(), "");
-
-    const auto& features = config.getFeatures();
-    std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
-    EXPECT_EQ(features, expectedFeatures);
+    EXPECT_THROW(translator.translatePolicy(policy),Common::Exceptions::IException);
 
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(
         errorMsg,
         ::testing::HasSubstr(
             "SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
-}
-
-// updatePolicyWithAESCredential
-
-TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated)
-{
-    EXPECT_EQ(
-        UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),
-        "9539d7d1f36a71bbac1259db9e868231");
 }
 
 
@@ -1077,9 +1050,9 @@ TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithSlowSupplements)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-    </primary_location>
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
+</cloud_subscriptions>
     <delay_supplements enabled="true"/>
   </AUConfig>
   <Features>
@@ -1102,9 +1075,9 @@ TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithNormalSupplements)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-    </primary_location>
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
+</cloud_subscriptions>
     <delay_supplements enabled="false"/>
   </AUConfig>
   <Features>
@@ -1127,7 +1100,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
     Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     auto thread1 = std::async(std::launch::async, []() {
           const std::string expectedTelemetry{
-              R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED","warehouse":{"sddsid":"CSP190408113225"}})sophos"
+              R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED"})sophos"
           };
           for (int i = 0; i < 1000; i++)
           {
@@ -1149,6 +1122,11 @@ using namespace UpdateSchedulerImpl;
 
 class TestUpdatePolicyTelemetry : public ::testing::Test
 {
+public:
+    void SetUp()  override
+    {
+        Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    }
 };
 
 TEST_F(TestUpdatePolicyTelemetry, no_esm_no_fixedversion)

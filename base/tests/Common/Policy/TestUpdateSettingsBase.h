@@ -18,8 +18,8 @@ namespace
         static Common::Policy::UpdateSettings getValidUpdateSettings()
         {
             Common::Policy::UpdateSettings validSettings;
-            validSettings.setSophosLocationURLs({"http://really_sophos.info"});
-            validSettings.setCredentials({"username", "password"});
+            validSettings.setSophosCDNURLs({"http://really_sophos.info"});
+            validSettings.setSophosSusURL({"http://really_sophos.info"});
             validSettings.setPrimarySubscription({"RIGID", "Base", "tag", "fixed"});
             validSettings.setFeatures({"CORE"});
             return validSettings;

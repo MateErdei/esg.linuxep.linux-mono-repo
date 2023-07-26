@@ -23,22 +23,12 @@ class SulDownloaderUtilsTest : public ::testing::Test
                                          Proxy proxy)
         {
             UpdateSettings updateSettings;
-            updateSettings.setSophosLocationURLs(std::move(urls));
+            updateSettings.setSophosCDNURLs(std::move(urls));
             updateSettings.setLocalUpdateCacheHosts(std::move(updateCache));
             updateSettings.setPolicyProxy(std::move(proxy));
             return updateSettings;
         }
-        UpdateSettings getUpdateSettings(UpdateSettings::UpdateCacheHosts_t updateCache,
-                                         Credentials,
-                                         UpdateSettings::url_list_t urls,
-                                         Proxy proxy)
-        {
-            UpdateSettings updateSettings;
-            updateSettings.setSophosLocationURLs(std::move(urls));
-            updateSettings.setLocalUpdateCacheHosts(std::move(updateCache));
-            updateSettings.setPolicyProxy(std::move(proxy));
-            return updateSettings;
-        }
+
 };
 
 class SulDownloaderUtilsTestFiles : public LogInitializedTests
@@ -79,7 +69,6 @@ TEST_F(SulDownloaderUtilsTest, trueWhenPausedOnPrimarySubscription)
 {
     UpdateSettings updateSettings = getUpdateSettings(
         { "https://sophosupdate.sophos.com/latest/warehouse" },
-        Credentials{ "administrator", "password" },
         { "https://cache.sophos.com/latest/warehouse" },
         Proxy("noproxy:"));
     updateSettings.setPrimarySubscription(
@@ -93,7 +82,6 @@ TEST_F(SulDownloaderUtilsTest, trueWhenPausedOnNonPrimarySubscription)
 {
     UpdateSettings updateSettings = getUpdateSettings(
         { "https://sophosupdate.sophos.com/latest/warehouse" },
-        Credentials{ "administrator", "password" },
         { "https://cache.sophos.com/latest/warehouse" },
         Proxy("noproxy:"));
     updateSettings.setPrimarySubscription(

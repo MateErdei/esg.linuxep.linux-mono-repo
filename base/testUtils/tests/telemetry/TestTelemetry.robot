@@ -174,7 +174,6 @@ Telemetry Executable Generates Update Scheduler Telemetry
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
-    ...    sddsid=NotAUserName
     ...    set_edr=True
     ...    set_av=True
     ...    install_state=0
@@ -198,7 +197,6 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
     Log File   ${TELEMETRY_OUTPUT_JSON}
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}   0
     ...    base_fixed_version=2022.1.0.40
-    ...    sddsid=NotAUserName
     ...    install_state=0
     ...    download_state=0
 
@@ -223,7 +221,6 @@ Telemetry Executable Generates Update Scheduler Telemetry With Scheduled Updatin
     ...    scheduled_updating_enabled=${True}
     ...    scheduled_updating_day=Sunday
     ...    scheduled_updating_time=12:00
-    ...    sddsid=regruser
     ...    install_state=0
     ...    download_state=0
 
@@ -245,7 +242,6 @@ Telemetry Executable Generates Update Scheduler Telemetry With ESM Set In Policy
     Log File   ${TELEMETRY_OUTPUT_JSON}
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}   0
     ...    base_fixed_version=${esmname}
-    ...    sddsid=NotAUserName
     ...    install_state=0
     ...    download_state=0
 

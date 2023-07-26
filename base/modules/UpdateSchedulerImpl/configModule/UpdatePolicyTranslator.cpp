@@ -51,7 +51,6 @@ namespace UpdateSchedulerImpl
                 settings.setLogLevel(Common::Policy::UpdateSettings::LogLevel::VERBOSE);
 
 
-                updatePolicyTelemetry_.setSDDSid(updatePolicy_->getSddsID());
                 updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions(), updatePolicy_->getUpdateSettings().getEsmVersion());
                 updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
 
@@ -80,11 +79,6 @@ namespace UpdateSchedulerImpl
             return updatePolicy_->revID();
         }
 
-        std::string UpdatePolicyTranslator::calculateSulObfuscated(const std::string& user, const std::string& pass)
-        {
-            return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
-        }
-
         UpdatePolicyTranslator::UpdatePolicyTranslator() :
             updatePolicyTelemetry_{ }
         {
@@ -97,18 +91,9 @@ namespace UpdateSchedulerImpl
         }
     } // namespace configModule
 
-    void UpdatePolicyTelemetry::setSDDSid(const std::string& sdds)
-    {
-        warehouseTelemetry_.m_sddsid = sdds;
-    }
-
     void UpdatePolicyTelemetry::resetTelemetry(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
-        Common::Telemetry::TelemetryValue ssd(warehouseTelemetry_.m_sddsid);
-        updateTelemetry.set("sddsid", ssd);
-        telemetryToSet.set("warehouse", updateTelemetry, true);
-
         setSubscriptions(telemetryToSet);
 
     }

@@ -23,10 +23,7 @@ namespace UpdateSchedulerImpl
          * @param subscriptions
          */
         void updateSubscriptions(SubscriptionVector subscriptions, Common::Policy::ESMVersion esmVersion);
-        /**
-         * Called while parsing a policy to update SDDS-ID
-         */
-        void setSDDSid(const std::string & );
+
         /**
          *  Called while parsing a policy, after above setting methods to update telemetry
          */
@@ -75,7 +72,6 @@ namespace UpdateSchedulerImpl
         public:
             // may throw PolicyValidationException if the policy does not pass the validation criteria.
             SettingsHolder translatePolicy(const std::string& policyXml);
-            static std::string calculateSulObfuscated(const std::string& user, const std::string& pass);
 
             std::string cacheID(const std::string& hostname) const override;
 

@@ -274,9 +274,8 @@ Get User IDs of Installed Files
     [Return]    ${ids}
 
 Verify Product is Running Without Error After ID Change
-    # SulDownloader will try to connect to https://sus.sophosupd.com and fail to authenticate
-    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request received HTTP response code: 403 but was expecting: 200
-    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request received HTTP response code: 502 but was expecting: 200
+    # SulDownloader will try to connect to https://sustest.sophosupd.com and fail to authenticate
+    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request failed with error: Couldn't resolve host name
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed.
 
     Check All Product Logs Do Not Contain Error

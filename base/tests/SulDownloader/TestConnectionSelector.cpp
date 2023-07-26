@@ -5,8 +5,8 @@
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
 
-#include "tests/Common/Helpers/TempDir.h"
-
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <gtest/gtest.h>
 
 using namespace SulDownloader;
@@ -17,136 +17,194 @@ using namespace Common::Policy;
 class ConnectionSelectorTest : public ConfigurationDataBase
 {
 public:
-    std::string m_installRootRelPath;
-    std::string m_certificateRelPath;
-    std::string m_systemSslRelPath;
-    std::string m_cacheUpdateSslRelPath;
-
-    std::unique_ptr<Tests::TempDir> m_tempDir;
-
-    void SetUp() override
+    void TearDown() override
     {
-        m_installRootRelPath = "tmp/sophos-av";
-        m_certificateRelPath = "tmp/dev_certificates";
-        m_systemSslRelPath = "tmp/etc/ssl/certs";
-        m_cacheUpdateSslRelPath = "tmp/etc/cachessl/certs";
-        m_tempDir = Tests::TempDir::makeTempDir();
-
-        m_tempDir->makeDirs(std::vector<std::string>{ m_installRootRelPath,
-                                                      m_certificateRelPath,
-                                                      m_systemSslRelPath,
-                                                      m_systemSslRelPath,
-                                                      m_cacheUpdateSslRelPath,
-                                                      "tmp/sophos-av/update/cache/primarywarehouse",
-                                                      "tmp/sophos-av/update/cache/primary" });
-
-        m_tempDir->createFile(m_certificateRelPath + "/ps_rootca.crt", "empty");
-        m_tempDir->createFile(m_certificateRelPath + "/rootca.crt", "empty");
+        Tests::restoreFileSystem();
     }
 
-    void TearDown() override {}
 
-    UpdateSettings configFromJson(const std::string& oldPartString, const std::string& newPartString)
-    {
-        return ConfigurationData::fromJsonSettings(
-            ConfigurationDataBase::createJsonString(oldPartString, newPartString));
-    }
 };
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidData) // NOLINT
+TEST_F(ConnectionSelectorTest, getConnectionCandidates)
 {
-    auto configurationData = configFromJson("", "");
+
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    // connectionCandidates should be ordered. With cache updates first.
-    EXPECT_EQ(connectionCandidates.size(), 2);
+
+    // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
+    ASSERT_EQ(susCandidates.size(), 2);
+
+    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+
+
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "noproxy:");
+
+
+    ASSERT_EQ(connectionCandidates.size(), 2);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "noproxy:");
 }
-
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfo) // NOLINT
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsempty)
 {
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
 
-    std::string newString; // = "";
-
-    auto configurationData = configFromJson(oldString, newString);
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("https://sus.sophosupd.com", ""));
 
     ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    // connectionCandidates should be ordered. With cache updates first.
-    EXPECT_EQ(connectionCandidates.size(), 2);
+    ASSERT_EQ(susCandidates.size(), 1);
+}
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesUrlWithNoslash)
+{
+
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("https://sus.sophosupd.com", "sus.sophosupd.com"));
+
+    ConnectionSelector selector;
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
+
+    ASSERT_EQ(susCandidates.size(), 2);
+}
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsTooLong)
+{
+    std::string longString(1025,'a');
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("sus.sophosupd.com", longString));
+
+    ConnectionSelector selector;
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
+
+    ASSERT_EQ(susCandidates.size(), 1);
+}
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsInvalidChar)
+{
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("https://sus.sophosupd.com", "https://sus.@sophosupd.com"));
+
+    ConnectionSelector selector;
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
+
+    ASSERT_EQ(susCandidates.size(), 1);
+}
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesWithOverride)
+{
+    std::vector<std::string> overrideContents = { "CDN_URL = https://localhost:8081",
+                                                    "URLS = https://localhost:8081,https://localhost2:8081"};
+    auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("base/update/var/sdds3_override_settings.ini"))).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("savedproxy.config"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(HasSubstr("current_proxy"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*filesystemMock, readLines(HasSubstr("base/update/var/sdds3_override_settings.ini"))).WillRepeatedly(Return(overrideContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    ConnectionSelector selector;
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
+
+
+    // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
+    ASSERT_EQ(susCandidates.size(), 3);
+
+    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+
+
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[1].getUpdateLocationURL().c_str(), "https://localhost:8081");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "noproxy:");
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[2].getUpdateLocationURL().c_str(), "https://localhost2:8081");
+    EXPECT_EQ(susCandidates[2].getProxy().getUrl(), "noproxy:");
+
+    ASSERT_EQ(connectionCandidates.size(), 2);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(
-        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
+        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://localhost:8081");
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "noproxy:");
 }
 
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesEnvProxy)
 {
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString; // = "";
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
     setenv("HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
-    auto configurationData = configFromJson(oldString, newString);
-
     ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    // connectionCandidates should be ordered. With cache updates first.
-    EXPECT_EQ(connectionCandidates.size(), 3);
+
+    // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
+    ASSERT_EQ(susCandidates.size(), 3);
+
+    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "environment:");
+
+
+    EXPECT_FALSE(susCandidates[2].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[2].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[2].getProxy().getUrl(), "noproxy:");
+
+
+    ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "environment:");
 
+
     EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
-
+    EXPECT_EQ(connectionCandidates[2].getProxy().getUrl(), "noproxy:");
     unsetenv("HTTPS_PROXY");
 }
 
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySetWithoutObfuscatedPassword)
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesSimpleProxyWithNonPassword)
 {
     std::string oldString = R"("proxy": {
                                "url": "noproxy:",
@@ -161,7 +219,7 @@ TEST_F( // NOLINT
                                "url": "http://testproxy.com",
                                "credential": {
                                "username": "testproxyusername",
-                               "password": "testproxypassword",
+                               "password": "password",
                                "proxyType": "1"
                                 }
                                },)";
@@ -170,250 +228,77 @@ TEST_F( // NOLINT
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 3);
 
-    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
+    ASSERT_EQ(susCandidates.size(), 3);
+
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
     EXPECT_STREQ(
-        connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
+        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "http://testproxy.com");
+    EXPECT_STREQ(susCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(
+        susCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
+
+
+    ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(
-        connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
-
-    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
-}
-
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    shouldHandleSimpleProxyWithObfuscatedPassword)
-{
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString = R"("proxy": {
-                               "url": "http://testproxy.com",
-                               "credential": {
-                               "username": "",
-                               "password": "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=",
-                               "proxyType": "2"
-                                }
-                               },)";
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
-
-    // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 3);
-
-    auto proxyConfig = connectionCandidates[1].getProxy();
-
-    EXPECT_EQ(proxyConfig.getUrl(), "http://testproxy.com");
-    EXPECT_EQ(proxyConfig.getCredentials().getUsername(), "");
-    EXPECT_EQ(proxyConfig.getCredentials().getDeobfuscatedPassword(), "");
-}
-
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    shouldPrependhttp)
-{
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString = R"("proxy": {
-                               "url": "testproxy.com",
-                               "credential": {
-                               "username": "",
-                               "password": "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=",
-                               "proxyType": "2"
-                                }
-                               },)";
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
-
-    // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 3);
-
-    auto proxyConfig = connectionCandidates[1].getProxy();
-
-    EXPECT_EQ(proxyConfig.getUrl(), "testproxy.com");
-    EXPECT_EQ(proxyConfig.getCredentials().getUsername(), "");
-    EXPECT_EQ(proxyConfig.getCredentials().getDeobfuscatedPassword(), "");
-}
-
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySetWithObfuscatedPassword)
-{
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString = R"("proxy": {
-                               "url": "http://testproxy.com",
-                               "credential": {
-                               "username": "testproxyusername",
-                               "password": "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",
-                               "proxyType": "2"
-                                }
-                               },)";
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
-
-    // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 3);
-
-    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // UpdateCache bypass proxy
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
-
-    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
-
-    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
-}
-
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    getConnectionCandidatesShouldReturnValidCandidatesWhenObfuscatedPassedHasBeenPadded)
-{
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString = R"("proxy": {
-                               "url": "http://testproxy.com",
-                               "credential": {
-                               "username": "testproxyusername",
-                               "password": "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk================",
-                               "proxyType": "2"
-                                }
-                               },)";
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    ConnectionSelector selector;
-    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
-
-    // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 3);
-
-    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // UpdateCache bypass proxy
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
-
-    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
-
-    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
-}
-
-
-TEST_F( // NOLINT
-    ConnectionSelectorTest,
-    getSDDS3ConnectionCandidatesDoNotTakeInSDDS2Urls)
-{
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString = R"("proxy": {
-                               "url": "http://testproxy.com",
-                               "credential": {
-                               "username": "testproxyusername",
-                               "password": "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk================",
-                               "proxyType": "2"
-                                }
-                               },)";
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    ConnectionSelector selector;
-    auto connectionCandidates = selector.getSDDS3ConnectionCandidates(configurationData);
-
-    // connectionCandidates should be ordered. With cache updates first. NoProxy Should Not be included
-    ASSERT_EQ(connectionCandidates.size(), 2);
-
-    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
-
-    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[1].getUpdateLocationURL().c_str(), "");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(
         connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
+}
 
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesSimpleProxyWithObfuscatedPassword)
+{
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+    std::string newString = R"("proxy": {
+                               "url": "http://testproxy.com",
+                               "credential": {
+                               "username": "testproxyusername",
+                               "password": "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk================",
+                               "proxyType": "2"
+                                }
+                               },)";
+
+    auto configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
+
+
+    // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
+    ASSERT_EQ(susCandidates.size(), 3);
+
+    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "http://testproxy.com");
+    EXPECT_STREQ(susCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(
+        susCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
+
+    ASSERT_EQ(connectionCandidates.size(), 3);
+
+    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(
+        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(
+        connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 }

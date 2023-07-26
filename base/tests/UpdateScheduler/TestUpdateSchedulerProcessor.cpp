@@ -281,7 +281,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEv
     std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         updatePolicy,
         R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>)",
-        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-MDR" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>)"
+        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/><subscription Id="Base" RigidName="ServerProtectionLinux-MDR" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>)"
         );
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
@@ -338,9 +338,8 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEv
 
     std::string ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         updatePolicy,
-        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>)",
-        R"(<subscription Id="Base" RigidName="ServerProtectionLinux-MDR" Tag="RECOMMENDED"/>)"
-        );
+        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\"/>",
+        "<subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-Base\" Tag=\"RECOMMENDED\"/><subscription Id=\"Base\" RigidName=\"ServerProtectionLinux-MDR\" Tag=\"RECOMMENDED\"/>");
     ALCPolicy = Common::UtilityImpl::StringUtils::replaceAll(
         ALCPolicy,
         R"(<delay_supplements enabled="true"/>)",

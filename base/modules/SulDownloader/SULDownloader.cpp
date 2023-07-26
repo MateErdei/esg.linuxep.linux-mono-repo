@@ -501,113 +501,7 @@ namespace SulDownloader
             setForceInstallForAllProducts);
     }
 
-    std::vector<ConnectionSetup> populateSdds3SUSConnectionCandidates(const UpdateSettings& updateSettings)
-    {
-        ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(updateSettings);
-        std::vector<ConnectionSetup> finalConnectionCandidates;
 
-        std::vector<Common::Policy::Proxy> proxies;
-        // get list of possible proxies
-        for (auto& candidate : candidates)
-        {
-            if(!candidate.isCacheUpdate() && !candidate.getProxy().empty())
-            {
-                proxies.push_back(candidate.getProxy());
-            }
-        }
-
-        std::string sdds3OverrideSettingsFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-        std::string overrideValue;
-        if (Common::FileSystem::fileSystem()->isFile(sdds3OverrideSettingsFile))
-        {
-            overrideValue = StringUtils::extractValueFromIniFile(sdds3OverrideSettingsFile, "URLS");
-        }
-
-        std::vector<std::string> urls = {"https://sus.sophosupd.com"};
-        if (!overrideValue.empty())
-        {
-            LOGWARN("Overriding Sophos Update Service address list with " << overrideValue);
-            urls = StringUtils::splitString(overrideValue, ",");
-        }
-
-        for (const auto& proxy : proxies)
-        {
-            for (const auto& url : urls)
-            {
-                ConnectionSetup connectionSetup(url, false, proxy);
-                finalConnectionCandidates.emplace_back(connectionSetup);
-                LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
-            }
-        }
-
-        for (const auto& url : urls)
-        {
-            ConnectionSetup connectionSetup(url, false, Proxy());
-            finalConnectionCandidates.push_back(connectionSetup);
-            LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url);
-        }
-
-        return finalConnectionCandidates;
-    }
-    std::vector<ConnectionSetup> populateSdds3CDNConnectionCandidates(const UpdateSettings& updateSettings)
-    {
-        ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(updateSettings);
-        std::vector<ConnectionSetup> finalConnectionCandidates;
-
-        std::vector<Proxy> proxies;
-        // get list of possible proxies
-        for (auto& candidate : candidates)
-        {
-            if (!candidate.isCacheUpdate() && !candidate.getProxy().empty())
-            {
-                proxies.push_back(candidate.getProxy());
-            }
-        }
-        std::string sdds3OverrideSettingsFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-
-        std::string cdnOverrideValue;
-        if (Common::FileSystem::fileSystem()->isFile(sdds3OverrideSettingsFile))
-        {
-            cdnOverrideValue = StringUtils::extractValueFromIniFile(sdds3OverrideSettingsFile, "CDN_URL");
-        }
-
-        std::vector<std::string> cdnurls = {"https://sdds3.sophosupd.com:443", "https://sdds3.sophosupd.net:443"};
-        if (!cdnOverrideValue.empty())
-        {
-            LOGWARN("Overriding Sophos CDN address with " << cdnOverrideValue);
-            cdnurls = {cdnOverrideValue};
-        }
-
-        for (const auto& candidate : candidates)
-        {
-            if (candidate.isCacheUpdate())
-            {
-                ConnectionSetup connectionSetup(candidate.getUpdateLocationURL(), true, Proxy());
-                finalConnectionCandidates.emplace_back(connectionSetup);
-            }
-        }
-
-        for (const auto& proxy : proxies)
-        {
-            for (const auto& url : cdnurls)
-            {
-                ConnectionSetup connectionSetup(url, false, proxy);
-                finalConnectionCandidates.emplace_back(connectionSetup);
-                LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
-            }
-        }
-
-        for (const auto& url : cdnurls)
-        {
-            ConnectionSetup connectionSetup(url, false, Proxy());
-            finalConnectionCandidates.push_back(connectionSetup);
-            LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url);
-        }
-
-        return finalConnectionCandidates;
-    }
 
     void createSdds3UpdateCacheFolders()
     {
@@ -638,8 +532,8 @@ namespace SulDownloader
                                                               const suldownloaderdata::DownloadReport& previousDownloadReport,
                                                               const bool forceReinstallAllProducts)
     {
-
-        auto susCandidates = populateSdds3SUSConnectionCandidates(updateSettings);
+        ConnectionSelector connectionSelector;
+        auto [susCandidates, connectionCandidates]  = connectionSelector.getConnectionCandidates(updateSettings);
         auto repository = Sdds3RepositoryFactory::instance().createRepository();
         //sus
         for (auto& connectionCandidate : susCandidates)
@@ -656,7 +550,7 @@ namespace SulDownloader
             LOGERROR("Failed to connect to repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
-        auto cdnCandidates = populateSdds3CDNConnectionCandidates(updateSettings);
+
         LOGDEBUG("Purging local SDDS2 cache");
         try
         {
@@ -677,7 +571,7 @@ namespace SulDownloader
 
         //using iterator here instead of a for range to avoid ignoringSupplementFailure early
         // if there is a duplicate in the list for the last candidate
-        for (auto it = cdnCandidates.begin(); it != cdnCandidates.end(); ++it)
+        for (auto it = connectionCandidates.begin(); it != connectionCandidates.end(); ++it)
         {
             if (repository->synchronize(updateSettings, *it, false))
             {

@@ -66,11 +66,5 @@ namespace SulDownloader::suldownloaderdata
          */
         static std::vector<Common::Policy::Proxy> proxiesList(const Common::Policy::UpdateSettings&);
 
-        /**
-         * If the path is not set for the Ssl
-         */
-        static const std::string DoNotSetSslSystemPath;
-        static const std::vector<std::string> DefaultSophosLocationsURL;
-
     };
 } // namespace SulDownloader::suldownloaderdata

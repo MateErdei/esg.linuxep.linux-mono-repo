@@ -39,6 +39,15 @@
         <Feature id="SDU"/>
         <Feature id="WEBCNTRL"/>
     </Features>
+    <server_names>
+        <sdds3>
+            <sus>sus.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
     <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>

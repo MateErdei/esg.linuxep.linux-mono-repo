@@ -24,22 +24,24 @@ add_library(policyobject OBJECT
         )
 
 
-include_directories(policyobject BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+include_directories(policyobject BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ${SOPHLIB_INCLUDE})
 target_link_libraries(policyobject PRIVATE
         obfuscationimpl
         osutilitiesimpl
         protobufutil
         xmlutilities
+        sophlib_hostname
         )
 
 add_library(policy SHARED)
-include_directories(policy BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+include_directories(policy BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ${SOPHLIB_INCLUDE})
 target_link_libraries(policy PRIVATE
         policyobject
         obfuscationimpl
         osutilitiesimpl
         protobufutil
         xmlutilities
+        sophlib_hostname
         )
 
 SET_TARGET_PROPERTIES(policy

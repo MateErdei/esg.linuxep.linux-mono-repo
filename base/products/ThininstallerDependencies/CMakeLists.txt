@@ -22,6 +22,7 @@ target_link_libraries(cmcsrouterapi PUBLIC
         expat -L${EXPAT_INPUT}
         sslimplobject
         cap
+        sophlib_hostname
         )
 
 

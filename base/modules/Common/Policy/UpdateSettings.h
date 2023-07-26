@@ -16,7 +16,8 @@ namespace Common::Policy
     class UpdateSettings
     {
     public:
-        static const std::vector<std::string> DefaultSophosLocationsURL;
+        static const std::vector<std::string> DefaultSophosCDNUrls;
+        static const std::string DefaultSophosSusUrl;
         using UpdateCacheHosts_t = std::vector<std::string>;
 
         enum class LogLevel
@@ -147,32 +148,32 @@ namespace Common::Policy
             return useSlowSupplements_;
         }
 
-        void setCredentials(const Credentials& creds)
-        {
-            credentials_ = creds;
-        }
-
-        [[nodiscard]] Credentials getCredentials() const
-        {
-            return credentials_;
-        }
 
         /**
-         * Handling for the old SDDS2 URLs:
+         * Handling for the SDDS3 URLs:
          */
 
         using url_list_t = std::vector<std::string>;
 
-        void setSophosLocationURLs(const url_list_t& urls)
+        void setSophosCDNURLs(const url_list_t& urls)
         {
-            sophosLocationURLs_ = urls;
+            sophosCDNURLs_ = urls;
         }
 
-        [[nodiscard]] url_list_t getSophosLocationURLs() const
+        [[nodiscard]] url_list_t getSophosCDNURLs() const
         {
-            return sophosLocationURLs_;
+            return sophosCDNURLs_;
         }
 
+        void setSophosSusURL(const std::string& url)
+        {
+            sophosSUSUrl_ = url;
+        }
+
+        [[nodiscard]] std::string getSophosSusURL() const
+        {
+            return sophosSUSUrl_;
+        }
         /**
          * Used to verify all required settings stored in the ConfigurationData object
          * @test sophosUpdateUrls list is not empty
@@ -346,13 +347,13 @@ namespace Common::Policy
         UpdateCacheHosts_t localUpdateCacheHosts_;
         ProductSubscription primarySubscription_;
         std::vector<ProductSubscription> productSubscriptions_;
-        url_list_t sophosLocationURLs_;
+        url_list_t sophosCDNURLs_;
+        std::string sophosSUSUrl_;
         std::vector<std::string> features_;
         std::vector<std::string> installArguments_;
         std::vector<std::string> manifestNames_;
         std::vector<std::string> optionalManifestNames_;
         Proxy policyProxy_;
-        Credentials credentials_;
         std::string jwToken_;
         std::string tenantId_;
         std::string deviceId_;

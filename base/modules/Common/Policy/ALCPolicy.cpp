@@ -2,7 +2,6 @@
 
 // Contains code original in UpdatePolicyTranslator.cpp
 
-
 #include "ALCPolicy.h"
 
 #include "Logger.h"
@@ -18,6 +17,7 @@
 #include "Common/ObfuscationImpl/Obfuscate.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/XmlUtilities/AttributesMap.h"
+#include "sophlib/hostname/Validate.h"
 
 using namespace Common::ApplicationConfiguration;
 using namespace Common::Policy;
@@ -117,7 +117,7 @@ namespace
 
 ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 {
-    Common::XmlUtilities::AttributesMap attributesMap{{}, {}};
+    Common::XmlUtilities::AttributesMap attributesMap{ {}, {} };
     try
     {
         attributesMap = Common::XmlUtilities::parseXml(xmlPolicy);
@@ -135,11 +135,8 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     }
     revID_ = cscComp.value("RevID");
 
-    // sdds_id comes from SDDS2 user
-    auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
-
-    extractSDDS2SophosUrls(primaryLocation);
-    extractAndSetCredentials(primaryLocation);
+    extractSDDS3SusUrl(attributesMap);
+    extractSDDS3SophosUrls(attributesMap);
     extractUpdateCaches(attributesMap);
     extractUpdateSchedule(attributesMap);
     extractProxyDetails(attributesMap);
@@ -152,7 +149,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     updateSettings_.setManifestNames({ "manifest.dat" });
 
     // To add optional manifest file names call here
-    updateSettings_.setOptionalManifestNames({"flags_manifest.dat", "sophos-scheduled-query-pack.manifest.dat"});
+    updateSettings_.setOptionalManifestNames({ "flags_manifest.dat", "sophos-scheduled-query-pack.manifest.dat" });
 
     // Slow supplements - no longer available - SDDS2 feature
     auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
@@ -162,7 +159,6 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     logVersion();
 }
-
 
 std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCache>& caches)
 {
@@ -177,8 +173,7 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
     }
 
     auto start = std::chrono::steady_clock::now();
-    Common::OSUtilities::SortServersReport report =
-        Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
+    Common::OSUtilities::SortServersReport report = Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
     auto elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     std::string logReport = reportToString(report);
@@ -193,16 +188,10 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
     }
 
     std::stable_sort(orderedCaches.begin(), orderedCaches.end(), [](const UpdateCache& a, const UpdateCache& b) {
-                         return a.priority < b.priority;
-                     });
+        return a.priority < b.priority;
+    });
     return orderedCaches;
 }
-
-std::string ALCPolicy::calculateSulObfuscated(const std::string& user, const std::string& pass)
-{
-    return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
-}
-
 
 std::string ALCPolicy::cacheID(const std::string& hostname) const
 {
@@ -223,57 +212,82 @@ std::string ALCPolicy::cacheID(const std::string& hostname) const
     return {};
 }
 
-void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation)
+void ALCPolicy::formatUrl(std::string& url)
 {
-
-    std::string connectionAddress = primaryLocation.value("ConnectionAddress");
-
-    std::vector<std::string> sophosUpdateLocations{UpdateSettings::DefaultSophosLocationsURL};
-    if (!connectionAddress.empty())
+    if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
     {
-        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
+        url = "https://" + url;
     }
-    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
 }
 
-void ALCPolicy::extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation)
+void ALCPolicy::extractSDDS3SusUrl(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
-    std::string user{ primaryLocation.value("UserName") };
-    std::string pass{ primaryLocation.value("UserPassword") };
-    std::string algorithm{ primaryLocation.value("Algorithm") };
-    bool requireObfuscation = true;
+    std::string susUrl = attributesMap.lookup("AUConfigurations/server_names/sdds3/sus").contents();
 
-    // we check that username and password are not empty mainly for fuzzing purposes as in
-    // product we never expect central to send us a policy with empty credentials
-    if (user.empty())
+    std::string sophosUpdateSus = UpdateSettings::DefaultSophosSusUrl;
+
+    if (susUrl.empty())
     {
-        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
+        LOGWARN("SUS hostname is empty in ALC policy");
     }
-    if (pass.empty())
+    else if (validateHostname(susUrl))
     {
-        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
+        formatUrl(susUrl);
+        sophosUpdateSus = susUrl;
     }
 
-    if (algorithm == "AES256")
+    updateSettings_.setSophosSusURL(sophosUpdateSus);
+}
+
+void ALCPolicy::extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    auto cdns = attributesMap.entitiesThatContainPath("AUConfigurations/server_names/sdds3/content_servers/server");
+
+    if (cdns.empty())
     {
-        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
-    }
-    else if (user.size() == 32 && user == pass)
-    {
-        requireObfuscation = false;
+        LOGWARN("No CDN urls in in ALC policy");
+        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
+        return;
     }
 
-    if (requireObfuscation)
+    std::vector<std::string> cdnUrls;
+    for (const auto& url : cdns)
     {
-        std::string obfuscated = calculateSulObfuscated(user, pass);
-        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
+        auto attributes = attributesMap.lookup(url);
+        std::string cdnurl = attributes.contents();
+        if (cdnurl.empty())
+        {
+            LOGWARN("CDN hostname is empty in ALC policy");
+            continue ;
+        }
+        if (validateHostname(cdnurl))
+        {
+            formatUrl(cdnurl);
+            cdnUrls.emplace_back(cdnurl);
+        }
     }
-    else
+    if (cdnUrls.empty())
     {
-        updateSettings_.setCredentials(Credentials{ user, pass });
+        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
+        return;
     }
+    updateSettings_.setSophosCDNURLs(cdnUrls);
+}
 
-    sdds_id_ = user;
+bool ALCPolicy::validateHostname(const std::string& url)
+{
+
+    try
+    {
+        sophlib::hostname::validate(url);
+    }
+    catch (const std::runtime_error& ex)
+    {
+        LOGWARN("Invalid host '" << url << "' in ALC policy: " << ex.what());
+
+        return false;
+    }
+    return true;
 }
 
 void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap)
@@ -345,11 +359,10 @@ void ALCPolicy::extractUpdateSchedule(const Common::XmlUtilities::AttributesMap&
         std::tm scheduledUpdateTime{};
         if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
         {
-            weeklySchedule_ = {
-                .enabled = true,
-                .weekDay = scheduledUpdateTime.tm_wday,
-                .hour = scheduledUpdateTime.tm_hour,
-                .minute = scheduledUpdateTime.tm_min };
+            weeklySchedule_ = { .enabled = true,
+                                .weekDay = scheduledUpdateTime.tm_wday,
+                                .hour = scheduledUpdateTime.tm_hour,
+                                .minute = scheduledUpdateTime.tm_min };
         }
         else
         {
@@ -373,9 +386,7 @@ void ALCPolicy::extractProxyDetails(const Common::XmlUtilities::AttributesMap& a
             proxyAddress += ":" + proxyPort;
         }
 
-        updateSettings_.setPolicyProxy(Proxy{
-            proxyAddress,
-            ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
+        updateSettings_.setPolicyProxy(Proxy{ proxyAddress, ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
     }
 }
 
@@ -421,12 +432,7 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
         std::string tag = subscriptionDetails.value("Tag");
         std::string fixedVersion = subscriptionDetails.value("FixedVersion");
 
-        ProductSubscription sub{
-            rigidName,
-            subscriptionDetails.value("BaseVersion"),
-            tag,
-            fixedVersion
-        };
+        ProductSubscription sub{ rigidName, subscriptionDetails.value("BaseVersion"), tag, fixedVersion };
         subscriptions_.emplace_back(sub);
         if (rigidName != SSPLBaseName)
         {
@@ -437,7 +443,7 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
             updateSettings_.setPrimarySubscription({ rigidName,
                                                      subscriptionDetails.value("BaseVersion"),
                                                      subscriptionDetails.value("Tag"),
-                                                     fixedVersion});
+                                                     fixedVersion });
 
             ssplBaseIncluded = true;
         }
@@ -447,9 +453,8 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
 
     if (!ssplBaseIncluded)
     {
-        LOGERROR(
-            "SSPL base product name : " << SSPLBaseName
-                                        << " not in the subscription of the policy.");
+        LOGERROR("SSPL base product name : " << SSPLBaseName << " not in the subscription of the policy.");
+        throw PolicyParseException(LOCATION, "Invalid policy: No base subscription");
     }
 }
 
