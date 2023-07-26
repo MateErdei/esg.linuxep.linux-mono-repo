@@ -74,7 +74,7 @@ EDR Plugin Does Not Hang When OSQuery Socket Is Not Created
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   5 secs
-    ...   Check Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
+    ...   Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
 
 EDR Plugin Purges OSQuery Database If Event Data Retention Time Check Fails
     [Documentation]  This test will replace osquery with a simple bash script to ensure that EDR does not hang

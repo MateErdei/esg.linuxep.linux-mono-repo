@@ -285,6 +285,9 @@ class LogUtils(object):
     def check_log_contains_in_order(self, log_path, *args):
         log_contains_in_order(log_path, log_path, args)
 
+    def check_log_contains_in_order_with_name(self, log_path, log_name, *args):
+        log_contains_in_order(log_path, log_name, args)
+
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return log_contains_in_order(log_location, log_name, args, log_finds)
 
