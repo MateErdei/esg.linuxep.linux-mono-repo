@@ -22,7 +22,6 @@ namespace sophos_on_access_process::fanotifyhandler
             explicit FanotifyHandler(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
             ~FanotifyHandler() override;
             FanotifyHandler(const FanotifyHandler&) =delete;
-            FanotifyHandler& operator=(const FanotifyHandler&) =delete;
 
             /**
              * Get the fanotify FD.
@@ -43,7 +42,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int markMount(const std::string& path) const override;
+            [[nodiscard]] int markMount(const std::string& path, bool onOpen, bool onClose) const override;
 
             /**
              * Unmark a mount point as unwanted - we do not want fanotify events from it.

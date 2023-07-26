@@ -318,7 +318,7 @@ TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(appenderContains("Fanotify successfully initialised"));
 
-    EXPECT_EQ(handler.markMount(path), 0);
+    EXPECT_EQ(handler.markMount(path, true, true), 0);
 }
 
 TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
@@ -341,7 +341,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
                                                      FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
             SetErrnoAndReturn(EEXIST, -1));
 
-    EXPECT_EQ(handler.markMount(path), -1);
+    EXPECT_EQ(handler.markMount(path, true, true), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: File exists for: /expected"));
     EXPECT_TRUE(appenderContains("[ERROR] fanotify_mark failed in markMount: File exists for: /expected"));
 }
@@ -365,7 +365,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithENOENT)
                                                      FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
             SetErrnoAndReturn(ENOENT, -1));
 
-    EXPECT_EQ(handler.markMount(path), -1);
+    EXPECT_EQ(handler.markMount(path, true, true), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: No such file or directory for: /expected"));
     EXPECT_TRUE(appenderContains("[DEBUG] fanotify_mark failed in markMount: No such file or directory for: /expected"));
 }
@@ -389,7 +389,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithEACCES)
                                                      FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
             SetErrnoAndReturn(EACCES, -1));
 
-    EXPECT_EQ(handler.markMount(path), -1);
+    EXPECT_EQ(handler.markMount(path, true, true), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: Permission denied for: /expected"));
     EXPECT_TRUE(appenderContains("[WARN] fanotify_mark failed in markMount: Permission denied for: /expected"));
 }
@@ -401,7 +401,7 @@ TEST_F(TestFanotifyHandler, markMountWithoutInit)
     expectGoodHealth(1);
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
-    EXPECT_EQ(handler.markMount(path), 0);
+    EXPECT_EQ(handler.markMount(path, true, true), 0);
     EXPECT_TRUE(appenderContains("Skipping markMount for " + path + " as fanotify disabled"));
 }
 

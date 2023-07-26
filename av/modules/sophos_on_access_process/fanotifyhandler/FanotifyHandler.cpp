@@ -70,7 +70,7 @@ int FanotifyHandler::getFd() const
     return fanotify_autoFd->fd();
 }
 
-int FanotifyHandler::markMount(const std::string& path) const
+int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClose) const
 {
     auto fanotify_autoFd = m_fd.lock(); // Hold the lock since we can be called while fanotify being disabled
     int fanotify_fd = fanotify_autoFd->fd();
@@ -81,7 +81,15 @@ int FanotifyHandler::markMount(const std::string& path) const
     }
 
     constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
-    constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
+    uint64_t mask = 0;
+    if (onClose)
+    {
+        mask |= FAN_CLOSE_WRITE;
+    }
+    if (onOpen)
+    {
+        mask |= FAN_OPEN;
+    }
     constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     return processFaMarkError(result, "markMount", path);

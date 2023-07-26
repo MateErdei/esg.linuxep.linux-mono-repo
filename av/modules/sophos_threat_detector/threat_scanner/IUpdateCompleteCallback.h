@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,6 +10,11 @@ namespace threat_scanner
     {
     public:
         virtual ~IUpdateCompleteCallback() = default;
+        IUpdateCompleteCallback() = default;
+        IUpdateCompleteCallback(const IUpdateCompleteCallback&) = delete;
+        IUpdateCompleteCallback(IUpdateCompleteCallback&&) = delete;
+        IUpdateCompleteCallback& operator=(const IUpdateCompleteCallback&) = delete;
+
         /**
          * Publish that we have completed an update
          */
