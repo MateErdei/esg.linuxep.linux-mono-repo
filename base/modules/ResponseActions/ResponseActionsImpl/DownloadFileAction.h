@@ -42,6 +42,11 @@ namespace ResponseActionsImpl
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
 
+        /**
+         *  @return Will return true if the directory existed, false if not
+         */
+        bool removeDestDir(const std::string& destDir);
+
         bool createExtractionDirectory();
         void handleUnZipFailure(const int& unzipReturn);
         void handleMovingArchive(const Path& targetPath);

@@ -150,8 +150,8 @@ public:
                 .RetiresOnSaturation();
         }
 
-        EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
-        EXPECT_CALL(*m_mockFileSystem, exists(targetPath)).WillOnce(Return(false));
+        EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false)).RetiresOnSaturation();
+        EXPECT_CALL(*m_mockFileSystem, exists(targetPath)).WillOnce(Return(false)).RetiresOnSaturation();
         EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
         if (!subDirs.empty())
         {
@@ -1935,7 +1935,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_Exception)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemException)
+TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemException_DestFileDoesntExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1943,6 +1943,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -1959,10 +1960,43 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-
     EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "access_denied");
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemException_DestFileDoesExist)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile + ": exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_destPath)).Times(1);
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+    EXPECT_EQ(response["errorType"], "not_enough_space");
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 
     EXPECT_TRUE(appenderContains(expectedErrStr));
@@ -1976,6 +2010,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_Exception)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);

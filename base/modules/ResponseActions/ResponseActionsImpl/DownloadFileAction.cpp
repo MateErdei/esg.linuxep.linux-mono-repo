@@ -588,7 +588,8 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unable to move " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "access_denied");
+            auto msg = removeDestDir(destDir) ? "not_enough_space" : "access_denied";
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), msg);
             return;
         }
         catch (const std::exception& e)
@@ -596,6 +597,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when moving file " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
+            std::ignore = removeDestDir(destDir);
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return;
         }
@@ -624,6 +626,18 @@ namespace ResponseActionsImpl
             m_fileSystem->removeFileOrDirectory(m_tmpExtractPath);
         }
     }
+
+    bool DownloadFileAction::removeDestDir(const std::string& destDir)
+    {
+        bool existed = false;
+        if (m_fileSystem->exists(destDir))
+        {
+            existed = true;
+            m_fileSystem->removeFileOrDirectory(destDir);
+        }
+        return existed;
+    }
+
     // Determine whether the filePath to move is in an extract directory or not
     Path DownloadFileAction::getSubDirsInTmpDir(const Path& filePath)
     {
