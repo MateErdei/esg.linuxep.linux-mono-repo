@@ -390,6 +390,48 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonSortsE
     EXPECT_EQ(m_testConfig.exclusions[0].displayPath(), "/uk-filer5/");
 }
 
+TEST_F(TestOnAccessConfigurationUtils, onOpenTrue)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onOpen":true})", m_testConfig));
+    EXPECT_TRUE(m_testConfig.onOpen);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onOpenTrueString)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onOpen":"true"})", m_testConfig));
+    EXPECT_TRUE(m_testConfig.onOpen);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onOpenNumber)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onOpen":43})", m_testConfig));
+    EXPECT_TRUE(m_testConfig.onOpen);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onOpenZero)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onOpen":0})", m_testConfig));
+    EXPECT_FALSE(m_testConfig.onOpen);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onOpenFalse)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onOpen":false})", m_testConfig));
+    EXPECT_FALSE(m_testConfig.onOpen);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onCloseTrue)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onClose":true})", m_testConfig));
+    EXPECT_TRUE(m_testConfig.onClose);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, onCloseFalse)
+{
+    ASSERT_TRUE(parseOnAccessPolicySettingsFromJson(R"({"onClose":false})", m_testConfig));
+    EXPECT_FALSE(m_testConfig.onClose);
+}
+
 // Flags config ===============================================================
 
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfiguration)
