@@ -217,8 +217,8 @@ Install VUT and Check RPATH of Every Binary
     Trigger Update Now
 
     # Run Process can hang with large outputs which RPATHChecker.sh can have
+    # So redirecting RPATHChecker.sh output to a file rather than console
     ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
-    #Log    ${result}
     Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
     IF    $result.rc != 0
         IF    $result.rc == 1

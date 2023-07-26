@@ -6,12 +6,36 @@ green='\033[0;32m' # Unused at the time of writing this comment
 clear='\033[0m'
 
 VALID_RPATHS=(
+  # Actually secure rpaths:
   "\$ORIGIN"
   "\$ORIGIN/../lib64"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN"
   "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../lib"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN/../lib64"
   "\$ORIGIN/../base/lib64"
+  # Insecure rpaths:
+  # TODO: fix the below rpaths as they are insecure, ticket: https://sophos.atlassian.net/browse/LINUXDAR-7754
+  "\$ORIGIN:\$ORIGIN/.."
+  "\$ORIGIN/../lib64:\$ORIGIN/../../../base/lib64"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libprogram_options.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/liblog4cplus.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libjsoncpp.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libminizip.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/liblocale.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libsqlite.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libthrift.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libgflags.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libthread.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libsystem.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libexpat.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libbzip2.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libzlib.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libglog.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/liblzma.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libcurl.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/../esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libgen-cpp-linux.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libLoggerPlugin.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
+  "\$ORIGIN:\$ORIGIN/../../../_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/libOsquerySDK.so.runfiles/esg/_solib___Csophos_Ulinux_Ux64_Utoolchain/:\$ORIGIN/_solib___Csophos_Ulinux_Ux64_Utoolchain/"
 )
 
 DEBUG_OUTPUT_ON=0 # 0 = off, 1 = on
