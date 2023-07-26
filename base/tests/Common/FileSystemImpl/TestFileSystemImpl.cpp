@@ -630,7 +630,7 @@ namespace
         Path A = tempdir.absPath("A");
         Path B = Common::FileSystem::join("NotADirectory", "NotAFile");
         tempdir.createFile("A", "FOOBAR");
-        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', dest file was not created.");
+        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', writing file failed.");
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
@@ -643,7 +643,6 @@ namespace
 
         auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
         EXPECT_CALL(*mockFileSystem, exists(src)).WillOnce(Return(true));
-        EXPECT_CALL(*mockFileSystem, exists(dest)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, fileSize(src)).WillOnce(Return(1));
         EXPECT_CALL(*mockFileSystem, fileSize(dest)).WillOnce(Return(0));
         EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
@@ -1452,6 +1451,6 @@ namespace
 
     TEST_F(FileSystemImplTest, getSystemCommandExecutablePathFailed)
     {
-        EXPECT_THROW(m_fileSystem->getSystemCommandExecutablePath("notARealExe"),IFileSystemException);
+        EXPECT_THROW(std::ignore = m_fileSystem->getSystemCommandExecutablePath("notARealExe"),IFileSystemException);
     }
 } // namespace

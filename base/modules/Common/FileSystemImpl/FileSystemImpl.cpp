@@ -559,18 +559,20 @@ namespace Common
                 }
 
                 std::ofstream ofs(dest, std::ios::binary);
+                if (!ofs.good())
+                {
+                    throw IFileSystemException(
+                        "Failed to copy file: '" + src + "' to '" + dest + "', writing file failed.");
+                }
+
                 ofs << ifs.rdbuf();
 
                 if (ifs.peek() != EOF)
                 {
-                    throw IFileSystemException("Failed to copy all of source file to destination");
+                    throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', dest file doesnt contain all data in source");
                 }
             }
-            if (!fileSystem->exists(dest))
-            {
-                throw IFileSystemException(
-                    "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
-            }
+
             if (fileSystem->fileSize(src) != 0 && fileSystem->fileSize(dest) == 0)
             {
                 fileSystem->removeFile(dest);
