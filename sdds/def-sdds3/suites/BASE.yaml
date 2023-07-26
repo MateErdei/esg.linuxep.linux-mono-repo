@@ -23,7 +23,6 @@ instances:
             supplements:
               - scheduledquerypack
               - scheduledquerypacknext
-          mdr.latest.x64:
           av.latest.x64:
             supplements:
               - vdl
