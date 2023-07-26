@@ -1404,48 +1404,6 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     ${result} =   Terminate Process   handle=${HANDLE}
     Sleep   0.5   wait for threat detector logs to catch up
 
-CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
-    [Timeout]  15min
-
-    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
-    ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
-    FakeWatchdog.expect_start_failure
-
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
-    Register cleanup  dump log  ${LOG_FILE}
-    Register Cleanup  Exclude Scan Errors From File Samples
-    Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
-    # Rename the sophos threat detector launcher so that it cannot be restarted
-    Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
-    register cleanup  Start AV
-    register cleanup  Stop AV
-    register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  File Log Contains  ${LOG_FILE}  Scanning
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -SIGSEGV   ${output}
-    sleep  60  Waiting for the socket to timeout
-    Wait Until Keyword Succeeds
-    ...  ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD} secs
-    ...  10 secs
-    ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
-
-    # After the log message, only wait ten seconds for avscanner to exit
-    ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
-
-    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to scan file
-
-    Should Be True  ${0} < ${line_count} < ${10}
-
-    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
-
-    # Specific codes tested in integration
-    Should Be True  ${result.rc} > ${0}
-
-
 CLS scan with Bind Mount
     ${source} =       Set Variable  /tmp_test/directory
     ${destination} =  Set Variable  /tmp_test/bind_mount
@@ -1912,3 +1870,46 @@ AV Scanner stops promptly during a scan
     ${expected} =  Create List  Failed to receive scan response  Failed to send scan request
     Wait For Log Contains One Of After Mark   ${LOG_FILE}   ${expected}   ${cls_mark}
     Should Be Equal As Integers  ${result.rc}  ${MANUAL_INTERUPTION_RESULT}
+
+# Run this last to reduce effect of AV restart causing TD to be restarted
+CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
+    [Timeout]  15min
+
+    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+    ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+    FakeWatchdog.expect_start_failure
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    Register cleanup  dump log  ${LOG_FILE}
+    Register Cleanup  Exclude Scan Errors From File Samples
+    Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
+    # Rename the sophos threat detector launcher so that it cannot be restarted
+    Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
+    register cleanup  Start AV
+    register cleanup  Stop AV
+    register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  File Log Contains  ${LOG_FILE}  Scanning
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGSEGV   ${output}
+    sleep  60  Waiting for the socket to timeout
+    Wait Until Keyword Succeeds
+    ...  ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD} secs
+    ...  10 secs
+    ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+    # After the log message, only wait ten seconds for avscanner to exit
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
+
+    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to scan file
+
+    Should Be True  ${0} < ${line_count} < ${10}
+
+    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+    # Specific codes tested in integration
+    Should Be True  ${result.rc} > ${0}
+
