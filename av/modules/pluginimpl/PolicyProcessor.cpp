@@ -520,11 +520,17 @@ namespace Plugin
         const auto on_access_enabled = boolFromElement(policy.lookup("policy/onAccessScan/enabled"), false);
         const auto excludeRemoteFiles = boolFromElement(
             policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles"), false);
+        const auto onOpen = boolFromElement(
+            policy.lookup("policy/onAccessScan/onRead"), true);
+        const auto onClose = boolFromElement(
+            policy.lookup("policy/onAccessScan/onWrite"), true);
 
         const auto originalConfig = readOnAccessConfig();
         auto config = originalConfig;
         config["excludeRemoteFiles"] = excludeRemoteFiles;
         config["enabled"] = on_access_enabled;
+        config["onOpen"] = onOpen;
+        config["onClose"] = onClose;
 
 #ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
         // Assuming the Linux exclusions are put into the generic location in the XML

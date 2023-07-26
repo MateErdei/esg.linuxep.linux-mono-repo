@@ -21,6 +21,12 @@ namespace
     public:
         PolicyProcessorUnitTestClass() : Plugin::PolicyProcessor(nullptr) {}
 
+        void processCOREpolicyFromString(const std::string& policy)
+        {
+            auto attributeMap = Common::XmlUtilities::parseXml(policy);
+            processCOREpolicy(attributeMap);
+        }
+
     protected:
         void notifyOnAccessProcessIfRequired() override { PRINT("Notified soapd"); }
     };
@@ -73,6 +79,13 @@ namespace
         }
 
         void expectWriteSusiConfigFromString(const std::string& expected)
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
+        }
+
+        template<typename Matcher>
+        void expectWriteSusiConfig(const Matcher& expected)
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
             EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);

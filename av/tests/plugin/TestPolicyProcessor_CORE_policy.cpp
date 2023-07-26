@@ -209,14 +209,9 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
 
     expectReadSoapdConfig();
     expectConstructorCalls();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
-                                                           R"sophos({"enabled":true,"excludeRemoteFiles":false})sophos",
-#else
-                                                           R"sophos({"enabled":true,"excludeRemoteFiles":false,"exclusions":[]})sophos",
-#endif
-                                                           _,
-                                                           0640));
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -225,6 +220,14 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
     EXPECT_TRUE(appenderContains("On Access is enabled in CORE policy"));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_TRUE(json["enabled"]);
+    EXPECT_TRUE(json.at("onOpen")); // default if absent
+    EXPECT_TRUE(json.at("onClose")); // default if absent
+    EXPECT_FALSE(json.at("excludeRemoteFiles"));
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+    EXPECT_EQ(json.at("exclusions").size(), 0);
+#endif
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
@@ -244,14 +247,9 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
 
     expectReadSoapdConfig();
     expectConstructorCalls();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":false})sophos",
-#else
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":false,"exclusions":[]})sophos",
-#endif
-                                                           _,
-                                                           0640));
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -260,6 +258,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
     EXPECT_TRUE(appenderContains("On Access is disabled in CORE policy"));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_FALSE(json["enabled"]);
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)
@@ -283,20 +283,20 @@ TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
         Return(originalJson));
 
-    nlohmann::json expected = original;
-    expected["enabled"] = false;
-    expected["excludeRemoteFiles"] = false;
-    std::string expectedJson = expected.dump();
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           expectedJson,
-                                                           _,
-                                                           0640));
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_FALSE(json.at("enabled"));
+    EXPECT_EQ(json.at("TestValue"), 54);
+    EXPECT_TRUE(json.at("TestBoolean"));
+    EXPECT_EQ(json.at("exclusions").size(), 0);
+
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, emptySavedFile)
@@ -342,14 +342,9 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
 
     expectReadSoapdConfig();
     expectConstructorCalls();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":true})sophos",
-#else
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":true,"exclusions":[]})sophos",
-#endif
-                                                           _,
-                                                           0640));
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -357,6 +352,108 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
 
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_TRUE(json.at("excludeRemoteFiles"));
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, onReadEnabled)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>true</enabled>
+    <onRead>true</onRead>
+  </onAccessScan>
+</policy>)sophos"};
+
+    expectConstructorCalls();
+    expectReadSoapdConfig();
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicyFromString(CORE_policy));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_TRUE(json.at("onOpen"));
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, onReadDisabled)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>true</enabled>
+    <onRead>false</onRead>
+  </onAccessScan>
+</policy>)sophos"};
+
+    expectConstructorCalls();
+    expectReadSoapdConfig();
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicyFromString(CORE_policy));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_FALSE(json.at("onOpen"));
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, onWriteEnabled)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>true</enabled>
+    <OnWrite>true</OnWrite>
+  </onAccessScan>
+</policy>)sophos"};
+
+    expectConstructorCalls();
+    expectReadSoapdConfig();
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicyFromString(CORE_policy));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_TRUE(json.at("onClose"));
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, onWriteDisabled)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>true</enabled>
+    <onWrite>false</onWrite>
+  </onAccessScan>
+</policy>)sophos"};
+
+    expectConstructorCalls();
+    expectReadSoapdConfig();
+    std::string contents;
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath, _, _, 0640))
+        .WillOnce(SaveArg<1>(&contents));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicyFromString(CORE_policy));
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_FALSE(json.at("onClose"));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
