@@ -588,7 +588,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unable to move " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            auto msg = removeDestDir(destDir) ? "not_enough_space" : "access_denied";
+            auto msg = removeDestDir(destPath) ? "not_enough_space" : "access_denied";
             ActionsUtils::setErrorInfo(m_response, 1, error.str(), msg);
             return;
         }
@@ -597,7 +597,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when moving file " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            std::ignore = removeDestDir(destDir);
+            std::ignore = removeDestDir(destPath);
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return;
         }
@@ -627,13 +627,20 @@ namespace ResponseActionsImpl
         }
     }
 
-    bool DownloadFileAction::removeDestDir(const std::string& destDir)
+    bool DownloadFileAction::removeDestDir(const std::string& destPath)
     {
         bool existed = false;
-        if (m_fileSystem->exists(destDir))
+        if (m_fileSystem->exists(destPath))
         {
             existed = true;
-            m_fileSystem->removeFileOrDirectory(destDir);
+            try
+            {
+                m_fileSystem->removeFileOrDirectory(destPath);
+            }
+            catch (const std::exception& ex)
+            {
+                LOGERROR("Failed to delete file at " << destPath);
+            }
         }
         return existed;
     }

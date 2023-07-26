@@ -1943,7 +1943,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -1976,8 +1976,8 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_destPath + m_testZipFile)).Times(1);
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -2010,7 +2010,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_Exception)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);

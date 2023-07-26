@@ -45,7 +45,7 @@ namespace ResponseActionsImpl
         /**
          *  @return Will return true if the directory existed, false if not
          */
-        bool removeDestDir(const std::string& destDir);
+        bool removeDestDir(const std::string& destPath);
 
         bool createExtractionDirectory();
         void handleUnZipFailure(const int& unzipReturn);
