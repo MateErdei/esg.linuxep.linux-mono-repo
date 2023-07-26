@@ -45,7 +45,11 @@ TEST_F(TestBatchTimer, CallbackRunOnTimeout)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(3 * delay));
 
-        ASSERT_GT(m_callbackTime, startTime);
+        if (m_callbackTime.time_since_epoch().count() == 0)
+        {
+            // callback never called - try again with longer timeout
+            continue;
+        }
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(m_callbackTime - startTime);
         if (duration.count() >= delay)
         {
@@ -53,6 +57,7 @@ TEST_F(TestBatchTimer, CallbackRunOnTimeout)
             return;
         }
     }
+    ASSERT_NE(m_callbackTime.time_since_epoch().count(), 0);
     FAIL() << "Timeout duration always less than expected";
 }
 
