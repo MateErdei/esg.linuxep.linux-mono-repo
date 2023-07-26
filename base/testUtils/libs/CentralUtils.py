@@ -331,7 +331,7 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
-def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False):
+def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False, specifySize=0):
 
     if subDirectories:
         listOfFiles = ["/tmp/subDir1/subDir2/download.txt"]
@@ -352,6 +352,8 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
                 os.makedirs(dirName)
             with open(file, 'w') as f:
                 f.write("content")
+                if specifySize > 0:
+                    f.truncate(specifySize)
                 f.close()
             zipf.write(file)
 

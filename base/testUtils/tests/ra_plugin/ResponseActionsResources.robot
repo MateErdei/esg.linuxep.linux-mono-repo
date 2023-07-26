@@ -75,6 +75,7 @@ RA Suite Setup
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
+    Override LogConf File as Global Level  DEBUG
     Create File  ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Action With Register Suite Setup
