@@ -27,6 +27,29 @@ Default Tags  DIAGNOSE
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
+Test Remote Diagnose can process SDU action with no URL
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  Check Expected Base Processes Are Running
+
+    Simulate SDU Action Now  action_xml_file_name=SDUActionWithNoURL.xml
+    Wait Until Keyword Succeeds
+        ...  140 secs
+        ...  1 secs
+        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check Log Contains   Cannot process url will not send up diagnose file Error: Malformed url missing protocol   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+    Wait Until Keyword Succeeds
+        ...  40 secs
+        ...  5 secs
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
@@ -98,8 +121,8 @@ Teardown
     cleanup_system_ca_certs
 
 Simulate SDU Action Now
-    [Arguments]  ${action_suffix}=1
-    Copy File   ${SUPPORT_FILES}/CentralXml/SDUAction.xml  ${SOPHOS_INSTALL}/tmp
-    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/SDUAction.xml    shell=True
+    [Arguments]  ${action_suffix}=1  ${action_xml_file_name}=SDUAction.xml
+    Copy File   ${SUPPORT_FILES}/CentralXml/${action_xml_file_name}  ${SOPHOS_INSTALL}/tmp
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}   shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${SOPHOS_INSTALL}/tmp/SDUAction.xml  ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
+    Move File   ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}    ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
