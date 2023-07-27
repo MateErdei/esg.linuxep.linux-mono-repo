@@ -15,7 +15,7 @@ namespace TelemetrySchedulerImpl
         LOGDEBUG("Plugin callback started");
     }
 
-    [[maybe_unused]] void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
+    void PluginCallback::applyNewPolicy([[maybe_unused]] const std::string& policyXml)
     {
         LOGERROR("Attempted to apply new policy without AppId: This method should never be called.");
     }
@@ -26,7 +26,7 @@ namespace TelemetrySchedulerImpl
         m_taskQueue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml, appId });
     }
 
-    void PluginCallback::queueAction(const std::string& /*actionXml*/)
+    void PluginCallback::queueAction([[maybe_unused]] const std::string& actionXml)
     {
         LOGSUPPORT("Received unexpected action");
     }
@@ -37,7 +37,7 @@ namespace TelemetrySchedulerImpl
         m_taskQueue->pushPriority({ SchedulerTask::TaskType::Shutdown });
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)
+    Common::PluginApi::StatusInfo PluginCallback::getStatus([[maybe_unused]] const std::string& appId)
     {
         LOGSUPPORT("Received unexpected get status request");
         return Common::PluginApi::StatusInfo{};
