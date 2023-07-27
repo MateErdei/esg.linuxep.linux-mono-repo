@@ -832,3 +832,30 @@ On Access does not scan on open when on read turned off without restarting soapd
 
     File Should Exist  ${testfile}
 
+
+On Access does not scan on close when on write turned off without restarting soapd
+    ${testfile} =    Set Variable    /tmp_test/eicar.com
+    Register Cleanup  Remove Files  ${testfile}
+    Remove Files  ${testfile}
+
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${True}  on_access_on_write=${True}
+    send av policy  CORE  ${policyContent}
+
+    Terminate On Access
+    Start On Access
+    ${oa_mark1} =  get_on_access_log_mark
+
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${True}  on_access_on_write=${False}
+    send av policy  CORE  ${policyContent}
+
+    wait for on access log contains after mark  Setting onClose from file: false  mark=${oa_mark1}
+    ${oa_mark2} =  wait for on access log contains after mark  Scanning on-close disabled  mark=${oa_mark1}
+    ${oa_mark2} =  wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${oa_mark2}
+    ${oa_mark3} =  wait for on access log contains after mark  Finished ProcessPolicy  mark=${oa_mark2}
+
+    Write File After Delay  ${testfile}  ${EICAR_STRING}  ${1}
+    Sleep  1s
+    Dump On Access Log After Mark   ${oa_mark1}
+    check_on_access_log_does_not_contain_after_mark   detected "${testfile}" is infected with EICAR-AV-Test  mark=${oa_mark3}
+
+    File Should Exist  ${testfile}
