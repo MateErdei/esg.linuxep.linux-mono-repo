@@ -89,7 +89,7 @@ namespace RemoteDiagnoseImpl
         catch(std::exception& ex)
         {
             LOGERROR("Error when processing action in processAction()");
-            LOGERROR(Common::Exceptions::expandNestedException(ex));
+            LOGERROR(Common::Exceptions::expandException(ex));
         }
 
         if (!m_diagnoseRunner->isRunning())

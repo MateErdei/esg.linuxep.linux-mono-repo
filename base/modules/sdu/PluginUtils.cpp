@@ -26,7 +26,7 @@ namespace RemoteDiagnoseImpl
         {
             std::stringstream errorMessage;
             errorMessage << "Malformed action received , type is : " << actionType << " not SDURun";
-            std::throw_with_nested(std::runtime_error(errorMessage.str()));
+            throw std::runtime_error(errorMessage.str());
         }
         std::string url = action.value("uploadUrl");
         LOGDEBUG("Upload url: " << url);

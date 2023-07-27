@@ -1,9 +1,9 @@
 *** Settings ***
 
-Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
-Library     ${LIBS_DIRECTORY}/HttpsServer.py
-Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library     ../../libs/LogUtils.py
+Library     ../../libs/DiagnoseUtils.py
+Library     ../../libs/HttpsServer.py
+Library     ../../libs/TelemetryUtils.py
 
 
 
@@ -119,16 +119,14 @@ Test Remote Diagnose can process SDU action with malformed URL
         ...  1 secs
         ...  Check Expected Base Processes Are Running
 
-    Simulate SDU Action Now  action_xml_file_name=${input_action_xml_file_name}
-    Wait Until Keyword Succeeds
-        ...  140 secs
-        ...  1 secs
-        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+    ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
 
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  5 secs
-        ...  Check Log Contains   Cannot process url will not send up diagnose file Error: Malformed url missing protocol   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+    Simulate SDU Action Now  action_xml_file_name=${input_action_xml_file_name}
+
+    wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Processing action    140
+
+    wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Cannot process url will not send up diagnose file Error: Malformed url missing protocol    30
+
     Wait Until Keyword Succeeds
         ...  40 secs
         ...  5 secs

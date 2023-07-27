@@ -307,7 +307,7 @@ namespace Common::XmlUtilities
             errorInfoStream << "Error parsing xml: ";
             errorInfoStream << XML_ErrorString(XML_GetErrorCode(parserHolder.parser)) << "\n";
             errorInfoStream << "XmlLine: " << XML_GetCurrentLineNumber(parserHolder.parser);
-            std::throw_with_nested(XmlUtilitiesException(errorInfoStream.str()));
+            throw XmlUtilitiesException(errorInfoStream.str());
         }
 
         return AttributesMap(simpleXmlParser.attributesMap(), std::move(simpleXmlParser.m_pathIds));

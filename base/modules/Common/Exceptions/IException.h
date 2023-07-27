@@ -46,24 +46,57 @@ namespace Common
             const unsigned long line_;
         };
 
-        static std::string expandNestedException(const std::exception& ex, int level = 0)
+        static std::string expandException(const std::exception& ex, int level);
+        static std::string expandException(const IException& ex, int level);
+
+        static std::string expandException(const IException& ex, int level = 0)
         {
-            std::string exceptionString{std::string(level, ' ') + "Exception: "};
-            exceptionString += ex.what();
-            exceptionString += '\n';
+            std::stringstream exceptionStringStream;
+            exceptionStringStream
+                << std::string(level, ' ')
+                << "Nested exception expansion: "
+                << ex.what_with_location()
+                << '\n';
 
             try
             {
                 std::rethrow_if_nested(ex);
             }
+            catch (const IException& nestedEx)
+            {
+                exceptionStringStream << expandException(nestedEx, level + 1);
+            }
             catch (const std::exception& nestedEx)
             {
-                exceptionString += expandNestedException(nestedEx, level + 1);
+                exceptionStringStream << expandException(nestedEx, level + 1);
             }
-            catch (...)
-            {}
 
-            return exceptionString;
+            return exceptionStringStream.str();
+        }
+
+        static std::string expandException(const std::exception& ex, int level = 0)
+        {
+            std::stringstream exceptionStringStream;
+            exceptionStringStream
+                << std::string(level, ' ')
+                << "Nested exception expansion: "
+                << ex.what()
+                << '\n';
+
+            try
+            {
+                std::rethrow_if_nested(ex);
+            }
+            catch (const IException& nestedEx)
+            {
+                exceptionStringStream << expandException(nestedEx, level + 1);
+            }
+            catch (const std::exception& nestedEx)
+            {
+                exceptionStringStream << expandException(nestedEx, level + 1);
+            }
+
+            return exceptionStringStream.str();
         }
     } // namespace Exceptions
 } // namespace Common
