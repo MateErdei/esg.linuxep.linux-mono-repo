@@ -756,7 +756,7 @@ Sophos Threat Detector Does Not Detect Archive Allow Listed By Sha256
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
     ${directory_for_zipfile} =    Set Variable      /zip_test/
-    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}MLengHighScore.exe
+    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}eicar.com
 
     Stop sophos_threat_detector
     #Policy
@@ -766,7 +766,7 @@ Sophos Threat Detector Does Not Detect Archive Allow Listed By Sha256
     #Create zip file containing ML
     Create Directory  ${directory_under_test}
     Create Directory  ${directory_for_zipfile}
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${zip_contents_file}
+    Create Temporary eicar in  ${zip_contents_file}
     zip_file   ${allow_listed_threat_file}   ${zip_contents_file}
     File Should Exist    ${allow_listed_threat_file}
     Register Cleanup  Remove Directory    ${directory_under_test}     recursive=True
@@ -801,7 +801,7 @@ Sophos Threat Detector Does Not Detect Archive Allow Listed By Sha256
 Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${directory_allow_glob} =    Set Variable    /tmp_test/*/path/
-    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}eicar.com
 
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
@@ -821,7 +821,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
 
     # Create threat to scan
     Create Directory  ${directory_under_test}
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Create Temporary eicar in  ${allow_listed_threat_file}
     Register Cleanup  Remove File  ${allow_listed_threat_file}
     Should Exist  ${allow_listed_threat_file}
 
@@ -839,7 +839,7 @@ Sophos Threat Detector Does Not Detect Archive Allow Listed By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
     ${directory_for_zipfile} =    Set Variable      /zip_test/
-    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}MLengHighScore.exe
+    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}eicar.com
 
     Stop sophos_threat_detector
     #Policy
@@ -849,7 +849,7 @@ Sophos Threat Detector Does Not Detect Archive Allow Listed By Path
     #Create zip file containing ML
     Create Directory  ${directory_under_test}
     Create Directory  ${directory_for_zipfile}
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${zip_contents_file}
+    Create Temporary eicar in  ${zip_contents_file}
     zip_file   ${allow_listed_threat_file}   ${zip_contents_file}
     File Should Exist    ${allow_listed_threat_file}
     Register Cleanup  Remove Directory    ${directory_under_test}     recursive=True
