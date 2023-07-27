@@ -130,10 +130,11 @@ int FanotifyHandler::unmarkMount(const std::string& path, int fanotify_fd)
     constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_MOUNT;
     constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
     constexpr int dfd = FAN_NOFD;
+    errno = 0;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     if (result < 0 && errno == ENOENT)
     {
-        // ignore enoent, since it just means we haven't previously marked the mount point
+        return 0; // ignore enoent, since it just means we haven't previously marked the mount point
     }
     markMap.erase(path);
     return processFaMarkError(result, "unmarkMount", path);

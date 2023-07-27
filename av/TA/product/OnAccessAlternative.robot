@@ -6,6 +6,8 @@
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP  oa_alternative
 
+Library     ../Libs/BaseInteractionTools/PolicyUtils.py
+Library     ../Libs/FakeManagement.py
 Library     ../Libs/FileSampleObfuscator.py
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/FakeManagementResources.robot
@@ -779,3 +781,54 @@ On Access Handles Control Socket Exists At Startup
     wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":false  mark=${mark}
 
     ${output} =   Terminate Process   handle=${netcat_handle}
+
+On Access does not scan on open when on read turned off
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${False}  on_access_on_write=${True}
+    send av policy  CORE  ${policyContent}
+
+    ${testfile} =    Set Variable    /tmp_test/eicar.com
+
+    Terminate On Access
+    Create File  ${testfile}   ${EICAR_STRING}
+    Register Cleanup  Remove Files  ${testfile}
+    ${oa_mark} =  get_on_access_log_mark
+    Start On Access
+    wait for on access log contains after mark  Setting onOpen from file: false  mark=${oa_mark}
+    wait for on access log contains after mark  Scanning on-open disabled  mark=${oa_mark}
+
+    ${oamark2} =  Get on access log mark
+    Get File  ${testfile}
+    Sleep  1s
+    Dump On Access Log After Mark   ${oamark2}
+    check_on_access_log_does_not_contain_after_mark   detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
+
+    File Should Exist  ${testfile}
+
+
+On Access does not scan on open when on read turned off without restarting soapd
+    ${testfile} =    Set Variable    /tmp_test/eicar.com
+
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${True}  on_access_on_write=${True}
+    send av policy  CORE  ${policyContent}
+
+    Terminate On Access
+    Create File  ${testfile}   ${EICAR_STRING}
+    Register Cleanup  Remove Files  ${testfile}
+    Start On Access
+    ${oa_mark1} =  get_on_access_log_mark
+
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${False}  on_access_on_write=${True}
+    send av policy  CORE  ${policyContent}
+
+    wait for on access log contains after mark  Setting onOpen from file: false  mark=${oa_mark1}
+    ${oa_mark2} =  wait for on access log contains after mark  Scanning on-open disabled  mark=${oa_mark1}
+    ${oa_mark2} =  wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${oa_mark2}
+    ${oa_mark3} =  wait for on access log contains after mark  Finished ProcessPolicy  mark=${oa_mark2}
+
+    Get File  ${testfile}
+    Sleep  1s
+    Dump On Access Log After Mark   ${oa_mark1}
+    check_on_access_log_does_not_contain_after_mark   detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oa_mark3}
+
+    File Should Exist  ${testfile}
+

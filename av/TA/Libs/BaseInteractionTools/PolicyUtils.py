@@ -9,7 +9,18 @@ import uuid
 try:
     from .. import ExclusionHelper
 except ImportError:
-    import ExclusionHelper
+    try:
+        from Libs import ExclusionHelper
+    except ImportError:
+        import ExclusionHelper
+
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    import logging
+    logger = logging.getLogger("PluginUtils")
+
 
 RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
 SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
@@ -134,29 +145,43 @@ def create_complete_sav_policy(filename):
 
 
 def get_complete_sav_policy(
-        exclusion_list=["*.glob", "globExample?.txt", "/stemexample/*"],
-        on_access_enabled=False):
-    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, None)
-    sav_policy_builder.set_scheduled_scan_day("monday")
-    sav_policy_builder.set_scheduled_scan_time("11:00:00")
+        exclusion_list=None,
+        on_access_enabled=False,
+        on_access_on_read=True,
+        on_access_on_write=True
+    ):
+    if exclusion_list is None:
+        exclusion_list = ["*.glob", "globExample?.txt", "/stemexample/*"]
+    policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, None)
+    policy_builder.set_scheduled_scan_day("monday")
+    policy_builder.set_scheduled_scan_time("11:00:00")
     if on_access_enabled:
-        sav_policy_builder.set_on_access_on()
-    sav_policy_builder.set_posix_exclusions(exclusion_list)
-    sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
-    sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
-    sav_policy_builder.set_pua_detection("true")
-    sav_policy_builder.set_revision_id(str(uuid.uuid4()))
-    return sav_policy_builder.get_sav_policy()
+        policy_builder.set_on_access_on()
+    policy_builder.set_on_access_on_read(on_access_on_read, "fileRead")
+    policy_builder.set_on_access_on_write(on_access_on_write, "fileWrite")
+    policy_builder.set_posix_exclusions(exclusion_list)
+    policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
+    policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    policy_builder.set_pua_detection("true")
+    policy_builder.set_revision_id(str(uuid.uuid4()))
+    return policy_builder.get_sav_policy()
 
 
 def get_complete_core_policy(
-        exclusion_list=["*.glob", "globExample?.txt", "/stemexample/*"],
-        on_access_enabled=False):
+        exclusion_list=None,
+        on_access_enabled=False,
+        on_access_on_read=True,
+        on_access_on_write=True):
+    if exclusion_list is None:
+        exclusion_list = ["*.glob", "globExample?.txt", "/stemexample/*"]
     policy_builder = _SavPolicyBuilder(CORE_POLICY_TEMPLATE_PATH, None)
     if on_access_enabled:
         policy_builder.set_on_access_on()
+    policy_builder.set_on_access_on_read(on_access_on_read, "onRead")
+    policy_builder.set_on_access_on_write(on_access_on_write, "onWrite")
     policy_builder.set_posix_exclusions(exclusion_list)
     policy_builder.add_replacement('{{excludeRemoteFiles}}', 'false')
+    policy_builder.set_revision_id(str(uuid.uuid4()))
     return policy_builder.get_sav_policy()
 
 
@@ -244,6 +269,21 @@ class _SavPolicyBuilder:
 
     def set_on_access_on(self):
         self.replacement_map["{{onAccessEnabled}}"] = 'true'
+
+    def set_boolean(self, value, element):
+        value = "true" if value else "false"
+        start = f"<{element}>"
+        end = f"</{element}>"
+        replacement = start + value + end
+        self.replacement_map[start + "true" + end] = replacement
+
+    def set_on_access_on_read(self, value, element):
+        logger.info(f"On-Read={value}")
+        return self.set_boolean(value, element)
+
+    def set_on_access_on_write(self, value, element):
+        logger.info(f"On-Write={value}")
+        return self.set_boolean(value, element)
 
     def set_pua_detection(self, pua_detection_enabled):
         self.replacement_map["{{scheduledScanPUAdetection}}"] = pua_detection_enabled

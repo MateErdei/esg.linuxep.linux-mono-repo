@@ -305,7 +305,25 @@ namespace sophos_on_access_process::OnAccessConfig
             LOGDEBUG("PUA detection enabled: " << (configuration.detectPUAs ? "true" : "false")  << "");
 
             configuration.onOpen = toBoolean(parsedConfig, "onOpen", true);
+            if (configuration.onOpen)
+            {
+                LOGDEBUG("Scanning on-open enabled");
+            }
+            else
+            {
+                // Deliberately log at info level so that we can diagnose issues quicker
+                LOGINFO("Scanning on-open disabled");
+            }
             configuration.onClose = toBoolean(parsedConfig, "onClose", true);
+            if (configuration.onClose)
+            {
+                LOGDEBUG("Scanning on-close enabled");
+            }
+            else
+            {
+                // Deliberately log at info level so that we can diagnose issues quicker
+                LOGINFO("Scanning on-close disabled");
+            }
 
             oaConfig = std::move(configuration);
             return true;
