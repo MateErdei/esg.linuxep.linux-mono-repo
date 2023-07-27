@@ -313,13 +313,17 @@ namespace Plugin
         resetTemporaryMarkerBooleans();
 
         processOnAccessSettingsFromSAVpolicy(policy);
-        bool needToSave = false;
+
+        // Need to save SUSI settings first time to ensure defaults are saved to disk
+        bool needToSave = !m_gotFirstSavPolicy;
 
         // Lookup enabled
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
         bool lookupEnabledInPolicy = isLookupEnabled(policy);
-        if (oldLookupEnabled != lookupEnabledInPolicy || !m_gotFirstSavPolicy)
+        if (oldLookupEnabled != lookupEnabledInPolicy)
         {
+            // Only need to change object or restart TD if the setting has changed
+            // Need to save if we got the first policy since restarting AV plugin as well
             m_threatDetectorSettings.setSxlLookupEnabled(lookupEnabledInPolicy);
             m_restartThreatDetector = true;
             needToSave = true;
@@ -338,7 +342,7 @@ namespace Plugin
         // PUA Approved list
         auto oldPuaApprovedList = m_threatDetectorSettings.copyPuaApprovedList();
         auto puaApprovedListFromPolicy = extractListFromXML(policy, "config/approvedList/puaName");
-        if (oldPuaApprovedList != puaApprovedListFromPolicy || !m_gotFirstSavPolicy)
+        if (oldPuaApprovedList != puaApprovedListFromPolicy)
         {
             m_threatDetectorSettings.setPuaApprovedList(std::move(puaApprovedListFromPolicy));
             needToSave = true;
@@ -693,6 +697,7 @@ namespace Plugin
         // Also, write a copy to chroot
         dest = Plugin::getPluginInstall() + "/chroot" + dest;
         m_threatDetectorSettings.saveSettings(dest, 0640);
+
         // Make SUSI reload config
         reloadThreatDetectorConfiguration_ = true;
         LOGINFO("Saved Threat Detector SUSI settings for " << policyName << " policy");

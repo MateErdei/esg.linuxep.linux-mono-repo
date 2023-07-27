@@ -335,7 +335,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, sxl_changes_cause_restart)
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
     proc.processSavPolicy(attributeMapTrue);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.restartThreatDetector()); // Matches built in default so no need to restart
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
     proc.processSavPolicy(attributeMapFalse);
@@ -383,7 +383,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
     proc.processSavPolicy(attributeMapTrue);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_FALSE(proc.restartThreatDetector()); // Change if the default changes to false
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
     proc.processSavPolicy(attributeMapTrue);

@@ -346,7 +346,7 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
     </bops>
   </runtimeBehaviourInspection2>
   <fileReputation>
-    <enabled>true</enabled>
+    <enabled>false</enabled>
     <level>recommended</level>
     <action>prompt</action>
   </fileReputation>
@@ -359,7 +359,7 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
     <approvedSites/>
   </webFiltering>
   <detectionFeedback>
-    <sendData>true</sendData>
+    <sendData>false</sendData>
     <sendFiles>true</sendFiles>
     <onDemandEnable>true</onDemandEnable>
   </detectionFeedback>
@@ -416,6 +416,7 @@ TEST_F(TestPolicyProcessor, alc_policy_resets_reload_restart_flags)
     proc.processSavPolicy(sav);
     ASSERT_TRUE(proc.restartThreatDetector());
     ASSERT_TRUE(proc.reloadThreatDetectorConfiguration());
+
     auto alc = Common::XmlUtilities::parseXml(ALC_FULL_POLICY);
 
     constexpr const auto* customerId = "5e259db8da3ae4df8f18a2add2d3d47d";
