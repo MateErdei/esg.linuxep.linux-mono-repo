@@ -98,10 +98,14 @@ Send Temp Policy To Base
     Run Process  chmod  666  ${policyFile}
     Move File  ${policyFile}  ${MCS_PATH}/policy/${destName}
 
+Send Absolute Policy To Base
+    [Arguments]  ${policyFile}  ${destName}
+    Copy File  ${policyFile}  ${MCS_PATH}/tmp/${destName}
+    Send Temp Policy To Base  ${MCS_PATH}/tmp/${destName}  ${destName}
+
 Send Policy To Base
     [Arguments]  ${policyFile}  ${destName}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/tmp/${destName}
-    Send Temp Policy To Base  ${MCS_PATH}/tmp/${destName}  ${destName}
+    Send Absolute Policy To Base  ${RESOURCES_PATH}/${policyFile}  ${destName}
 
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
@@ -124,7 +128,7 @@ Send CORE Policy To Base
 
 Send CORC Policy To Base
     [Arguments]  ${policyFile}
-    Send Policy To Base  ${RESOURCES_PATH}/corc_policy/${policyFile}  CORC_policy.xml
+    Send Policy To Base  corc_policy/${policyFile}  CORC_policy.xml
 
 Send CORC Policy To Base From Content
     [Arguments]  ${policyContent}
@@ -138,7 +142,7 @@ Send Sav Policy To Base With Exclusions Filled In
     [Arguments]  ${policyFile}
     ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml
     Give Policy Unique Revision Id    ${RESOURCES_PATH}/FilledIn.xml    FilledInWithRevId.xml
-    Send Sav Policy To Base  ${RESOURCES_PATH}/FilledInWithRevId.xml
+    Send Sav Policy To Base  FilledInWithRevId.xml
 
 Send Sav Action To Base
     [Arguments]  ${actionFile}
