@@ -93,10 +93,15 @@ Send Policies to disable on-access
     ${expected} =  Create List  on-access will be disabled  On-access scanning disabled  On-access enabled: false
     wait for on access log contains after mark  ${expected}  mark=${mark}
 
+Send Temp Policy To Base
+    [Arguments]  ${policyFile}  ${destName}
+    Run Process  chmod  666  ${policyFile}
+    Move File  ${policyFile}  ${MCS_PATH}/policy/${destName}
+
 Send Policy To Base
     [Arguments]  ${policyFile}  ${destName}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/tmp/${destName}
-    Move File  ${MCS_PATH}/tmp/${destName}  ${MCS_PATH}/policy/${destName}
+    Send Temp Policy To Base  ${MCS_PATH}/tmp/${destName}  ${destName}
 
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
@@ -117,6 +122,15 @@ Send CORE Policy To Base
     [Arguments]  ${policyFile}
     Send Policy To Base  ${policyFile}  CORE-36_policy.xml
 
+Send CORC Policy To Base
+    [Arguments]  ${policyFile}
+    Send Policy To Base  ${RESOURCES_PATH}/corc_policy/${policyFile}  CORC_policy.xml
+
+Send CORC Policy To Base From Content
+    [Arguments]  ${policyContent}
+    Create File   ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   ${policyContent}
+    Send Temp Policy To Base  ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   CORC_policy.xml
+
 Send Flags Policy
     Send Flags Policy To Base   flags_policy/flags.json
 
@@ -124,29 +138,20 @@ Send Sav Policy To Base With Exclusions Filled In
     [Arguments]  ${policyFile}
     ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml
     Give Policy Unique Revision Id    ${RESOURCES_PATH}/FilledIn.xml    FilledInWithRevId.xml
-    Copy File  ${RESOURCES_PATH}/FilledInWithRevId.xml  ${MCS_PATH}/policy/SAV-2_policy.xml
+    Send Sav Policy To Base  ${RESOURCES_PATH}/FilledInWithRevId.xml
 
 Send Sav Action To Base
     [Arguments]  ${actionFile}
     Register Cleanup If Unique  Empty Directory  ${MCS_PATH}/action/
     ${savActionFilename} =  Generate Random String
-    Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml
-
-Send CORC Policy To Base
-    [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/corc_policy/${policyFile}  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
-    Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
-    Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
-
-Send CORC Policy To Base From Content
-    [Arguments]  ${policyContent}
-    Create File    ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP    ${policyContent}
-    Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
-    Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
+    Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/tmp/SAV_action_${savActionFilename}.xml
+    Move File  ${MCS_PATH}/tmp/SAV_action_${savActionFilename}.xml  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml
 
 Send RA Action To Base
     Register Cleanup If Unique  Empty Directory  ${MCS_PATH}/action/
-    Copy File  ${RESOURCES_PATH}/ResponseAction.json  ${MCS_PATH}/action/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+    Copy File  ${RESOURCES_PATH}/ResponseAction.json  ${MCS_PATH}/tmp/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+    Copy File  ${MCS_PATH}/tmp/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+    ...  ${MCS_PATH}/action/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
