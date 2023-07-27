@@ -119,7 +119,7 @@ Configure scan now with lookups disabled
     ${av_mark} =  Get AV Log Mark
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
-    Wait For AV Log Contains After Mark  Reloading susi as policy configuration has changed  ${av_mark}
+    Wait For AV Log Contains After Mark  Restarting sophos_threat_detector as the configuration has changed  ${av_mark}
     Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark}
 
     # Force SUSI to be loaded:
