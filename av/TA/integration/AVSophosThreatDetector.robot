@@ -948,11 +948,8 @@ Sophos Threat Detector Is Not Shutdown On A New Policy
 
     Force SUSI to be initialized
 
-    # restart AV to force policy to be applied & sent to threat detector
-    Stop AV Plugin Process
     Send CORE Policy To Base  core_policy/CORE-36_ml_disabled.xml
     register cleanup  Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
-    Start AV Plugin Process
     Wait For Sophos Threat Detector Log Contains After Mark  Machine Learning will be disabled  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark  Susi configuration reloaded  ${threat_detector_mark}
 

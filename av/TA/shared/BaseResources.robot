@@ -95,7 +95,8 @@ Send Policies to disable on-access
 
 Send Policy To Base
     [Arguments]  ${policyFile}  ${destName}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/${destName}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/tmp/${destName}
+    Move File  ${MCS_PATH}/tmp/${destName}  ${MCS_PATH}/policy/${destName}
 
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
