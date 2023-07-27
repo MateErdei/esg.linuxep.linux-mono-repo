@@ -33,6 +33,8 @@ ${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
 *** Keywords ***
 
 Threat Detector Test Setup
+    Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${None}
+    Set Test Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Component Test Setup
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
@@ -50,11 +52,19 @@ Threat Detector Test Teardown
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
 
-Start AV
+Start Threat Detector As Limited User
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
-    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-    Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+    ${threat_detector_handle} =  Start Process  runuser  -u  sophos-spl-threat-detector  -g  sophos-spl-group  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    ...  stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
 
+Start Threat Detector As Root
+    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    ...  stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+
+Start AV Plugin
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     ${fake_management_log_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -63,9 +73,21 @@ Start AV
     Check AV Plugin Installed from Marks  ${fake_management_log_mark}
     # Check AV Plugin Installed checks sophos_threat_detector is started
 
+Start AV
+    Start Threat Detector As Root
+    Start AV Plugin
+
+Stop Threat Detector
+    return from keyword if  ${THREAT_DETECTOR_PLUGIN_HANDLE} == ${None}
+    Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+
+Stop AV Plugin
+    return from keyword if  ${AV_PLUGIN_HANDLE} == ${None}
+    Terminate Process  ${AV_PLUGIN_HANDLE}
+
 Stop AV
-    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Stop Threat Detector
+    Stop AV Plugin
 
 Verify threat detector log rotated
     List Directory  ${AV_PLUGIN_PATH}/log/sophos_threat_detector
@@ -276,8 +298,9 @@ Threat Detector loads proxy from config file
 
 Sophos Threat Detector sets default if susi startup settings permissions ownership incorrect
     [Tags]  FAULT INJECTION
-    Register Cleanup    Exclude Configuration Data Invalid
-    Register Cleanup    Exclude Invalid Settings No Primary Product
+    Exclude MachineID Permission Error
+    Exclude Threat Report Server died
+    Threat Detector Failed to Copy
 
     # Doesn't matter what the files contain if we are going to block access
     create file  ${SUSI_STARTUP_SETTINGS_FILE}
@@ -289,7 +312,7 @@ Sophos Threat Detector sets default if susi startup settings permissions ownersh
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
-    Start AV
+    Start Threat Detector As Limited User
 
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}

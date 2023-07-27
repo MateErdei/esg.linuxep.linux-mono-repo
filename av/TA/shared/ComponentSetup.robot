@@ -83,6 +83,8 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/log
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/var
+    Run Process    chmod  -R  a+rwX  ${COMPONENT_ROOT_PATH}/chroot/var  ${COMPONENT_ROOT_PATH}/chroot/tmp
+    Run Process    chmod  -R  a+rwX  ${COMPONENT_ROOT_PATH}/chroot/susi
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var
