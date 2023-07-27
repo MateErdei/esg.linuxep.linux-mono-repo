@@ -141,7 +141,7 @@ RA Plugin handles read only mount appropriately
     ...  5 secs
     ...  Check Cloud Server Log Contains   \"errorType\":\"access_denied\",\"httpStatus\":200,\"result\":1
 
-RA Plugin handles download to mount with not enough space appropriately
+RA Plugin handles download of single file to mount with not enough space appropriately
     Require Filesystem    ext4
     ${image} =    Copy And Extract Image     ext4FileSystem
     Mount Image    ${MOUNT_DIR}      ${image}      ext4
@@ -169,6 +169,40 @@ RA Plugin handles download to mount with not enough space appropriately
     ...  1 min
     ...  5 secs
     ...  Check Cloud Server Log Contains   \"httpStatus\":200,\"result\":1
+
+
+RA Plugin handles download of multiple files to mount with not enough space appropriately
+    Require Filesystem    ext4
+    ${image} =    Copy And Extract Image     ext4FileSystem
+    Mount Image    ${MOUNT_DIR}      ${image}      ext4
+    Register Cleanup  Remove Directory  ${TESTDIR}  recursive=True
+    Register Cleanup  Unmount Image Internal  ${MOUNT_DIR}
+
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+
+    Send_Download_File_From_Fake_Cloud    ${TRUE}    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}    specifySize=20000000    multipleFiles=${TRUE}
+
+    wait_for_log_contains_from_mark  ${response_mark}    Failed action correlation-id with exit code    25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    wait_for_log_contains_from_mark  ${action_mark}    dest file doesnt contain all data in source
+
+
+    Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
+
+    FOR    ${item}    IN    0    1    2    3    4    5    6    7    8    9
+        File Should Not Exist     ${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}${item}
+    END
+
+    File Should Not Exist    ${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}extract/${DOWNLOAD_FILENAME_TXT}
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains   \"httpStatus\":200,\"result\":1
+
 
 
 RA Plugin downloads and extracts multiple files successfully

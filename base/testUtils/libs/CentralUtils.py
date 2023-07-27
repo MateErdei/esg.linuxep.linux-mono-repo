@@ -17,6 +17,7 @@ import subprocess
 import json
 import zipfile
 import hashlib
+import random
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
@@ -333,6 +334,7 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
 
 def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False, specifySize=0):
 
+    #so that we only create one large file and check all are cleaned up
     if subDirectories:
         listOfFiles = ["/tmp/subDir1/subDir2/download.txt"]
     else:
@@ -345,6 +347,8 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
             else:
                 listOfFiles.append(f"/tmp/download.txt{str(fileNo)}")
 
+    count = random.randrange(len(listOfFiles))
+
     with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipf:
         for file in listOfFiles:
             dirName = os.path.dirname(file)
@@ -352,7 +356,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
                 os.makedirs(dirName)
             with open(file, 'w') as f:
                 f.write("content")
-                if specifySize > 0:
+                if specifySize > 0 and count == listOfFiles.index(file):
                     f.truncate(specifySize)
                 f.close()
             zipf.write(file)
