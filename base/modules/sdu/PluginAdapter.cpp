@@ -7,6 +7,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 #include "PluginUtils.h"
 #include "Logger.h"
+#include "Common/Exceptions/NestedException.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginApi/ApiException.h>
@@ -89,7 +90,7 @@ namespace RemoteDiagnoseImpl
         catch(std::exception& ex)
         {
             LOGERROR("Error when processing action in processAction()");
-            LOGERROR(Common::Exceptions::expandException(ex));
+            LOGERROR(Common::Exceptions::NestedExceptions::expandException(ex));
         }
 
         if (!m_diagnoseRunner->isRunning())
