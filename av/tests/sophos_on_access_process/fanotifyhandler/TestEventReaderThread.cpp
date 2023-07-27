@@ -42,11 +42,11 @@ namespace
         {
             return FANOTIFY_FD;
         }
-        [[nodiscard]] int markMount(const std::string&, bool, bool) const override
+        [[nodiscard]] int markMount(const std::string&, bool, bool) override
         {
             return 0;
         }
-        [[nodiscard]] int unmarkMount(const std::string&) const override
+        [[nodiscard]] int unmarkMount(const std::string&) override
         {
             return 0;
         }

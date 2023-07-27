@@ -14,6 +14,8 @@
 
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
+#include <map>
+
 namespace sophos_on_access_process::fanotifyhandler
 {
     class FanotifyHandler : public IFanotifyHandler
@@ -42,7 +44,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int markMount(const std::string& path, bool onOpen, bool onClose) const override;
+            [[nodiscard]] int markMount(const std::string& path, bool onOpen, bool onClose) override;
 
             /**
              * Unmark a mount point as unwanted - we do not want fanotify events from it.
@@ -52,7 +54,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int unmarkMount(const std::string& path) const override;
+            [[nodiscard]] int unmarkMount(const std::string& path) override;
 
             /**
              * Mark an FD to be cached - i.e. fanotify won't return events for it.
@@ -95,11 +97,24 @@ namespace sophos_on_access_process::fanotifyhandler
             [[nodiscard]] int clearCachedFiles() const override;
 
         private:
+
+            /**
+             * Unmark a mount point as unwanted - we do not want fanotify events from it.
+             *
+             * Called from with the fanotify FD locked
+             *
+             * @param path
+             * @param locked fanotifyFD
+             * @return fanotify_mark return
+             */
+            [[nodiscard]] int unmarkMount(const std::string& path, int fanotifyfd);
+
             static void processFaMarkError(const std::string& function, const std::string& path);
             static int processFaMarkError(int result, const std::string& function, const std::string& path);
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
             const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+            std::map<std::string, uint64_t> markMap;
     };
 }
 

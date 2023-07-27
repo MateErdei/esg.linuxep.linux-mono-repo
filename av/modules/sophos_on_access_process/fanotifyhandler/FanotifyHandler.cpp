@@ -70,7 +70,7 @@ int FanotifyHandler::getFd() const
     return fanotify_autoFd->fd();
 }
 
-int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClose) const
+int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClose)
 {
     auto fanotify_autoFd = m_fd.lock(); // Hold the lock since we can be called while fanotify being disabled
     int fanotify_fd = fanotify_autoFd->fd();
@@ -90,25 +90,52 @@ int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClos
     {
         mask |= FAN_OPEN;
     }
+
+    auto pos = markMap.find(path);
+    if (pos != markMap.end())
+    {
+        auto oldMask = pos->second;
+        if (oldMask == mask)
+        {
+            LOGDEBUG("Skipping markMount for " << path << " as already marked");
+        }
+        else
+        {
+            std::ignore = unmarkMount(path, fanotify_fd);
+        }
+    }
+
     constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
+    markMap[path] = mask;
     return processFaMarkError(result, "markMount", path);
 }
 
-int FanotifyHandler::unmarkMount(const std::string& path) const
+int FanotifyHandler::unmarkMount(const std::string& path)
 {
     auto fanotify_autoFd = m_fd.lock(); // Hold the lock since we can be called while fanotify being disabled
     int fanotify_fd = fanotify_autoFd->fd();
+
     if (fanotify_fd < 0)
     {
         LOGDEBUG("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
 
+    return unmarkMount(path, fanotify_fd);
+}
+
+int FanotifyHandler::unmarkMount(const std::string& path, int fanotify_fd)
+{
     constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_MOUNT;
     constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
     constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
+    if (result < 0 && errno == ENOENT)
+    {
+        // ignore enoent, since it just means we haven't previously marked the mount point
+    }
+    markMap.erase(path);
     return processFaMarkError(result, "unmarkMount", path);
 }
 
