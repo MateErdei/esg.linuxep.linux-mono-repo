@@ -111,6 +111,7 @@ Simulate SDU Action Now
     Move File   ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}    ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
 
 Test Remote Diagnose can process SDU action with malformed URL
+    [Timeout]    7 minutes
     [Arguments]    ${input_action_xml_file_name}    ${num_times_status_sent_for_sdu_adapter}
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
