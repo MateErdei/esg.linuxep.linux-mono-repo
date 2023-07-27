@@ -468,10 +468,27 @@ namespace ResponseActionsImpl
 
         if (!anyFileExists)
         {
+            bool success = true;
+
             for (const auto& filePath : extractedFiles)
             {
                 auto fileName = FileSystem::basename(filePath);
-                moveFile(destDir, fileName, filePath);
+                if (!moveFile(destDir, fileName, filePath))
+                {
+                    success = false;
+                    break;
+                }
+            }
+
+            if (!success)
+            {
+                for (const auto& filePath : extractedFiles)
+                {
+                    Path pathToRemove = destDir + getSubDirsInTmpDir(filePath);
+
+                    LOGDEBUG("Removing file " << pathToRemove << " as move file failed");
+                    removeDestDir(pathToRemove);
+                }
             }
         }
     }
@@ -546,7 +563,7 @@ namespace ResponseActionsImpl
         return true;
     }
 
-    void DownloadFileAction::moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove)
+    bool DownloadFileAction::moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove)
     {
         assert(destDir.back() == '/');
         auto destPath = destDir + fileName;
@@ -568,7 +585,7 @@ namespace ResponseActionsImpl
             error << "Unable to make directories " << destDir + dirName << ": " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
-            return;
+            return false;
         }
         catch (const std::exception& e)
         {
@@ -576,7 +593,7 @@ namespace ResponseActionsImpl
             error << "Unknown error when trying to make directories " << destDir + dirName << ": " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
-            return;
+            return false;
         }
 
         try
@@ -589,7 +606,7 @@ namespace ResponseActionsImpl
             LOGWARN(e.what());
             auto msg = removeDestDir(destPath) ? "not_enough_space" : "access_denied";
             ActionsUtils::setErrorInfo(m_response, 1, e.what(), msg);
-            return;
+            return false;
         }
         catch (const std::exception& e)
         {
@@ -598,10 +615,12 @@ namespace ResponseActionsImpl
             LOGWARN(error.str());
             removeDestDir(destPath);
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
-            return;
+            return false;
         }
 
         LOGINFO(destPath << " downloaded successfully");
+
+        return true;
     }
 
     Path DownloadFileAction::findBaseDir(const Path& path)

@@ -192,6 +192,7 @@ RA Plugin handles download of multiple files to mount with not enough space appr
 
     FOR    ${item}    IN    0    1    2    3    4    5    6    7    8    9
         File Should Not Exist     ${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}${item}
+        check_log_contains_after_mark    ${ACTIONS_RUNNER_LOG_PATH}    Removing file ${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}${item} as move file failed    ${action_mark}
     END
 
     File Should Not Exist    ${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}

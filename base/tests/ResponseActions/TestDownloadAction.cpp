@@ -504,11 +504,9 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_RATmpAndExtract
     EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
 
-
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     //Test makes sure that remove expects set in below function are called
-
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
@@ -1939,7 +1937,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile + ": exception";
+    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile;
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1972,7 +1970,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile + ": exception";
+    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile;
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1999,6 +1997,58 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
     EXPECT_EQ(response["errorType"], "not_enough_space");
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemException_PreviousFilesCopied)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unable to move " + m_raExtractTmpDir + m_testExtractedFile + "3 to " + m_destPath + m_testExtractedFile + "3";
+    bool decompress = true;
+
+    setupMockZipUtils();
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem(decompress, true);
+
+    EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).Times(2).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile + "1")).Times(2).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile + "2")).Times(2).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile + "3")).Times(3).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException(expectedErrStr)));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).Times(3).RetiresOnSaturation();
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+    EXPECT_EQ(response["errorType"], "access_denied");
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/"));
+    EXPECT_TRUE(appenderContains("Downloaded file: /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
+    EXPECT_TRUE(appenderContains("Extracted 4 files from archive"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt1 downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt2 downloaded successfully"));
+    EXPECT_TRUE(appenderContains("Removing file /path/to/download/to/download.txt as move file failed"));
+    EXPECT_TRUE(appenderContains("Removing file /path/to/download/to/download.txt1 as move file failed"));
+    EXPECT_TRUE(appenderContains("Removing file /path/to/download/to/download.txt2 as move file failed"));
+    EXPECT_TRUE(appenderContains("Removing file /path/to/download/to/download.txt3 as move file failed"));
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 

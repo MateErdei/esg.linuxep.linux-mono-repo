@@ -36,11 +36,15 @@ namespace ResponseActionsImpl
 
         bool makeDestDirectory(const Path& destDir);
         bool fileAlreadyExists(const Path& destPath);
-        void moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove);
         Path getSubDirsInTmpDir(const Path& filePath);
 
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
+
+        /**
+         *  @return Will return true if the move was successful, false if not
+         */
+        bool moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove);
 
         /**
          *  @return Will return true if the directory existed, false if not
