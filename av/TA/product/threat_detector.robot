@@ -53,9 +53,19 @@ Threat Detector Test Teardown
     Component Test TearDown
 
 Start Threat Detector As Limited User
+    Run Process    chmod  -R  a+rwX
+    ...  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log
+    ...  ${COMPONENT_ROOT_PATH}/chroot/var  ${COMPONENT_ROOT_PATH}/chroot/tmp
+    ...  ${COMPONENT_ROOT_PATH}/chroot/etc
+    Run Process   chown  -R  sophos-spl-threat-detector:sophos-spl-group  ${COMPONENT_ROOT_PATH}/chroot
+    ${result} =  Run Process  ls  -alR  ${COMPONENT_ROOT_PATH}/chroot/etc  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}  stderr=STDOUT
+    Log  ${result.stdout}
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
     ${threat_detector_handle} =  Start Process  runuser  -u  sophos-spl-threat-detector  -g  sophos-spl-group  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     ...  stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+
+    register on fail  dump log  /tmp/threat_detector.stdout
+    register on fail  dump log  /tmp/threat_detector.stderr
     Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
 
 Start Threat Detector As Root
@@ -301,6 +311,8 @@ Sophos Threat Detector sets default if susi startup settings permissions ownersh
     Exclude MachineID Permission Error
     Exclude Threat Report Server died
     Threat Detector Failed to Copy
+    # Not interested to SXL4/GlobalRep errors
+    Exclude Globalrep errors
 
     # Doesn't matter what the files contain if we are going to block access
     create file  ${SUSI_STARTUP_SETTINGS_FILE}

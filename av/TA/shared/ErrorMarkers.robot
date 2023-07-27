@@ -239,6 +239,14 @@ Exclude Globalrep Timeout Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       =GR= curl_easy_perform() failed: Timeout was reached
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  =GR= curl_easy_perform() failed: Timeout was reached
 
+Exclude Globalrep errors
+    Exclude Globalrep Timeout Errors
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       [GR] curl_easy_perform() failed: Couldn't connect to server
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  [GR] curl_easy_perform() failed: Couldn't connect to server
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       Error logged from SUSI while scanning
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Error logged from SUSI while scanning
+
+
 Exclude SUSI failed to read stream
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       Failed to read stream:
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to read stream:
