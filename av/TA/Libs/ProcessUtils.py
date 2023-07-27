@@ -27,11 +27,20 @@ def pidof(executable):
     return -1
 
 
-def pidof_or_fail(executable):
+def pidof_or_fail(executable, timeout=0):
     pid = pidof(executable)
-    if pid == -1:
-        raise AssertionError("%s is not running" % executable)
-    return pid
+    if pid >= 0:
+        return pid
+
+    if timeout > 0:
+        start = time.time()
+        while time.time() < start + timeout:
+            time.sleep(0.1)
+            pid = pidof(executable)
+            if pid >= 0:
+                return pid
+
+    raise AssertionError("%s is not running" % executable)
 
 
 def wait_for_pid(executable, timeout=15):

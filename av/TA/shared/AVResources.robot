@@ -92,7 +92,7 @@ Check AV Plugin Running
     Check Plugin Running
 
 Check Sophos Threat Detector Running
-    ${result} =   ProcessUtils.pidof_or_fail  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${result} =   ProcessUtils.pidof_or_fail  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=${1}
 
 Run Sophos Threat Detector Directly
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
