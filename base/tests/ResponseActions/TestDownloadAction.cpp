@@ -1949,7 +1949,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
     addCleanupChecksToMockFileSystem();
 
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException(expectedErrStr)));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
@@ -1983,7 +1983,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
     addCleanupChecksToMockFileSystem();
 
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException(expectedErrStr)));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));

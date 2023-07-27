@@ -586,10 +586,9 @@ namespace ResponseActionsImpl
         catch (const FileSystem::IFileSystemException& e)
         {
             std::stringstream error;
-            error << "Unable to move " << filePathToMove << " to " << destPath << ": " << e.what();
-            LOGWARN(error.str());
+            LOGWARN(e.what());
             auto msg = removeDestDir(destPath) ? "not_enough_space" : "access_denied";
-            ActionsUtils::setErrorInfo(m_response, 1, error.str(), msg);
+            ActionsUtils::setErrorInfo(m_response, 1, e.what(), msg);
             return;
         }
         catch (const std::exception& e)
@@ -597,7 +596,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when moving file " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            std::ignore = removeDestDir(destPath);
+            removeDestDir(destPath);
             ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return;
         }
