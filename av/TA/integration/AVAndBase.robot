@@ -733,9 +733,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     ${av_mark} =  Get AV Log Mark
     stop sophos_threat_detector
 
-    Comment  disable SXL lookups, AV should try to reload SUSI
-
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    Comment  disable SXL lookups, AV should try to restart TD
 
     ${revid} =   Generate Random String
     ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=false
@@ -744,18 +742,18 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
-    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}   timeout=60
+    Wait For AV Log Contains After Mark   Restarting sophos_threat_detector as the configuration has changed  ${av_mark}   timeout=60
     Check AV Log Contains After Mark  ProcessControlClient failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying  ${av_mark}
     Wait For AV Log Contains After Mark  ProcessControlClient reached the maximum number of connection attempts  ${av_mark}
 
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
     start sophos_threat_detector
     Wait until threat detector running after mark  ${threat_detector_mark2}
 
-    Comment  change lookup setting, threat_detector should reload SUSI
+    Comment  change lookup setting, threat_detector should restart
 
     ${av_mark2} =  Get AV Log Mark
     ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
-    ${pid} =   Record Sophos Threat Detector PID
 
     ${revid} =   Generate Random String
     ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=true
@@ -764,10 +762,9 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
-    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark2}   timeout=60
+    Wait For AV Log Contains After Mark   Restarting sophos_threat_detector as the configuration has changed  ${av_mark2}   timeout=60
     Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark2}
     Check AV Log Does Not Contain After Mark  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep  ${av_mark2}
-    Check Sophos Threat Detector has same PID   ${pid}
 
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar
