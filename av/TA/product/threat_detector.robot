@@ -273,3 +273,25 @@ Threat Detector loads proxy from config file
     Start AV
     wait for log contains from mark  ${td_mark}  LiveProtection will use http://localhost:8080 for SXL4 connections
 
+
+Sophos Threat Detector sets default if susi startup settings permissions ownership incorrect
+    [Tags]  FAULT INJECTION
+    Register Cleanup    Exclude Configuration Data Invalid
+    Register Cleanup    Exclude Invalid Settings No Primary Product
+
+    # Doesn't matter what the files contain if we are going to block access
+    create file  ${SUSI_STARTUP_SETTINGS_FILE}
+    create file  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE}
+    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
+    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
+    Start AV
+
+    # scan eicar to trigger susi to be loaded
+    Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
+
+    Wait For Sophos Threat Detector Log Contains After Mark   Turning Live Protection on as default - could not read SUSI settings  ${threat_detector_mark3}

@@ -771,41 +771,6 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
     Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be enabled   ${threat_detector_mark3}  timeout=180
 
-Sophos Threat Detector sets default if susi startup settings permissions incorrect
-    [Tags]  FAULT INJECTION
-    Register Cleanup    Exclude Configuration Data Invalid
-    Register Cleanup    Exclude Invalid Settings No Primary Product
-
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
-    Restart Sophos Threat Detector
-    Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
-    ...   ${threat_detector_mark}
-    ...   timeout=60
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
-
-    ${av_mark} =  Get AV Log Mark
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
-
-    Wait For Sophos Threat Detector Log Contains After Mark  Skipping susi reload because susi is not initialised  ${threat_detector_mark2}
-
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE}
-    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-
-    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
-    Restart sophos_threat_detector
-
-    # scan eicar to trigger susi to be loaded
-    Check avscanner can detect eicar
-
-    Wait For Sophos Threat Detector Log Contains After Mark   Turning Live Protection on as default - could not read SUSI settings  ${threat_detector_mark3}
-
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude MCS Router is dead
