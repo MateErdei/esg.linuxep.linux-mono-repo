@@ -16,6 +16,7 @@
 #include "Common/Process/IProcessException.h"
 #include "Common/TelemetryConfigImpl/Serialiser.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/Exceptions/NestedExceptions.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
 
 namespace TelemetrySchedulerImpl
@@ -423,7 +424,7 @@ namespace TelemetrySchedulerImpl
         }
         catch (const Common::Policy::PolicyParseException& ex)
         {
-            LOGERROR(Common::Exceptions::expandException(ex));
+            LOGERROR(Common::Exceptions::NestedExceptions::expandException(ex));
             LOGERROR("Failed to parse ALC policy: " << ex.what());
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
