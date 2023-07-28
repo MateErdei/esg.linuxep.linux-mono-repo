@@ -253,7 +253,6 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerUtils::getSuiteVersion()
     {
-
         auto fs = Common::FileSystem::fileSystem();
         auto packageConfigPath = Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
 

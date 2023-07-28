@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
@@ -165,8 +161,7 @@ TEST_F(UpdateSchedulerUtils, getSuiteVersionNoFile)
 
 class UpdateSchedulerUtilsParameterised
     : public ::testing::TestWithParam<std::pair<std::string, std::string>>
-                   {
-                   };
+                   {};
 
 INSTANTIATE_TEST_SUITE_P(
                UpdateSchedulerUtils,
