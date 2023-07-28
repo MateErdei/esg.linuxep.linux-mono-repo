@@ -2,7 +2,6 @@
 library "tap-pipe"
 
 def params = [
-    booleanParam(name: 'SPEC_ONLY', defaultValue: false, description: 'Do not build any dev warehouses - spec only change'),
     booleanParam(name: 'DEV', defaultValue: true, description: 'Build dev SDDS3 repo? (builds if checked AND NOT on release branches)'),
     booleanParam(name: 'PROD', defaultValue: false, description: 'Build production SDDS3 repo? (builds if checked OR on release branches)'),
     booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run TAP tests'),
