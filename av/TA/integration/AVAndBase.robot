@@ -625,6 +625,8 @@ AV Plugin does not restart threat detector on customer id change
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Configuration Data Invalid
     Register Cleanup    Exclude Invalid Settings No Primary Product
+    # Allow TD to settle after test setup
+    Sleep  ${1}
     ${pid} =   Record Sophos Threat Detector PID
 
     # scan eicar to ensure susi is loaded, so that we know which log messages to expect later
