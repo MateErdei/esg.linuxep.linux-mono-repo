@@ -8,6 +8,7 @@ Resource       AVResources.robot
 Library         ../Libs/AVScanner.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeWatchdog.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/LogUtils.py

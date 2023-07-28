@@ -1081,6 +1081,8 @@ Safestore Quarantines On Access Execute Detection
     ${ss_mark} =  Get SafeStore Log Mark
 
     Send Policies to enable on-access  flags_policy/flags_safestore_onaccess_and_ml_enabled.json  ${oa_mark}
+    # Wait for exclusion to be active
+    Wait for Log Contains From Mark  ${oa_mark}  fanotifyhandler <> Updating on-access exclusions with:
     On-access Scan On Execute   ${TRUE}     ${ss_mark}
 
 SafeStore Quarantines Pua Detection
