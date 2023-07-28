@@ -130,7 +130,7 @@ RA Plugin handles read only mount appropriately
 
     wait_for_log_contains_from_mark  ${response_mark}  Failed action correlation-id with exit code 1   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}    Unable to move ${RESPONSE_ACTIONS_TMP_PATH}${TMP_DOWNLOAD_ZIP}
+    wait_for_log_contains_from_mark  ${action_mark}    Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}${TMP_DOWNLOAD_ZIP}' to '${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}'
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
 
