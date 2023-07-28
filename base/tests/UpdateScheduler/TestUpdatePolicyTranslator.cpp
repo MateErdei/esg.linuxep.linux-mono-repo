@@ -714,14 +714,14 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithScheduledUpdate);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
+        R"sophos({"esmName":"","esmToken":"","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);
     // second time with additional 'extra' value
     Common::Telemetry::TelemetryHelper::getInstance().set("extra", "newvalue");
     std::string expectedTelemetryWithExtra{
-        R"sophos({"extra":"newvalue","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
+        R"sophos({"esmName":"","esmToken":"","extra":"newvalue","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED"})sophos"
     };
     telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetryWithExtra);
@@ -740,7 +740,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty)
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
+        R"sophos({"esmName":"","esmToken":"","subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);
@@ -756,7 +756,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
+        R"sophos({"esmName":"","esmToken":"","subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8"})sophos"
     };
     std::string telemetry1 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string telemetry2 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
@@ -1100,7 +1100,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
     Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     auto thread1 = std::async(std::launch::async, []() {
           const std::string expectedTelemetry{
-              R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED"})sophos"
+              R"sophos({"esmName":"","esmToken":"","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED"})sophos"
           };
           for (int i = 0; i < 1000; i++)
           {
@@ -1141,7 +1141,7 @@ TEST_F(TestUpdatePolicyTelemetry, no_esm_no_fixedversion)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"tag"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"","esmToken":"","subscriptions-rigidname":"tag"})");
 }
 
 TEST_F(TestUpdatePolicyTelemetry, no_esm_fixedVersion)
@@ -1156,7 +1156,7 @@ TEST_F(TestUpdatePolicyTelemetry, no_esm_fixedVersion)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"fixedversion"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"","esmToken":"","subscriptions-rigidname":"fixedversion"})");
 }
 
 TEST_F(TestUpdatePolicyTelemetry, esm_no_fixedVersion)
@@ -1171,7 +1171,7 @@ TEST_F(TestUpdatePolicyTelemetry, esm_no_fixedVersion)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"esmname","esmToken":"esmtoken","subscriptions-rigidname":"esmname"})");
 }
 
 TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion)
@@ -1186,7 +1186,7 @@ TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"esmname","esmToken":"esmtoken","subscriptions-rigidname":"esmname"})");
 }
 
 TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion_multiple)
@@ -1202,7 +1202,7 @@ TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion_multiple)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname","subscriptions-rigidname2":"esmname"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"esmname","esmToken":"esmtoken","subscriptions-rigidname":"esmname","subscriptions-rigidname2":"esmname"})");
 }
 
 TEST_F(TestUpdatePolicyTelemetry, invalid_esm_no_fixedVersion)
@@ -1217,5 +1217,5 @@ TEST_F(TestUpdatePolicyTelemetry, invalid_esm_no_fixedVersion)
     updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
 
     auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"tag"})");
+    EXPECT_EQ(telemetry,    R"({"esmName":"","esmToken":"","subscriptions-rigidname":"tag"})");
 }

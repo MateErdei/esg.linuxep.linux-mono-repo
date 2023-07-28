@@ -106,7 +106,12 @@ namespace UpdateSchedulerImpl
             versionInfo = *locked;
         }
         bool usingESM = versionInfo.esmVersion.isEnabled();
-        std::string esmName = versionInfo.esmVersion.name();
+
+        std::string esmName = usingESM ? versionInfo.esmVersion.name() : "";
+        std::string esmToken = usingESM ? versionInfo.esmVersion.token() : "";
+
+        telemetryToSet.set("esmName", esmName);
+        telemetryToSet.set("esmToken", esmToken);
 
         for (const auto& subscription : versionInfo.subscriptionVector)
         {
