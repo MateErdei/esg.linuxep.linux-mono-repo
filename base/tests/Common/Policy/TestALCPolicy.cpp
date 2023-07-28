@@ -3,10 +3,12 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/Policy/PolicyParseException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/UtilityImpl/TestStringGenerator.h"
 
 #include <gtest/gtest.h>
 
@@ -354,7 +356,15 @@ TEST_F(TestALCPolicy, invalidXml_mismatched_tag)
     EXPECT_THROW(Common::Policy::ALCPolicy p{"<xml><foo></xml>"}, Common::Policy::PolicyParseException);
     EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: mismatched tag"));
 }
-
+TEST_F(TestALCPolicy, invalidXml_non_utf8)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto nonUTF8 = generateNonUTF8String();
+    std::stringstream xml;
+    xml << "<xml>"<< nonUTF8 << "</xml>";
+    EXPECT_THROW(Common::Policy::ALCPolicy p{xml.str()}, Common::Policy::PolicyParseException);
+    EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: not well-formed (invalid token)"));
+}
 TEST_F(TestALCPolicy, incorrectPolicyType)
 {
     try
@@ -383,7 +393,7 @@ TEST_F(TestALCPolicy, emptyPolicy)
     }
     catch (const PolicyParseException& ex)
     {
-        EXPECT_STREQ(ex.what(), "Invalid policy: Username is empty");
+        EXPECT_STREQ(ex.what(), "Invalid policy: No base subscription");
     }
 }
 
@@ -393,9 +403,9 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -404,7 +414,6 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
     auto settings = obj.getUpdateSettings();
     auto updatePeriod = obj.getUpdatePeriod();
     EXPECT_EQ(updatePeriod, std::chrono::minutes{60});
-    EXPECT_EQ(obj.getSddsID(), "W2YJXI6FED");
     EXPECT_EQ(obj.getTelemetryHost(), std::nullopt);
 }
 
@@ -454,31 +463,239 @@ TEST_F(TestALCPolicy, invalidTelemetryHostInPolicyThrowsException)
     EXPECT_THROW(ALCPolicy obj{ minPolicy }, PolicyParseException);
 }
 
-//sdds2 Update Server Tests
+//sdds3 Update Server Tests
 
-TEST_F(TestALCPolicy, sdds2_update_server)
+TEST_F(TestALCPolicy, sdds3_update_server)
 {
     constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" ConnectionAddress="http://dci.sophosupd.com/cloudupdate"/>
-</primary_location>
-<schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>sus.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto urls = settings.getSophosCDNURLs();
+    ASSERT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "https://sdds3test.sophosupd.com");
+    EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net");
+}
+
+TEST_F(TestALCPolicy, sdds3_update_server_with_ports)
+{
+
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>sus.sophosupd.com:3333</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com:222</server>
+      <server>sdds3test.sophosupd.net:123</server>
+    </content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto urls = settings.getSophosCDNURLs();
+    ASSERT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "https://sdds3test.sophosupd.com:222");
+    EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net:123");
+
+    EXPECT_EQ(settings.getSophosSusURL(), "https://sus.sophosupd.com:3333");
+}
+TEST_F(TestALCPolicy, sdds3_sus_url)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>sustest.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sustest.sophosupd.com");
+}
+
+TEST_F(TestALCPolicy, hostname_validation_invalid_char)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>//sustest.sophosupd.com</sus>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+    testing::internal::CaptureStderr();
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sus.sophosupd.com");
+    std::string logMessage = internal::GetCapturedStderr();
+
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host "));
+}
+
+TEST_F(TestALCPolicy, hostname_validation_invalid_non_sophos_host)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>sustest.notsophos.com</sus>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+    testing::internal::CaptureStderr();
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sus.sophosupd.com");
+    std::string logMessage = internal::GetCapturedStderr();
+
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host "));
+}
+
+TEST_F(TestALCPolicy, hostname_validation_empty)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus></sus>
+<content_servers>
+  <server></server>
+</content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+    testing::internal::CaptureStderr();
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sus.sophosupd.com");
+    std::string logMessage = internal::GetCapturedStderr();
+
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("CDN hostname is empty in ALC policy"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("SUS hostname is empty in ALC policy"));
+}
+
+TEST_F(TestALCPolicy, hostname_too_long)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+<sdds3>
+  <sus>sustest.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3test.sophosupd.com</server>
+      <server>sdds3test.sophosupd.net</server>
+    </content_servers>
+</sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+    std::string longString(1025, 'a');
+    std::string  longPolicy = Common::UtilityImpl::StringUtils::replaceAll(minPolicy,"sustest",longString);
+    testing::internal::CaptureStderr();
+    ALCPolicy obj{ longPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sus.sophosupd.com");
+    std::string logMessage = internal::GetCapturedStderr();
+
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host "));
+}
+
+TEST_F(TestALCPolicy, default_sdds3_url)
+{
+    //if url not defined in polciy fallback to hardcoded values
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
 
     ALCPolicy obj{ minPolicy };
     auto settings = obj.getUpdateSettings();
-    auto urls = settings.getSophosLocationURLs();
-    ASSERT_EQ(urls.size(), 3);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
+    auto url = settings.getSophosSusURL();
+    EXPECT_EQ(url, "https://sus.sophosupd.com");
+    auto urls = settings.getSophosCDNURLs();
+    ASSERT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "https://sdds3.sophosupd.com:443");
+    EXPECT_EQ(urls[1], "https://sdds3.sophosupd.net:443");
 }
-
 //Cloud Subscription Tests
 
 TEST_F(TestALCPolicy, cloud_subscriptions)
@@ -713,131 +930,6 @@ TEST_F(TestALCPolicy, esm_very_large)
     EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
-//Credentials Tests
-
-TEST_F(TestALCPolicy, invalid_credentials_no_user)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName=""/>
-    </primary_location>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    try
-    {
-        ALCPolicy obj{ minPolicy };
-        FAIL() << "failed to throw due to no username";
-    }
-    catch (const PolicyParseException& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid policy: Username is empty");
-    }
-}
-
-TEST_F(TestALCPolicy, invalid_credentials_no_password)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    try
-    {
-        ALCPolicy obj{ minPolicy };
-        FAIL() << "failed to throw due to no password";
-    }
-    catch (const PolicyParseException& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid policy: Password is empty");
-    }
-}
-
-TEST_F(TestALCPolicy, credentials_obfuscated)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-    </primary_location>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    ALCPolicy obj{ minPolicy };
-
-    {
-        auto sddsid = obj.getSddsID();
-        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FED");
-    }
-
-    auto credentials = obj.getUpdateSettings().getCredentials();
-    EXPECT_STREQ(credentials.getPassword().c_str(), "c2d584eb505b6a35fbf2dd9740551fe9");
-    EXPECT_STREQ(credentials.getUsername().c_str(), "c2d584eb505b6a35fbf2dd9740551fe9");
-}
-
-TEST_F(TestALCPolicy, credentials_deobfuscated_AES256)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="AES256" UserPassword="CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=" UserName="W2YJXI6FED"/>
-    </primary_location>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    ALCPolicy obj{ minPolicy };
-
-    {
-        auto sddsid = obj.getSddsID();
-        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FED");
-    }
-
-    auto credentials = obj.getUpdateSettings().getCredentials();
-    EXPECT_STREQ(credentials.getPassword().c_str(), "6e96171819c61fe07361bc1f798d6b46");
-    EXPECT_STREQ(credentials.getUsername().c_str(), "6e96171819c61fe07361bc1f798d6b46");
-}
-
-TEST_F(TestALCPolicy, credentials_not_deobfuscated)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    ALCPolicy obj{ minPolicy };
-
-    {
-        auto sddsid = obj.getSddsID();
-        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
-    }
-
-    auto credentials = obj.getUpdateSettings().getCredentials();
-    EXPECT_STREQ(credentials.getPassword().c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
-    EXPECT_STREQ(credentials.getUsername().c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
-}
-
 //Proxy Tests
 
 TEST_F(TestALCPolicy, emptyProxy)
@@ -850,6 +942,9 @@ TEST_F(TestALCPolicy, emptyProxy)
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -868,6 +963,9 @@ TEST_F(TestALCPolicy, missingProxy)
     <primary_location>
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -887,6 +985,9 @@ TEST_F(TestALCPolicy, proxyType2)
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
 <proxy ProxyType="2" ProxyUserPassword="CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=" ProxyUserName="TestUser" ProxyPortNumber="8080" ProxyAddress="uk-abn-wpan-1.green.sophos" AllowLocalConfig="false"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -911,6 +1012,9 @@ TEST_F(TestALCPolicy, validFeatures)
     <primary_location>
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 <Features>
   <Feature id="CORE"/>
@@ -936,6 +1040,9 @@ TEST_F(TestALCPolicy, coreFeatureAbsent)
     <primary_location>
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 <Features>
   <Feature id="MTD"/>
@@ -961,6 +1068,9 @@ TEST_F(TestALCPolicy, missingFeatures)
     <primary_location>
       <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
     </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -981,10 +1091,10 @@ TEST_F(TestALCPolicy, validPeriod)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="23" DetectDialUp="false"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -999,10 +1109,10 @@ TEST_F(TestALCPolicy, emptyPeriod)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="" DetectDialUp="false"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1018,10 +1128,10 @@ TEST_F(TestALCPolicy, missingFrequency)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
     <schedule AllowLocalConfig="false" SchedEnable="true" DetectDialUp="false"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1036,9 +1146,9 @@ TEST_F(TestALCPolicy, missingSchedule)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1053,9 +1163,9 @@ TEST_F(TestALCPolicy, periodNotInt)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="ABCXYZ" DetectDialUp="false"/>
 </AUConfig>
 </AUConfigurations>
@@ -1071,9 +1181,9 @@ TEST_F(TestALCPolicy, periodTooBig)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
-    </primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="999999999999999999999999999999999999999" DetectDialUp="false"/>
 </AUConfig>
 </AUConfigurations>
@@ -1107,9 +1217,9 @@ TEST_F(TestALCPolicy, empty_update_cache)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1145,9 +1255,9 @@ TEST_F(TestALCPolicy, empty_field_delay_updating)
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <delay_updating Day="" Time="17:00:00"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1168,9 +1278,9 @@ TEST_F(TestALCPolicy, missing_field_delay_updating)
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <delay_updating Time="17:00:00"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";
@@ -1190,9 +1300,9 @@ TEST_F(TestALCPolicy, no_delay_updating)
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
 </AUConfig>
 </AUConfigurations>
 )sophos";

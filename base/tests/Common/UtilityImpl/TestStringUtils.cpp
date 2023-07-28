@@ -452,3 +452,11 @@ TEST(TestStringUtils, toLowerMakesAllCharsLowerCase) // NOLINT
     ASSERT_EQ(StringUtils::toLower(testStringLower), testStringLower);
     ASSERT_EQ(StringUtils::toLower(testStringNotLetters), testStringNotLetters);
 }
+
+TEST(TestStringUtils, isPositiveInteger)
+{
+    ASSERT_EQ(StringUtils::isPositiveInteger("1"), true);
+    ASSERT_EQ(StringUtils::isPositiveInteger(""), false);
+    ASSERT_EQ(StringUtils::isPositiveInteger("123e"), false);
+    ASSERT_EQ(StringUtils::isPositiveInteger("e"), false);
+}

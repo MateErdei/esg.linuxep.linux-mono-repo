@@ -135,11 +135,8 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     }
     revID_ = cscComp.value("RevID");
 
-    // sdds_id comes from SDDS2 user
-    auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
-
-    extractSDDS2SophosUrls(primaryLocation);
-    extractAndSetCredentials(primaryLocation);
+    extractSDDS3SusUrl(attributesMap);
+    extractSDDS3SophosUrls(attributesMap);
     extractUpdateCaches(attributesMap);
     extractUpdateSchedule(attributesMap);
     extractProxyDetails(attributesMap);
@@ -210,16 +207,10 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
         orderedCaches.emplace_back(caches.at(entry.originalIndex));
     }
 
-    std::stable_sort(
-        orderedCaches.begin(),
-        orderedCaches.end(),
-        [](const UpdateCache& a, const UpdateCache& b) { return a.priority < b.priority; });
+    std::stable_sort(orderedCaches.begin(), orderedCaches.end(), [](const UpdateCache& a, const UpdateCache& b) {
+        return a.priority < b.priority;
+    });
     return orderedCaches;
-}
-
-std::string ALCPolicy::calculateSulObfuscated(const std::string& user, const std::string& pass)
-{
-    return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
 }
 
 std::string ALCPolicy::cacheID(const std::string& hostname) const
@@ -241,56 +232,96 @@ std::string ALCPolicy::cacheID(const std::string& hostname) const
     return {};
 }
 
-void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation)
+void ALCPolicy::formatUrl(std::string& url)
 {
-    std::string connectionAddress = primaryLocation.value("ConnectionAddress");
-
-    std::vector<std::string> sophosUpdateLocations{ UpdateSettings::DefaultSophosLocationsURL };
-    if (!connectionAddress.empty())
+    if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
     {
-        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
+        url = "https://" + url;
     }
-    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
 }
 
-void ALCPolicy::extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation)
+void ALCPolicy::extractSDDS3SusUrl(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
-    std::string user{ primaryLocation.value("UserName") };
-    std::string pass{ primaryLocation.value("UserPassword") };
-    std::string algorithm{ primaryLocation.value("Algorithm") };
-    bool requireObfuscation = true;
+    std::string susUrl = attributesMap.lookup("AUConfigurations/server_names/sdds3/sus").contents();
 
-    // we check that username and password are not empty mainly for fuzzing purposes as in
-    // product we never expect central to send us a policy with empty credentials
-    if (user.empty())
+    std::string sophosUpdateSus = UpdateSettings::DefaultSophosSusUrl;
+
+    if (susUrl.empty())
     {
-        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
+        LOGWARN("SUS hostname is empty in ALC policy");
     }
-    if (pass.empty())
+    else if (validateHostname(susUrl))
     {
-        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
+        formatUrl(susUrl);
+        sophosUpdateSus = susUrl;
     }
 
-    if (algorithm == "AES256")
+    updateSettings_.setSophosSusURL(sophosUpdateSus);
+}
+
+void ALCPolicy::extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    auto cdns = attributesMap.entitiesThatContainPath("AUConfigurations/server_names/sdds3/content_servers/server");
+
+    if (cdns.empty())
     {
-        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
-    }
-    else if (user.size() == 32 && user == pass)
-    {
-        requireObfuscation = false;
+        LOGWARN("No CDN urls in in ALC policy");
+        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
+        return;
     }
 
-    if (requireObfuscation)
+    std::vector<std::string> cdnUrls;
+    for (const auto& url : cdns)
     {
-        std::string obfuscated = calculateSulObfuscated(user, pass);
-        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
+        auto attributes = attributesMap.lookup(url);
+        std::string cdnurl = attributes.contents();
+        if (cdnurl.empty())
+        {
+            LOGWARN("CDN hostname is empty in ALC policy");
+            continue ;
+        }
+        if (validateHostname(cdnurl))
+        {
+            formatUrl(cdnurl);
+            cdnUrls.emplace_back(cdnurl);
+        }
     }
-    else
+    if (cdnUrls.empty())
     {
-        updateSettings_.setCredentials(Credentials{ user, pass });
+        updateSettings_.setSophosCDNURLs(UpdateSettings::DefaultSophosCDNUrls);
+        return;
+    }
+    updateSettings_.setSophosCDNURLs(cdnUrls);
+}
+
+bool ALCPolicy::validateHostname(const std::string& url)
+{
+    std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(url,":");
+    if (parts.size() > 2)
+    {
+        LOGWARN("Malformed url '" << url << "' in ALC policy");
+
+        return false;
+    }
+    else if (parts.size() == 2)
+    {
+        if (!Common::UtilityImpl::StringUtils::isPositiveInteger(parts[1]))
+        {
+            LOGWARN("Invalid url '" << url << "' port is not a number in ALC policy");
+        }
+    }
+    try
+    {
+        sophlib::hostname::validate(parts[0]);
+    }
+    catch (const std::runtime_error& ex)
+    {
+        LOGWARN("Invalid host '" << parts[0] << "' in ALC policy: " << ex.what());
+
+        return false;
     }
 
-    sdds_id_ = user;
+    return true;
 }
 
 void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap)
@@ -457,6 +488,7 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
     if (!ssplBaseIncluded)
     {
         LOGERROR("SSPL base product name : " << SSPLBaseName << " not in the subscription of the policy.");
+        throw PolicyParseException(LOCATION, "Invalid policy: No base subscription");
     }
 }
 
