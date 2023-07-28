@@ -55,4 +55,5 @@ version:
   # For non-sprint release builds, just comment this out or use 'null'
   sprint: '2023.28'
 
-static: 'FTS'
+  # set this to LTS if doing a warehouse build for LTS release
+  static: 'FTS'

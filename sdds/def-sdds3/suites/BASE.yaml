@@ -4,6 +4,7 @@ sus: ["linuxep"]
 line-id: ServerProtectionLinux-Base
 instances:
   - tags: ["RECOMMENDED", "BETA", "BETA2"]
+    generate_static: True
     marketing_version: "{version} {sprint}"
     views:
       - platforms:

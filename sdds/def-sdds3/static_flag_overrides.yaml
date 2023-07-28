@@ -1,0 +1,9 @@
+%YAML 1.2
+---
+# This file contains flags whose values we want to override for static suites.
+# Normally, static flags are false unless the upstream value is "always".
+# If present in this file, they are directly overwritten without further interpretation.
+SSPLFLAGS:
+  safestore.enabled: "always"
+  av.onaccess.enabled: "always"
+  livequery.network-tables.available: "always"
