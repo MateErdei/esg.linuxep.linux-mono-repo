@@ -36,7 +36,7 @@ namespace UpdateSchedulerImpl
         static std::optional<Common::Policy::UpdateSettings> getPreviousConfigurationData();
         static std::pair<Common::Policy::UpdateSettings, bool> getUpdateConfigWithLatestJWT();
         static std::optional<Common::Policy::UpdateSettings> getConfigurationDataFromJsonFile(const std::string& filePath);
-
+        static std::string getSuiteVersion();
 
         inline static const std::string FORCE_UPDATE_ENABLED_FLAG = "sdds3.force-update";
         inline static const std::string FORCE_PAUSED_UPDATE_ENABLED_FLAG = "sdds3.force-paused-update";

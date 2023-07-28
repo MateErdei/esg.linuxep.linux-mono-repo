@@ -249,4 +249,31 @@ namespace UpdateSchedulerImpl
 
         return std::nullopt;
     }
+
+    std::string UpdateSchedulerUtils::getSuiteVersion()
+    {
+
+        auto fs = Common::FileSystem::fileSystem();
+        auto packageConfigPath = Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
+
+       // if (fs-
+        if (fs->exists("/home/dev/package_config.xml"))
+        {
+            //std::string packageConfig = Common::FileSystem::fileSystem()->readFile(packageConfigPath);
+            auto packageConfig = Common::FileSystem::fileSystem()->readLines("/home/dev/package_config.xml");
+            for (const auto& config : packageConfig)
+            {
+                if (config.find("ServerProtectionLinux-Base") != std::string::npos)
+                {
+                    size_t startPos = config.find('_') + 1;
+                    size_t endPos = config.find(".dat") - 1;
+                    size_t endVersion = config.rfind('.', endPos);
+                    auto suiteVersion = config.substr(startPos, (endVersion - startPos));
+                    return suiteVersion;
+                }
+            }
+        }
+
+        return "";
+    }
 }

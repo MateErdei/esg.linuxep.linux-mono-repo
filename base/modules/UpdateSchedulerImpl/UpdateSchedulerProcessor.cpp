@@ -734,7 +734,7 @@ namespace UpdateSchedulerImpl
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");
 
-        auto suiteversion = getSuiteVersion();
+        auto suiteVersion = UpdateSchedulerUtils::getSuiteVersion();
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
@@ -898,11 +898,5 @@ namespace UpdateSchedulerImpl
             }
         }
         LOGINFO("No instance of SulDownloader running.");
-    }
-
-    std::string UpdateSchedulerProcessor::getSuiteVersion()
-    {
-        auto packageConfigPath = Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
-        return "";
     }
 } // namespace UpdateSchedulerImpl

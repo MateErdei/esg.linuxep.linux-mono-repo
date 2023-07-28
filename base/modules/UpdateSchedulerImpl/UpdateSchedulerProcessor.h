@@ -86,7 +86,6 @@ namespace UpdateSchedulerImpl
         void writeConfigurationData(const Common::Policy::UpdateSettings&);
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
         void waitForSulDownloaderToFinish();
-        std::string getSuiteVersion();
 
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
