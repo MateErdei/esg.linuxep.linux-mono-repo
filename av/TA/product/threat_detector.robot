@@ -119,9 +119,6 @@ Revert Sometimes-symlinked System File To Original
 
 Threat Detector Log Rotates
     Dump and Reset Logs
-    # Ensure the log is created
-    Start AV
-    Stop AV
     Increase Threat Detector Log To Max Size
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s

@@ -93,8 +93,11 @@ def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
     :return:
     """
     max_size = 10*1024*1024 - remaining
-    statbuf = os.stat(log_path)
-    current_size = statbuf.st_size
+    try:
+        statbuf = os.stat(log_path)
+        current_size = statbuf.st_size
+    except FileNotFoundError:
+        current_size = 0
     additional_required = max_size - current_size
 
     if additional_required <= 0:
