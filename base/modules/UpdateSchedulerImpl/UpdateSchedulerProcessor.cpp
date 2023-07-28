@@ -102,7 +102,6 @@ namespace UpdateSchedulerImpl
         m_forceUpdate(false),
         m_forcePausedUpdate(false),
         m_useSDDS3DeltaV2(false),
-        m_featuresInPolicy(),
         m_featuresCurrentlyInstalled(readInstalledFeatures())
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
@@ -323,7 +322,6 @@ namespace UpdateSchedulerImpl
             updateSettings.configurationData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             writeConfigurationData(updateSettings.configurationData);
             weeklySchedule_ = updateSettings.weeklySchedule;
-            m_featuresInPolicy = updateSettings.configurationData.getFeatures();
             m_subscriptionRigidNamesInPolicy.clear();
             m_subscriptionRigidNamesInPolicy.push_back(updateSettings.configurationData.getPrimarySubscription().rigidName());
 
@@ -625,8 +623,6 @@ namespace UpdateSchedulerImpl
     {
         auto* iFileSystem = Common::FileSystem::fileSystem();
 
-
-
         if (processLatestReport)
         {
             LOGINFO("Re-processing latest report to generate current status message information.");
@@ -737,6 +733,8 @@ namespace UpdateSchedulerImpl
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");
+
+        auto suiteversion = getSuiteVersion();
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
@@ -902,4 +900,9 @@ namespace UpdateSchedulerImpl
         LOGINFO("No instance of SulDownloader running.");
     }
 
+    std::string UpdateSchedulerProcessor::getSuiteVersion()
+    {
+        auto packageConfigPath = Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
+        return "";
+    }
 } // namespace UpdateSchedulerImpl

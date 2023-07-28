@@ -85,8 +85,9 @@ namespace UpdateSchedulerImpl
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
         void writeConfigurationData(const Common::Policy::UpdateSettings&);
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
-
         void waitForSulDownloaderToFinish();
+        std::string getSuiteVersion();
+
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<SchedulerPluginCallback> m_callback;
@@ -106,7 +107,6 @@ namespace UpdateSchedulerImpl
         bool m_forcePausedUpdate;
         bool m_useSDDS3DeltaV2;
         Common::Policy::WeekDayAndTimeForDelay weeklySchedule_;
-        std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;
         inline static int QUEUE_TIMEOUT = 5;
