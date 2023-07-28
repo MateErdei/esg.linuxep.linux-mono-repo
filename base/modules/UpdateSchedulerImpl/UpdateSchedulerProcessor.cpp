@@ -734,8 +734,6 @@ namespace UpdateSchedulerImpl
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");
 
-        auto suiteVersion = UpdateSchedulerUtils::getSuiteVersion();
-
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
             Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, true);
@@ -770,6 +768,7 @@ namespace UpdateSchedulerImpl
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
         }
 
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::suiteVersion, UpdateSchedulerUtils::getSuiteVersion());
         Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, false);
         Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedUpdateCount, 1UL);
         return std::string();

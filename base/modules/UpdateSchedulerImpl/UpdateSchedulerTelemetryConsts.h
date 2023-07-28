@@ -3,6 +3,7 @@
 namespace UpdateSchedulerImpl::Telemetry
 {
     const char* const pluginHealthStatus = "health";
+    const char* const suiteVersion = "suite-version";
 
     const char* const installState = "install-state";
     const char* const downloadState = "download-state";
