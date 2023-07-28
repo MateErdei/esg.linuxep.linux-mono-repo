@@ -603,7 +603,7 @@ TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCre
     }
 }
 
-INSTANTIATE_TEST_CASE_P(StateMachineProcessorCreditTest, StateMachineProcessorTestWithCredit, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StateMachineProcessorCreditTest, StateMachineProcessorTestWithCredit, ::testing::Values(
             std::make_tuple("InstallStateCredit", 3, -1, configModule::EventMessageNumber::INSTALLFAILED),
             std::make_tuple("InstallStateCredit", 3, 0x7fffffff, configModule::EventMessageNumber::INSTALLFAILED),
             std::make_tuple("DownloadStateCredit", 72, -1, configModule::EventMessageNumber::DOWNLOADFAILED),
@@ -630,7 +630,7 @@ TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShould
     }
 }
 
-INSTANTIATE_TEST_CASE_P(StateMachineProcessorExceptionTest, StateMachineProcessorTestWithException, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(StateMachineProcessorExceptionTest, StateMachineProcessorTestWithException, ::testing::Values(
             std::make_tuple("DownloadStateCredit", "stoi"),
             std::make_tuple("InstallStateCredit", "stoi"),
             std::make_tuple("EventStateLastError", "stoi"),

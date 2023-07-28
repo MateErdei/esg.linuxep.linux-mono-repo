@@ -69,7 +69,7 @@ class TelemetrySerialiserParameterisedTestFixture : public ::testing::TestWithPa
 {
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     ParameterisedJsonTests, // NOLINT
     TelemetrySerialiserParameterisedTestFixture,
     ::testing::Values(

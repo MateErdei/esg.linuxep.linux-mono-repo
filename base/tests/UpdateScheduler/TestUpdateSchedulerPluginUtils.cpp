@@ -168,7 +168,7 @@ class UpdateSchedulerUtilsParameterised
                    {
                    };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
                UpdateSchedulerUtils,
                UpdateSchedulerUtilsParameterised,
                 ::testing::Values(
