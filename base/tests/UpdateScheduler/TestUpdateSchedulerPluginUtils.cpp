@@ -16,6 +16,7 @@ Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 class UpdateSchedulerUtils: public LogOffInitializedTests{};
 
+
 TEST_F(UpdateSchedulerUtils, allHealthGoodWhenEndpointStateGood)
 {
     UpdateSchedulerImpl::StateData::StateMachineData expectedStateMachineData;
@@ -151,3 +152,50 @@ TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfig
     ASSERT_EQ(currentConfig.getDeviceId(),"device");
     ASSERT_EQ(currentConfig.getTenantId(),"tenant");
 }
+
+TEST_F(UpdateSchedulerUtils, getSuiteVersionNoFile)
+{
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+
+    EXPECT_CALL(*filesystemMock, exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath())).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::move(filesystemMock)};
+
+    EXPECT_EQ(UpdateSchedulerImpl::UpdateSchedulerUtils::getSuiteVersion(), "");
+}
+
+class UpdateSchedulerUtilsParameterised
+    : public ::testing::TestWithParam<std::pair<std::string, std::string>>
+                   {
+                   };
+
+INSTANTIATE_TEST_CASE_P(
+               UpdateSchedulerUtils,
+               UpdateSchedulerUtilsParameterised,
+                ::testing::Values(
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2030.2000000000.10454546465654.1456456456453.951807f071.dat" />)", "2030.2000000000.10454546465654.1456456456453"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2030.2.10.153.951807f071.dat" />)", "2030.2.10.153"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2026.2.10.53.951807f071.dat" />)", "2026.2.10.53"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2025.2.0.53.951807f071.dat" />)", "2025.2.0.53"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2023.2.0.3.951807f071.dat" />)", "2023.2.0.3"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_2023.2.0.951807f071.dat" />)", "2023.2.0"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_951807f071.dat" />)", ""),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_.951807f071.dat" />)", ""),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base" />)", ""),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-Base_WHYAMIHERE.951807f071.dat" />)", "WHYAMIHERE"),
+                           std::make_pair(R"(<suite ref="sdds3.ServerProtectionLinux-AV_2023.2.0.3.951807f071.dat" />)", "")));
+
+TEST_P(UpdateSchedulerUtilsParameterised, SerialiseAndDeserialise)
+{
+    auto [input, output] = GetParam();
+    std::vector<std::string> readLines {input};
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+
+    EXPECT_CALL(*filesystemMock, exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath())).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath())).WillOnce(Return(readLines));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::move(filesystemMock)};
+
+    EXPECT_EQ(UpdateSchedulerImpl::UpdateSchedulerUtils::getSuiteVersion(), output);
+}
+
+

@@ -14,6 +14,7 @@
 #include <json.hpp>
 
 using namespace Common::Policy;
+using namespace Common::UtilityImpl;
 
 namespace
 {
@@ -256,20 +257,31 @@ namespace UpdateSchedulerImpl
         auto fs = Common::FileSystem::fileSystem();
         auto packageConfigPath = Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
 
-       // if (fs-
-        if (fs->exists("/home/dev/package_config.xml"))
+        if (fs->exists(packageConfigPath))
         {
-            //std::string packageConfig = Common::FileSystem::fileSystem()->readFile(packageConfigPath);
-            auto packageConfig = Common::FileSystem::fileSystem()->readLines("/home/dev/package_config.xml");
+            auto packageConfig = Common::FileSystem::fileSystem()->readLines(packageConfigPath);
             for (const auto& config : packageConfig)
             {
-                if (config.find("ServerProtectionLinux-Base") != std::string::npos)
+                if (StringUtils::isSubstring(config, "ServerProtectionLinux-Base"))
                 {
-                    size_t startPos = config.find('_') + 1;
-                    size_t endPos = config.find(".dat") - 1;
+                    //Expect string like this, we want inside brackets
+                    //    <suite ref="sdds3.ServerProtectionLinux-Base_(2023.2.0.53).951807f071.dat" />
+                    size_t startVersion = config.find('_');
+                    size_t endPos = config.find(".dat");
+
+                    if (startVersion == std::string::npos || endPos == std::string::npos)
+                    {
+                        return "";
+                    }
+                    startVersion++;
+                    endPos--;
+
                     size_t endVersion = config.rfind('.', endPos);
-                    auto suiteVersion = config.substr(startPos, (endVersion - startPos));
-                    return suiteVersion;
+                    if (endVersion == std::string::npos || endVersion < startVersion)
+                    {
+                        return "";
+                    }
+                    return config.substr(startVersion, (endVersion - startVersion));
                 }
             }
         }
