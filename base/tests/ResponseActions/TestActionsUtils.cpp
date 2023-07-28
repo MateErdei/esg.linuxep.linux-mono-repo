@@ -725,6 +725,22 @@ TEST_F(ActionsUtilsTests, uploadWrongTypeCompress)
     }
 }
 
+TEST_F(ActionsUtilsTests, uploadActionWithNoURLFieldThrowsError)
+{
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
+    action.erase("url");
+
+    try
+    {
+        auto info = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Should have thrown due to missing URL field in action json but didn't";
+    }
+    catch (const InvalidCommandFormat& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Invalid command format. No 'url' in UploadFile action JSON");
+    }
+}
+
 //**********************DOWNLOAD ACTION***************************
 class DownloadRequiredFieldsParameterized : public ResponseActionFieldsParameterized {};
 
@@ -1121,6 +1137,22 @@ TEST_F(ActionsUtilsTests, downloadWrongTypePassword)
     catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, downloadActionWithNoURLFieldThrowsError)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("url");
+
+    try
+    {
+        auto info = ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Should have thrown due to missing URL field in action json but didn't";
+    }
+    catch (const InvalidCommandFormat& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Invalid command format. No 'url' in Download action JSON");
     }
 }
 
