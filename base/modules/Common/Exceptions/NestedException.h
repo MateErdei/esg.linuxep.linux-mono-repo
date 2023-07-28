@@ -20,13 +20,12 @@ namespace Common
                 }
                 catch (const IException& nestedEx)
                 {
-                    return expandException(nestedEx, level);
+                    return expandException(nestedEx, level + 1);
                 }
                 catch (const std::exception& nestedEx)
                 {
-                    return expandException(nestedEx, level);
+                    return expandException(nestedEx, level + 1);
                 }
-
                 return "";
             }
 
@@ -37,9 +36,8 @@ namespace Common
                     << std::string(level, ' ')
                     << "Nested exception expansion: "
                     << ex.what()
-                    << '\n';
-
-                exceptionStringStream << rethrowIfPossible(ex, level + 1);
+                    << '\n'
+                    << rethrowIfPossible(ex, level);
 
                 return exceptionStringStream.str();
             }
@@ -51,9 +49,8 @@ namespace Common
                     << std::string(level, ' ')
                     << "Nested exception expansion: "
                     << ex.what()
-                    << '\n';
-
-                exceptionStringStream << rethrowIfPossible(ex, level + 1);
+                    << '\n'
+                    << rethrowIfPossible(ex, level);
 
                 return exceptionStringStream.str();
             }
