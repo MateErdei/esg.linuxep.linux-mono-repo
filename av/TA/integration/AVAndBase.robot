@@ -619,36 +619,6 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait For AV Log Contains After Mark  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
     ...  ${av_mark}  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
 
-AV Runs Scan With SXL Lookup Enabled
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  10  stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
-
-    ${av_mark} =  Get AV Log Mark
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
-    Configure and run scan now
-    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
-    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
-
-    Check SUSI Debug Log Contains After Mark  Post-scan lookup succeeded  ${susi_debug_mark}
-
-
-AV Runs Scan With SXL Lookup Disabled
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  3  stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
-
-    ${av_mark} =  Get AV Log Mark
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
-
-    Configure and check scan now with lookups disabled
-
-    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
-    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
-
-    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup started  ${susi_debug_mark}
-    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup succeeded  ${susi_debug_mark}
-    AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
-
-
 AV Plugin does not restart threat detector on customer id change
     #    Get ALC Policy doesn't have Core and Base
     Register Cleanup    Exclude Core Not In Policy Features
@@ -973,3 +943,34 @@ AV Plugin Doesnt Read Response Action
 
     Wait For AV Log Contains After Mark  Ignoring action not in XML format   ${av_mark}
     check_log_does_not_contain_after_mark  ${AV_LOG_PATH}   av <> Exception encountered while parsing Action XML:  ${av_mark}
+
+
+AV Runs Scan With SXL Lookup Enabled
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  10  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
+
+    ${av_mark} =  Get AV Log Mark
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    Configure and run scan now
+    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
+
+    Check SUSI Debug Log Contains After Mark  Post-scan lookup succeeded  ${susi_debug_mark}
+
+
+AV Runs Scan With SXL Lookup Disabled
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  3  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
+
+    ${av_mark} =  Get AV Log Mark
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+
+    Configure and check scan now with lookups disabled
+
+    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
+
+    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup started  ${susi_debug_mark}
+    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup succeeded  ${susi_debug_mark}
+    AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
+
