@@ -28,6 +28,7 @@ Default Tags  DIAGNOSE
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
 Test Remote Diagnose can process multiple SDU actions with malformed URLs
+    [Timeout]    10 minutes
     [Template]    Test Remote Diagnose can process SDU action with malformed URL
     # action xml file names        # num_times_status_sent_for_sdu_adapter (increase in increments of 2)
     SDUActionWithNoURLValue.xml    2
@@ -111,7 +112,6 @@ Simulate SDU Action Now
     Move File   ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}    ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
 
 Test Remote Diagnose can process SDU action with malformed URL
-    [Timeout]    7 minutes
     [Arguments]    ${input_action_xml_file_name}    ${num_times_status_sent_for_sdu_adapter}
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
