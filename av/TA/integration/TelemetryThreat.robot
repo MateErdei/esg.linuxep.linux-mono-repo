@@ -202,6 +202,7 @@ On Access Scan Increments Telemetry Threat Eicar Count
     Send Policies to enable on-access
 
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  On-access exclusions: ["/mnt/","/vagrant/","/uk-filer5/","/opt/test/inputs/test_scripts/","*excluded*"]  mark=${mark}
 
     On-access Scan Eicar Open
 
