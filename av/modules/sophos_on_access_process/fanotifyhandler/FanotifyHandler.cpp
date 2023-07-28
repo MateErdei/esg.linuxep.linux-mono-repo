@@ -91,8 +91,8 @@ int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClos
         mask |= FAN_OPEN;
     }
 
-    auto pos = markMap.find(path);
-    if (pos != markMap.end())
+    auto pos = markMap_.find(path);
+    if (pos != markMap_.end())
     {
         auto oldMask = pos->second;
         if (oldMask == mask)
@@ -107,7 +107,7 @@ int FanotifyHandler::markMount(const std::string& path, bool onOpen, bool onClos
 
     constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
-    markMap[path] = mask;
+    markMap_[path] = mask;
     return processFaMarkError(result, "markMount", path);
 }
 
@@ -136,7 +136,7 @@ int FanotifyHandler::unmarkMount(const std::string& path, int fanotify_fd)
     {
         return 0; // ignore enoent, since it just means we haven't previously marked the mount point
     }
-    markMap.erase(path);
+    markMap_.erase(path);
     return processFaMarkError(result, "unmarkMount", path);
 }
 

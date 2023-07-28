@@ -114,7 +114,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
             const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
-            std::map<std::string, uint64_t> markMap;
+            std::map<std::string, uint64_t> markMap_;
     };
 }
 
