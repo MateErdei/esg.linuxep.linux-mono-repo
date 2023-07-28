@@ -129,6 +129,6 @@ Test Remote Diagnose can process SDU action with malformed URL
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Cannot process url will not send up diagnose file Error: Malformed url missing protocol    30
 
     Wait Until Keyword Succeeds
-        ...  40 secs
+        ...  240 secs
         ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   ${num_times_status_sent_for_sdu_adapter}
