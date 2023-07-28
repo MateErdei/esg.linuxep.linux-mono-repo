@@ -93,18 +93,26 @@ public:
     })"; // interval negative
 
     const std::string m_validALCPolicy = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
-</AUConfig>
-<server_names>
-  <telemetry>test.sophosupd.com</telemetry>
-</server_names>
-</AUConfigurations>
-)sophos";
+        <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+          <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+        <AUConfig platform="Linux">
+        <primary_location>
+          <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+        </primary_location>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+        <cloud_subscriptions>"
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+        </cloud_subscriptions>"
+        </AUConfig>
+        <server_names>
+          <telemetry>test.sophosupd.com</telemetry>
+        </server_names>
+        <Features>
+            <Feature id="CORE"/>
+            <Feature id="SDU"/>
+        </Features>
+        </AUConfigurations>
+    )sophos";
 
     void SetUp() override
     {
@@ -132,18 +140,26 @@ public:
     static std::string generateAlcPolicyWithTelemetryHostname(const std::string& hostname)
     {
         return std::string(R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
-</AUConfig>
-<server_names>
-<telemetry>)sophos") + hostname + R"sophos(</telemetry>
-</server_names>
-</AUConfigurations>
-)sophos";
+            <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+              <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+            <AUConfig platform="Linux">
+            <primary_location>
+              <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+            </primary_location>
+            <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+            <cloud_subscriptions>"
+                <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+            </cloud_subscriptions>"
+            </AUConfig>
+            <server_names>
+                <telemetry>)sophos") + hostname + R"sophos(</telemetry>
+            </server_names>
+            <Features>
+                <Feature id="CORE"/>
+                <Feature id="SDU"/>
+            </Features>
+            </AUConfigurations>
+        )sophos";
     }
 };
 
@@ -1126,19 +1142,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithEmptyTelemetryHostnameExeConfigIsNotWrittenAndTelemetryExecutableIsNotRun)
 {
-    const auto policy = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
-</AUConfig>
-<server_names>
-<telemetry></telemetry>
-</server_names>
-</AUConfigurations>
-)sophos";
+    const auto policy = generateAlcPolicyWithTelemetryHostname("");
 
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillRepeatedly(Return(true));
@@ -1183,9 +1187,17 @@ TEST_F(SchedulerProcessorTests, AfterRecevingAlcPolicyWithNoTelemetryFieldExeCon
 <primary_location>
   <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
 </primary_location>
+<cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+<cloud_subscriptions>"
+    <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+</cloud_subscriptions>"
 </AUConfig>
 <server_names>
 </server_names>
+<Features>
+    <Feature id="CORE"/>
+    <Feature id="SDU"/>
+</Features>
 </AUConfigurations>
 )sophos";
 

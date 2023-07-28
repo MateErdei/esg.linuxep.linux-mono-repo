@@ -417,10 +417,18 @@ TEST_F(TestALCPolicy, emptyTelemetryHostInPolicyGivesEmptyString)
 <primary_location>
   <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
 </primary_location>
+<cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+<cloud_subscriptions>"
+    <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>"
+</cloud_subscriptions>"
 </AUConfig>
 <server_names>
-  <telemetry></telemetry>
+    <telemetry></telemetry>
 </server_names>
+<Features>
+    <Feature id="CORE"/>
+    <Feature id="SDU"/>
+</Features>
 </AUConfigurations>
 )sophos";
 
