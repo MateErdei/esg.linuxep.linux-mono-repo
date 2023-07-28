@@ -3,6 +3,7 @@
 from datetime import datetime
 from datetime import timedelta
 import calendar
+import json
 import os
 import uuid
 
@@ -246,6 +247,8 @@ class _SavPolicyBuilder:
         self.replacement_map["<time>{{scheduledScanTime}}</time>"] = ""
 
     def set_posix_exclusions(self, exclusions):
+        if isinstance(exclusions, str):
+            exclusions = json.loads(exclusions)
         self.replacement_map["{{posixExclusions}}"] = self._create_tagged_lines(exclusions, "filePath")
 
     def set_sophos_defined_extension_exclusions(self, extension_exclusions):

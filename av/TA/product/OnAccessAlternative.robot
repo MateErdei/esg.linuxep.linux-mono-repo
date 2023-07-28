@@ -133,9 +133,11 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS},"onClose":true,"onOpen":true}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access enabled: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access scan network: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  Setting onOpen from file: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  Setting onClose from file: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
 
 On Access Process Parses Flags Config On startup
@@ -166,10 +168,8 @@ On Access Does Not Include Remote Files If Excluded In Policy
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    ${mark} =  wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
-    wait for on access log contains after mark  On-access enabled: true  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  "excludeRemoteFiles":true  mark=${mark}
     wait for on access log contains after mark  On-access scan network: false  mark=${mark}
-    ${mark} =  wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
     ${mark} =  wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
 
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
