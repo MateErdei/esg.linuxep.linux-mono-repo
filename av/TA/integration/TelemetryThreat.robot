@@ -231,8 +231,10 @@ On Access Scan Increments Telemetry Threat Count
     Send Policies to enable on-access
 
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  On-access exclusions: ["/mnt/","/vagrant/","/uk-filer5/","/opt/test/inputs/test_scripts/","*excluded*"]  mark=${mark}
 
     #Generate ml file in excluded location
+    Create Directory  ${NORMAL_DIRECTORY}/
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
 
