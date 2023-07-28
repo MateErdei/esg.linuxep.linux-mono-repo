@@ -967,6 +967,16 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
+    def wait_for_log_contains_n_times_from_mark(self,
+                                                mark: LogHandler.LogMark,
+                                                expected: typing.Union[list, str, bytes],
+                                                times: int,
+                                                timeout=10) -> None:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
+        return mark.wait_for_log_contains_n_times_from_mark(expected, times, timeout)
+
     def wait_for_log_contains_after_mark(self,
                                          logpath: typing.Union[str, bytes],
                                          expected: typing.Union[list, str, bytes],

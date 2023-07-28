@@ -480,7 +480,7 @@ AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
     Log  return code is ${rc}
     Log  output is ${output}
 
-    av_log_contains_multiple_times_after_mark   See endpoint logs for threat file path at: /opt/sophos-spl/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log   ${avmark}  3
+    wait_for_log_contains_n_times_from_mark  ${avmark}  See endpoint logs for threat file path at: /opt/sophos-spl/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  times=${3}  timeout=${10}
 
     Dump Log  ${AV_LOG_PATH}
 

@@ -139,20 +139,23 @@ class LogMark:
         else:
             return expected in contents
 
-    def __find_str_in_contents(self, expected, contents):
+    def __find_str_in_contents(self, expected, contents, start=0):
         """
         :param expected: str or list to search for: returns position of first entry in list found
         :param contents:
         :return: -1 if expected not in contents
         """
         if isinstance(expected, list):
+            positions = []
             for s in expected:
-                pos = self.__find_str_in_contents(s, contents)
+                pos = self.__find_str_in_contents(s, contents, start)
                 if pos >= 0:
-                    return pos
+                    positions.append(pos)
+            if len(positions) > 0:
+                return min(positions)
             return -1
         else:
-            return contents.find(expected)
+            return contents.find(expected, start)
 
     def wait_for_possible_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
         expected = ensure_binary(expected, "UTF-8")
@@ -229,6 +232,35 @@ class LogMark:
             time.sleep(0.5)
 
         logger.error("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
+        self.dump_marked_log()
+        raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
+
+    def wait_for_log_contains_n_times_from_mark(self, expected, times, timeout) -> None:
+        assert times >= 1
+        expected = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        sleep_time = timeout / 60  # Check by default 60 times during the timeout
+        sleep_time = max(0.01, sleep_time)  # Delay a minimum of 10ms between checks
+        sleep_time = min(10.0, sleep_time)    # Delay a maximum of 10 seconds between checks
+        logger.debug("Sleeping %f seconds between checks" % sleep_time)
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = self.get_contents()
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+                    old_contents = contents
+
+                pos = 0
+                for i in range(times):
+                    pos = self.__find_str_in_contents(expected, contents, pos)
+
+                if pos >= 0:
+                    return pos
+
+            time.sleep(sleep_time)
+
+        logger.error("Failed to find %s %d times in %s after %s" % (expected, times, self.get_path(), self))
         self.dump_marked_log()
         raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
 
