@@ -34,6 +34,9 @@ import requests
 import yaml
 
 from retry import retry
+from common import  set_inputs_mode, is_static_suite_instance
+from common import hash_file
+from auto_versioning import _generate_static_suite_flags, _expand_static_suites, _import_static_suite_flags
 
 ARTIFACTORY_URL = f'https://{os.environ["TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL"]}/artifactory' \
                   if 'TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL' in os.environ \
@@ -48,13 +51,11 @@ ROOT = os.path.dirname(BASE)
 ARTIFACT_CACHE = os.path.join(ROOT, 'inputs', 'artifact')
 
 VERSION = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['version']
-STATIC = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['static']
 
 # Map of fileset -> package target
 FILESET_TO_PKGTARGET = {}
 # Map of package target -> fileset
 PKGTARGET_TO_FILESET = {}
-
 
 def say(msg, level=logging.INFO):
     logging.log(level=level, msg=msg)
@@ -98,12 +99,7 @@ def copy_file_or_url(origin, target):
     return False
 
 
-def hash_file(name):
-    sha256 = hashlib.sha256()
-    with open(name, 'rb') as f:
-        for byte_block in iter(lambda: f.read(65536), b""):
-            sha256.update(byte_block)
-    return sha256.hexdigest()
+
 
 
 EMITTED_BUILDFILES = {}
@@ -391,6 +387,22 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package'):
         emit_copy_prebuilt_package_rule(rulefh, component, compdef, compdef['prebuilt'], package_folder)
         return
 
+    # if static flags create copy of component to insert in flags
+    if 'static_suite_flags' in compdef:
+        sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')
+        with open(sdds_import) as f:
+            xml = ET.fromstring(f.read())
+
+        sdds_import_filelist = xml.find('Component/FileList')
+        old_location = os.path.join(BASE, compdef['fileset'])
+        new_location = old_location+"static"
+        shutil.rmtree(new_location,True)
+        shutil.copytree(old_location,new_location)
+        compdef['fileset'] = compdef['fileset']+'static'
+        _import_static_suite_flags(compdef, sdds_import_filelist, new_location)
+        with open(os.path.join(new_location,'SDDS-Import.xml'), 'wb') as f:
+            ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
+
     name, version, nonce = _get_package_info_from_sdds_import_xml(compdef)
     target = _get_package_target_from_name_version_nonce(name, version, nonce)
 
@@ -446,7 +458,6 @@ def emit_package_rules(rulefh, suites, common_component_data, mode):
                 instance['_view'] = j
 
                 create_suite_package(common_component_data[view['component']], instance, view, mode)
-
                 emit_package_rule(rulefh, suite, view['def'])
 
                 if 'subcomponents' not in view:
@@ -555,29 +566,55 @@ def write_static_flags(static_flags):
     for entry in static_flags:
         newflag = {}
         newflag['device_class'] = entry
-        newflag['name'] = f'{STATIC} ' + static_flags[entry]['ServerProtectionLinux-Base']['version']
+        static = VERSION['static']
+        newflag['name'] = f'{static} ' + static_flags[entry]['ServerProtectionLinux-Base']['version']
         newflag['suite_info'] = {}
 
         for suite in static_flags[entry]:
-            print(suite)
-            newflag['suite_info'][suite] ={}
+            newflag['suite_info'][suite] = {}
 
             newflag['suite_info'][suite]['suite'] = static_flags[entry][suite]['suite']
-            newflag['suite_info'][suite]['display_version'] = f'{STATIC} ' + static_flags[entry][suite]['version']
+            newflag['suite_info'][suite]['display_version'] = f'{static} ' + static_flags[entry][suite]['version']
         newflag['token'] = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(newflag)))
         mock_flag_value = os.path.join(flagsdir, f'{entry}.json')
         with open(mock_flag_value, 'w') as f:
             json.dump(newflag, f, indent=2, sort_keys=True)
 
+
+
 # pylint: disable=R0914     # too many local variables. Honestly.
-def emit_suite_rules(rulefh, suites, common_component_data):
-    # Generate LaunchDarkly flags content so we can configure the dev version of LD.
+def emit_suite_rules(rulefh, suites, common_component_data,common_supplements_data):
+    # Generate LaunchDarkly flags content, so we can configure the dev version of LD.
     launchdarkly_flags = {}
     static_flags = {}
 
     for suite in suites:
         suitemeta = suites[suite]
+
         for instance in suitemeta['instances']:
+            if is_static_suite_instance(instance):
+                (name, _) = os.path.splitext(suite)
+                tag1 = instance['tags'][0]
+                plat1 = view['platforms'][0]
+
+                for view in instance['views']:
+                    if 'subcomponents' not in view:
+                        continue
+                    for subcomponent in view['subcomponents']:
+                        sub_content = view['subcomponents'][subcomponent]
+                        if sub_content:
+                            if 'supplements' in sub_content:
+                                lineid = common_component_data[subcomponent]['line-id']
+                                tgt = f'flags_{name}.{lineid}.{tag1}.{VERSION["static"]}.{plat1}'
+                                flags_file = os.path.join(BASE, ".output",f'{tgt}.json')
+                                if _generate_static_suite_flags(flags_file,
+                                                                sub_content,
+                                                                common_component_data,
+                                                                common_supplements_data):
+                                    compdef = common_component_data[subcomponent]
+                                    compdef['static_suite_flags'] = {"sspl_flags/files/base/etc/sophosspl/flags-warehouse.json" :flags_file}
+                                    emit_package_rule(rulefh, subcomponent, compdef)
+
             # To build a suite, we need:
             #
             # 1. The suite's metadata (its version/description, and where to attach supplements)
@@ -622,9 +659,11 @@ build_sdds3_suite(
 """, file=rulefh, flush=True)
 
             for product in suitemeta['sus']:
-                for tag in instance['tags']:
-                    add_launchdarkly_flag(launchdarkly_flags, product, tag, instance['def'], suite_src)
-                add_static_flags(static_flags, product, instance['def'],suite_src)
+                if is_static_suite_instance(instance):
+                    add_static_flags(static_flags, product, instance['def'],suite_src)
+                else:
+                    for tag in instance['tags']:
+                        add_launchdarkly_flag(launchdarkly_flags, product, tag, instance['def'], suite_src)
 
     write_static_flags(static_flags)
     write_launchdarkly_flags(launchdarkly_flags)
@@ -984,7 +1023,6 @@ def expand_supplement_refs(suites, supplement_refs):
         for instance in suites[suite]['instances']:
             for view in instance['views']:
                 _expand_supplements_in(view)
-                print(view)
                 if 'subcomponents' in view:
                     for comp in view['subcomponents']:
                         _expand_supplements_in(view['subcomponents'][comp])
@@ -1063,6 +1101,7 @@ def emit_bazel_build_files(mode):
     # Slurp in all of the definitions
     common_component_data = load_components()
     suites = load_suites()
+    _expand_static_suites(suites)
     supplements = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplements.yaml")).read())
     supplement_refs = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplement-refs.yaml")).read())
 
@@ -1087,11 +1126,12 @@ load("//sdds3/tools:tools.bzl",
         say('Generating package rules')
         emit_package_rules(build, suites, common_component_data, mode)
 
+        import_internal_supplements(supplements, common_component_data)
         say('Generating suite rules')
-        emit_suite_rules(build, suites, common_component_data)
+        emit_suite_rules(build, suites, common_component_data, supplements)
 
         say('Generating supplement rules')
-        import_internal_supplements(supplements, common_component_data)
+
         import_external_supplements(supplements, common_component_data)
 
         # NOT NEEDED FOR SSPL
@@ -1117,9 +1157,9 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices=['dev', 'prod'], default='dev')
+    parser.add_argument('--mode', choices=['dev', 'prod', '999'], default='dev')
     args = parser.parse_args()
-
+    set_inputs_mode(args.mode)
     set_artifactory_auth_headers()
     cleanup_output_folders()
     emit_bazel_build_files(args.mode)

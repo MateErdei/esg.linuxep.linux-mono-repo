@@ -18,9 +18,9 @@
 
       <build-asset project="linuxep" repo="everest-base" mode="dev,999">
         <development-version branch="develop"/>
-          <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="dev"/>
+          <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
-          <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
+          <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="999"/>
           <include artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="999"/>
       </build-asset>
 
@@ -112,9 +112,14 @@
         <args>-u tools/src/dump_environment/dump_environment.py</args>
         <workingdir>.</workingdir>
     </command>
-    <command mode="dev,999">
+    <command mode="dev">
         <program>python3</program>
-        <args>-u sdds3/tools/gen_bazel.py</args>
+        <args>-u sdds3/tools/gen_bazel.py --mode dev</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="999">
+        <program>python3</program>
+        <args>-u sdds3/tools/gen_bazel.py --mode 999</args>
         <workingdir>.</workingdir>
     </command>
     <command mode="prod">

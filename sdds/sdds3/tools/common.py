@@ -7,14 +7,10 @@ import codecs
 import hashlib
 import logging
 import os
-import shutil
-import subprocess
-import sys
-import fileinput
+
 import requests
 
 from retry import retry
-from xml.etree import ElementTree as ET
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(TOOLS)
@@ -123,19 +119,7 @@ def hash_file(name):
             sha256.update(byte_block)
     return sha256.hexdigest()
 
-def hash_file_sha384(name):
-    sha384 = hashlib.sha384()
-    with open(name, 'rb') as f:
-        for byte_block in iter(lambda: f.read(65536), b""):
-            sha384.update(byte_block)
-    return sha384.hexdigest()
 
-def hash_file_md5sum(name):
-    md5 = hashlib.md5()
-    with open(name, 'rb') as f:
-        for byte_block in iter(lambda: f.read(65536), b""):
-            md5.update(byte_block)
-    return md5.hexdigest()
 _AUTOVERSION_CACHE = {}
 
 
@@ -193,53 +177,3 @@ def visit_suite_instance_views(suites):
 
 def is_static_suite_instance(instance):
     return '_STATIC' in instance['tags']
-
-def change_version_to_999(dist):
-    sdds_import = os.path.join(dist, 'SDDS-Import.xml')
-    manifest = os.path.join(dist, 'manifest.dat')
-    top_level_VERSION_file = os.path.join(dist, 'VERSION.ini')
-    VERSION_file = ""
-
-    for root, dirs, files in os.walk(os.path.join(dist, 'files')):
-        for file in files:
-            if file.endswith("VERSION.ini"):
-                VERSION_file = os.path.join(root, file)
-
-    # change version to 99.99.99 in VERSION.ini files
-    for line in fileinput.input([top_level_VERSION_file], inplace=True):
-        if line.strip().startswith('PRODUCT_VERSION ='):
-            line = 'PRODUCT_VERSION = 99.99.99\n'
-        sys.stdout.write(line)
-
-    shutil.copy(top_level_VERSION_file, VERSION_file)
-    sha384 = hash_file_sha384(top_level_VERSION_file)
-    md5 = hash_file_md5sum(top_level_VERSION_file)
-
-    #update version ini files in sdds import
-    with open(sdds_import) as f:
-        xml = ET.fromstring(f.read())
-
-    xml.find('Component/Version').text = '99.99.99'
-
-    sdds_import_filelist = xml.find('Component/FileList')
-
-    for file in sdds_import_filelist:
-        if "VERSION.ini" in file.attrib['Name']:
-            file.attrib['SHA384'] = sha384
-            file.attrib['MD5'] = md5
-            file.attrib['Size'] = str(os.path.getsize(top_level_VERSION_file))
-
-    with open(os.path.join(sdds_import), 'wb') as f:
-        ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
-
-    #generate new manifest
-    exclusions = 'SDDS-Import.xml,manifest.dat'
-    env = os.environ.copy()
-    env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
-    env['OPENSSL_PATH'] = "/usr/bin/openssl"
-
-    result = subprocess.run(
-        ['sb_manifest_sign','-l', '--folder', dist, '--output', manifest, '--exclusions', exclusions]
-        , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
-        timeout=60
-    )

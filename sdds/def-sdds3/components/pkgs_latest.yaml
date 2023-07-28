@@ -15,7 +15,7 @@ av.latest.x64:
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-28/20230711131508-6907e89ddfe3e57d2f0cf6cf6dfb6663e5a1964a-Rq6aTd/sspl-base/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-28/20230711131508-6907e89ddfe3e57d2f0cf6cf6dfb6663e5a1964a-Rq6aTd/sspl-base/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
