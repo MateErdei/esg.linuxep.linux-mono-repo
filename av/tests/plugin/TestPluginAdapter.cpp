@@ -229,7 +229,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
     std::string policy3revID = "12345678903";
-    std::string policy1Xml = generatePolicyXML(policy1revID);
+    std::string policy1Xml = generatePolicyXML(policy1revID, "2", "true");
     std::string policy2Xml = generatePolicyXML(policy2revID);
     std::string policy3Xml = generatePolicyXML(policy3revID, "2", "true");
 

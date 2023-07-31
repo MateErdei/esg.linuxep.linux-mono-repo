@@ -346,7 +346,7 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
     </bops>
   </runtimeBehaviourInspection2>
   <fileReputation>
-    <enabled>false</enabled>
+    <enabled>true</enabled>
     <level>recommended</level>
     <action>prompt</action>
   </fileReputation>
@@ -359,7 +359,7 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
     <approvedSites/>
   </webFiltering>
   <detectionFeedback>
-    <sendData>false</sendData>
+    <sendData>true</sendData>
     <sendFiles>true</sendFiles>
     <onDemandEnable>true</onDemandEnable>
   </detectionFeedback>
