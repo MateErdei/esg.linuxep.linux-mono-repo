@@ -3,13 +3,15 @@
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/TestClient.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/SophosLoggerMacros.h>
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/Exceptions/IException.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/SophosLoggerMacros.h"
+#include "Common/Logging/LoggerConfig.h"
 
 #include <iostream>
 #include <fcntl.h>
 #include <getopt.h>
+
 // Generate AV TDO
 //  SendThreatDetectedEvent -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
@@ -40,7 +42,6 @@ static int inner_main(int argc, char* argv[])
     {
         printUsageAndExit(argv[0]);
     }
-    Common::Logging::ConsoleLoggingSetup logging;
     std::string socketPath = "event.sock";
     std::string sha;
     std::string filePath;
@@ -155,9 +156,15 @@ static int inner_main(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+    Common::Logging::ConsoleLoggingSetup logging;
     try
     {
         return inner_main(argc, argv);
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGFATAL("Caught IException at top-level: " << ex.what_with_location());
+        return 30;
     }
     catch (const std::exception& ex)
     {
