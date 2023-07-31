@@ -1122,14 +1122,14 @@ Check Specific File Content
     Should Contain    ${FileContents}   ${expectedContent}
 
 Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
+    [Arguments]  ${revid}=${EMPTY}  ${username}=B  ${userpassword}=A
     ${policyContent} =  Catenate   SEPARATOR=${\n}
     ...   <?xml version="1.0"?>
     ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
     ...     <csc:Comp RevID="${revid}" policyType="1"/>
     ...     <AUConfig>
     ...       <primary_location>
-    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
+    ...         <server Algorithm="Clear" UserPassword="${userpassword}" UserName="${username}"/>
     ...       </primary_location>
     ...     </AUConfig>
     ...   </AUConfigurations>
