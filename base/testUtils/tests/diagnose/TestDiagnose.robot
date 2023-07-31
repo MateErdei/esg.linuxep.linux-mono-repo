@@ -61,7 +61,7 @@ Diagnose Tool Gathers Logs When Run From Installation
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers Logs When Run From Systemctl
-    [Tags]  TAP_TESTS    SMOKE
+    [Tags]   SMOKE
     Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
