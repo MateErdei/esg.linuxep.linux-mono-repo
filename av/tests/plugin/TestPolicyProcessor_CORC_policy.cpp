@@ -104,21 +104,31 @@ static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
 
   <intelix>
     <!-- <url>{{intelix_url}}</url> -->
-    <!-- <lookupUrl>{{intelix_lookup_url}}</lookupUrl> -->
+    <lookupUrl>{{intelix_lookup_url}}</lookupUrl>
   </intelix>
 </policy>
 )sophos";
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithAllowList)
 {
-    const std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798","42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string baseJson;
+    std::string chrootJson;
+    saveSusiConfigFromBothWrites(_, baseJson, chrootJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(GL_CORC_POLICY);
     PolicyProcessorUnitTestClass proc;
     ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    EXPECT_EQ(baseJson, chrootJson);
+    auto actual = nlohmann::json::parse(chrootJson);
+    auto pathAllowList = actual.at("pathAllowList");
+    ASSERT_EQ(pathAllowList.size(), 1);
+    EXPECT_EQ(pathAllowList[0].get<std::string>(), "/tmp/a/path");
+    auto shaAllowList = actual.at("shaAllowList");
+    ASSERT_EQ(shaAllowList.size(), 2);
+    EXPECT_EQ(shaAllowList[0], "a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798");
+    EXPECT_EQ(shaAllowList[1], "42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithEmptyAllowList)
@@ -129,14 +139,18 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithEmptyAllowList)
           </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":[])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(emptyAllowList);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(emptyAllowList));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("pathAllowList").empty());
+    EXPECT_TRUE(actual.at("puaApprovedList").empty());
+    EXPECT_TRUE(actual.at("shaAllowList").empty());
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithMissingAllowList)
@@ -145,14 +159,18 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithMissingAllowList)
         <policy RevID="revisionid" policyType="37">
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":[],"puaApprovedList":[],"shaAllowList":[])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(missingAllowList);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(missingAllowList));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("pathAllowList").empty());
+    EXPECT_TRUE(actual.at("puaApprovedList").empty());
+    EXPECT_TRUE(actual.at("shaAllowList").empty());
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNonShaTypeAllowListItems)
@@ -165,14 +183,16 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNonShaTypeAllowList
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":[]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":[])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("shaAllowList").empty());
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNoPathTypeAllowListItems)
@@ -185,14 +205,16 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNoPathTypeAllowList
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":[])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("pathAllowList").empty());
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyPathTypeAllowListItem)
@@ -207,14 +229,17 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyPathTypeAll
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":["/tmp/a/path"])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    ASSERT_EQ(actual.at("pathAllowList").size(), 1);
+    EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneInvalidPathTypeAllowListItem)
@@ -230,14 +255,18 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneInvalidPathTypeA
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path","*/not/a/absolute/path/but/am/glob"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":["/tmp/a/path","*/not/a/absolute/path/but/am/glob"])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    ASSERT_EQ(actual.at("pathAllowList").size(), 2);
+    EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
+    EXPECT_EQ(actual.at("pathAllowList")[1], "*/not/a/absolute/path/but/am/glob");
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyShaTypeAllowListItem)
@@ -252,14 +281,17 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyShaTypeAllo
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    ASSERT_EQ(actual.at("shaAllowList").size(), 1);
+    EXPECT_EQ(actual.at("shaAllowList")[0], "42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllowList)
@@ -274,14 +306,19 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    ASSERT_EQ(actual.at("shaAllowList").size(), 1);
+    EXPECT_EQ(actual.at("shaAllowList")[0], "42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
+    ASSERT_EQ(actual.at("pathAllowList").size(), 1);
+    EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
 }
 
 

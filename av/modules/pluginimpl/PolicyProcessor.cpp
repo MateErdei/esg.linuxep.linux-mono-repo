@@ -641,10 +641,7 @@ namespace Plugin
     {
         resetTemporaryMarkerBooleans();
 
-        auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
-        auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
-        bool m_firstPolicy = !m_gotFirstCorcPolicy;
-
+        bool firstPolicy = !m_gotFirstCorcPolicy;
         if (!m_gotFirstCorcPolicy)
         {
             LOGINFO("CORC policy received for the first time");
@@ -675,12 +672,45 @@ namespace Plugin
                 }
             }
         }
-        if (oldSha256AllowList != sha256AllowList ||
-            oldPathAllowList != pathAllowList ||
-            m_firstPolicy)
+        std::string sxlUrl;
+        auto sxlUrls = policy.lookupMultiple("policy/intelix/lookupUrl");
+        if (sxlUrls.empty())
+        {
+            LOGWARN("CORC policy doesn't contain lookupUrl: Disabling Global Reputation");
+        }
+        else if (sxlUrls.size() > 1)
+        {
+            LOGWARN("CORC policy contains multiple lookupUrl: Disabling Global Reputation");
+        }
+        else
+        {
+            sxlUrl = sxlUrls[0].contents();
+            LOGDEBUG("SXL URL: " << sxlUrl);
+        }
+
+
+
+        bool changed = firstPolicy;
+        auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
+        auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
+        if (oldSha256AllowList != sha256AllowList)
+        {
+            changed = true;
+        }
+        else if (oldPathAllowList != pathAllowList)
+        {
+            changed = true;
+        }
+        else if (sxlUrl != m_threatDetectorSettings.getSxlUrl())
+        {
+            changed = true;
+        }
+
+        if (changed)
         {
             m_threatDetectorSettings.setAllowListSha256(std::move(sha256AllowList));
             m_threatDetectorSettings.setAllowListPath(std::move(pathAllowList));
+            m_threatDetectorSettings.setSxlUrl(sxlUrl);
             saveSusiSettings("CORC");
         }
         else

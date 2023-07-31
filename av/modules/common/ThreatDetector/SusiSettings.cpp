@@ -79,7 +79,7 @@ namespace common::ThreatDetector
             }
             json parsedConfig = json::parse(settingsJsonContent);
 
-            m_susiSxlLookupEnabled = getBooleanFromJson(parsedConfig, ENABLED_SXL_LOOKUP_KEY, "SXL Lookups", true);
+            m_susiSxlLookupEnabled = getBooleanFromJson(parsedConfig, ENABLED_SXL_LOOKUP_KEY, "SXL Lookups", false);
             m_machineLearningEnabled = getBooleanFromJson(parsedConfig, MACHINE_LEARNING_KEY, "Machine Learning", true);
 
             if (parsedConfig.contains(SHA_ALLOW_LIST_KEY))
@@ -103,6 +103,9 @@ namespace common::ThreatDetector
                 m_susiPuaApprovedList = parsedConfig[PUA_APPROVED_LIST_KEY].get<std::vector<std::string>>();
                 LOGDEBUG("Number of approved PUA items: " << m_susiPuaApprovedList.size());
             }
+
+            sxlUrl_ = parsedConfig[SXL_URL_KEY].get<std::string>();
+            LOGDEBUG("SXL URL: " << sxlUrl_);
 
             LOGDEBUG("Loaded Threat Detector SUSI settings into SUSI settings object");
             return true;
@@ -139,6 +142,7 @@ namespace common::ThreatDetector
         settings[PATH_ALLOW_LIST_KEY] = m_susiAllowListPathRaw;
         settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
         settings[PUA_APPROVED_LIST_KEY] = m_susiPuaApprovedList;
+        settings[SXL_URL_KEY] = sxlUrl_;
         return settings.dump();
     }
 
@@ -247,4 +251,15 @@ namespace common::ThreatDetector
         }
         m_susiAllowListPath.swap(allowListPath);
     }
+
+    std::string SusiSettings::getSxlUrl() const
+    {
+        return sxlUrl_;
+    }
+
+    void SusiSettings::setSxlUrl(const std::string& url)
+    {
+        sxlUrl_ = url;
+    }
+
 } // namespace common::ThreatDetector

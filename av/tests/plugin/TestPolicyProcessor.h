@@ -27,6 +27,12 @@ namespace
             processCOREpolicy(attributeMap);
         }
 
+        void processCORCpolicyFromString(const std::string& policy)
+        {
+            auto attributeMap = Common::XmlUtilities::parseXml(policy);
+            processCorcPolicy(attributeMap);
+        }
+
     protected:
         void notifyOnAccessProcessIfRequired() override { PRINT("Notified soapd"); }
     };
@@ -95,6 +101,40 @@ namespace
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
             EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
+        }
+
+        /**
+         * Saves the text written to m_susiStartupConfigChrootPath
+         * and matches expected against both m_susiStartupConfigPath and m_susiStartupConfigChrootPath
+         * @tparam Matcher
+         * @param expected
+         * @param destination
+         */
+        template<typename Matcher>
+        void saveSusiConfigFromWrite(const Matcher& expected, std::string& destination)
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).WillOnce(
+                SaveArg<1>(&destination)
+                );
+        }
+
+        /**
+         * Saves the text written to each file, to verify the same text is written to both files.
+         * @tparam Matcher
+         * @param expected
+         * @param base
+         * @param chroot
+         */
+        template<typename Matcher>
+        void saveSusiConfigFromBothWrites(const Matcher& expected, std::string& base, std::string& chroot)
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).WillOnce(
+                SaveArg<1>(&base)
+            );
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).WillOnce(
+                SaveArg<1>(&chroot)
+            );
         }
 
         void expectAbsentSusiConfig()

@@ -48,6 +48,9 @@ namespace common::ThreatDetector
         void setPuaApprovedList(PuaApprovedList&& approvedList) noexcept;
         PuaApprovedList copyPuaApprovedList() const;
 
+        std::string getSxlUrl() const;
+        void setSxlUrl(const std::string&);
+
     private:
         void processRawPathAllowList();
 
@@ -57,9 +60,10 @@ namespace common::ThreatDetector
         AllowList m_susiAllowListSha256;
         AllowList m_susiAllowListPathRaw; //For checking against updated policy & json operations
         AllowListPath m_susiAllowListPath; //For checking against detections
-        bool m_susiSxlLookupEnabled = true;
-        bool m_machineLearningEnabled = true;
         PuaApprovedList m_susiPuaApprovedList;
+        std::string sxlUrl_;
+        bool m_susiSxlLookupEnabled = false; // Default to false until we have a policy
+        bool m_machineLearningEnabled = true;
 
         [[nodiscard]] std::string serialise() const;
         static constexpr auto ENABLED_SXL_LOOKUP_KEY = "enableSxlLookup";
@@ -67,5 +71,6 @@ namespace common::ThreatDetector
         static constexpr auto PATH_ALLOW_LIST_KEY = "pathAllowList";
         static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
         static constexpr auto PUA_APPROVED_LIST_KEY = "puaApprovedList";
+        static constexpr auto SXL_URL_KEY = "sxlUrl"; // empty means disable SxlLookup regardless of ENABLED_SXL_LOOKUP_KEY
     };
 } // namespace common::ThreatDetector
