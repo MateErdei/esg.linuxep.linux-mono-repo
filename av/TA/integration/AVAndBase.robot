@@ -672,7 +672,6 @@ AV Plugin does not restart threat detector on customer id change
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
     Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}
-    #Wait For Sophos Threat Detector Log Contains After Mark   Skipping susi reload because susi is not initialised  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark}
     Check Sophos Threat Detector has same PID   ${pid}
 
@@ -707,7 +706,6 @@ AV Plugin does not restart threat detector on customer id change
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark3}
     Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark3}
-    #Wait For Sophos Threat Detector Log Contains After Mark   Skipping susi reload because susi is not initialised  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark3}
     Check Sophos Threat Detector has same PID   ${pid}
 
