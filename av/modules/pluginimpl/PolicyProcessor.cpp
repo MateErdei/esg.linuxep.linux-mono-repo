@@ -725,7 +725,10 @@ namespace Plugin
 
     bool PolicyProcessor::isLookupUrlValid(const std::string& url)
     {
-        std::ignore = url;
+        if (url.size() > 1024)
+        {
+            return false;
+        }
         if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
         {
             return false;

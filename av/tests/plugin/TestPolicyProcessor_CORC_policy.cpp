@@ -322,16 +322,63 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
     EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
 }
 
+// SXL 4 URL tests:
+
+namespace
+{
+    std::string getPolicyForSXL4Url(const std::string& sxlUrl)
+    {
+        const std::string policyTemplate = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>{{SXL4_URL}}</lookupUrl>
+            </intelix>
+        </policy>)";
+        return Common::UtilityImpl::StringUtils::orderedStringReplace(policyTemplate, { { "{{SXL4_URL}}", sxlUrl } });
+    }
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, valid_sxl4_url)
+{
+    const auto policy = getPolicyForSXL4Url("https://4.sophosxl.net");
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"https://4.sophosxl.net")sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_all_alpha_numeric)
+{
+    const auto policy = getPolicyForSXL4Url("https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com");
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":)sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com");
+}
+
 TEST_F(TestPolicyProcessor_CORC_policy, missing_sxl4_url_goes_to_empty)
 {
-    std::string policy = R"(<?xml version="1.0"?>
+    const std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         </policy>)";
 
     expectConstructorCalls();
     std::string actualJson;
     auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
@@ -342,17 +389,12 @@ TEST_F(TestPolicyProcessor_CORC_policy, missing_sxl4_url_goes_to_empty)
 
 TEST_F(TestPolicyProcessor_CORC_policy, empty_sxl4_url_goes_to_empty)
 {
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-              <lookupUrl></lookupUrl>
-            </intelix>
-        </policy>)";
+    const auto policy = getPolicyForSXL4Url("");
 
     expectConstructorCalls();
     std::string actualJson;
     auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
@@ -361,41 +403,14 @@ TEST_F(TestPolicyProcessor_CORC_policy, empty_sxl4_url_goes_to_empty)
     EXPECT_EQ(actual.at("sxlUrl"), "");
 }
 
-TEST_F(TestPolicyProcessor_CORC_policy, valid_sxl4_url)
-{
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-                <lookupUrl>https://4.sophosxl.net</lookupUrl>
-            </intelix>
-        </policy>)";
-
-    expectConstructorCalls();
-    std::string actualJson;
-    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "https://4.sophosxl.net")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
-    auto actual = nlohmann::json::parse(actualJson);
-    EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net");
-}
-
 TEST_F(TestPolicyProcessor_CORC_policy, invalid_utf8_in_sxl4_url)
 {
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-                <lookupUrl>{{SXL4_URL}}</lookupUrl>
-            </intelix>
-        </policy>)";
     // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t sjis | hexdump -C
     std::vector<unsigned char> sjisBytes { 0x82, 0xa0, 0x82, 0xe8, 0x82, 0xc1, 0x82, 0xbd, 0x82, 0xaf, 0x82, 0xcc,
                                                 0x96, 0xb2, 0x82, 0xf0, 0x82, 0xa9, 0x82, 0xab, 0x8f, 0x57, 0x82, 0xdf };
     std::string sjis(sjisBytes.begin(), sjisBytes.end());
     std::string url = "https://" + sjis;
-    policy = Common::UtilityImpl::StringUtils::orderedStringReplace(policy, { { "{{SXL4_URL}}", url } });
+    const auto policy = getPolicyForSXL4Url(url);
 
     expectConstructorCalls();
     std::string actualJson;
@@ -417,20 +432,14 @@ TEST_F(TestPolicyProcessor_CORC_policy, invalid_utf8_in_sxl4_url)
     }
 }
 
-
 TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_most_be_https)
 {
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-                <lookupUrl>http://4.sxl.net</lookupUrl>
-            </intelix>
-        </policy>)";
+    const auto policy = getPolicyForSXL4Url("http://4.sophosxl.net");
 
     expectConstructorCalls();
     std::string actualJson;
-    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"")sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
@@ -441,17 +450,12 @@ TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_most_be_https)
 
 TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_not_alpha_numeric)
 {
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-                <lookupUrl>https://4.sxl@@@.net</lookupUrl>
-            </intelix>
-        </policy>)";
+    const auto policy = getPolicyForSXL4Url("https://4.sxl@@@.net");
 
     expectConstructorCalls();
     std::string actualJson;
-    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"")sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
@@ -460,24 +464,20 @@ TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_not_alpha_numeric)
     EXPECT_EQ(actual.at("sxlUrl"), "");
 }
 
-TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_all_alpha_numeric)
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_can_not_be_too_long)
 {
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-            <intelix>
-                <lookupUrl>https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com</lookupUrl>
-            </intelix>
-        </policy>)";
+    auto url = "https://" + std::string(1025, 'a');
+    const auto policy = getPolicyForSXL4Url(url);
 
     expectConstructorCalls();
     std::string actualJson;
-    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
-    saveSusiConfigFromWrite(_, actualJson);
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"")sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
     ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
     auto actual = nlohmann::json::parse(actualJson);
-    EXPECT_EQ(actual.at("sxlUrl"), "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com");
+    EXPECT_EQ(actual.at("sxlUrl"), "");
 }
 
