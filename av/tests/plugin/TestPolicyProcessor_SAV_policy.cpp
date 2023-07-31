@@ -44,14 +44,7 @@ namespace
 
         void expectWriteSusiConfigFromBool(bool sxlEnabled)
         {
-            if (sxlEnabled)
-            {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos");
-            }
-            else
-            {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos");
-            }
+            expectWriteSusiConfig(sxlEnabled, {});
         }
 
         void expectWriteSusiConfig(bool sxlEnabled, const std::vector<std::string>& puaApprovedList)
@@ -62,6 +55,7 @@ namespace
             settings["puaApprovedList"] = puaApprovedList;
             settings["pathAllowList"] = nlohmann::json::array();
             settings["shaAllowList"] = nlohmann::json::array();
+            settings["sxlUrl"] = "";
             expectWriteSusiConfigFromString(settings.dump());
         }
 
@@ -69,211 +63,12 @@ namespace
     };
 }
 
-static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="cffa72668ae45abe2c1caa5dff4523770e257d49e02e47848b424977c6fb3994" policyType="2"/>
-  <entity>
-    <productId/>
-    <product-version/>
-    <entityInfo/>
-  </entity>
-  <onAccessScan>
-    <enabled>true</enabled>
-    <scanBehaviour>
-      <level>normal</level>
-      <archives>false</archives>
-      <pua>true</pua>
-      <suspiciousFileDetection>false</suspiciousFileDetection>
-      <scanForMacViruses>false</scanForMacViruses>
-      <anti-rootkits>false</anti-rootkits>
-      <aggressiveEmailScan>false</aggressiveEmailScan>
-    </scanBehaviour>
-    <extensions>
-      <allFiles>false</allFiles>
-      <excludeSophosDefined/>
-      <userDefined/>
-      <noExtensions>true</noExtensions>
-    </extensions>
-    <exclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </exclusions>
-    <macExclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </macExclusions>
-    <linuxExclusions>
-      <filePathSet>
-        <filePath>/mnt/</filePath>
-        <filePath>/uk-filer5/</filePath>
-        <filePath>*excluded*</filePath>
-        <filePath>/opt/test/inputs/test_scripts/</filePath>
-      </filePathSet>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </linuxExclusions>
-    <virtualExclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </virtualExclusions>
-    <actions>
-      <disinfect>true</disinfect>
-      <puaRemoval>false</puaRemoval>
-      <fileAction>doNothing</fileAction>
-      <destination/>
-      <suspiciousFiles>
-        <fileAction>doNothing</fileAction>
-        <destination/>
-      </suspiciousFiles>
-    </actions>
-    <onAccess>
-      <fileRead>true</fileRead>
-      <fileWrite>true</fileWrite>
-      <fileRename>true</fileRename>
-      <accessInfectedRMBootSectors>false</accessInfectedRMBootSectors>
-      <useNetworkChecksums>false</useNetworkChecksums>
-      <cxmailScanAllFiles>true</cxmailScanAllFiles>
-    </onAccess>
-  </onAccessScan>
-  <onDemandScan>
-    <extensions>
-      <allFiles>false</allFiles>
-      <excludeSophosDefined/>
-      <userDefined/>
-      <noExtensions>true</noExtensions>
-    </extensions>
-    <exclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </exclusions>
-    <posixExclusions>f
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </posixExclusions>
-    <virtualExclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </virtualExclusions>
-    <macExclusions>
-      <filePathSet/>
-      <excludeRemoteFiles>false</excludeRemoteFiles>
-    </macExclusions>
-    <scanSet/>
-    <fileReputation>true</fileReputation>
-  </onDemandScan>
-  <autoExclusions>true</autoExclusions>
-  <appDetection>true</appDetection>
-  <approvedList/>
-  <alerting>
-    <desktop>
-      <report>
-        <virus>true</virus>
-        <scanErrors>true</scanErrors>
-        <SAVErrors>true</SAVErrors>
-        <pua>true</pua>
-        <suspiciousBehaviour>false</suspiciousBehaviour>
-        <suspiciousFiles>false</suspiciousFiles>
-      </report>
-      <message/>
-    </desktop>
-    <smtp>
-      <smtpConfig>
-        <server/>
-        <sender/>
-        <replyTo/>
-        <language>english</language>
-      </smtpConfig>
-      <report>
-        <virus>false</virus>
-        <scanErrors>false</scanErrors>
-        <SAVErrors>false</SAVErrors>
-        <pua>false</pua>
-        <suspiciousBehaviour>false</suspiciousBehaviour>
-        <suspiciousFiles>false</suspiciousFiles>
-      </report>
-      <subjectLine/>
-      <recipientSet/>
-    </smtp>
-    <snmp>
-      <snmpConfig>
-        <trapDestination/>
-        <communityName/>
-        <filterCtrlChars>false</filterCtrlChars>
-      </snmpConfig>
-      <report>
-        <virus>false</virus>
-        <scanErrors>false</scanErrors>
-        <SAVErrors>false</SAVErrors>
-        <pua>false</pua>
-        <suspiciousBehaviour>false</suspiciousBehaviour>
-        <suspiciousFiles>false</suspiciousFiles>
-      </report>
-    </snmp>
-    <eventLog>
-      <enabled>true</enabled>
-      <report>
-        <virus>true</virus>
-        <scanErrors>false</scanErrors>
-        <SAVErrors>false</SAVErrors>
-        <pua>true</pua>
-        <suspiciousBehaviour>true</suspiciousBehaviour>
-        <suspiciousFiles>true</suspiciousFiles>
-      </report>
-    </eventLog>
-  </alerting>
-  <runtimeBehaviourInspection>
-    <alertOnly>true</alertOnly>
-    <resourceShielding>false</resourceShielding>
-    <bufferOverrunProtection>false</bufferOverrunProtection>
-  </runtimeBehaviourInspection>
-  <runtimeBehaviourInspection2>
-    <enabled>false</enabled>
-    <malicious>
-      <enabled>true</enabled>
-    </malicious>
-    <suspicious>
-      <enabled>false</enabled>
-      <alertOnly>true</alertOnly>
-      <skipInstallers>false</skipInstallers>
-    </suspicious>
-    <bops>
-      <enabled>false</enabled>
-      <alertOnly>true</alertOnly>
-    </bops>
-  </runtimeBehaviourInspection2>
-  <fileReputation>
-    <enabled>true</enabled>
-    <level>recommended</level>
-    <action>prompt</action>
-  </fileReputation>
-  <SIPSApprovedList/>
-  <webScanning>
-    <mode>on</mode>
-  </webScanning>
-  <webFiltering>
-    <enabled>true</enabled>
-    <approvedSites/>
-  </webFiltering>
-  <detectionFeedback>
-    <sendData>true</sendData>
-    <sendFiles>true</sendFiles>
-    <onDemandEnable>true</onDemandEnable>
-  </detectionFeedback>
-  <continuousScan>
-    <kernelMemoryScan>
-      <enabled>true</enabled>
-    </kernelMemoryScan>
-  </continuousScan>
-  <quarantineManager reportInStatus="false"/>
-</config>
-
-)sophos";
-
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 {
     expectWriteSoapdConfig();
     expectReadSoapdConfig();
     expectConstructorCalls();
-    expectWriteSusiConfigFromBool(false);
+    expectWriteSusiConfigFromBool(true);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -282,7 +77,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <config>
     <detectionFeedback>
-        <sendData>false</sendData>
+        <sendData>true</sendData>
     </detectionFeedback>
 </config>
 )sophos";
@@ -295,7 +90,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
 {
     Plugin::PolicyProcessor proc{nullptr};
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
+    EXPECT_EQ(proc.getSXL4LookupsEnabled(), common::ThreatDetector::SXL_DEFAULT);
 }
 
 TEST_F(TestPolicyProcessor_SAV_policy, sxl_changes_cause_restart)
@@ -335,7 +130,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, sxl_changes_cause_restart)
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
     proc.processSavPolicy(attributeMapTrue);
-    EXPECT_FALSE(proc.restartThreatDetector()); // Matches built in default so no need to restart
+    // Only restart if default is false
+    EXPECT_EQ(proc.restartThreatDetector(), !common::ThreatDetector::SXL_DEFAULT);
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
     proc.processSavPolicy(attributeMapFalse);
@@ -383,7 +179,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
     proc.processSavPolicy(attributeMapTrue);
-    EXPECT_FALSE(proc.restartThreatDetector()); // Change if the default changes to false
+    // Only restart if default is false
+    EXPECT_EQ(proc.restartThreatDetector(), !common::ThreatDetector::SXL_DEFAULT);
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
     proc.processSavPolicy(attributeMapTrue);
@@ -529,7 +326,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithPuas)
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     proc.processSavPolicy(attributeMap);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_TRUE(proc.reloadThreatDetectorConfiguration());
 }
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithNewPuasNeedsThreatdetectorReload)
