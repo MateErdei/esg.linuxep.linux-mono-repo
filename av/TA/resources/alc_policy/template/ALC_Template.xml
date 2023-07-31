@@ -16,11 +16,10 @@
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
-            {{Subscriptions}}
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+            <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
-        {{fixed_version}}
         <delay_supplements enabled="true"/>
-        {{delay_updating}}
     </AUConfig>
     <Features>
         <Feature id="APPCNTRL"/>
