@@ -316,7 +316,7 @@ Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught 
     Should Be Equal As Integers    ${result.rc}  3
 
     Should Not Contain   ${result.stderr}    	Uncaught std::exception
-    Should Contain   ${result.stderr}   contents failed to copy. Check space available on device.
+    Should Contain   ${result.stderr}   dest file doesnt contain all data in source
 
 Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exception
     Run Process   touch   /tmp/5mbarea
