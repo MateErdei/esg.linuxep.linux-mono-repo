@@ -468,16 +468,16 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
 </coreFeatures>
 </policy>)sophos"};
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":false,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    saveSusiConfigFromWrite(_, actualJson);
     expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
-
     PolicyProcessorUnitTestClass proc;
-    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+    EXPECT_NO_THROW(proc.processCOREpolicyFromString(CORE_policy));
     EXPECT_TRUE(appenderContains("Saved Threat Detector SUSI settings for CORE policy"));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_FALSE(actual.at("machineLearning"));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, machineLearningEnabled)
@@ -492,8 +492,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningEnabled)
 </coreFeatures>
 </policy>)sophos"};
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
-    expectWriteSusiConfigFromString(settingsJson);
+    std::string actualJson;
+    saveSusiConfigFromWrite(_, actualJson);
     expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -502,6 +502,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningEnabled)
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
     EXPECT_TRUE(appenderContains("Saved Threat Detector SUSI settings for CORE policy"));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("machineLearning"));
 }
 
 #ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
