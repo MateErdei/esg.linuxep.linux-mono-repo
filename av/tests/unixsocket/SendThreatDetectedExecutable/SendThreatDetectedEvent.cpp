@@ -76,31 +76,31 @@ static int inner_main(int argc, char* argv[])
 
             case 'p':
                 socketPath = optarg;
-                std::cout << socketPath << std::endl;
+                std::cout << "Socket-path: " <<  socketPath << std::endl;
                 break;
             case 'u':
                 threatType = optarg;
-                std::cout << threatType << std::endl;
+                std::cout << "Threat-type: " << threatType << std::endl;
                 break;
             case 't':
                 threatName = optarg;
-                std::cout << threatName << std::endl;
+                std::cout << "Threat-name: " << threatName << std::endl;
                 break;
             case 'i':
                 threatID = optarg;
-                std::cout << threatID << std::endl;
+                std::cout << "Threat ID: " << threatID << std::endl;
                 break;
             case 'f':
                 filePath = optarg;
-                std::cout << filePath << std::endl;
+                std::cout << "File path: " << filePath << std::endl;
                 break;
             case 's':
                 sha = optarg;
-                std::cout << sha << std::endl;
+                std::cout << "SHA: " << sha << std::endl;
                 break;
             case 'd':
                 fd = std::stoi(optarg);
-                std::cout << fd << std::endl;
+                std::cout << "FD: " << fd << std::endl;
                 break;
             case 'm':
                 sendMessage = false;

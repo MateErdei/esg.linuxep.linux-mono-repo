@@ -159,7 +159,7 @@ void SafeStoreServerConnectionThread::inner_run()
         if ((fds[0].revents & POLLIN) != 0)
         {
             // read length
-            int32_t length = unixsocket::readLength(socket_fd);
+            auto length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
                 LOGDEBUG(m_threadName << " closed: EOF");
