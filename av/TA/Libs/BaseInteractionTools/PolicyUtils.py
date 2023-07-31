@@ -29,7 +29,7 @@ SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
 CORE_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "core_policy", "CORE-36_template.xml")
 CORC_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "corc_policy", "corc_policy_template.xml")
-
+ALC_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "alc_policy", "template", "ALC_Template.xml")
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
@@ -307,4 +307,13 @@ def create_corc_policy(whitelist_sha256s=[], whitelist_paths=[]):
         for path in whitelist_paths:
             whitelist_items.append(f'<item type="path">{path}</item>')
         policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
+        return policy
+
+
+def populate_alc_policy(revid: str, username: str, userpass: str):
+    with open(ALC_POLICY_TEMPLATE_PATH) as f:
+        policy = f.read()
+        policy = policy.replace("{{revid}}", revid)
+        policy = policy.replace("{{username}}", username)
+        policy = policy.replace("{{userpass}}", userpass)
         return policy

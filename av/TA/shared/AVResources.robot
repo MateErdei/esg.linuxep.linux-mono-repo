@@ -13,7 +13,6 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/PluginUtils.py
-Library         ../Libs/PolicyUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
