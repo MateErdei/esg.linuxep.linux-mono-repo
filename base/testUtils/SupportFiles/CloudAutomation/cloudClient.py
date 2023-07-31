@@ -443,6 +443,26 @@ class CloudClient(object):
 
         return self._getItems(response)
 
+    def getReleases(self, expiresFrom):
+        # Central uses https://api-us01.qa.central.sophos.com/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom=<tomorrow>
+        # For now ignore the expiry so we have something to test
+        items = {}
+        releases = []
+        if self.api_host is None:
+            url = self.upe_api + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
+            request = urllib.request.Request(url, headers=self.default_headers)
+            items = self.retry_request_url(request)
+        else:
+            url = self.api_host + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
+            request = urllib.request.Request(url, headers=self.default_headers)
+            items = request_url(request)
+
+        for item in json.loads(items)["items"]:
+            for module in item["modules"]:
+                releases.append(module["version"])
+
+        return releases
+
     def return_most_recently_active_server(self, servers):
         most_recent_server = None
         time_format = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -587,7 +607,7 @@ class CloudClient(object):
         if server is None:
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
-        assert server['name'] == hostname
+        assert server['hostname'] == hostname
         assert 'id' in server
 
         start = time.time()
@@ -610,7 +630,7 @@ class CloudClient(object):
         if server is None:
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
-        assert server['name'] == hostname
+        assert server['hostname'] == hostname
         assert 'id' in server
 
         start = time.time()
@@ -634,10 +654,10 @@ class CloudClient(object):
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
 
-        assert server['name'] == hostname
+        assert server['hostname'] == hostname, f"Received hostname {server['hostname']} does not match expected hostname {hostname}"
 
-        serverInfo = server['info']
-        actualOsName = serverInfo['osName']
+        serverInfo = server['os']
+        actualOsName = serverInfo['name']
 
         def matchOsName(expectedOsName, actualOsName):
             if expectedOsName == actualOsName:
@@ -655,7 +675,7 @@ class CloudClient(object):
                   , file=sys.stderr)
             return 1
 
-        actualIPv4s = serverInfo['ipAddresses/ipv4']
+        actualIPv4s = server['ipv4Addresses']
         expectedIPv4s = list(expectedIPv4s)
         for expected in expectedIPv4s:
             if expected not in actualIPv4s:
@@ -727,7 +747,7 @@ class CloudClient(object):
         if server is None:
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
-        assert server['name'] == hostname
+        assert server['hostname'] == hostname
         assert 'id' in server
 
         start = time.time()
@@ -756,7 +776,7 @@ class CloudClient(object):
         if server is None:
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
-        assert server['name'] == hostname
+        assert server['hostname'] == hostname
         assert 'id' in server
 
         start = time.time()
