@@ -13,6 +13,7 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/PluginUtils.py
+Library         ../Libs/PolicyUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
@@ -1123,17 +1124,7 @@ Check Specific File Content
 
 Get ALC Policy
     [Arguments]  ${revid}=${EMPTY}  ${username}=B  ${userpassword}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    ...     <csc:Comp RevID="${revid}" policyType="1"/>
-    ...     <AUConfig>
-    ...       <primary_location>
-    ...         <server Algorithm="Clear" UserPassword="${userpassword}" UserName="${username}"/>
-    ...       </primary_location>
-    ...     </AUConfig>
-    ...   </AUConfigurations>
-    ${policyContent} =   Replace Variables   ${policyContent}
+    ${policyContent} =  populate_alc_policy    ${revid}   ${username}  ${userpassword}
     [Return]   ${policyContent}
 
 Get SAV Policy
