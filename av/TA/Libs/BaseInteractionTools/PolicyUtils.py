@@ -310,10 +310,11 @@ def create_corc_policy(whitelist_sha256s=[], whitelist_paths=[]):
         return policy
 
 
-def populate_alc_policy(revid: str, username: str, userpass: str):
+def populate_alc_policy(revid: str, algorithm: str, username: str, userpass: str):
     with open(ALC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
         policy = policy.replace("{{revid}}", revid)
+        policy = policy.replace("{{algorithm}}", algorithm)
         policy = policy.replace("{{username}}", username)
         policy = policy.replace("{{userpass}}", userpass)
         return policy

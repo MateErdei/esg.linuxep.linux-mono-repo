@@ -1122,8 +1122,9 @@ Check Specific File Content
     Should Contain    ${FileContents}   ${expectedContent}
 
 Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${username}=B  ${userpassword}=A
-    ${policyContent} =  populate_alc_policy    ${revid}   ${username}  ${userpassword}
+    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear   ${username}=B  ${userpassword}=A
+    ${policyContent} =  populate_alc_policy    ${revid}  ${algorithm}  ${username}  ${userpassword}
+    LOG    ${policyContent}
     [Return]   ${policyContent}
 
 Get SAV Policy
