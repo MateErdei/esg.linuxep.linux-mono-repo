@@ -101,9 +101,9 @@ Configure on access log to trace level
 Send Complete Policies
     [Arguments]  ${exclusions}
 
-    ${policyContent} =  Get Complete Sav Policy  ${exclusions}  True
+    ${policyContent} =  Get Complete Sav Policy  ${exclusions}  on_access_enabled=${True}
     send av policy  SAV  ${policyContent}
-    ${policyContent} =  Get Complete Core Policy  ${exclusions}  True
+    ${policyContent} =  Get Complete Core Policy  ${exclusions}  on_access_enabled=${True}
     send av policy  CORE  ${policyContent}
 
 
