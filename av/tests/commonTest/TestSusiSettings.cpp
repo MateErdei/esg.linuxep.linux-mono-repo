@@ -7,6 +7,8 @@
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
 #include <gtest/gtest.h>
 
 using namespace common;
@@ -17,10 +19,10 @@ namespace
     {};
 }
 
-TEST_F(TestSusiSettings, SusiSettingsDefaultsSxlLookupToEnabled)
+TEST_F(TestSusiSettings, SusiSettingsDefaultsSxlLookupToDisabled)
 {
     ThreatDetector::SusiSettings susiSettings;
-    ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_FALSE(susiSettings.isSxlLookupEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsDefaultsAllowListToEmpty)
@@ -62,73 +64,84 @@ TEST_F(TestSusiSettings, compareIncludesMachineLearning)
     EXPECT_NE(susiSettings, susiSettings2);
 }
 
+TEST_F(TestSusiSettings, compareIncludesSxlUrl)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    susiSettings.setSxlUrl("https://a");
+
+    ThreatDetector::SusiSettings susiSettings2;
+    susiSettings.setSxlUrl("https://b");
+
+    EXPECT_NE(susiSettings, susiSettings2);
+}
+
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
 
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
-    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_EQ(susiSettings.isSxlLookupEnabled(), ThreatDetector::SXL_DEFAULT);
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("{}"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
-    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_EQ(susiSettings.isSxlLookupEnabled(), ThreatDetector::SXL_DEFAULT);
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("this is not valid json"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.getAllowListSizePath(), 0);
-    ASSERT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
-    ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_EQ(susiSettings.isSxlLookupEnabled(), ThreatDetector::SXL_DEFAULT);
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).Times(0);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
-    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_EQ(susiSettings.isSxlLookupEnabled(), ThreatDetector::SXL_DEFAULT);
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListSha256)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
@@ -139,10 +152,10 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListSha256)
 TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPath)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
@@ -153,10 +166,10 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPath)
 TEST_F(TestSusiSettings, SusiSettingsHandlesReadingInvalidEntriesInAllowListPath)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere","blah","/path/to/somewhere","/path/to/somewhere/else"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 3);
@@ -168,10 +181,10 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesReadingInvalidEntriesInAllowListPath
 TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPathAndSha256)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
@@ -185,10 +198,10 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPathAndSha256)
 TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupEnabled)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
 }
@@ -196,10 +209,10 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupEnabled)
 TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupDisabled)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     ASSERT_FALSE(susiSettings.isSxlLookupEnabled());
 }
@@ -207,10 +220,10 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupDisabled)
 TEST_F(TestSusiSettings, SusiSettingsReadsInApprovedPuaList)
 {
     std::string jsonWithPuaApprovedList = R"({"enableSxlLookup":true,"puaApprovedList":["PUA1", "PUA2"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithPuaApprovedList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
     common::ThreatDetector::PuaApprovedList expectedApprovedPuas = {"PUA1","PUA2"};
     auto actual = susiSettings.copyPuaApprovedList();
@@ -218,6 +231,28 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInApprovedPuaList)
     ASSERT_FALSE(susiSettings.isPuaApproved("not approved PUA"));
     ASSERT_TRUE(susiSettings.isPuaApproved("PUA1"));
     ASSERT_TRUE(susiSettings.isPuaApproved("PUA2"));
+}
+
+TEST_F(TestSusiSettings, saveDefaultSettings)
+{
+    ThreatDetector::SusiSettings susiSettings;
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    std::string contents;
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("path", _, _, 0))
+        .WillOnce(SaveArg<1>(&contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
+    EXPECT_NO_THROW(susiSettings.saveSettings("path", 0));
+
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_EQ(json.at("enableSxlLookup"), ThreatDetector::SXL_DEFAULT);
+    EXPECT_EQ(json.at("sxlUrl"), "");
+    auto pathAllowList = json.at("pathAllowList");
+    EXPECT_EQ(pathAllowList.size(), 0);
+    auto actualPuaApprovedList = json.at("puaApprovedList");
+    EXPECT_EQ(actualPuaApprovedList.size(), 0);
+    auto shaAllowList = json.at("shaAllowList");
+    EXPECT_EQ(shaAllowList.size(), 0);
 }
 
 TEST_F(TestSusiSettings, saveSettings)
@@ -234,6 +269,7 @@ TEST_F(TestSusiSettings, saveSettings)
     ThreatDetector::PuaApprovedList puaApprovedList;
     puaApprovedList.emplace_back("PsExec");
     susiSettings.setPuaApprovedList(std::move(puaApprovedList));
+    susiSettings.setSxlUrl("https://abc");
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
 
@@ -245,8 +281,19 @@ TEST_F(TestSusiSettings, saveSettings)
 
     susiSettings.saveSettings("path", 0);
 
-    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"pathAllowList":["this/is/the/way"],"puaApprovedList":["PsExec"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
-    EXPECT_EQ(contents, expectedContents);
+    auto json = nlohmann::json::parse(contents);
+    EXPECT_FALSE(json.at("enableSxlLookup"));
+    EXPECT_FALSE(json.at("machineLearning"));
+    EXPECT_EQ(json.at("sxlUrl"), "https://abc");
+    auto pathAllowList = json.at("pathAllowList");
+    ASSERT_EQ(pathAllowList.size(), 1);
+    EXPECT_EQ(pathAllowList[0], "this/is/the/way");
+    auto actualPuaApprovedList = json.at("puaApprovedList");
+    ASSERT_EQ(actualPuaApprovedList.size(), 1);
+    EXPECT_EQ(actualPuaApprovedList[0], "PsExec");
+    auto shaAllowList = json.at("shaAllowList");
+    ASSERT_EQ(shaAllowList.size(), 1);
+    EXPECT_EQ(shaAllowList[0], "42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
 }
 
 TEST_F(TestSusiSettings, roundTripSettings)
@@ -299,10 +346,10 @@ TEST_F(TestSusiSettings, SusiSettingsSetAllowListPathOverridesPreviousSettings)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"]})";
     std::vector<std::string> updatedList {"/path/to/somewhere"};
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
@@ -319,10 +366,10 @@ TEST_F(TestSusiSettings, SusiSettingsChangeAllowListPathDoesntChangeAllowListSha
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     std::vector<std::string> updatedList {};
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
@@ -341,10 +388,10 @@ TEST_F(TestSusiSettings, SusiSettingsChangeAllowListShaDoesntChangeAllowListPath
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere/"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     std::vector<std::string> updatedList {};
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
@@ -364,11 +411,10 @@ TEST_F(TestSusiSettings, SusiSettingsChangeAllowListShaDoesntChangeAllowListPath
 TEST_F(TestSusiSettings, SusiSettingsPathAllowedByGlob)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["*/nowhere/"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_TRUE(susiSettings.isAllowListedPath("/path/to/nowhere/file.txt"));
@@ -377,11 +423,10 @@ TEST_F(TestSusiSettings, SusiSettingsPathAllowedByGlob)
 TEST_F(TestSusiSettings, SusiSettingsPathAllowedByGlobFileType)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/*.txt"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_TRUE(susiSettings.isAllowListedPath("/path/to/nowhere/something.txt"));
@@ -390,11 +435,10 @@ TEST_F(TestSusiSettings, SusiSettingsPathAllowedByGlobFileType)
 TEST_F(TestSusiSettings, SusiSettingsPathAllowedByExactMatch)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/somewhere/file.txt"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_TRUE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));
@@ -403,11 +447,10 @@ TEST_F(TestSusiSettings, SusiSettingsPathAllowedByExactMatch)
 TEST_F(TestSusiSettings, SusiSettingsPathNotAllowedByIncompletePath)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/somewhere"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_FALSE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));
@@ -416,11 +459,10 @@ TEST_F(TestSusiSettings, SusiSettingsPathNotAllowedByIncompletePath)
 TEST_F(TestSusiSettings, SusiSettingsWorksWithInvalidAllowListItem)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/a35qy9359qihtdiotqe"]})";
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
     ThreatDetector::SusiSettings susiSettings("settings.json");
 
     EXPECT_FALSE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));

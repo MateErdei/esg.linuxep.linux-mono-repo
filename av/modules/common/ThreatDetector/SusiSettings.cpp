@@ -51,7 +51,8 @@ namespace common::ThreatDetector
                m_susiAllowListPathRaw == other.m_susiAllowListPathRaw &&
                m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled &&
                m_susiPuaApprovedList == other.m_susiPuaApprovedList &&
-               m_machineLearningEnabled == other.m_machineLearningEnabled;
+               m_machineLearningEnabled == other.m_machineLearningEnabled &&
+               sxlUrl_ == other.sxlUrl_;
     }
 
     bool SusiSettings::operator!=(const SusiSettings& other) const

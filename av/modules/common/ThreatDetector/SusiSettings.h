@@ -13,6 +13,7 @@ namespace common::ThreatDetector
     using AllowList = std::vector<std::string>;
     using AllowListPath = std::vector<Exclusion>;
     using PuaApprovedList = std::vector<std::string>;
+    constexpr bool SXL_DEFAULT = false;  // Default to false until we have a policy
 
     class SusiSettings
     {
@@ -62,7 +63,7 @@ namespace common::ThreatDetector
         AllowListPath m_susiAllowListPath; //For checking against detections
         PuaApprovedList m_susiPuaApprovedList;
         std::string sxlUrl_;
-        bool m_susiSxlLookupEnabled = false; // Default to false until we have a policy
+        bool m_susiSxlLookupEnabled = SXL_DEFAULT;
         bool m_machineLearningEnabled = true;
 
         [[nodiscard]] std::string serialise() const;
