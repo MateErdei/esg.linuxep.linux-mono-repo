@@ -2,7 +2,8 @@
 Resource  EventJournalerResources.robot
 Library         ../Libs/EventjournalerUtils.py
 
-Suite Setup  Setup
+
+Test Setup  Setup
 Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
 
@@ -19,14 +20,31 @@ Event Journal Files Are Not Deleted When Downgrading
     Should Exist  ${filePath}.bin
     ${leftover_directory_contents} =  List Directory  ${SOPHOS_INSTALL}/plugins/eventjournaler
     Log  ${leftover_directory_contents}
-    Should Be Equal As Integers  1  ${leftover_directory_contents.__len__()}
-    Should Contain  ${leftover_directory_contents}  data
+    Length Should Be  ${leftover_directory_contents}  ${2}
+    Should Contain  ${leftover_directory_contents}  data  log
 
     Install Event Journaler Directly from SDDS
     # Journal File may be compressed, so just check we have at 1 file in the event journal
     ${files} =  List Files In Directory  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/
     Log  ${files}
-    Should Be Equal As Integers  1  ${files.__len__()}
+    Length Should Be  ${files}   ${1}
+
+Event Journal Log Files Are Saved When Downgrading
+    Downgrade Event Journaler
+
+    # check that the log folder only contains the downgrade-backup directory
+    ${log_dir} =  List Directory  ${SOPHOS_INSTALL}/plugins/eventjournaler/log
+    Length Should Be  ${log_dir}  ${1}  log directory contains more than downgrade-backup
+    Should Contain  ${log_dir}  downgrade-backup
+    ${log_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/eventjournaler/log
+    Log  ${log_dir_files}
+    Length Should Be  ${log_dir_files}  ${0}
+
+    # check that the downgrade-backup directory contains the eventjournaler.log file
+    ${backup_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup
+    Log  ${backup_dir_files}
+    Length Should Be  ${backup_dir_files}  ${1}  downgrade-backup directory contains more than eventjournaler.log
+    Should Contain  ${backup_dir_files}  eventjournaler.log
 
 Event Journaler Can Receive Events
     Wait Until Created    ${EVENT_JOURNALER_LOG_PATH}  timeout=20 seconds
