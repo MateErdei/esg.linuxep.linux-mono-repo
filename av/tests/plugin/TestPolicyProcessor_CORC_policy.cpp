@@ -1,9 +1,10 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "TestPolicyProcessor.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <gtest/gtest.h>
 
@@ -321,4 +322,119 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
     EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
 }
 
+TEST_F(TestPolicyProcessor_CORC_policy, missing_sxl4_url_goes_to_empty)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        </policy>)";
 
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, empty_sxl4_url_goes_to_empty)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+              <lookupUrl></lookupUrl>
+            </intelix>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, valid_sxl4_url)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>https://4.sophosxl.net</lookupUrl>
+            </intelix>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "https://4.sophosxl.net")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, invalid_utf8_in_sxl4_url)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>{{SXL4_URL}}</lookupUrl>
+            </intelix>
+        </policy>)";
+    // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t sjis | hexdump -C
+    std::vector<unsigned char> sjisBytes { 0x82, 0xa0, 0x82, 0xe8, 0x82, 0xc1, 0x82, 0xbd, 0x82, 0xaf, 0x82, 0xcc,
+                                                0x96, 0xb2, 0x82, 0xf0, 0x82, 0xa9, 0x82, 0xab, 0x8f, 0x57, 0x82, 0xdf };
+    std::string sjis(sjisBytes.begin(), sjisBytes.end());
+    std::string url = "https://" + sjis;
+    policy = Common::UtilityImpl::StringUtils::orderedStringReplace(policy, { { "{{SXL4_URL}}", url } });
+
+    expectConstructorCalls();
+    std::string actualJson;
+    // Don't actually expect any writes!
+    ON_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, _,_ ,_)).WillByDefault(SaveArg<1>(&actualJson));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    try
+    {
+        proc.processCORCpolicyFromString(policy);
+        // If the XML gets parsed then expect empty URL
+        auto actual = nlohmann::json::parse(actualJson);
+        EXPECT_EQ(actual.at("sxlUrl"), "");
+    }
+    catch (const Common::XmlUtilities::XmlUtilitiesException&)
+    {
+        // Expect the XML parsing to fail
+    }
+}
+
+
+TEST_F(TestPolicyProcessor_CORC_policy, DISABLED_sxl4_url_not_alpha_numeric)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>https://4.sxl@@@.net</lookupUrl>
+            </intelix>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "");
+}
