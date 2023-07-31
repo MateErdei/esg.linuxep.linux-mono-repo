@@ -418,7 +418,28 @@ TEST_F(TestPolicyProcessor_CORC_policy, invalid_utf8_in_sxl4_url)
 }
 
 
-TEST_F(TestPolicyProcessor_CORC_policy, DISABLED_sxl4_url_not_alpha_numeric)
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_most_be_https)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>http://4.sxl.net</lookupUrl>
+            </intelix>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_not_alpha_numeric)
 {
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
@@ -438,3 +459,25 @@ TEST_F(TestPolicyProcessor_CORC_policy, DISABLED_sxl4_url_not_alpha_numeric)
     auto actual = nlohmann::json::parse(actualJson);
     EXPECT_EQ(actual.at("sxlUrl"), "");
 }
+
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_all_alpha_numeric)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <intelix>
+                <lookupUrl>https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com</lookupUrl>
+            </intelix>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl": "")sophos");
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_EQ(actual.at("sxlUrl"), "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com");
+}
+

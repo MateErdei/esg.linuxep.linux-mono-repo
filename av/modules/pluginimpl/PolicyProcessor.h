@@ -169,5 +169,7 @@ namespace Plugin
          */
         bool reloadThreatDetectorConfiguration_ = false;
 
+        static bool isLookupUrlValid(const std::string& url);
+
     };
 } // namespace Plugin

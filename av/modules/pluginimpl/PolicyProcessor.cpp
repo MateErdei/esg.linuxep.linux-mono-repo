@@ -17,6 +17,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 // Std C
 #include <sys/stat.h>
@@ -685,10 +686,13 @@ namespace Plugin
         else
         {
             sxlUrl = sxlUrls[0].contents();
+            if (!isLookupUrlValid(sxlUrl))
+            {
+                LOGERROR("Invalid lookupUrl: " << sxlUrl);
+                sxlUrl = "";
+            }
             LOGDEBUG("SXL URL: " << sxlUrl);
         }
-
-
 
         bool changed = firstPolicy;
         auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
@@ -717,6 +721,22 @@ namespace Plugin
         {
             LOGDEBUG("SUSI settings from CORC policy not changed");
         }
+    }
+
+    bool PolicyProcessor::isLookupUrlValid(const std::string& url)
+    {
+        std::ignore = url;
+        if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
+        {
+            return false;
+        }
+        auto host = url.substr(9);
+        auto pos = host.find_first_not_of(
+                                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                          "abcdefghijklmnopqrstuvwxyz"
+                                          "0123456789.");
+
+        return pos == std::string::npos;
     }
 
     void PolicyProcessor::saveSusiSettings(const std::string& policyName)
