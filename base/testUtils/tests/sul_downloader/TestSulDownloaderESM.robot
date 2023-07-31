@@ -74,6 +74,40 @@ Valid ESM Entry Is Requested By Suldownloader
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
+we install flags correctly for static suites
+    Setup SUS static
+    ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_scheduled_updates    ${fixed_version_name}    ${fixed_version_token}
+    Remove File  ${tmpPolicy}
+    Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
+
+    ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
+
+    Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}/repo  shell=true
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token
+    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
+
+
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json     always
+    File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json     false
+
+
 Invalid ESM Policy Entry Is Caught By Suldownloader
     #Invalid because we are only providing a name for the fixed_version
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1
