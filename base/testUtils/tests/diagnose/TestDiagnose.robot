@@ -20,12 +20,12 @@ Suite Teardown  Ensure Uninstalled
 Test Setup      Should Exist  ${SOPHOS_INSTALL}/bin/sophos_diagnose
 Test Teardown   Teardown
 
-Default Tags  DIAGNOSE
+Force Tags  DIAGNOSE    TAP_TESTS
 
 *** Test Cases ***
 
 Diagnose Tool Gathers Logs When Run From Installation
-    [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
+    [Tags]  DIAGNOSE  SMOKE
     Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
     create file    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/installed_features.json
@@ -316,7 +316,7 @@ Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught 
     Should Be Equal As Integers    ${result.rc}  3
 
     Should Not Contain   ${result.stderr}    	Uncaught std::exception
-    Should Contain   ${result.stderr}   dest file doesnt contain all data in source
+    Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
 
 Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exception
     Run Process   touch   /tmp/5mbarea

@@ -569,7 +569,7 @@ namespace Common
 
                 if (ifs.peek() != EOF)
                 {
-                    throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', dest file doesnt contain all data in source");
+                    throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', failed to complete writing to file, check space available on device.");
                 }
             }
 
