@@ -82,7 +82,9 @@ def main():
     client = get_api_client(args.client_id, args.secret, args.region, args.machine)
     expiresFrom = datetime.now() + timedelta(days=1)
     releases = client.getReleases(expiresFrom.strftime("%Y-%m-%d"))
-    print(f"Available product releases: {releases}")
+    print(f"Available product releases: ")
+    for release in releases:
+        print(f"   Name: {release['name']}, ID: {release['id']}")
 
     return 0
 

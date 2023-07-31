@@ -446,22 +446,16 @@ class CloudClient(object):
     def getReleases(self, expiresFrom):
         # Central uses https://api-us01.qa.central.sophos.com/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom=<tomorrow>
         # For now ignore the expiry so we have something to test
-        items = {}
-        releases = []
         if self.api_host is None:
             url = self.upe_api + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
             request = urllib.request.Request(url, headers=self.default_headers)
-            items = self.retry_request_url(request)
+            response = self.retry_request_url(request)
         else:
             url = self.api_host + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
             request = urllib.request.Request(url, headers=self.default_headers)
-            items = request_url(request)
+            response = request_url(request)
 
-        for item in json.loads(items)["items"]:
-            for module in item["modules"]:
-                releases.append(module["version"])
-
-        return releases
+        return self._getItems(response)
 
     def return_most_recently_active_server(self, servers):
         most_recent_server = None
