@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "GatherFiles.h"
 
@@ -211,9 +207,15 @@ namespace diagnose
         const std::string& pluginName,
         const Path& destination)
     {
-        static const std::vector<std::string> possiblePluginLogSubDirectories{
-            "./", "dbos/data", "dbos/data/logs", "etc", "etc/osquery.conf.d", "chroot/log", "chroot/var", "var"
-        };
+        static const std::vector<std::string> possiblePluginLogSubDirectories{ "./",
+                                                                               "dbos/data",
+                                                                               "dbos/data/logs",
+                                                                               "etc",
+                                                                               "etc/osquery.conf.d",
+                                                                               "chroot/log",
+                                                                               "log/downgrade-backup",
+                                                                               "chroot/var",
+                                                                               "var" };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
         for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
@@ -262,12 +264,6 @@ namespace diagnose
                 copyAllOfInterestFromDir(pluginLogDir, pluginDestinationLogDir);
             }
 
-            Path pluginLogDowngradedDir = Common::FileSystem::join(pluginsDir, pluginName, "log/downgrade-backup");
-
-            if (m_fileSystem->isDirectory(pluginLogDowngradedDir))
-            {
-                copyAllOfInterestFromDir(pluginLogDowngradedDir, pluginDestinationLogDir);
-            }
             copyPluginSubDirectoryFiles(pluginsDir, pluginName, destination);
         }
     }

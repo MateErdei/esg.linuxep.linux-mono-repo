@@ -96,6 +96,7 @@ Check Diagnose Output For Additional LR Plugin Files
     ${LRLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/liveresponse
     Should Contain   ${LRLogFiles}   liveresponse.log
     Should Contain   ${LRLogFiles}   sessions.log
+    ${LRLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/liveresponse/log/downgrade-backup
     Should Contain   ${LRLogFiles}   backup.log
 
 Check Diagnose Output For Additional RuntimeDetections Plugin Files
