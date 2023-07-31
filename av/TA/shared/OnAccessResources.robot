@@ -132,10 +132,13 @@ Enable OA Scanning
     send av policy from file  FLAGS          ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
     wait for on access log contains after mark  "oa_enabled":true   mark=${mark}
-    wait for on access log contains after mark  Scanning on-close enabled   mark=${mark}
     wait for on access log contains after mark  Starting eventReader   mark=${mark}
-    wait for on access log contains after mark   mount points in on-access scanning   mark=${mark}
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    # Ensure we have finished processing the policy that has on-close enabled before we proceed
+    ${mark2} =  wait for on access log contains after mark  Scanning on-close enabled   mark=${mark}
+    wait for on access log contains after mark  Finished ProcessPolicy   mark=${mark2}
+    wait for on access log contains after mark   mount points in on-access scanning   mark=${mark2}
 
     #Ensure that all threads start in order
     ${list}=  create list  Fanotify successfully initialised  Starting eventReader  Starting mountMonitor  mount points in on-access scanning  Starting scanHandler 0  On-access scanning enabled

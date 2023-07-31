@@ -195,7 +195,7 @@ class LogMark:
             contents = self.get_contents()
             if contents is not None and old_contents != contents:
                 if len(contents) > len(old_contents):
-                    logger.debug(contents[:len(old_contents)])
+                    logger.debug(contents[len(old_contents):])
 
                 pos = self.__find_str_in_contents(expected, contents)
                 if pos >= 0:
