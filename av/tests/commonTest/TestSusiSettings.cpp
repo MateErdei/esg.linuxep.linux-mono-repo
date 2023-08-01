@@ -467,3 +467,42 @@ TEST_F(TestSusiSettings, SusiSettingsWorksWithInvalidAllowListItem)
 
     EXPECT_FALSE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));
 }
+
+// isSxlUrlValid
+
+TEST_F(TestSusiSettings, valid_url_is_valid)
+{
+    EXPECT_TRUE(ThreatDetector::SusiSettings::isSxlUrlValid("https://4.sophosxl.net"));
+}
+
+TEST_F(TestSusiSettings, empty_url_is_invalid)
+{
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid(""));
+}
+
+TEST_F(TestSusiSettings, at_url_is_invalid)
+{
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid("https://4@.sophosxl.net"));
+}
+
+TEST_F(TestSusiSettings, long_url_is_invalid)
+{
+    auto url = "https://" + std::string(1025, 'a');
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
+}
+
+TEST_F(TestSusiSettings, non_utf8_url_is_invalid)
+{
+    // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t sjis | hexdump -C
+    std::vector<unsigned char> sjisBytes { 0x82, 0xa0, 0x82, 0xe8, 0x82, 0xc1, 0x82, 0xbd, 0x82, 0xaf, 0x82, 0xcc,
+                                          0x96, 0xb2, 0x82, 0xf0, 0x82, 0xa9, 0x82, 0xab, 0x8f, 0x57, 0x82, 0xdf };
+    std::string sjis(sjisBytes.begin(), sjisBytes.end());
+    std::string url = "https://" + sjis;
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
+}
+
+TEST_F(TestSusiSettings, sxl_url_must_be_https)
+{
+    auto url = "http://4.sophosxl.net";
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
+}
