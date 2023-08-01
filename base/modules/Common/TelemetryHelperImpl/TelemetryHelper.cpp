@@ -4,6 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "TelemetryFieldStructure.h"
 #include "TelemetryHelper.h"
 
 #include "Logger.h"
@@ -13,7 +14,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <sys/stat.h>
 
 #include <cmath>
 #include <functional>
@@ -449,4 +449,39 @@ namespace Common::Telemetry
         addValueToSetInternal(setKey, value);
     }
 
+    void TelemetryHelper::restructureTelemetry()
+    {
+        for (const auto& [currentPos, finalPos] : fieldsToMoveToTopLevel)
+        {
+            // Currently this will only support fields to move in following example format
+            // updatescheduler.esmName
+            //  and not
+            // updatescheduler.something.esmName
+            auto keys = Common::UtilityImpl::StringUtils::splitString(currentPos, ".");
+            auto parentKey = keys.front();
+            auto childKey = keys.back();
+
+            if (m_root.keyExists(parentKey))
+            {
+                auto& parentObj = m_root.getObject(parentKey);
+                if (parentObj.keyExists(childKey))
+                {
+                    // Insert new value
+                    auto childVal = parentObj.getObject(childKey).getValue();
+                    //  has lock guard
+                    addValueToSetInternal(finalPos, childVal);
+
+                    // Remove old value
+                    {
+                        std::lock_guard<std::mutex> lock(m_dataLock);
+                        parentObj.removeKey(childKey);
+                        if (parentObj.getChildObjects().size() == 0)
+                        {
+                            m_root.removeKey(parentKey);
+                        }
+                    }
+                }
+            }
+        }
+    }
 } // namespace Common::Telemetry

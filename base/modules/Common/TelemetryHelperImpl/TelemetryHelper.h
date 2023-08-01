@@ -80,6 +80,7 @@ namespace Common::Telemetry
         void updateTelemetryWithAllMaxStats();
         void updateTelemetryWithAllStdDeviationStats();
 
+        void restructureTelemetry();
         void mergeJsonIn(const std::string& key, const std::string& json);
         void registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function);
         void unregisterResetCallback(std::string cookie);
