@@ -4,4 +4,5 @@ then
   source ${TAP_VENV}
   echo "Using venv: $TAP_VENV"
 fi
+which python3
 exec "$@"

@@ -14,6 +14,7 @@ import os
 import json
 import subprocess
 import ssl
+import sys
 import tempfile
 import time
 
@@ -494,6 +495,7 @@ def make_request_handler(args):     # noqa: C901
 
 
 def main():
+    print("Starting SDDS3server.py:", sys.argv)
     parser = argparse.ArgumentParser()
     parser.add_argument('--launchdarkly',
                         help='Path to launchdarkly flags (used to calculate suites as per SUS)')
@@ -503,7 +505,7 @@ def main():
                         help='Path to (local) SDDS3 repository to serve')
     parser.add_argument('--protocol',
                         help='tsl setting option : tls1_1')
-    parser.add_argument('--port',
+    parser.add_argument('--port', type=int, default=8080,
                         help='port number of server default 8080')
     parser.add_argument('--certpath', help='path to certificate, default is <SUPPORT_FILE_PATH>/https/server-private.pem')
     args = parser.parse_args()
@@ -518,9 +520,7 @@ def main():
     else:
         import PathManager
         cert = os.path.join(PathManager.get_support_file_path(), "https", "server-private.pem")
-    port = 8080
-    if args.port:
-        port = int(args.port)
+    port = args.port
     if args.launchdarkly and args.mock_sus:
         raise NameError('error: --launchdarkly and --mock-sus are mutually exclusive. Pick one or the other')
 

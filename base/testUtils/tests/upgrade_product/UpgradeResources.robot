@@ -138,11 +138,21 @@ Start Local SDDS3 Server With Empty Repo
     ${handle}=    Start Local SDDS3 Server    /tmp/FakeFlags    /tmp/FakeRepo
     [Return]  ${handle}
 
+Debug Local SDDS3 Server
+    ${result} =  Run Process  pstree  -a  stderr=STDOUT
+    Log  pstree: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  netstat  --pl  --inet  stderr=STDOUT
+    Log  netstat: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  ss  -plt  stderr=STDOUT
+    Log  ss: ${result.rc} : ${result.stdout}
+
 Stop Local SDDS3 Server
     return from keyword if  "${GL_handle}" == "${EMPTY}"
-    Terminate Process  ${GL_handle}  True
+    Run Keyword If Test Failed  Debug Local SDDS3 Server
+    ${result} =  Terminate Process  ${GL_handle}  True
     Set Suite Variable    $GL_handle    ${EMPTY}
     Dump Teardown Log    ${sdds3_server_output}
+    Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
 
 Check EAP Release With AV Installed Correctly
