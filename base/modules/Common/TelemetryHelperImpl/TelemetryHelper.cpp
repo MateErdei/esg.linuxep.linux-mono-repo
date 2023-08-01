@@ -465,7 +465,7 @@ namespace Common::Telemetry
                     // Insert new value
                     auto childVal = parentObj.getObject(childKey).getValue();
                     //  has lock guard
-                    addValueToSetInternal(finalPos, childVal);
+                    setInternal(finalPos, childVal, false);
 
                     // Remove old value
                     {

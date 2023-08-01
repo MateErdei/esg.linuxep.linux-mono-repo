@@ -669,7 +669,7 @@ TEST(TestTelemetryHelper, restructureTestMultipleEntries)
     helper.set("updatescheduler.something", std::string("something"));
     ASSERT_EQ(R"({"updatescheduler":{"esmName":"esmName","something":"something"}})", helper.serialise());
     helper.restructureTelemetry();
-    EXPECT_EQ(R"({"esmName":["esmName"],"updatescheduler":{"something":"something"}})", helper.serialise());
+    EXPECT_EQ(R"({"esmName":"esmName","updatescheduler":{"something":"something"}})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, restructureTestSingleEntry)
@@ -678,7 +678,7 @@ TEST(TestTelemetryHelper, restructureTestSingleEntry)
     helper.reset();
     helper.set("updatescheduler.esmName", std::string("esmName"));
     helper.restructureTelemetry();
-    EXPECT_EQ(R"({"esmName":["esmName"]})", helper.serialise());
+    EXPECT_EQ(R"({"esmName":"esmName"})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, restructureEmptyTelemetry)
@@ -713,5 +713,5 @@ TEST(TestTelemetryHelper, restructureAllExpectedEntries)
     ASSERT_EQ(expectedFirst, helper.serialise());
 
     helper.restructureTelemetry();
-    EXPECT_EQ(R"({"deviceId":["deviceId"],"esmName":["esmName"],"esmToken":["esmToken"],"suiteVersion":["suiteVersion"],"tenantId":["tenantId"]})", helper.serialise());
+    EXPECT_EQ(R"({"deviceId":"deviceId","esmName":"esmName","esmToken":"esmToken","suiteVersion":"suiteVersion","tenantId":"tenantId"})", helper.serialise());
 }
