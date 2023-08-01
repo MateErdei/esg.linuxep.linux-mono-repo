@@ -29,7 +29,6 @@ Force Tags    PACKAGE
 
 *** Variables ***
 ${SULDownloaderLog}                   ${BASE_LOGS_DIR}/suldownloader.log
-${SULDownloaderLogDowngrade}          ${BASE_LOGS_DIR}/downgrade-backup/suldownloader.log
 ${Sophos_Scheduled_Query_Pack}        ${EDR_DIR}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 ${updateConfig}                       ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 
@@ -222,7 +221,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
-    Directory Should Not Exist   ${BASE_LOGS_DIR}/downgrade-backup
 
     ${sspl_user_uid} =       get_uid_from_username    sophos-spl-user
     ${sspl_local_uid} =      get_uid_from_username    sophos-spl-local
@@ -240,7 +238,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
     ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
@@ -435,8 +433,6 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check Current Release Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
-    Directory Should Not Exist   ${BASE_LOGS_DIR}/downgrade-backup
-
     Stop Local SDDS3 Server
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
@@ -453,7 +449,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
 
     # Wait for successful update (all up to date) after downgrading
