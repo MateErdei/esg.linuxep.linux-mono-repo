@@ -61,16 +61,8 @@ namespace threat_scanner
         auto res = m_susiWrapper->SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
 
-        try
-        {
-            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
-        }
-        catch (const std::exception& ex)
-        {
-            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
-            LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
-            LOGINFO("Turning Live Protection on as default - failed to read SUSI startup settings found");
-        }
+        // Can't throw - load() method catches std::exception and logs
+        m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
     }
 
     SusiGlobalHandler::~SusiGlobalHandler()

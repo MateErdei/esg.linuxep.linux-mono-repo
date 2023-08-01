@@ -26,39 +26,29 @@ namespace{
 
 TEST_F(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL)
 {
-    // SUSI initialization config is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr, nullptr, nullptr);
-}
-
-TEST_F(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
-{
-    // SUSI initialization is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr, nullptr, nullptr);
-
-    try
-    {
-        factory.createScanner(false, false, false);
-        FAIL() << "Able to construct scanner without PLUGIN_INSTALL!";
-    }
-    catch (const std::exception& ex)
-    {
-        PRINT("Unable to construct instance: " << ex.what() << std::endl);
-    }
+    // Throws because we can't get the path to load settings from
+    EXPECT_THROW(SusiScannerFactory factory(nullptr, nullptr, nullptr), std::exception);
 }
 
 TEST_F(TestSusiScannerFactory, testConstruction)
 {
     // SUSI initialization is now deferred, so constructor won't fail.
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
+
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
 }
 
 TEST_F(TestSusiScannerFactory, testConstructAndShutdown)
 {
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
+
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
     factory.shutdown();
 }
 
-TEST_F(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
+TEST_F(TestSusiScannerFactory, throwsDuringInitialize)
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");

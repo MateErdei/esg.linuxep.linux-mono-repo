@@ -34,6 +34,16 @@ namespace
         }
         return value;
     }
+
+    const char* strFromBool(bool v)
+    {
+        return v ? "on" : "off";
+    }
+
+    const char* sxl_default_str()
+    {
+        return strFromBool(common::ThreatDetector::SXL_DEFAULT);
+    }
 }
 
 namespace common::ThreatDetector
@@ -68,7 +78,7 @@ namespace common::ThreatDetector
             auto fs = Common::FileSystem::fileSystem();
             if (!fs->isFile(threatDetectorSettingsPath))
             {
-                LOGINFO("Turning Live Protection on as default - no SUSI settings found");
+                LOGINFO("Turning Live Protection " << sxl_default_str() << " as default - no SUSI settings found");
                 return false;
             }
 
@@ -114,7 +124,7 @@ namespace common::ThreatDetector
         catch (const std::exception& ex)
         {
             LOGWARN("Failed to load Threat Detector SUSI settings JSON, reason: " << ex.what());
-            LOGINFO("Turning Live Protection on as default - could not read SUSI settings");
+            LOGINFO("Turning Live Protection " << sxl_default_str() << " as default - could not read SUSI settings");
         }
 
         return false;
