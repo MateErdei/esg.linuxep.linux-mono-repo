@@ -96,3 +96,8 @@ Mark Known Upgrade Errors
 
     # LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     mark_expected_error_in_log    ${RTD_DIR}/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process
+
+Mark Known Downgrade Errors
+    # TODO LINUXDAR-5983 - expected till this ticket is in released version
+    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
+    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
