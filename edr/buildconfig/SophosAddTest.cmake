@@ -29,7 +29,7 @@ macro(SophosAddTest TARGET)
     # setup the google test target
     add_executable(${TARGET} ${INPUTFILES})
 
-    target_link_libraries(${TARGET}  PUBLIC  gtest)
+    target_link_libraries(${TARGET}  PUBLIC gflags gtest)
 
     if ( AddTest_PROJECTS )
         target_link_libraries(${TARGET} PUBLIC ${AddTest_PROJECTS})

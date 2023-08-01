@@ -11,7 +11,7 @@ SophosAddTest(TestPlugin
         OsqueryTelemetryTests.cpp
         TestOsqueryLogStringUtil.cpp
         PROJECTS pluginimpl
-        LIBS  gflags ${testhelperslib} rt dl
+        LIBS  ${testhelperslib} rt dl
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
 )
 

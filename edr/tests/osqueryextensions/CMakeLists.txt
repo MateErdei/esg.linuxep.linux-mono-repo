@@ -8,7 +8,7 @@ SophosAddTest(TestOsqueryExtension
         TestSophosAVDetectionTable.cpp
         TestTimeConstraintHelpers.cpp
         PROJECTS OsqueryExtensions pluginimpl eventjournalwrapperimpl
-        LIBS gflags ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${LZMA_LIBRARY} stdc++fs
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${LZMA_LIBRARY} stdc++fs
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude} ${LZMA_INCLUDE_DIR}
         )
 target_compile_definitions(TestOsqueryExtension PUBLIC -D_HAS_STD_BYTE)
