@@ -360,7 +360,7 @@ function build()
 
 
         # TODO remove this
-        ls -l /buid/redist/gflags
+        ls -l /build/redist/gflags
 
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
 
