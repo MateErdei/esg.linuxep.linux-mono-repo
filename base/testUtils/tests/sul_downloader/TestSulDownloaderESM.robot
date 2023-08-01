@@ -33,7 +33,6 @@ ${sdds3_server_output}                      /tmp/sdds3_server.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${tmpPolicy}                                /tmp/tmpALC.xml
-${tmpLaunchDarkly}                          /tmp/launchdarkly
 ${staticflagfile}                           linuxep.json
 *** Test Cases ***
 Valid ESM Entry Is Requested By Suldownloader
@@ -506,21 +505,3 @@ Check MCS Envelope Contains Event with Update cache
     ${string}=  Check Log And Return Nth Occurrence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
     Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
 
-Setup SUS static
-    Remove Directory   ${tmpLaunchDarkly}   recursive=True
-    Create Directory   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static/linuxep.json   ${tmpLaunchDarkly}
-
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
-
-
-Setup SUS static 999
-    Remove Directory   ${tmpLaunchDarkly}   recursive=True
-    Create Directory   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static-999/linuxep.json   ${tmpLaunchDarkly}
-
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}

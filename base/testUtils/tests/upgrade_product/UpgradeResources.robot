@@ -29,6 +29,7 @@ ${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/livere
 ${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
 ${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
 ${sdds3_server_output}                          /tmp/sdds3_server.log
+${tmpLaunchDarkly}                              /tmp/launchdarkly
 
 *** Keywords ***
 Upgrade Resources SDDS3 Test Teardown
@@ -296,3 +297,22 @@ Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
     Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
+
+Setup SUS static
+    Remove Directory   ${tmpLaunchDarkly}   recursive=True
+    Create Directory   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static/linuxep.json   ${tmpLaunchDarkly}
+
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
+
+
+Setup SUS static 999
+    Remove Directory   ${tmpLaunchDarkly}   recursive=True
+    Create Directory   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static-999/linuxep.json   ${tmpLaunchDarkly}
+
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
