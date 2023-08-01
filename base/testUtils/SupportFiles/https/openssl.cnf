@@ -343,18 +343,18 @@ digests		= md5, sha1		# Acceptable message digests (mandatory)
 accuracy	= secs:1, millisecs:500, microsecs:100	# (optional)
 clock_precision_digits  = 0	# number of digits after dot. (optional)
 ordering		= yes	# Is ordering defined for timestamps?
-				# (optional, default: no)
+#(optional, default : no)
 tsa_name		= yes	# Must the TSA name be included in the reply?
-				# (optional, default: no)
+#(optional, default : no)
 ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
-				# (optional, default: no)
+#(optional, default : no)
 
 [ req_ext ]
 subjectAltName = @alt_names
 
 [ alt_names ]
-DNS.1  = ostia.eng.sophos
+DNS.1  = sustest.sophosupd.com
 DNS.2  = localhost
-DNS.3  = ostiant.eng.sophos
-# Vagrant:
+DNS.3  = sdds3test.sophosupd.com
+#Vagrant:
 IP.1  = 192.168.56.42

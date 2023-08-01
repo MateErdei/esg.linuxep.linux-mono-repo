@@ -167,25 +167,24 @@ class ThinInstallerUtils(object):
     def configure_and_run_SDDS3_thininstaller(self, expected_return_code,
                                               sus=None,
                                               cdn=None,
-                                              use_http=False,
                                               message_relays=None,
                                               proxy=None,
                                               update_caches=None,
                                               args=None,
                                               mcs_ca=None,
-                                              force_sdds3_post_install=False,
-                                              thininstaller_source=None):
+                                              force_certs_dir=None):
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
             for arg in split_args:
                 command.append(arg)
 
-        self.get_thininstaller(thininstaller_source)
+        self.get_thininstaller()
 
         self.create_default_credentials_file(message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
-        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus, sdds3_cdn_url=cdn, sdds3_use_http=use_http, force_sdds3=force_sdds3_post_install)
+        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus,
+                               cdn_url=cdn, force_certs_dir=force_certs_dir)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)
@@ -214,18 +213,14 @@ class ThinInstallerUtils(object):
                           mcsurl=None,
                           mcs_ca=None,
                           proxy=None,
-                          override_location="https://localhost:1233",
                           override_path=None,
                           certs_dir=None,
                           force_certs_dir=None,
                           cleanup=True,
                           temp_dir_to_unpack_to=None,
                           sus_url="https://localhost:8080",
-                          sdds3_cdn_url="https://localhost:8080",
-                          sdds3_use_http=False,
-                          force_sdds3=False,
+                          cdn_url="https://localhost:8080",
                           force_legacy_install=False):
-        cwd = os.getcwd()
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
             logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
@@ -258,8 +253,6 @@ class ThinInstallerUtils(object):
         self.env["MCS_CA"] = mcs_ca
         if command[-1] not in ("--help", "-h", "--version"):
             command.append("--allow-override-mcs-ca")
-        if override_location:
-            self.env["OVERRIDE_SOPHOS_LOCATION"] = override_location
         if mcsurl:
             self.env["OVERRIDE_CLOUD_URL"] = mcsurl
         self.env["DEBUG_THIN_INSTALLER"] = "1"
@@ -271,14 +264,10 @@ class ThinInstallerUtils(object):
             self.env['OVERRIDE_INSTALLER_CLEANUP'] = "1"
         if temp_dir_to_unpack_to:
             self.env['SOPHOS_TEMP_DIRECTORY'] = temp_dir_to_unpack_to
-        if sdds3_use_http:
-            self.env['SDDS3_USE_HTTP'] = "1"
-        if sdds3_cdn_url:
-            self.env['OVERRIDE_CDN_LOCATION'] = sdds3_cdn_url
+        if cdn_url:
+            self.env['OVERRIDE_CDN_LOCATION'] = cdn_url
         if sus_url:
             self.env['OVERRIDE_SUS_LOCATION'] = sus_url
-        if force_sdds3:
-            self.env['USE_SDDS3'] = "1"
         if force_legacy_install:
             self.env['FORCE_LEGACY_INSTALL'] = "1"
 
@@ -301,16 +290,13 @@ class ThinInstallerUtils(object):
                                   expected_return_code=0,
                                   mcsurl=None,
                                   mcs_ca=None,
-                                  override_location="https://localhost:1233",
                                   certs_dir=None,
                                   force_certs_dir=None,
-                                  no_connection_address_override=False,
                                   proxy=None,
                                   installsh_path=None,
                                   cleanup=True,
                                   thininstaller_args=[]):
-        if no_connection_address_override:
-            override_location = None
+
         if not installsh_path:
             installsh_path = self.default_installsh_path
         self.run_thininstaller(["bash", "-x", installsh_path, *thininstaller_args],
@@ -318,7 +304,6 @@ class ThinInstallerUtils(object):
                                mcsurl,
                                mcs_ca,
                                force_certs_dir=force_certs_dir,
-                               override_location=override_location,
                                certs_dir=certs_dir,
                                proxy=proxy,
                                cleanup=cleanup)
