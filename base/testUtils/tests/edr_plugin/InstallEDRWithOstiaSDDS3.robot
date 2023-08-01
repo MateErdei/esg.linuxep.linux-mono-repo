@@ -33,6 +33,7 @@ ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
 ${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
+${WATCHDOG_LOG_PATH}                ${SOPHOS_INSTALL}/logs/base/watchdog.log
 ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
 *** Test Cases ***
@@ -205,35 +206,35 @@ Upgrade VUT to 999
 
     # Ensure components were restarted during update.
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop edr
-    ...  wdctl <> start edr
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/edr/bin/edr
+    ...  Starting /opt/sophos-spl/plugins/edr/bin/edr
 
 
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop av
-    ...  wdctl <> start av
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/av/sbin/av
+    ...  Starting /opt/sophos-spl/plugins/av/sbin/av
 
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop liveresponse
-    ...  wdctl <> start liveresponse
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/liveresponse/bin/liveresponse
+    ...  Starting /opt/sophos-spl/plugins/liveresponse/bin/liveresponse
 
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop eventjournaler
-    ...  wdctl <> start eventjournaler
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler
+    ...  Starting /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler
 
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop eventjournaler
-    ...  wdctl <> start eventjournaler
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections
+    ...  Starting /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections
 
     Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop responseactions
-    ...  wdctl <> start responseactions
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/responseactions/bin/responseactions
+    ...  Starting /opt/sophos-spl/plugins/responseactions/bin/responseactions
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
