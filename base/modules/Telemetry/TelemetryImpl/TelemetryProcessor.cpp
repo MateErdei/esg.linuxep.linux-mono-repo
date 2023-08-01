@@ -26,6 +26,7 @@ TelemetryProcessor::TelemetryProcessor(
 void TelemetryProcessor::Run()
 {
     gatherTelemetry();
+    m_telemetryHelper.restructureTelemetry();
     std::string telemetryJson = getSerialisedTelemetry();
 
     if (telemetryJson.length() > m_config->getMaxJsonSize())
