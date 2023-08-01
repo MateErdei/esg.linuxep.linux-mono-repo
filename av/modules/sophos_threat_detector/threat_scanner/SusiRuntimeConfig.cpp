@@ -25,10 +25,19 @@ std::string threat_scanner::createRuntimeConfig(
 {
     auto enableSxlLookup = settings->isSxlLookupEnabled();
     auto sxlUrl = settings->getSxlUrl();
-    if (sxlUrl.empty() && enableSxlLookup)
+    if (enableSxlLookup)
     {
-        LOGINFO("Disabling Global Reputation as SXL URL is empty");
-        enableSxlLookup = false;
+        if (sxlUrl.empty())
+        {
+            LOGINFO("Disabling Global Reputation as SXL URL is empty");
+            enableSxlLookup = false;
+        }
+        else if (!common::ThreatDetector::SusiSettings::isSxlUrlValid(sxlUrl))
+        {
+            LOGERROR("Disabling Global Reputation as SXL URL is invalid: " << sxlUrl);
+            sxlUrl = "";
+            enableSxlLookup = false;
+        }
     }
 
     fs::path libraryPath = susi_library_path();

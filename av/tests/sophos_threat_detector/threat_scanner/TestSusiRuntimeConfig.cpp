@@ -55,6 +55,19 @@ TEST_F(TestSusiRuntimeConfig, empty_url_leads_to_sxl_disabled)
     EXPECT_FALSE(sxlEnabled);
 }
 
+TEST_F(TestSusiRuntimeConfig, bad_url_leads_to_sxl_disabled)
+{
+    auto url = "https://" + std::string(1025, 'a');
+    auto settings = std::make_shared<common::ThreatDetector::SusiSettings>();
+    settings->setSxlUrl(url);
+    settings->setSxlLookupEnabled(true);
+    auto scannerInfo = createScannerInfo(false, false, false, false);
+    auto result = createRuntimeConfig(scannerInfo, "", "", settings);
+    auto json = nlohmann::json::parse(result);
+    auto sxlEnabled = json.at("library").at("SXL4").at("enableLookup");
+    EXPECT_FALSE(sxlEnabled);
+}
+
 TEST_F(TestSusiRuntimeConfig, sxl_enabled_with_url)
 {
     auto settings = std::make_shared<common::ThreatDetector::SusiSettings>();
