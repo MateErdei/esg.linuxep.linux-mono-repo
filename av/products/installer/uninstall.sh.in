@@ -59,6 +59,7 @@ then
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
+    cp -v ${UNINSTALLDIR}/log/safestore.log*  ${SAVE_DIR}
 
     VERSIONED_SAFESTORE_DB=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
     if [[ -d ${UNINSTALLDIR}/var/safestore_db ]]

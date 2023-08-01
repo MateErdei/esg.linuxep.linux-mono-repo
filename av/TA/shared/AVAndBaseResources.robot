@@ -90,6 +90,7 @@ Check Logs Saved On Downgrade
     File Should Exist  ${AV_BACKUP_DIR}/soapd.log
     File Should Exist  ${AV_BACKUP_DIR}/av.log
     File Should Exist  ${AV_BACKUP_DIR}/sophos_threat_detector.log
+    File Should Exist  ${AV_BACKUP_DIR}/safestore.log
 
 Run plugin uninstaller
     ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh   stderr=STDOUT
