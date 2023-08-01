@@ -157,7 +157,7 @@ do
             shift
             EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DPLUGINAPIPATH=$1"
             ;;
-        --fuzz)
+        --fuzz|--fuzzing)
             export USE_LIBFUZZER=1
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0

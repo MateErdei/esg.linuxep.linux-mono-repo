@@ -36,6 +36,8 @@ namespace
         return value;
     }
 
+#ifndef USING_LIBFUZZER
+    // Only used in log lines
     const char* strFromBool(bool v)
     {
         return v ? "on" : "off";
@@ -45,6 +47,7 @@ namespace
     {
         return strFromBool(common::ThreatDetector::SXL_DEFAULT);
     }
+#endif
 }
 
 namespace common::ThreatDetector
