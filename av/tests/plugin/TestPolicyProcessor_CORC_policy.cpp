@@ -330,8 +330,11 @@ namespace
     {
         const std::string policyTemplate = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
+            <detectionFeedback>
+              <sendData>true</sendData>
+            </detectionFeedback>
             <intelix>
-                <lookupUrl>{{SXL4_URL}}</lookupUrl>
+              <lookupUrl>{{SXL4_URL}}</lookupUrl>
             </intelix>
         </policy>)";
         return Common::UtilityImpl::StringUtils::orderedStringReplace(policyTemplate, { { "{{SXL4_URL}}", sxlUrl } });
@@ -351,6 +354,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, valid_sxl4_url)
     ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
     auto actual = nlohmann::json::parse(actualJson);
     EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net");
+    EXPECT_TRUE(proc.restartThreatDetector());
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_all_alpha_numeric)
@@ -480,4 +484,60 @@ TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_can_not_be_too_long)
     auto actual = nlohmann::json::parse(actualJson);
     EXPECT_EQ(actual.at("sxlUrl"), "");
 }
+
+// SXL Enable
+#ifdef USE_SXL_ENABLE_FROM_CORC_POLICY
+
+namespace
+{
+    std::string getPolicyForSXL4Enable(bool sxlEnabled)
+    {
+        const std::string policyTemplate = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+            <detectionFeedback>
+              <sendData>{{SXL4}}</sendData>
+              <sendFiles>false</sendFiles>
+              <onDemandEnable>true</onDemandEnable>
+            </detectionFeedback>
+            <intelix>
+                <lookupUrl>https://4.sxlsophos.net</lookupUrl>
+            </intelix>
+        </policy>)";
+        return Common::UtilityImpl::StringUtils::orderedStringReplace(policyTemplate, { { "{{SXL4}}", sxlEnabled ? "true" : "false" } });
+    }
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_enabled)
+{
+    const auto policy = getPolicyForSXL4Enable(true);
+
+    expectConstructorCalls();
+    std::string actualJson;
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_TRUE(actual.at("enableSxlLookup"));
+    EXPECT_EQ(proc.restartThreatDetector(), !common::ThreatDetector::SXL_DEFAULT);
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_disabled)
+{
+    const auto policy = getPolicyForSXL4Enable(false);
+
+    expectConstructorCalls();
+    std::string actualJson;
+    saveSusiConfigFromWrite(_, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
+    EXPECT_FALSE(actual.at("enableSxlLookup"));
+    EXPECT_EQ(proc.restartThreatDetector(), common::ThreatDetector::SXL_DEFAULT);
+}
+
+#endif /* USE_SXL_ENABLE_FROM_CORC_POLICY */
 

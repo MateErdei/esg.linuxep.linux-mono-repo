@@ -702,6 +702,7 @@ namespace Plugin
         }
 #endif
 
+        auto oldSxlUrl = m_threatDetectorSettings.getSxlUrl();
         std::string sxlUrl;
         auto sxlUrls = policy.lookupMultiple("policy/intelix/lookupUrl");
         if (sxlUrls.empty())
@@ -722,6 +723,18 @@ namespace Plugin
             }
             LOGDEBUG("SXL URL: " << sxlUrl);
         }
+        if (oldSxlUrl != sxlUrl)
+        {
+            // Only need to change object or restart TD if the setting has changed
+            m_threatDetectorSettings.setSxlUrl(sxlUrl);
+            if (lookupEnabledInPolicy)
+            {
+                // Need to restart TD in order for new URL to be used.
+                // But we only need to restart if SXL is enabled!
+                m_restartThreatDetector = true;
+            }
+            changed = true;
+        }
 
         auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
         auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
@@ -733,16 +746,11 @@ namespace Plugin
         {
             changed = true;
         }
-        else if (sxlUrl != m_threatDetectorSettings.getSxlUrl())
-        {
-            changed = true;
-        }
 
         if (changed)
         {
             m_threatDetectorSettings.setAllowListSha256(std::move(sha256AllowList));
             m_threatDetectorSettings.setAllowListPath(std::move(pathAllowList));
-            m_threatDetectorSettings.setSxlUrl(sxlUrl);
             saveSusiSettings("CORC");
         }
         else
