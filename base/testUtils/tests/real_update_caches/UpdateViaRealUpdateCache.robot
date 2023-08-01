@@ -19,7 +19,6 @@ Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
 ${InstalledEDRVersionFile}                 ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
-${SULDownloaderLogDowngrade}                    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 *** Test Cases ***
 Endpoint Updates Via Update Cache Without Errors
     [Timeout]  10 minutes
@@ -29,6 +28,8 @@ Endpoint Updates Via Update Cache Without Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${edrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRVersionFile}
     Log File  ${InstalledEDRVersionFile}
+
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
 
     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Override LogConf File as Global Level  DEBUG
@@ -43,13 +44,9 @@ Endpoint Updates Via Update Cache Without Errors
     ...  10 secs
     ...  ALC contains Update Cache
 
-    Wait Until Keyword Succeeds
-    ...  300 secs
-    ...  5 secs
-    ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    Check Log Contains  Performing Sync using https://linuxuc_tests:8191/v3   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Does Not Contain  Connecting to update source directly   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    wait_for_log_contains_from_mark  ${sul_mark}  Performing Sync using https://linuxuc_tests:8191/v3    60
+    Check Log Does Not Contain  Connecting to update source directly    ${SULDOWNLOADER_LOG_PATH}  suldownloader log
 
     Wait Until Keyword Succeeds
     ...  200 secs

@@ -8,23 +8,13 @@ Library    OperatingSystem
 
 *** Keywords ***
 Dump All Logs
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Base-component_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EDR_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EventJournaler_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-RuntimeDetections_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-liveresponse_install.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-responseactions_install.log
-
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/sophosspl/updatescheduler.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/register_central.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
@@ -33,6 +23,14 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
+
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Base-component_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EDR_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-EventJournaler_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-RuntimeDetections_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-liveresponse_install.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-responseactions_install.log
 
     Dump Teardown Log    ${UPDATE_CONFIG}
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml

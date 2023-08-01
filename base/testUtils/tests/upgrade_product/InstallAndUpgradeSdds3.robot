@@ -36,7 +36,6 @@ Force Tags  LOAD9
 *** Variables ***
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderSyncLog}                     ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
-${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
@@ -228,7 +227,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
     # The query pack should have been installed with EDR VUT
@@ -252,7 +250,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade     backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -476,7 +474,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Check Current Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
     # Products that should be uninstalled after downgrade
     Should Exist  ${InstalledLRPluginVersionFile}
     # The query pack should have been installed with EDR VUT
@@ -500,7 +498,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade   backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
     # Wait for successful update (all up to date) after downgrading

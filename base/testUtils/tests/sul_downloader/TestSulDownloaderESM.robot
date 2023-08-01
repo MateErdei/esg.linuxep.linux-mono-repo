@@ -35,8 +35,6 @@ ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownl
 ${tmpPolicy}                                /tmp/tmpALC.xml
 ${tmpLaunchDarkly}                          /tmp/launchdarkly
 ${staticflagfile}                           linuxep.json
-${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
-
 *** Test Cases ***
 Valid ESM Entry Is Requested By Suldownloader
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
@@ -387,6 +385,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Register Cleanup  Remove File  ${tmpPolicy}
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc    ${tmpPolicy}
     wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
 
@@ -400,22 +399,16 @@ Install all plugins static-999 then downgrade to all plugins static
     ...   300 secs
     ...   10 secs
     ...   File Should not exist   ${UPGRADING_MARKER_FILE}
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
-    Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-responseactions is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    wait_for_log_contains_from_mark  ${sul_mark}  Preparing ServerProtectionLinux-Base-component for downgrade    60
+
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Base-component is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-responseactions is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-EDR is being downgraded
 
 
     Wait Until Keyword Succeeds

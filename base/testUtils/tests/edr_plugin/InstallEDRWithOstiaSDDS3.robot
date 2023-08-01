@@ -31,7 +31,6 @@ Force Tags  LOAD4
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
-${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
 ${WATCHDOG_LOG_PATH}                ${SOPHOS_INSTALL}/logs/base/watchdog.log
 ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -61,29 +60,22 @@ Install all plugins 999 then downgrade to all plugins develop
     ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
 
     Override LogConf File as Global Level  DEBUG
+    ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
+
     Setup SUS all develop
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   90 secs
-    ...   5 secs
-    ...   File Should exist   ${UPGRADING_MARKER_FILE}
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   File Should not exist   ${UPGRADING_MARKER_FILE}
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    Wait Until Created    ${UPGRADING_MARKER_FILE}    90
+    Wait until removed    ${UPGRADING_MARKER_FILE}    300
 
-    Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
-    Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-responseactions is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    wait_for_log_contains_from_mark  ${sul_mark}  Preparing ServerProtectionLinux-Base-component for downgrade
+
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Base-component is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-responseactions is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-EDR is being downgraded
 
     Wait Until Keyword Succeeds
     ...   200 secs
