@@ -11,6 +11,7 @@ SophosAddTest(TestThreatScanner
         TestSusiGlobalHandler.cpp
         TestSusiLogger.cpp
         TestSusiResultUtils.cpp
+        TestSusiRuntimeConfig.cpp
         TestSusiScanner.cpp
         TestSusiScannerFactory.cpp
         TestSusiScanResultJsonParser.cpp
