@@ -6,8 +6,8 @@ add_executable(BinaryDataTable
         ../../osqueryextensions/MockJournalReaderWrapper.h)
 
 target_link_libraries(BinaryDataTable PUBLIC
-        osquerysdk_library
         gflags
+        osquerysdk_library
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
