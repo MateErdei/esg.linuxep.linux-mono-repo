@@ -20,9 +20,9 @@
         </build-asset>
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/bazeltools/LINUXDAR-7602-toolchain-rpath_2"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
-
+            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
@@ -32,21 +32,6 @@
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0"
-                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers"
-                     dest-dir="/build/input/googletest/gmock-headers/gmock"/>
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers"
-                     dest-dir="/build/input/googletest/gtest-headers/gtest"/>
-            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="xzutils">
-            <release-version branch="release/sspl/Version_5_2_4"
-                             build-id="20220727094833-3570e1781161f0e1e80d256ec3acfa2e74b27587-rh91S8"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
