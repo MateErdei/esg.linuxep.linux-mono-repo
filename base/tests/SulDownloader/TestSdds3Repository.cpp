@@ -561,6 +561,29 @@ TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestFails)
     configurationData.setProductsSubscription({ productSubscription });
 
     EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_EQ(repository.getError().status, RepositoryStatus::CONNECTIONERROR);
+    EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: error message"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectSetsDOWNLOADFAILEDIfSusRequestFailsWithNonTempraryError)
+{
+    setupSdds3WrapperAndGetMock();
+
+    SDDS3::SusResponse susResponse{ .data = {}, .success = false, .persistentError = true, .error = "error message" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = false;
+    Common::Policy::UpdateSettings configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_EQ(repository.getError().status, RepositoryStatus::DOWNLOADFAILED);
     EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: error message"));
 }
 

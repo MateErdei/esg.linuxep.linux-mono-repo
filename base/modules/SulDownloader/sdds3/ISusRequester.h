@@ -13,12 +13,16 @@ namespace SulDownloader::SDDS3
     {
         std::set<std::string> suites;
         std::set<std::string> releaseGroups;
+        std::string reason;
+        std::string error;
+        std::string code;
     };
 
     struct SusResponse
     {
         SusData data;
         bool success = false;
+        bool persistentError = false;
         std::string error;
     };
 

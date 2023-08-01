@@ -206,6 +206,9 @@ namespace Common::HttpRequests
         // Couldn't resolve proxy
         COULD_NOT_RESOLVE_PROXY,
 
+        // Couldn't resolve host
+        COULD_NOT_RESOLVE_HOST,
+
         // General library failure
         FAILED
     };

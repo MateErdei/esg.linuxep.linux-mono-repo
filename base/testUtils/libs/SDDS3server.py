@@ -344,6 +344,9 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         product = doc['product']
 
         suites = []
+        error = ""
+        reason = ""
+        code = ""
 
         if 'subscriptions' not in doc:
             self.send_error(HTTPStatus.BAD_REQUEST, 'Missing subscriptions')
@@ -385,25 +388,36 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             fixed_version_token = doc['fixed_version_token']
             self.log_message(f'fixed_version_token {fixed_version_token}')
             filepath = f'{self.data}/linuxep.json'
-            if not os.path.exists(filepath):
-                self.log_message('could not find linuxep.json file')
-                return
+            if os.path.exists(filepath):
 
-            with open(filepath, 'r') as f:
-                suiteinfo = json.load(f)
+                with open(filepath, 'r') as f:
+                    suiteinfo = json.load(f)
 
-            if fixed_version_token != suiteinfo['token']:
-                self.log_message(f'Incorrect token {fixed_version_token} provided ' + suiteinfo['token'])
+                if fixed_version_token != suiteinfo['token']:
+                    self.log_message(f'Incorrect token {fixed_version_token} provided ' + suiteinfo['token'])
 
-            jsonsuites = suiteinfo['suite_info']
-            for suite in jsonsuites:
-                suites.append(jsonsuites[suite]['suite'])
+                jsonsuites = suiteinfo['suite_info']
+                for suite in jsonsuites:
+                    suites.append(jsonsuites[suite]['suite'])
+            else:
+                self.log_message('could not find linuxep.json file returning error message SUS')
+                error = "Did not return any suites"
+                reason = "Fixed version token not found"
+                code = "FIXED_VERSION_TOKEN_NOT_FOUND"
 
-
-        data = json.dumps({
-            'suites': suites,
-            'release-groups': ['0','GranularInitial'],
-        }).encode('utf-8')
+        if not code:
+            data = json.dumps({
+                'suites': suites,
+                'release-groups': ['0', 'GranularInitial'],
+            }).encode('utf-8')
+        else:
+            data = json.dumps({
+                'suites': suites,
+                'release-groups': ['0', 'GranularInitial'],
+                'error': error,
+                'code': code,
+                'reason': reason
+            }).encode('utf-8')
 
         self.log_message('Signing LaunchDarkly SUS response...')
         try:

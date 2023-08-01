@@ -1,9 +1,11 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SusRequester.h"
+
 #include "Logger.h"
 #include "SDDS3Utils.h"
 
+#include <json.hpp>
 #include <utility>
 
 SulDownloader::SDDS3::SusRequester::SusRequester(std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient) :
@@ -73,8 +75,28 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
             {
                 // Populate suites and releaseGroups
                 LOGDEBUG("SUS response: " << httpResponse.body);
-                parseSUSResponse(httpResponse.body, susResponse.data.suites, susResponse.data.releaseGroups);
-                susResponse.success = true;
+                parseSUSResponse(httpResponse.body, susResponse.data);
+                if (susResponse.data.code.empty())
+                {
+                    susResponse.success = true;
+                }
+                else
+                {
+                    std::stringstream message;
+                    message << "error: '" << susResponse.data.error << "' reason: '" << susResponse.data.reason
+                            << "' code: '" << susResponse.data.code << "'";
+                    susResponse.error = message.str();
+                    std::vector<std::string> PERSISTENT_ERROR_CODES{
+                        "FIXED_VERSION_TOKEN_NOT_FOUND",
+                        "FIXED_VERSION_TOKEN_EOL",
+                    };
+                    if (std::find(
+                            PERSISTENT_ERROR_CODES.begin(), PERSISTENT_ERROR_CODES.end(), susResponse.data.code) !=
+                        PERSISTENT_ERROR_CODES.end())
+                    {
+                        susResponse.persistentError = true;
+                    }
+                }
             }
             else
             {
@@ -82,13 +104,27 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
                 message << "SUS request received HTTP response code: " << httpResponse.status
                         << " but was expecting: " << Common::HttpRequests::HTTP_STATUS_OK;
                 susResponse.error = message.str();
+                if (httpResponse.status < 500)
+                {
+                    susResponse.persistentError = true;
+                }
             }
+        }
+        else if (
+            httpResponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT ||
+            httpResponse.errorCode == Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST ||
+            httpResponse.errorCode == Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY)
+        {
+            std::stringstream message;
+            message << "SUS request failed to connect to the server with error: " << httpResponse.error;
+            susResponse.error = message.str();
         }
         else
         {
             std::stringstream message;
             message << "SUS request failed with error: " << httpResponse.error;
             susResponse.error = message.str();
+            susResponse.persistentError = true;
         }
     }
     catch (const std::exception& ex)
@@ -96,6 +132,54 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
         std::stringstream message;
         message << "SUS request caused exception: " << ex.what();
         susResponse.error = message.str();
+        susResponse.persistentError = true;
     }
     return susResponse;
+}
+
+void SulDownloader::SDDS3::SusRequester::parseSUSResponse(const std::string& response, SusData& data)
+{
+    try
+    {
+        LOGDEBUG("Sus response: " << response);
+        auto json = nlohmann::json::parse(response);
+
+        if (json.contains("suites"))
+        {
+            for (const auto& s : json["suites"].items())
+            {
+                data.suites.insert(std::string(s.value()));
+            }
+        }
+
+        if (json.contains("release-groups"))
+        {
+            for (const auto& g : json["release-groups"].items())
+            {
+                data.releaseGroups.insert(std::string(g.value()));
+            }
+        }
+
+        if (json.contains("code"))
+        {
+            data.code = json["code"];
+        }
+
+        if (json.contains("error"))
+        {
+            data.error = json["error"];
+        }
+
+        if (json.contains("reason"))
+        {
+            data.reason = json["reason"];
+        }
+    }
+    catch (const std::exception& exception)
+    {
+        std::stringstream errorMessage;
+        errorMessage << "Failed to parse SUS response with error: " << exception.what()
+                     << ", JSON content: " << response;
+        std::throw_with_nested(std::runtime_error(errorMessage.str()));
+    }
 }

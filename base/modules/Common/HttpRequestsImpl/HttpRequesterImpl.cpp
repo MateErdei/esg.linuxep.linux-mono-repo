@@ -367,6 +367,22 @@ namespace Common::HttpRequestsImpl
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
                 }
+                else if (result == CURLE_COULDNT_RESOLVE_HOST)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST;
+                }
+                else if (result == CURLE_COULDNT_RESOLVE_PROXY)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY;
+                    if (request.proxy.has_value())
+                    {
+                        response.error += " — " + request.proxy.value();
+                    }
+                    else
+                    {   // Should not be able to get here
+                        response.error += ". Could not find proxy address used.";
+                    }
+                }
                 else
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;

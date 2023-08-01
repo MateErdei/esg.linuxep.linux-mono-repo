@@ -211,7 +211,14 @@ namespace SulDownloader
             }
             else
             {
-                m_error.status = RepositoryStatus::CONNECTIONERROR;
+                if (!susResponse.persistentError)
+                {
+                    m_error.status = RepositoryStatus::CONNECTIONERROR;
+                }
+                else
+                {
+                    m_error.status = RepositoryStatus::DOWNLOADFAILED;
+                }
                 m_error.Description = susResponse.error;
             }
         }
@@ -289,7 +296,7 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath()});
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
-        m_session->httpConfig.connectTimeoutMs = 10000;
+        m_session->httpConfig.connectTimeoutMs = 60000;
         if (connectionSetup.isCacheUpdate())
         {
             if (!Common::UtilityImpl::StringUtils::startswith(srcUrl, "http://") &&

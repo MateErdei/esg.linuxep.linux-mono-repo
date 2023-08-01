@@ -48,4 +48,4 @@ SUS Fault Injection Server Down
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request failed with error: Couldn't connect to server
-        ...  Update failed, with code: 112
+        ...  Update failed, with code: 107

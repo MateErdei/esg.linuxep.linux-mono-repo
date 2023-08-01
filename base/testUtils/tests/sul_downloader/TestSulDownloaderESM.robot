@@ -38,8 +38,6 @@ ${staticflagfile}                           linuxep.json
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 
 *** Test Cases ***
-
-
 Valid ESM Entry Is Requested By Suldownloader
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}

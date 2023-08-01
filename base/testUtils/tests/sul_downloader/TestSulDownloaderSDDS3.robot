@@ -8,6 +8,7 @@ Test Teardown    Run Keywords
 ...                Remove Environment Variable  https_proxy  AND
 ...                Stop Proxy If Running    AND
 ...                Stop Proxy Servers   AND
+...                Remove File  /tmp/tmpALC.xml   AND
 ...                Clean up fake warehouse  AND
 ...                Remove Environment Variable  COMMAND  AND
 ...                Remove Environment Variable  EXITCODE  AND
@@ -15,6 +16,7 @@ Test Teardown    Run Keywords
 
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../installer/InstallerResources.robot
@@ -36,14 +38,12 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -72,14 +72,12 @@ Update Now action triggers a product update even when updates are scheduled
     ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Trigger Update Now
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
@@ -91,14 +89,12 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override  URLS=http://localhost:9000
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    10s
@@ -107,7 +103,7 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Check SulDownloader Log Contains  Update failed, with code: 112
+    ...    Check SulDownloader Log Contains  Update failed, with code: 107
 
 
 Sul Downloader Reports Update Failed When Requested Fixed Version Is Unsupported In SDDS3
@@ -117,15 +113,12 @@ Sul Downloader Reports Update Failed When Requested Fixed Version Is Unsupported
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
@@ -150,15 +143,13 @@ Sul Downloader Uses Current Proxy File for SUS Requests
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
 
     # Stop the product so that our current_proxy file doesn't get overridden by MCS.
     Run Process   systemctl  stop  sophos-spl
@@ -195,14 +186,12 @@ Sul Downloader Installs SDDS3 Through Proxy
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    20s
@@ -224,7 +213,7 @@ SDDS3 updates supplements
 
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
 
     Wait Until Keyword Succeeds
@@ -251,15 +240,12 @@ Sul Downloader Installs SDDS3 Through update cache
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8081
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Wait Until Keyword Succeeds
     ...    20s
     ...    5s
@@ -286,15 +272,12 @@ Sul Downloader falls back to direct when proxy and UC do not work
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8081  URLS=https://localhost:8081
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
     Wait Until Keyword Succeeds
     ...    20s
     ...    5s
@@ -326,15 +309,12 @@ Sul Downloader sdds3 sync Does not retry on curl errors
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8090
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...    60s
@@ -352,25 +332,18 @@ SUS Fault Injection Server Hangs
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   70 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
-        ...  Failed to connect to repository: SUS request failed with error: Timeout was reached
+        ...  Failed to connect to repository: SUS request failed to connect to the server with error: Timeout was reached
         ...  Update failed, with code: 112
 
 
@@ -382,26 +355,19 @@ SUS Fault Injection Server Responds With Unauthorised
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request received HTTP response code: 401 but was expecting: 200
-        ...  Update failed, with code: 112
+        ...  Update failed, with code: 107
 
 
 SUS Fault Injection Server Responds With Not Found
@@ -412,26 +378,19 @@ SUS Fault Injection Server Responds With Not Found
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request received HTTP response code: 404 but was expecting: 200
-        ...  Update failed, with code: 112
+        ...  Update failed, with code: 107
 
 
 SUS Fault Injection Server Responds With Internal Server Error
@@ -442,19 +401,12 @@ SUS Fault Injection Server Responds With Internal Server Error
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
@@ -472,19 +424,12 @@ SUS Fault Injection Server Responds With Service Unavailable
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
@@ -502,26 +447,19 @@ SUS Fault Injection Server Responds With Invalid JSON
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request caused exception: Failed to parse SUS response
-        ...  Update failed, with code: 112
+        ...  Update failed, with code: 107
 
 
 SUS Fault Injection Server Responds With Large JSON
@@ -532,27 +470,42 @@ SUS Fault Injection Server Responds With Large JSON
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File    ${SDDS3_OVERRIDE_FILE}
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    Override LogConf File as Global Level  DEBUG
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    # Make sure there isn't some old update report hanging around
-    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
-    Create Directory  ${TEST_TEMP_DIR}
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request failed with error: Transferred a partial file
-        ...  Update failed, with code: 112
+        ...  Update failed, with code: 107
 
+SUS Fault Injection Server response with static version not found
+    ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
+    Create File  /tmp/tmpALC.xml   ${esm_enabled_alc_policy}
+    Start Local Cloud Server    --initial-alc-policy  /tmp/tmpALC.xml
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: error: 'Did not return any suites' reason: 'Fixed version token not found' code: 'FIXED_VERSION_TOKEN_NOT_FOUND'
+        ...  Update failed, with code: 107
 
 CDN Fault Injection Does Not Contain Location Given By SUS
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
@@ -565,16 +518,12 @@ CDN Fault Injection Does Not Contain Location Given By SUS
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override   CDN_URL=https://localhost:8080
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...    60s
@@ -594,15 +543,12 @@ CDN Fault Injection Server Responds With Unauthorised Error
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...    60s
@@ -622,15 +568,12 @@ CDN Fault Injection Server Responds With Not Found Error
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...    60s
@@ -650,15 +593,12 @@ CDN Fault Injection Server Responds With Generic Error
     Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
+    
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
     ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
-    Trigger Update Now
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
     Wait Until Keyword Succeeds
     ...    60s

@@ -15,6 +15,7 @@ namespace SulDownloader::SDDS3
     public:
         explicit SusRequester(std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient);
         SusResponse request(const SUSRequestParameters& parameters) override;
+        void parseSUSResponse(const std::string& response, SusData& data);
 
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_httpClient;

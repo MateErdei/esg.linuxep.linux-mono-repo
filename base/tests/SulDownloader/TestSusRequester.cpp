@@ -70,7 +70,71 @@ TEST_F(SusRequesterTest, susRequesterHandlesFailedRequest)
     ASSERT_TRUE(response.data.suites.empty());
 }
 
+TEST_F(SusRequesterTest, susRequesterHandlesCannotReachServer)
+{
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto failedResponse = Common::HttpRequests::Response();
+    failedResponse.errorCode = Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST;
+    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(failedResponse));
+
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester);
+    SulDownloader::SUSRequestParameters requestParameters;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_FALSE(response.persistentError);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
+}
+
+TEST_F(SusRequesterTest, susRequesterHandlesCannotReachProxy)
+{
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto failedResponse = Common::HttpRequests::Response();
+    failedResponse.errorCode = Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY;
+    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(failedResponse));
+
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester);
+    SulDownloader::SUSRequestParameters requestParameters;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_FALSE(response.persistentError);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
+}
+
+TEST_F(SusRequesterTest, susRequesterHandlesTimeout)
+{
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto failedResponse = Common::HttpRequests::Response();
+    failedResponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
+    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(failedResponse));
+
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester);
+    SulDownloader::SUSRequestParameters requestParameters;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_FALSE(response.persistentError);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
+}
+
 TEST_F(SusRequesterTest, susRequesterHandlesNon200Response)
+{
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto failedResponse = Common::HttpRequests::Response();
+    failedResponse.status = 400;
+    failedResponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
+    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(failedResponse));
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester);
+    SulDownloader::SUSRequestParameters requestParameters;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_TRUE(response.persistentError);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
+}
+
+TEST_F(SusRequesterTest, susRequesterHandlesServerError)
 {
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     auto failedResponse = Common::HttpRequests::Response();
@@ -81,8 +145,7 @@ TEST_F(SusRequesterTest, susRequesterHandlesNon200Response)
     SulDownloader::SUSRequestParameters requestParameters;
     auto response = susRequester.request(requestParameters);
     ASSERT_FALSE(response.success);
+    ASSERT_FALSE(response.persistentError);
     ASSERT_TRUE(response.data.releaseGroups.empty());
     ASSERT_TRUE(response.data.suites.empty());
 }
-
-
