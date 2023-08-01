@@ -482,3 +482,68 @@ Test Outbreak Mode Telemetry
     Should contain  ${telemetryFileContents}  "outbreak-ever":"true"
     Should contain  ${telemetryFileContents}  "outbreak-now":"false"
     Should contain  ${telemetryFileContents}  "outbreak-today":"true"
+
+
+Telemetry Executable Moves ESM to Top Level When Not Enabled
+    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
+    [Documentation]    Telemetry Executable Generates Telemetry
+
+    Cleanup Telemetry Server
+    Require Fresh Install
+
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
+
+    Create Empty SulDownloader Config
+    setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Drop ALC Policy Into Place
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    LOG    ${telemetryFileContents}
+
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
+        ...    set_edr=True
+        ...    set_av=True
+        ...    install_state=0
+        ...    download_state=0
+    check_base_telemetry_json_is_correct  ${telemetryFileContents}
+
+    check_for_key_value_in_top_level_telemetry    ${telemetryFileContents}    esmName   ${EMPTY}
+    check_for_key_value_in_top_level_telemetry    ${telemetryFileContents}    esmToken   ${EMPTY}
+
+
+Telemetry Executable Moves ESM to Top Level When Enabled
+    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
+
+    ${esmname} =  Set Variable   LTS 2023.1.1
+    ${esmtoken} =    Set Variable    f4d41a16-b751-4195-a7b2-1f109d49469d
+
+    Cleanup Telemetry Server
+    Require Fresh Install
+
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
+
+    Create Empty SulDownloader Config
+    setup mcs config with JWT token
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Drop ALC Policy With ESM Into Place     ${esmname}    ${esmtoken}
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    LOG    ${telemetryFileContents}
+
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
+    ...    base_fixed_version=${esmname}
+    ...    install_state=0
+    ...    download_state=0
+    check_base_telemetry_json_is_correct  ${telemetryFileContents}
+
+    check_for_key_value_in_top_level_telemetry    ${telemetryFileContents}    esmName   ${esmname}
+    check_for_key_value_in_top_level_telemetry    ${telemetryFileContents}    esmToken   ${esmtoken}

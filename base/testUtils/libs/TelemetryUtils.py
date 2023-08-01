@@ -763,3 +763,19 @@ class TelemetryUtils:
         if os.path.exists(path):
             return 0
         return -1
+
+
+    def check_top_level_telemetry_items(self, json_string, items: list):
+        if not items:
+            raise AssertionError("No items provided in top level list")
+
+        jsoncontent = json.loads(json_string)
+        for item in items:
+            if item not in jsoncontent:
+                raise AssertionError(f"item {item} not found in telemetry json: {jsoncontent}")
+
+
+    def check_for_key_value_in_top_level_telemetry(self, json_string, key: str, value: str):
+        keyvalue = json.loads(json_string)[key]
+        if keyvalue != value:
+            raise AssertionError(f"key {key} has value {keyvalue}, expecting {value}")
