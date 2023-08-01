@@ -677,7 +677,7 @@ class TelemetryUtils:
             try:
                 scheduled_time = self.get_scheduled_time_from_scheduler_status_file()
                 return scheduled_time
-            except KeyError:
+            except (KeyError, FileNotFoundError):
                 time.sleep(1)
 
         raise AssertionError(
@@ -730,6 +730,7 @@ class TelemetryUtils:
         with open(self.telemetry_status_filepath) as status_file:
             status_file_contents = status_file.read()
             return json.loads(status_file_contents)['scheduled-time']
+
 
     def set_scheduled_time_in_scheduler_status_file(self, schedule_time):
         with open(self.telemetry_status_filepath, "w") as statusFile:
