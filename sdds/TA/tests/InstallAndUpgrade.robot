@@ -249,6 +249,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     check_suldownloader_log_contains   Running SDDS3 update
 
     Mark Known Upgrade Errors
+    Mark Known Downgrade Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
@@ -467,6 +468,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   Should Not Exist  ${MCS_DIR}/action/testfile
 
     Mark Known Upgrade Errors
+    Mark Known Downgrade Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
