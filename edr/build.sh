@@ -357,6 +357,11 @@ function build()
             -DNO_GCOV="true" \
             ${EXTRA_CMAKE_OPTIONS} \
         .. || exitFailure 14 "Failed to configure $PRODUCT"
+
+
+        # TODO remove this
+        ls -l /buid/redist/gflags
+
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
 
     if (( ${VALGRIND} == 1 ))
