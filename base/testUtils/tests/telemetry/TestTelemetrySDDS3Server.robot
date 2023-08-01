@@ -13,6 +13,7 @@ Test Teardown    Run Keywords
 ...                Upgrade Resources SDDS3 Test Teardown
 
 Resource    TelemetryResources.robot
+Resource    ../update/SDDS3Resources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 
 *** Variables ***

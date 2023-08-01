@@ -30,6 +30,7 @@ ${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventj
 ${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
 ${sdds3_server_output}                          /tmp/sdds3_server.log
 ${tmpLaunchDarkly}                              /tmp/launchdarkly
+${staticflagfile}                               linuxep.json
 
 *** Keywords ***
 Upgrade Resources SDDS3 Test Teardown
