@@ -447,9 +447,7 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     for name, image in test_environments.items():
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
         machine.cifs_supported = include_cifs_for_machine_name(name, image)
-        print("CIFS for Machine:", name, machine.cifs_supported, id(machine))
         machine.ntfs_supported = include_ntfs_for_machine_name(name, image)
-        print("NTFS for Machine:", name, machine.ntfs_supported, id(machine))
         machine.sspl_name = name
         ret.append((name, machine))
     return ret
