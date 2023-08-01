@@ -156,7 +156,7 @@ RA Plugin handles download of single file to mount with not enough space appropr
     wait_for_log_contains_from_mark  ${response_mark}    Failed action correlation-id with exit code    25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
 
-    wait_for_log_contains_from_mark  ${action_mark}  Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}extract/tmp/${DOWNLOAD_FILENAME_TXT}' to '${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}', dest file doesnt contain all data in source
+    wait_for_log_contains_from_mark  ${action_mark}  Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}extract/tmp/${DOWNLOAD_FILENAME_TXT}' to '${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}', failed to complete writing to file, check space available on device.
 
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
@@ -185,7 +185,7 @@ RA Plugin handles download of multiple files to mount with not enough space appr
 
     wait_for_log_contains_from_mark  ${response_mark}    Failed action correlation-id with exit code    25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}    dest file doesnt contain all data in source
+    wait_for_log_contains_from_mark  ${action_mark}    failed to complete writing to file, check space available on device.
 
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
