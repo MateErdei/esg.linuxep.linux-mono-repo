@@ -144,6 +144,12 @@ namespace threat_scanner
             std::shared_ptr<common::ThreatDetector::SusiSettings> settings)
         {
             auto enableSxlLookup = settings->isSxlLookupEnabled();
+            auto sxlUrl = settings->getSxlUrl();
+            if (sxlUrl.empty() && enableSxlLookup)
+            {
+                LOGINFO("Disabling Global Reputation as SXL URL is empty");
+                enableSxlLookup = false;
+            }
 
             fs::path libraryPath = susi_library_path();
             auto versionNumber = common::getPluginVersion();
@@ -163,18 +169,21 @@ namespace threat_scanner
             "sendTelemetry": true,
             "customerID": "@@CUSTOMER_ID@@",
             "machineID": "@@MACHINE_ID@@",
-            "url": "https://4.sophosxl.net/lookup",
+            "url": "@@SXL_URL@@",
             "timeout": 10
         }
     },
     @@SCANNER_CONFIG@@
 })sophos",
-                { { "@@LIBRARY_PATH@@", libraryPath },
+                {
+                  { "@@LIBRARY_PATH@@", libraryPath },
                   { "@@VERSION_NUMBER@@", versionNumber },
                   { "@@ENABLE_SXL_LOOKUP@@", enableSxlLookup ? "true" : "false" },
                   { "@@CUSTOMER_ID@@", customerId },
                   { "@@MACHINE_ID@@", endpointId },
-                  { "@@SCANNER_CONFIG@@", scannerInfo } });
+                  { "@@SXL_URL@@", sxlUrl },
+                  { "@@SCANNER_CONFIG@@", scannerInfo }
+                });
             return runtimeConfig;
         }
     } // namespace
