@@ -28,11 +28,10 @@ Default Tags  DIAGNOSE
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
 Test Remote Diagnose can process multiple SDU actions with malformed URLs
-    [Timeout]    10 minutes
+    [Timeout]     6 minutes
     [Template]    Test Remote Diagnose can process SDU action with malformed URL
-    # action xml file names        # num_times_status_sent_for_sdu_adapter (increase in increments of 2)
-    SDUActionWithNoURLValue.xml    2
-    SDUActionWithNoURLField.xml    4
+    SDUActionWithNoURLField.xml
+    SDUActionWithNoURLValue.xml
 
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
@@ -97,6 +96,7 @@ Setup Fake Cloud
     install_system_ca_cert  /tmp/ca.crt
 
 Teardown
+    log file    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Stop Local Cloud Server
     MCSRouter Default Test Teardown
     Stop Https Server
@@ -112,7 +112,7 @@ Simulate SDU Action Now
     Move File   ${SOPHOS_INSTALL}/tmp/${action_xml_file_name}    ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
 
 Test Remote Diagnose can process SDU action with malformed URL
-    [Arguments]    ${input_action_xml_file_name}    ${num_times_status_sent_for_sdu_adapter}
+    [Arguments]    ${input_action_xml_file_name}
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
     Wait Until Keyword Succeeds
@@ -129,6 +129,6 @@ Test Remote Diagnose can process SDU action with malformed URL
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Cannot process url will not send up diagnose file Error: Malformed url missing protocol    30
 
     Wait Until Keyword Succeeds
-        ...  240 secs
+        ...  40 secs
         ...  5 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   ${num_times_status_sent_for_sdu_adapter}
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
