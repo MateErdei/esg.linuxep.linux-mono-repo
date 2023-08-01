@@ -11,7 +11,7 @@
 
 namespace Common::Telemetry
 {
-    const std::map<std::string, std::string> fieldsToMoveToTopLevel{ std::make_pair("updatescheduler.esmName", "esmName"),
+    const std::map<const std::string, const std::string> fieldsToMoveToTopLevel{ std::make_pair("updatescheduler.esmName", "esmName"),
                                                                      std::make_pair("updatescheduler.esmToken", "esmToken"),
                                                                      std::make_pair("updatescheduler.suite-version", "suiteVersion"),
                                                                      std::make_pair("base-telemetry.tenantId", "tenantId"),
