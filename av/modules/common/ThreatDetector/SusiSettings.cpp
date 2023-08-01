@@ -10,6 +10,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 using namespace nlohmann;
 
@@ -271,6 +272,25 @@ namespace common::ThreatDetector
     void SusiSettings::setSxlUrl(const std::string& url)
     {
         sxlUrl_ = url;
+    }
+
+    bool SusiSettings::isSxlUrlValid(const std::string& url)
+    {
+        if (url.size() > 1024)
+        {
+            return false;
+        }
+        if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
+        {
+            return false;
+        }
+        auto host = url.substr(9);
+        auto pos = host.find_first_not_of(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz"
+            "0123456789.");
+
+        return pos == std::string::npos;
     }
 
 } // namespace common::ThreatDetector

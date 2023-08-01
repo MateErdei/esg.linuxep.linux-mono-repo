@@ -761,21 +761,7 @@ namespace Plugin
 
     bool PolicyProcessor::isLookupUrlValid(const std::string& url)
     {
-        if (url.size() > 1024)
-        {
-            return false;
-        }
-        if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
-        {
-            return false;
-        }
-        auto host = url.substr(9);
-        auto pos = host.find_first_not_of(
-                                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                          "abcdefghijklmnopqrstuvwxyz"
-                                          "0123456789.");
-
-        return pos == std::string::npos;
+        return common::ThreatDetector::SusiSettings::isSxlUrlValid(url);
     }
 
     void PolicyProcessor::saveSusiSettings(const std::string& policyName)

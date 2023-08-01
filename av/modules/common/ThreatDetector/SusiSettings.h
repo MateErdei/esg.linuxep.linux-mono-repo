@@ -51,6 +51,15 @@ namespace common::ThreatDetector
 
         std::string getSxlUrl() const;
         void setSxlUrl(const std::string&);
+        /**
+         * Determines if the SXL4 URL is valid.
+         * Must be UTF-8
+         * Must be AlphaNumeric + .
+         * Must be small enough
+         * @param url
+         * @return true if URL is valid
+         */
+        static bool isSxlUrlValid(const std::string& url);
 
     private:
         void processRawPathAllowList();
