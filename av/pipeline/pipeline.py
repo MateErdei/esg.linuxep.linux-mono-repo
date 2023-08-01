@@ -574,7 +574,6 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                         for include in include_tag.split():
                             with stage.parallel(include):
                                 for (name, machine) in get_test_machines(test_inputs, parameters):
-                                    print("C", include, name, id(machine))
                                     stage.task(task_name=name, func=robot_task, machine=machine,
                                                include_tag=include, robot_args="", machine_name=name)
 
