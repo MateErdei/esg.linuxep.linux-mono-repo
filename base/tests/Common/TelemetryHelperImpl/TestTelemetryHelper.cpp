@@ -5,6 +5,7 @@
 ///******************************************************************************************************/
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/TelemetryHelperImpl/TelemetryFieldStructure.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
@@ -661,4 +662,59 @@ TEST(TestTelemetryHelper, addValueToSet) // NOLINT
     helper.addValueToSet("my-set",2UL);
     helper.addValueToSet("my-set",2UL);
     ASSERT_EQ(R"({"my-set":["a","b","c","string",false,1.0213,1.0,1,2]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, restructureTestMultipleEntries)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.esmName", std::string("esmName"));
+    helper.set("updatescheduler.something", std::string("something"));
+    ASSERT_EQ(R"({"updatescheduler":{"esmName":"esmName","something":"something"}})", helper.serialise());
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"esmName":["esmName"],"updatescheduler":{"something":"something"}})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, restructureTestSingleEntry)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.esmName", std::string("esmName"));
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"esmName":["esmName"]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, restructureEmptyTelemetry)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, restructureEntryDoesntExist)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.download-state", 0L);
+    helper.set("updatescheduler.subscriptions-ServerProtectionLinux-Base", "RECOMMENDED");
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"updatescheduler":{"download-state":0,"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED"}})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, restructureAllExpectedEntries)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    //For test purposes treat the second field as a value
+    for (const auto& [interestingField, value] : fieldsToMoveToTopLevel)
+    {
+        helper.set(interestingField, value);
+    }
+
+    std::string expectedFirst = R"({"base-telemetry":{"deviceId":"deviceId","tenantId":"tenantId"},"updatescheduler":{"esmName":"esmName","esmToken":"esmToken","suite-version":"suiteVersion"}})";
+    ASSERT_EQ(expectedFirst, helper.serialise());
+
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"deviceId":["deviceId"],"esmName":["esmName"],"esmToken":["esmToken"],"suiteVersion":["suiteVersion"],"tenantId":["tenantId"]})", helper.serialise());
 }
