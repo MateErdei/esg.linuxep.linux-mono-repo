@@ -169,7 +169,7 @@ static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
 
   <intelix>
     <!-- <url>{{intelix_url}}</url> -->
-    <!-- <lookupUrl>{{intelix_lookup_url}}</lookupUrl> -->
+    <lookupUrl>https://4.really.com</lookupUrl>
   </intelix>
 </policy>
 )sophos";
@@ -412,8 +412,13 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithUnkownAppId)
 TEST_F(TestPolicyProcessor, alc_policy_resets_reload_restart_flags)
 {
     Plugin::PolicyProcessor proc{nullptr};
+#ifdef USE_SXL_ENABLE_FROM_CORC_POLICY
+    auto corc = Common::XmlUtilities::parseXml(GL_CORC_POLICY);
+    proc.processCorcPolicy(corc);
+#else
     auto sav = Common::XmlUtilities::parseXml(GL_SAV_POLICY);
     proc.processSavPolicy(sav);
+#endif
     ASSERT_TRUE(proc.restartThreatDetector());
     ASSERT_TRUE(proc.reloadThreatDetectorConfiguration());
 

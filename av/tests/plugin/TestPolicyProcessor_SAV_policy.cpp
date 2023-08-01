@@ -63,12 +63,19 @@ namespace
     };
 }
 
+#ifdef USE_SXL_ENABLE_FROM_CORC_POLICY
+constexpr bool SXL_FROM_CORC_POLICY = true;
+#else
+constexpr bool SXL_FROM_CORC_POLICY = false;
+#endif
+
+
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 {
     expectWriteSoapdConfig();
     expectReadSoapdConfig();
     expectConstructorCalls();
-    expectWriteSusiConfigFromBool(true);
+    expectWriteSusiConfigFromBool(!SXL_FROM_CORC_POLICY);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -82,17 +89,17 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 </config>
 )sophos";
 
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    proc.processSavPolicy(attributeMap);
-    EXPECT_TRUE(proc.restartThreatDetector());
+    EXPECT_NO_THROW(proc.processSAVpolicyFromString(policyXml));
+    EXPECT_EQ(proc.restartThreatDetector(), !SXL_FROM_CORC_POLICY);
 }
 
-TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
+TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsFalse)
 {
     Plugin::PolicyProcessor proc{nullptr};
     EXPECT_EQ(proc.getSXL4LookupsEnabled(), common::ThreatDetector::SXL_DEFAULT);
 }
 
+#ifndef USE_SXL_ENABLE_FROM_CORC_POLICY
 TEST_F(TestPolicyProcessor_SAV_policy, sxl_changes_cause_restart)
 {
     expectReadSoapdConfig();
@@ -263,6 +270,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
     proc.processSavPolicy(attributeMapInvalid);
     EXPECT_TRUE(proc.restartThreatDetector());
 }
+#endif
 
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
 
@@ -272,7 +280,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 {
     expectReadSoapdConfig();
     expectConstructorCalls();
-    expectWriteSusiConfigFromBool(true);
+    expectWriteSusiConfigFromBool(!SXL_FROM_CORC_POLICY);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
                                                            R"sophos({"detectPUAs":true,"exclusions":["x","y"]})sophos",
                                                            _,

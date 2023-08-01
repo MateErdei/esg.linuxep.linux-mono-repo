@@ -319,8 +319,9 @@ namespace Plugin
         bool needToSave = !m_gotFirstSavPolicy;
 
         // Lookup enabled
+#ifndef USE_SXL_ENABLE_FROM_CORC_POLICY
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
-        bool lookupEnabledInPolicy = isLookupEnabled(policy);
+        bool lookupEnabledInPolicy = isLookupEnabledFromSavPolicy(policy);
         if (oldLookupEnabled != lookupEnabledInPolicy)
         {
             // Only need to change object or restart TD if the setting has changed
@@ -329,6 +330,7 @@ namespace Plugin
             m_restartThreatDetector = true;
             needToSave = true;
         }
+#endif
 
         // PUA Enabled
         bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
@@ -361,15 +363,26 @@ namespace Plugin
         }
     }
 
-    bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::isLookupEnabledFromSavPolicy(const AttributesMap& policy)
     {
         auto contents = policy.lookup("config/detectionFeedback/sendData").contents();
         if (contents == "true" || contents == "false")
         {
             return contents == "true";
         }
-        // Default to true if we can't read or understand the sendData value
-        return true;
+        // Default to false if we can't read or understand the sendData value
+        return common::ThreatDetector::SXL_DEFAULT;
+    }
+
+    bool PolicyProcessor::isLookupEnabledFromCorcPolicy(const PolicyProcessor::AttributesMap& policy)
+    {
+        auto contents = policy.lookup("policy/detectionFeedback/sendData").contents();
+        if (contents == "true" || contents == "false")
+        {
+            return contents == "true";
+        }
+        // Default to false if we can't read or understand the sendData value
+        return common::ThreatDetector::SXL_DEFAULT;
     }
 
     std::vector<std::string> PolicyProcessor::extractListFromXML(
@@ -648,6 +661,7 @@ namespace Plugin
             LOGINFO("CORC policy received for the first time");
             m_gotFirstCorcPolicy = true;
         }
+        bool changed = firstPolicy;
 
         auto allowListFromPolicy = policy.lookupMultiple("policy/whitelist/item");
         std::vector<std::string> sha256AllowList;
@@ -673,6 +687,21 @@ namespace Plugin
                 }
             }
         }
+
+        // Lookup enabled
+#ifdef USE_SXL_ENABLE_FROM_CORC_POLICY
+        bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
+        bool lookupEnabledInPolicy = isLookupEnabledFromCorcPolicy(policy);
+        if (oldLookupEnabled != lookupEnabledInPolicy)
+        {
+            // Only need to change object or restart TD if the setting has changed
+            // Need to save if we got the first policy since restarting AV plugin as well
+            m_threatDetectorSettings.setSxlLookupEnabled(lookupEnabledInPolicy);
+            m_restartThreatDetector = true;
+            changed = true;
+        }
+#endif
+
         std::string sxlUrl;
         auto sxlUrls = policy.lookupMultiple("policy/intelix/lookupUrl");
         if (sxlUrls.empty())
@@ -694,7 +723,6 @@ namespace Plugin
             LOGDEBUG("SXL URL: " << sxlUrl);
         }
 
-        bool changed = firstPolicy;
         auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
         auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
         if (oldSha256AllowList != sha256AllowList)

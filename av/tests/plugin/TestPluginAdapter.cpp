@@ -258,11 +258,19 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
+#ifdef USE_SXL_ENABLE_FROM_CORC_POLICY
+    // We now see all of the reload events
+    EXPECT_EQ(appenderCount("Processing request to reload sophos threat detector"), 3);
+    // 1st and 3rd policies will required a reload - but the reload will be delayed till
+    // the 3rd policy has been processed
+    EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
+#else
     // We now see all of the restart events
     EXPECT_EQ(appenderCount("Processing request to restart sophos threat detector"), 3);
     // 1st and 3rd policies will required a restart - but the restart will be delayed till
     // the 3rd policy has been processed
     EXPECT_EQ(appenderCount("Requesting scan monitor to restart threat detector"), 1);
+#endif
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresDuplicates)

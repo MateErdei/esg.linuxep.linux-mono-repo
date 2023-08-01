@@ -33,6 +33,12 @@ namespace
             processCorcPolicy(attributeMap);
         }
 
+        void processSAVpolicyFromString(const std::string& policy)
+        {
+            auto attributeMap = Common::XmlUtilities::parseXml(policy);
+            processSavPolicy(attributeMap);
+        }
+
     protected:
         void notifyOnAccessProcessIfRequired() override { PRINT("Notified soapd"); }
     };

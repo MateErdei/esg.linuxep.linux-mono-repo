@@ -11,6 +11,7 @@
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #define USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+#define USE_SXL_ENABLE_FROM_CORC_POLICY
 
 #ifndef TEST_PUBLIC
 # define TEST_PUBLIC private
@@ -66,7 +67,8 @@ namespace Plugin
         void processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
         static std::string getCustomerId(const AttributesMap& policy);
-        static bool isLookupEnabled(const AttributesMap& policy);
+        static bool isLookupEnabledFromSavPolicy(const AttributesMap& policy);
+        static bool isLookupEnabledFromCorcPolicy(const AttributesMap& policy);
         [[nodiscard]] bool getSXL4LookupsEnabled() const;
 
         static void setOnAccessConfiguredTelemetry(bool enabled);
