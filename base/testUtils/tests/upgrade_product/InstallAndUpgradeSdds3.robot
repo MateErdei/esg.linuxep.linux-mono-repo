@@ -216,6 +216,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   Check SulDownloader Log Contains   Update success
     Check SulDownloader Log Contains    Running SDDS3 update
 
+    Create File  ${SOPHOS_INSTALL}/plugins/liveresponse/log/sessions.log
+
     # Update again to ensure we do not get a scheduled update later in the test run
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
@@ -268,6 +270,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
 
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
@@ -314,9 +318,24 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  5 secs
     ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
 
+    # AV logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
+
+    # Liveresponse logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/sessions.log
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+
+    # Response actions logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
+
+    # RTD logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 
     Wait Until Keyword Succeeds
     ...  180 secs
@@ -466,6 +485,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   Check SulDownloader Log Contains   Update success
     Check SulDownloader Log Contains    Running SDDS3 update
 
+    Create File  ${SOPHOS_INSTALL}/plugins/liveresponse/log/sessions.log
+
     # Update again to ensure we do not get a scheduled update later in the test run
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
@@ -524,7 +545,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
-
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
@@ -553,9 +575,24 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  5 secs
     ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
 
+    # AV logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
+
+    # Liveresponse logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/sessions.log
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+
+    # Response actions logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
+
+    # RTD logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 
     Wait Until Keyword Succeeds
     ...  180 secs

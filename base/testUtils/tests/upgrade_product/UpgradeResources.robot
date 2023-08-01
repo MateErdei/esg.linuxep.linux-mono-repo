@@ -96,9 +96,8 @@ Mark Known Downgrade Errors
     # Deliberatly missing the last part of these lines so it will work on all plugin registry files.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
-    # TODO LINUXDAR-5983 - expected till this ticket is in released version
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
 
 Create Local SDDS3 Override
     [Arguments]  ${URLS}=https://localhost:8080  ${CDN_URL}=https://localhost:8080

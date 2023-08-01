@@ -59,6 +59,8 @@ Install all plugins 999 then downgrade to all plugins develop
     Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
     ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
 
+    Create File  ${SOPHOS_INSTALL}/plugins/liveresponse/log/sessions.log
+
     Override LogConf File as Global Level  DEBUG
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
 
@@ -94,13 +96,28 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  30 secs
     ...  5 secs
     ...  RuntimeDetections Plugin Is Running
-    ${post_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
+    ${post_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/downgrade-backup/runtimedetections.log
     # First line of both logs should be the same, as rtd preserves it's logs on a downgrade
     Should Be Equal As Strings  ${post_downgrade_rtd_log.split("\n")[0]}  ${pre_downgrade_rtd_log.split("\n")[0]}
 
     Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
     Mark Known Downgrade Errors
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
+
+    # Liveresponse logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/sessions.log
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+
+    # Response actions logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical

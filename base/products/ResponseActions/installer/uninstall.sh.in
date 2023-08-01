@@ -35,11 +35,30 @@ UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 OLDMANIFESTDIR="$BASEDIR/base/update/${PRODUCT_LINE_ID}"
+SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
+
+if [[ ${DOWNGRADE} == 1 ]]
+then
+  mkdir -p ${SAVE_DIR}
+  cp -va ${UNINSTALLDIR}/log/responseactions.log*  ${SAVE_DIR}
+fi
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
 rm -r "$SYMLINKVERSION"
 rm -r "$OLDMANIFESTDIR"
 rm -f "${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc"
+
+if (( DOWNGRADE == 1 ))
+then
+    LOG_RESTORE_DIR=${UNINSTALLDIR}/log/downgrade-backup
+
+    mkdir -p "$LOG_RESTORE_DIR"
+
+    for entry in "$SAVE_DIR"/*
+    do
+        cp "$entry"  "$LOG_RESTORE_DIR"/"$(basename -- "$entry")"
+    done
+fi

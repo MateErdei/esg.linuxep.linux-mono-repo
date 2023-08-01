@@ -35,7 +35,6 @@ ${DOWNLOAD_FILE_EXPIRED_COUNT}    download-file-expiry-failures
 
 *** Test Cases ***
 RA Plugin Reports Telemetry Correctly
-    Install Response Actions Directly
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}

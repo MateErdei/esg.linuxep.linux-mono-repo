@@ -36,6 +36,10 @@ Uninstall Response Actions
     Should Be Equal As Strings   ${result.rc}  0
     [Return]  ${result}
 
+Downgrade Response Actions
+    ${result} =  Run Process  bash ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh --downgrade   shell=True   timeout=20s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to downgrade Response Actions.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+
 Check Response Actions Executable Running
     ${result} =    Run Process  pgrep responseactions | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
