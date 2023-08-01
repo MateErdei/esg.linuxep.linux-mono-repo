@@ -59,6 +59,14 @@ void Common::Telemetry::TelemetryObject::set(const std::list<Common::Telemetry::
     m_value = value;
 }
 
+void Common::Telemetry::TelemetryObject::removeKey(const std::string& key)
+{
+    checkType(Type::object);
+    auto& nodes = std::get<std::map<std::string, TelemetryObject>>(m_value);
+    nodes.erase(key);
+}
+
+
 Common::Telemetry::TelemetryObject& Common::Telemetry::TelemetryObject::getObject(const std::string& key)
 {
     checkType(Type::object);
