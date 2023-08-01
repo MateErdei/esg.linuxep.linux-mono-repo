@@ -192,6 +192,9 @@ add_imported_library(osquery_gen_library SHARED ${LIVEQUERYPATH}/OsquerySDK/gen-
 add_imported_library(osquerysdk_library SHARED ${LIVEQUERYPATH}/OsquerySDK/libOsquerySDK.so ${LIVEQUERYPATH})
 add_imported_library(openssl_ssl SHARED ${INPUT}/openssl/lib64/libssl.so.3 ${INPUT}/openssl/include)
 add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3 ${INPUT}/openssl/include)
+add_imported_library(glog STATIC ${INPUT}/glog/libglog.a ${INPUT}/glog)
+add_imported_library(gflags STATIC ${INPUT}/gflags/libgflags.a ${INPUT}/gflags)
+add_imported_library(gtest STATIC ${GTEST_INPUT}/googletest_main.a ${GTEST_INPUT}/include)
 
 target_link_libraries(openssl_crypto INTERFACE dl pthread)
 target_link_libraries(thrift_library INTERFACE ${zlib} openssl_ssl openssl_crypto)
@@ -211,23 +214,6 @@ find_library(JSONCPP_LIBRARY
         NO_DEFAULT_PATH
         )
 
-find_library(GLOG_LIBRARY
-        NAMES glog
-        PATHS ${INPUT}/glog
-        NO_DEFAULT_PATH
-        )
-
-find_library(GFLAG_LIBRARY
-        NAMES gflags
-        PATHS ${INPUT}/gflags
-        NO_DEFAULT_PATH
-        )
-
-set(GTEST_INCLUDE ${GTEST_INPUT}/include)
-set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
-if (NOT EXISTS ${GTEST_MAIN_LIBRARY})
-    message("Library not found: ${GTEST_MAIN_LIBRARY}")
-endif ()
 
 include(cppcheck.cmake)
 add_subdirectory(modules)

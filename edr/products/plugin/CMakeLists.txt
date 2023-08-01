@@ -1,6 +1,6 @@
 add_executable(${plugin_name}
         main.cpp)
-target_link_libraries(${plugin_name} PUBLIC pluginimpl dl)
+target_link_libraries(${plugin_name} PUBLIC pluginimpl gflags dl)
 
 SET_TARGET_PROPERTIES( ${plugin_name}
         PROPERTIES

@@ -20,7 +20,7 @@
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/bazeltools/LINUXDAR-7602-toolchain-rpath_2"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
             <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="/build/redist/livequery"/>
             <include artifact-path="common/livequery/include" dest-dir="/build/redist/livequery/common/livequery"/>

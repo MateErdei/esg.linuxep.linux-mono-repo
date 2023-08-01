@@ -40,8 +40,6 @@ function(add_third_party_library LIB LIBRARY_PATH)
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 endfunction(add_third_party_library)
 
-add_third_party_library(glog ${INPUT}/glog)
-add_third_party_library(gflags ${INPUT}/gflags)
 add_third_party_library(jsoncpp ${INPUT}/jsoncpp)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)

@@ -5,8 +5,7 @@ add_executable(LiveQueryReport
         )
 
 target_link_libraries(LiveQueryReport PUBLIC osqueryclient
-        ${GLOG_LIBRARY}
-        ${GFLAG_LIBRARY}
+        gflags
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}

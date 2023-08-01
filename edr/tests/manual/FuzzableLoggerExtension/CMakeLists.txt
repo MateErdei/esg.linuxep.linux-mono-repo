@@ -3,17 +3,16 @@ add_executable(FuzzableResultSender
         )
 
 target_link_libraries(FuzzableResultSender PUBLIC
+        gflags
         OsqueryExtensions
         eventjournalwrapperimpl
         ${pluginapilib}
         ${protobuflib}
         ${log4cpluslib}
-        ${GLOG_LIBRARY}
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
         dl
-        ${GFLAG_LIBRARY}
         eventjournalwrapperimpl
         ${LZMA_LIBRARY}
         stdc++fs
