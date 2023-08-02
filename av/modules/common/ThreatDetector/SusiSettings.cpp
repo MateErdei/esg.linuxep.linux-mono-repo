@@ -36,7 +36,7 @@ namespace
         return value;
     }
 
-#ifndef USING_LIBFUZZER
+#ifdef LOGGING_ENABLED
     // Only used in log lines
     const char* strFromBool(bool v)
     {
