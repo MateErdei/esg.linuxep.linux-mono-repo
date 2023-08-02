@@ -48,3 +48,4 @@ tmp/
 /vagrant
 TA/robot
 TA/vagrant
+/fuzz-libs/

@@ -119,13 +119,15 @@ target_link_libraries(threatDetectorClientExecutable  PUBLIC
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 if (DEFINED ENV{USE_LIBFUZZER})
+# These RPATHs are only used for fuzzing!
+set(FUZZ_RPATH "$ORIGIN:$ORIGIN/../lib64:${CMAKE_BINARY_DIR}/libs:/build/input/gcc/lib64")
 SET_TARGET_PROPERTIES( threatDetectorClientExecutable
         threatDetectorServerExecutable
         threatReporterServerExecutable
         ProcessControlServerExecutable
         PROPERTIES
-        BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "${FUZZ_RPATH}"
+        INSTALL_RPATH "${FUZZ_RPATH}"
         )
 install(TARGETS threatDetectorClientExecutable
         threatDetectorServerExecutable
