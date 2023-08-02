@@ -89,10 +89,5 @@ namespace mount_monitor::mountinfoimpl
          * Try and parse /proc/mounts.
          */
         void parseProcMounts();
-
-        /**
-         * Determine whether a device is mounted read-only or not
-         */
-        bool isReadOnly(const std::string& mountPoint);
     };
 } // namespace mount_monitor::mountinfoimpl

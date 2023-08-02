@@ -16,7 +16,6 @@
 // Standard C
 #include <fstab.h>
 #include <sys/stat.h>
-#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -113,8 +112,7 @@ void Mounts::parseProcMounts()
         try
         {
             bool isDir = std::filesystem::is_directory(mountPoint);
-            bool readOnly = isReadOnly(mountPoint);
-            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir, readOnly));
+            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir));
         }
         catch (const std::filesystem::filesystem_error& e)
         {
@@ -412,13 +410,6 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 IMountPointSharedVector Mounts::mountPoints()
 {
     return m_devices;
-}
-
-bool Mounts::isReadOnly(const std::string& mountPoint)
-{
-    struct statvfs vfs;
-    statvfs(mountPoint.c_str(), &vfs);
-    return vfs.f_flag & ST_RDONLY;
 }
 
 IMountPointSharedPtr Mounts::getMountFromPath(const std::string& childPath)
