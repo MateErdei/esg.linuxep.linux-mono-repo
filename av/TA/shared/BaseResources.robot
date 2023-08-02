@@ -155,7 +155,7 @@ Send Sav Action To Base
 Send RA Action To Base
     Register Cleanup If Unique  Empty Directory  ${MCS_PATH}/action/
     Copy File  ${RESOURCES_PATH}/ResponseAction.json  ${MCS_PATH}/tmp/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
-    Copy File  ${MCS_PATH}/tmp/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+    Move File  ${MCS_PATH}/tmp/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
     ...  ${MCS_PATH}/action/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 Prepare To Run Telemetry Executable

@@ -79,6 +79,6 @@
 
     <intelix>
         <!-- <url>{{intelix_url}}</url> -->
-        <!-- <lookupUrl>{{intelix_lookup_url}}</lookupUrl> -->
+        <lookupUrl>https://4.sophosxl.net</lookupUrl>
     </intelix>
 </policy>
