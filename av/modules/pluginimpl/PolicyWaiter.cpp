@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace Plugin;

@@ -18,12 +18,12 @@
 #define LOGFATAL(x)   do { PRINT(x); ::exit(1); } while(0)
 
 #else
+#define LOGGING_ENABLED
 
 #include <Common/Logging/SophosLoggerMacros.h>
 
 log4cplus::Logger& getCommonLogger();
 
-#define LOGGING_ENABLED
 #define LOGTRACE(x) LOG4CPLUS_TRACE(getCommonLogger(), x)  // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getCommonLogger(), x)  // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(getCommonLogger(), x)    // NOLINT

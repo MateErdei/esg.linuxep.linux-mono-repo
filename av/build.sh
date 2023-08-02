@@ -159,6 +159,7 @@ do
             ;;
         --fuzz|--fuzzing)
             export USE_LIBFUZZER=1
+            export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0
             LOCAL_CMAKE=0
