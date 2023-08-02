@@ -20,7 +20,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 
 
 *** Test Cases ***
-Telemetry Executable Moves Top Level Telemetry Items ESM Enabled
+Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
 
     Cleanup Telemetry Server
@@ -50,6 +50,7 @@ Telemetry Executable Moves Top Level Telemetry Items ESM Enabled
     ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
     Check Current Release With AV Installed Correctly
 
+    File Should Exist     ${SOPHOS_INSTALL}/base/update/var/package_config.xml
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -57,10 +58,10 @@ Telemetry Executable Moves Top Level Telemetry Items ESM Enabled
     LOG    ${telemetryFileContents}
 
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
-        ...    set_edr=True
-        ...    set_av=True
         ...    install_state=0
         ...    download_state=0
+        ...    most_recent_update_successful=${TRUE}
+        ...    base_tag=${fixed_version_name}
     check_base_telemetry_json_is_correct  ${telemetryFileContents}
 
     @{top_level_list} =  Create List   esmName    esmToken    suiteVersion    tenantId    deviceId
