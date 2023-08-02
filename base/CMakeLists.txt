@@ -231,7 +231,6 @@ monorepo_library(bzip2 ${INPUT}/bzip2/libbzip2 ${INPUT}/bzip2)
 monorepo_library(lzma ${INPUT}/lzma/liblzma ${INPUT}/lzma/src/liblzma/api)
 monorepo_library(minizip ${INPUT}/minizip/libminizip ${INPUT}/minizip)
 
-# monorepo_library(zlib ${INPUT}/zlib/libz ${INPUT}/zlib)
 add_imported_library(zlib SHARED TRUE ${INPUT}/zlib/libz.so ${INPUT}/zlib)
 add_imported_library(zlib_static STATIC FALSE ${INPUT}/zlib/libzlib.a ${INPUT}/zlib) # the .a has a different name
 
