@@ -7,6 +7,8 @@
 
 #include <stdexcept>
 
+#include <sys/statvfs.h>
+
 using namespace mount_monitor::mountinfoimpl;
 
 static Common::SystemCallWrapper::ISystemCallWrapperSharedPtr createSystemCallWrapper()
@@ -86,7 +88,10 @@ bool Drive::isDirectory() const
 {
     return m_isDirectory;
 }
+
 bool Drive::isReadOnly() const
 {
-    return m_isReadOnly;
+    struct statvfs vfs;
+    statvfs(m_mountPoint.c_str(), &vfs);
+    return vfs.f_flag & ST_RDONLY;
 }
