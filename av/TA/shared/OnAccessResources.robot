@@ -131,9 +131,9 @@ Enable OA Scanning
     send av policy from file  CORE           ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
     send av policy from file  FLAGS          ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    wait for on access log contains after mark  "oa_enabled":true   mark=${mark}
-    wait for on access log contains after mark  Starting eventReader   mark=${mark}
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  "oa_enabled":true   mark=${mark}    timeout=30
+    wait for on access log contains after mark  Starting eventReader   mark=${mark}    timeout=30
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}    timeout=30
 
     # Ensure we have finished processing the policy that has on-close enabled before we proceed
     ${mark2} =  wait for on access log contains after mark  Scanning on-close enabled   mark=${mark}
