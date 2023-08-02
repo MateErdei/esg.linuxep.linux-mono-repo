@@ -357,6 +357,65 @@ On Access Scans File On XFS
     ${opts} =  Set Variable  nouuid
     On Access Scans Eicar On Filesystem from Image  xfs  xfsFileSystem  opts=${opts}
 
+On Access Scans File On devtmpfs
+    ${mark} =  get_on_access_log_mark
+    ${source} =       Set Variable  /tmp_test/devtmpfs
+    ${destination} =  Set Variable  /testmnt/devtmpfs
+    Create Directory  ${destination}
+
+    ${result} =  Run Process  mount  -t  devtmpfs  -o  size\=20m  ${source}  ${destination}
+    Log   ${result.stdout}
+    Log   ${result.stderr}
+
+    Register Cleanup    Unmount Image Internal  ${destination}
+    Register Cleanup    Remove File  ${source}
+
+    wait for on access log contains after mark  Including mount point: ${destination}   ${mark}
+
+    On-access Scan Eicar Close  ${destination}/eicar.com
+
+On Access Doesnt Mount AutoFs Mount
+    ${exports} =    Set Variable  /etc/exports
+    ${automaster} =    Set Variable    /etc/auto.master
+    ${automount} =    Set Variable    /etc/auto.mount
+    ${fstab} =    Set Variable    /etc/fstab
+    ${backupdir} =    Set Variable    ${TESTTMP}/backup
+    ${backupautomaster} =    Set Variable    ${backupdir}/auto.master
+    ${backupfstab} =    Set Variable    ${backupdir}/fstab
+    ${source} =       Set Variable  ${TESTTMP}/data/
+    ${destination} =  Set Variable  ${TESTTMP}/mnt/data
+
+    Require NFS Version   4
+    Create Directory  ${source}
+    Evaluate   os.chmod($TESTTMP, 0o755)
+    Evaluate   os.chmod($source, 0o777)
+    Create Directory  ${destination}
+
+    Create File     ${source}test.txt    test
+    Register Cleanup    Remove Directory    ${source}    recursive=True
+    Create File     ${exports}    ${source} *(rw,no_root_squash,sync)
+    Register Cleanup    Remove File    ${exports}
+
+    Copy File      ${automaster}    ${backupautomaster}
+    Append To File    ${automaster}     /- /etc/auto.mount
+    Register Cleanup    Copy File     ${backupautomaster}    ${automaster}
+
+    Create File    ${automount}    ${destination} -fstype=nfs,rw localhost:${source}
+    Register Cleanup    Remove File     ${automount}
+
+    Copy File      ${fstab}    ${backupfstab}
+    Append To File    ${fstab}    localhost:${source} ${source} nfs rsize=8192,wsize=8192,hard,intr 0 0
+    Register Cleanup    Copy File     ${backupfstab}    ${fstab}
+
+    Run Shell Process  systemctl restart autofs  OnError=failed to restart autofs
+    ${result} =   Run Shell Process    mount    OnError=failed to run mount command
+    Should Contain    ${result.stdout}    ${automount} on ${destination} type autofs
+
+    Restart On Access
+    ${result} =   Run Shell Process    mount    OnError=failed to run mount command
+    Should Not Contain    ${result.stdout}    /dev/sda1 on ${destination} type ext4
+
+    Run Shell Process  umount ${destination}    OnError=failed to umount ${destination}
 
 On Access Scans File On NFSv4
     [Tags]  NFS
