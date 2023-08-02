@@ -1,0 +1,84 @@
+<?xml version="1.0"?><policy RevID="15fa3e2c45f9fda5764a08f53af6bb135d956f589b617af0a2ad748bcbc41d7a" policyType="37"><coreFeatures>
+  <eventJournalSizeLimit>5250</eventJournalSizeLimit>
+</coreFeatures>
+<onAccessScan>
+  <enabled>true</enabled>
+  <onRead>true</onRead>
+  <onWrite>true</onWrite>
+  <onExec>true</onExec>
+  <exclusions>
+    <filePathSet/>
+    <processPathSet/>
+    <excludeRemoteFiles>false</excludeRemoteFiles>
+  </exclusions>
+  <autoExclusions>true</autoExclusions>
+</onAccessScan>
+<onDemandScan>
+  <exclusions>
+    <filePathSet/>
+    <processPathSet/>
+    <excludeRemoteFiles>false</excludeRemoteFiles>
+  </exclusions>
+</onDemandScan>
+<detectionFeedback>
+  <sendData>true</sendData>
+  <sendFiles>true</sendFiles>
+  <onDemandEnable>true</onDemandEnable>
+</detectionFeedback>
+<blocklist>
+  <item type="sha256">d6c22b6d1ca9b2f60cfd742f52e896f975cd204d4b4ff36a15dd857535c8f0ef</item>
+</blocklist>
+<whitelist>
+  <item type="cert-signer">Microsoft Corporation</item>
+  <item type="sha256">5977b3a17a79821fce32412eb2fb19603a34241592fb21d91eef28f76075da2f</item>
+  <item type="sha256">447502ac949e8d326603fe2d6555deca1057fb5b3bc5a73b3485a4e910bc348e</item>
+  <item type="sha256">eee9c44c29c2be011f1f1e43bb8c3fca888cb81053022ec5a0060035de16d848</item>
+  <item type="sha256">373e0f25e7b57f5a0f5b514b0d91a870ab1fa401ceb5ffdc18df14514af1eff8</item>
+  <item type="sha256">13914f7e3a7a2273954b69414e696ee2f4dcc24c0876e0653a48227c09f6bee1</item>
+  <item type="path">C:\dev\</item>
+  <item type="sha256">d287d7d95027bc454af087cf119cb88bdc6e44d6925f9764f3980bee67d56c50</item>
+</whitelist>
+<sampleUploadUri>https://samples.sophosxl.net</sampleUploadUri>
+<sampleUploadHeaders>
+  <header>
+    <name>x-amz-acl</name>
+    <value>bucket-owner-full-control</value>
+  </header>
+</sampleUploadHeaders>
+<applicationControl>
+  <messaging enabled="0" type="snmp"/>
+  <messaging enabled="0" type="smtp"/>
+  <messaging enabled="1" type="desktop"/>
+  <reportOnlyOnce enabled="1"/>
+  <onAccess value="0"/>
+  <onDemand value="0"/>
+  <detectionAction value="0"/>
+  <classSet behaviour="block"/>
+  <applicationSet behaviour="block"/>
+  <applicationSet behaviour="allow"/>
+</applicationControl>
+<webHttpsDecrypt>
+  <exclusions>
+    <categoryExclusionSet>
+      <category>10</category>
+      <category>14</category>
+      <category>20</category>
+      <category>27</category>
+      <category>54</category>
+    </categoryExclusionSet>
+    <siteExclusionSet>
+      <site>axgbuild.intranet.astaro.de</site>
+      <site>devpool11-bldctl.eng.sophos</site>
+      <site>devpool772-bldctl.eng.sophos</site>
+      <site>ems-ems11.eng.sophos</site>
+      <site>instpck.green.sophos</site>
+      <site>plexus.heimdall.c03.pit.els.sophos</site>
+      <site>plexus.manual.c07.pit.els.sophos</site>
+    </siteExclusionSet>
+  </exclusions>
+</webHttpsDecrypt>
+<intelix>
+  <url>https://eu.analysis.sophos.com</url>
+  <lookupUrl>https://4.sophosxl.net</lookupUrl>
+</intelix>
+</policy>
