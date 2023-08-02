@@ -523,10 +523,20 @@ int main(int argc, char** argv)
                             rootConfigOptions.config[MCS::MCS_PROXY_USERNAME])));
                 }
 
+                std::string updateCacheCertPath = Common::FileSystem::join(fs->currentWorkingDirectory(),"installer/uc_certs.crt");
+                std::string updateCachePolicyCert = alcPolicy->getUpdateCertificatesContent();
+                if (!updateCachePolicyCert.empty())
+                {
+                    fs->removeFile(updateCacheCertPath, true);
+                    fs->writeFile(updateCacheCertPath,updateCachePolicyCert);
+                }
+
+                // we only use this field when using updateCaches so its fine to set all the time
+                updateSettings.setUpdateCacheCertPath(updateCacheCertPath);
+
                 if (!update_caches.empty())
                 {
                     std::vector<std::string> updateCaches;
-                    updateSettings.setUpdateCacheCertPath(Common::FileSystem::join(fs->currentWorkingDirectory(),"installer/uc_certs.crt"));
                     for (const auto& cache: update_caches)
                     {
                         std::string fullAddress = cache.address+":"+cache.port;
