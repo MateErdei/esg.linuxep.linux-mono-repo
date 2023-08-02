@@ -223,6 +223,12 @@ add_imported_library(boost_locale SHARED  ${BOOST_LIBRARYDIR}/liblocale.so ${BOO
 
 add_imported_library(boost_program_options SHARED ${BOOST_LIBRARYDIR}/libprogram_options.so ${BOOST_INCLUDEDIR})
 
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libasio.so COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libatomic.so COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libfilesystem.so COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libprogram_options.so COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libsystem.so COMMAND_ERROR_IS_FATAL ANY)
+
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 
 add_subdirectory(modules)

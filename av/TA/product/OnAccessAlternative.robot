@@ -46,6 +46,9 @@ On Access Suite Teardown
 
 On Access Test Setup
     Component Test Setup
+    Register On Fail  Dump log   ${ON_ACCESS_LOG_PATH}
+    Register On Fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  Dump Log   ${AV_LOG_PATH}
 
     Terminate On Access And AV
 
@@ -64,9 +67,7 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
-    Register On Fail  Dump log   ${ON_ACCESS_LOG_PATH}
-    Register On Fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
-    Register On Fail  Dump Log   ${AV_LOG_PATH}
+
 
 
 
