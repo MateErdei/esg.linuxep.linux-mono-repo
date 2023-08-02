@@ -172,14 +172,15 @@ class ThinInstallerUtils(object):
                                               update_caches=None,
                                               args=None,
                                               mcs_ca=None,
-                                              force_certs_dir=None):
+                                              force_certs_dir=None,
+                                              thininstaller_source=None):
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
             for arg in split_args:
                 command.append(arg)
 
-        self.get_thininstaller()
+        self.get_thininstaller(thininstaller_source)
 
         self.create_default_credentials_file(message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
