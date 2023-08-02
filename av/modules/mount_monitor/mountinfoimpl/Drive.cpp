@@ -3,7 +3,6 @@
 #include "Drive.h"
 
 #include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
-#include "Common/UtilityImpl/StringUtils.h"
 
 #include <stdexcept>
 
