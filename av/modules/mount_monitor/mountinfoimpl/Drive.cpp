@@ -90,6 +90,7 @@ bool Drive::isDirectory() const
 
 bool Drive::isReadOnly() const
 {
+    //This will remount an autofs mount
     struct statvfs vfs;
     statvfs(m_mountPoint.c_str(), &vfs);
     return vfs.f_flag & ST_RDONLY;
