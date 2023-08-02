@@ -324,7 +324,7 @@ Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught 
     Should Be Equal As Integers    ${result.rc}  3
 
     Should Not Contain   ${result.stderr}    	Uncaught std::exception
-    Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
+    Should Contain   ${result.stderr}    dest file doesnt contain all data in source
 
 Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exception
     [Tags]    TAP_TESTS
