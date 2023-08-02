@@ -7,7 +7,6 @@
 #include "ProcessPriorityUtils.h"
 // Component
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
-#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
 #include "common/PluginUtils.h"
