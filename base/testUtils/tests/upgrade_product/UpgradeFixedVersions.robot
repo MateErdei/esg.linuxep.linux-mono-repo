@@ -55,7 +55,7 @@ ${BadThreatHealthXmlContents}               <item name="threat" value="2" />
 *** Test Cases ***
 Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  TAP_TESTS
     
     Require Fresh Install
     ${regCommand} =    Set Variable     /opt/sophos-spl/base/bin/registerCentral 5ad5322e39575d3fa99cbab82562d7dffa15e89c1cdd4812fe383be5df7d77fe https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep
