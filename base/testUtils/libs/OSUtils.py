@@ -5,6 +5,7 @@
 
 
 import os
+import socket
 import stat
 import glob
 import grp
@@ -709,3 +710,6 @@ def journalctl_contains(text) -> bool:
                           stdin=open('/dev/null', 'wb'))
     output = out.decode('utf-8')
     return text in output
+
+def get_hostname() -> str:
+    return socket.gethostname()

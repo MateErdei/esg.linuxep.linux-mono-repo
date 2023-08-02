@@ -3,21 +3,21 @@
 # Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-
+import datetime
+import grp
+import hashlib
+import json
 import os
 import pwd
-import grp
-import shutil
-import time
-import stat
-import xml.dom.minidom
-import socket
-import sys
-import subprocess
-import json
-import zipfile
-import hashlib
 import random
+import shutil
+import socket
+import stat
+import subprocess
+import sys
+import time
+import xml.dom.minidom
+import zipfile
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
@@ -31,6 +31,8 @@ PathManager.addPathToSysPath(PathManager.SUPPORTFILEPATH)
 
 import CloudAutomation.cloudClient
 import CloudAutomation.SendToFakeCloud
+
+SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
 
 
 def get_install():
@@ -766,6 +768,41 @@ def check_central_clock():
         logger.error("Central is {} seconds off localtime".format(diff))
     else:
         logger.info("Central time diff = {}".format(diff))
+
+
+def get_api_options(client_id, client_secret, region, hostname):
+    options = Options()
+    options.wait_for_host = False
+    options.ignore_errors = False
+    options.hostname = hostname
+    options.wait = 30
+    options.client_id = None
+    options.client_secret = None
+    options.email = None
+    options.password = None
+    options.region = region
+    options.proxy = None
+    options.proxy_username = None
+    options.proxy_password = None
+    options.cloud_host = None
+    options.cloud_ip = None
+    options.client_id = client_id
+    options.client_secret = client_secret
+    return options
+
+
+def get_api_client(client_id, client_secret, region, hostname):
+    options = get_api_options(client_id, client_secret, region, hostname)
+    return CloudAutomation.cloudClient.CloudClient(options)
+
+
+def get_fixed_versions(client_id, client_secret, region, hostname):
+    client = get_api_client(client_id, client_secret, region, hostname)
+    expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
+    fixed_versions = client.getReleases(expiresFrom.strftime("%Y-%m-%d"))
+    import GatherReleaseWarehouses
+    GatherReleaseWarehouses.setup_fixed_versions(SYSTEMPRODUCT_TEST_INPUT, fixed_versions)
+    return fixed_versions
 
 
 def main(argv):

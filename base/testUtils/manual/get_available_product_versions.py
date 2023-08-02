@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import os
 import sys
 
@@ -34,6 +33,11 @@ class Options(object):
         o = Options()
         o.__dict__ = self.__dict__.copy()
         return o
+
+    def __repr__(self):
+        d = self.__dict__.copy()
+        d.pop('password', None)
+        return d.__repr__()
 
 
 def get_api_options(client_id, client_secret, region, hostname):
