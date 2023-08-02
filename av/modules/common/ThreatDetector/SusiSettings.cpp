@@ -261,8 +261,7 @@ namespace common::ThreatDetector
         std::vector<Exclusion> allowListPath;
         for (const auto& rawPathItr : m_susiAllowListPathRaw)
         {
-            auto newEntry = Exclusion(rawPathItr);
-            allowListPath.push_back(newEntry);
+            allowListPath.emplace_back(rawPathItr);
         }
         m_susiAllowListPath.swap(allowListPath);
     }

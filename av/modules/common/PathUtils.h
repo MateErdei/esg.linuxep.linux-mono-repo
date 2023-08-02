@@ -37,7 +37,7 @@ namespace common
         CachedPath& operator=(const std::string& s)
         {
             string_ = s;
-            path_ = fs::path{s};
+            pathValid_ = false; // path may no longer be valid
             return *this;
         }
 
@@ -62,7 +62,8 @@ namespace common
         {
             if (!pathValid_)
             {
-                path_ = string_;
+                fs::path temp{string_};
+                path_.swap(temp);
                 pathValid_ = true;
             }
             return path_;
