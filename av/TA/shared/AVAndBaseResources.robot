@@ -112,6 +112,9 @@ Configure and check scan now with lookups disabled
 
 Configure scan now
     ${av_mark} =  Get AV Log Mark
+    ${revid} =   Generate Random String
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
+    Send CORC Policy To Base From Content  ${policyContent}
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
     # Run Keyword and Ignore Error
     Wait until scheduled scan updated After Mark  ${av_mark}
@@ -119,7 +122,13 @@ Configure scan now
 Configure scan now with lookups disabled
     ${av_mark} =  Get AV Log Mark
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+
+    ${revid} =   Generate Random String
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
+    Send CORC Policy To Base From Content  ${policyContent}
+
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
+
     Wait For AV Log Contains After Mark  Restarting sophos_threat_detector as the configuration has changed  ${av_mark}
     Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark}
 

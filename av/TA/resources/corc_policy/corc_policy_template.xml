@@ -24,7 +24,7 @@
     </onDemandScan>
 
     <detectionFeedback>
-        <sendData>true</sendData>
+        <sendData>{{sxl4_enable}}</sendData>
         <sendFiles>false</sendFiles>
         <onDemandEnable>true</onDemandEnable>
     </detectionFeedback>
@@ -78,6 +78,6 @@
 
     <intelix>
         <!-- <url>{{intelix_url}}</url> -->
-        <lookupUrl>https://4.sophosxl.net</lookupUrl>
+        <lookupUrl>{{sxl4_url}}</lookupUrl>
     </intelix>
 </policy>

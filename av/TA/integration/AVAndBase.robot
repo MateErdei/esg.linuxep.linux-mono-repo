@@ -270,12 +270,10 @@ AV Gets SAV Policy When Plugin Restarts
     Start AV Plugin
     Wait For Log Contains From Mark  ${av_mark}  SAV policy received for the first time.
     Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
-    File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE}
-    File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Wait Until Created  ${SUSI_STARTUP_SETTINGS_FILE}
+    Wait Until Created  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Wait until scheduled scan updated After Mark  ${av_mark}
     Wait For Log Contains From Mark  ${av_mark}  Configured number of Scheduled Scans: 0
-    Scan GR Test File
-    Wait For Log Contains From Mark  ${td_mark}  SXL Lookups will be enabled
 
 AV Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
     Stop AV Plugin
@@ -289,12 +287,8 @@ AV Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fai
     Wait For Log Contains From Mark  ${av_mark}  SAV policy has not been sent to the plugin
     Send Sav Policy With No Scheduled Scans
     Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
-    Wait Until File exists    ${SUSI_STARTUP_SETTINGS_FILE}
-    File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-
-    Scan GR Test File
-    Wait For Log Contains From Mark  ${td_mark}  SXL Lookups will be enabled
-
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
 AV Gets ALC Policy When Plugin Restarts
     Register Cleanup    Exclude UpdateScheduler Fails
@@ -682,7 +676,7 @@ AV Plugin does not restart threat detector on customer id change
     Check Sophos Threat Detector has same PID   ${pid}
 
 
-AV Plugin tries to restart threat detector on susi startup settings change
+AV Plugin tries to restart threat detector when SXL Lookup disabled
     Register Cleanup    Exclude Failed To Write To UnixSocket Environment Interuption
     Register Cleanup    Exclude Invalid Settings No Primary Product
     Register Cleanup    Exclude Configuration Data Invalid
@@ -690,28 +684,22 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Comment  set our initial policy
 
     ${revid} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=true
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
     Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-    Wait Until SAV Status XML Contains  RevID="${revid}"
 
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
-    Restart Sophos Threat Detector
-    Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
-    ...   ${threat_detector_mark}
-    ...   timeout=60
     ${av_mark} =  Get AV Log Mark
+    Send CORC Policy To Base From Content  ${policyContent}
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
+
     stop sophos_threat_detector
 
     Comment  disable SXL lookups, AV should try to restart TD
 
     ${revid} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=false
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
     Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
+    ${av_mark} =  Get AV Log Mark
+    Send CORC Policy To Base From Content  ${policyContent}
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
     Wait For AV Log Contains After Mark   Restarting sophos_threat_detector as the configuration has changed  ${av_mark}   timeout=60
@@ -728,10 +716,9 @@ AV Plugin tries to restart threat detector on susi startup settings change
     ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
 
     ${revid} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=true
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
     Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
+    Send CORC Policy To Base From Content  ${policyContent}
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
     Wait For AV Log Contains After Mark   Restarting sophos_threat_detector as the configuration has changed  ${av_mark2}   timeout=60

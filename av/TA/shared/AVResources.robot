@@ -835,17 +835,7 @@ Check AV Plugin Log exists
 
 Wait Until File exists
     [Arguments]  ${filename}  ${timeout}=15  ${interval}=0
-    ${interval} =   Set Variable If
-    ...   ${interval} > 0   ${interval}
-    ...   ${timeout} >= 120   10
-    ...   ${timeout} >= 60   5
-    ...   ${timeout} >= 15   3
-    ...   1
-    Wait Until Keyword Succeeds
-        ...    ${timeout} secs
-        ...    ${interval}
-        ...    File Should Exist  ${filename}
-
+    Wait Until Created  ${filename}  timeout=${timeout}
 
 Get File Size or Zero
     [Arguments]  ${filename}

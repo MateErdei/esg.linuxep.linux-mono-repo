@@ -5,6 +5,7 @@ from datetime import timedelta
 import calendar
 import json
 import os
+import time
 import uuid
 
 try:
@@ -304,16 +305,27 @@ class _SavPolicyBuilder:
         self.replacement_map["{{revId}}"] = revision_id
 
 
-def create_corc_policy(whitelist_sha256s=[], whitelist_paths=[]):
+def create_corc_policy(whitelist_sha256s=[],
+                       whitelist_paths=[],
+                       sxlLookupEnabled=True,
+                       sxl_url="https://4.sophosxl.net",
+                       revid=None):
+    if not revid:
+        revid = str(time.time())
+
     with open(CORC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
-        whitelist_items = []
-        for sha256 in whitelist_sha256s:
-            whitelist_items.append(f'<item type="sha256">{sha256}</item>')
-        for path in whitelist_paths:
-            whitelist_items.append(f'<item type="path">{path}</item>')
-        policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
-        return policy
+
+    whitelist_items = []
+    for sha256 in whitelist_sha256s:
+        whitelist_items.append(f'<item type="sha256">{sha256}</item>')
+    for path in whitelist_paths:
+        whitelist_items.append(f'<item type="path">{path}</item>')
+    policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
+    policy = policy.replace("{{sxl4_enable}}", "true" if sxlLookupEnabled else "false")
+    policy = policy.replace("{{sxl4_url}}", sxl_url)
+    policy = policy.replace("revisionid", revid)
+    return policy
 
 
 def populate_alc_policy(revid: str, algorithm: str, username: str, userpass: str):
