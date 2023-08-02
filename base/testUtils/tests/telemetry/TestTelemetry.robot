@@ -484,7 +484,7 @@ Test Outbreak Mode Telemetry
     Should contain  ${telemetryFileContents}  "outbreak-today":"true"
 
 
-Telemetry Executable Moves ESM to Top Level When Not Enabled
+Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Generates Telemetry
 
@@ -516,7 +516,7 @@ Telemetry Executable Moves ESM to Top Level When Not Enabled
     check_for_key_value_in_top_level_telemetry    ${telemetryFileContents}    esmToken   ${EMPTY}
 
 
-Telemetry Executable Moves ESM to Top Level When Enabled
+Telemetry Executable Moves ESM to Top Level When ESM Enabled
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
 
     ${esmname} =  Set Variable   LTS 2023.1.1
