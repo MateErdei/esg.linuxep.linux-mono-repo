@@ -27,11 +27,11 @@ Default Tags  DIAGNOSE
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
-Test Remote Diagnose can process multiple SDU actions with malformed URLs
-    [Timeout]     6 minutes
-    [Template]    Test Remote Diagnose can process SDU action with malformed URL
-    SDUActionWithNoURLField.xml
-    SDUActionWithNoURLValue.xml
+Test Remote Diagnose can process SDU action with no URL field
+    Test Remote Diagnose can process SDU action with malformed URL    SDUActionWithNoURLField.xml
+
+Test Remote Diagnose can process SDU action with no URL value
+    Test Remote Diagnose can process SDU action with malformed URL    SDUActionWithNoURLValue.xml
 
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
