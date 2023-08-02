@@ -21,8 +21,6 @@ Resource    ../upgrade_product/UpgradeResources.robot
 
 *** Test Cases ***
 Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
-    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
-
     Cleanup Telemetry Server
 
     Setup SUS static
