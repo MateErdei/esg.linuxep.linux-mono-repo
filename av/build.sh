@@ -59,6 +59,7 @@ RUN_CPPCHECK=0
 BUILD_SDDS3=1
 TAP=${TAP:-tap}
 [[ -n "$REDIST" ]] || REDIST=$BASE/redist
+VAGRANT=0
 
 function install_package()
 {
@@ -277,6 +278,9 @@ EOF
             ;;
          --999)
             export VERSION_OVERRIDE=9.99.9.999
+            ;;
+        -v|--vagrant)
+            VAGRANT=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -637,6 +641,11 @@ function build()
           ## upload unit tests
           UPLOAD_ONLY=1 bash -x build/bullseye/uploadResults.sh || exit $?
       fi
+    fi
+
+    if (( VAGRANT == 1 ))
+    then
+        ./vagrant rsync
     fi
 
     echo "Build Successful"
