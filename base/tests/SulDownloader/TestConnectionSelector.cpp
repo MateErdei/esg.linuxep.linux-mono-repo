@@ -27,27 +27,21 @@ public:
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidates)
 {
-
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-
     // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
     ASSERT_EQ(susCandidates.size(), 2);
 
-    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
-
+    EXPECT_FALSE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
     EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "noproxy:");
-
 
     ASSERT_EQ(connectionCandidates.size(), 2);
 
@@ -63,14 +57,13 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidates)
 }
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsempty)
 {
-
     auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("https://sus.sophosupd.com", ""));
 
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    ASSERT_EQ(susCandidates.size(), 1);
+    ASSERT_EQ(susCandidates.size(), 0);
 }
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesUrlWithNoslash)
@@ -87,25 +80,25 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesUrlWithNoslash)
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsTooLong)
 {
-    std::string longString(1025,'a');
+    std::string longString(1025, 'a');
     auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("sus.sophosupd.com", longString));
 
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    ASSERT_EQ(susCandidates.size(), 1);
+    ASSERT_EQ(susCandidates.size(), 0);
 }
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesDiscardInvalidUrlsInvalidChar)
 {
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("https://sus.sophosupd.com", "https://sus.@sophosupd.com"));
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(
+        createJsonString("https://sus.sophosupd.com", "https://sus.@sophosupd.com"));
 
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-    ASSERT_EQ(susCandidates.size(), 1);
+    ASSERT_EQ(susCandidates.size(), 0);
 }
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesWithOverride)
@@ -119,29 +112,29 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesWithOverride)
     EXPECT_CALL(*filesystemMock, readLines(HasSubstr("base/update/var/sdds3_override_settings.ini"))).WillRepeatedly(Return(overrideContents));
     auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-
     // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
-    ASSERT_EQ(susCandidates.size(), 3);
+    ASSERT_EQ(susCandidates.size(), 4);
 
-    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
-
+    EXPECT_FALSE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://localhost:8081");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        susCandidates[1].getUpdateLocationURL().c_str(), "https://localhost:8081");
-    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "noproxy:");
-    EXPECT_FALSE(susCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        susCandidates[2].getUpdateLocationURL().c_str(), "https://localhost2:8081");
+    EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://localhost2:8081");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
+
+    EXPECT_FALSE(susCandidates[2].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[2].getUpdateLocationURL().c_str(), "https://localhost:8081");
     EXPECT_EQ(susCandidates[2].getProxy().getUrl(), "noproxy:");
+
+    EXPECT_FALSE(susCandidates[3].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[3].getUpdateLocationURL().c_str(), "https://localhost2:8081");
+    EXPECT_EQ(susCandidates[3].getProxy().getUrl(), "noproxy:");
 
     ASSERT_EQ(connectionCandidates.size(), 2);
 
@@ -149,38 +142,31 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesWithOverride)
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
 
-
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        connectionCandidates[1].getUpdateLocationURL().c_str(), "https://localhost:8081");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://localhost:8081");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "noproxy:");
 }
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesEnvProxy)
 {
-    auto configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
     setenv("HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
     ConnectionSelector selector;
     auto [susCandidates, connectionCandidates] = selector.getConnectionCandidates(configurationData);
 
-
     // susCandidates should be ordered. With messagerelay first. NoProxy Should Not be included
     ASSERT_EQ(susCandidates.size(), 3);
 
-    EXPECT_TRUE(susCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
+    EXPECT_FALSE(susCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(
-        susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
     EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "environment:");
 
-
     EXPECT_FALSE(susCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(
-        susCandidates[2].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
+    EXPECT_STREQ(susCandidates[2].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
     EXPECT_EQ(susCandidates[2].getProxy().getUrl(), "noproxy:");
 
 

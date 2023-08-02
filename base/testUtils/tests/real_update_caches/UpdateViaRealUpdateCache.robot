@@ -44,8 +44,10 @@ Endpoint Updates Via Update Cache Without Errors
     ...  10 secs
     ...  ALC contains Update Cache
 
-
+    wait_for_log_contains_from_mark  ${sul_mark}  Adding connection candidate, URL: https://sus.sophosupd.com, Message Relay: linuxuc_tes    60
+    wait_for_log_contains_from_mark  ${sul_mark}  Trying SUS request (https://sus.sophosupd.com) with proxy: linuxuc    60
     wait_for_log_contains_from_mark  ${sul_mark}  Performing Sync using https://linuxuc_tests:8191/v3    60
+    Check Log Does Not Contain  Trying connection candidate, URL: https://sus.sophosupd.com, proxy: noproxy:    ${SULDOWNLOADER_LOG_PATH}  suldownloader log
     Check Log Does Not Contain  Connecting to update source directly    ${SULDOWNLOADER_LOG_PATH}  suldownloader log
 
     Wait Until Keyword Succeeds

@@ -67,11 +67,6 @@ std::vector<ConnectionSetup> ConnectionSelector::getSDDS3Candidates(
     // settings. If no credentials are required for proxy then empty strings are passed  - this is ok.
     Proxy proxyForUpdateCache("noproxy:", proxies[0].getCredentials());
 
-    for (const auto& url : caches)
-    {
-        candidates.emplace_back(url, true, proxyForUpdateCache);
-    }
-
     std::string sdds3OverrideSettingsFile =
         Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
     std::string overrideValue;
@@ -95,6 +90,24 @@ std::vector<ConnectionSetup> ConnectionSelector::getSDDS3Candidates(
         else
         {
             LOGWARN("Discarding url: " << url << " as a connectionCandiate as it failed validation");
+        }
+    }
+
+    for (const auto& cache : caches)
+    {
+        if (key == "CDN_URL")
+        {
+            candidates.emplace_back(cache, true, proxyForUpdateCache);
+            LOGDEBUG("Adding connection candidate, Update cache: " << cache);
+        }
+        else
+        {
+            for (const auto& url : validUrls)
+            {
+                Proxy messageRelay{ cache };
+                candidates.emplace_back(url, false, messageRelay);
+                LOGDEBUG("Adding connection candidate, URL: " << url << ", Message Relay: " << messageRelay.getUrl());
+            }
         }
     }
 
