@@ -171,7 +171,7 @@ namespace common::ThreatDetector
     bool SusiSettings::isAllowListedPath(const std::string& threatFile) const
     {
         std::scoped_lock scopedLock(m_accessMutex);
-        return std::find_if(m_susiAllowListPath.cbegin(), m_susiAllowListPath.cend(), [&](Exclusion pathAllowed){
+        return std::find_if(m_susiAllowListPath.cbegin(), m_susiAllowListPath.cend(), [&](const Exclusion& pathAllowed){
                                 return pathAllowed.appliesToPath(threatFile);
                             }) != m_susiAllowListPath.cend();
     }
