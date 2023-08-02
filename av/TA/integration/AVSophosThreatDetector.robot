@@ -534,21 +534,30 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
 
     # restart AV to force policy to be applied & sent to threat detector
     Stop AV Plugin Process
-    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
+
+    ${revid} =   Generate Random String
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
+    Send CORC Policy To Base From Content  ${policyContent}
+
     Start AV Plugin Process
+    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be enabled  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed   ${threat_detector_mark}
 
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
     Check avscanner can detect eicar
-    Wait For SUSI Debug Log Contains After Mark    "enableLookup" : false  ${susi_debug_mark}
+    Wait For SUSI Debug Log Contains After Mark    "enableLookup" : true  ${susi_debug_mark}
 
     ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
-    ${susi_debug_mark2} =  Get SUSI Debug Log Mark
-    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be enabled  ${threat_detector_mark2}
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+
+    ${revid} =   Generate Random String
+    ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
+    Send CORC Policy To Base From Content  ${policyContent}
+
+    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be disabled  ${threat_detector_mark2}
     Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed  ${threat_detector_mark2}
     Check avscanner can detect eicar
-    Wait For SUSI Debug Log Contains After Mark    "enableLookup" : true  ${susi_debug_mark2}
+    Wait For SUSI Debug Log Contains After Mark    "enableLookup" : false  ${susi_debug_mark}
 
     Check Sophos Threat Detector Has Different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
