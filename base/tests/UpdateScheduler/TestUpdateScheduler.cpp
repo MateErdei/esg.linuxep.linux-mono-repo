@@ -151,8 +151,6 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, doesNotReprocessIfRecievesIden
 "livequery.network-tables.available" : true,
 "endpoint.flag2.enabled" : false,
 "endpoint.flag3.enabled" : false,
-"jwt-token.available" : true,
-"mcs.v2.data_feed.available" : true,
 "av.onaccess.enabled" : true,
 "safestore.enabled" : true
 })sophos";

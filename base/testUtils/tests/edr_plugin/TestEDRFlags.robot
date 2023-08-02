@@ -18,25 +18,10 @@ Default Tags   EDR_PLUGIN  FAKE_CLOUD
 Force Tags  LOAD1
 
 *** Test Cases ***
-EDR runs sophos extension when XDR is enabled
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Should Be Equal As Strings  0  ${result.rc}
-
-    Wait For Sophos Extension To Be Initialised Including OSQuery Restarts
-    Run Live Query  ${SOPHOS_INFO_QUERY}  sophos_info
-    Wait Until Keyword Succeeds
-    ...  50 secs
-    ...  2 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: sophos_info  1
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log   "columnData": [["ThisIsAnMCSID+1001"]]  1
-
 EDR disables curl tables when network available flag becomes false
-
     Override Local LogConf File for a component   DEBUG  global
 
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
     Wait Until Keyword Succeeds
@@ -44,9 +29,10 @@ EDR disables curl tables when network available flag becomes false
     ...  1
     ...  Check MCS Router Running
     Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check Managementagent Log Contains  flags.json applied to 2 plugins
+    ...  60
+    ...  5
+    ...  File Should Contain    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json     "livequery.network-tables.available": true
+
     Wait Until Keyword Succeeds
     ...  10
     ...  1

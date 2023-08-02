@@ -126,9 +126,15 @@ public:
         {
             return ::testing::AssertionFailure() << s.str() << "forceUpdate differs";
         }
+
         if (expected.getDoPausedForcedUpdate() != resulted.getDoPausedForcedUpdate())
         {
             return ::testing::AssertionFailure() << s.str() << "forcePausedUpdate differs";
+        }
+
+        if (expected.getUseSdds3DeltaV2() != resulted.getUseSdds3DeltaV2())
+        {
+            return ::testing::AssertionFailure() << s.str() << "useSdds3DeltaV2 differs";
         }
         return ::testing::AssertionSuccess();
     }

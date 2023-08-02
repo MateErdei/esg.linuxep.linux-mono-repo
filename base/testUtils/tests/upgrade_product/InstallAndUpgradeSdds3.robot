@@ -604,7 +604,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
-    Start Local Cloud Server    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 

@@ -104,6 +104,7 @@ namespace UpdateSchedulerImpl
         bool m_flagsPolicyProcessed;
         bool m_forceUpdate;
         bool m_forcePausedUpdate;
+        bool m_useSDDS3DeltaV2;
         Common::Policy::WeekDayAndTimeForDelay weeklySchedule_;
         std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;

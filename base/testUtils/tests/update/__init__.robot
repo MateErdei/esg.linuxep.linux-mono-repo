@@ -22,7 +22,6 @@ Resource  ../GeneralTeardownResource.robot
 ### Setup
 Setup Update Tests
     Regenerate Certificates
-    Uninstall SAV
 
 Regenerate Certificates
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/

@@ -161,6 +161,24 @@ TEST_F(TestSerialiseUpdateSettings, preserveDevice)
     EXPECT_EQ(before.getDeviceId(), after.getDeviceId());
 }
 
+TEST_F(TestSerialiseUpdateSettings, preserveDelta)
+{
+    UpdateSettings before;
+    before.setUseSdds3DeltaV2(true);
+    ASSERT_TRUE(before.getUseSdds3DeltaV2());
+    auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
+    auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
+    EXPECT_EQ(before.getUseSdds3DeltaV2(), after.getUseSdds3DeltaV2());
+}
+
+TEST_F(TestSerialiseUpdateSettings, defaultValues)
+{
+    UpdateSettings before;
+    ASSERT_FALSE(before.getUseSdds3DeltaV2());
+    ASSERT_FALSE(before.getDoForcedUpdate());
+    ASSERT_FALSE(before.getDoPausedForcedUpdate());
+}
+
 TEST_F(TestSerialiseUpdateSettings, preserveEsmVersion)
 {
     UpdateSettings before;

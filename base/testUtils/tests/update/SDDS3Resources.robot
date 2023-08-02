@@ -8,6 +8,7 @@ Library    Process
 ${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py
 ${SDDS_IMPORT}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImport.py
 ${SDDS3_Builder}  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder
+${SDDS3_LOCAL_BASE}   /tmp/sdds3LocalBase
 ${SDDS3_FAKEWAREHOUSE_DIR}   /tmp/sdds3FakeWarehouse
 ${SDDS3_FAKEBASE}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakebase
 ${SDDS3_FAKESSPLFLAG}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakessplflags
@@ -31,14 +32,10 @@ Generate Fake sdds3 warehouse
 Generate Warehouse From Local Base Input
     [Arguments]  ${flagscontent}="{\"random\":\"stuff\"\}"
     Create Directories For Fake SDDS3 Warehouse
-    Create Directory   ${SDDS3_FAKEPACKAGES}
-    ${Files} =  List Files In Directory  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3  *.zip
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3/${Files[0]}  ${SDDS3_FAKEPACKAGES}/
-    Generate Suite dat File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3/${Files[0]}
-    # get base from here to debug update issues faster
-    #${base} =  get_sdds3_base
-    #Copy File  ${base}  ${SDDS3_FAKEPACKAGES}/
-    #Generate Suite dat File  ${base}
+
+    Generate Suite dat File  ${sdds3_base_package}
+    Copy File  ${sdds3_base_package}  ${SDDS3_FAKEPACKAGES}/
+
     Generate Fake Supplement  ${flagscontent}
     #launch darkly flag
     write_sdds3_flag
@@ -76,6 +73,23 @@ Generate Fake Base SDDS3 Package
     File Should exist  ${base_package}
 
     [Return]  ${base_package}
+
+Generate Local Base SDDS3 Package
+    ${result} =   Get Folder With Installer
+    #generate package zip file
+
+    ${result1} =   Run Process   bash ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh ${SDDS3_Builder} --build-package --package-dir ${SDDS3_LOCAL_BASE} --sdds-import ${result}/SDDS-Import.xml --nonce ${nonce}  shell=true    stdout=/tmp/sdds3.log    stderr=STDOUT
+    Log File    /tmp/sdds3.log
+    Remove File    /tmp/sdds3.log
+
+    Should Be Equal As Strings   ${result1.rc}  0
+    ${Files} =  List Files In Directory   ${SDDS3_LOCAL_BASE}  *.zip
+    ${base_package} =  Set Variable   ${SDDS3_LOCAL_BASE}/${Files}[0]
+    File Should exist  ${base_package}
+    [Return]    ${base_package}
+
+Clean up local Base SDDS3 Package
+    Remove Directory  ${SDDS3_LOCAL_BASE}  recursive=True
 
 Generate Suite dat File
     [Arguments]  ${package}

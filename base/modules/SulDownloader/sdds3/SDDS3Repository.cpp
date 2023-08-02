@@ -293,10 +293,21 @@ namespace SulDownloader
         }
 
         m_session = std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{
-            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath()});
+            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath() });
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
         m_session->httpConfig.connectTimeoutMs = 60000;
+
+        if (updateSetting.getUseSdds3DeltaV2())
+        {
+            m_session->deltaVersioningEnabled = true;
+            LOGDEBUG("Enabling sdds3 delta V2 usage");
+        }
+        else
+        {
+            m_session->deltaVersioningEnabled = false;
+        }
+
         if (connectionSetup.isCacheUpdate())
         {
             if (!Common::UtilityImpl::StringUtils::startswith(srcUrl, "http://") &&
@@ -304,7 +315,7 @@ namespace SulDownloader
             {
                 srcUrl = "https://" + srcUrl;
             }
-            srcUrl = srcUrl+ "/v3";
+            srcUrl = srcUrl + "/v3";
             LOGINFO("Trying update via update cache: " << srcUrl);
             m_session->httpConfig.useSophosCertificateStore = true;
             m_session->httpConfig.useUpdateCache = true;

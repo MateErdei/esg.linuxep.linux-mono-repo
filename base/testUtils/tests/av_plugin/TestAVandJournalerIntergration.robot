@@ -28,7 +28,7 @@ Test Teardown  Run Keywords
 ...            Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase  AND
 ...            Start AV Plugin  AND
 ...            Check AV Plugin Installed Directly  AND
-...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
+...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND
 ...            General Test Teardown
@@ -200,7 +200,7 @@ Setup For Fake Cloud
 
 Setup Event Journaler End To End
     Start Local Cloud Server
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
     Register With Fake Cloud

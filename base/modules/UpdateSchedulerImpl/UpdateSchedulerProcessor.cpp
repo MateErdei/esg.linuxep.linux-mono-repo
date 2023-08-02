@@ -101,6 +101,7 @@ namespace UpdateSchedulerImpl
         m_flagsPolicyProcessed(false),
         m_forceUpdate(false),
         m_forcePausedUpdate(false),
+        m_useSDDS3DeltaV2(false),
         m_featuresInPolicy(),
         m_featuresCurrentlyInstalled(readInstalledFeatures())
     {
@@ -319,6 +320,7 @@ namespace UpdateSchedulerImpl
             updateSettings.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
             updateSettings.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             updateSettings.configurationData.setDoForcedUpdate(m_forceUpdate);
+            updateSettings.configurationData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             writeConfigurationData(updateSettings.configurationData);
             weeklySchedule_ = updateSettings.weeklySchedule;
             m_featuresInPolicy = updateSettings.configurationData.getFeatures();
@@ -448,13 +450,30 @@ namespace UpdateSchedulerImpl
         {
             changed = true;
         }
+
         currentFlag = m_forcePausedUpdate;
         m_forcePausedUpdate = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG, flagsContent);
         LOGDEBUG("Received " << UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value: " << m_forcePausedUpdate);
 
         if (currentFlag == m_forcePausedUpdate)
         {
-            LOGDEBUG(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value still: " << m_forcePausedUpdate);
+            LOGDEBUG(
+                UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value still: " << m_forcePausedUpdate);
+        }
+        else
+        {
+            changed = true;
+        }
+
+        currentFlag = m_useSDDS3DeltaV2;
+        m_useSDDS3DeltaV2 =
+            Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG, flagsContent);
+        LOGDEBUG(
+            "Received " << UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG << " flag value: " << m_useSDDS3DeltaV2);
+
+        if (currentFlag == m_useSDDS3DeltaV2)
+        {
+            LOGDEBUG(UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG << " flag value still: " << m_useSDDS3DeltaV2);
         }
         else
         {
@@ -468,6 +487,7 @@ namespace UpdateSchedulerImpl
             auto currentConfigData = config.value();
             currentConfigData.setDoForcedUpdate(m_forceUpdate);
             currentConfigData.setDoForcedPausedUpdate(m_forcePausedUpdate);
+            currentConfigData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             writeConfigurationData(currentConfigData);
         }
     }

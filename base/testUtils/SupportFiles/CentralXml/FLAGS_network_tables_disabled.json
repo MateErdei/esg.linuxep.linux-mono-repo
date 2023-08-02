@@ -1,4 +1,3 @@
 {
-  "xdr.enabled" : "always",
   "livequery.network-tables.available": "false"
 }

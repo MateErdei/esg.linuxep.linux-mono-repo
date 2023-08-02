@@ -250,6 +250,17 @@ namespace Common::Policy
         [[nodiscard]] bool getDoForcedUpdate() const { return doForcedUpdate_; }
 
         /**
+         * Set whether to use v2 sdds3 deltas
+         * @param doForcedUpdate
+         */
+        void setUseSdds3DeltaV2(const bool useSdds3DeltaV2) { useSdds3DeltaV2_ = useSdds3DeltaV2; }
+
+        /**
+         * @return whether to use v2 sdds3 deltas
+         */
+        [[nodiscard]] bool getUseSdds3DeltaV2() const { return useSdds3DeltaV2_; }
+
+        /**
          * Set whether to use force an reinstall on paused customers
          * @param doForcedPausedUpdate
          */
@@ -362,6 +373,7 @@ namespace Common::Policy
         bool useSlowSupplements_ = false;
         bool forceReinstallAllProducts_ = false;
         bool doForcedUpdate_ = false;
+        bool useSdds3DeltaV2_ = false;
         bool doForcedPausedUpdate_ = false;
         LogLevel logLevel_ = LogLevel::NORMAL;
 
