@@ -6,10 +6,10 @@
 #include "Logger.h"
 #include "TelemetrySerialiser.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <cmath>
 #include <functional>
@@ -462,6 +462,7 @@ namespace Common::Telemetry
                 auto& parentObj = m_root.getObject(parentKey);
                 if (parentObj.keyExists(childKey))
                 {
+                    LOGDEBUG("Moving field in " << currentPos << " to " << finalPos);
                     // Insert new value
                     auto childVal = parentObj.getObject(childKey).getValue();
                     //  has lock guard
@@ -477,6 +478,14 @@ namespace Common::Telemetry
                         }
                     }
                 }
+                else
+                {
+                    LOGDEBUG("Item " << childKey << " does not exist in " << parentKey);
+                }
+            }
+            else
+            {
+                LOGDEBUG("Item " << parentKey << " does not exist in telemetry");
             }
         }
     }
