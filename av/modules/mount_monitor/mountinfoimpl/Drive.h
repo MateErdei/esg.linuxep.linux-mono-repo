@@ -9,7 +9,7 @@ namespace mount_monitor::mountinfoimpl
     class Drive : virtual public mountinfo::IMountPoint
     {
     public:
-        Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory, bool isReadOnly=false);
+        Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
 
         ~Drive() override = default;
 
@@ -43,6 +43,5 @@ namespace mount_monitor::mountinfoimpl
         std::string m_device;
         std::string m_fileSystem;
         bool m_isDirectory;
-        bool m_isReadOnly;
     };
 } // namespace mount_monitor::mountinfoimpl

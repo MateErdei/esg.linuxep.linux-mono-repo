@@ -27,13 +27,12 @@ static DeviceUtilSharedPtr getDeviceUtil()
  * @param mountPoint
  * @param type
  */
-Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory, bool isReadOnly) :
+Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory) :
     m_deviceUtil(getDeviceUtil()),
     m_mountPoint(std::move(mountPoint)),
     m_device(std::move(device)),
     m_fileSystem(std::move(type)),
-    m_isDirectory(isDirectory),
-    m_isReadOnly(isReadOnly)
+    m_isDirectory(isDirectory)
 {
 }
 
