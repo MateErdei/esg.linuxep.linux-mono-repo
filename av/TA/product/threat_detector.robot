@@ -326,4 +326,4 @@ Sophos Threat Detector sets default if susi startup settings permissions ownersh
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
 
-    Wait For Sophos Threat Detector Log Contains After Mark   Turning Live Protection on as default - could not read SUSI settings  ${threat_detector_mark3}
+    Wait For Sophos Threat Detector Log Contains After Mark   Turning Live Protection off as default - could not read SUSI settings  ${threat_detector_mark3}
