@@ -412,10 +412,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     robot_args_list = []
     if mode == DEBUG_MODE:
         robot_args_list.append("DEBUG=true")
-    if parameters.test:
-        robot_args_list.append("TEST=" + parameters.test)
-    if parameters.suite:
-        robot_args_list.append("SUITE=" + parameters.suite)
+    if parameters.robot_test:
+        robot_args_list.append("TEST=" + parameters.robot_test)
+    if parameters.robot_suite:
+        robot_args_list.append("SUITE=" + parameters.robot_suite)
     robot_args = " ".join(robot_args_list)
 
     with stage.parallel('integration'):
