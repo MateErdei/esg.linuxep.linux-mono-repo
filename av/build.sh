@@ -423,7 +423,7 @@ function build()
         untar_input boost
 
         # Copy required by SUSI dependency (to remove when they move to monorepo zlib input)
-        cp $INPUT/zlib/libz.so $INPUT/zlib/libz.so.1
+        cp $INPUT/zlib/libzlib.so $INPUT/zlib/libz.so.1
         ln -snf $INPUT/zlib $REDIST/
         if [[ ! -d "$INPUT/googletest" ]]
         then

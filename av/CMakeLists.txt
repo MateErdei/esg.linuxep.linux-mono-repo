@@ -183,7 +183,7 @@ SET(SUSI_SDDS_PATH ${REDIST}/susi_sdds)
 INCLUDE(CAPN)
 
 set(CAPNPROTO_INPUT ${INPUT}/capnproto )
-set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
+set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/src)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib64)
 set(CAPNPROTO_LIBRARIES "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
                         "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
@@ -222,12 +222,6 @@ SET(BOOST_LIBRARYDIR  ${INPUT}/monorepo-boost/)
 add_imported_library(boost_locale SHARED  ${BOOST_LIBRARYDIR}/liblocale.so ${BOOST_INCLUDEDIR})
 
 add_imported_library(boost_program_options SHARED ${BOOST_LIBRARYDIR}/libprogram_options.so ${BOOST_INCLUDEDIR})
-
-execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libasio.so COMMAND_ERROR_IS_FATAL ANY)
-execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libatomic.so COMMAND_ERROR_IS_FATAL ANY)
-execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libfilesystem.so COMMAND_ERROR_IS_FATAL ANY)
-execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libprogram_options.so COMMAND_ERROR_IS_FATAL ANY)
-execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_LIBRARYDIR}/libsystem.so COMMAND_ERROR_IS_FATAL ANY)
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 
