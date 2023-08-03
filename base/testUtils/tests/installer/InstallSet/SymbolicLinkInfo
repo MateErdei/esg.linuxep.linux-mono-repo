@@ -483,8 +483,8 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libwatchdogservice.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libxmlutilities.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzeromqwrapperimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libziputilities.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzlib.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmqwrapperapiimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libz.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip
 o777, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt

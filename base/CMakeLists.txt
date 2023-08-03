@@ -229,11 +229,8 @@ endfunction()
 monorepo_library(pugixml ${INPUT}/pugixml/libpugixml ${INPUT}/pugixml)
 monorepo_library(bzip2 ${INPUT}/bzip2/libbzip2 ${INPUT}/bzip2)
 monorepo_library(lzma ${INPUT}/lzma/liblzma ${INPUT}/lzma/src/liblzma/api)
-monorepo_library(minizip ${INPUT}/minizip/libminizip ${INPUT}/minizip)
-
-add_imported_library(zlib SHARED TRUE ${INPUT}/zlib/libz.so ${INPUT}/zlib)
-add_imported_library(zlib_static STATIC FALSE ${INPUT}/zlib/libzlib.a ${INPUT}/zlib) # the .a has a different name
-
+monorepo_library(minizip ${INPUT}/minizip/minizip/libminizip ${INPUT}/minizip)
+monorepo_library(zlib ${INPUT}/zlib/libzlib ${INPUT}/zlib)
 monorepo_library(curl_library ${CURL_INPUT}/libcurl ${CURL_INPUT}/include)
 
 # Extra search path to allow #include <curl.h>

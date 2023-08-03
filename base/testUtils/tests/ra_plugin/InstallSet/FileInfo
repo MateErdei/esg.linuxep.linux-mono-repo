@@ -27,8 +27,8 @@ o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libsystemcallwra
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libsystem.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libutilityimpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libziputilities.so.0
+o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libzlib.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libzmq.so.0
-o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libz.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/log/responseactions.log
 o600, root, root, /opt/sophos-spl/plugins/responseactions/VERSION.ini.0
 o750, root, root, /opt/sophos-spl/plugins/responseactions/bin/responseactions.0
