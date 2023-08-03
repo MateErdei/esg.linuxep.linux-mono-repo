@@ -65,7 +65,10 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
         ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/repo  shell=true	
         Log  ${result.stdout}	
         Log  ${result.stderr}
-        ${result} =   Run Process     ls -l "${INPUT_DIRECTORY}/FTS\ 2023.2.0.74"  shell=true	
+        ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/sdds3-release--2023-28  shell=true
+        Log  ${result.stdout}	
+        Log  ${result.stderr}
+        ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/sdds3-release--2023-28/repo  shell=true
         Log  ${result.stdout}	
         Log  ${result.stderr}
         Check Upgrade From Fixed Version to VUT    ${expectedFixedVersion}
@@ -81,7 +84,7 @@ Check Upgrade From Fixed Version to VUT
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/repo/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
+    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    thininstaller_source=${INPUT_DIRECTORY}/thin_installer
