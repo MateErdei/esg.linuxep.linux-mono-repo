@@ -78,25 +78,11 @@ system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | 
 # Ensure override is unset so that it can only be set when explicitly passed in by the user with --allow-override-mcs-ca
 unset ALLOW_OVERRIDE_MCS_CA
 
-function dump_suldownloader_logs()
-{
-  if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]
-  then
-      echo "-- Output from suldownloader log:"
-      cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
-  fi
-
-  if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log" ]]
-  then
-    echo "-- Output from suldownloader sync log:"
-    cat "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log"
-  fi
-}
-
 function cleanup_and_exit()
 {
-    [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
-    exit $1
+  code=$1
+  [[ "${code}" -eq "${EXITCODE_SUCCESS}" && -z "${OVERRIDE_INSTALLER_CLEANUP}" ]] && rm -rf "${SOPHOS_TEMP_DIRECTORY}"
+  exit "${code}"
 }
 
 function failure()
@@ -109,14 +95,19 @@ function failure()
     fi
 
     echo "$2" >&2
-    dump_suldownloader_logs
+    if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]
+      then
+        echo "-- Output from suldownloader log:"
+        cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
+    fi
+
     # only remove files if we didnt get far enough through the process to install or
     # the install directory existed already and we didnt create it
     if [[ ${removeinstall} -eq 1 ]] && ! is_sspl_installed
     then
       if [[ -n ${SOPHOS_INSTALL} ]]
       then
-        if [[ -n "$OVERRIDE_INSTALLER_CLEANUP" ]]
+        if [[ -d ${SOPHOS_TEMP_DIRECTORY} ]]
         then
           echo "Copying SPL logs to ${SOPHOS_TEMP_DIRECTORY}/logs"
           cp -Lr "${SOPHOS_INSTALL}/logs" "${SOPHOS_TEMP_DIRECTORY}" 2>/dev/null
@@ -147,7 +138,6 @@ function handle_installer_errorcodes()
 
     if [[ ${errcode} -eq 0 ]]
     then
-      [[ -n ${DEBUG_THIN_INSTALLER} ]] && dump_suldownloader_logs
       echo "Successfully installed product"
     elif [[ ${errcode} -eq 103 ]]
     then
