@@ -84,7 +84,7 @@ Check Upgrade From Fixed Version to VUT
     ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/repo/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    thininstaller_source=${INPUT_DIRECTORY}/thin_installer
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
