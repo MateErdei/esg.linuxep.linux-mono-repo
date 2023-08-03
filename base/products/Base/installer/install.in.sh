@@ -152,7 +152,6 @@ EOF
         chmod 644 ${STARTUP_DIR}/sophos-spl.service
         systemctl daemon-reload
         systemctl enable --quiet sophos-spl.service
-        systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
     fi
 }
 
@@ -1019,6 +1018,7 @@ fi
 
 if (( $CLEAN_INSTALL == 1 ))
 then
+    startSsplService
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" && "$EXIT_CODE" == "0" ]]
