@@ -3588,16 +3588,24 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
 
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
-    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(9).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(10).WillRepeatedly(Return(false));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).Times(5).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/base/VERSION.ini")).Times(4).WillRepeatedly(Return(std::vector<std::string> {"PRODUCT_VERSION = 1.1.3.703"}));
+    EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/base/VERSION.ini"))
+        .Times(4)
+        .WillRepeatedly(Return(std::vector<std::string>{ "PRODUCT_VERSION = 1.1.3.703" }));
     EXPECT_CALL(*mockFileSystem, exists(_)).Times(3).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, isDirectory(_)).Times(3).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, isDirectory(everest_installer)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository())).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository())).WillOnce(Return(false));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository()))
+        .WillOnce(Return(false));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository()))
+        .WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, removeFile(_, _)).Times(5);
-    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(std::vector<Path> {}));
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(std::vector<Path>{}));
     EXPECT_CALL(*mockFileSystem, currentWorkingDirectory()).Times(1);
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(2);
     EXPECT_CALL(*mockFileSystem, makeExecutable(_)).Times(1);
