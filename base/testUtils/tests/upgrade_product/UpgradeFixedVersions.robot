@@ -55,7 +55,7 @@ ${BadThreatHealthXmlContents}               <item name="threat" value="2" />
 *** Test Cases ***
 Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     [Timeout]    12 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  TAP_TESTS
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
     
     ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
     Set Environment Variable    BUILD_JWT         ${build_jwt}
