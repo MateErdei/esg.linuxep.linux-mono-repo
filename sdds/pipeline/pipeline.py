@@ -89,7 +89,7 @@ def get_test_machines(test_inputs, parameters):
 
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
-    print(str(build))
+    print(f"Build directory: {str(build)}")
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder("./TA"),
