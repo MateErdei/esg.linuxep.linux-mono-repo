@@ -36,7 +36,7 @@ then
           ;;
     esac
 
-    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs $NETCAT rsync"
+    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs $NETCAT rsync autofs"
     (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
     (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
 
