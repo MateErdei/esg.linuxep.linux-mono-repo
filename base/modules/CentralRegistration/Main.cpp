@@ -45,7 +45,7 @@ namespace CentralRegistration
 
     MCS::ConfigOptions processCommandLineOptions(
         const std::vector<std::string>& args,
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
+        const std::shared_ptr<OSUtilities::ISystemUtils>& systemUtils)
     {
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
@@ -81,7 +81,7 @@ namespace CentralRegistration
         // Optional args
         for (size_t i = 2; i < argSize; ++i)
         {
-            std::string currentArg(args[i]);
+            const std::string& currentArg(args[i]);
 
             if (Common::UtilityImpl::StringUtils::startswith(currentArg, "--central-group"))
             {

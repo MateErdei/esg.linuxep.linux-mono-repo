@@ -125,6 +125,31 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.config[MCS::MCS_CERT], "");
 }
 
+TEST_F(CentralRegistrationMainTests, space_in_group_name)
+{
+    std::vector<std::string> argValues{
+        "MCS_Token001", "https://MCS_URL", "", "--central-group=grou p1/grou p2", ""
+    };
+
+    auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
+
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("HTTPS_PROXY")).WillOnce(Return(""));
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
+
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
+
+    EXPECT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
+    EXPECT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    EXPECT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "grou p1/grou p2");
+}
+
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsIncludingOptionals) // NOLINT
 {
     std::vector<std::string> argValues{ "MCS_Token001",
