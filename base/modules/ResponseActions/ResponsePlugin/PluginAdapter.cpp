@@ -71,6 +71,11 @@ namespace ResponsePlugin
 
     void PluginAdapter::processAction(const std::string& action, const std::string& correlationId)
     {
+        if (action.front() != '{')
+        {
+            LOGDEBUG("Ignoring action not in json format");
+            return;
+        }
         LOGDEBUG("Process action: " << action);
         auto [actionType, timeout] = PluginUtils::getType(action);
         if (timeout < 0)

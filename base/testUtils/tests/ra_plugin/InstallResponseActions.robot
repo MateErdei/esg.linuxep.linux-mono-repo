@@ -52,12 +52,9 @@ Verify that the response actions installer works correctly
 Verify That Response Actions Logging Can Be Set Individually
     Install Response Actions Directly
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
-
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Restart Response Actions
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check Log Contains  Logger responseactions configured for level: DEBUG  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    wait_for_log_contains_from_mark  ${response_mark}  Logger responseactions configured for level: DEBUG
 
 Uninstall Response actions cleans up
     [Teardown]  RA Uninstall Teardown

@@ -59,13 +59,30 @@ TEST_F(PluginAdapterTests, emptyActionTypeIsThrownAway)
     auto runner = std::make_unique<TestableActionRunner>();
     ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
 
-    m_taskQueue->push(
-        ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action });
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action });
     m_taskQueue->pushStop();
     UsingMemoryAppender recorder(*this);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains(expectedStr));
+}
+
+TEST_F(PluginAdapterTests, xmlActionTypeIsThrownAway)
+{
+    auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
+    std::string action = R"(<xml></xml>)";
+    std::string expectedStr("Ignoring action not in json format");
+
+    auto runner = std::make_unique<TestableActionRunner>();
+    ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
+
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action });
+    m_taskQueue->pushStop();
+    UsingMemoryAppender recorder(*this);
+    pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains(expectedStr));
+    EXPECT_FALSE(appenderContains("WARN"));
 }
 
 TEST_F(PluginAdapterTests, ActionWithMissingTimeoutIsThrownAway)
