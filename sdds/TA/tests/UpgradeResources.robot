@@ -8,10 +8,14 @@ Library    ${LIB_FILES}/MCSRouter.py
 Library    ${LIB_FILES}/OSUtils.py
 Library    ${LIB_FILES}/OnFail.py
 Library    ${LIB_FILES}/TeardownTools.py
+Library    ${LIB_FILES}/UpdateServer.py
 Library    ${LIB_FILES}/WarehouseUtils.py
 
 Resource    GeneralTeardownResources.robot
 
+
+*** Variables ***
+${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
 Upgrade Resources Suite Setup
@@ -64,7 +68,20 @@ Generate Local Fake Cloud Certificates
 Start Local SDDS3 Server
     [Arguments]    ${launchdarklyPath}=${INPUT_DIRECTORY}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_REPO_ROOT}
     ${handle}=  Start Process  python3 ${LIB_FILES}/SDDS3server.py --launchdarkly ${launchdarklyPath} --sdds3 ${sdds3repoPath}  shell=true
-    Set Suite Variable    ${GL_handle}    ${handle}
+    ${handle}=  Start Process
+    ...  bash  -x
+    ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
+    ...  python3  ${LIB_FILES}/SDDS3server.py
+    ...  --launchdarkly  ${launchdarklyPath}
+    ...  --sdds3  ${sdds3repoPath}
+    ...  stdout=${sdds3_server_output}
+    ...  stderr=STDOUT
+    Set Suite Variable    $GL_handle    ${handle}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Can Curl Url    https://localhost:8080
+    [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
     Start Local SDDS3 Server    ${INPUT_DIRECTORY}/dogfood_launch_darkly    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
@@ -72,11 +89,21 @@ Start Local Dogfood SDDS3 Server
 Start Local Current Shipping SDDS3 Server
     Start Local SDDS3 Server    ${INPUT_DIRECTORY}/current_shipping_launch_darkly    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
 
+Debug Local SDDS3 Server
+    ${result} =  Run Process  pstree  -a  stderr=STDOUT
+    Log  pstree: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  netstat  --pl  --inet  stderr=STDOUT
+    Log  netstat: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  ss  -plt  stderr=STDOUT
+    Log  ss: ${result.rc} : ${result.stdout}
+
 Stop Local SDDS3 Server
     return from keyword if    "${GL_handle}" == "${EMPTY}"
-    Terminate Process    ${GL_handle}    True
-    Set Suite Variable    ${GL_handle}    ${EMPTY}
-    dump_teardown_log    /tmp/sdds3_server.log
+    Run Keyword and Ignore Error  Run Keyword If Test Failed  Debug Local SDDS3 Server
+    ${result} =  Terminate Process    ${GL_handle}    True
+    Set Suite Variable    $GL_handle    ${EMPTY}
+    Dump Teardown Log    ${sdds3_server_output}
+    Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
 
 
