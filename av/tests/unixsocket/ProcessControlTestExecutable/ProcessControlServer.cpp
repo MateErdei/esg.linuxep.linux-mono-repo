@@ -8,6 +8,8 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
+#include <log4cplus/logger.h>
+
 #include <cstring>
 #include <fstream>
 #include <string>
@@ -27,16 +29,24 @@ namespace
 
         }
     };
-}
 
-static void initializeLogging()
-{
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
-}
+    class QuietLogSetup
+    {
+    public:
+        QuietLogSetup()
+        {
+            Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+        }
+        ~QuietLogSetup()
+        {
+            log4cplus::Logger::shutdown();
+        }
+    };
+};
 
 static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 {
-    initializeLogging();
+    QuietLogSetup logging;
     // create a socket pair
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
@@ -56,7 +66,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // send our request
     ::send(clientFd.get(), Data, Size, 0);
-    ::close(clientFd);
+    clientFd.reset();
     while (true)
     {
         if(!connectionThread.isRunning())
@@ -80,13 +90,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 }
 #else
 
-static int writeSampleFile(std::string filename)
+static int writeSampleFile(const std::string& filename)
 {
     scan_messages::ProcessControlSerialiser shutDownRequest(scan_messages::E_SHUTDOWN);
 
     std::string request_str = shutDownRequest.serialise();
     PRINT("request string: " << request_str);
-    int size = request_str.size();
+    auto size = request_str.size();
     PRINT("request string size: " << size);
 
     auto bytes = unixsocket::splitInto7Bits(size);
@@ -101,7 +111,7 @@ static int writeSampleFile(std::string filename)
     return EXIT_SUCCESS;
 }
 
-static int processFile(std::string filename)
+static int processFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
@@ -132,7 +142,6 @@ static int processFile(std::string filename)
 
 int main(int argc, char* argv[])
 {
-    initializeLogging();
     if( argc < 2 )
     {
         PRINT("missing arg");
@@ -164,7 +173,7 @@ int main(int argc, char* argv[])
             int ret = processFile(p.path());
             if (ret != EXIT_SUCCESS)
             {
-                std::cerr << "Error while processing file " << p.path() << '\n';
+                PRINT("Error while processing file " << p.path());
                 return ret;
             }
         }
@@ -176,7 +185,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        std::cerr << "Error: not a file or directory" << '\n';
+        PRINT("Error: not a file or directory");
         return EXIT_FAILURE;
     }
 
