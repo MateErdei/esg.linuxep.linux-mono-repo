@@ -97,7 +97,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
         launchdarkly=build / "sdds3-launchdarkly",
         thin_installer=context.artifact.from_component("linuxep.thininstaller", "develop", None, org="",
                                                        storage="esg-build-tested") / "build/output",
-        base_test_utils=context.artifact.from_component("linuxep.everest-base", "develop", None, org="",
+        base_test_utils=context.artifact.from_component("linuxep.everest-base", "feature/LINUXDAR-7531-automated-system-for-testing-downgrades-upgrades-between-versions-the-customer-can-select", None, org="",
                                                         storage="esg-build-tested") / "build/sspl-base/system_test",
         dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", parameters.previous_dogfood_branch, None,org="",
                                                               storage="esg-build-tested") / "build/prod-sdds3-launchdarkly",

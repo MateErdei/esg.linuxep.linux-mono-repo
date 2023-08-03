@@ -22,11 +22,11 @@ Resource    UpgradeResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Require Uninstalled
+Test Setup       require_uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
-Force Tags    FIXED_VERSIONS
+Force Tags    PACKAGE
 
 
 *** Variables ***
@@ -51,13 +51,15 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
     Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
-
-    ${central_api_client_id} =  Get Environment Variable    CENTRAL_API_CLIENT_ID
-    ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
-    @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
+    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/DownloadAVSupplements.py  shell=true
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Strings   ${result.rc}  0
+    
+    @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
+        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
         Should Be Equal As Strings   ${result.rc}  0
@@ -65,39 +67,19 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     END
 
 
-Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
-    ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
-    Set Environment Variable    BUILD_JWT         ${build_jwt}
-    ${hostname} =    Get Hostname
-
-    ${central_api_client_id} =  Get Environment Variable    CENTRAL_API_CLIENT_ID
-    ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
-    @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
-    FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
-        log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
-        Log  ${result.stdout}
-        Log  ${result.stderr}
-        Should Be Equal As Strings   ${result.rc}  0
-        Check Downgrade From VUT to Fixed Version    ${expectedFixedVersion}
-    END
-
-
 *** Keywords ***
 Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
-    Require Uninstalled
-    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
-    ${sul_mark} =    Get Suldownloader Log Mark
+    &{expectedFixedVersions} =    Get Expected Versions    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    Set Suite Variable    $GL_handle    ${handle}
+    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/repo
+    Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -105,15 +87,19 @@ Check Upgrade From Fixed Version to VUT
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Wait For Log Contains N Times From Mark   ${sul_mark}    Update success    ${2}    ${150}
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    Get Suldownloader Log Mark
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check EAP Release Installed Correctly
+    Check EAP Release With AV Installed Correctly
+    Check SafeStore Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
@@ -121,7 +107,7 @@ Check Upgrade From Fixed Version to VUT
 
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
-    Set Suite Variable    $GL_handle    ${handle}
+    Set Suite Variable    ${GL_handle}    ${handle}
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
@@ -129,10 +115,10 @@ Check Upgrade From Fixed Version to VUT
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
-    ${sul_mark} =    Get Suldownloader Log Mark
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     Trigger Update Now
-    Wait For Log Contains From Mark    ${sul_mark}    Update success    120
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -169,7 +155,7 @@ Check Upgrade From Fixed Version to VUT
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check Current Release Installed Correctly
+    Check Current Release With AV Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Wait For RuntimeDetections to be Installed
@@ -195,126 +181,3 @@ Check Upgrade From Fixed Version to VUT
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
-    Stop Local SDDS3 Server
-
-Check Downgrade From VUT to Fixed Version
-    [Arguments]  ${fixedVersion}
-    Require Uninstalled
-    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
-    ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedFixedVersions["baseVersion"]}
-    ${sul_mark} =    Get Suldownloader Log Mark
-
-    start_local_cloud_server
-    # Enable OnAccess
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-
-    ${handle}=    Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Wait For Log Contains From Mark   ${sul_mark}    Update success    ${150}
-    check_suldownloader_log_contains    Running SDDS3 update
-
-    # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    Get Suldownloader Log Mark
-    trigger_update_now
-    Wait For Log Contains From Mark    ${sul_mark}    Update success    120
-
-    Check Current Release Installed Correctly
-    ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
-    ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
-    Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
-
-
-    ${sspl_user_uid} =       get_uid_from_username    sophos-spl-user
-    ${sspl_local_uid} =      get_uid_from_username    sophos-spl-local
-    ${sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
-
-    Stop Local SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    trigger_update_now
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
-
-    # Wait for successful update (all up to date) after downgrading
-    ${sul_mark} =    Get Suldownloader Log Mark
-    trigger_update_now
-    Wait For Log Contains From Mark    ${sul_mark}    Update success    200
-    Wait For Log Contains From Mark    ${sul_mark}    Running SDDS3 update
-
-    Mark Known Upgrade Errors
-    Mark Known Downgrade Errors
-
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
-    # TODO LINUXDAR-2972 - expected till task is in released version
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    mark_expected_error_in_log  ${AV_DIR}/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
-    mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
-    # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
-    mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
-
-    check_all_product_logs_do_not_contain_error
-    check_all_product_logs_do_not_contain_critical
-
-    Check EAP Release Installed Correctly
-    Wait Until Keyword Succeeds
-    ...    120 secs
-    ...    10 secs
-    ...    check_log_contains    Successfully restored old SafeStore database    ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log    AV Install Log
-    Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
-    Check Expected Versions Against Installed Versions    &{expectedFixedVersions}
-
-    # Check users haven't been removed and added back
-    ${new_sspl_user_uid} =       get_uid_from_username    sophos-spl-user
-    ${new_sspl_local_uid} =      get_uid_from_username    sophos-spl-local
-    ${new_sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
-    Should Be Equal As Integers    ${sspl_user_uid}          ${new_sspl_user_uid}
-    Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
-    Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
-
-    Stop Local SDDS3 Server
-    # Upgrade back to develop to check we can upgrade from a downgraded product
-    Start Local SDDS3 Server
-    trigger_update_now
-    Wait For Version Files to Update    &{expectedVUTVersions}
-    
-    Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
-
-    Check AV Plugin Can Scan Files
-    Enable On Access Via Policy
-    Check On Access Detects Threats
-
-    # The query pack should have been re-installed
-    Wait Until Created    ${Sophos_Scheduled_Query_Pack}    timeout=20s
-
-    File Should Exist  ${AV_DIR}/log/downgrade-backup/av.log
-    File Should Exist  ${AV_DIR}/log/downgrade-backup/soapd.log
-    File Should Exist  ${AV_DIR}/log/downgrade-backup/sophos_threat_detector.log
-
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  1 secs
-    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-    # Threat health returns to good after threat is cleaned up
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
-    Stop Local SDDS3 Server
