@@ -353,6 +353,10 @@ namespace Plugin
                     policyWaiter->gotPolicy("SAV");
                     m_threatDetector->setSXL4LookupsEnabled(m_policyProcessor.getSXL4LookupsEnabled());
                 }
+                else
+                {
+                    LOGERROR("Not processing remainder of SAV policy as Scheduled Scan configuration invalid");
+                }
             }
             else if (policyType == PolicyType::CORC)
             {

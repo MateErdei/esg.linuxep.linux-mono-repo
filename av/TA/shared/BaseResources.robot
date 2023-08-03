@@ -127,6 +127,11 @@ Send CORE Policy To Base
     [Arguments]  ${policyFile}
     Send Policy To Base  ${policyFile}  CORE-36_policy.xml
 
+Send CORE Policy To Base From Content
+    [Arguments]  ${policyContent}
+    Create File   ${MCS_PATH}/tmp/CORE_policy.xml.TEMP   ${policyContent}
+    Send Temp Policy To Base  ${MCS_PATH}/tmp/CORE_policy.xml.TEMP   CORE-36_policy.xml
+
 Send CORC Policy To Base
     [Arguments]  ${policyFile}
     Send Policy To Base  corc_policy/${policyFile}  CORC_policy.xml
@@ -135,6 +140,11 @@ Send CORC Policy To Base From Content
     [Arguments]  ${policyContent}
     Create File   ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   ${policyContent}
     Send Temp Policy To Base  ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   CORC_policy.xml
+
+Send SAV Policy To Base From Content
+    [Arguments]  ${policyContent}
+    Create File   ${MCS_PATH}/tmp/SAV_policy.xml.TEMP   ${policyContent}
+    Send Temp Policy To Base  ${MCS_PATH}/tmp/SAV_policy.xml.TEMP   SAV-2_policy.xml
 
 Send Flags Policy
     Send Flags Policy To Base   flags_policy/flags.json

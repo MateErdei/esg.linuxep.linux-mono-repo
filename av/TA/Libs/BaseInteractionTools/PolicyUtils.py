@@ -28,6 +28,7 @@ RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
 SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
+SAV_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 CORE_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "core_policy", "CORE-36_template.xml")
 CORC_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "corc_policy", "corc_policy_template.xml")
 ALC_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "alc_policy", "template", "ALC_Template.xml")
@@ -178,8 +179,7 @@ def get_complete_core_policy(
     if exclusion_list is None:
         exclusion_list = ["*.glob", "globExample?.txt", "/stemexample/*"]
     policy_builder = _SavPolicyBuilder(CORE_POLICY_TEMPLATE_PATH, None)
-    if on_access_enabled:
-        policy_builder.set_on_access_on()
+    policy_builder.set_on_access(on_access_enabled)
     policy_builder.set_on_access_on_read(on_access_on_read, "onRead")
     policy_builder.set_on_access_on_write(on_access_on_write, "onWrite")
     policy_builder.set_posix_exclusions(exclusion_list)
@@ -208,7 +208,7 @@ def give_policy_unique_revision_id(inputPolicyPath, outputFilename):
 
 
 class _SavPolicyBuilder:
-    def __init__(self, input_path, output_name):
+    def __init__(self, input_path, output_name=None):
         self.path = input_path
         if output_name is None:
             self.output_path = None
@@ -277,6 +277,9 @@ class _SavPolicyBuilder:
             line += "<" + tag + ">" + thing + "</" + tag + ">\n"
         return line
 
+    def set_on_access(self, value):
+        self.replacement_map["{{onAccessEnabled}}"] = 'true' if value else "false"
+
     def set_on_access_on(self):
         self.replacement_map["{{onAccessEnabled}}"] = 'true'
 
@@ -326,6 +329,27 @@ def create_corc_policy(whitelist_sha256s=[],
     policy = policy.replace("{{sxl4_url}}", sxl_url)
     policy = policy.replace("revisionid", revid)
     return policy
+
+
+def create_sav_policy(revid=None, pua_exclusions="", scheduled_scan=False):
+    if not revid:
+        revid = str(uuid.uuid4())
+
+    if isinstance(pua_exclusions, str) and not pua_exclusions.startswith("<puaName>"):
+        pua_exclusions = pua_exclusions.split(",")
+
+    if isinstance(pua_exclusions, list):
+        ex = [ "<puaName>%s</puaName>" % x for x in pua_exclusions ]
+        pua_exclusions = "".join(ex)
+
+    scan_template = os.path.join(RESOURCES_DIR, "SAV_Policy_No_Scans.xml")
+    if scheduled_scan:
+        scan_template = SAV_POLICY_TEMPLATE_PATH
+    builder = _SavPolicyBuilder(scan_template)
+
+    builder.set_revision_id(revid)
+    builder.set_allowed_pua(pua_exclusions)
+    return builder.get_policy()
 
 
 def populate_alc_policy(revid: str, algorithm: str, username: str, userpass: str):

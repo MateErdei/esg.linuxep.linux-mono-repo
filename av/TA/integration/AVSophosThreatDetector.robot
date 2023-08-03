@@ -562,16 +562,28 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
     Check Sophos Threat Detector Has Different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 Sophos Threat Detector Is Ignoring Reload Request
+    # Disable on-access
+    ${policyContent} =   get_complete_core_policy  on_access_enabled=${false}
+    ${av_mark} =  Get Av Log Mark
+    Send CORE Policy To Base From Content    ${policyContent}
+    ${av_mark} =  Wait For Log Contains From Mark    ${av_mark}      Received CORE policy
+    ${av_mark} =  Wait For Log Contains From Mark    ${av_mark}      Processing CORE policy
+
     #unload susi
     Stop sophos_threat_detector
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${av_mark} =  Get Av Log Mark
 
-    # Need the settings to change before any reload attempts are even tried, so send a new allow list
-    Register Cleanup   Send CORC Policy To Base  corc_policy_empty_allowlist.xml
-    Send CORC Policy To Base  corc_policy.xml
+    # Send a policy that won't cause a restart
+    ${policyContent} =  create_sav_policy  pua_exclusions=PsExec
+    Log  SAV Policy=${policyContent}
+    Send SAV Policy To Base From Content  ${policyContent}
+    
+    ${av_mark} =  Wait For Log Contains From Mark    ${av_mark}      Received SAV policy
+    ${av_mark} =  Wait For Log Contains From Mark    ${av_mark}      Processing SAV policy
 
     Wait For Sophos Threat Detector Log Contains After Mark  Skipping susi reload because susi is not initialised  ${threat_detector_mark}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
