@@ -51,6 +51,9 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
     Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
+    ${result} =   Run Process     find ${INPUT_DIRECTORY}  shell=true	
+    Log  ${result.stdout}	
+    Log  ${result.stderr}
     
     @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
