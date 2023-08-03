@@ -55,7 +55,7 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --fixed-version "${expectedFixedVersion}"  shell=true
+        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
         Should Be Equal As Strings   ${result.rc}  0
@@ -66,13 +66,13 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
 *** Keywords ***
 Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
-    &{expectedFixedVersions} =    Get Expected Versions    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}
+    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/repo
+    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
