@@ -392,7 +392,6 @@ On Access Doesnt Mount AutoFs Mount
     Create Directory  ${destination}
 
     Create File     ${source}test.txt    test
-    Register Cleanup    Remove Directory    ${source}    recursive=True
     Create File     ${exports}    ${source} *(rw,no_root_squash,sync)
     Register Cleanup    Remove File    ${exports}
 
@@ -408,14 +407,16 @@ On Access Doesnt Mount AutoFs Mount
     Register Cleanup    Copy File     ${backupfstab}    ${fstab}
 
     Run Shell Process  systemctl restart autofs  OnError=failed to restart autofs
-    ${result} =   Run Shell Process    mount    OnError=failed to run mount command
-    Should Contain    ${result.stdout}    ${automount} on ${destination} type autofs
+    Register Cleanup   Run Shell Process  systemctl stop autofs     OnError=failed to stop autofs
+
+    ${result1} =   Run Shell Process    mount    OnError=failed to run mount command
+    ${lastline1} =    Get Line    ${result1.stdout}    -1
+    Should Contain    ${lastline1}    ${automount} on ${destination} type autofs
 
     Restart On Access
-    ${result} =   Run Shell Process    mount    OnError=failed to run mount command
-    Should Not Contain    ${result.stdout}    /dev/sda1 on ${destination} type ext4
-
-    Run Shell Process  umount ${destination}    OnError=failed to umount ${destination}
+    ${result2} =   Run Shell Process    mount    OnError=failed to run mount command
+    ${lastline2} =    Get Line    ${result2.stdout}    -1
+    Should Contain    ${lastline2}    ${automount} on ${destination} type autofs
 
 On Access Scans File On NFSv4
     [Tags]  NFS
