@@ -414,6 +414,9 @@ On Access Doesnt Mount AutoFs Mount
     Should Contain    ${lastline1}    ${automount} on ${destination} type autofs
 
     Restart On Access
+    #If autofs is 'activated' for this mount the last line will be
+    #/dev/sda1 on ${destination} type ext4
+    #But this is not dependable on all platforms
     ${result2} =   Run Shell Process    mount    OnError=failed to run mount command
     ${lastline2} =    Get Line    ${result2.stdout}    -1
     Should Contain    ${lastline2}    ${automount} on ${destination} type autofs
