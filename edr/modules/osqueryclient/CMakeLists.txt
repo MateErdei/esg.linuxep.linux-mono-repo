@@ -1,5 +1,5 @@
 set( GOOGLETESTINCLUDE ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include )
-
+message("gloglibrary: ${GLOG_LIBRARY}")
 sophos_add_library(osqueryclient SHARED
         OsqueryProcessor.h
         OsqueryProcessor.cpp
@@ -17,6 +17,8 @@ sophos_add_library(osqueryclient SHARED
                 ${JSONCPP_INPUT}/include
 
         EXTRA_LIBS
+            ${GLOG_LIBRARY}
+            ${GFLAG_LIBRARY}
             thrift_library
             ${JSONCPP_LIBRARY}
             osquerysdk_library

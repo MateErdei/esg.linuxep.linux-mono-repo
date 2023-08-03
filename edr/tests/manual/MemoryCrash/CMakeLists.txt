@@ -6,11 +6,12 @@ add_executable(MemoryCrashTable
         )
 
 target_link_libraries(MemoryCrashTable PUBLIC
-        gflags
+        ${GLOG_LIBRARY}
         osquerysdk_library
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
+        ${GFLAG_LIBRARY}
         sqlite_library
         )
 

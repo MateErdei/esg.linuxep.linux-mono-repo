@@ -19,7 +19,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-<!--            <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>-->
+            <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
             <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="/build/redist/livequery"/>
@@ -40,6 +40,7 @@
             <development-version branch="develop"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl"/>
         </build-asset>
+
 
         <build-asset project="thirdparty" repo="capnproto">
             <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
