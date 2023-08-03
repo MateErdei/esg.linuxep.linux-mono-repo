@@ -2,7 +2,7 @@
 Test Setup      Test Setup
 Test Teardown   Test Teardown
 
-Suite Setup      Setup sdds3 Update Tests
+Suite Setup      sdds3 suite setup with fakewarehouse with real base
 Suite Teardown   Cleanup sdds3 Update Tests
 
 
@@ -40,5 +40,5 @@ Revert HostFile
 *** Test Case ***
 Thin Installer uses url from policy
     configure_and_run_SDDS3_thininstaller  0    force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains    Performing request: https://sustest.sophosupd.com:8080/v3/
-    Check Thininstaller Log Contains    Performing Sync using https://sdds3test.sophosupd.com:8080
+    check_suldownloader_log_contains    Performing request: https://sustest.sophosupd.com:8080/v3/
+    check_suldownloader_log_contains    Performing Sync using https://sdds3test.sophosupd.com:8080
