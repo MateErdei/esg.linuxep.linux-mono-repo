@@ -1390,7 +1390,7 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
     ${cli_mark} =  Mark Log Size   ${LOG_FILE}
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  /run/snapd/ns/  stdout=${LOG_FILE}   stderr=STDOUT
     Wait For Log Contains After Mark  ${LOG_FILE}  Scanning  ${cli_mark}
     Stop AV
     Start AV
@@ -1599,7 +1599,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Register Cleanup  Exclude Scan Errors From File Samples
 
     ${cls_handle} =     Start Process
-        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/ns/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
     ${cls_pid} =   Get Process Id   handle=${cls_handle}
     Log  PID: ${cls_pid}
@@ -1837,7 +1837,7 @@ AV Scanner stops promptly while trying to connect
     Stop AV
     register cleanup  Start AV
 
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/    /run/snapd/ns/   stdout=${LOG_FILE}   stderr=STDOUT
 
     ## cannot wait for messages in the log as it is buffered and not written syncronously.
     Sleep   5s
@@ -1879,7 +1879,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
     FakeWatchdog.expect_start_failure
 
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  /run/snapd/ns/  stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
     Register Cleanup  Exclude Scan Errors From File Samples
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
