@@ -15,7 +15,6 @@
 #include <sys/stat.h>
 
 #include <cassert>
-#include <cstdlib>
 #include <cstring>
 #include <grp.h>
 #include <iostream>
