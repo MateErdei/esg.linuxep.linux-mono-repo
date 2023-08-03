@@ -165,7 +165,7 @@ def setup_fixed_versions(dest, fixed_versions):
     if fixed_versions:
         print(f"Failed to find fixed versions: {fixed_versions}")
 
-    vut_sdds3_repo_path = os.path.join(dest, "sdds3", "repo")
+    vut_sdds3_repo_path = os.path.join(dest, "sdds3-repo")
     vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
     vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
     fixed_version_sdds3_repo_path = os.path.join(symlink_path, "repo")
