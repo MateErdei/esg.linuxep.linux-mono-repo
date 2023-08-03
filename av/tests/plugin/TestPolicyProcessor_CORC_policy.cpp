@@ -436,7 +436,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, invalid_utf8_in_sxl4_url)
     }
 }
 
-TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_most_be_https)
+TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_must_be_https)
 {
     const auto policy = getPolicyForSXL4Url("http://4.sophosxl.net");
 
