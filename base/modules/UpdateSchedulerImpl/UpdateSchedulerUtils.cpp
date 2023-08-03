@@ -258,7 +258,19 @@ namespace UpdateSchedulerImpl
 
         if (fs->exists(packageConfigPath))
         {
-            auto packageConfig = Common::FileSystem::fileSystem()->readLines(packageConfigPath);
+            std::vector<std::string> packageConfig;
+
+            try
+            {
+                packageConfig = Common::FileSystem::fileSystem()->readLines(packageConfigPath);
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                //This can throw due to permissions
+                LOGWARN(ex.what());
+                return "";
+            }
+
             for (const auto& config : packageConfig)
             {
                 if (StringUtils::isSubstring(config, "ServerProtectionLinux-Base"))
