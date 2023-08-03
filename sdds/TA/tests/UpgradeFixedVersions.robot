@@ -51,16 +51,7 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
     Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
-    ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}  shell=true	
-    Log  ${result.stdout}	
-    Log  ${result.stderr}
-    ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/repo  shell=true	
-    Log  ${result.stdout}	
-    Log  ${result.stderr}
-    ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/sdds3  shell=true	
-    Log  ${result.stdout}	
-    Log  ${result.stderr}
-    
+
     @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
@@ -68,6 +59,15 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
         Log  ${result.stdout}
         Log  ${result.stderr}
         Should Be Equal As Strings   ${result.rc}  0
+        ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}  shell=true	
+        Log  ${result.stdout}	
+        Log  ${result.stderr}
+        ${result} =   Run Process     ls -l ${INPUT_DIRECTORY}/repo  shell=true	
+        Log  ${result.stdout}	
+        Log  ${result.stderr}
+        ${result} =   Run Process     ls -l "${INPUT_DIRECTORY}/FTS\ 2023.2.0.74"  shell=true	
+        Log  ${result.stdout}	
+        Log  ${result.stderr}
         Check Upgrade From Fixed Version to VUT    ${expectedFixedVersion}
     END
 
@@ -75,13 +75,13 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
 *** Keywords ***
 Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
-    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}
-    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
+    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
+    &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
 
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
+    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/repo/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
