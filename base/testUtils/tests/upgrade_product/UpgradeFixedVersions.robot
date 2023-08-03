@@ -57,36 +57,31 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     [Timeout]    12 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  TAP_TESTS
     
-    Require Fresh Install
-    ${regCommand} =    Set Variable     /opt/sophos-spl/base/bin/registerCentral 5ad5322e39575d3fa99cbab82562d7dffa15e89c1cdd4812fe383be5df7d77fe https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep
-    Register With Central    ${regCommand}
-    Set Environment Variable    MCS_CONFIG_SET    sspl-qa
-    Set Environment Variable    CLIENT_SECRET     7641c9363be2986a887ce3d3394fa06ee300f8b21ab80c54e6f3d5d130d7d4ceb74d966502caf1bf67d395f25610a0cc3cf6
+    ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
+    Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
-    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/GatherReleaseWarehouses.py --fixed-version "FTS 2023.2.0.74"  shell=true
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Strings   ${result.rc}  0
-    ${result}=    Run Process  ls -l /tmp/system-product-test-inputs  shell=True
-    Log  ${result.stdout}
-    ${result}=    Run Process  ls -l /tmp/system-product-test-inputs/sdds3-release--2023-28  shell=True
-    Log  ${result.stdout}
     
-    #@{expectedFixedVersions} =    Get Fixed Versions    02c4e640-227d-4bf2-b25f-1bf9406a5ad2    7641c9363be2986a887ce3d3394fa06ee300f8b21ab80c54e6f3d5d130d7d4ceb74d966502caf1bf67d395f25610a0cc3cf6    https://p0.q.hmr.sophos.com    ${hostname}
-#    @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
-#    :FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
-#    \    log to console    Fixed Version: ${expectedFixedVersion}
+    @{expectedFixedVersions} =    Get Fixed Versions    e4ac6bd8-fcb3-432c-892d-a2e135756094    2c641477c410c3d2073e7d17b7df5328af30afb902bf4ef8f11e490cb8bd5e24e1f23d7796ab85a83cf2635ffc3fe24d5174    q    ${hostname}
+    FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
+        log to console    Fixed Version: ${expectedFixedVersion}
+        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/GatherReleaseWarehouses.py --fixed-version "${expectedFixedVersion}"  shell=true
+        Log  ${result.stdout}
+        Log  ${result.stderr}
+        Should Be Equal As Strings   ${result.rc}  0
+        Check Upgrade From Fixed Version to VUT    ${expectedFixedVersion}
+    END
 
 
 *** Keywords ***
 Check Upgrade From Fixed Version to VUT
-    &{expectedFixedVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_ROOT}
+    [Arguments]  ${fixedVersion}
+    &{expectedFixedVersions} =    Get Expected Versions    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local Dogfood SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/${fixedVersion}/repo
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
@@ -113,7 +108,7 @@ Check Upgrade From Fixed Version to VUT
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
-    Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
+    Check Expected Versions Against Installed Versions    &{expectedFixedVersions}
 
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server

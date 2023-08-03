@@ -165,6 +165,34 @@ def setup_fixed_versions(dest, fixed_versions):
     if fixed_versions:
         print(f"Failed to find fixed versions: {fixed_versions}")
 
+    vut_sdds3_repo_path = os.path.join(dest, "sdds3", "repo")
+    vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
+    vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
+    fixed_version_sdds3_repo_path = os.path.join(symlink_path, "repo")
+    fixed_version_sdds3_package_path = os.path.join(fixed_version_sdds3_repo_path, "package")
+    fixed_version_sdds3_supplement_path = os.path.join(fixed_version_sdds3_repo_path, "supplement")
+
+    if not os.path.isdir(fixed_version_sdds3_supplement_path):
+        os.mkdir(fixed_version_sdds3_supplement_path)
+
+    files = os.listdir(vut_sdds3_supplement_path)
+    for f in files:
+        if not os.path.isfile(os.path.join(fixed_version_sdds3_supplement_path, f)):
+            print(f"Copying {f}")
+            shutil.copy(os.path.join(vut_sdds3_supplement_path, f), fixed_version_sdds3_supplement_path)
+
+    for (dirpath, dirnames, filenames) in os.walk(vut_sdds3_package_path):
+        for package in filenames:
+            if package.startswith(("DataSetA",
+                                   "LocalRepData",
+                                   "ML_MODEL3_LINUX_X86_64",
+                                   "RuntimeDetectionRules",
+                                   "ScheduledQueryPack",
+                                   "SSPLFLAGS")):
+                if not os.path.isfile(os.path.join(fixed_version_sdds3_package_path, package)):
+                    shutil.copy(os.path.join(vut_sdds3_package_path, package),
+                                os.path.join(fixed_version_sdds3_package_path, package))
+
 
 def main():
     parser = argparse.ArgumentParser()

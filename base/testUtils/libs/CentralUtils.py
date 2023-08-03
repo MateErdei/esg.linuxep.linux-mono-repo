@@ -797,11 +797,12 @@ def get_api_client(client_id, client_secret, region, hostname):
 
 
 def get_fixed_versions(client_id, client_secret, region, hostname):
+    fixed_versions = []
     client = get_api_client(client_id, client_secret, region, hostname)
     expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
-    fixed_versions = client.getReleases(expiresFrom.strftime("%Y-%m-%d"))
-    import GatherReleaseWarehouses
-    GatherReleaseWarehouses.setup_fixed_versions(SYSTEMPRODUCT_TEST_INPUT, fixed_versions)
+    fixed_version_dicts = client.getReleases(expiresFrom.strftime("%Y-%m-%d"))
+    for fixed_version_dict in fixed_version_dicts:
+        fixed_versions.append(fixed_version_dict["name"])
     return fixed_versions
 
 
