@@ -55,10 +55,9 @@ Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     LOG    ${telemetryFileContents}
 
-    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
+    check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0   True
         ...    install_state=0
         ...    download_state=0
-        ...    most_recent_update_successful=${TRUE}
         ...    base_tag=${fixed_version_name}
     check_base_telemetry_json_is_correct  ${telemetryFileContents}
 
