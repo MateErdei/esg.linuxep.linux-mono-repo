@@ -157,9 +157,16 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 set(GTEST_INPUT ${INPUT}/googletest)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so*)
+execute_process(COMMAND chrpath -r \$ORIGIN ${zmqlib} COMMAND_ERROR_IS_FATAL ANY)
+
 set(log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus.so)
+execute_process(COMMAND chrpath -r \$ORIGIN ${log4cpluslib} COMMAND_ERROR_IS_FATAL ANY)
+
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*.*.*)
+execute_process(COMMAND chrpath -r \$ORIGIN ${protobuflib} COMMAND_ERROR_IS_FATAL ANY)
+
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
+execute_process(COMMAND chrpath -r \$ORIGIN ${expatlib} COMMAND_ERROR_IS_FATAL ANY)
 
 set(GTEST_INCLUDE ${GTEST_INPUT}/include)
 set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
@@ -202,6 +209,7 @@ function(add_imported_library name type location include_directory)
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
     if(${type} STREQUAL SHARED)
         set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+        execute_process(COMMAND chrpath -r \$ORIGIN ${location} COMMAND_ERROR_IS_FATAL ANY)
     endif()
     target_include_directories(${name} INTERFACE ${include_directory})
 endfunction()
@@ -213,6 +221,8 @@ target_link_directories(safestorelib INTERFACE ${SAFESTORE_LIB_DIR} ${CMAKE_BINA
 
 set(ZLIB_INPUT ${REDIST}/zlib)
 set(ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so.1)
+execute_process(COMMAND chrpath -r \$ORIGIN ${ZLIB_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
+
 set(BOOST_SUSI_LIBRARY ${REDIST}/boost/lib64/libboost_locale.so.1.78.0)
 set(BOOST_SUSI2_LIBRARY ${REDIST}/boost/lib64/libboost_system.so.1.78.0)
 
