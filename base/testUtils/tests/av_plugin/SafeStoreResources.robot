@@ -48,13 +48,13 @@ Get SafeStore PID
 Check SafeStore Permissions And Owner
     ${safeStorePid} =    Get SafeStore PID
 
-    ${user} =    Run Process    ps    -o    user    -p    ${safeStorePid}
-    ${group} =    Run Process    ps    -o    group    -p    ${safeStorePid}
+    ${user} =    Run Process    ps -o user -p ${safeStorePid}    shell=True
+    ${group} =    Run Process    ps -o group -p ${safeStorePid}    shell=True
     Should Contain    ${user.stdout}    root
     Should Contain    ${group.stdout}    root
 
-    ${safestoreparentpid} =    Run Process    ps -o ppid= -p ${safeStorePid}
-    ${parentPid} =    Run Process    ps -e | grep ${safestoreparentpid}
+    ${safestoreparentpid} =    Run Process    ps -o ppid= -p ${safeStorePid}    shell=True
+    ${parentPid} =    Run Process    ps -e | grep ${safestoreparentpid}    shell=True
     Should Contain    ${parentPid.stdout}    sophos_watchdog
 
 Check SafeStore Installed Correctly
