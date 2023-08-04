@@ -5,6 +5,7 @@
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/HttpRequests/IHttpRequester.h>
+#include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -95,7 +96,8 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.timeout = 300;
     requestConfig.data = telemetryJson;
 
-    if (!m_config->getTelemetryServerCertificatePath().empty() && Common::FileSystem::fileSystem()->isFile(m_config->getTelemetryServerCertificatePath()))
+    if (!m_config->getTelemetryServerCertificatePath().empty() &&
+        Common::FileSystem::fileSystem()->isFile(m_config->getTelemetryServerCertificatePath()))
     {
         requestConfig.certPath = m_config->getTelemetryServerCertificatePath();
     }
@@ -103,17 +105,27 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     LOGINFO("Sending telemetry...");
 
     Common::HttpRequests::Response response;
-    if (m_config->getVerb() == "GET")
+    std::string verb = m_config->getVerb();
+
+    if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(requestConfig))
     {
-        response = m_httpRequester->get(requestConfig);
-    }
-    else if (m_config->getVerb() == "POST")
-    {
-        response = m_httpRequester->post(requestConfig);
+        LOGINFO("Uploading via proxy: " << requestConfig.proxy.value());
+        response = doHTTPCall(verb, requestConfig);
+
+        if (response.errorCode != Common::HttpRequests::ResponseErrorCode::OK ||
+            response.status != Common::HttpRequests::HTTP_STATUS_OK)
+        {
+            LOGWARN("Connection with proxy failed, going direct");
+            requestConfig.proxy = "";
+            requestConfig.proxyPassword = "";
+            requestConfig.proxyUsername = "";
+            response = doHTTPCall(verb, requestConfig);
+        }
     }
     else
     {
-        response = m_httpRequester->put(requestConfig);
+        LOGINFO("Uploading directly");
+        response = doHTTPCall(verb, requestConfig);
     }
 
     if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
@@ -132,6 +144,24 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     else
     {
         LOGERROR("Failed to contact telemetry server (" << response.errorCode << "): " << response.error);
+    }
+}
+
+Common::HttpRequests::Response TelemetryProcessor::doHTTPCall(
+    const std::string& verb,
+    Common::HttpRequests::RequestConfig& request)
+{
+    if (verb == "GET")
+    {
+        return m_httpRequester->get(request);
+    }
+    else if (verb == "POST")
+    {
+        return m_httpRequester->post(request);
+    }
+    else
+    {
+        return m_httpRequester->put(request);
     }
 }
 

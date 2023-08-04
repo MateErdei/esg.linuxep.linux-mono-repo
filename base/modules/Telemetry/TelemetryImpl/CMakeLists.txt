@@ -23,6 +23,7 @@ include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSO
 
 target_link_libraries(telemetryimpl PUBLIC
         HttpRequestsImpl
+        ProxyUtilsLib
         plugincommunicationimpl
         processimpl
         telemetryconfigimpl

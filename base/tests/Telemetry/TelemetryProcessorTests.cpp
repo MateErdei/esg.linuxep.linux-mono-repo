@@ -46,13 +46,10 @@ public:
         m_config->setMaxJsonSize(1000);
     }
 
-    void TearDown() override
-    {
-        Tests::restoreFilePermissions();
-    }
+    void TearDown() override { Tests::restoreFilePermissions(); }
 };
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders)
 {
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     DerivedTelemetryProcessor telemetryProcessor(m_config, std::move(m_httpRequester), telemetryProviders);
@@ -61,7 +58,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT
     ASSERT_EQ("{}", json);
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider)
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -78,7 +75,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
     ASSERT_EQ(R"({"Mock":{"key":1}})", json);
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorTwoProviders) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorTwoProviders)
 {
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
@@ -100,7 +97,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorTwoProviders) // NOLINT
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock2":{"key":2}})", json);
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows)
 {
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
@@ -127,7 +124,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOL
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile)
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -136,6 +133,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
 
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
@@ -153,7 +151,107 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromSingleProvider) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorSucessFullyUsesProxy)
+{
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
+
+    Common::HttpRequests::Response response;
+    response.status = 200;
+    response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
+    std::string obfuscatedCreds =
+        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
+        .WillOnce(Return(content));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+    EXPECT_CALL(*m_httpRequester, put(_)).WillOnce(Return(response));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    auto config = std::make_shared<Common::TelemetryConfigImpl::Config>();
+    config->setResourceRoot("PROD");
+    config->setServer(m_defaultServer);
+    config->setMaxJsonSize(1000);
+
+    DerivedTelemetryProcessor telemetryProcessor(config, std::move(m_httpRequester), telemetryProviders);
+    telemetryProcessor.Run();
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyFails)
+{
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
+
+    Common::HttpRequests::Response response;
+    response.status = 200;
+    response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
+    Common::HttpRequests::Response failed;
+    failed.status = 500;
+    failed.errorCode = Common::HttpRequests::ResponseErrorCode::REQUEST_FAILED;
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
+    std::string obfuscatedCreds =
+        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
+        .WillOnce(Return(content));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+    EXPECT_CALL(*m_httpRequester, put(_)).WillOnce(Return(failed)).WillOnce(Return(response));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    auto config = std::make_shared<Common::TelemetryConfigImpl::Config>();
+    config->setResourceRoot("PROD");
+    config->setServer(m_defaultServer);
+    config->setMaxJsonSize(1000);
+
+    DerivedTelemetryProcessor telemetryProcessor(config, std::move(m_httpRequester), telemetryProviders);
+    telemetryProcessor.Run();
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyReturnsNon200status)
+{
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
+
+    Common::HttpRequests::Response response;
+    response.status = 200;
+    response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
+    Common::HttpRequests::Response failed;
+    failed.status = 500;
+    failed.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
+    std::string obfuscatedCreds =
+        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
+        .WillOnce(Return(content));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+    EXPECT_CALL(*m_httpRequester, put(_)).WillOnce(Return(failed)).WillOnce(Return(response));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    auto config = std::make_shared<Common::TelemetryConfigImpl::Config>();
+    config->setResourceRoot("PROD");
+    config->setServer(m_defaultServer);
+    config->setMaxJsonSize(1000);
+
+    DerivedTelemetryProcessor telemetryProcessor(config, std::move(m_httpRequester), telemetryProviders);
+    telemetryProcessor.Run();
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromSingleProvider)
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -175,7 +273,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromSing
     ASSERT_EQ(R"({})", json);
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMultipleProviders) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMultipleProviders)
 {
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
@@ -197,5 +295,5 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMult
 
     DerivedTelemetryProcessor telemetryProcessor(m_config, std::move(m_httpRequester), telemetryProviders);
 
-    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error); // NOLINT
+    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
 }

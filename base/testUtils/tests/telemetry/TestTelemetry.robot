@@ -139,6 +139,7 @@ Telemetry Executable Generates mcs-connection when message relay
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    File Should Contain  ${TELEMETRY_EXECUTABLE_LOG}  Uploading via proxy: localhost:3000
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Message Relay"
 
@@ -156,6 +157,8 @@ Telemetry Executable Generates mcs-connection when proxy
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Proxy"
+    File Should Contain  ${TELEMETRY_EXECUTABLE_LOG}  Uploading via proxy: localhost:3000
+
 
 Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.

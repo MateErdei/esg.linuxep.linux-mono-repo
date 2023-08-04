@@ -35,6 +35,9 @@ namespace Telemetry
         virtual void addTelemetry(const std::string& sourceName, const std::string& json);
 
     private:
+        Common::HttpRequests::Response doHTTPCall(
+            const std::string& verb,
+            Common::HttpRequests::RequestConfig& request);
         std::shared_ptr<const Config> m_config;
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_httpRequester;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
