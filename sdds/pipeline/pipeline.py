@@ -174,11 +174,11 @@ def install_requirements(machine: tap.Machine):
         print(f"On adding installing requirements: {ex}")
 
 
-def robot_task(machine: tap.Machine, environment):
+def robot_task(machine: tap.Machine, environment: str):
     robot_task_with_env(machine, environment)
 
 
-def robot_task_with_env(machine: tap.Machine, environment, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, environment: str, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
