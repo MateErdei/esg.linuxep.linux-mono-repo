@@ -142,4 +142,10 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
     std::string logMessage = testing::internal::GetCapturedStderr();
 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("DEBUG One more entry removed from the queue of processing queries"));
+    EXPECT_THAT(logMessage, ::testing::Not(
+                                ::testing::HasSubstr("Failed to configure a new query")
+                                ));
+    EXPECT_THAT(logMessage, ::testing::Not(
+                                ::testing::HasSubstr("Failure in clean up ParallelQueryProcessor")
+                                ));
 }
