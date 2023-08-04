@@ -793,6 +793,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Install EDR Directly from SDDS
     Wait Until Keyword Succeeds    5 secs    1 secs    EDR Plugin Log Contains  LiveQuery policy has not been sent to the plugin
+    Wait Until Created  ${OSQUERY_FLAG_FILE}
     Osquery Flag File Should Contain    --host_identifier=uuid
     Osquery Flag File Should Contain    --log_result_events=true
     Osquery Flag File Should Contain    --utc
@@ -837,6 +838,10 @@ Ensure Default Osquery Flags Are Contained in flags file
    Osquery Flag File Should Contain    --extensions_timeout=10
    Osquery Flag File Should Contain    --logger_plugin=SophosLoggerPlugin
 
+
+*** Variables ***
+
+${OSQUERY_FLAG_FILE} =  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
 
 *** Keywords ***
 XDR Pack Should Be Enabled
@@ -966,7 +971,8 @@ Test Teardown
 
 Osquery Flag File Should Contain
     [Arguments]  ${stringToContain}
-    ${flags} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
+    Should Exist    ${OSQUERY_FLAG_FILE}
+    ${flags} =  Get File  ${OSQUERY_FLAG_FILE}
     Should Contain  ${flags}   ${stringToContain}
 
 Clear Datafeed Dir And Wait For Next Result File
