@@ -139,10 +139,12 @@ find_library(JOURNAL_LIBRARY
         NAMES libJournalLib.a
         PATHS ${INPUT}/JournalLib/lib
         NO_DEFAULT_PATH)
+
 find_library(LZMA_LIBRARY
         NAMES liblzma.so
         PATHS ${XZUTILS_INPUT}
         NO_DEFAULT_PATH)
+execute_process(COMMAND chrpath -r \$ORIGIN ${LZMA_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 set(GTEST_INCLUDE ${GTEST_INPUT}/include)
 set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
