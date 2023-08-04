@@ -721,6 +721,17 @@ namespace Plugin
                 LOGERROR("Invalid lookupUrl: " << sxlUrl);
                 sxlUrl = "";
             }
+            else
+            {
+                // Policy contains:
+                // <lookupUrl>https://4.sophosxl.net</lookupUrl>
+                // but SUSI wants:
+                // "url": "https://4.sophosxl.net/lookup",
+                if (!Common::UtilityImpl::StringUtils::endswith(sxlUrl, "/lookup"))
+                {
+                    sxlUrl = sxlUrl + "/lookup";
+                }
+            }
             LOGDEBUG("SXL URL: " << sxlUrl);
         }
         if (oldSxlUrl != sxlUrl)

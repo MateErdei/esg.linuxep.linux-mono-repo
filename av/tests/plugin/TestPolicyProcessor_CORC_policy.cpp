@@ -346,14 +346,14 @@ TEST_F(TestPolicyProcessor_CORC_policy, valid_sxl4_url)
     const auto policy = getPolicyForSXL4Url("https://4.sophosxl.net");
     expectConstructorCalls();
     std::string actualJson;
-    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"https://4.sophosxl.net")sophos");
+    auto expectedJsonFragment = HasSubstr(R"sophos("sxlUrl":"https://4.sophosxl.net/lookup")sophos");
     saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     PolicyProcessorUnitTestClass proc;
     ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
     auto actual = nlohmann::json::parse(actualJson);
-    EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net");
+    EXPECT_EQ(actual.at("sxlUrl"), "https://4.sophosxl.net/lookup");
     EXPECT_TRUE(proc.restartThreatDetector());
 }
 
@@ -370,7 +370,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, sxl4_url_all_alpha_numeric)
     PolicyProcessorUnitTestClass proc;
     ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
     auto actual = nlohmann::json::parse(actualJson);
-    EXPECT_EQ(actual.at("sxlUrl"), "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com");
+    EXPECT_EQ(actual.at("sxlUrl"), "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz.0123456789.com/lookup");
 }
 
 TEST_F(TestPolicyProcessor_CORC_policy, missing_sxl4_url_goes_to_empty)
