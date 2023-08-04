@@ -332,14 +332,15 @@ find_library(EXPAT_LIBRARY
         )
 execute_process(COMMAND chrpath -r \$ORIGIN ${EXPAT_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
+execute_process(COMMAND find ${BOOST_INPUT} -name \"*.so*\" -exec chrpath -r $ORIGIN {} \; COMMAND_ERROR_IS_FATAL ANY)
+
 find_library(BOOST_LOCALE
         NAMES locale
         PATHS ${BOOST_INPUT}/
         NO_DEFAULT_PATH
         )
 
-set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
-
+set(LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include)
 find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}
