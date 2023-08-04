@@ -29,6 +29,7 @@ Global Setup Tasks
     Set Global Variable    ${LIVERESPONSE_DIR}            ${PLUGINS_DIR}/liveresponse
     Set Global Variable    ${RESPONSE_ACTIONS_DIR}        ${PLUGINS_DIR}/responseactions
     Set Global Variable    ${RTD_DIR}                     ${PLUGINS_DIR}/runtimedetections
+    Set Global Variable    ${SULDOWNLOADER_LOG_PATH}      ${BASE_LOGS_DIR}/suldownloader.log
 
     Set Global Variable    ${SAFESTORE_DB_DIR}                 ${AV_DIR}/var/safestore_db
     Set Global Variable    ${SAFESTORE_DB_PATH}                ${SAFESTORE_DB_DIR}/safestore.db
