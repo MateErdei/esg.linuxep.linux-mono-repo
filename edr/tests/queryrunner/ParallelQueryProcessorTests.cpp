@@ -120,7 +120,6 @@ TEST_F(ParallelQueryProcessorTests, addJob)
 
 TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
 {
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     testing::internal::CaptureStderr();
 
     Common::Threads::LockableData<int> counter{0};
@@ -148,4 +147,7 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
     EXPECT_THAT(logMessage, ::testing::Not(
                                 ::testing::HasSubstr("Failure in clean up ParallelQueryProcessor")
                                 ));
+    EXPECT_THAT(logMessage, ::testing::Not(
+                                ::testing::HasSubstr("Should not have any further queries to process.")
+                                    ));
 }
