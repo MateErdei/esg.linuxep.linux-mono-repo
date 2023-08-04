@@ -105,7 +105,7 @@ function failure()
     # the install directory existed already and we didnt create it
     if [[ ${removeinstall} -eq 1 ]] && ! is_sspl_installed
     then
-      if [[ -n ${SOPHOS_INSTALL} ]]
+      if [[ -n "${SOPHOS_INSTALL}" ]]
       then
         if [[ -d ${SOPHOS_TEMP_DIRECTORY} ]]
         then
@@ -115,7 +115,7 @@ function failure()
           cp -Lr "${SOPHOS_INSTALL}/plugins/*/log/*" "${SOPHOS_TEMP_DIRECTORY}/logs/plugins" 2>/dev/null
         fi
         echo "Removing ${SOPHOS_INSTALL}"
-        rm -rf ${SOPHOS_INSTALL}
+        rm -rf "${SOPHOS_INSTALL}"
       fi
     fi
     cleanup_and_exit ${code}
@@ -179,7 +179,7 @@ function check_free_storage()
 {
     local space=$1
 
-    local install_path=${SOPHOS_INSTALL%/*}
+    local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
     if [ -z $install_path ]
@@ -221,7 +221,7 @@ function check_free_storage()
 function check_install_path_has_correct_permissions()
 {
     # loop through given install path from right to left to find the first directory that exists.
-    local install_path=${SOPHOS_INSTALL%/*}
+    local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
     if [ -z $install_path ]
@@ -395,6 +395,18 @@ function check_custom_ids_are_valid()
     done
 }
 
+function verify_install_directory()
+{
+  [[ "$(basename ${SOPHOS_INSTALL})" == "sophos-spl" ]] || failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to ${SOPHOS_INSTALL} because the SPL directory basename is not 'sophos-spl'"
+  realPath=$(realpath "${SOPHOS_INSTALL}")
+  if [[ "${realPath}" != "${SOPHOS_INSTALL}" ]]
+  then
+    failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a symlink to '${realPath}'. To install under this directory, please re-run with --install-dir=${realPath}"
+  fi
+
+  echo "Installing to ${SOPHOS_INSTALL}"
+}
+
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
@@ -421,6 +433,10 @@ FORCE_UNINSTALL_SAV=0
 for i in "$@"
 do
     case $i in
+        --install-dir=*)
+            export SOPHOS_INSTALL="${i#*=}"
+            shift
+        ;;
         --update-source-creds=*)
             export OVERRIDE_SOPHOS_CREDS="${i#*=}"
             shift
@@ -475,6 +491,8 @@ do
     esac
 done
 
+verify_install_directory
+
 # Check if SAV is installed.
 ## We check everything on $PATH, and always /usr/local/bin and /usr/bin
 ## This should catch everywhere SAV might have installed the sweep symlink
@@ -500,6 +518,7 @@ if [ -z "$SOPHOS_TEMP_DIRECTORY" ]; then
 fi
 
 mkdir -p "$SOPHOS_TEMP_DIRECTORY"
+
 
 # Check that the tmp directory we're using allows execution
 echo "exit 0" > "$SOPHOS_TEMP_DIRECTORY/exectest" && chmod +x "$SOPHOS_TEMP_DIRECTORY/exectest"
