@@ -8,7 +8,7 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN" />
+            <release-version branch="release/2023.31" build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/input/openssl" />
         </build-asset>
 
