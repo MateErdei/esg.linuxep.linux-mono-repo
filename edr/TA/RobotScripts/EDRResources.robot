@@ -143,6 +143,10 @@ Uninstall EDR
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}  ${result.stderr}
 
+Downgrade EDR
+    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --downgrade   shell=True   timeout=20s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to downgrade EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+
 Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component
