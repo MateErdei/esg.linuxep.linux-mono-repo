@@ -57,3 +57,6 @@ version:
 
   # set this to LTS if doing a warehouse build for LTS release
   static: 'FTS'
+
+  # if true, ESM json output file will contain "xRAMP": "true"
+  xRAMP: true

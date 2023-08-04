@@ -575,6 +575,9 @@ def write_static_flags(static_flags):
 
             newflag['suite_info'][suite]['suite'] = static_flags[entry][suite]['suite']
             newflag['suite_info'][suite]['display_version'] = f'{static} ' + static_flags[entry][suite]['version']
+        xramp = VERSION['xRAMP'] if 'xRAMP' in VERSION else False
+        if xramp:
+            newflag['xRAMP'] = "true"
         newflag['token'] = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(newflag)))
         mock_flag_value = os.path.join(flagsdir, f'{entry}.json')
         with open(mock_flag_value, 'w') as f:
