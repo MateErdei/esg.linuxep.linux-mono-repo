@@ -174,11 +174,11 @@ def install_requirements(machine: tap.Machine):
         print(f"On adding installing requirements: {ex}")
 
 
-def robot_task(machine: tap.Machine):
-    robot_task_with_env(machine)
+def robot_task(machine: tap.Machine, environment):
+    robot_task_with_env(machine, environment)
 
 
-def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, environment, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
@@ -199,9 +199,13 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
 def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build):
     test_inputs = get_inputs(context, build, parameters)
     machines = get_test_machines(test_inputs, parameters)
+    environment = {
+        'CENTRAL_API_CLIENT_ID': parameters.central_api_client_id,
+        'CENTRAL_API_CLIENT_SECRET': parameters.central_api_client_secret,
+    }
 
     for template_name, machine in machines:
-        stage.task(task_name=template_name, func=robot_task, machine=machine)
+        stage.task(task_name=template_name, func=robot_task, machine=machine, environment=environment)
     return
 
 
