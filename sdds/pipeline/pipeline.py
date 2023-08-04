@@ -174,15 +174,19 @@ def install_requirements(machine: tap.Machine):
         print(f"On adding installing requirements: {ex}")
 
 
-def robot_task(machine: tap.Machine, environment: dict):
-    robot_task_with_env(machine, environment)
+def robot_task(machine: tap.Machine, parameters: tap.Parameters):
+    robot_task_with_env(machine, parameters)
 
 
-def robot_task_with_env(machine: tap.Machine, environment: dict, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, parameters: tap.Parameters, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
         robot_exclusion_tags = ["MANUAL", "FAIL"]
+        environment = {
+            'CENTRAL_API_CLIENT_ID': parameters.central_api_client_id,
+            'CENTRAL_API_CLIENT_SECRET': parameters.central_api_client_secret,
+        }
 
         install_requirements(machine)
         machine.run(python(machine),
@@ -199,13 +203,9 @@ def robot_task_with_env(machine: tap.Machine, environment: dict, machine_name=No
 def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build):
     test_inputs = get_inputs(context, build, parameters)
     machines = get_test_machines(test_inputs, parameters)
-    environment = {
-        'CENTRAL_API_CLIENT_ID': parameters.central_api_client_id,
-        'CENTRAL_API_CLIENT_SECRET': parameters.central_api_client_secret,
-    }
 
     for template_name, machine in machines:
-        stage.task(task_name=template_name, func=robot_task, machine=machine, environment=environment)
+        stage.task(task_name=template_name, func=robot_task, machine=machine, parameters=parameters)
     return
 
 
