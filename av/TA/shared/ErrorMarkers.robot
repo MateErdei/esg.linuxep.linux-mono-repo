@@ -61,6 +61,7 @@ Exclude Invalid Settings No Primary Product
 
 Exclude Invalid Day From Policy
     mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Invalid day from policy:
+    mark_expected_error_in_log  ${AV_LOG_PATH}  av <> Not processing remainder of SAV policy as Scheduled Scan configuration invalid
 
 Exclude File Name Too Long For Cloud Scan
     mark_expected_error_in_log  ${CLOUDSCAN_LOG_PATH}  [File name too long]
