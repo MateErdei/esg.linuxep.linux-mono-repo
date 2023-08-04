@@ -3,12 +3,14 @@ Library    Collections
 Library    OperatingSystem
 
 Library    ${LIB_FILES}/FullInstallerUtils.py
+Library    ${LIB_FILES}/LiveQueryUtils.py
 Library    ${LIB_FILES}/LogUtils.py
 Library    ${LIB_FILES}/MCSRouter.py
 Library    ${LIB_FILES}/OSUtils.py
 Library    ${LIB_FILES}/SafeStoreUtils.py
 Library    ${LIB_FILES}/ThinInstallerUtils.py
 Library    ${LIB_FILES}/UpdateSchedulerHelper.py
+Library    ${LIB_FILES}/UpgradeUtils.py
 Library    ${LIB_FILES}/WarehouseUtils.py
 
 Resource    BaseProcessesResources.robot
@@ -38,7 +40,8 @@ ${SDDS3PrimaryRepository}             ${SOPHOS_INSTALL}/base/update/cache/sdds3p
 ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 
-${RPATHCheckerLog}                          /tmp/rpath_checker.log
+${CUSTOM_INSTALL_DIRECTORY}    /etc/sophos-spl
+
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
@@ -148,43 +151,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
-
-Install VUT and Check RPATH of Every Binary
-    [Timeout]    3 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
-
-    Start Local Cloud Server
-
-    ${handle}=    Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
-    Override LogConf File as Global Level    DEBUG
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
-    Check SulDownloader Log Contains    Running SDDS3 update
-
-    # Update again to ensure we do not get a scheduled update later in the test run
-    Trigger Update Now
-
-    # Run Process can hang with large outputs which RPATHChecker.sh can have
-    # So redirecting RPATHChecker.sh output to a file rather than console
-    ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
-    Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
-    IF    $result.rc != 0
-        IF    $result.rc == 1
-            Fail    Insecure RPATH(s) found,
-        ELSE
-            Fail    ERROR: Unknown return code
-        END
-    END
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
@@ -529,11 +495,11 @@ SDDS3 updating respects ALC feature codes
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
     # Core plugins should be installed
     Directory Should Exist   ${EVENTJOURNALER_DIR}
-    Directory Should Exist   ${RTD_DIR}
     # Other plugins should be uninstalled
     Directory Should Not Exist   ${AV_DIR}
     Directory Should Not Exist   ${EDR_DIR}
     Directory Should Not Exist   ${LIVERESPONSE_DIR}
+    Directory Should Not Exist   ${RTD_DIR}
     check_log_does_not_contain_after_mark    ${SULDownloaderLog}    Failed to remove path. Reason: Failed to delete file: ${SDDS3Primary}    ${sul_mark}
 
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
@@ -552,6 +518,7 @@ SDDS3 updating respects ALC feature codes
 
     Directory Should Exist   ${EDR_DIR}
     Directory Should Exist   ${LIVERESPONSE_DIR}
+    Directory Should Exist   ${RTD_DIR}
 
 SDDS3 updating with changed unused feature codes do not change version
     start_local_cloud_server
@@ -631,3 +598,129 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     ${scheduled_query_pack_mtr} =         Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     ${scheduled_query_pack_next_mtr} =    Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
+
+
+SPL Can Be Installed To A Custom Location
+    [Tags]    CUSTOM_INSTALL_PATH
+    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
+
+    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
+    Start Local SDDS3 Server
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
+    ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  15 secs
+    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    SHS Status File Contains    ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+    # Confirm that the warehouse flags supplement is installed
+    file_exists_with_permissions    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
+    check_watchdog_service_file_has_correct_kill_mode
+
+    check_custom_install_is_set_in_plugin_registry_files    ${CUSTOM_INSTALL_DIRECTORY}
+
+    # Basic Installion Checks
+    Should Exist    ${CUSTOM_INSTALL_DIRECTORY}
+    check_correct_mcs_password_and_id_for_local_cloud_saved    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/mcs.config
+    ${result}=  Run Process  stat  -c  "%A"  /etc
+    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
+    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+
+    Check Watchdog Running
+    Check Management Agent Running
+    Check Update Scheduler Running
+    Check Telemetry Scheduler Is Running
+    Check MCS Router Running    ${CUSTOM_INSTALL_DIRECTORY}/logs/base
+
+    # Checks for AV Plugin
+    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
+    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Enable On Access Via Policy
+    Check On Access Detects Threats
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    # Threat health returns to good after threat is cleaned up
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+    # Checks for Event Journaler
+    Check Event Journaler Executable Running
+
+    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
+
+    Directory Should Not Exist    /opt/sophos-spl
+    check_all_product_logs_do_not_contain_error
+    check_all_product_logs_do_not_contain_critical
+
+Installing New Plugins Respects Custom Installation Location
+    [Tags]    CUSTOM_INSTALL_PATH
+    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
+
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
+    Start Local SDDS3 Server
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
+    ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  15 secs
+    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    SHS Status File Contains    ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+    #core plugins should be installed
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/eventjournaler
+    #other plugins should be uninstalled
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
+
+    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   5 secs
+    ...   File Should Contain    ${CUSTOM_INSTALL_DIRECTORY}/base/update/var/updatescheduler/update_config.json    AV
+    ${sul_mark} =  mark_log_size  ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log
+    trigger_update_now
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
+
+    # Checks for AV Plugin
+    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
+    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Enable On Access Via Policy
+    Check On Access Detects Threats
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    # Threat health returns to good after threat is cleaned up
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse

@@ -30,13 +30,14 @@ Upgrade Resources Suite Teardown
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Upgrade Resources SDDS3 Test Teardown
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Stop Local SDDS3 Server
-    General Test Teardown
+    General Test Teardown    ${installDir}
     run_cleanup_functions
     Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
     Remove File    /tmp/preserve-sul-downgrade
     stop_local_cloud_server
-    require_uninstalled
+    Uninstall_SSPL    ${installDir}    ${True}
 
 
 Install Local SSL Server Cert To System

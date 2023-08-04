@@ -15,7 +15,7 @@ Resource    GeneralUtilsResources.robot
 *** Variables ***
 ${avBin}                    ${AV_DIR}/sbin/av
 ${safeStoreBin}             ${AV_DIR}/sbin/safestore
-${CLSPath}                  ${AV_DIR}/bin/avscanner
+${CLS_PATH}                  ${AV_DIR}/bin/avscanner
 
 ${cleanString}                    I am not a virus
 ${eicarString}                    X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
@@ -32,7 +32,7 @@ Check AV Plugin Permissions
 
 Check AV Plugin Installed
     check_suldownloader_log_should_not_contain    Failed to install as setcap is not installed
-    File Should Exist   ${CLSPath}
+    File Should Exist   ${CLS_PATH}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -52,11 +52,11 @@ Enable On Access Via Policy
     wait_for_on_access_log_contains_after_mark   On-access scanning enabled  mark=${mark}  timeout=${15}
 
 Check AV Plugin Can Scan Files
-    [Arguments]  ${dirtyFile}=/tmp/dirty_excluded_file
-    Create Temporary File     /tmp/clean_file    ${cleanString}
-    Create Temporary File     ${dirty_file}    ${eicarString}
+    [Arguments]    ${CLSPath}=${CLS_PATH}
+    Create Temporary File    /tmp/clean_file    ${cleanString}
+    Create Temporary File    /tmp/dirty_excluded_file    ${eicarString}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLSPath} /tmp/clean_file ${dirtyFile}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLSPath} /tmp/clean_file /tmp/dirty_excluded_file
     Should Be Equal As Integers  ${rc}  ${virusDetectedResult}
 
 Check On Access Detects Threats
@@ -135,9 +135,40 @@ Threat Detector Log Contains
     ${fileContent}=  Get File  ${AV_DIR}/chroot/log/sophos_threat_detector.log
     Should Contain  ${fileContent}    ${input}
 
+
+EDR Plugin Is Running
+    ${result} =    Run Process  pgrep  edr
+    Should Be Equal As Integers    ${result.rc}    0
+
+Check EDR Osquery Executable Running
+    #Check both osquery instances are running
+    ${result} =    Run Process  pgrep -a osquery | grep plugins/edr | wc -l  shell=true
+    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+
 Check Event Journaler Executable Running
     ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+
+Check Live Response Plugin Running
+    ${result} =    Run Process  pgrep  liveresponse
+    Should Be Equal As Integers    ${result.rc}    0
+
+
+Check Response Actions Executable Running
+    ${result} =    Run Process  pgrep responseactions | wc -w  shell=true
+    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Simulate Response Action
+    [Arguments]    ${action_json_file}    ${id_suffix}=id1    ${sophosInstall}=${SOPHOS_INSTALL}
+    ${tmp_action_file} =   Set Variable  ${sophosInstall}/tmp/action.json
+
+    Copy File   ${action_json_file}  ${tmp_action_file}
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${tmp_action_file}   shell=True
+    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
+    Move File   ${tmp_action_file}  ${sophosInstall}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+
 
 Runtime Detections Plugin Is Running
     ${result} =    Run Process  pgrep  -f  ${rtdBin}
