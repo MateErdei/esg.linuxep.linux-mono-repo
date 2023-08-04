@@ -382,6 +382,7 @@ On Access Doesnt Mount AutoFs Mount
     ${backupdir} =    Set Variable    ${TESTTMP}/backup
     ${backupautomaster} =    Set Variable    ${backupdir}/auto.master
     ${backupfstab} =    Set Variable    ${backupdir}/fstab
+    ${backupexports} =    Set Variable    ${backupdir}/exports
     ${source} =       Set Variable  ${TESTTMP}/data/
     ${destination} =  Set Variable  ${TESTTMP}/mnt/data
 
@@ -392,8 +393,9 @@ On Access Doesnt Mount AutoFs Mount
     Create Directory  ${destination}
 
     Create File     ${source}test.txt    test
-    Create File     ${exports}    ${source} *(rw,no_root_squash,sync)
-    Register Cleanup    Remove File    ${exports}
+    Copy File      ${exports}    ${backupexports}
+    Append To File    ${exports}     ${source} *(rw,no_root_squash,sync)
+    Register Cleanup    Copy File     ${backupexports}    ${exports}
 
     Copy File      ${automaster}    ${backupautomaster}
     Append To File    ${automaster}     /- /etc/auto.mount
