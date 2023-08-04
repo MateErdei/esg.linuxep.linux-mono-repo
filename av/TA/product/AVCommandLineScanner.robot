@@ -1627,7 +1627,7 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sigterm_test_strace.log
-    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/ns/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
@@ -1852,7 +1852,7 @@ AV Scanner stops promptly while trying to connect
 
 
 AV Scanner stops promptly during a scan
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  /run/snapd/ns/  stdout=${LOG_FILE}   stderr=STDOUT
     Wait Until File exists  ${LOG_FILE}
     ${cls_mark} =  Mark Log Size  ${LOG_FILE}
     Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
