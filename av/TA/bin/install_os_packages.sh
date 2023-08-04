@@ -114,7 +114,7 @@ then
         fi
     }
 
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip gdb util-linux nc bzip2 openssl rsync
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip gdb util-linux nc bzip2 openssl rsync autofs
     (( CIFS == 0 )) || yum install -y samba
     (( NTFS == 0 )) || yum install -y ntfs-3g
 elif [[ -x $(which zypper) ]]
@@ -184,7 +184,7 @@ then
         sleep $(( i * 2 ))
     done
 
-    PACKAGES="libcap-progs nfs-kernel-server zip unzip gdb util-linux netcat-openbsd"
+    PACKAGES="libcap-progs nfs-kernel-server zip unzip gdb util-linux netcat-openbsd autofs"
     (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
     (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
 
