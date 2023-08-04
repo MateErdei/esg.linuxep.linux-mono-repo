@@ -638,10 +638,6 @@ function build()
       fi
     fi
 
-    # Report RPATH/RUNPATH for all shipped shared objects.
-    echo "RPATH Report:"
-    find output/SDDS-COMPONENT/ -name "*.so*" | xargs objdump -x | grep PATH
-
     echo "Build Successful"
     return 0
 }
