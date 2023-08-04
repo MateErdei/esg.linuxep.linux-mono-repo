@@ -162,49 +162,45 @@ Override LogConf File as Global Level
     Create File  ${loggerConfPath}  [global]\n${key} = ${logLevel}\n
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    ${handle}=  Start Process  find ${installDir}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/logs -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/bin -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/bin -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/var -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/var -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/etc -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/etc -not -type d | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
 
 Display All SSPL Plugins Files Installed
-    ${handle}=  Start Process  find ${AV_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    ${handle}=  Start Process  find ${installDir}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${PLUGINS_DIR}/mtr -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${EDR_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/plugins/liveresponse -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${LIVERESPONSE_DIR} -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/plugins/eventjournaler | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${EVENTJOURNALER_DIR} | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/plugins/rtd | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${RTD_DIR} | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${PLUGINS_DIR}/heartbeat | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${RESPONSE_ACTIONS_DIR} | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${installDir}/plugins/responseactions | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
