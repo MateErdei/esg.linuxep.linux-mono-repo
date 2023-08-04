@@ -116,6 +116,9 @@ Install all plugins 999 then downgrade to all plugins develop
     # Event journaler logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
 
+    # Edr
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
+
     # Response actions logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
 

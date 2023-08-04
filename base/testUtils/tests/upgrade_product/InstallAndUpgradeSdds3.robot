@@ -369,6 +369,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     # Event journaler logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+    # Edr
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
 
     # Response actions logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
@@ -626,6 +628,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
 
     # Event journaler logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+    # Edr
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
 
     # Response actions logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
