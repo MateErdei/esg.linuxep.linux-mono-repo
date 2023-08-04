@@ -170,10 +170,19 @@ set(OSQUERY_LENSES_DIR ${INPUT}/osquery/opt/osquery/share/osquery/lenses)
 set(SCHEMA_BUILDER_DIR ${CMAKE_SOURCE_DIR}/tools)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so*)
+execute_process(COMMAND chrpath -r \$ORIGIN ${zmqlib} COMMAND_ERROR_IS_FATAL ANY)
+
 set(log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus.so)
+execute_process(COMMAND chrpath -r \$ORIGIN ${log4cpluslib} COMMAND_ERROR_IS_FATAL ANY)
+
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
+execute_process(COMMAND chrpath -r \$ORIGIN ${protobuflib} COMMAND_ERROR_IS_FATAL ANY)
+
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
+execute_process(COMMAND chrpath -r \$ORIGIN ${expatlib} COMMAND_ERROR_IS_FATAL ANY)
+
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libzlib.so*)
+execute_process(COMMAND chrpath -r \$ORIGIN ${zlib} COMMAND_ERROR_IS_FATAL ANY)
 
 
 function(add_imported_library name type location include_directory)
@@ -181,6 +190,7 @@ function(add_imported_library name type location include_directory)
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
     if(${type} STREQUAL SHARED)
         set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+        execute_process(COMMAND chrpath -r \$ORIGIN ${location} COMMAND_ERROR_IS_FATAL ANY)
     endif()
     target_include_directories(${name} INTERFACE ${include_directory})
 endfunction()
@@ -205,23 +215,28 @@ find_library(BOOST_THREAD_LIBRARY
         PATHS ${INPUT}/boost
         NO_DEFAULT_PATH
         )
+execute_process(COMMAND chrpath -r \$ORIGIN ${BOOST_THREAD_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
+
 find_library(JSONCPP_LIBRARY
         NAMES jsoncpp
         PATHS ${INPUT}/jsoncpp
         NO_DEFAULT_PATH
         )
+execute_process(COMMAND chrpath -r \$ORIGIN ${JSONCPP_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 find_library(GLOG_LIBRARY
         NAMES glog
         PATHS ${INPUT}/glog
         NO_DEFAULT_PATH
         )
+execute_process(COMMAND chrpath -r \$ORIGIN ${GLOG_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 find_library(GFLAG_LIBRARY
         NAMES gflags
         PATHS ${INPUT}/gflags
         NO_DEFAULT_PATH
         )
+execute_process(COMMAND chrpath -r \$ORIGIN ${GFLAG_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 set(GTEST_INCLUDE ${GTEST_INPUT}/include)
 set(GTEST_MAIN_LIBRARY ${GTEST_INPUT}/googletest_main.a)
