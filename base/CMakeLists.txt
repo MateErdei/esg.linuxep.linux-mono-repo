@@ -332,7 +332,7 @@ find_library(EXPAT_LIBRARY
         )
 execute_process(COMMAND chrpath -r \$ORIGIN ${EXPAT_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
-execute_process(COMMAND find ${BOOST_INPUT} -name \"*.so*\" -exec chrpath -r $ORIGIN {} \; COMMAND_ERROR_IS_FATAL ANY)
+execute_process(COMMAND find ${BOOST_INPUT} -name *.so -exec chrpath -r $ORIGIN {} \; COMMAND_ERROR_IS_FATAL ANY)
 
 find_library(BOOST_LOCALE
         NAMES locale
