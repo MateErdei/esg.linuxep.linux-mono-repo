@@ -443,17 +443,14 @@ class CloudClient(object):
 
         return self._getItems(response)
 
-    def getReleases(self, expiresFrom):
+    def getReleases(self, expiresFrom="2022-01-01"):
         # Central uses https://api-us01.qa.central.sophos.com/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom=<tomorrow>
-        # For now ignore the expiry so we have something to test
-        if self.api_host is None:
-            url = self.upe_api + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
-            request = urllib.request.Request(url, headers=self.default_headers)
-            response = self.retry_request_url(request)
-        else:
-            url = self.api_host + '/endpoint/v1/software/packages/static?endpointType=server&platform=linux'
-            request = urllib.request.Request(url, headers=self.default_headers)
-            response = request_url(request)
+        url_suffix = f"/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom={expiresFrom}"
+        url = self.upe_api + url_suffix
+        if self.api_host:
+            url = self.api_host + url_suffix
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = request_url(request)
 
         return self._getItems(response)
 

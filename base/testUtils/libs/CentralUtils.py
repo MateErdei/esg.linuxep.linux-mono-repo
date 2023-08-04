@@ -32,8 +32,6 @@ PathManager.addPathToSysPath(PathManager.SUPPORTFILEPATH)
 import CloudAutomation.cloudClient
 import CloudAutomation.SendToFakeCloud
 
-SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
-
 
 def get_install():
     try:
@@ -771,23 +769,11 @@ def check_central_clock():
 
 
 def get_api_options(client_id, client_secret, region, hostname):
-    options = Options()
-    options.wait_for_host = False
-    options.ignore_errors = False
-    options.hostname = hostname
-    options.wait = 30
-    options.client_id = None
-    options.client_secret = None
-    options.email = None
-    options.password = None
-    options.region = region
-    options.proxy = None
-    options.proxy_username = None
-    options.proxy_password = None
-    options.cloud_host = None
-    options.cloud_ip = None
+    options = getOptions()
     options.client_id = client_id
     options.client_secret = client_secret
+    options.region = region
+    options.hostname = hostname
     return options
 
 
@@ -799,8 +785,10 @@ def get_api_client(client_id, client_secret, region, hostname):
 def get_fixed_versions(client_id, client_secret, region, hostname):
     fixed_versions = []
     client = get_api_client(client_id, client_secret, region, hostname)
-    expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
-    fixed_version_dicts = client.getReleases(expiresFrom.strftime("%Y-%m-%d"))
+    # For now do not set the expiry so that we have at least one fixed version to test with
+    #expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
+    #expiresFromStr = expiresFrom.strftime("%Y-%m-%d")
+    fixed_version_dicts = client.getReleases()
     for fixed_version_dict in fixed_version_dicts:
         fixed_versions.append(fixed_version_dict["name"])
     return fixed_versions
