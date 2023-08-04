@@ -46,6 +46,7 @@ namespace SulDownloader
     {
         setupSdds3LibLogger();
     }
+    // m_session and m_repo are re-initialised in synchronize()
     SDDS3Repository::SDDS3Repository(std::unique_ptr<SDDS3::ISusRequester> susRequester) :
         m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{})),
         m_repo(""),

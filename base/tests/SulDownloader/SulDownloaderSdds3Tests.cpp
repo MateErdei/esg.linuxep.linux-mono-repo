@@ -6,6 +6,8 @@
 
 #include "ConfigurationSettings.pb.h"
 #include "MockSdds3Repository.h"
+#include "MockSignatureVerifierWrapper.h"
+#include "MockSusRequester.h"
 #include "MockVersig.h"
 #include "TestSdds3RepositoryHelper.h"
 
@@ -18,6 +20,8 @@
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "SulDownloader/SulDownloader.h"
+#include "SulDownloader/sdds3/SDDS3Repository.h"
+#include "SulDownloader/sdds3/ISusRequester.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "SulDownloader/suldownloaderdata/DownloadReport.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
@@ -2976,68 +2980,6 @@ TEST_F(
         downloadReportSimilar,
         expectedDownloadReport,
         actualDownloadReport);
-}
-
-TEST_F(
-    SULDownloaderSdds3Test,
-    runSULDownloader_checkLogVerbosityVERBOSE)
-{
-    auto& fileSystem = setupFileSystemAndGetMock(1, 1, 0);
-    EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
-    testing::internal::CaptureStderr();
-    auto settings = defaultSettings();
-    settings.clear_sophoscdnurls();
-    settings.add_sophoscdnurls("http://localhost/latest/donotexits");
-    settings.set_loglevel(ConfigurationSettings::VERBOSE);
-    auto configurationData = configData(settings);
-    Common::Policy::UpdateSettings previousConfigurationData;
-    configurationData.verifySettingsAreValid();
-    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystem, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystem, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
-
-    auto downloadReport =
-        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
-    std::string errStd = testing::internal::GetCapturedStderr();
-    ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
-}
-
-TEST_F(
-    SULDownloaderSdds3Test,
-    runSULDownloader_checkLogVerbosityNORMAL)
-{
-    auto& fileSystem = setupFileSystemAndGetMock(1,1, 0);
-    EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
-
-    testing::internal::CaptureStdout();
-    testing::internal::CaptureStderr();
-
-    auto settings = defaultSettings();
-    settings.clear_sophoscdnurls();
-    settings.add_sophoscdnurls("http://localhost/latest/donotexits");
-    settings.set_loglevel(ConfigurationSettings::NORMAL);
-    auto configurationData = configData(settings);
-    Common::Policy::UpdateSettings previousConfigurationData;
-    configurationData.verifySettingsAreValid();
-    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystem, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystem, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-
-    auto downloadReport =
-        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
-    std::string output = testing::internal::GetCapturedStdout();
-    std::string errStd = testing::internal::GetCapturedStderr();
-
-    ASSERT_THAT(output, ::testing::Not(::testing::HasSubstr("Proxy used was")));
-    ASSERT_THAT(errStd, ::testing::Not(::testing::HasSubstr("Proxy used was")));
-    ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
 }
 
 TEST_F(

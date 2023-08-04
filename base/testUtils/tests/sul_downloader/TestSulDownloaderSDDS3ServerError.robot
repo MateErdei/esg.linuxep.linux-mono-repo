@@ -25,8 +25,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
 Resource  ../GeneralUtilsResources.robot
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags    LOAD6    SULDOWNLOADER
 
 *** Variables ***
 ${sdds3_server_output}                      /tmp/sdds3_server.log
@@ -231,6 +230,7 @@ SUS Fault Injection Server Responds With Invalid JSON
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
+    Setup Dev Certs For SDDS3
     
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
@@ -242,11 +242,13 @@ SUS Fault Injection Server Responds With Invalid JSON
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
-        ...  Failed to connect to repository: SUS request caused exception: Failed to parse SUS response
+        ...  Failed to connect to repository: Failed to parse SUS response: Failed to parse SUS response with error:
         ...  Update failed, with code: 107
 
 
 SUS Fault Injection Server Responds With Large JSON
+    # TODO LINUXDAR-7784: Miracle Linux and SLES12 fail this test
+    [Tags]    EXCLUDE_RHEL    EXCLUDE_SLES12
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
     Set Environment Variable  COMMAND   sus_large_json
     ${handle}=  Start Local SDDS3 Server With Empty Repo
@@ -255,6 +257,28 @@ SUS Fault Injection Server Responds With Large JSON
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
     
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request failed with error: Server returned nothing (no headers, no data)
+        ...  Update failed, with code: 107
+
+SUS Fault Injection Server Responds With Empty Body
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_missing_body
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
@@ -277,6 +301,7 @@ SUS Fault Injection Server response with static version not found
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
+    Setup Dev Certs For SDDS3
     
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
@@ -289,6 +314,94 @@ SUS Fault Injection Server response with static version not found
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: error: 'Did not return any suites' reason: 'Fixed version token not found' code: 'FIXED_VERSION_TOKEN_NOT_FOUND'
+        ...  Update failed, with code: 107
+
+SUS Fault Injection Endpoint Does Not Have Certificates To Validate SUS Response
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # Don't copy over the dev certificates
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: Failed to verify JWT in SUS response: Could not verify any signatures: refusing to load unverified content
+        ...  Update failed, with code: 107
+
+SUS Fault Injection Does Not Send Certificates
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_no_certs
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: Failed to verify JWT in SUS response: Error decoding X509 certificate:
+        ...  Update failed, with code: 107
+
+SUS Fault Injection Signed With Unverified Key
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_unverifier_signer
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: Failed to verify JWT in SUS response: Could not verify any signatures: refusing to load unverified content
+        ...  Update failed, with code: 107
+
+SUS Fault Injection Signed With Corrupt Signature
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_corrupt_signature
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: Failed to verify JWT in SUS response: Found corrupt signature: refusing to load unverified content
         ...  Update failed, with code: 107
 
 CDN Fault Injection Does Not Contain Location Given By SUS

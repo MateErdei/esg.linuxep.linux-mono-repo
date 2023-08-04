@@ -2,14 +2,24 @@
 
 #include "SusRequester.h"
 
+#include "ISignatureVerifierWrapper.h"
+#include "Jwt.h"
+#include "JwtVerificationException.h"
 #include "Logger.h"
 #include "SDDS3Utils.h"
+#include "SusResponseParseException.h"
+#include "SusResponseVerificationException.h"
+
+#include "Common/SslImpl/Digest.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <json.hpp>
 #include <utility>
 
-SulDownloader::SDDS3::SusRequester::SusRequester(std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient) :
-    m_httpClient(std::move(httpClient))
+SulDownloader::SDDS3::SusRequester::SusRequester(
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient,
+    std::unique_ptr<ISignatureVerifierWrapper> verifier) :
+    m_httpClient(std::move(httpClient)), verifier_(std::move(verifier))
 {
 }
 
@@ -75,6 +85,7 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
             {
                 // Populate suites and releaseGroups
                 LOGDEBUG("SUS response: " << httpResponse.body);
+                verifySUSResponse(*verifier_, httpResponse);
                 parseSUSResponse(httpResponse.body, susResponse.data);
                 if (susResponse.data.code.empty())
                 {
@@ -127,6 +138,28 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
             susResponse.persistentError = true;
         }
     }
+    // Shouldn't use .what_with_location() here as these errors are sent to Central
+    catch (const JwtVerificationException& ex)
+    {
+        std::stringstream message;
+        message << "Failed to verify JWT in SUS response: " << ex.what();
+        susResponse.error = message.str();
+        susResponse.persistentError = true;
+    }
+    catch (const SusResponseVerificationException& ex)
+    {
+        std::stringstream message;
+        message << "Failed to verify SUS response: " << ex.what();
+        susResponse.error = message.str();
+        susResponse.persistentError = true;
+    }
+    catch (const SusResponseParseException& ex)
+    {
+        std::stringstream message;
+        message << "Failed to parse SUS response: " << ex.what();
+        susResponse.error = message.str();
+        susResponse.persistentError = true;
+    }
     catch (const std::exception& ex)
     {
         std::stringstream message;
@@ -135,6 +168,54 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
         susResponse.persistentError = true;
     }
     return susResponse;
+}
+
+// Based on
+// esg.em.esg/products/windows_endpoint/protection/sau/SDDSDownloader/SDDS3DownloaderLogic.cpp:verify_service_response
+void SulDownloader::SDDS3::SusRequester::verifySUSResponse(
+    const ISignatureVerifierWrapper& verifier,
+    const Common::HttpRequests::Response& response)
+{
+    bool hasFound = false;
+    std::string xContentSignature;
+    for (const auto& [key, value] : response.headers)
+    {
+        // Headers are case-insensitive, so handle that
+        // Real SUS sends the header as 'x-content-signature'
+        std::string nameCopy = key; // Need to copy the key as toLower does the conversion in-place
+        if (Common::UtilityImpl::StringUtils::toLower(nameCopy) == "x-content-signature")
+        {
+            xContentSignature = response.headers.at(key);
+            hasFound = true;
+        }
+    }
+    if (!hasFound || xContentSignature.empty())
+    {
+        throw SusResponseVerificationException(LOCATION, "SUS response does not have X-Content-Signature");
+    }
+
+    const auto payload = verifyAndLoadJwtPayload(verifier, xContentSignature);
+
+    const auto& body = response.body;
+
+    // Enforce 'size'
+    if (!payload.contains("size") || payload["size"].type() != nlohmann::json::value_t::number_unsigned ||
+        payload["size"] != body.size())
+    {
+        throw SusResponseVerificationException(
+            LOCATION, "Malformed SUS response: size mismatch (actual size: " + std::to_string(body.size()) + ")");
+    }
+
+    // Enforce 'sha256'
+    auto responseSha256 = Common::SslImpl::calculateDigest(Common::SslImpl::Digest::sha256, body);
+    if (!payload.contains("sha256") || payload["sha256"].type() != nlohmann::json::value_t::string ||
+        payload["sha256"] != responseSha256)
+    {
+        throw SusResponseVerificationException(
+            "Malformed SUS response: sha256 mismatch (actual hash: " + responseSha256 + ")");
+    }
+
+    // TODO LINUXDAR-7772: timestamp verification
 }
 
 void SulDownloader::SDDS3::SusRequester::parseSUSResponse(const std::string& response, SusData& data)
@@ -175,11 +256,11 @@ void SulDownloader::SDDS3::SusRequester::parseSUSResponse(const std::string& res
             data.reason = json["reason"];
         }
     }
-    catch (const std::exception& exception)
+    catch (const nlohmann::json::exception& exception)
     {
         std::stringstream errorMessage;
         errorMessage << "Failed to parse SUS response with error: " << exception.what()
                      << ", JSON content: " << response;
-        std::throw_with_nested(std::runtime_error(errorMessage.str()));
+        std::throw_with_nested(SusResponseParseException(LOCATION, errorMessage.str()));
     }
 }

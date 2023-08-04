@@ -172,8 +172,12 @@ class ThinInstallerUtils(object):
                                               update_caches=None,
                                               args=None,
                                               mcs_ca=None,
-                                              force_certs_dir=None,
+                                              force_certs_dir="default",
                                               thininstaller_source=None):
+        # Use the cert override to pass in the dev cert
+        if force_certs_dir == "default":
+            force_certs_dir = os.path.join(PathManager.get_support_file_path(), "dev_certs")
+
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")

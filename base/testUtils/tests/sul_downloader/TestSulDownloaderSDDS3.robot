@@ -89,6 +89,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
+    Setup Dev Certs For SDDS3
     
     Register With Local Cloud Server
     Wait Until Keyword Succeeds

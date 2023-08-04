@@ -23,6 +23,7 @@ Resource    ../telemetry/TelemetryResources.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    UpgradeResources.robot
 Resource    ../GeneralUtilsResources.robot
+Resource    ../sul_downloader/SulDownloaderResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
@@ -60,6 +61,7 @@ Sul Downloader fails update if expected product missing from SUS
     Require Fresh Install
     Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Create Local SDDS3 Override
+    Setup Dev Certs For SDDS3
 
     Register With Local Cloud Server
 

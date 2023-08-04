@@ -10,12 +10,18 @@ add_library(suldownloaderimplobject OBJECT
         sdds3/SDDS3Utils.cpp
         sdds3/SDDS3Utils.h
         sdds3/ISdds3Wrapper.h
+        sdds3/ISignatureVerifierWrapper.h
         sdds3/ISusRequester.h
         sdds3/Sdds3Wrapper.h
         sdds3/Sdds3Wrapper.cpp
+        sdds3/SignatureVerifierWrapper.cpp
+        sdds3/SignatureVerifierWrapper.h
         sdds3/SusRequestParameters.h
         sdds3/SusRequester.h
         sdds3/SusRequester.cpp
+        sdds3/Jwt.h
+        sdds3/Jwt.cpp
+        sdds3/JwtVerificationException.h
         sdds3/Logger.h
         sdds3/Logger.cpp
         SULDownloader.cpp

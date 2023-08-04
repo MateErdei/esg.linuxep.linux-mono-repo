@@ -73,7 +73,8 @@ def get_cert(content):
     cert = cert.replace('\n', '')
     return cert
 
-def get_signature(data: bytes):
+
+def get_signature(data: bytes, private_key: str):
     """
     Use openssl to generate a signature for input data.
     """
@@ -83,7 +84,7 @@ def get_signature(data: bytes):
         with open(tmpfile, 'wb') as f:
             f.write(data)
         with open(tmpcertfile, 'w') as f:
-            f.write(PRIVATE_KEY)
+            f.write(private_key)
         try:
             result = subprocess.run([
                 'openssl',
@@ -98,6 +99,7 @@ def get_signature(data: bytes):
         except subprocess.CalledProcessError as e:
             raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         return base64.b64encode(result.stdout).decode()
+
 
 INT_CERT = """
 MIIDozCCAougAwIBAgIBNjANBgkqhkiG9w0BAQwFADCBjzEnMCUGA1UEAwweU29w
@@ -143,7 +145,7 @@ HD9eoMjRMdsOaZPcX4QLAxzRsbln31gA+U5HaZzbzWpx1sKhxT4jNFE2rjRkuLPB
 SkMH5+l6g2pW3v/bfROdrE4r6i6AYBsqOIes2yJftyWzCNhPQ/gtGC82aNgacoDv
 9Hfe7YzJjXh61dVgD/gZcRkOs0O3Xw==
 """
-PRIVATE_KEY="""
+PRIVATE_KEY = """
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAuR9/zPbhwh/aqGR9FzsoMFNeHlpvBUuMIbMDeiSalAnL7d6d
 r9Gu37AKEsBByK/62ByvLS3KarGGCkzBh7M2+KBlY2wi6tXAEjVpcMHati+LXSel
@@ -172,14 +174,47 @@ bIzgYmUHyt59sOMDghfPS2BklBmcFZwjIMSJ+joOuXxrMpwSCIFkfJYyxqw9R812
 4o8o8CKOvH0jgncQYmUClkmoZw7AigjYyeRBgABwZV6dxcseibbw
 -----END RSA PRIVATE KEY-----
 """
-dictOfRequests ={}
+dictOfRequests = {}
 
-def sign_response(data):
+
+# Private key created using `openssl genrsa -out key.pem 2048`
+FAULT_INJECTION_PRIVATE_KEY = """
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAuR9/zPbhwh/aqGR9FzsoMFNeHlpvBUuMIbMDeiSalAnL7d6d
+r9Gu37AKEsBByK/62ByvLS3KarGGCkzBh7M2+KBlY2wi6tXAEjVpcMHati+LXSel
+kuwsdJtQSta1zVu/bG1wdJuGUUBwNDZvs/skJgJUp+gnvaqPfA1qSkXFV4JivnxZ
+pKTB7TkmpdQFXoLyLBtLd0dxrq95t1cHVxGXc4JP3ojuruFdRyk8KXwiQx2Thyhx
+UpFbglXULY6dwE1FNtBIOn/TGFA6jNRZrFp83pzHISR5AdD3vY4m5w4zBOuEWjwI
+O0uvMIJ49uwQnLspaxodFV0/bHaXQP8S14bILQIDAQABAoIBAQCgmgstriE9YJU5
+8bP0K4Y6JplIi/w1A82Wjs89b/QK6lTZEICMv8SOmxKiIdjwWnuscXYoI8mvtkMr
+PFvJdlkCaWSMVIwWX0o6gcvv3r33wFePgY3LYMlQgE2wH4Wpmyb+0hL1ltd4Ngch
+xPgzlHVP5EW9RVL04LuKS7kiplUGDMYASIdJJHQi0mJGefx4et8elxEfJ+URRjSA
+8ytChGUlBLXAxwep7BzBRiwyTm0t6T0tWYtgxR6zrmB2P1s3LnIkhpXZa0V6zZdi
+4aI4RPbfvTb+AQQhiFJIrnbDyT2/CN3yK+of7wVmaiw8Tg/HtHf6w2DQYJ6GSFXn
+HdHFzJuhAoGBAN4fc+7V3ys8P85N+nFxA0jyYniTqDxXydHS1wcsEl+Y45lCb+vf
+kPNWDvpXJ7rMGEpQzOwlP1eyAPwif8ftYeepE6w9SfDjo7pWyiNgcJ+RdCrIeCLX
+kibv+drLDAwDUDiEGd6i79S4n2W72/MQm/vRN+ASncFFhXvtf1oLWFXnAoGBANVb
+bax3VRuchVXIJMargvDUCxi91NxBMqRwOevTnKqumBvpYHlsD0tMwyuO/raC17Sr
+Nv3ojet/AnIVXFhxJsIAmphQoTHSCPTYKj9mt3mliQtP4lJ6u1vEUY2fBCBpyPv2
+8KaIuHmVdkfBhLJJkntyEMwRi87OxJoob/DUZsbLAoGANjmZdMHTZFul+/g/XnhH
+ZASAE42AcZLA2y9MfRy+M4ZAccatSfjfCviEWYrzUP/IIkRNcoy5RPBYmzTU2vrR
+fttgyRiBN4RrEO9lE3PUqq+4m0UrRt43eLf21/nfrAMXD2T4Z8iBIf4cM5rD3De+
+zJ/LszD4QBl3t8RH5bSFURsCgYBpkRp8CnOO/OwwXJ5turFITfLLpCntbUkMegb+
+u665+TeEH/4/Ngt/O5UaOV+omKb4WvsTuPx3uFlSb2VI0XvW5AuaL9MCXqVV2JtW
+0ZEY3KIpebZHDzkjF8kuZK7bBtyOZ0n9bIqyhhSHPqZUvPiAohjTkB74DfDTQgzZ
+QY807wKBgB2QmOvHUFUhFA2218I0uAl4YstzxMgRG7+/Nsd7TCu0gxDWLW6xDGgd
+bIzgYmUHyt59sOMDghfPS2BklBmcFZwjIMSJ+joOuXxrMpwSCIFkfJYyxqw9R812
+4o8o8CKOvH0jgncQYmUClkmoZw7AigjYyeRBgABwZV6dxcseibbw
+-----END RSA PRIVATE KEY-----
+"""
+
+
+def sign_response(data, certs=[get_cert(SIG_CERT), get_cert(INT_CERT)], private_key=PRIVATE_KEY, sig=None):
     """Generate a JWT-format signature for the content"""
     header = json_b64u_encode({
         'typ': 'JWT',
         'alg': 'RS384',
-        'x5c': [get_cert(SIG_CERT), get_cert(INT_CERT)],
+        'x5c': certs,
     })
 
     iat = datetime.datetime.utcnow()
@@ -194,7 +229,8 @@ def sign_response(data):
     })
 
     sign_data = header + b'.' + payload
-    sig = get_signature(sign_data)
+    if not sig:
+        sig = get_signature(sign_data, private_key)
     return (sign_data + b'.' + b64u_encode(base64.b64decode(sig))).decode('utf-8')
 
 
@@ -248,7 +284,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
                     self.end_headers()
                     return None
             except OSError:
-                pass # Will be handled by do_GET below
+                pass  # Will be handled by do_GET below
 
         return SimpleHTTPRequestHandler.do_GET(self)
 
@@ -299,36 +335,47 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         """Read the SUS request from the client, and log it
         Return either mock_sus_response_winep.json or mock_sus_response_winsrv.json"""
 
-        if os.environ.get("COMMAND") == "sus_hang":
-            self.sus_hang()
-        elif os.environ.get("COMMAND") == "sus_invalid_json":
-            self.sus_invalid_json()
-        elif os.environ.get("COMMAND") == "sus_large_json":
-            self.sus_large_json()
-        elif os.environ.get("COMMAND") == "sus_401":
-            self.sus_http_code(401)
-        elif os.environ.get("COMMAND") == "sus_404":
-            self.sus_http_code(404)
-        elif os.environ.get("COMMAND") == "sus_500":
-            self.sus_http_code(500)
-        elif os.environ.get("COMMAND") == "sus_503":
-            self.sus_http_code(503)
-        else:
-            request_body = self.rfile.read(int(self.headers['Content-Length']))
-            self.log_message('Received SUS request: %s', request_body)
+        try:
+            if os.environ.get("COMMAND") == "sus_hang":
+                self.sus_hang()
+            elif os.environ.get("COMMAND") == "sus_invalid_json":
+                self.sus_invalid_json()
+            elif os.environ.get("COMMAND") == "sus_large_json":
+                self.sus_large_json()
+            elif os.environ.get("COMMAND") == "sus_missing_body":
+                self.sus_missing_body()
+            elif os.environ.get("COMMAND") == "sus_no_certs":
+                self.sus_no_certs()
+            elif os.environ.get("COMMAND") == "sus_unverifier_signer":
+                self.sus_unverifier_signer()
+            elif os.environ.get("COMMAND") == "sus_corrupt_signature":
+                self.sus_corrupt_signature()
+            elif os.environ.get("COMMAND") == "sus_401":
+                self.sus_http_code(401)
+            elif os.environ.get("COMMAND") == "sus_404":
+                self.sus_http_code(404)
+            elif os.environ.get("COMMAND") == "sus_500":
+                self.sus_http_code(500)
+            elif os.environ.get("COMMAND") == "sus_503":
+                self.sus_http_code(503)
+            else:
+                request_body = self.rfile.read(int(self.headers['Content-Length']))
+                self.log_message('Received SUS request: %s', request_body)
 
-            doc = json.loads(request_body)
-            if 'product' not in doc:
-                self.send_error(HTTPStatus.BAD_REQUEST, "Product not specified :-(")
-                return
+                doc = json.loads(request_body)
+                if 'product' not in doc:
+                    self.send_error(HTTPStatus.BAD_REQUEST, "Product not specified :-(")
+                    return
 
-            if self.mode == 'launchdarkly':
-                self.log_message('launchdarkly')
-                self.respond_launchdarkly(doc)
-                return
+                if self.mode == 'launchdarkly':
+                    self.log_message('launchdarkly')
+                    self.respond_launchdarkly(doc)
+                    return
 
-            self.log_message('respond_mock_sus')
-            self.respond_mock_sus(doc)
+                self.log_message('respond_mock_sus')
+                self.respond_mock_sus(doc)
+        except Exception as ex:
+            self.log_message(traceback.format_exc())
 
     def respond_mock_sus(self, doc):
         product = doc['product']
@@ -463,27 +510,81 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.log_message('SUS POST request finished and will not send a response')
 
     def sus_invalid_json(self):
-        response = "this is not { json }"
+        response = "this is not { json }".encode('utf-8')
         self.log_message(f"Responding to SUS POST request with invalid JSON payload")
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(response))
+        self.send_header("X-Content-Signature", sign_response(response))
         self.end_headers()
-        self.wfile.write(response.encode('utf-8'))
+        self.wfile.write(response)
 
     def sus_large_json(self):
-        arbitrary_data_array = ["some data"] * 10000
+        arbitrary_data_array = ["some data"] * 100000000
 
         response = json.dumps({
             'suites': arbitrary_data_array,
             'release-groups': ['0'],
         }).encode('utf-8')
-        self.log_message(f"Responding to SUS POST request with invalid JSON payload")
+        self.log_message(f"Responding to SUS POST request with large JSON payload")
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(response))
+        self.send_header("X-Content-Signature", sign_response(response))
         self.end_headers()
-        self.wfile.write(response.encode('utf-8'))
+        self.wfile.write(response)
+
+    def sus_missing_body(self):
+        response = json.dumps({
+            "suites": ["suite"],
+            "release-groups": ["0"],
+        }).encode("utf-8")
+        self.log_message(f"Responding to SUS POST request with missing body payload")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", len(response))
+        self.send_header("X-Content-Signature", sign_response(response))
+        self.end_headers()
+        # no data written
+
+    def sus_no_certs(self):
+        response = json.dumps({
+            "suites": ["suite"],
+            "release-groups": ["0"],
+        }).encode("utf-8")
+        self.log_message(f"Responding to SUS POST request with payload without certs")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", len(response))
+        self.send_header("X-Content-Signature", sign_response(response, certs=[]))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def sus_unverifier_signer(self):
+        response = json.dumps({
+            "suites": ["suite"],
+            "release-groups": ["0"],
+        }).encode("utf-8")
+        self.log_message(f"Responding to SUS POST request with unverified signature")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", len(response))
+        self.send_header("X-Content-Signature", sign_response(response, private_key=FAULT_INJECTION_PRIVATE_KEY))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def sus_corrupt_signature(self):
+        response = json.dumps({
+            "suites": ["suite"],
+            "release-groups": ["0"],
+        }).encode("utf-8")
+        self.log_message(f"Responding to SUS POST request with corrupt signature")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", len(response))
+        self.send_header("X-Content-Signature", sign_response(response, sig="foo="))
+        self.end_headers()
+        self.wfile.write(response)
 
     def sus_http_code(self, http_code):
         self.log_message(f"Responding to SUS POST request with {http_code}")

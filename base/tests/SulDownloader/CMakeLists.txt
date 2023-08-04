@@ -9,6 +9,7 @@ add_executable(SulDownloaderTests
         TestSDDS3Utils.cpp
         MockSdds3Repository.h
         MockSdds3Wrapper.h
+        MockSignatureVerifierWrapper.h
         MockSusRequester.h
         SulDownloaderSdds3Tests.cpp
         TestDownloadReport.cpp
@@ -35,6 +36,7 @@ target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
         ${GSL_INCLUDE}
         ${SOPHLIB_INCLUDE}
         ${CMAKE_BINARY_DIR}/modules/Common/Policy
+        ${NLOHMANN_JSON_INCLUDE_DIR}
         )
 
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}"
