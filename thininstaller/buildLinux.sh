@@ -18,6 +18,8 @@ INSTALLER_HEADER=installer_header.sh
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 export NO_REMOVE_GCC=1
+TARGET=
+VAGRANT=0
 
 while [[ $# -ge 1 ]]
 do
@@ -35,6 +37,13 @@ do
         --ci)
             NO_UNPACK=
             NO_BUILD=0
+            ;;
+        --combine|--target)
+            shift
+            TARGET=$1
+            ;;
+        --vagrant)
+            VAGRANT=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -190,8 +199,20 @@ function build()
     mv installer.tar.gz "${sha256}.tar.gz"
     echo "{\"name\": \"${sha256}\"}" > latest.json
     rm manifest.dat
+
+    if [[ -n "$TARGET" ]]
+    then
+        echo "Combine ${output_install_script} with $TARGET"
+        bash $BASE/test/extractAndCombineThinInstallers.sh "$TARGET" "${output_install_script}"
+    fi
+
     rm ${output_install_script}
     popd
+
+    if (( VAGRANT == 1 ))
+    then
+        ../esg.linuxep.sspl-tools/vagrant rsync
+    fi
 
     echo "Build completed"
 }
