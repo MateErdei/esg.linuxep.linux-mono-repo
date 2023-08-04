@@ -3,6 +3,7 @@ Library    Collections
 Library    OperatingSystem
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LiveQueryUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
@@ -12,17 +13,22 @@ Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
+Resource    ../GeneralUtilsResources.robot
 Resource    ../av_plugin/AVResources.robot
+Resource    ../edr_plugin/EDRResources.robot
 Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../installer/InstallerResources.robot
+Resource    ../liveresponse_plugin/LiveResponseResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
+Resource    ../ra_plugin/ResponseActionsResources.robot
 Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../telemetry/TelemetryResources.robot
 Resource    ../watchdog/LogControlResources.robot
+
 Resource    UpgradeResources.robot
-Resource    ../GeneralUtilsResources.robot
+
 Resource    ../sul_downloader/SulDownloaderResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
@@ -35,6 +41,8 @@ Test Timeout  10 mins
 Force Tags  LOAD9
 
 *** Variables ***
+${CUSTOM_INSTALL_DIRECTORY}    /etc/sophos-spl
+
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderSyncLog}                     ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
@@ -713,11 +721,11 @@ SDDS3 updating respects ALC feature codes
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
     #core plugins should be installed
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
     #other plugins should be uninstalled
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/av
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
 
     check_log_does_not_contain_after_mark    ${SULDOWNLOADER_LOG_PATH}    Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/    ${sul_mark}
 
@@ -737,6 +745,7 @@ SDDS3 updating respects ALC feature codes
 
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
+    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
 
 SDDS3 updating with changed unused feature codes do not change version
     Start Local Cloud Server
@@ -847,6 +856,170 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     ${scheduled_query_pack_mtr} =         Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     ${scheduled_query_pack_next_mtr} =    Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
+
+
+SPL Can Be Installed To A Custom Location
+    [Tags]    CUSTOM_INSTALL_PATH
+    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
+
+    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
+    Start Local SDDS3 Server
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  15 secs
+    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    SHS Status File Contains    ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+    # Confirm that the warehouse flags supplement is installed
+    file_exists_with_permissions    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
+    check_watchdog_service_file_has_correct_kill_mode
+
+    check_custom_install_is_set_in_plugin_registry_files    ${CUSTOM_INSTALL_DIRECTORY}
+
+    # Basic Installion Checks
+    Should Exist    ${CUSTOM_INSTALL_DIRECTORY}
+    check_correct_mcs_password_and_id_for_local_cloud_saved    ${CUSTOM_INSTALL_DIRECTORY}/base/etc/sophosspl/mcs.config
+    ${result}=  Run Process  stat  -c  "%A"  /etc
+    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
+    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+
+    Check Watchdog Running
+    Check Management Agent Running
+    Check Update Scheduler Running
+    Check Telemetry Scheduler Is Running
+    Check MCS Router Running    ${CUSTOM_INSTALL_DIRECTORY}
+
+    # Checks for AV Plugin
+    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
+    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Enable On Access Via Policy
+    Check On Access Detects Threats
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    # Threat health returns to good after threat is cleaned up
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+
+#TODO LINUXDAR-7773 alter policy to install all plugins
+#    # Checks for EDR
+#    EDR Plugin Is Running
+#    Check EDR Osquery Executable Running
+#    File Should Exist    ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr/bin/edr
+#    File Should Exist    ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr/etc/osquery.conf.d/options.conf
+#    Wait Until Keyword Succeeds
+#    ...  30 secs
+#    ...  1 secs
+#    ...  check_log_contains    Completed initialisation of EDR    ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr/log/edr.log   edr_log
+
+#    run_live_query  select * from sophos_detections_journal   simple
+#    Wait Until Keyword Succeeds
+#    ...  30 secs
+#    ...  2 secs
+#    ...  check_log_contains_string_n_times   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr/log/livequery.log   livequery_log  Successfully executed query  1
+#    Wait Until Keyword Succeeds
+#    ...  10 secs
+#    ...  2 secs
+#    ...  check_log_contains   "errorCode":0    ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr/log/livequery.log   livequery_log
+    # Checks for Event Journaler
+    Check Event Journaler Executable Running
+#TODO LINUXDAR-7773 alter policy to install all plugins
+#    # Checks for Live Response
+#    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse/bin/sophos-live-terminal
+#    Wait Until Keyword Succeeds
+#    ...  15 secs
+#    ...  1 secs
+#    ...  Check Live Response Plugin Running
+#    Wait Until Keyword Succeeds
+#    ...  15 secs
+#    ...  1 secs
+#    ...  check_log_contains   liveresponse <> Entering the main loop    ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse/log/liveresponse.log  liveresponse_log
+#
+#    # Checks for Response Actions
+#    Check Response Actions Executable Running
+#    Wait Until Keyword Succeeds
+#    ...  30 secs
+#    ...  1 secs
+#    ...  check_log_contains   Entering the main loop    ${CUSTOM_INSTALL_DIRECTORY}/plugins/responseactions/log/responseactions.log    responseactions_log
+#    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction.json
+#    Wait Until Keyword Succeeds
+#    ...  30 secs
+#    ...  1 secs
+#    ...  check_log_contains   Performing run command action    ${CUSTOM_INSTALL_DIRECTORY}/plugins/responseactions/log/responseactions.log    responseactions_log
+#    Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json
+#    Wait Until Keyword Succeeds
+#    ...  60 secs
+#    ...  2 secs
+#    ...  check_log_contains   Action id1 has succeeded    ${CUSTOM_INSTALL_DIRECTORY}/plugins/responseactions/log/responseactions.log    responseactions_log
+
+    # TODO LINUXDAR-7773 add Checks for RTD
+
+    Directory Should Not Exist    /opt/sophos-spl
+    check_all_product_logs_do_not_contain_error
+    check_all_product_logs_do_not_contain_critical
+
+Installing New Plugins Respects Custom Installation Location
+    [Tags]    CUSTOM_INSTALL_PATH
+    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
+
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
+    Start Local SDDS3 Server
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   check_log_contains   Update success    ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log    suldownloader_log
+
+    #core plugins should be installed
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/eventjournaler
+    #other plugins should be uninstalled
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
+
+    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   5 secs
+    ...   File Should Contain    ${CUSTOM_INSTALL_DIRECTORY}/base/update/var/updatescheduler/update_config.json    AV
+    ${sul_mark} =  mark_log_size  ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log
+    trigger_update_now
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
+
+    # Checks for AV Plugin
+    File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
+    Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Enable On Access Via Policy
+    Check On Access Detects Threats
+
+    # Threat health returns to good after threat is cleaned up
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
+    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
 
 
 *** Keywords ***

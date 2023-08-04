@@ -638,7 +638,7 @@ class MCSRouter(object):
         conn.getresponse()
         conn.close()
 
-    def send_policy_file(self, policy_type, policy_path, wait_for_policy=False):
+    def send_policy_file(self, policy_type, policy_path, wait_for_policy=False, install_dir=None):
         f = open(policy_path, 'r')
         policy_contents = f.read()
         self.send_policy(policy_type, policy_contents)
@@ -646,7 +646,7 @@ class MCSRouter(object):
             timeout = 20
             for i in range(timeout):
                 try:
-                    self.check_policy_written("ALC-1_policy.xml", policy_contents)
+                    self.check_policy_written("ALC-1_policy.xml", policy_contents, install_dir)
                     return
                 except Exception:
                     pass
@@ -672,8 +672,9 @@ class MCSRouter(object):
         data = DUMMY_ALC_POLICY
         self.send_policy("alc", data)
 
-    def check_policy_written(self, expected_policy_name, expectedContent):
-        alc_policy = os.path.join(self.mcs_dir, "policy", expected_policy_name)
+    def check_policy_written(self, expected_policy_name, expectedContent, install_dir=None):
+        mcs_dir = os.path.join(install_dir, "base", "mcs") if install_dir else self.mcs_dir
+        alc_policy = os.path.join(mcs_dir, "policy", expected_policy_name)
         if os.path.exists(alc_policy):
             with open(alc_policy, "r") as f:
                 contents = f.read()

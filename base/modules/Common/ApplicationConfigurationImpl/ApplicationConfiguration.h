@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -25,6 +21,7 @@ namespace Common
             std::string getData(const std::string& key) const override;
 
             void setData(const std::string& key, const std::string& data) override;
+            void clearData(const std::string& key) override;
 
         private:
             configuration_data_t m_configurationData;

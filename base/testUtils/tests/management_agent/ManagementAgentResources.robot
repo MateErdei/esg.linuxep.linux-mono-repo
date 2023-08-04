@@ -144,8 +144,8 @@ Require Watchdog Running
     ...  Check Watchdog Running
 
 SHS Status File Contains
-    [Arguments]  ${content_to_contain}
-    ${shsStatus} =  Get File   ${SHS_STATUS_FILE}
+    [Arguments]  ${content_to_contain}    ${shsStatusFile}=${SHS_STATUS_FILE}
+    ${shsStatus} =  Get File   ${shsStatusFile}
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
 

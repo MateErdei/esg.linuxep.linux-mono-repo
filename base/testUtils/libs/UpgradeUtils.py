@@ -3,6 +3,7 @@
 # All rights reserved.
 
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -181,3 +182,21 @@ def copy_files_and_folders_from_within_source_folder(src, dest, recreate_dest=0)
         os.makedirs(dest)
 
     subprocess.call("cp -r {}/* {}".format(src, dest), shell=True)
+
+
+def check_custom_install_is_set_in_plugin_registry_files(install_path):
+    excluded_registry_files = ["sdu.json", "mcsrouter.json", "managementagent.json",
+                               "updatescheduler.json", "tscheduler.json"]
+    expected_env_vars = [{'name': 'SOPHOS_INSTALL', 'value': install_path}]
+
+    for (dirpath, dirnames, filenames) in os.walk(f"{install_path}/base/pluginRegistry"):
+        for file in filenames:
+            if file in excluded_registry_files:
+                continue
+
+            with open(os.path.join(dirpath, file)) as registry_file:
+                content = json.loads(registry_file.read())
+
+                if content.get("environmentVariables") != expected_env_vars:
+                    raise AssertionError(f"Custom SPL install path is not set correctly in {file} plugin registry file. Contents: {content}")
+

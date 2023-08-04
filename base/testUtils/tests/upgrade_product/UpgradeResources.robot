@@ -34,17 +34,18 @@ ${staticflagfile}                               linuxep.json
 
 *** Keywords ***
 Upgrade Resources SDDS3 Test Teardown
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Stop Local SDDS3 Server
-    Upgrade Resources Test Teardown
+    Upgrade Resources Test Teardown    installDir=${installDir}
 
 Upgrade Resources Test Teardown
-    [Arguments]  ${UninstallAudit}=True
+    [Arguments]  ${UninstallAudit}=True    ${installDir}=${SOPHOS_INSTALL}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Run Keyword If Test Failed    Log XDR Intermediary File
-    General Test Teardown
+    General Test Teardown    ${installDir}
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword If Test Failed    Log Status Of Sophos Spl
-    Run Keyword If Test Failed    Dump Teardown Log    ${SOPHOS_INSTALL}/base/update/var/config.json
+    Run Keyword If Test Failed    Dump Teardown Log    ${installDir}/base/update/var/config.json
     Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
     Remove File  /tmp/preserve-sul-downgrade
     Stop Local Cloud Server

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ApplicationConfiguration.h"
 
@@ -69,6 +65,11 @@ namespace Common
         void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
         {
             m_configurationData[key] = data;
+        }
+
+        void ApplicationConfiguration::clearData(const std::string& key)
+        {
+            m_configurationData.erase(key);
         }
     } // namespace ApplicationConfigurationImpl
 

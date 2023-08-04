@@ -113,9 +113,10 @@ Generate Local Fake Cloud Certificates
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
 Check MCS Router Running
+    [Arguments]    ${logs_location}=${SOPHOS_INSTALL}
     ${pid} =  Check MCS Router Process Running  require_running=True
 
-    Wait Until Created   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  timeout=5 secs
+    Wait Until Created   ${logs_location}/logs/base/sophosspl/mcsrouter.log  timeout=5 secs
     [return]  ${pid}
 
 Check MCS Router Not Running

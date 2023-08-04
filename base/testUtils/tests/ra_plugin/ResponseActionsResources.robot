@@ -118,13 +118,13 @@ RA Run Command Suite Setup
 
 
 Simulate Response Action
-    [Arguments]    ${action_json_file}    ${id_suffix}=id1
-    ${tmp_action_file} =   Set Variable  ${SOPHOS_INSTALL}/tmp/action.json
+    [Arguments]    ${action_json_file}    ${id_suffix}=id1    ${sophosInstall}=${SOPHOS_INSTALL}
+    ${tmp_action_file} =   Set Variable  ${sophosInstall}/tmp/action.json
 
     Copy File   ${action_json_file}  ${tmp_action_file}
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${tmp_action_file}   shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${tmp_action_file}  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+    Move File   ${tmp_action_file}  ${sophosInstall}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 
 Require Filesystem

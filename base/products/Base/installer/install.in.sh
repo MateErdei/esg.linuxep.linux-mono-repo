@@ -29,10 +29,10 @@ then
     SCRIPTDIR=${STARTINGDIR}
 fi
 
-ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+ABS_SCRIPTDIR=$(cd "${SCRIPTDIR}" && pwd)
 
-source $ABS_SCRIPTDIR/cleanupinstall.sh
-source $ABS_SCRIPTDIR/checkAndRunExtraUpgrade.sh
+source "${ABS_SCRIPTDIR}/cleanupinstall.sh"
+source "${ABS_SCRIPTDIR}/checkAndRunExtraUpgrade.sh"
 
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
@@ -259,17 +259,17 @@ function makedir()
 
 function makeRootDirectory()
 {
-    local install_path=${SOPHOS_INSTALL%/*}
+    local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [ -z $install_path ]
+    if [ -z "${install_path}" ]
     then
         install_path="/"
     fi
 
-    while [ ! -z $install_path ] && [ ! -d ${install_path} ]
+    while [ -n "${install_path}" ] && [ ! -d "${install_path}" ]
     do
-        install_path=${install_path%/*}
+        install_path="${install_path%/*}"
     done
 
     local createDirs=${SOPHOS_INSTALL#$install_path/}
@@ -281,11 +281,11 @@ function makeRootDirectory()
     fi
 
     #Iterate through directories giving minimum execute permissions to allow sophos-spl user to run executables
-    while [[ ! -z "$createDirs" ]]
+    while [[ -n "$createDirs" ]]
     do
         currentDir=${createDirs%%/*}
-        install_path="$install_path/$currentDir"
-        makedir 711 $install_path
+        install_path="${install_path}/${currentDir}"
+        makedir 711 "${install_path}"
         createDirs=${createDirs#$currentDir/}
     done
 }
@@ -298,7 +298,7 @@ fi
 
 function build_version_less_than_system_version()
 {
-    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
+    test "$(printf '%s\n' ${BUILD_LIBC_VERSION} "${system_libc_version}" | sort -V | head -n 1)" != ${BUILD_LIBC_VERSION}
 }
 
 function add_group()
@@ -551,7 +551,7 @@ add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
-check_for_upgrade "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
+check_for_upgrade "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} "${DIST}"
 
 # Var directories
 makedir 711 "${SOPHOS_INSTALL}/var"
@@ -724,9 +724,9 @@ makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports"
 
 if [[ -d "${SOPHOS_INSTALL}/base/update/var/processedReports" ]]
 then
-  mv ${SOPHOS_INSTALL}/base/update/var/processedReports/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/ 2>&1 > /dev/null
-  mv ${SOPHOS_INSTALL}/base/update/var/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/ 2>&1 > /dev/null
-  rm -rf ${SOPHOS_INSTALL}/base/update/var/processedReports
+  mv "${SOPHOS_INSTALL}"/base/update/var/processedReports/update_report*.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/" 2>&1 > /dev/null
+  mv "${SOPHOS_INSTALL}"/base/update/var/update_report*.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/" 2>&1 > /dev/null
+  rm -rf "${SOPHOS_INSTALL}/base/update/var/processedReports"
 fi
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 
@@ -849,7 +849,7 @@ CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat" "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
-generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
+generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID}
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
@@ -864,10 +864,10 @@ then
 fi
 
 # create a directory which will be used by 3rd party applications with execute permissions for all.
-makedir 711 ${SOPHOS_INSTALL}/shared
+makedir 711 "${SOPHOS_INSTALL}/shared"
 
-chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
-chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}"/base/etc/telemetry-config.json*
+chmod 440 "${SOPHOS_INSTALL}/base/etc/telemetry-config.json"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
@@ -949,7 +949,7 @@ cleanup_comms_component
 
 for F in "$DIST/installer/plugins"/*
 do
-    if changed_or_added ${F#"$DIST"/} ${DIST} ${PRODUCT_LINE_ID}
+    if changed_or_added "${F#"$DIST"/}" "${DIST}" ${PRODUCT_LINE_ID}
     then
        "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
     fi
@@ -988,18 +988,18 @@ then
     # if this file exists we should use it instead of registering
     if [[ -f ${PREREGISTED_MCS_CONFIG} ]]
     then
-        mv ${PREREGISTED_MCS_CONFIG} ${SOPHOS_INSTALL}/base/etc/mcs.config
+        mv "${PREREGISTED_MCS_CONFIG}" "${SOPHOS_INSTALL}/base/etc/mcs.config"
         chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/mcs.config"
         chmod 640 "${SOPHOS_INSTALL}/base/etc/mcs.config"
         if [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]]
         then
-            mv ${PREREGISTED_MCS_POLICY_CONFIG} ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+            mv "${PREREGISTED_MCS_POLICY_CONFIG}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
             chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
             chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
         fi
     elif [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT $MCS_MESSAGE_RELAYS $PRODUCT_ARGUMENTS
+        "${SOPHOS_INSTALL}"/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT $MCS_MESSAGE_RELAYS $PRODUCT_ARGUMENTS
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
         then
@@ -1009,7 +1009,7 @@ then
     fi
 fi
 
-if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID}
+if changed_or_added install.sh "${DIST}" ${PRODUCT_LINE_ID}
 then
     createUpdaterSystemdService
     createDiagnoseSystemdService
@@ -1028,13 +1028,13 @@ then
     # Provide time to Watchdog to start all managed services
     sleep 2
 else
-    if software_changed ${DIST} ${PRODUCT_LINE_ID}
+    if software_changed "${DIST}" ${PRODUCT_LINE_ID}
     then
         if is_watchdog_running
         then
           stopSsplService
 
-          perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+          perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
 
           startSsplService
 
@@ -1043,14 +1043,14 @@ else
           # Provide time to Watchdog to start all managed services
           sleep 2
         else
-          perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+          perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
         fi
     fi
 fi
 
 
 
-copy_manifests ${DIST} ${PRODUCT_LINE_ID}
+copy_manifests "${DIST}" ${PRODUCT_LINE_ID}
 echo "managementagent,${PRODUCT_LINE_ID}" >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
 
 ## Exit with error code if registration was run and failed

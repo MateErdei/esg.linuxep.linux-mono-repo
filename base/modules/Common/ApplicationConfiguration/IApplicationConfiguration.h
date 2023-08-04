@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -21,6 +17,7 @@ namespace Common
             virtual ~IApplicationConfiguration() = default;
             virtual std::string getData(const std::string& key) const = 0;
             virtual void setData(const std::string& key, const std::string& data) = 0;
+            virtual void clearData(const std::string& key) = 0;
         };
 
         IApplicationConfiguration& applicationConfiguration();

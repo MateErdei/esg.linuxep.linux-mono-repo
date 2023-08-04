@@ -1007,3 +1007,8 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
 
     if umount_failed:
         raise AssertionError("umounting comms failed")
+
+
+def file_info_with_custom_install_directory(file_info_path, custom_install_dir):
+    with open(file_info_path) as file:
+        return file.read().replace("/opt/sophos-spl", custom_install_dir)
