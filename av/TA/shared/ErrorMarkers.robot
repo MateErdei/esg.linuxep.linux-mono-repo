@@ -48,42 +48,51 @@ Exclude Threat Detector Launcher Died With 70
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with exit code 70
 
 Exclude Core Not In Policy Features
-    mark_expected_error_in_log  ${UPDATE_SCHEDULER}  updatescheduler <> CORE not in the features of the policy.
+    [Arguments]    ${updateSchedulerLogPath}=${UPDATE_SCHEDULER}
+    mark_expected_error_in_log  ${updateSchedulerLogPath}  updatescheduler <> CORE not in the features of the policy.
 
 Exclude SPL Base Not In Subscription Of The Policy
-    mark_expected_error_in_log  ${UPDATE_SCHEDULER}  updatescheduler <> SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy.
+    [Arguments]    ${updateSchedulerLogPath}=${UPDATE_SCHEDULER}
+    mark_expected_error_in_log  ${updateSchedulerLogPath}  updatescheduler <> SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy.
 
 Exclude Configuration Data Invalid
-    mark_expected_error_in_log  ${SULDOWNLOADER_LOG}  suldownloaderdata <> Configuration data is invalid
+    [Arguments]    ${suldownloaderLogPath}=${SULDOWNLOADER_LOG}
+    mark_expected_error_in_log  ${suldownloaderLogPath}  suldownloaderdata <> Configuration data is invalid
 
 Exclude Invalid Settings No Primary Product
-    mark_expected_error_in_log  ${SULDOWNLOADER_LOG}  suldownloaderdata <> Invalid Settings: No primary product provided.
+    [Arguments]    ${suldownloaderLogPath}=${SULDOWNLOADER_LOG}
+    mark_expected_error_in_log  ${suldownloaderLogPath}  suldownloaderdata <> Invalid Settings: No primary product provided.
 
 Exclude Invalid Day From Policy
-    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Invalid day from policy:
-    mark_expected_error_in_log  ${AV_LOG_PATH}  av <> Not processing remainder of SAV policy as Scheduled Scan configuration invalid
+    [Arguments]    ${avLogPath}=${AV_LOG_PATH}
+    mark_expected_error_in_log  ${avLogPath}  ScanScheduler <> Invalid day from policy:
+    mark_expected_error_in_log  ${avLogPath}  av <> Not processing remainder of SAV policy as Scheduled Scan configuration invalid
 
 Exclude File Name Too Long For Cloud Scan
     mark_expected_error_in_log  ${CLOUDSCAN_LOG_PATH}  [File name too long]
 
 Exclude UnixSocket Interrupted System Call Error Cloud Scan
-    mark_expected_error_in_log  ${CLOUDSCAN_LOG_PATH}  UnixSocket <> Reading socket returned error: Interrupted system call
+    [Arguments]    ${cloudScanLogPath}=${CLOUDSCAN_LOG_PATH}
+    mark_expected_error_in_log  ${cloudScanLogPath}  UnixSocket <> Reading socket returned error: Interrupted system call
 
 Exclude UpdateScheduler Fails
-    mark_expected_error_in_log  ${UPDATE_SCHEDULER}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
+    [Arguments]    ${updateSchedulerLogPath}=${UPDATE_SCHEDULER}
+    mark_expected_error_in_log  ${updateSchedulerLogPath}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
 
 Exclude Threat Detector Process Is Killed With SIGKILL
     mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 9
 
 Exclude Failed To connect To Warehouse Error
-    mark_expected_error_in_log  ${SULDOWNLOADER_LOG}  suldownloaderdata <> Failed to connect to the warehouse: 5
+    [Arguments]    ${suldownloaderLogPath}=${SULDOWNLOADER_LOG}
+    mark_expected_error_in_log  ${suldownloaderLogPath}  suldownloaderdata <> Failed to connect to the warehouse: 5
 
 Exclude Failed To Acquire Susi Lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
 
 Exclude Failed To Scan Multiple Files Cloud
-    mark_expected_error_in_log  ${CLOUDSCAN_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
+    [Arguments]    ${cloudScanLogPath}=${CLOUDSCAN_LOG_PATH}
+    mark_expected_error_in_log  ${cloudScanLogPath}  NamedScanRunner <> Failed to scan one or more files due to an error
 
 Exclude Failed To Send Scan Request To STD
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
@@ -144,14 +153,16 @@ Exclude Safestore connection errors
     mark_expected_error_in_log  ${AV_LOG_PATH}  UnixSocket <> Aborting SafeStore connection : failed to read length
 
 Exclude MCS Router is dead
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    [Arguments]    ${watchdogLog}=${WATCHDOG_LOG}
+    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
 
 Exclude STD Symlink Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Create symlink for logs at
 
 Exclude Watchdog Log Unable To Open File Error
+    [Arguments]    ${watchdogLog}=${WATCHDOG_LOG}
     mark_expected_error_in_log  ${WATCHDOG_LOG}  log4cplus:ERROR Unable to open file
 
 Exclude CustomerID Cannot Be Empty Error
@@ -175,8 +186,9 @@ Exclude CustomerID Hex Format Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> CustomerID must be in hex format
 
 Exclude CustomerID Failed To Read Error
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to read customerID - using default value
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    [Arguments]    ${chrootLogPath}=${AV_CHROOT_LOG_DIR}
+    mark_expected_error_in_log  ${chrootLogPath}/sophos_threat_detector.log    ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${chrootLogPath}/sophos_threat_detector.info.log    ThreatScanner <> Failed to read customerID - using default value
 
 Exclude MachineID Empty Space Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> EndpointID cannot contain a empty space
@@ -223,8 +235,9 @@ Exclude ThreatHealthReceiver Was Not Initialised Error
     mark_expected_error_in_log  ${MANAGEMENT_AGENT_LOG_PATH}    managementagent <> ThreatHealthReceiver was not initialised, failed to process Threat Health from: av
 
 Exclude Expected Sweep Errors
-   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
-   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
+   [Arguments]    ${chrootLogPath}=${AV_CHROOT_LOG_DIR}
+   mark_expected_error_in_log  ${chrootLogPath}/sophos_threat_detector.log    ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
+   mark_expected_error_in_log  ${chrootLogPath}/sophos_threat_detector.info.log    ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
 
 Exclude Scan Errors From File Samples
    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted

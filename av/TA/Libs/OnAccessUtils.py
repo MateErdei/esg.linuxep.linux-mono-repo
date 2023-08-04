@@ -19,14 +19,14 @@ except ImportError:
 
 class OnAccessUtils:
     @staticmethod
-    def wait_for_on_access_to_be_enabled(mark: LogHandler.LogMark, timeout=15, file="/etc/hosts"):
+    def wait_for_on_access_to_be_enabled(mark: LogHandler.LogMark, timeout=15, file="/etc/hosts", log_path=None):
         """
         Replaces
         Wait Until On Access Log Contains With Offset   On-open event for
 
         :return:
         """
-        on_access_log = BuiltIn().get_variable_value("${ON_ACCESS_LOG_PATH}")
+        on_access_log = log_path if log_path else BuiltIn().get_variable_value("${ON_ACCESS_LOG_PATH}")
         mark.assert_is_good(on_access_log)
 
         start = time.time()

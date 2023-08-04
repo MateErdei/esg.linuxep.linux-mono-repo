@@ -6,14 +6,67 @@
 #include "Options.h"
 #include "ScanClient.h"
 
-#include "filewalker/FileWalker.h"
-
 #include "common/AbortScanException.h"
 #include "common/PathUtils.h"
+#include "filewalker/FileWalker.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+
 #include <common/StringUtils.h>
 
 #include <memory>
 #include <utility>
+
+namespace
+{
+    bool installLocationIsSet()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        try
+        {
+            std::ignore = appConfig.getData("PLUGIN_INSTALL");
+            return true;
+        }
+        catch (const std::out_of_range&)
+        {
+            return false;
+        }
+    }
+
+    void setPluginInstall()
+    {
+        if (installLocationIsSet())
+        {
+            return;
+        }
+
+        auto fileSystem = Common::FileSystem::fileSystem();
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+
+        auto avScannerPath = fileSystem->readlink("/usr/local/bin/avscanner");
+        if (avScannerPath.has_value())
+        {
+            auto bin = Common::FileSystem::dirName(avScannerPath.value());
+            auto plugin = Common::FileSystem::dirName(bin);
+            appConfig.setData("PLUGIN_INSTALL", plugin);
+            return;
+        }
+        avScannerPath = fileSystem->readlink("/proc/self/exe");
+        if (avScannerPath.has_value())
+        {
+            auto bin = Common::FileSystem::dirName(avScannerPath.value());
+            auto plugin = Common::FileSystem::dirName(bin);
+            appConfig.setData("PLUGIN_INSTALL", plugin);
+            return;
+        }
+
+        if (!fileSystem->exists("/opt/sophos-spl/plugins/av"))
+        {
+            throw common::AbortScanException("Failed to set SOPHOS_INSTALL for custom install location");
+        }
+    }
+}
 
 namespace avscanner::avscannerimpl
 {
@@ -65,6 +118,7 @@ namespace avscanner::avscannerimpl
         m_detectPUAs(options.detectPUAs())
     {
         static_cast<void>(m_logger);
+        setPluginInstall();
     }
 
     int CommandLineScanRunner::run()

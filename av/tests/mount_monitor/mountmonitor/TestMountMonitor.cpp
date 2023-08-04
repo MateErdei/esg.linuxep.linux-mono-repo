@@ -14,6 +14,7 @@
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/MockSysCalls.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
@@ -33,6 +34,10 @@ namespace
     protected:
         void SetUp() override
         {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("SOPHOS_INSTALL", "/tmp");
+            appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+
             m_sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();

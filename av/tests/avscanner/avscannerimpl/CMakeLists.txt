@@ -13,6 +13,8 @@ SophosAddTest(TestAVScannerImpl
         TestScanClient.cpp
         TestTimeDuration.cpp
         PROJECTS avscannerimpl
+        LIBS ${pluginapilib} ${testhelperslib}
+        INC_DIRS ${pluginapiinclude} ${testhelpersinclude}
         )
 
 

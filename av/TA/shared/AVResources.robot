@@ -142,95 +142,10 @@ Count AV Log Lines
     ${count} =  Count File Log Lines   ${AV_LOG_PATH}
     [Return]   ${count}
 
-Mark AV Log
-    # Marks characters in the log, used for log checking, returns count of lines
-    ${count} =  LogUtils.Mark AV Log
-    # Marks the lines in the log, used for log splitting
-    Set Suite Variable   ${AV_LOG_MARK}  ${count}
-    Log  "AV LOG MARK = ${AV_LOG_MARK}"
-
-Mark Sophos Threat Detector Log
-    [Arguments]  ${mark}=""
-    ${count} =  Count Optional File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
-    Set Suite Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
-    Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
-    [Return]  ${count}
-
-
-Mark Susi Debug Log
-    ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
-    Set Suite Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
-    Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
-
-Mark On Access Log
-    ${count} =  Count File Log Lines  ${ON_ACCESS_LOG_PATH}
-    Set Suite Variable   ${ON_ACCESS_LOG_MARK}  ${count}
-    Log  "ON_ACCESS LOG LINES = ${ON_ACCESS_LOG_MARK}"
-
-Mark Log
-    [Arguments]  ${path}
-    ${count} =  Count File Log Lines  ${path}
-    Set Test Variable   ${LOG_MARK}  ${count}
-    Log  "LOG MARK = ${LOG_MARK}"
-
-SUSI Debug Log Contains With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
-    File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
-
-SUSI Debug Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
-
-Mark Scan Now Log
-    ${count} =  Count File Log Lines  ${SCANNOW_LOG_PATH}
-    Set Test Variable   ${SCAN_NOW_LOG_MARK}  ${count}
-    Log  "SCAN NOW LOG MARK = ${SCAN_NOW_LOG_MARK}"
-
-Get File Contents From Offset
-    [Arguments]  ${path}  ${offset}=0
-    ${content} =  Get File   ${path}  encoding_errors=replace
-    Log   "Skipping ${offset} lines"
-    @{lines} =  Split To Lines   ${content}  ${offset}
-    ${collectedLines} =  Catenate  SEPARATOR=\n  @{lines}
-    [Return]  ${collectedLines}
-
-File Log Contains With Offset
-    [Arguments]  ${path}  ${input}  ${offset}=0
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    Should Contain  ${content}  ${input}
-
-File Log Contains With Offset Times
-    [Arguments]  ${path}  ${input}  ${times}=1  ${offset}=0
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    Should Contain X Times  ${content}  ${input}  ${times}
-
-File Log Contains One of
-    [Arguments]  ${path}  ${offset}  @{inputs}
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    FOR   ${input}  IN  @{inputs}
-        ${status} =  Run Keyword And Return Status  Should Contain  ${content}  ${input}
-        Return From Keyword If  ${status}  ${status}
-    END
-    Fail  "None of inputs found in content"
-
 File Log Should Not Contain
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}  encoding_errors=replace
     Should Not Contain  ${content}  ${input}
-
-File Log Should Not Contain With Offset
-    [Arguments]  ${path}  ${input}  ${offset}=0
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    Should Not Contain  ${content}  ${input}
-
-Wait Until File Log Contains One Of
-    [Arguments]  ${logCheck}  ${timeout}  @{inputs}
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  3 secs
-    ...  ${logCheck}  @{inputs}
 
 Wait Until File Log Contains
     [Arguments]  ${logCheck}  ${input}  ${timeout}=${15}  ${interval}=${3}
@@ -255,21 +170,6 @@ File Log Does Not Contain
     ...    1 secs
     ...    ${logCheck}  ${input}
 
-AV Plugin Log Contains With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    LogUtils.Check Marked AV Log Contains   ${input}    ${offset}
-
-AV Plugin Log Contains With Offset Times
-    [Arguments]  ${input}  ${times}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Contains With Offset Times    ${AV_LOG_PATH}   ${input}   ${times}   offset=${offset}
-
-AV Plugin Log Should Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
-
 AV Plugin Log Contains
     [Arguments]  ${input}
     LogUtils.File Log Contains  ${AV_LOG_PATH}   ${input}
@@ -281,25 +181,6 @@ On Access Log Contains
 On Access Log Does Not Contain
     [Arguments]  ${input}
     LogUtils.Over next 15 seconds ensure log does not contain   ${ON_ACCESS_LOG_PATH}  ${input}
-
-On Access Log Contains With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
-    File Log Contains With Offset     ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
-
-On Access Log Contains With Offset Times
-    [Arguments]  ${input}  ${times}
-    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
-    File Log Contains With Offset Times    ${ON_ACCESS_LOG_PATH}   ${input}   ${times}   offset=${offset}
-
-On Access Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
-    # retry for 15s
-    FOR   ${i}   IN RANGE   5
-        File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
-        Sleep   3s
-    END
 
 Threat Detector Log Contains
     [Arguments]  ${input}
@@ -317,54 +198,15 @@ SUSI Debug Log Does Not Contain
     [Arguments]  ${input}
     check log does not contain  ${input}  ${SUSI_DEBUG_LOG_PATH}   susi_debug_log
 
-Wait Until SUSI DEBUG Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
-    Wait Until Keyword Succeeds
-    ...   ${timeout}s
-    ...   1s
-    ...   File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
-
 Wait Until Sophos Threat Detector Log Contains
     [Arguments]  ${input}  ${timeout}=${15}
     LogUtils.wait_until_latest_sophos_threat_detector_log_contains  ${input}  ${timeout}
-
-Sophos Threat Detector Log Contains With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
-    File Log Contains With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
-
-Sophos Threat Detector Log Contains One of
-    [Arguments]  @{inputs}
-    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
-    File Log Contains One of  ${THREAT_DETECTOR_LOG_PATH}   ${offset}   @{inputs}
-
-Threat Detector Log Should Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
-
-Wait Until Sophos Threat Detector Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
-
-Wait Until Sophos Threat Detector Log Contains One of
-    [Arguments]  ${timeout}  @{inputs}
-    Wait Until File Log Contains One Of  Sophos Threat Detector Log Contains One Of  ${timeout}  @{inputs}
 
 Count Lines In Log
     [Arguments]  ${log_file}  ${line_to_count}
     ${contents} =  Get File  ${log_file}
     ${lines} =  Get Lines Containing String  ${contents}  ${line_to_count}
     ${lines_count} =  Get Line Count  ${lines}
-    [Return]  ${lines_count}
-
-Count Lines In Log With Offset
-    [Arguments]  ${log_file}  ${line_to_count}  ${offset}
-    ${content} =  Get File Contents From Offset  ${log_file}  ${offset}
-    ${lines} =  Get Lines Containing String  ${content}  ${line_to_count}
-    ${lines_count} =  Get Line Count  ${lines}
-
     [Return]  ${lines_count}
 
 Check Threat Detector Copied Files To Chroot
@@ -400,29 +242,13 @@ Increase AV Log To Max Size
     [Arguments]  ${remaining}=1
     increase_threat_detector_log_to_max_size_by_path  ${AV_LOG_PATH}  ${remaining}
 
-Wait Until AV Plugin Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15    ${interval}=2
-    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
-
-Wait Until AV Plugin Log Contains Times With Offset
-    [Arguments]  ${input}  ${timeout}=15  ${times}=1
-    Wait Until File Log Contains Times  AV Plugin Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
-
 Wait Until AV Plugin Log Contains Detection Name After Mark
     [Arguments]  ${mark}  ${name}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Found '${name}'  mark=${mark}  timeout=${timeout}
 
-Wait Until AV Plugin Log Contains Detection Name With Offset
-    [Arguments]  ${name}  ${timeout}=15    ${interval}=2
-    Wait Until AV Plugin Log Contains With Offset  Found '${name}'  timeout=${timeout}  interval=${interval}
-
 Wait Until AV Plugin Log Contains Detection Name And Path After Mark
     [Arguments]  ${mark}  ${name}  ${path}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Found '${name}' in '${path}'  timeout=${timeout}  mark=${mark}
-
-Wait Until AV Plugin Log Contains Detection Name And Path With Offset
-    [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
-    Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
 
 AV Plugin Log Should Not Contain Detection Name And Path After Mark
     [Arguments]  ${name}  ${path}  ${mark}
@@ -524,11 +350,6 @@ AV Plugin Log Does Not Contain
     [Arguments]  ${input}
     LogUtils.Over next 15 seconds ensure log does not contain   ${AV_LOG_PATH}  ${input}
 
-AV Plugin Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
-
 Plugin Log Contains
     [Arguments]  ${input}
     LogUtils.check_log_contains  ${input}  ${AV_LOG_PATH}
@@ -542,14 +363,6 @@ Wait Until On Access Log Contains
     ...   ${timeout} >= 15   3
     ...   1
     Wait Until File Log Contains  On Access Log Contains   ${input}   timeout=${timeout}  interval=${interval}
-
-Wait Until On Access Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15  ${interval}=3
-    Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
-
-Wait Until On Access Log Contains Times With Offset
-    [Arguments]  ${input}  ${timeout}=15  ${times}=1
-    Wait Until File Log Contains Times  On Access Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
 FakeManagement Log Contains
     [Arguments]  ${input}
@@ -581,18 +394,15 @@ Check Plugin Installed and Running
     Wait until AV Plugin running
     Wait until threat detector running
 
-Check Plugin Installed and Running With Offset
+Check Plugin Installed and Running After Marks
+    [Arguments]  ${av_mark}  ${threat_detector_mark}
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
+    Wait until threat detector running after mark  ${threat_detector_mark}
 
 Wait until AV Plugin running
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
     LogUtils.Wait For AV Log contains after last restart  Starting Scan Scheduler  timeout=${20}
-
-Wait until AV Plugin running with offset
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
-    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${20}
 
 Wait until AV Plugin running after mark
     [Arguments]   ${mark}
@@ -610,7 +420,7 @@ Wait Until On Access running
         ...  2 secs
         ...  On Access Log Contains  ProcessPolicy
 
-Wait Until On Access running with offset
+Wait Until On Access Running After Mark
     [Arguments]  ${mark}
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
@@ -632,13 +442,6 @@ Wait until threat detector running after mark
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
-Wait until threat detector running with offset
-    [Arguments]  ${timeout}=${60}
-    ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${timeout}
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...  Common <> Starting USR1 monitor
-    ...  timeout=${timeout}
-
 Wait until threat detector not running
     [Arguments]  ${timeout}=30
     Wait Until Keyword Succeeds
@@ -659,13 +462,6 @@ Check AV Plugin Installed from Marks
     File Should Exist   ${PLUGIN_BINARY}
     Wait until AV Plugin running
     wait_for_log_contains_from_mark  ${fake_management_mark}  Registered plugin: ${COMPONENT}  timeout=${15}
-
-Check AV Plugin Installed With Offset
-    Check Plugin Installed and Running With Offset
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  3 secs
-    ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Install With Base SDDS
     [Arguments]  ${LogLevel}=DEBUG
@@ -691,19 +487,23 @@ Uninstall and full reinstall
     Install With Base SDDS
 
 Install Base For Component Tests
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     File Should Exist     ${BASE_SDDS}/install.sh
     Run Process  chmod  +x  ${BASE_SDDS}/install.sh
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
-    ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
+    #large stdout cause a hang in robot
+    ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT     stdout=/tmp/base-install.log
+
+    Log File    /tmp/base-install.log
+    Remove File    /tmp/base-install.log
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base."
 
     # Check watchdog running
-    ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
+    ProcessUtils.wait_for_pid  ${installDir}/base/bin/sophos_watchdog  ${5}
     # Stop MCS router since we haven't configured Central
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  removePluginRegistration  mcsrouter
+    Run Process  ${installDir}/bin/wdctl  removePluginRegistration  mcsrouter
 
 Install AV Directly from SDDS
-    Mark AV Log
     ${av_mark} =  get_av_log_mark
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
@@ -744,7 +544,8 @@ Require Plugin Installed and Running
     Log  sophos_threat_detector PID = ${pid}
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    ${handle}=  Start Process  find ${installDir} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -868,10 +669,6 @@ Wait Until Threat Detector Log exists
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
-
-Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log exists  timeout=30
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
 
 Wait until scheduled scan updated After Mark
     [Arguments]  ${mark}
@@ -1002,22 +799,21 @@ Run installer from install set and wait for reload trigger
 Run IDE update with expected texts
     [Arguments]  ${timeout}  @{expected_update_texts}
 
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${td_mark}
-    wait_for_sophos_threat_detector_log_contains_one_of_after_mark    ${expected_update_texts}   ${td_mark}  ${timeout}
-    check_sophos_threat_detector_log_does_not_contain_after_mark  Current version matches that of the update source. Nothing to do.  ${td_mark}
+    Wait For Sophos Threat Detector Log Contains One Of After Mark  expected=@{expected_update_texts}  mark=${td_mark}  timeout=${timeout}
+    Check Sophos Threat Detector Log Does Not Contain After Mark    Current version matches that of the update source. Nothing to do.  ${td_mark}
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
 
 Run IDE update with expected text
     [Arguments]  ${expected_update_text}  ${timeout}=120
-
-    ${mark} =   get_sophos_threat_detector_log_mark
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
-    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
-    Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  ${expected_update_text}  timeout=${timeout}
-    # Wait Until Sophos Threat Detector Log Contains With Offset  ${expected_update_text}  timeout=${timeout}
-    check_sophos_threat_detector_log_does_not_contain_after_mark    Current version matches that of the update source. Nothing to do.   ${mark}
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${td_mark}
+    Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${td_mark}  ${expected_update_text}  timeout=${timeout}
+    # Wait For Sophos Threat Detector Log Contains After Mark  ${expected_update_text}  ${td_mark}  timeout=${timeout}
+    Check Sophos Threat Detector Log Does Not Contain After Mark    Current version matches that of the update source. Nothing to do.  ${td_mark}
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
 
 Run IDE update with SUSI loaded
@@ -1263,8 +1059,6 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Run IDE update with SUSI loaded
 
 Start AV
-    Mark Sophos Threat Detector Log
-    Mark SafeStore Log
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist
@@ -1279,7 +1073,6 @@ Start AV
     Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
 
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    Mark AV Log
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     ${fake_management_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
     ${av_mark} =  get av log mark

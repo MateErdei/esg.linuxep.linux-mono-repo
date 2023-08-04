@@ -94,6 +94,33 @@ def uninstall_sspl_if_installed():
 
     delete_users_and_groups()
 
+def uninstall_sspl_from_custom_location_if_installed(install_dir):
+    """
+    Fail if the uninstall returns an error.
+    """
+    if not os.path.isdir(install_dir):
+        delete_users_and_groups()
+        return 0
+
+    uninstaller = os.path.join(install_dir, "bin", "uninstall.sh")
+    if not os.path.isfile(uninstaller):
+        logger.info(f"{install_dir} exists but uninstaller doesn't - removing directory")
+        shutil.rmtree(install_dir)
+        delete_users_and_groups()
+        return 0
+
+    dot_sophos = os.path.join(install_dir, ".sophos")
+    if not os.path.isfile(dot_sophos):
+        logger.warning("/opt/sophos-spl/.sophos doesn't exist - uninstaller would break")
+        open(dot_sophos, "wb").close()
+
+    p = subprocess.run(["bash", uninstaller, "--force"], timeout=60, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    if p.returncode != 0:
+        logger.warning(p.stdout)
+        raise Exception("Failed to uninstall")
+
+    delete_users_and_groups()
+
 
 def create_test_telemetry_config_file(telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):

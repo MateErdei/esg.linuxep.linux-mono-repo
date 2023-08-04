@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "MockMountPoint.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
@@ -11,6 +7,10 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/RecordingMockSocket.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
@@ -32,6 +32,9 @@ namespace
     protected:
         void SetUp() override
         {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("PLUGIN_INSTALL", "/tmp/TestCommandLineScanRunner");
+
             const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
             m_testDir = fs::temp_directory_path();
             m_testDir /= test_info->test_case_name();
@@ -74,6 +77,55 @@ TEST_F(TestCommandLineScanRunner, constructionWithScanImages) // NOLINT
     std::vector<std::string> exclusions;
     Options options(false, paths, exclusions, false, true, false, false);
     CommandLineScanRunner runner(options);
+}
+
+TEST_F(TestCommandLineScanRunner, constructionWithCustomInstallLocationFromAVScannerPath)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.clearData("PLUGIN_INSTALL");
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, readlink("/usr/local/bin/avscanner")).WillOnce(Return("/usr/lib64/sophos-spl/plugins/av/bin/avscanner"));
+
+    std::vector<std::string> paths;
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, false, false, false);
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    CommandLineScanRunner runner(options);
+
+    EXPECT_EQ(Common::ApplicationConfiguration::applicationConfiguration().getData("PLUGIN_INSTALL"), "/usr/lib64/sophos-spl/plugins/av");
+}
+
+TEST_F(TestCommandLineScanRunner, constructionWithCustomInstallLocationFromProcSelf)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.clearData("PLUGIN_INSTALL");
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, readlink("/usr/local/bin/avscanner")).WillOnce(Return(std::nullopt));
+    EXPECT_CALL(*mockIFileSystemPtr, readlink("/proc/self/exe")).WillOnce(Return("/usr/lib64/sophos-spl/plugins/av/bin/avscanner"));
+
+    std::vector<std::string> paths;
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, false, false, false);
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    CommandLineScanRunner runner(options);
+
+    EXPECT_EQ(Common::ApplicationConfiguration::applicationConfiguration().getData("PLUGIN_INSTALL"), "/usr/lib64/sophos-spl/plugins/av");
+}
+
+TEST_F(TestCommandLineScanRunner, clsThrowsWhenInstallLocationCannotBeFound)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.clearData("PLUGIN_INSTALL");
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, readlink("/usr/local/bin/avscanner")).WillOnce(Return(std::nullopt));
+    EXPECT_CALL(*mockIFileSystemPtr, readlink("/proc/self/exe")).WillOnce(Return(std::nullopt));
+    EXPECT_CALL(*mockIFileSystemPtr, exists("/opt/sophos-spl/plugins/av")).WillOnce(Return(false));
+
+    std::vector<std::string> paths;
+    std::vector<std::string> exclusions;
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Options options(false, paths, exclusions, false, false, false, false);
+    EXPECT_THROW(CommandLineScanRunner runner(options), AbortScanException);
 }
 
 TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT

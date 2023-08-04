@@ -4,12 +4,14 @@
 
 #include "Logger.h"
 
+#include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <poll.h>
@@ -51,7 +53,7 @@ namespace mount_monitor::mount_monitor
 
     bool MountMonitor::isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mp)
     {
-        if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
+        if (mp->mountPoint().rfind(Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), 0) == 0)
         {
             LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from scanning");
             return false;
