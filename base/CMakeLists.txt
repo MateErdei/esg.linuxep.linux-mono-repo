@@ -209,6 +209,9 @@ endif()
 
 function(add_imported_library name type no_soname location include_directory)
     add_library(${name} ${type} IMPORTED)
+    if (${type} STREQUAL SHARED)
+        execute_process(COMMAND chrpath -r \$ORIGIN ${location} COMMAND_ERROR_IS_FATAL ANY)
+    endif ()
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
     set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME ${no_soname})
     target_include_directories(${name} INTERFACE ${include_directory})
@@ -327,6 +330,7 @@ find_library(EXPAT_LIBRARY
         PATHS ${EXPAT_INPUT}
         NO_DEFAULT_PATH
         )
+execute_process(COMMAND chrpath -r \$ORIGIN ${EXPAT_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 find_library(BOOST_LOCALE
         NAMES locale
@@ -342,13 +346,7 @@ find_library(LOG4CPLUS_LIBRARY
         NO_DEFAULT_PATH
         NO_CMAKE_FIND_ROOT_PATH
         )
-#find_library(LOG4CPLUS_LIBRARY_FIND_LIBRARY
-#        NAMES log4cplus
-#        PATHS ${LOG4CPLUS_INPUT}
-#        NO_DEFAULT_PATH
-#        NO_CMAKE_FIND_ROOT_PATH
-#        )
-#message("Log4cplus library at ${LOG4CPLUS_LIBRARY} from ${LOG4CPLUS_INPUT} as opposed to ${LOG4CPLUS_LIBRARY_FIND_LIBRARY}")
+execute_process(COMMAND chrpath -r \$ORIGIN ${LOG4CPLUS_LIBRARY} COMMAND_ERROR_IS_FATAL ANY)
 
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
