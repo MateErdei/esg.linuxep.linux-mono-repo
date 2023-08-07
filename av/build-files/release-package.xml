@@ -9,7 +9,7 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-28" build-id="20230711131508-6907e89ddfe3e57d2f0cf6cf6dfb6663e5a1964a-Rq6aTd"/>
+            <release-version branch="release/2023-31" build-id="20230806104148-806ce35de2bea3c3d0c26892d9f6fb0772fd58ce-JvnrhA"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
@@ -21,7 +21,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.28" build-id="20230707075000-ecc111df805b90609f0fa0f37951011bb53cf617-Jyt0UM"/>
+            <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
@@ -34,7 +34,7 @@
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
+            <release-version branch="release/2023.31" build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
             <development-version branch="develop"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="input/openssl"/>
         </build-asset>
@@ -101,7 +101,7 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">
-            <release-version branch="release--2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
+            <release-version branch="release/2023.31" build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/openssl/lib" />
         </build-asset>
 
