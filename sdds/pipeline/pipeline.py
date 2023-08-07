@@ -183,7 +183,7 @@ def robot_task_with_env(machine: tap.Machine, central_api_client_id: str, centra
         machine_name = machine.template
     try:
         robot_exclusion_tags = ["MANUAL", "FAIL"]
-        if central_api_client_id != "" and central_api_client_secret != "":
+        if central_api_client_id == "" or central_api_client_secret == "":
             robot_exclusion_tags.append("FIXED_VERSIONS")
         environment = {
             'CENTRAL_API_CLIENT_ID': central_api_client_id,
