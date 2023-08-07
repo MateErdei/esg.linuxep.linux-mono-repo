@@ -25,8 +25,8 @@ Http Library Tests
     ${server_pid} =  run_process_in_background  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpTestServer.py
     Set Suite Variable  ${server_pid}   ${server_pid}
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
+    ...  30 secs
+    ...  3 secs
     ...  Can Curl Url    http://localhost:7780
 
     Wait Until Keyword Succeeds
