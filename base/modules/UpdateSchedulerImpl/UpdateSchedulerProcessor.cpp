@@ -734,7 +734,13 @@ namespace UpdateSchedulerImpl
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");
 
-        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::suiteVersion, UpdateSchedulerUtils::getSuiteVersion());
+        for (auto& product : reportAndFiles.reportCollectionResult.SchedulerStatus.Products)
+        {
+            if (product.RigidName == "ServerProtectionLinux-Base-component")
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::suiteVersion, product.DownloadedVersion);
+            }
+        }
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
