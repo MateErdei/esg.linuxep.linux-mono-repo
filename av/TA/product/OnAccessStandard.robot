@@ -420,6 +420,14 @@ On Access Does Not Mount AutoFs Mount
     #But this is not dependable on all platforms
     ${lastline2} =  OnAccessUtils.Get last line from mount ignoring tmpfs
     Should Contain    ${lastline2}    ${automount} on ${destination} type autofs
+    
+    ${mark} =  get_on_access_log_mark
+    ${result} =  Run Process  ls  -l  ${destination}
+    Log  Contents of mount point: ${result.stdout}
+    ${result} =  Run Process  mount
+    Should contain    ${result.stdout}    on ${destination} type ext
+    Wait for on access log contains after mark    Including mount point: /tmp_test/SSPLAVTests/mnt/data  mark=${mark}
+    Check on access log does not contain after mark  Mount point ${destination} using filesystem autofs is not supported and will be excluded from scanning  mark=${mark}
 
 On Access Scans File On NFSv4
     [Tags]  NFS
