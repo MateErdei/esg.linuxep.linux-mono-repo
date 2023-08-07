@@ -112,7 +112,7 @@ void Mounts::parseProcMounts()
         try
         {
             bool isDir = std::filesystem::is_directory(mountPoint);
-            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir));
+            m_devices[mountPoint] = std::make_shared<Drive>(device, mountPoint, type, isDir);
         }
         catch (const std::filesystem::filesystem_error& e)
         {
@@ -128,25 +128,12 @@ void Mounts::parseProcMounts()
 
         if ((mountpoint != nullptr) && (mountpoint->fs_spec != nullptr))
         {
-            // Remove existing entry for / before adding a new one
-            for (auto it = m_devices.begin(); it != m_devices.end();)
-            {
-                if (it->get()->mountPoint() == "/")
-                {
-                    it = m_devices.erase(it);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-
             std::string devicePath = fixDeviceWithMount(mountpoint->fs_spec);
             try
             {
                 bool isDir = std::filesystem::is_directory( mountpoint->fs_file);
-                m_devices.push_back(
-                    std::make_shared<Drive>(devicePath, mountpoint->fs_file, mountpoint->fs_type, isDir));
+                m_devices[mountpoint->fs_file] = 
+                    std::make_shared<Drive>(devicePath, mountpoint->fs_file, mountpoint->fs_type, isDir);
             }
             catch (const std::filesystem::filesystem_error& e)
             {
@@ -163,14 +150,14 @@ void Mounts::parseProcMounts()
  */
 std::string Mounts::device(const std::string& mountPoint) const
 {
-    for (const auto& it : m_devices)
+    if ( m_devices.find(mountPoint) != m_devices.end() )
     {
-        if (it->mountPoint() == mountPoint)
-        {
-            return it->device();
-        }
+        return m_devices.at(mountPoint)->device();
     }
-    return "";
+    else
+    {
+        return "";
+    }
 }
 
 /**
@@ -409,24 +396,29 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
  */
 IMountPointSharedVector Mounts::mountPoints()
 {
-    return m_devices;
+    IMountPointSharedVector mountPoints;
+    for (auto const& [mount, device] : m_devices)
+    {
+        mountPoints.push_back(device);
+    }
+    return mountPoints;
 }
 
 IMountPointSharedPtr Mounts::getMountFromPath(const std::string& childPath)
 {
     // /proc/mounts is ordered by successive mount layers and therefore the last match is the best one
     IMountPointSharedPtr lastMatchingMountDir = nullptr;
-    for (const auto& it : m_devices)
+    for (auto const& [mount, device] : m_devices)
     {
-        std::string mountDir = it->mountPoint();
+        std::string mountDir = mount;
         if (mountDir.back() != '/')
         {
             mountDir += '/';
         }
         if (Common::UtilityImpl::StringUtils::startswith(childPath, mountDir))
         {
-            LOGDEBUG("Found potential parent: " << it->device() << " -- at path: " << mountDir);
-            lastMatchingMountDir = it;
+            LOGDEBUG("Found potential parent: " << device->device() << " -- at path: " << mountDir);
+            lastMatchingMountDir = device;
         }
     }
     if (lastMatchingMountDir == nullptr)

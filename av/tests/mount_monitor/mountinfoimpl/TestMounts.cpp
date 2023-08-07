@@ -308,3 +308,24 @@ TEST_F(TestMounts, root_directory_is_a_directory)
     auto rootMount = mountInfo->getMountFromPath("/");
     EXPECT_TRUE(rootMount->isDirectory());
 }
+
+TEST_F(TestMounts, subsequentDuplicateMountPointReplacesPreviousEntry) // NOLINT
+{
+    CreateFile(m_mountInfoFile,
+               "rootfs / rootfs rw 0 0\n"
+               "/dev/mapper/centos-root / xfs rw,seclabel,relatime,attr2,inode64,noquota 0 0\n"
+    );
+    CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1", S_IRUSR);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\nexit 0", S_IRWXU);
+    
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
+    EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(1).WillRepeatedly(Return(m_mountCmdPath));
+
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    EXPECT_EQ(mountInfo->device("/"), "/dev/mapper/centos-root");
+    auto allMountpoints = mountInfo->mountPoints();
+    EXPECT_EQ(allMountpoints.size(), 1);
+}
