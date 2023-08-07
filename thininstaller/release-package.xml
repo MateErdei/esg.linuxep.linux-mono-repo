@@ -12,12 +12,12 @@
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
-            <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
+            <release-version branch="release/2023-31" build-id="20230804161252-7df7432e6972f0c5e82234101f266f54f8e77fcd-GeRCtL"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.25" build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
+            <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
         </build-asset>
 
