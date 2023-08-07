@@ -4,11 +4,15 @@
 #include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
+
+#include <sys/stat.h>
 
 #include <map>
 
@@ -247,5 +251,34 @@ namespace SulDownloader
         }
 
         return false;
+    }
+
+    void SulDownloaderUtils::allowUpdateSchedulerAccess(const std::string& filePath)
+    {
+        auto filePermissions = Common::FileSystem::filePermissions();
+        bool groupExists = false;
+        try
+        {
+            filePermissions->getGroupId(sophos::group());
+            groupExists = true;
+        }
+        catch(const Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGDEBUG("The group " << sophos::group() << " does not exist, indicating running via Thin Installer");
+        }
+
+        if (groupExists)
+        {
+            try
+            {
+                // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is running.
+                filePermissions->chown(filePath, "root", sophos::group());
+                filePermissions->chmod(filePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+            }
+            catch (const Common::FileSystem::IFileSystemException& exception)
+            {
+                LOGWARN("Could not change lock file permissions for Update Scheduler to access: " << exception.what());
+            }
+        }
     }
 }

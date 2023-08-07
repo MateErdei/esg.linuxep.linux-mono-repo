@@ -13,6 +13,7 @@
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "SulDownloader/SulDownloaderUtils.h"
 
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
@@ -430,9 +431,7 @@ namespace SulDownloader
             // save config to disk after getPackagesToInstall, which generates package thumbprints for m_config
             SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
 
-            auto filePermissions = Common::FileSystem::filePermissions();
-            filePermissions->chown(configFilePathString, sophos::updateSchedulerUser(), sophos::group());
-            filePermissions->chmod(configFilePathString, S_IRUSR | S_IWUSR | S_IRGRP);
+            SulDownloaderUtils::allowUpdateSchedulerAccess(configFilePathString);
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {

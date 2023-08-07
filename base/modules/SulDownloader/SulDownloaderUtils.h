@@ -31,6 +31,11 @@ namespace SulDownloader
          */
         static std::vector<std::string> checkUpdatedComponentsAreRunning();
 
+        /**
+         * Change permissions, if possible, of file to allow updatescheduler access
+         */
+        static void allowUpdateSchedulerAccess(const std::string& filePath);
+
     private:
         [[nodiscard]] static bool waitForComponentToRun(const std::string& component);
         [[nodiscard]] static bool isComponentIsRunning(const std::string& component);
