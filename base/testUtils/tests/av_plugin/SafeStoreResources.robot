@@ -53,7 +53,7 @@ Check SafeStore Permissions And Owner
     Should Contain    ${user.stdout}    root
     Should Contain    ${group.stdout}    root
 
-    ${safestoreparentpid} =    Run Process    ps -o ppid= -p ${safeStorePid}    shell=True
+    ${safestoreparentpid} =    Run Process    ps -o ppid\= -p ${safeStorePid}    shell=True
     ${parentPid} =    Run Process    ps -e | grep ${safestoreparentpid}    shell=True
     Should Contain    ${parentPid.stdout}    sophos_watchdog
 
