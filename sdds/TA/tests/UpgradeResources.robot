@@ -68,7 +68,6 @@ Generate Local Fake Cloud Certificates
 
 Start Local SDDS3 Server
     [Arguments]    ${launchdarklyPath}=${INPUT_DIRECTORY}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_REPO_ROOT}
-    ${handle}=  Start Process  python3 ${LIB_FILES}/SDDS3server.py --launchdarkly ${launchdarklyPath} --sdds3 ${sdds3repoPath}  shell=true
     ${handle}=  Start Process
     ...  bash  -x
     ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
@@ -79,8 +78,8 @@ Start Local SDDS3 Server
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  30 secs
+    ...  3 secs
     ...  Can Curl Url    https://localhost:8080
     [Return]  ${handle}
 
