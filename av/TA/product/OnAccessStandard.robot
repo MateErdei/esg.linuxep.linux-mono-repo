@@ -425,7 +425,7 @@ On Access Does Not Mount AutoFs Mount
     ${result} =  Run Process  ls  -l  ${destination}
     Log  Contents of mount point: ${result.stdout}
     ${result} =  Run Process  mount
-    Should contain    ${result.stdout}    on ${destination} type ext
+    Should Contain X Times    ${result.stdout}    on ${destination} type    count=${2}
     Wait for on access log contains after mark    Including mount point: /tmp_test/SSPLAVTests/mnt/data  mark=${mark}
     Check on access log does not contain after mark  Mount point ${destination} using filesystem autofs is not supported and will be excluded from scanning  mark=${mark}
 
