@@ -28,7 +28,7 @@ Http Library Tests
     Set Suite Variable  ${server_pid}   ${server_pid}
     Wait Until Keyword Succeeds
     ...  10 secs
-    ...  1 secs
+    ...  2 secs
     ...  Can Curl Url    http://localhost:7780
 
     Wait Until Keyword Succeeds
