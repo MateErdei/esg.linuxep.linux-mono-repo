@@ -22,11 +22,13 @@ Local Suite Teardown
 
 *** Test Case ***
 Http Library Tests
+    # Exclude on SLES until LINUXDAR-7306 is fixed
+    [Tags]  EXCLUDE_SLES12
     ${server_pid} =  run_process_in_background  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpTestServer.py
     Set Suite Variable  ${server_pid}   ${server_pid}
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
+    ...  10 secs
+    ...  1 secs
     ...  Can Curl Url    http://localhost:7780
 
     Wait Until Keyword Succeeds
