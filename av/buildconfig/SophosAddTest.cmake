@@ -46,7 +46,6 @@ macro(SophosAddTest TARGET)
 
     target_link_libraries(${TARGET}
             PUBLIC
-            ${GTEST_LIBRARY}
             ${GTEST_MAIN_LIBRARY}
             pthread
             )
