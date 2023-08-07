@@ -170,7 +170,7 @@ Check Upgrade From Fixed Version to VUT
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check Current Release With AV Installed Correctly
+    Check Current Release Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Wait For RuntimeDetections to be Installed
