@@ -241,6 +241,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
+    Check For downgraded logs
+
     # Check users haven't been removed and added back
     ${new_sspl_user_uid} =       get_uid_from_username    sophos-spl-user
     ${new_sspl_local_uid} =      get_uid_from_username    sophos-spl-local
@@ -452,6 +454,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     Check EAP Release Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
+    Check For downgraded logs
 
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
@@ -724,3 +727,4 @@ Installing New Plugins Respects Custom Installation Location
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
 
     # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
+
