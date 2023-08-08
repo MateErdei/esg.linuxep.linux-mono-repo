@@ -53,7 +53,7 @@ version:
 
   # For sprint builds, specify the sprint; automatically used in suite marketing versions
   # For non-sprint release builds, just comment this out or use 'null'
-  sprint: '2023.28'
+  sprint: '2023.31'
 
   # set this to LTS if doing a warehouse build for LTS release
   static: 'FTS'
