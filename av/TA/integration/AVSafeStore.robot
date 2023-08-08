@@ -1131,7 +1131,8 @@ Threat Can Be Restored From Persisted SafeStore Database
     ${policyContent} =   create_corc_policy  sxlLookupEnabled=${false}
     Send CORC Policy To Base From Content  ${policyContent}
     Send Alc Policy
-    Send Policies to disable on-access
+    Send Policies to disable on-access without waiting
+    Check OA disabled in status file
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${avMark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60

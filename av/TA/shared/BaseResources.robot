@@ -86,11 +86,15 @@ Send Policies to enable on-access with exclusions
     Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
     Wait for on access to be enabled  ${mark}   file=/tmp_test/oa_file
 
-Send Policies to disable on-access
-    ${mark} =  get_on_access_log_mark
+Send Policies to disable on-access without waiting
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml
     Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     Send Flags Policy To Base  flags_policy/flags.json
+
+
+Send Policies to disable on-access
+    ${mark} =  get_on_access_log_mark
+    Send Policies to disable on-access without waiting
     ${expected} =  Create List  on-access will be disabled  On-access scanning disabled  On-access enabled: false
     wait for on access log contains after mark  ${expected}  mark=${mark}
 
