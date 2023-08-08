@@ -116,7 +116,26 @@ Prepare Installation For Upgrade Using Policy
     [Arguments]    ${policyPath}
     install_upgrade_certs_for_policy  ${policyPath}
 
+Check For downgraded logs
+    # AV logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
 
+    # Liveresponse logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+    # Edr
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
+
+    # Response actions logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
+
+    # RTD logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 Mark Known Upgrade Errors
     # TODO LINUXDAR-7318 - expected till bugfix is in released version
     mark_expected_error_in_log    ${BASE_LOGS_DIR}/watchdog.log  /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
