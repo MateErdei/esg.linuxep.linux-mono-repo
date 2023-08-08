@@ -310,12 +310,13 @@ Clean Scan Now Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 
-Clean Scheduled Scan Result Does Not Resets Threat Health
+Clean Scheduled Scan Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    GOOD
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
     ${av_mark} =  Get AV Log Mark
+    Send CORC Policy to Disable SXL
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait Until Scheduled Scan Updated After Mark  ${av_mark}

@@ -1128,8 +1128,7 @@ Threat Can Be Restored From Persisted SafeStore Database
     ${threatId} =  Set Variable    e52cf957-a0dc-5b12-bad2-561197a5cae4
 
     # Send policies to Base
-    ${policyContent} =   create_corc_policy  sxlLookupEnabled=${false}
-    Send CORC Policy To Base From Content  ${policyContent}
+    Send CORC Policy to Disable SXL
     Send Alc Policy
     Send Policies to disable on-access without waiting
     Check OA disabled in status file

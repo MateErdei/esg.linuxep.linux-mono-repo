@@ -145,6 +145,10 @@ Send CORC Policy To Base From Content
     Create File   ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   ${policyContent}
     Send Temp Policy To Base  ${MCS_PATH}/tmp/CORC_policy.xml.TEMP   CORC_policy.xml
 
+Send CORC Policy to Disable SXL
+    ${policyContent} =   create_corc_policy  sxlLookupEnabled=${false}
+    Send CORC Policy To Base From Content  ${policyContent}
+
 Send SAV Policy To Base From Content
     [Arguments]  ${policyContent}
     Create File   ${MCS_PATH}/tmp/SAV_policy.xml.TEMP   ${policyContent}
