@@ -39,9 +39,15 @@ def get_version(repository_path):
 
 def main(argv):
     if len(argv) != 2:
-        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/suite_packages.yaml")
+        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/pkgs_latest.yaml")
         return 1
-    data = open(argv[1]).read()
+
+    path = argv[1]
+    if not os.path.exists(path):
+        print(f"{path} does not exist")
+        return 1
+
+    data = open(path).read()
     data = yaml.load(data, Loader)
     # print(json.dumps(data, indent=2))
     for key, value in data.items():
