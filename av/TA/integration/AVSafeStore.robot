@@ -1127,6 +1127,12 @@ Threat Can Be Restored From Persisted SafeStore Database
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     ${threatId} =  Set Variable    e52cf957-a0dc-5b12-bad2-561197a5cae4
 
+    # Send policies to Base
+    ${policyContent} =   create_corc_policy  sxlLookupEnabled=${false}
+    Send CORC Policy To Base From Content  ${policyContent}
+    Send Alc Policy
+    Send Policies to disable on-access
+
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${avMark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
