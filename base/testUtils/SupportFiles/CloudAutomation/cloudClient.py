@@ -446,8 +446,9 @@ class CloudClient(object):
     def getReleases(self, expiresFrom="2022-01-01"):
         # Central uses https://api-us01.qa.central.sophos.com/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom=<tomorrow>
         url_suffix = f"/endpoint/v1/software/packages/static?endpointType=server&platform=linux&expiresFrom={expiresFrom}"
-        url = self.upe_api + url_suffix
-        if self.api_host:
+        if self.api_host is None:
+            url = self.upe_api + url_suffix
+        else:
             url = self.api_host + url_suffix
         request = urllib.request.Request(url, headers=self.default_headers)
         response = request_url(request)
