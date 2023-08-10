@@ -1067,6 +1067,48 @@ class LogUtils(object):
         handler = self.get_log_handler(log_path)
         return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
 
+    def check_log_contains_n_times_after_mark(self, log_path, expected_log, times, mark):
+        expected_list = []
+        for x in range(0, int(times)):
+            expected_list.append(expected_log)
+
+        self.check_log_contains_in_order_after_mark(log_path, expected_list, mark)
+
+    def check_log_contains_in_order_after_mark(self, log_path, expected_items, mark):
+        if mark is None:
+            logger.error("No mark passed for check_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected_items, log_path))
+
+        encoded_expected = []
+        for string in expected_items:
+            encoded_expected.append(string.encode("UTF-8"))
+
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
+        index = 0
+
+        for string in encoded_expected:
+            logger.info("Looking for {}".format(string))
+            index = contents.find(string, index)
+            if index != -1:
+                logger.info("{} log contains {}".format(log_path, string))
+                index = index + len(string)
+            else:
+                logger.error(contents)
+                raise AssertionError("Remainder of {} log doesn't contain {}".format(log_path, string))
+
+        return
+
+    def wait_for_log_contains_n_times_from_mark(self,
+                                                mark: LogHandler.LogMark,
+                                                expected: typing.Union[list, str, bytes],
+                                                times: int,
+                                                timeout=10) -> None:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
+        return mark.wait_for_log_contains_n_times_from_mark(expected, times, timeout)
+    
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.oa_log))
