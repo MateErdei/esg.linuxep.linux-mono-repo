@@ -169,7 +169,10 @@ def install_requirements(machine: tap.Machine):
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
         package_install(machine, "rsync")
         package_install(machine, "openssl")
-        package_install(machine, "git")
+        package_install(machine, "openssl-perl")
+
+        if machine.run("which", "zypper", return_exit_code=True) == 0:
+            package_install(machine, "libcap-progs")
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
         print(f"On adding installing requirements: {ex}")
