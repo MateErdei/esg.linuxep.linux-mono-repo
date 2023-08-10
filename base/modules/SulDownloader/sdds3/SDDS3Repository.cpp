@@ -13,7 +13,6 @@
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
-#include "SulDownloader/SulDownloaderUtils.h"
 
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
@@ -21,16 +20,8 @@
 
 #include <iostream>
 
-#include <sys/stat.h>
-
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
-
-constexpr const std::string_view SDDS3_DEFAULT_SERVICE_URL{ "https://sus.sophosupd.com" };
-constexpr const std::array<std::string_view, 2> SDDS3_DEFAULT_CDN_URLS{
-    "https://sdds3.sophosupd.com:443",
-    "https://sdds3.sophosupd.net:443",
-};
 
 class applicationPathManager;
 
@@ -430,8 +421,6 @@ namespace SulDownloader
         {
             // save config to disk after getPackagesToInstall, which generates package thumbprints for m_config
             SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
-
-            SulDownloaderUtils::allowUpdateSchedulerAccess(configFilePathString);
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
