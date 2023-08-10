@@ -4,17 +4,15 @@ soph_cc_library(
     name = "ZMQWrapperApiImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/ReactorImpl",
-        "@zmq",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/ReactorImpl",
         "//modules/Common/ZMQWrapperApi",
         "//modules/Common/ZeroMQWrapperImpl",
+        "@zmq",
     ],
 )

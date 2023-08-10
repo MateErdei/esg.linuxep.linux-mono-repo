@@ -1,25 +1,24 @@
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "PluginRegistryImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        ":PluginInfo",
-        "//modules/Common/Logging",
-        "//modules/Common/ProtobufUtil",
-        "//modules/Common/Exceptions",
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "@com_google_protobuf//:protobuf",
-        "//modules/Common/FileSystemImpl",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        ":PluginInfo",
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/Exceptions",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
         "//modules/Common/ProcessImpl",
+        "//modules/Common/ProtobufUtil",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "@com_google_protobuf//:protobuf",
     ],
 )
 

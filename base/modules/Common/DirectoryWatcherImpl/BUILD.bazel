@@ -4,17 +4,15 @@ soph_cc_library(
     name = "DirectoryWatcherImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/ZeroMQWrapperImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/Common/Logging",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/DirectoryWatcher",
+        "//modules/Common/Logging",
         "//modules/Common/Threads",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/ZeroMQWrapperImpl",
     ],
 )

@@ -5,11 +5,11 @@ soph_cc_library(
     name = "SystemCallWrapper",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "@libcap//:libcap_shared",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
+    ],
+    deps = [
+        "@libcap//:libcap_shared",
     ],
 )

@@ -4,13 +4,13 @@ soph_cc_library(
     name = "XmlUtilities",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "@expat",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "@expat",
     ],
 )

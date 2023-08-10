@@ -4,8 +4,5 @@ build --features=-cxx20
 # The SPL_BAZEL define is used to conditionally select code for Bazel builds (toolchain differences etc.)
 build --copt=-DSPL_BAZEL
 
-# Allows using implementation_deps in libraries
-build --experimental_cc_implementation_deps
-
 # Add modules as a global include search path
 build --define SOPH_ASSET_SOURCE_ROOT=modules

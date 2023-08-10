@@ -4,19 +4,17 @@ soph_cc_library(
     name = "ProcessMonitoringImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/PluginRegistryImpl",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:TimeUtils",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/PluginRegistryImpl",
         "//modules/Common/ProcessMonitoring",
+        "//modules/Common/UtilityImpl:TimeUtils",
         "//modules/Common/ZMQWrapperApiImpl",
     ],
 )

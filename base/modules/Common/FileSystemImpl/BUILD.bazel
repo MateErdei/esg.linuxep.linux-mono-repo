@@ -5,11 +5,6 @@ soph_cc_library(
     name = "FileSystemImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/UtilityImpl:ProjectNames",
-        "//modules/Common/UtilityImpl:StrError",
-        "//modules/Common/UtilityImpl:UniformIntDistribution",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
@@ -17,5 +12,8 @@ soph_cc_library(
     deps = [
         "//modules/Common/FileSystem",
         "//modules/Common/SystemCallWrapper",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/UtilityImpl:UniformIntDistribution",
     ],
 )

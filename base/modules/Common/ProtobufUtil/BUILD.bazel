@@ -4,11 +4,11 @@ soph_cc_library(
     name = "ProtobufUtil",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "@com_google_protobuf//:protobuf",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
+    ],
+    deps = [
+        "@com_google_protobuf//:protobuf",
     ],
 )

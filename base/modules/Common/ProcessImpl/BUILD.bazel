@@ -4,19 +4,17 @@ soph_cc_library(
     name = "ProcessImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/Common/Threads",
-        "@boost//:asio",
-        "@boost//:process",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
         "//modules/Common/Process",
+        "//modules/Common/Threads",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "@boost//:asio",
+        "@boost//:process",
     ],
 )

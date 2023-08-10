@@ -4,17 +4,15 @@ soph_cc_library(
     name = "ReactorImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:StrError",
-        "//modules/Common/ZeroMQWrapperImpl",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/Logging",
         "//modules/Common/Reactor",
         "//modules/Common/Threads",
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/ZeroMQWrapperImpl",
     ],
 )

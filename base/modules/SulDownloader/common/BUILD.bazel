@@ -1,7 +1,7 @@
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
-    name = "sdds3",
+    name = "common",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
     visibility = [
@@ -9,17 +9,12 @@ soph_cc_library(
         "//tests/SulDownloader:__pkg__",
     ],
     deps = [
-        "//common/sophlib/sdds3",
-        "//modules/Common/CurlWrapper",
+        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/FileSystemImpl",
-        "//modules/Common/HttpRequests",
-        "//modules/Common/HttpRequestsImpl",
         "//modules/Common/Logging",
-        "//modules/Common/UpdateUtilities",
+        "//modules/Common/Policy",
+        "//modules/Common/ProcessImpl",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/SulDownloader/common",
-        "//modules/SulDownloader/suldownloaderdata",
-        "//thirdparty/nlohmann-json",
     ],
 )

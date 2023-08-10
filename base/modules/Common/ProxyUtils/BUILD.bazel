@@ -4,19 +4,17 @@ soph_cc_library(
     name = "ProxyUtils",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/ObfuscationImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//thirdparty/nlohmann-json",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
         "//modules/Common/HttpRequests",
+        "//modules/Common/Logging",
+        "//modules/Common/ObfuscationImpl",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//thirdparty/nlohmann-json",
     ],
 )

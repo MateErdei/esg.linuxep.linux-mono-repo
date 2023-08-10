@@ -4,14 +4,12 @@ soph_cc_library(
     name = "PluginApi",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/Exceptions",
+        "//modules/Common/Logging",
     ],
 )

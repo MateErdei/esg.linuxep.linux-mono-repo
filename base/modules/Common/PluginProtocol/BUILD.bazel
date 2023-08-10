@@ -1,19 +1,18 @@
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "PluginProtocol",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        ":PluginAPIMessage",
-        "//modules/Common/Logging",
-        "//modules/Common/PluginApi",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        ":PluginAPIMessage",
+        "//modules/Common/Logging",
+        "//modules/Common/PluginApi",
         "//modules/Common/ReactorImpl",
         "//modules/Common/ZeroMQWrapperImpl",
     ],

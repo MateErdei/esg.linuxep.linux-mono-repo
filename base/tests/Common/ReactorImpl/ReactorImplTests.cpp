@@ -111,8 +111,6 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
 
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
 
-    std::cout << fakeServerPath << std::endl;
-
 #ifndef SPL_BAZEL
     ASSERT_TRUE(fileSystem->isDirectory(libsPath));
 #endif

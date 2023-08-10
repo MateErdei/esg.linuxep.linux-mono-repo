@@ -4,15 +4,15 @@ soph_cc_library(
     name = "TelemetryHelperImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//thirdparty/nlohmann-json",
-    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//thirdparty/nlohmann-json",
     ],
 )
