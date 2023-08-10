@@ -88,6 +88,7 @@ Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
     &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
+    ${sul_mark} =    Get Suldownloader Log Mark
 
     Start Local Cloud Server
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
@@ -103,16 +104,13 @@ Check Upgrade From Fixed Version to VUT
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    Wait For Log Contains N Times From Mark   ${sul_mark}    Update success    ${2}    ${150}
     Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    ${sul_mark2} =    Get Suldownloader Log Mark
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    wait_for_log_contains_from_mark    ${sul_mark2}    Update success    120
 
     Check EAP Release Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -130,10 +128,10 @@ Check Upgrade From Fixed Version to VUT
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    ${sul_mark3} =    Get Suldownloader Log Mark
 
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait For Log Contains From Mark    ${sul_mark3}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -202,12 +200,13 @@ Check Downgrade From VUT to Fixed Version
     &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedFixedVersions["baseVersion"]}
+    ${sul_mark} =    Get Suldownloader Log Mark
 
     start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
+    ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -217,16 +216,13 @@ Check Downgrade From VUT to Fixed Version
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_suldownloader_log_contains   Update success
+    Wait For Log Contains From Mark   ${sul_mark}    Update success    ${150}
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    ${sul_mark2} =    Get Suldownloader Log Mark
     trigger_update_now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait For Log Contains From Mark    ${sul_mark2}    Update success    120
 
     Check Current Release Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -240,10 +236,8 @@ Check Downgrade From VUT to Fixed Version
     ${sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
 
     Stop Local SDDS3 Server
-    # Changing the policy here will result in an automatic update
-    # Note when downgrading from a release with live response to a release without live response
-    # results in a second update.
-    Start Local Dogfood SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly    ${INPUT_DIRECTORY}/${fixedVersion}/repo
+    Set Suite Variable    ${GL_handle}    ${handle}
 
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     trigger_update_now
@@ -254,10 +248,10 @@ Check Downgrade From VUT to Fixed Version
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
-    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    ${sul_mark3} =    Get Suldownloader Log Mark
     trigger_update_now
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    200
-    check_suldownloader_log_contains   Running SDDS3 update
+    Wait For Log Contains From Mark    ${sul_mark3}    Update success    200
+    Wait For Log Contains From Mark    ${sul_mark3}    Running SDDS3 update
 
     Mark Known Upgrade Errors
     Mark Known Downgrade Errors
