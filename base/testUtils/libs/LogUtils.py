@@ -486,6 +486,9 @@ class LogUtils(object):
         log_contains_in_order(self.register_log, "Register Central", args)
 
     # SulDownloader Log Utils
+    def get_suldownloader_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.suldownloader_log)
+        
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
 
