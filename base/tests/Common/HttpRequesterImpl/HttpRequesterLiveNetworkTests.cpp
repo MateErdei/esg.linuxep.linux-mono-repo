@@ -1,3 +1,4 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 /*
  * This test binary runs against the test server HttpTestServer during TAP test.
  * The tests can also be run locally by running HttpTestServer.py (right click run), and then running the tests here

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/ProcessImpl/ArgcAndEnv.h"

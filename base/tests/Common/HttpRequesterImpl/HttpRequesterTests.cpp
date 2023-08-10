@@ -1,3 +1,4 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockCurlWrapper.h"
 
