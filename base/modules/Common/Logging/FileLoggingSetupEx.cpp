@@ -8,8 +8,10 @@
 #include "Common/Logging/LoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include <log4cplus/configurator.h>
+#include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
 
 Common::Logging::FileLoggingSetupEx::FileLoggingSetupEx(const std::string& logbase, bool lowpriv)
 {

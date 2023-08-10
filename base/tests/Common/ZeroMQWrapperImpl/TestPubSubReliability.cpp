@@ -4,13 +4,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/IIPCTimeoutException.h"
-#include "modules/Common/ZeroMQWrapper/IReadable.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"

@@ -4,6 +4,7 @@
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include <mutex>
+#include<iostream>
 namespace{
     std::mutex preventTestsToUseEachOtherFileSystemMock; 
 }

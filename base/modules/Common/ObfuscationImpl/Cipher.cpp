@@ -10,10 +10,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/Obfuscation/ICipherException.h"
 
+#include <openssl/conf.h>
 #include <openssl/err.h>
 
 #include <cassert>
 #include <iostream>
+#include <pwd.h>
 #include <vector>
 // ------------------------------------------------------------------------------------------------
 

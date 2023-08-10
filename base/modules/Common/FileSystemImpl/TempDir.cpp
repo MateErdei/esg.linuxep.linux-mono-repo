@@ -6,7 +6,9 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StrError.h"
 
+#include <cstring>
 #include <iostream>
+#include <unistd.h>
 
 using namespace Common::FileSystemImpl;
 using namespace Common::UtilityImpl;

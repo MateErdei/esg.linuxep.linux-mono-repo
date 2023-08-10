@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "Common/PluginApi/ApiException.h"
+#include "Common/Reactor/IReactor.h"
 namespace Common
 {
     namespace PluginProtocol

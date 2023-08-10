@@ -1,6 +1,6 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "modules/Common/Threads/LockableData.h"
+#include "Common/Threads/LockableData.h"
 
 #include <gtest/gtest.h>
 

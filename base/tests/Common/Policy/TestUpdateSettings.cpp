@@ -1,8 +1,8 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "modules/Common/Policy/UpdateSettings.h"
+#include "Common/Policy/UpdateSettings.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include "TestUpdateSettingsBase.h"
 

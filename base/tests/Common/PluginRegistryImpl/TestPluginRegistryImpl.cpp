@@ -4,9 +4,9 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/PluginRegistryImpl/PluginInfo.h"
-#include "modules/Common/PluginRegistryImpl/PluginRegistryException.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/PluginRegistryImpl/PluginRegistryException.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"

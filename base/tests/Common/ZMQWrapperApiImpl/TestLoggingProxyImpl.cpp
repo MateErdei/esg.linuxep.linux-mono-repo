@@ -6,13 +6,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Common/Exceptions/Print.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/ZMQWrapperApiImpl/ContextImpl.h"
-#include "modules/Common/ZeroMQWrapper/IIPCException.h"
-#include "modules/Common/ZeroMQWrapper/IProxy.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "modules/Common/ZeroMQWrapperImpl/ProxyImpl.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApiImpl/ContextImpl.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/IProxy.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <atomic>

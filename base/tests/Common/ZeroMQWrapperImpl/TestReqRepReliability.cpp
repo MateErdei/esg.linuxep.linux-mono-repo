@@ -16,10 +16,10 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #    include "Common/ZeroMQWrapper/ISocketPublisher.h"
 #    include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
 #    include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#    include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
-#    include "modules/Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
-#    include "modules/Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
-#    include "modules/Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#    include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#    include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
+#    include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
+#    include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
 #    include <gmock/gmock.h>
 #    include <gtest/gtest.h>
 #    include "tests/Common/Helpers/TempDir.h"

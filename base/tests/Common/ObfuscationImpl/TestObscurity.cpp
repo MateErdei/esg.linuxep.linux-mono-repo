@@ -11,6 +11,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "Common/ObfuscationImpl/Obscurity.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 class TestObscurity: public LogOffInitializedTests{};

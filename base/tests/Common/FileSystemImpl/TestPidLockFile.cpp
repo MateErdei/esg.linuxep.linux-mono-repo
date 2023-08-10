@@ -1,8 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockPidLockFileUtils.h"
-#include "tests/Common/Helpers/TempDir.h"
 #include "Common/FileSystemImpl/PidLockFile.h"
+#include "tests/Common/Helpers/TempDir.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <future>

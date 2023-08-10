@@ -9,8 +9,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 
+#include <memory>
+
 #include <sys/stat.h>
-#include <ctime>
+#include <sys/types.h>
+
+#include <unistd.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

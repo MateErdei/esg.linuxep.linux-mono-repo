@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Reactor/ICallbackListener.h"
+#include "Common/Reactor/ICallbackListener.h"
 
 #include <gmock/gmock.h>
 using namespace ::testing;

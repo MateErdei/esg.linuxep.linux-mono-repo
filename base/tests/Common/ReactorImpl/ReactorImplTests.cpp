@@ -18,10 +18,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/ReactorImpl/ReadableFd.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketImpl.h"
+#include "Common/ReactorImpl/ReadableFd.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"

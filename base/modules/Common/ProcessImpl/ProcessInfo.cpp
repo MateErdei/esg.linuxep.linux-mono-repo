@@ -11,6 +11,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IFilePermissions.h"
 
+#include <grp.h>
+#include <pwd.h>
+#include <unistd.h>
+
 namespace Common
 {
     namespace ProcessImpl

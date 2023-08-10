@@ -4,10 +4,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Process/IProcessException.h"
-#include "modules/Common/ProcessImpl/ProcessInfo.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessInfo.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <fstream>
 
 namespace Common::Process
 {

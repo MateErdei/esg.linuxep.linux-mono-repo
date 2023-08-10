@@ -15,6 +15,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <sys/inotify.h>
 
+#include <cstring>
+
 using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;
 

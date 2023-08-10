@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
  * Component tests for libcurl wrapper
  */
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <memory>

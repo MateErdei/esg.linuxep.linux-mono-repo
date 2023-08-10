@@ -1,6 +1,6 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "modules/Common/Policy/ProxyCredentials.h"
+#include "Common/Policy/ProxyCredentials.h"
 
 #include <gtest/gtest.h>
 

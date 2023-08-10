@@ -4,14 +4,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/ProcessMonitoring/IProcessMonitor.h"
-#include "modules/Common/ProcessMonitoringImpl/ProcessMonitor.h"
-#include "modules/Common/ZeroMQWrapper/IIPCException.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/ProcessMonitoring/IProcessMonitor.h"
+#include "Common/ProcessMonitoringImpl/ProcessMonitor.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <future>
 #include <signal.h>
 #include <thread>
 

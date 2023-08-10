@@ -11,6 +11,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <sys/types.h>
 #ifndef OutDir
 #define OutDir ""
 #endif

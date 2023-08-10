@@ -2,14 +2,14 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <climits>
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/SecurityUtils/ProcessSecurityUtils.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/SecurityUtils/ProcessSecurityUtils.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"
 #include "tests/Common/Helpers/TestMacros.h"
 #include <fstream>
-#include "modules/Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 
 using namespace Common::SecurityUtils;
 

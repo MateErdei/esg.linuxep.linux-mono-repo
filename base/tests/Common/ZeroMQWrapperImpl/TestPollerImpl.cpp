@@ -1,14 +1,14 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/Threads/NotifyPipe.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/IIPCTimeoutException.h"
-#include "modules/Common/ZeroMQWrapper/IPoller.h"
-#include "modules/Common/ZeroMQWrapper/IReadWrite.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketImpl.h"
-#include "modules/Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/Threads/NotifyPipe.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include <gtest/gtest.h>
 
 #include <future>

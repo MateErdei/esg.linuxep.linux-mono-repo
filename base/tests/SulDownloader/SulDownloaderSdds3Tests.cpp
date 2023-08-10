@@ -40,8 +40,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <mutex>
-
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 

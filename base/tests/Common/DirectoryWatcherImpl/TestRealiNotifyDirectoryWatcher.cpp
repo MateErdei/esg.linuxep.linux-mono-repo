@@ -12,6 +12,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "tests/Common/Helpers/TempDir.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
+#include <gmock/gmock.h>
+#include <cstring>
 
 using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;

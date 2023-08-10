@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/ZipUtilities/ZipUtils.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 
 #include <iostream>
 
