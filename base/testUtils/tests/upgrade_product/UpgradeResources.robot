@@ -22,12 +22,6 @@ Resource    ../mcs_router/McsRouterResources.robot
 
 *** Variables ***
 ${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
-${InstalledAVPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
-${InstalledEDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
-${InstalledRTDPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
-${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
-${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
 ${sdds3_server_output}                          /tmp/sdds3_server.log
 ${tmpLaunchDarkly}                              /tmp/launchdarkly
 ${staticflagfile}                               linuxep.json
@@ -78,15 +72,8 @@ Check AV and Base Components Inside The ALC Status
     Should Contain  ${statusContent}  ServerProtectionLinux-Plugin-AV
     Should Contain  ${statusContent}  ServerProtectionLinux-Base
 
-Check Status Has Changed
-     [Arguments]  ${status1}
-     ${status2} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-     Should Not Be Equal As Strings  ${status1}  ${status2}
-
-
 Log XDR Intermediary File
     Run Keyword And Ignore Error   Log File  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
-
 
 Mark Known Upgrade Errors
     # TODO: LINUXDAR-7318 - expected till bugfix is in released version
@@ -127,14 +114,6 @@ Start Local SDDS3 Server
     ...  Can Curl Url    https://localhost:8080
     [Return]  ${handle}
 
-Start Local Dogfood SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${DOGFOOD_WAREHOUSE_ROOT}/launchdarkly    ${DOGFOOD_WAREHOUSE_ROOT}/repo
-    [Return]  ${handle}
-
-Start Local Current Shipping SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}/launchdarkly    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}/repo
-    [Return]  ${handle}
-
 Start Local SDDS3 Server With Empty Repo
     Create Directory  /tmp/FakeFlags
     Create Directory    /tmp/FakeRepo
@@ -157,11 +136,6 @@ Stop Local SDDS3 Server
     Dump Teardown Log    ${sdds3_server_output}
     Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
-
-Check EAP Release With AV Installed Correctly
-    Check MCS Router Running
-    Check AV Plugin Installed
-    Check Installed Correctly
 
 Check Current Release With AV Installed Correctly
     Check MCS Router Running
@@ -191,100 +165,6 @@ Check Installed Correctly
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
     Check Expected Base Processes Except SDU Are Running
-
-Check N Update Reports Processed
-    [Arguments]  ${updateReportCount}
-    ${processedFileCount} =    Count Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    Should Be Equal As Integers    ${processedFileCount}    ${updateReportCount}
-
-Check Update Reports Have Been Processed
-    Directory Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    ${filesInProcessedDir} =    List Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    Log    ${filesInProcessedDir}
-    ${filesInUpdateVar} =    List Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler
-    Log    ${filesInUpdateVar}
-    ${UpdateReportCount} =    Count Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler    update_report[0-9]*.json
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check N Update Reports Processed    ${UpdateReportCount}
-
-    Should Contain    ${filesInProcessedDir}[0]    update_report
-    Should Not Contain    ${filesInProcessedDir}[0]    update_report.json
-    Should Contain    ${filesInUpdateVar}    ${filesInProcessedDir}[0]
-
-
-Check Expected Versions Against Installed Versions
-    [Arguments]    &{expectedVersions}
-    &{installedVersions} =    Get Current Installed Versions
-    Dictionaries Should Be Equal    ${expectedVersions}    ${installedVersions}
-
-Wait For Version Files to Update
-    [Arguments]    &{expectedVersions}
-    Wait Until Keyword Succeeds
-    ...  150 secs
-    ...  10 secs
-    ...  Version Number In Ini File Should Be    ${InstalledBaseVersionFile}    ${expectedVersions["baseVersion"]}
-    
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledAVPluginVersionFile}    ${expectedVersions["avVersion"]}
-    
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledEDRPluginVersionFile}    ${expectedVersions["edrVersion"]}
-    
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledEJPluginVersionFile}    ${expectedVersions["ejVersion"]}
-    
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledLRPluginVersionFile}    ${expectedVersions["lrVersion"]}
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Version Number In Ini File Should Be    ${InstalledRTDPluginVersionFile}    ${expectedVersions["rtdVersion"]}
-
-Get Current Installed Versions
-    ${BaseReleaseVersion} =     Get Version Number From Ini File        ${InstalledBaseVersionFile}
-    ${AVReleaseVersion} =       Get Version Number From Ini File        ${InstalledAVPluginVersionFile}
-    ${EDRReleaseVersion} =      Get Version Number From Ini File        ${InstalledEDRPluginVersionFile}
-    ${EJReleaseVersion} =       Get Version Number From Ini File        ${InstalledEJPluginVersionFile}
-    ${LRReleaseVersion} =       Get Version Number From Ini File        ${InstalledLRPluginVersionFile}
-    ${RTDReleaseVersion} =      Get RTD Version Number From Ini File    ${InstalledRTDPluginVersionFile}
-
-    &{versions} =    Create Dictionary
-    ...    baseVersion=${BaseReleaseVersion}
-    ...    avVersion=${AVReleaseVersion}
-    ...    edrVersion=${EDRReleaseVersion}
-    ...    ejVersion=${EJReleaseVersion}
-    ...    lrVersion=${LRReleaseVersion}
-    ...    rtdVersion=${RTDReleaseVersion}
-    [Return]    &{versions}
-
-Get Expected Versions
-    [Arguments]    ${warehouseRoot}
-    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Base-component
-    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${warehouseRoot}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
-    &{versions} =    Create Dictionary
-    ...    baseVersion=${ExpectedBaseReleaseVersion}
-    ...    avVersion=${ExpectedAVReleaseVersion}
-    ...    edrVersion=${ExpectedEDRReleaseVersion}
-    ...    ejVersion=${ExpectedEJReleaseVersion}
-    ...    lrVersion=${ExpectedLRReleaseVersion}
-    ...    rtdVersion=${ExpectedRTDReleaseVersion}
-    [Return]    &{versions}
 
 Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
