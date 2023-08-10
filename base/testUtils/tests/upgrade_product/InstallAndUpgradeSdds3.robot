@@ -41,7 +41,7 @@ Test Timeout  10 mins
 Force Tags  LOAD9
 
 *** Variables ***
-${CUSTOM_INSTALL_DIRECTORY}    /etc/sophos-spl
+${CUSTOM_INSTALL_DIRECTORY}    /opt/etc/sophos-spl
 
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderSyncLog}                     ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
@@ -861,6 +861,7 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
 SPL Can Be Installed To A Custom Location
     [Tags]    CUSTOM_INSTALL_PATH
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Create Directory     /opt/etc
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
     # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
@@ -971,7 +972,8 @@ SPL Can Be Installed To A Custom Location
 
 Installing New Plugins Respects Custom Installation Location
     [Tags]    CUSTOM_INSTALL_PATH
-    [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    [Teardown]    Custom install teardown
+    Create Directory     /opt/etc
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
     start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
@@ -1023,6 +1025,9 @@ Installing New Plugins Respects Custom Installation Location
 
 
 *** Keywords ***
+Custom install teardown
+    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
+    Remove Directory    /opt/etc
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/1
     Create Directory    ${sdds2_primary}/2
