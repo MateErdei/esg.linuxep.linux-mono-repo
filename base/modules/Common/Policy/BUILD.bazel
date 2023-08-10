@@ -20,7 +20,7 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/ObfuscationImpl",  # TODO should be refactored to allow //modules/Common/Obfuscation to be used here instead
+        "//modules/Common/ObfuscationImpl",
         "//modules/Common/XmlUtilities",
     ],
 )

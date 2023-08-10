@@ -13,6 +13,6 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/HttpRequests",
-        "//modules/Common/ObfuscationImpl",  # TODO: perhaps could be refactored to not need it
+        "//modules/Common/ObfuscationImpl",
     ],
 )

@@ -7,7 +7,7 @@ soph_cc_library(
     implementation_deps = [
         "//modules/Common/Logging",
         "//modules/Common/UtilityImpl:StrError",
-        "//modules/Common/ZeroMQWrapperImpl",  # TODO: Needed due to ZeroMQWrapperException.h, which should be refactored out
+        "//modules/Common/ZeroMQWrapperImpl",
     ],
     visibility = [
         "//modules:__subpackages__",

@@ -12,7 +12,7 @@ soph_cc_library(
         "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/UtilityImpl:StringUtils",
         "@com_google_protobuf//:protobuf",
-        "//modules/Common/FileSystemImpl",  # TODO: FileSystemImpl should be refactored to only need FileSystem here
+        "//modules/Common/FileSystemImpl",
     ],
     visibility = [
         "//modules:__subpackages__",

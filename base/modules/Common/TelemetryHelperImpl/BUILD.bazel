@@ -6,7 +6,7 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     implementation_deps = [
         "//modules/Common/Logging",
-        "//modules/Common/FileSystemImpl",  # TODO Should be refactored to not require Impl
+        "//modules/Common/FileSystemImpl",
         "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/UtilityImpl:StringUtils",
         "//thirdparty/nlohmann-json",

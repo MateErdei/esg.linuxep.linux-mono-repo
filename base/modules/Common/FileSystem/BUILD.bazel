@@ -11,7 +11,7 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/Exceptions",
-        "//modules/Common/SslImpl",  # TODO would be good to move this to impl later
+        "//modules/Common/SslImpl",
         "@libcap//:libcap_shared",
     ],
 )
