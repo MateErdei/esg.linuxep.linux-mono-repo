@@ -18,45 +18,38 @@ namespace queryrunner{
 
     void ParallelQueryProcessor::newJobDone(const std::string& id)
     {
-        if (m_shuttingDown)
+        try
         {
-            abortQueries();
+            std::lock_guard<std::mutex> l { m_mutex };
+            LOGDEBUG("Query " << id << " finished");
+
+            // clearing up previous queries objects that now can be removed as they are not in the same thread.
+            m_processedQueries.clear();
+
+            // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed as this method is executed in the queryRunner callback thread.
+
+            auto it = std::find_if(
+                m_processingQueries.begin(),
+                m_processingQueries.end(),
+                [id](const std::unique_ptr<queryrunner::IQueryRunner>& irunner) { return irunner->id() == id; });
+
+            if (it != m_processingQueries.end())
+            {
+                auto result = it->get()->getResult();
+                m_telemetry.processLiveQueryResponseStats(result);
+                LOGDEBUG("One more entry removed from the queue of processing queries");
+                // move this element to the other list to clear it afterwards.
+                // it cannot be clear here as this is executed in the callback of the queryrunnerthread.
+                m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it);
+            }
+            else
+            {
+                LOGWARN("Failed to find the query " << id << " in the list of processing queries");
+            }
         }
-        else
+        catch (const std::exception& ex)
         {
-            try
-            {
-                std::lock_guard<std::mutex> l { m_mutex };
-                LOGDEBUG("Query " << id << " finished");
-
-                // clearing up previous queries objects that now can be removed as they are not in the same thread.
-                m_processedQueries.clear();
-
-                // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed as this method is executed in the queryRunner callback thread.
-
-                auto it = std::find_if(
-                    m_processingQueries.begin(),
-                    m_processingQueries.end(),
-                    [id](const std::unique_ptr<queryrunner::IQueryRunner>& irunner) { return irunner->id() == id; });
-
-                if (it != m_processingQueries.end())
-                {
-                    auto result = it->get()->getResult();
-                    m_telemetry.processLiveQueryResponseStats(result);
-                    LOGDEBUG("One more entry removed from the queue of processing queries");
-                    // move this element to the other list to clear it afterwards.
-                    // it cannot be clear here as this is executed in the callback of the queryrunnerthread.
-                    m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it);
-                }
-                else
-                {
-                    LOGWARN("Failed to find the query " << id << " in the list of processing queries");
-                }
-            }
-            catch (const std::exception& ex)
-            {
-                LOGERROR("Failed to handle feedback on query finished: " << ex.what());
-            }
+            LOGERROR("Failed to handle feedback on query finished: " << ex.what());
         }
     }
 
@@ -99,9 +92,9 @@ namespace queryrunner{
                     shutdownThread.join();
                 }
             }
-            // give up to 0.5 seconds to have all the queries processed.
+            // give up to 5 seconds to have all the queries processed.
             int count = 0;
-            while (count++ < 50)
+            while (count++ < 500)
             {
                 bool isEmpty=false;
                 {

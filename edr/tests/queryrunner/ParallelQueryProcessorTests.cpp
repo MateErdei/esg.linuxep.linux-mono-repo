@@ -69,7 +69,7 @@ namespace
                     {
                         timeToWait = 0;
                     }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(timeToWait));
+                    std::this_thread::sleep_for(std::chrono::microseconds(timeToWait));
                     notifyFinished(correlationid);
                 });
         }
@@ -104,8 +104,9 @@ TEST_F(ParallelQueryProcessorTests, addJob)
     Common::Threads::LockableData<int> counter{0};
     {
         queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::make_unique<ConfigurableDelayedQuery>(counter)};
-        parallelQueryProcessor.addJob(buildQuery(1), "1");
-        parallelQueryProcessor.addJob(buildQuery(1), "2");
+        parallelQueryProcessor.addJob(buildQuery(100), "1");
+        parallelQueryProcessor.addJob(buildQuery(100), "2");
+        std::this_thread::sleep_for(std::chrono::microseconds{50});
     }
     // whenever parallel is destroyed, all the jobs will have been finished.
     int value;
@@ -127,8 +128,8 @@ TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
         queryrunner::ParallelQueryProcessor parallelQueryProcessor{std::make_unique<ConfigurableDelayedQuery>(counter)};
         for(int i=0; i<10;i++)
         {
-            parallelQueryProcessor.addJob(buildQuery(1), std::to_string(i));
-            std::this_thread::sleep_for(std::chrono::microseconds{200});
+            parallelQueryProcessor.addJob(buildQuery(100), std::to_string(i));
+            std::this_thread::sleep_for(std::chrono::microseconds{70});
         }
     }
     // whenever parallel is destroyed, all the jobs will have been finished.
