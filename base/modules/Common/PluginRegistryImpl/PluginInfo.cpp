@@ -12,7 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 

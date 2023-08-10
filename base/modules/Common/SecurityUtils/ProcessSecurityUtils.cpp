@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IFilePermissions.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include <sys/mount.h>
 
 #include <cstdlib>
