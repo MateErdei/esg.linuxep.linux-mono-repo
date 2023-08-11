@@ -2,8 +2,9 @@
 
 """HTTP Server that exposes locally-built SDDS3 repo over HTTP port 8080"""
 import traceback
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from http import HTTPStatus
+import socketserver
 
 import argparse
 import base64
@@ -17,6 +18,10 @@ import ssl
 import sys
 import tempfile
 import time
+
+
+class SophosThreadingHTTPServer(socketserver.ThreadingMixIn, HTTPServer):
+    daemon_threads = True
 
 
 def hash_file(name):
@@ -396,6 +401,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         except Exception as ex:
             self.log_message(traceback.format_exc())
             self.log_message('Calculating signature of SUS failed with error: %s', ex)
+            raise  # sig is used below, so better to re-raise original exception
 
         self.log_message('SUS response: %s', data)
 
@@ -492,13 +498,14 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         except Exception as ex:
             self.log_message(traceback.format_exc())
             self.log_message('Calculating signature of SUS failed with error: %s', ex)
+            raise  # sig is used below, so better to re-raise original exception
         self.log_message('SUS response: %s', data)
         self.log_message('SUS sign: %s', sig)
 
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(data))
-        self.send_header('Last-Modified', self.date_time_string(time.time()))
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Last-Modified', self.date_time_string())
         self.send_header('X-Content-Signature', sig)
         self.end_headers()
         self.wfile.write(data)
@@ -514,7 +521,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.log_message(f"Responding to SUS POST request with invalid JSON payload")
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(response))
+        self.send_header('Content-Length', str(len(response)))
         self.send_header("X-Content-Signature", sign_response(response))
         self.end_headers()
         self.wfile.write(response)
@@ -529,7 +536,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.log_message(f"Responding to SUS POST request with large JSON payload")
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(response))
+        self.send_header('Content-Length', str(len(response)))
         self.send_header("X-Content-Signature", sign_response(response))
         self.end_headers()
         self.wfile.write(response)
@@ -625,8 +632,10 @@ def main():
                         help='Path to (local) SDDS3 repository to serve')
     parser.add_argument('--protocol',
                         help='tsl setting option : tls1_1')
-    parser.add_argument('--port', type=int, default=8080,
-                        help='port number of server default 8080')
+    parser.add_argument('--port',
+                        help='port number of server default 8080',
+                        default=8080,
+                        type=int)
     parser.add_argument('--certpath', help='path to certificate, default is <SUPPORT_FILE_PATH>/https/server-private.pem')
     args = parser.parse_args()
 
@@ -640,7 +649,8 @@ def main():
     else:
         import PathManager
         cert = os.path.join(PathManager.get_support_file_path(), "https", "server-private.pem")
-    port = args.port
+    assert os.path.isfile(cert)
+    port = int(args.port)
     if args.launchdarkly and args.mock_sus:
         raise NameError('error: --launchdarkly and --mock-sus are mutually exclusive. Pick one or the other')
 
@@ -654,13 +664,13 @@ def main():
                             + 'output/sus/mock_sus_response_*: specify --launchdarkly or --mock-sus')
 
     HandlerClass = make_request_handler(args)
-    httpd = ThreadingHTTPServer(('0.0.0.0', port), HandlerClass)
+    httpd = SophosThreadingHTTPServer(('0.0.0.0', port), HandlerClass)
     httpd.socket = ssl.wrap_socket(httpd.socket,
                                    server_side=True,
                                    certfile=cert,
                                    ssl_version=protocol)
     httpd.allow_reuse_address = True
-    print('Listening on 0.0.0.0 port 8080...')
+    print('Listening on 0.0.0.0 port %d...' % port)
     httpd.serve_forever()
 
 
