@@ -169,6 +169,7 @@ def install_requirements(machine: tap.Machine):
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
         package_install(machine, "rsync")
         package_install(machine, "openssl")
+        package_install(machine, "git")
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
         print(f"On adding installing requirements: {ex}")
