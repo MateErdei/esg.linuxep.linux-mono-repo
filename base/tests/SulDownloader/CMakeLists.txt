@@ -39,7 +39,9 @@ target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
         ${NLOHMANN_JSON_INCLUDE_DIR}
         )
 
-target_include_directories(SulDownloaderTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}"
+target_include_directories(SulDownloaderTests BEFORE PUBLIC
+        "${CMAKE_BINARY_DIR}/modules"
+        "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
 target_link_libraries(SulDownloaderTests ${GTEST_MAIN_LIBRARY})

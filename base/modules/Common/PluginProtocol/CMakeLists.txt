@@ -1,4 +1,24 @@
-include(proto/CMakeLists.txt)
+# Generate proto files
+INCLUDE_DIRECTORIES(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH})
+#set(Protobuf_PROTOC_EXECUTABLE ${CMAKE_BINARY_DIR}/protoc.sh)
+
+if (EXISTS ${PROTOBUF_PROTOC_EXECUTABLE})
+    message(STATUS "Found PROTOBUF Compiler: ${PROTOBUF_PROTOC_EXECUTABLE}")
+else ()
+    message(FATAL_ERROR "Could not find PROTOBUF Compiler")
+endif ()
+
+PROTOBUF_GENERATE_CPP(PLUGIN_API_MESSAGE_PROTO_SRC PLUGIN_API_MESSAGE_PROTO_H PluginAPIMessage.proto)
+PROTOBUF_GENERATE_PYTHON(PLUGIN_API_MESSAGE_PROTO_PYTHON PluginAPIMessage.proto)
+
+add_custom_target(generatePluginApiMessageProto
+        ${CMAKE_COMMAND} -E copy_if_different
+        ${PLUGIN_API_MESSAGE_PROTO_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/
+        DEPENDS ${PLUGIN_API_MESSAGE_PROTO_PYTHON})
+
 
 add_library(pluginprotocolobject OBJECT
         DataMessage.h
@@ -19,7 +39,7 @@ add_library(pluginprotocolobject OBJECT
         Logger.h
         Logger.cpp
         )
-target_include_directories(pluginprotocolobject PUBLIC ../ZeroMQWrapper ../Reactor ../../ ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(pluginprotocolobject PUBLIC ${CMAKE_BINARY_DIR}/modules ../ZeroMQWrapper ../Reactor ../../ ${LOG4CPLUS_INCLUDE_DIR})
 add_library(pluginprotocol SHARED $<TARGET_OBJECTS:pluginprotocolobject>)
 add_dependencies(pluginprotocolobject generatePluginApiMessageProto)
 

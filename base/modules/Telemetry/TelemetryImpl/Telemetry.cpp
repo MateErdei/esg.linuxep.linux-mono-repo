@@ -8,18 +8,20 @@
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 
-#include "Common/CurlWrapper/CurlWrapper.h"
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/Logging/FileLoggingSetup.h"
-#include "Common/PluginCommunication/IPluginProxy.h"
-#include "Common/PluginCommunicationImpl/PluginProxy.h"
-#include "Common/PluginRegistryImpl/PluginInfo.h"
-#include "Common/TelemetryConfigImpl/Config.h"
-#include "Common/TelemetryConfigImpl/Serialiser.h"
-#include "Common/ZMQWrapperApi/IContext.h"
-#include "Telemetry/LoggerImpl/Logger.h"
-#include "watchdog/watchdogimpl/WatchdogServiceLine.h"
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/Logging/FileLoggingSetup.h>
+#include <Common/PluginCommunication/IPluginProxy.h>
+#include <Common/PluginCommunicationImpl/PluginProxy.h>
+#include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <Common/TelemetryConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Telemetry/LoggerImpl/Logger.h>
+#include <watchdog/watchdogimpl/WatchdogServiceLine.h>
 
 #include <sstream>
 #include <string>

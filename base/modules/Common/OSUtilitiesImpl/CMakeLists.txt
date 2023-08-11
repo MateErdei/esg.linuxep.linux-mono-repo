@@ -18,7 +18,8 @@ add_library(osutilitiesimpl SHARED
         PlatformUtils.cpp
         SystemUtils.h
         SystemUtils.cpp
-        CloudMetadataConverters.h)
+        CloudMetadataConverters.h
+        CloudMetadataConverters.cpp)
 
 target_link_libraries(osutilitiesimpl PUBLIC filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 

@@ -24,14 +24,14 @@ add_library(suldownloaderimplobject OBJECT
         sdds3/JwtVerificationException.h
         sdds3/Logger.h
         sdds3/Logger.cpp
+        common/Logger.h
+        common/Logger.cpp
         SULDownloader.cpp
         SulDownloader.h
         ProductUninstaller.cpp
         ProductUninstaller.h
-        Logger.cpp
-        Logger.h
-        SulDownloaderUtils.cpp
-        SulDownloaderUtils.h
+        common/SulDownloaderUtils.cpp
+        common/SulDownloaderUtils.h
         ../Common/UpdateUtilities/InstalledFeatures.h
         ../Common/UpdateUtilities/InstalledFeatures.cpp
         )

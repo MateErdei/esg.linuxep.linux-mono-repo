@@ -6,6 +6,7 @@
 #include "PluginProxy.h"
 #include "UserGroupUtils.h"
 
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"

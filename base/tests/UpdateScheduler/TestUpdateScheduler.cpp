@@ -1,4 +1,8 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2021, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #define TEST_PUBLIC public
 
@@ -6,17 +10,19 @@
 #include "MockAsyncDownloaderRunner.h"
 #include "MockCronSchedulerThread.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "UpdateSchedulerImpl/UpdateSchedulerProcessor.cpp"
+#include "FileSystemImpl/PidLockFile.h"
+
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.cpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
-#include "tests/Common/Helpers/MemoryAppender.h"
-#include "tests/Common/Helpers/MockApiBaseServices.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
-#include "tests/Common/UtilityImpl/MockFormattedTime.h"
+#include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MemoryAppender.h>
+#include <tests/Common/Helpers/MockApiBaseServices.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/UtilityImpl/MockFormattedTime.h>
 
 using namespace Common::UtilityImpl;
 using namespace ::testing;

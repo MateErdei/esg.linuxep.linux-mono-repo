@@ -9,7 +9,7 @@ set(CMAKE_EXE_LINKER_FLAGS "\
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
         ${PROTO_INPUT_FILE}
-        ${CMAKE_SOURCE_DIR}/modules/Common/PluginProtocol/proto/PluginAPIMessage.proto)
+        ${CMAKE_SOURCE_DIR}/modules/Common/PluginProtocol/PluginAPIMessage.proto)
 
 SET( MutatorPath ${CMAKE_SOURCE_DIR}/thirdparty/output )
 SET( MutatorInclude ${MutatorPath}/include )
