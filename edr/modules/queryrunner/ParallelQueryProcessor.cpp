@@ -92,33 +92,6 @@ namespace queryrunner{
                     shutdownThread.join();
                 }
             }
-            // give up to 5 seconds to have all the queries processed.
-            int count = 0;
-            while (count++ < 500)
-            {
-                bool isEmpty=false;
-                {
-                    std::lock_guard<std::mutex> l{m_mutex};
-                    for (auto& p: m_processingQueries)
-                    {
-                        p->requestAbort();
-                    }
-                    isEmpty = m_processingQueries.empty();
-                }
-                if (isEmpty)
-                {
-                    break;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
-            {
-                std::lock_guard<std::mutex> l{m_mutex};
-                if (!m_processingQueries.empty())
-                {
-                    LOGDEBUG("Should not have any further queries to process.");
-                }
-                m_processedQueries.clear();
-            }
         }
         catch (const std::exception& ex)
         {
