@@ -22,7 +22,7 @@ Resource    UpgradeResources.robot
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       require_uninstalled
+Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
@@ -56,6 +56,9 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
     @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
+        ${result} =   Run Process     which git    shell=true
+        Log  ${result.stdout}
+        Log  ${result.stderr}
         log to console    Fixed Version: ${expectedFixedVersion}
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
@@ -86,6 +89,7 @@ Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
 *** Keywords ***
 Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
+    Require Uninstalled
     &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
     ${sul_mark} =    Get Suldownloader Log Mark
@@ -197,6 +201,7 @@ Check Upgrade From Fixed Version to VUT
 
 Check Downgrade From VUT to Fixed Version
     [Arguments]  ${fixedVersion}
+    Require Uninstalled
     &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
     &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedFixedVersions["baseVersion"]}
