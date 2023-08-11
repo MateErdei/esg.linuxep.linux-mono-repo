@@ -109,9 +109,9 @@ Check Upgrade From Fixed Version to VUT
     Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark2} =    Get Suldownloader Log Mark
+    ${sul_mark} =    Get Suldownloader Log Mark
     Trigger Update Now
-    wait_for_log_contains_from_mark    ${sul_mark2}    Update success    120
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -129,10 +129,10 @@ Check Upgrade From Fixed Version to VUT
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
-    ${sul_mark3} =    Get Suldownloader Log Mark
+    ${sul_mark} =    Get Suldownloader Log Mark
 
     Trigger Update Now
-    Wait For Log Contains From Mark    ${sul_mark3}    Update success    120
+    Wait For Log Contains From Mark    ${sul_mark}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -223,9 +223,9 @@ Check Downgrade From VUT to Fixed Version
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    ${sul_mark2} =    Get Suldownloader Log Mark
+    ${sul_mark} =    Get Suldownloader Log Mark
     trigger_update_now
-    Wait For Log Contains From Mark    ${sul_mark2}    Update success    120
+    Wait For Log Contains From Mark    ${sul_mark}    Update success    120
 
     Check Current Release Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -251,10 +251,10 @@ Check Downgrade From VUT to Fixed Version
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
-    ${sul_mark3} =    Get Suldownloader Log Mark
+    ${sul_mark} =    Get Suldownloader Log Mark
     trigger_update_now
-    Wait For Log Contains From Mark    ${sul_mark3}    Update success    200
-    Wait For Log Contains From Mark    ${sul_mark3}    Running SDDS3 update
+    Wait For Log Contains From Mark    ${sul_mark}    Update success    200
+    Wait For Log Contains From Mark    ${sul_mark}    Running SDDS3 update
 
     Mark Known Upgrade Errors
     Mark Known Downgrade Errors
