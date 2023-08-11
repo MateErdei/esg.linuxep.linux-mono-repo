@@ -31,10 +31,8 @@ def _set_environment():
         os.environ["CI_SIGNING_URL"] = environment["CI_SIGNING_URL"]
     if "BUILD_JWT_PATH" in environment:
         os.environ["BUILD_JWT_PATH"] = environment["BUILD_JWT_PATH"]
-    if "BUILD_JWT_PATH" in environment:
-        os.environ["BUILD_JWT_PATH"] = environment["BUILD_JWT_PATH"]
     if "VIRTUAL_ENV" in environment:
-        os.environ["BUILD_JWT_PATH"] = environment["VIRTUAL_ENV"]
+        os.environ["VIRTUAL_ENV"] = environment["VIRTUAL_ENV"]
 
 
 def main(args):

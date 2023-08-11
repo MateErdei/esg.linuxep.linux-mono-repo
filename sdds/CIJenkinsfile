@@ -5,6 +5,8 @@ def params = [
     booleanParam(name: 'DEV', defaultValue: true, description: 'Build dev SDDS3 repo? (builds if checked AND NOT on release branches)'),
     booleanParam(name: 'PROD', defaultValue: false, description: 'Build production SDDS3 repo? (builds if checked OR on release branches)'),
     booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run TAP tests'),
+    string(name: 'robot_suite', description: 'Optional specific Robot suite to run'),
+    string(name: 'robot_test', description: 'Optional specific Robot test to run'),
     booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
     booleanParam(name: 'run_amazon_2023', defaultValue: true, description: 'Run TAP on Amazon Linux 2023'),
     booleanParam(name: 'run_centos_7', defaultValue: true, description: 'Run TAP on CentOS 7'),
@@ -22,10 +24,10 @@ def params = [
     booleanParam(name: 'run_ubuntu_18_04', defaultValue: true, description: 'Run TAP on Ubuntu 18.04'),
     booleanParam(name: 'run_ubuntu_20_04', defaultValue: true, description: 'Run TAP on Ubuntu 20.04'),
     booleanParam(name: 'run_ubuntu_22_04', defaultValue: true, description: 'Run TAP on Ubuntu 22.04'),
-    string(name: 'previous_dogfood_branch', defaultValue: 'release--2023-28', description: 'Release branch used for the dogfood warehouse'),
-    string(name: 'current_shipping_branch', defaultValue: 'release--2023.2', description: 'Release branch used for the current shipping warehouse'),
-    string(name: 'central_api_client_id', defaultValue: '', description: 'Client ID used to query Central API for fixed versions'),
-    string(name: 'central_api_client_secret', defaultValue: '', description: 'Client secret used to query Central API for fixed versions'),
+    string(name: 'previous_dogfood_branch', description: 'Override for the release branch used for the dogfood warehouse'),
+    string(name: 'current_shipping_branch', description: 'Override for the release branch used for the current shipping warehouse'),
+    string(name: 'central_api_client_id', description: 'Client ID used to query Central API for fixed versions'),
+    string(name: 'central_api_client_secret', description: 'Client secret used to query Central API for fixed versions'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }

@@ -39,10 +39,12 @@ Global Setup Tasks
     Set Global Variable    ${INPUT_DIRECTORY}             ${placeholder}
     Set Global Variable    ${THIN_INSTALLER_DIRECTORY}    ${INPUT_DIRECTORY}/thin_installer
 
-    ${placeholder} =  Get Environment Variable    BASE_TEST_UTILS    default=${INPUT_DIRECTORY}/base_test_utils
-    Set Global Variable    ${BASE_TEST_UTILS}     ${placeholder}
-    Set Global Variable    ${OPENSSL_BIN_PATH}    ${BASE_TEST_UTILS}/SystemProductTestOutput
-    Set Global Variable    ${OPENSSL_LIB_PATH}    ${BASE_TEST_UTILS}/SystemProductTestOutput
+    Run Process    chmod    +x
+    ...    ${SUPPORT_FILES}/openssl/openssl
+    ...    ${SUPPORT_FILES}/openssl/libcrypto.so.3
+    ...    ${SUPPORT_FILES}/openssl/libssl.so.3
+    Set Global Variable    ${OPENSSL_BIN_PATH}    ${SUPPORT_FILES}/openssl
+    Set Global Variable    ${OPENSSL_LIB_PATH}    ${SUPPORT_FILES}/openssl
 
 
     ${placeholder} =  Get Environment Variable    VUT_WAREHOUSE_REPO_ROOT    default=${INPUT_DIRECTORY}/repo

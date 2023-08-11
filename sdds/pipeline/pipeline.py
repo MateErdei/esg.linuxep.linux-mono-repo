@@ -1,19 +1,10 @@
 import os
-import time
+import json
 from typing import Dict
 
 import tap.v1 as tap
 from tap._backend import Input
 from tap._pipeline.tasks import ArtisanInput
-
-
-def build_dev_warehouse(stage: tap.Root, name="release-package", image="Warehouse"):
-    component = tap.Component(name="dev-warehouse-" + name, base_version="1.0.0")
-    return stage.artisan_build(name=name,
-                               component=component,
-                               image=image,
-                               release_package="./build/dev.xml",
-                               mode=name)
 
 
 def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel_20230512"):
@@ -91,26 +82,32 @@ def get_test_machines(test_inputs, parameters):
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
     print(f"Build directory: {str(build)}")
 
+    previous_dogfood_branch = parameters.previous_dogfood_branch
+    current_shipping_branch = parameters.current_shipping_branch
+    if not previous_dogfood_branch:
+        previous_dogfood_branch = "release--2023-28"
+    if not current_shipping_branch:
+        current_shipping_branch = "release--2023.2"
+
     test_inputs = dict(
-        test_scripts=context.artifact.from_folder("./TA"),
+        test_scripts=build / "test-scripts",
         repo=build / "sdds3-repo",
         launchdarkly=build / "sdds3-launchdarkly",
         thin_installer=context.artifact.from_component("linuxep.thininstaller", "develop", None, org="",
                                                        storage="esg-build-tested") / "build/output",
-        base_test_utils=context.artifact.from_component("linuxep.everest-base", "develop", None, org="",
-                                                        storage="esg-build-tested") / "build/sspl-base/system_test",
-        dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", parameters.previous_dogfood_branch, None,org="",
+        dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", previous_dogfood_branch, None,
+                                                              org="",
                                                               storage="esg-build-tested") / "build/prod-sdds3-launchdarkly",
-        dogfood_repo=context.artifact.from_component("linuxep.sspl-warehouse", parameters.previous_dogfood_branch, None, org="",
+        dogfood_repo=context.artifact.from_component("linuxep.sspl-warehouse", previous_dogfood_branch, None, org="",
                                                      storage="esg-build-tested") / "build/prod-sdds3-repo",
         current_shipping_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse",
-                                                                       parameters.current_shipping_branch, None, org="",
+                                                                       current_shipping_branch, None, org="",
                                                                        storage="esg-build-tested") / "build/prod-sdds3-launchdarkly",
         current_shipping_repo=context.artifact.from_component("linuxep.sspl-warehouse",
-                                                              parameters.current_shipping_branch, None, org="",
+                                                              current_shipping_branch, None, org="",
                                                               storage="esg-build-tested") / "build/prod-sdds3-repo",
         safestore_tools=context.artifact.from_component("core.safestore", "develop", None, org="",
-                                                       storage="esg-build-tested") / "build/release/linux-x64/safestore"
+                                                        storage="esg-build-tested") / "build/release/linux-x64/safestore"
     )
     return test_inputs
 
@@ -134,23 +131,46 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 
-def package_install(machine: tap.Machine, *install_args: str):
-    confirmation_arg = "-y"
-    if machine.run("which", "apt-get", return_exit_code=True) == 0:
-        pkg_installer = "apt-get"
-    elif machine.run("which", "yum", return_exit_code=True) == 0:
-        pkg_installer = "yum"
+def get_os_packages(machine: tap.Machine):
+    common = [
+        "openssl",  # For generating certs
+    ]
+    if machine.template == "amzlinux2_x64_server_en_us":
+        return common
+    elif machine.template == "amzlinux2023_x64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos7_x64_aws_server_en_us":
+        return common
+    elif machine.template == "centos8stream_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos9stream_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "debian10_x64_aws_server_en_us":
+        return common
+    elif machine.template == "debian11_x64_aws_server_en_us":
+        return common
+    elif machine.template == "oracle79_x64_aws_server_en_us":
+        return common
+    elif machine.template == "oracle87_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "rhel79_x64_aws_server_en_us":
+        return common
+    elif machine.template == "rhel87_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "rhel91_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "sles12_x64_sp5_aws_server_en_us":
+        return common + ["libcap-progs", "curl"]
+    elif machine.template == "sles15_x64_sp4_aws_server_en_us":
+        return common + ["libcap-progs"]
+    elif machine.template == "ubuntu1804_x64_aws_server_en_us":
+        return common
+    elif machine.template == "ubuntu2004_x64_aws_server_en_us":
+        return common
+    elif machine.template == "ubuntu2204_x64_aws_server_en_us":
+        return common
     else:
-        pkg_installer = "zypper"
-        confirmation_arg = "--non-interactive"
-
-    for _ in range(20):
-        if machine.run(pkg_installer, confirmation_arg, "install", *install_args,
-                       log_mode=tap.LoggingMode.ON_ERROR,
-                       return_exit_code=True) == 0:
-            break
-        else:
-            time.sleep(3)
+        raise Exception(f"Unknown template {machine.template}")
 
 
 def install_requirements(machine: tap.Machine):
@@ -167,32 +187,32 @@ def install_requirements(machine: tap.Machine):
 
     try:
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
-        package_install(machine, "rsync")
-        package_install(machine, "openssl")
-        package_install(machine, "openssl-perl")
 
-        if machine.run("which", "zypper", return_exit_code=True) == 0:
-            package_install(machine, "libcap-progs")
+        os_packages = get_os_packages(machine)
+        install_command = ["bash", machine.inputs.test_scripts / "SupportFiles/install_os_packages.sh"] + os_packages
+        machine.run(*install_command)
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
         print(f"On adding installing requirements: {ex}")
 
 
-def robot_task(machine: tap.Machine, central_api_client_id: str, central_api_client_secret: str):
-    robot_task_with_env(machine, central_api_client_id, central_api_client_secret)
-
-
-def robot_task_with_env(machine: tap.Machine, central_api_client_id: str, central_api_client_secret: str, machine_name=None):
-    if machine_name is None:
-        machine_name = machine.template
+def robot_task(machine: tap.Machine, parameters_json: str):
     try:
+        parameters = json.loads(parameters_json)
+
+        environment = {}
+        if parameters.get("central_api_client_id"):
+            environment["CENTRAL_API_CLIENT_ID"] = parameters["central_api_client_id"]
+        if parameters.get("central_api_client_secret"):
+            environment["CENTRAL_API_CLIENT_SECRET"] = parameters["central_api_client_secret"]
+        if parameters.get("robot_suite"):
+            environment["SUITE"] = parameters["robot_suite"]
+        if parameters.get("robot_test"):
+            environment["TEST"] = parameters["robot_test"]
+
         robot_exclusion_tags = ["MANUAL", "FAIL"]
-        if central_api_client_id == "" or central_api_client_secret == "":
+        if "CENTRAL_API_CLIENT_ID" not in environment or "CENTRAL_API_CLIENT_SECRET" not in environment:
             robot_exclusion_tags.append("FIXED_VERSIONS")
-        environment = {
-            'CENTRAL_API_CLIENT_ID': central_api_client_id,
-            'CENTRAL_API_CLIENT_SECRET': central_api_client_secret,
-        }
 
         install_requirements(machine)
         machine.run(python(machine),
@@ -210,18 +230,15 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     test_inputs = get_inputs(context, build, parameters)
     machines = get_test_machines(test_inputs, parameters)
 
+    parameters_json = json.dumps(parameters)
+
     for template_name, machine in machines:
-        stage.task(task_name=template_name,
-                   func=robot_task,
-                   machine=machine,
-                   central_api_client_id=parameters.central_api_client_id,
-                   central_api_client_secret=parameters.central_api_client_secret)
+        stage.task(task_name=template_name, func=robot_task, machine=machine, parameters_json=parameters_json)
     return
 
 
 @tap.pipeline(root_sequential=False)
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-
     run_tests = parameters.run_tests != "false"
 
     with stage.parallel("build"):
@@ -236,13 +253,13 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             do_dev = parameters.dev != "false"
             do_prod = parameters.prod == "true"
 
-        with stage.parallel("sdds3"):
-            if do_prod:
-                build_sdds3_warehouse(stage=stage, mode="prod")
-                buildsdds3 = False
-            if do_dev:
-                buildsdds3 = build_sdds3_warehouse(stage=stage, mode="dev")
-                build_sdds3_warehouse(stage=stage, mode="999")
+        if do_prod:
+            build_sdds3_warehouse(stage=stage, mode="prod")
+            build = None
+        if do_dev:
+            build = build_sdds3_warehouse(stage=stage, mode="dev")
+            build_sdds3_warehouse(stage=stage, mode="999")
 
-    if run_tests and buildsdds3:
-        run_tap_tests(stage, context, parameters, buildsdds3)
+    with stage.parallel("test"):
+        if run_tests and build:
+            run_tap_tests(stage, context, parameters, build)

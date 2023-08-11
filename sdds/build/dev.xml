@@ -22,6 +22,7 @@
           <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="999"/>
           <include artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="999"/>
+          <include artifact-path="sspl-base/system_test" dest-dir="."/>
       </build-asset>
 
       <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
@@ -94,10 +95,16 @@
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="redist/gcc" mode="dev,999,prod"/>
         </build-asset>
-        <trusted-asset artifact-path="filer5-migrate/sddsimportgen/1-0-12/214456/sddsimportgen" dest-dir="./linuxep_suites" mode="dev,999,prod"/>
     </inputs>
 
     <buildcommands>
+    <!-- Clear the output directory for the packages/suites, so that old ones are not left around, which can cause
+         problems with tests -->
+    <command mode="dev,999,prod">
+        <program>rm</program>
+        <args>-rf bazel-bin/sdds3</args>
+        <workingdir>.</workingdir>
+    </command>
     <command mode="dev,999,prod">
         <program>python3</program>
         <args>makesuites.py</args>
@@ -133,6 +140,37 @@
         <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
         <workingdir>.</workingdir>
     </command>
+    <!-- Extracting SystemProductTestOutput for use in tests -->
+    <command mode="dev,999">
+        <program>rm</program>
+        <args>-rf TA/libs TA/SupportFiles</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>tar</program>
+        <args>-xf SystemProductTestOutput.tar.gz</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>cp</program>
+        <args>-r libs SupportFiles ../../TA/</args>
+        <workingdir>SystemProductTestOutput/testUtils</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>mkdir -p</program>
+        <args>TA/SupportFiles/openssl</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>cp</program>
+        <args>-f libcrypto.so.3 libssl.so.3 openssl ../TA/SupportFiles/openssl</args>
+        <workingdir>SystemProductTestOutput</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>rm</program>
+        <args>-rf SystemProductTestOutput</args>
+        <workingdir>.</workingdir>
+    </command>
     </buildcommands>
     <signingexclusions>
         <promotedfile name="dummy.bpf.o"/>
@@ -141,28 +179,27 @@
     </signingexclusions>
   <publish>
       <!--sdds3-->
+      <build-asset artifact-path="test-scripts" source-dir="TA" mode="dev"/>
       <!--dev version-->
-      <build-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="dev">
+      <build-asset artifact-path="sdds3-repo" source-dir="bazel-bin/sdds3" mode="dev">
           <include glob="package/**"/>
           <include glob="suite/**"/>
           <include glob="supplement/**"/>
-          <include glob="supplement_package/**"/>
       </build-asset>
       <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly" mode="dev">
           <include glob="*.json"/>
       </release-asset>
       <!--999 version-->
-      <build-asset artifact-path="sdds3-repo-999" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="999">
+      <build-asset artifact-path="sdds3-repo-999" source-dir="bazel-bin/sdds3" mode="999">
           <include glob="package/**"/>
           <include glob="suite/**"/>
           <include glob="supplement/**"/>
-          <include glob="supplement_package/**"/>
       </build-asset>
       <release-asset artifact-path="sdds3-launchdarkly-999" source-dir="output/launchdarkly" mode="999">
           <include glob="*.json"/>
       </release-asset>
       <!--prod version-->
-      <release-asset artifact-path="prod-sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="prod">
+      <release-asset artifact-path="prod-sdds3-repo" source-dir="bazel-bin/sdds3" mode="prod">
           <include glob="package/**"/>
           <include glob="suite/**"/>
       </release-asset>

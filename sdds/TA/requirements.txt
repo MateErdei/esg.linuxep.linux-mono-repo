@@ -1,4 +1,4 @@
 pytest-html
-Cython
-robotframework>=3.1
+robotframework
 artifactory
+psutil

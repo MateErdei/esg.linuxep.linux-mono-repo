@@ -4,15 +4,20 @@ Warehouse Generation
 This repo can build the following artifacts:
 
 * For dev branches (`develop` or `feature/*`)
-  * SDDS2 warehouse for automation or manual installation
   * Standalone SDDS3 repo for automation or manual installation
   * LaunchDarkly flags
   * Mock SUS responses
 * For release branches (`release/*` or `hotfix/*`)
   * Partial SDDS3 repo for SDDS3 publishing
   * LaunchDarkly flags for SDDS3 publishing
-  * Ballista specs for SDDS2 publishing
 
+
+# Running tests locally
+    ./tap run warehouse.test.ubuntu2004 --build-backend=local --test-backend=local
+
+To run a specific suite, add to the environment e.g. `TAP_PARAMETER_ROBOT_TEST="Sul Downloader fails update if expected product missing from SUS"`
+
+To run a specific test, add to the environment e.g. `TAP_PARAMETER_ROBOT_SUITE="InstallAndUpgrade"`
 
 # Build Pipeline
 
