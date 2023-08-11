@@ -85,11 +85,7 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Run Keyword If    ${is_suse}    Remove Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
-    # LINUXDAR-7106 - test broken on SLES12 and Ubuntu2004
-    ${is_sles12} =      Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
-    ${is_ubuntu2004} =  Does File Contain Word  /etc/os-release  Ubuntu 20.04
-    Pass Execution If  ${is_sles12}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
-    Pass Execution If  ${is_ubuntu2004}  Skipping test on Ubuntu2004 until LINUXDAR-7096 is fixed
+    [Timeout]  10 minutes
     Check EDR Plugin Installed With Base
 
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
@@ -106,7 +102,7 @@ EDR Restarts If File Descriptor Limit Hit
     Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${100}
 
     Wait For Log Contains From Mark    ${mark}    Early request to stop found.       ${60}
-    Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${240}
+    Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${360}
 
     Wait Until Keyword Succeeds
     ...  30 secs

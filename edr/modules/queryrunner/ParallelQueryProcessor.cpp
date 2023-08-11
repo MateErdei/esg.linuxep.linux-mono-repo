@@ -51,6 +51,11 @@ namespace queryrunner{
         {
             LOGERROR("Failed to handle feedback on query finished: " << ex.what());
         }
+        
+        if (m_shuttingDown)
+        {
+            abortQueries();
+        }
     }
 
     void ParallelQueryProcessor::addJob(const std::string &queryJson, const std::string &correlationId) 
