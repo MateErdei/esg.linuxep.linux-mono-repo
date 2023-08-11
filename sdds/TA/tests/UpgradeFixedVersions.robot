@@ -26,7 +26,7 @@ Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
-Force Tags    PACKAGE    FIXED_VERSIONS
+Force Tags    FIXED_VERSIONS
 
 
 *** Variables ***
