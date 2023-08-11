@@ -785,10 +785,9 @@ def get_api_client(client_id, client_secret, region, hostname):
 def get_fixed_versions(client_id, client_secret, region, hostname):
     fixed_versions = []
     client = get_api_client(client_id, client_secret, region, hostname)
-    # For now do not set the expiry so that we have at least one fixed version to test with
-    #expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
-    #expiresFromStr = expiresFrom.strftime("%Y-%m-%d")
-    fixed_version_dicts = client.getReleases()
+    expiresFrom = datetime.datetime.now() + datetime.timedelta(days=1)
+    expiresFromStr = expiresFrom.strftime("%Y-%m-%d")
+    fixed_version_dicts = client.getReleases(expiresFromStr)
     for fixed_version_dict in fixed_version_dicts:
         fixed_versions.append(fixed_version_dict["name"])
     return fixed_versions
