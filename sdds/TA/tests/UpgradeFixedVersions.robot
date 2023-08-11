@@ -198,6 +198,7 @@ Check Upgrade From Fixed Version to VUT
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+    Stop Local SDDS3 Server
 
 Check Downgrade From VUT to Fixed Version
     [Arguments]  ${fixedVersion}
@@ -319,3 +320,4 @@ Check Downgrade From VUT to Fixed Version
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+    Stop Local SDDS3 Server
