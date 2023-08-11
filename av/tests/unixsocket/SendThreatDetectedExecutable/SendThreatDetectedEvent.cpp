@@ -3,12 +3,14 @@
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/TestClient.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Exceptions/IException.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include <fcntl.h>
 #include <getopt.h>
+
 
 #include <iostream>
 // Generate AV TDO
@@ -175,7 +177,6 @@ static int inner_main(int argc, char* argv[])
     {
         printUsageAndExit(argv[0]);
     }
-    Common::Logging::ConsoleLoggingSetup logging;
     std::string socketPath = "event.sock";
     std::string sha;
     std::string filePath;
@@ -213,7 +214,7 @@ static int inner_main(int argc, char* argv[])
         {
             case 'p':
                 socketPath = optarg;
-                LOGINFO("Socket path: " << socketPath);
+                LOGINFO("Socket path: " <<  socketPath);
                 break;
             case 'u':
                 threatType = optarg;
@@ -237,7 +238,7 @@ static int inner_main(int argc, char* argv[])
                 break;
             case 'd':
                 fd = std::stoi(optarg);
-                LOGINFO("fd: " << fd);
+                std::cout << "FD: " << fd << std::endl;
                 break;
             case 'm':
                 sendMessage = false;
@@ -307,10 +308,15 @@ static int inner_main(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    log4cplus::initialize();
+    Common::Logging::ConsoleLoggingSetup logging;
     try
     {
         return inner_main(argc, argv);
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGFATAL("Caught IException at top-level: " << ex.what_with_location());
+        return 30;
     }
     catch (const std::exception& ex)
     {
