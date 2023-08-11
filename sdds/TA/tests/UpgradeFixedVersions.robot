@@ -56,9 +56,6 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
     @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
-        ${result} =   Run Process     which git    shell=true
-        Log  ${result.stdout}
-        Log  ${result.stderr}
         log to console    Fixed Version: ${expectedFixedVersion}
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
