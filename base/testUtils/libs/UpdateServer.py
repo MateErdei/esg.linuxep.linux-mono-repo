@@ -70,10 +70,14 @@ class UpdateServer(object):
         env["PATH"] = openssl_bin_path + ":" + env["PATH"]
         env["LD_LIBRARY_PATH"] = openssl_lib_path
 
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env,
-                              stdout=subprocess.PIPE)
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env,
-                              stdout=subprocess.PIPE)
+        try:
+            subprocess.run(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, text=True)
+            subprocess.run(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True, text=True)
+        except subprocess.CalledProcessError as error:
+            logger.error(f"Failed to generate update certs. Output:\n{error.stdout}")
+            raise
 
     def stop_update_server(self):
         for process in self.server_processes:

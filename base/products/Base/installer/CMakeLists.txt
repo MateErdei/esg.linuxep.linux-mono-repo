@@ -59,13 +59,6 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/rootca384.crt
         DESTINATION ${BASE_DIST_PREFIX}/files/base/update/rootcerts
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
-if(DEFINED ENV{DEV_CERTS})
-    install(CODE "execute_process(
-        COMMAND digest_sign --key manifest_sha384 --get_cert root
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/distribution
-        OUTPUT_FILE ${BASE_DIST_PREFIX}/files/base/update/rootcerts/rootca384_dev.crt)")
-endif()
-
 add_executable(versionedcopy
         VersionedCopyMain.cpp
         ${PROJECT_SOURCE_DIR}/modules/Installer/VersionedCopy/VersionedCopy.h

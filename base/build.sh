@@ -164,9 +164,6 @@ EOF
         --sdds3)
           export SDDS3=1
           ;;
-        --dev-certs)
-          export DEV_CERTS=1
-          ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;
