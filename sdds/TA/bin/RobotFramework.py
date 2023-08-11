@@ -23,7 +23,7 @@ def copy_supplements(src, dest):
 
 def main(argv):
     exclude = argv
-    tags = {"include": ["PACKAGE"], "exclude": exclude}
+    tags = {"include": [], "exclude": exclude}
 
     os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
     os.environ["TEST_SCRIPT_PATH"] = fr"{os.environ['INPUT_DIRECTORY']}/test_scripts/"
@@ -38,20 +38,13 @@ def main(argv):
         "log": "/opt/test/logs/log.html",
         "output": "/opt/test/logs/output.xml",
         "report": "/opt/test/logs/report.html",
-        "suite": "*"
     }
 
-    try:
-        os.environ["BASE_TEST_UTILS"] = os.path.join(os.environ["INPUT_DIRECTORY"], "base_test_utils")
-        tar = tarfile.open(os.path.join(os.environ["BASE_TEST_UTILS"], "SystemProductTestOutput.tar.gz"))
-        tar.extractall(os.environ["BASE_TEST_UTILS"])
-        tar.close()
+    if os.environ.get("TEST"):
+        robot_args["test"] = os.environ.get("TEST")
+    if os.environ.get("SUITE"):
+        robot_args["suite"] = os.environ.get("SUITE")
 
-        unpacked_utils = os.path.join(os.environ["BASE_TEST_UTILS"], "SystemProductTestOutput", "testUtils")
-        shutil.move(os.path.join(unpacked_utils, "libs"), os.environ["TEST_SCRIPT_PATH"])
-        shutil.move(os.path.join(unpacked_utils, "SupportFiles"), os.environ["TEST_SCRIPT_PATH"])
-    except Exception as ex:
-        print(f"Failed to unpack testUtils from base: {ex}")
     os.environ["SUPPORT_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "SupportFiles")
     os.environ["LIB_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "libs")
 

@@ -1,9 +1,49 @@
-.idea/
+/.idea/
+/inputs/
+/redist/
+/output/
+
+# SystemProductTestOutput
+/SystemProductTestOutput.tar.gz
+
+# Auto-generated
 /build/dev.xml.new.xml
 /build/dev.xml.orig.xml
+/sdds3/BUILD
+/sdds3/.output/
 /TA/log.html
 /TA/output.xml
 /TA/report.html
 /TA/SupportFiles/
 /TA/libs/
+/linuxep_suites/suite_data/ServerProtectionLinux-Base/*
+/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-AV/*
+/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-EDR/*
+/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-MDR/*
+!/linuxep_suites/suite_data/ServerProtectionLinux-Base/spv_template.xml
+!/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-AV/spv_template.xml
+!/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-EDR/spv_template.xml
+!/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-MDR/spv_template.xml
+/log.html
+/tap
+/vagrant
 
+# Monorepo bazeltools
+/.bazelrc
+/.bazelversion
+/.clang-format
+/.clang-tidy
+/.gitattributes
+/.pre-commit-config.yaml
+/.windows.bazelrc
+/BUILD.bazel
+/platform_mappings
+/pyproject.toml
+/WORKSPACE
+/tools/
+
+# Bazel auto-generated
+/bazel-bin
+/bazel-esg.linuxep.sspl-warehouse
+/bazel-out
+/bazel-testlogs
