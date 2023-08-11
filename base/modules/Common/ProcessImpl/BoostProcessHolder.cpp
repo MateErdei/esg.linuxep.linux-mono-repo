@@ -1,7 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "BoostProcessHolder.h"
 
-#include "Common/Process/IProcessException.h"
+#include "IProcessException.h"
 #include "Logger.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
@@ -12,6 +12,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>
@@ -86,7 +87,7 @@ namespace Common
             {
 
                 // Must set groups first whilst still root
-                std::string userName = Common::FileSystem::filePermissions()->getUserName(m_uid);
+                std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
 
                 if (::getuid() == 0) // if running as root.
                 {

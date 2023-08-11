@@ -6,6 +6,8 @@
 
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 
+#include <zmq.h>
+
 namespace Common
 {
     namespace ZeroMQWrapperImpl
@@ -13,7 +15,7 @@ namespace Common
         class SocketSubscriberImpl : public SocketImpl, virtual public Common::ZeroMQWrapper::ISocketSubscriber
         {
         public:
-            explicit SocketSubscriberImpl(ContextHolderSharedPtr context);
+            explicit SocketSubscriberImpl(ContextHolderSharedPtr context) : SocketImpl(std::move(context), ZMQ_SUB) {}
 
             /**
              * Read a subscribed event from the socket

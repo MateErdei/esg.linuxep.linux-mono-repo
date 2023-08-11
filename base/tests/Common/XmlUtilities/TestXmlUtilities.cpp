@@ -1,14 +1,12 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+#include "Common/Exceptions/Print.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "Common/XmlUtilities/Validation.h"
-#include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 using namespace Common::XmlUtilities;
 
@@ -136,6 +134,55 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 )sophos" };
 
 // NOLINTNEXTLINE(cert-err58-cpp)
+static std::string liveQueryPolicy = { R"sophos(<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="100" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>250000000</dailyDataLimit>
+            <queryPacks>
+                <queryPack id="queryPackId" />
+            </queryPacks>
+            <customQueries>
+                  <customQuery queryName="blah">
+                      <description>basic query</description>
+                      <query>SELECT * FROM stuff</query>
+                      <interval>10</interval>
+                      <tag>DataLake</tag>
+                      <removed>false</removed>
+                      <denylist>false</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah2">
+                      <description>a different 
+basic 
+query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>5</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah3">
+                      <description>a different basic query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>10</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah4">
+                      <description>a different basic query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>10</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+            </customQueries>
+        </scheduled>
+    </configuration>
+</policy>)sophos" };
+
+// NOLINTNEXTLINE(cert-err58-cpp)
 static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
 <!ENTITY a "1234567890" >
 <!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;">
@@ -144,14 +191,14 @@ static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
 <bomb>&c;</bomb>
 )sophos" };
 
-TEST(TestXmlUtilities, ParsePrimaryLocationUsername) // NOLINT
+TEST(TestXmlUtilities, ParsePrimaryLocationUsername)
 {
     auto simpleXml = parseXml(updatePolicy);
 
     ASSERT_EQ(simpleXml.lookup("AUConfigurations/AUConfig/primary_location/server").value("UserName"), "W2YJXI6FED");
 }
 
-TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText) // NOLINT
+TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText)
 {
     auto simpleXml = parseXml(updatePolicy);
     auto attributes_fullname = simpleXml.entitiesThatContainPath(
@@ -169,7 +216,7 @@ TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText) // NOLINT
     ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----END CERTIFICATE-----"));
 }
 
-TEST(TestXmlUtilities, EntitiesAreRejected) // NOLINT
+TEST(TestXmlUtilities, EntitiesAreRejected)
 {
     Common::Logging::ConsoleLoggingSetup loggingSetup;
     try
@@ -183,7 +230,7 @@ TEST(TestXmlUtilities, EntitiesAreRejected) // NOLINT
     }
 }
 
-TEST(TestXmlUtilities, DuplicateElementsCanBeRetrieved) // NOLINT
+TEST(TestXmlUtilities, DuplicateElementsCanBeRetrieved)
 {
     auto simpleXml = parseXml("<xml><a>ONE</a><a>TWO</a></xml>");
     auto attributesList = simpleXml.lookupMultiple("xml/a");
@@ -197,7 +244,7 @@ TEST(TestXmlUtilities, DuplicateElementsCanBeRetrieved) // NOLINT
     EXPECT_EQ(entityNames[1], "xml/a_0");
 }
 
-TEST(TestXmlUtilities, DuplicateElementsWithIdCanBeRetrieved) // NOLINT
+TEST(TestXmlUtilities, DuplicateElementsWithIdCanBeRetrieved)
 {
     auto simpleXml = parseXml(R"(<xml><a id="x">ONE</a><a id="x">TWO</a></xml>)");
     auto attributesList = simpleXml.lookupMultiple("xml/a");
@@ -211,7 +258,7 @@ TEST(TestXmlUtilities, DuplicateElementsWithIdCanBeRetrieved) // NOLINT
 }
 
 
-TEST(TestXmlUtilities, DuplicateElementsWithIdsCanBeRetrieved) // NOLINT
+TEST(TestXmlUtilities, DuplicateElementsWithIdsCanBeRetrieved)
 {
     auto simpleXml = parseXml(R"(<xml><a id="1">ONE</a><a id="2">TWO</a></xml>)");
     auto attributesList = simpleXml.lookupMultiple("xml/a");
@@ -220,7 +267,7 @@ TEST(TestXmlUtilities, DuplicateElementsWithIdsCanBeRetrieved) // NOLINT
     EXPECT_EQ(attributesList[1].value("id"), "2");
 }
 
-TEST(TestXmlUtilities, ChildElementsAreNotRetrieved) // NOLINT
+TEST(TestXmlUtilities, ChildElementsAreNotRetrieved)
 {
     auto simpleXml = parseXml(R"(<xml><a id="1">ONE<a id="99"/></a><a id="2">TWO<a id="98"/></a></xml>)");
     auto attributesList = simpleXml.lookupMultiple("xml/a");
@@ -231,7 +278,7 @@ TEST(TestXmlUtilities, ChildElementsAreNotRetrieved) // NOLINT
     EXPECT_EQ(attributesList[1].contents(), "TWO");
 }
 
-TEST(TestXmlUtilities, GetIdFromElement) // NOLINT
+TEST(TestXmlUtilities, GetIdFromElement)
 {
     /*
      * This is an investigation around the bug LINUXDAR-735
@@ -266,7 +313,7 @@ TEST(TestXmlUtilities, GetIdFromElement) // NOLINT
     EXPECT_EQ(attributesList[0].value("id"), "a");
 }
 
-TEST(TestXmlUtilities, DuplicateStructuresAreAvailable) // NOLINT
+TEST(TestXmlUtilities, DuplicateStructuresAreAvailable)
 {
     std::string policySnippet = R"MULTILINE(<?xml version="1.0"?>
 <config>
@@ -387,13 +434,13 @@ TEST(TestXmlUtilities, DuplicateStructuresAreAvailable) // NOLINT
     EXPECT_EQ(attrs[2].contents(), "Wednesday");
 }
 
-TEST(TestXmlUtilities, ValidXmlString) // NOLINT
+TEST(TestXmlUtilities, ValidXmlString)
 {
     std::string xmlString = "dummy xml string";
     ASSERT_TRUE(Validation::stringWillNotBreakXmlParsing(xmlString));
 }
 
-TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
+TEST(TestXmlUtilities, InvalidXmlStrings)
 {
     std::string xmlStringWithInvalidSymbols = "<fakeXmlInjection>dummy xml string</fakeXmlInjection>";
     std::string xmlStringWithAmpersand = "dummy& xml string";
@@ -404,4 +451,90 @@ TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
     ASSERT_FALSE(Validation::stringWillNotBreakXmlParsing(xmlStringWithAmpersand));
     ASSERT_FALSE(Validation::stringWillNotBreakXmlParsing(xmlStringWithSingleQuote));
     ASSERT_FALSE(Validation::stringWillNotBreakXmlParsing(xmlStringWithDoubleQuote));
+}
+
+TEST(TestXmlUtilities, CommandPoll)
+{
+    std::string xml = "<?xml version=\"1.0\"?>"
+                      "<ns:commands xmlns:ns=\"http://www.sophos.com/xml/mcs/commands\" schemaVersion=\"1.0\">"
+                      "  <command>"
+                      "    <id>f291664d-112a-328b-e3ed-f920012cdea1</id>"
+                      "    <seq>1</seq>"
+                      "    <type>hmpa-unblock-item</type>"
+                      "    <appId>HMPA</appId>"
+                      "    <creationTime>2013-05-02T09:50:08Z</creationTime>"
+                      "    <ttl>PT10000S</ttl>"
+                      "    <body>{command-body}</body>"
+                      "  </command>"
+                      "  <command>"
+                      "    <id>fdfdsfdsfds-112a-328b-e3ed-f920012cdea1</id>"
+                      "    <seq>2</seq>"
+                      "    <type>xxx</type>"
+                      "    <appId>ALC</appId>"
+                      "    <creationTime>2013-05-02T09:50:08Z</creationTime>"
+                      "    <ttl>PT10000S</ttl>"
+                      "    <body>&lt;?xml version=&quot;1.0&quot;?&gt;&lt;ns:policyAssignments xmlns:ns=&quot;http://www.sophos.com/xml/mcs/policyAssignments&quot;&gt;&lt;meta protocolVersion=&quot;1.0&quot;/&gt;&lt;policyAssignment&gt;&lt;appId policyType=&quot;25&quot;&gt;MCS&lt;/appId&gt;&lt;policyId&gt;523d7626dd63380abc9fb3f7e26aeba8e1598a6ee2a9acea3af8f1482e69af12&lt;/policyId&gt;&lt;/policyAssignment&gt;&lt;/ns:policyAssignments&gt;</body>"
+                      "  </command>"
+                      "</ns:commands>";
+    auto map = Common::XmlUtilities::parseXml(xml);
+    auto commands = map.lookupMultiple("ns:commands/command");
+    auto a1 = map.entitiesThatContainPath("ns:commands/command");
+    auto a2 = map.entitiesThatContainPath("ns:commands/command", false);
+    EXPECT_EQ(commands.size(), 2);
+    EXPECT_EQ(a1.size(), 16);
+    EXPECT_EQ(a2.size(), 2);
+
+    for (const auto& command : a2)
+    {
+        PRINT(
+            command << map.lookup(command + "/body").contents() << map.lookup(command + "/appId").contents()
+                    << map.lookup(command + "/id").contents());
+    }
+}
+
+TEST(TestXmlUtilities, edrPolicyExample)
+{
+    auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
+
+    const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
+    const std::string queryTag = "customQuery";
+    std::string suffix = "_0"; // ""=1st,  "_0"=2nd,  "_1"=3rd, hence queryname checked below is "blah2".
+    std::string key = customQueriesPath + "/" + queryTag + suffix;
+    Common::XmlUtilities::Attributes customQuery = map.lookup(key);
+    std::string queryName = customQuery.value("queryName", "");
+    std::string query = map.lookup(key + "/query").value("TextId", "");
+    std::string interval = map.lookup(key + "/interval").value("TextId", "");
+    std::string description = map.lookup(key + "/description").value("TextId", "");
+    EXPECT_EQ(queryName, "blah2");
+    EXPECT_EQ(description, "a different \nbasic \nquery");
+}
+
+TEST(TestXmlUtilities, tagAttributesCanBeEmpty)
+{
+    // This test ensures we do not populate empty attributes with "TextId" and empty strings
+    auto map = Common::XmlUtilities::parseXml(liveQueryPolicy);
+    
+    const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
+    Common::XmlUtilities::Attributes customQueriesAttr = map.lookup(customQueriesPath);
+    EXPECT_TRUE(customQueriesAttr.empty());
+}
+
+TEST(TestXmlUtilities, newlinesAndWhitespaceHandling)
+{
+    auto simpleXml = parseXml(
+        R"(<xml>
+<a>
+               abc with space preceding
+
+abc
+
+</a>
+<a>
+ thing
+</a></xml>)");
+    auto attributesList = simpleXml.lookupMultiple("xml/a");
+    ASSERT_EQ(attributesList.size(), 2);
+    // We trim whitespace at each end of the element data but not the middle.
+    EXPECT_EQ(attributesList[0].contents(), "abc with space preceding\n\nabc");
+    EXPECT_EQ(attributesList[1].contents(), "thing");
 }

@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "tests/Common/Helpers/ExampleTempDirSuiteTest.h"
+#include "ExampleTempDirSuiteTest.h"
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 

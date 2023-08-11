@@ -2,7 +2,9 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ProcUtilImpl/ProcUtilities.h"
+#include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessInfo.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sys/types.h>
@@ -10,6 +12,8 @@
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 
 #include <fstream>
 

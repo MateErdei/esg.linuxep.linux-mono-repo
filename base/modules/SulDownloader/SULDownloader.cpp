@@ -1,17 +1,19 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "common/Logger.h"
+#include <json.hpp>
+
+#include "Logger.h"
 #include "ProductUninstaller.h"
 #include "SulDownloader.h"
-#include "common/SulDownloaderUtils.h"
-#include "SulDownloader/sdds3/SDDS3Utils.h"
-#include "SulDownloader/sdds3/Sdds3RepositoryFactory.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
-#include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
-#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
-#include "SulDownloader/suldownloaderdata/TimeTracker.h"
+#include "SulDownloaderUtils.h"
+#include "sdds3/SDDS3Utils.h"
+#include "sdds3/Sdds3RepositoryFactory.h"
+#include "suldownloaderdata/ConfigurationDataUtil.h"
+#include "suldownloaderdata/ConnectionSelector.h"
+#include "suldownloaderdata/DownloadReport.h"
+#include "suldownloaderdata/DownloadedProduct.h"
+#include "suldownloaderdata/SulDownloaderException.h"
+#include "suldownloaderdata/TimeTracker.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -31,8 +33,6 @@
 #include <algorithm>
 #include <cassert>
 #include <thread>
-
-#include <json.hpp>
 
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;

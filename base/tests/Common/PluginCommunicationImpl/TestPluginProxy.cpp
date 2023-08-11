@@ -3,12 +3,14 @@
 #include "MockSocketRequester.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginCommunication/IPluginCommunicationException.h"
 #include "Common/PluginCommunicationImpl/PluginProxy.h"
 #include "Common/PluginProtocol/Protocol.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 

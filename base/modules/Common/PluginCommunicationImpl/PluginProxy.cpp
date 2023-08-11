@@ -2,6 +2,8 @@
 
 #include "PluginProxy.h"
 
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/PluginCommunication/IPluginCommunicationException.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
 #include "Common/PluginProtocol/Protocol.h"

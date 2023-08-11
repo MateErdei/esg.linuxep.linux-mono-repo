@@ -1,20 +1,20 @@
-///******************************************************************************************************
-///
-/// Copyright 2019, Sophos Limited.  All rights reserved.
-///
-///******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryObject.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/TelemetryHelperImpl/TelemetryFieldStructure.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/TelemetryHelperImpl/TelemetryObject.h"
+#include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+
+#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+
 #include <gtest/gtest.h>
 #include <json.hpp>
 
 #include <thread>
 
-#include "tests/Common/Helpers/MockFileSystem.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
 
 using namespace Common::Telemetry;
 
@@ -50,14 +50,21 @@ class ScopeInsertFSMock{
     }
 };
 
-TEST(TestTelemetryHelper, getInstanceReturnsSingleton) // NOLINT
+
+class TestTelemetryHelper : public MemoryAppenderUsingTests
+{
+public:
+    TestTelemetryHelper() : MemoryAppenderUsingTests("TelemetryHelperImpl") {}
+};
+
+TEST_F(TestTelemetryHelper, getInstanceReturnsSingleton)
 {
     TelemetryHelper& helper1 = TelemetryHelper::getInstance();
     TelemetryHelper& helper2 = TelemetryHelper::getInstance();
     ASSERT_EQ(&helper1, &helper2);
 }
 
-TEST(TestTelemetryHelper, constructionCreatesDifferentInstance) // NOLINT
+TEST_F(TestTelemetryHelper, constructionCreatesDifferentInstance)
 {
     TelemetryHelper& helper1 = TelemetryHelper::getInstance();
     TelemetryHelper helper2;
@@ -67,7 +74,7 @@ TEST(TestTelemetryHelper, constructionCreatesDifferentInstance) // NOLINT
     ASSERT_NE(&helper1, &helper3);
 }
 
-TEST(TestTelemetryHelper, addStringTelem) // NOLINT
+TEST_F(TestTelemetryHelper, addStringTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -75,7 +82,7 @@ TEST(TestTelemetryHelper, addStringTelem) // NOLINT
     ASSERT_EQ(R"({"OS Name":"Ubuntu"})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, addCStringTelem) // NOLINT
+TEST_F(TestTelemetryHelper, addCStringTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -83,7 +90,7 @@ TEST(TestTelemetryHelper, addCStringTelem) // NOLINT
     ASSERT_EQ(R"({"OS Name":"Ubuntu"})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, addIntTelem) // NOLINT
+TEST_F(TestTelemetryHelper, addIntTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -91,7 +98,7 @@ TEST(TestTelemetryHelper, addIntTelem) // NOLINT
     ASSERT_EQ(R"({"An int":3})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, addUnsignedIntTelem) // NOLINT
+TEST_F(TestTelemetryHelper, addUnsignedIntTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -99,7 +106,7 @@ TEST(TestTelemetryHelper, addUnsignedIntTelem) // NOLINT
     ASSERT_EQ(R"({"uint":1})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, addBoolTelem) // NOLINT
+TEST_F(TestTelemetryHelper, addBoolTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -107,7 +114,7 @@ TEST(TestTelemetryHelper, addBoolTelem) // NOLINT
     ASSERT_EQ(R"({"true":true})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendInt) // NOLINT
+TEST_F(TestTelemetryHelper, appendInt)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -117,7 +124,7 @@ TEST(TestTelemetryHelper, appendInt) // NOLINT
     ASSERT_EQ(R"({"array":[1,2]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendUnsignedInt) // NOLINT
+TEST_F(TestTelemetryHelper, appendUnsignedInt)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -127,7 +134,7 @@ TEST(TestTelemetryHelper, appendUnsignedInt) // NOLINT
     ASSERT_EQ(R"({"array":[2,3]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendString) // NOLINT
+TEST_F(TestTelemetryHelper, appendString)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -137,7 +144,7 @@ TEST(TestTelemetryHelper, appendString) // NOLINT
     ASSERT_EQ(R"({"array":["string","string2"]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendCString) // NOLINT
+TEST_F(TestTelemetryHelper, appendCString)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -147,7 +154,7 @@ TEST(TestTelemetryHelper, appendCString) // NOLINT
     ASSERT_EQ(R"({"array":["cstring","cstring2"]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendBool) // NOLINT
+TEST_F(TestTelemetryHelper, appendBool)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -157,7 +164,7 @@ TEST(TestTelemetryHelper, appendBool) // NOLINT
     ASSERT_EQ(R"({"array":[true,false]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -166,7 +173,7 @@ TEST(TestTelemetryHelper, appendObject) // NOLINT
     ASSERT_EQ(R"({"array":[{}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendCstringObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendCstringObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -176,7 +183,7 @@ TEST(TestTelemetryHelper, appendCstringObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendIntObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendIntObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -186,7 +193,7 @@ TEST(TestTelemetryHelper, appendIntObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendDoubleObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendDoubleObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -196,7 +203,7 @@ TEST(TestTelemetryHelper, appendDoubleObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":1.0},{"key2":2.0}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendStringObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendStringObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -206,7 +213,7 @@ TEST(TestTelemetryHelper, appendStringObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendUnsignedIntObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendUnsignedIntObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -216,7 +223,7 @@ TEST(TestTelemetryHelper, appendUnsignedIntObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendBoolObject) // NOLINT
+TEST_F(TestTelemetryHelper, appendBoolObject)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -226,7 +233,7 @@ TEST(TestTelemetryHelper, appendBoolObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":false},{"key2":true}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendMixed) // NOLINT
+TEST_F(TestTelemetryHelper, appendMixed)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -239,7 +246,7 @@ TEST(TestTelemetryHelper, appendMixed) // NOLINT
     ASSERT_EQ(R"({"array":[1,3,false,"cstring","string",{"obj":"val"}]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, incCounter) // NOLINT
+TEST_F(TestTelemetryHelper, incCounter)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -253,7 +260,7 @@ TEST(TestTelemetryHelper, incCounter) // NOLINT
     ASSERT_EQ(R"({"counter":5})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, incCounterByUnsignedInt) // NOLINT
+TEST_F(TestTelemetryHelper, incCounterByUnsignedInt)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -263,7 +270,7 @@ TEST(TestTelemetryHelper, incCounterByUnsignedInt) // NOLINT
     ASSERT_EQ(R"({"counter":2})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt) // NOLINT
+TEST_F(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -273,7 +280,7 @@ TEST(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt) // NOLINT
     ASSERT_EQ(R"({"counter":2})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, incNegativeCounter) // NOLINT
+TEST_F(TestTelemetryHelper, incNegativeCounter)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -283,15 +290,15 @@ TEST(TestTelemetryHelper, incNegativeCounter) // NOLINT
     ASSERT_EQ(R"({"counter":-9})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, incNonExistantValue) // NOLINT
+TEST_F(TestTelemetryHelper, incNonExistantValue)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.increment("counter", 3L); // NOLINT
+    helper.increment("counter", 3L);
     ASSERT_EQ(R"({"counter":3})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, nestedTelem) // NOLINT
+TEST_F(TestTelemetryHelper, nestedTelem)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -305,83 +312,83 @@ TEST(TestTelemetryHelper, nestedTelem) // NOLINT
     ASSERT_EQ(R"({"1":1,"2":2,"a":{"nested":{"array":["string2",1,false],"string":"string1"}}})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, registerResetCallback) // NOLINT
+TEST_F(TestTelemetryHelper, registerResetCallback)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));            // NOLINT
+        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));           
 }
 
-TEST(TestTelemetryHelper, reregisterResetCallback) // NOLINT
+TEST_F(TestTelemetryHelper, reregisterResetCallback)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
     ASSERT_THROW(
         helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)),
-        std::logic_error); // NOLINT
+        std::logic_error);
     helper.reset();
     ASSERT_TRUE(dummy.hasCallbackBeenCalled());
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
 }
 
-TEST(TestTelemetryHelper, unregisterResetCallback) // NOLINT
+TEST_F(TestTelemetryHelper, unregisterResetCallback)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));            // NOLINT
+        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));           
     helper.reset();
     ASSERT_FALSE(dummy.hasCallbackBeenCalled());
 }
 
-TEST(TestTelemetryHelper, registerResetCallbackGetsCalled) // NOLINT
+TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalled)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
     helper.reset();
     ASSERT_TRUE(dummy.hasCallbackBeenCalled());
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
 }
 
-TEST(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalled) // NOLINT
+TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalled)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
 
     DummyTelemetryProvider dummy1("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1))); // NOLINT
+        dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1)));
 
     DummyTelemetryProvider dummy2("dummy2");
     ASSERT_NO_THROW(helper.registerResetCallback(
-        dummy2.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy2))); // NOLINT
+        dummy2.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy2)));
 
     helper.reset();
     ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
     ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
 
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy1.getCookie())); // NOLINT
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy2.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy1.getCookie()));
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy2.getCookie()));
 }
 
-TEST(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOLINT
+TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
 
     DummyTelemetryProvider dummy("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
+    ASSERT_NO_THROW(helper.registerResetCallback(
         dummy.getCookie(),
         std::bind(&DummyTelemetryProvider::callback, &dummy)));
 
@@ -393,21 +400,21 @@ TEST(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOLIN
     helper.reset();
     ASSERT_TRUE(dummy.hasCallbackBeenCalled());
 
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
 }
 
-TEST(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) // NOLINT
+TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
 
     DummyTelemetryProvider dummy1("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
+    ASSERT_NO_THROW(helper.registerResetCallback(
         dummy1.getCookie(),
         std::bind(&DummyTelemetryProvider::callback, &dummy1)));
 
     DummyTelemetryProvider dummy2("dummy2");
-    ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
+    ASSERT_NO_THROW(helper.registerResetCallback(
         dummy2.getCookie(),
         std::bind(&DummyTelemetryProvider::callback, &dummy2)));
 
@@ -421,11 +428,11 @@ TEST(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) 
     ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
     ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
 
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy1.getCookie())); // NOLINT
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy2.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy1.getCookie()));
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy2.getCookie()));
 }
 
-TEST(TestTelemetryHelper, mergeJsonInWithExistingData) // NOLINT
+TEST_F(TestTelemetryHelper, mergeJsonInWithExistingData)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -436,7 +443,7 @@ TEST(TestTelemetryHelper, mergeJsonInWithExistingData) // NOLINT
     ASSERT_EQ(R"({"OS Name":"Ubuntu","merged":{"counter":4}})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, mergeJsonInWithoutExistingData) // NOLINT
+TEST_F(TestTelemetryHelper, mergeJsonInWithoutExistingData)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -445,7 +452,7 @@ TEST(TestTelemetryHelper, mergeJsonInWithoutExistingData) // NOLINT
     ASSERT_EQ(R"({"merged":{"counter":4}})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, mergeJsonInTwice) // NOLINT
+TEST_F(TestTelemetryHelper, mergeJsonInTwice)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -457,12 +464,12 @@ TEST(TestTelemetryHelper, mergeJsonInTwice) // NOLINT
     ASSERT_EQ(jsonMerged, helper.serialise());
 }
 
-TEST(TestTelemetryHelper, mergeInvalidJsonIn) // NOLINT
+TEST_F(TestTelemetryHelper, mergeInvalidJsonIn)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     std::string json = R"({"counter":})";
-    ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error); // NOLINT
+    ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error);
 }
 
 void appendLots(const std::string& arrayName, int numberToAdd)
@@ -475,24 +482,24 @@ void appendLots(const std::string& arrayName, int numberToAdd)
     }
 }
 
-TEST(TestTelemetryHelper, resetAndSerialiseExecutesCallbacksAndReturnsJson) // NOLINT
+TEST_F(TestTelemetryHelper, resetAndSerialiseExecutesCallbacksAndReturnsJson)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
 
     DummyTelemetryProvider dummy("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
+    ASSERT_NO_THROW(helper.registerResetCallback(
         dummy.getCookie(),
-        std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+        std::bind(&DummyTelemetryProvider::callback, &dummy)));
 
     helper.set("a", "b");
     std::string json = helper.serialiseAndReset();
     ASSERT_EQ(R"({"a":"b"})", json);
     ASSERT_TRUE(dummy.hasCallbackBeenCalled());
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
 }
 
-TEST(TestTelemetryHelper, dataNotLostDuringMultiThreadedUse) // NOLINT
+TEST_F(TestTelemetryHelper, dataNotLostDuringMultiThreadedUse)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -551,7 +558,7 @@ TEST(TestTelemetryHelper, dataNotLostDuringMultiThreadedUse) // NOLINT
     ASSERT_EQ(numberOfItemsInArray, array1size + array2size + array3size);
 }
 
-TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
+TEST_F(TestTelemetryHelper, telemtryStatSerialisedCorrectly)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -563,7 +570,7 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
     ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly) // NOLINT
+TEST_F(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -575,7 +582,7 @@ TEST(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly) // NOLINT
     EXPECT_THAT(helper.serialise(),::testing::HasSubstr("\"statName-std-deviation\":3.68178"));
 }
 
-TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
+TEST_F(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly)
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
     EXPECT_CALL(*mockFileSystemPtr, isDirectory(_)).WillOnce(Return(true));
@@ -594,7 +601,7 @@ TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
     helper.save();
 }
 
-TEST(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry) // NOLINT
+TEST_F(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry)
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
     TelemetryHelper& helper = TelemetryHelper::getInstance();
@@ -614,7 +621,7 @@ TEST(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry) // NOLINT
     ASSERT_EQ(R"({"a":"b","statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
+TEST_F(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson)
 {
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
@@ -640,7 +647,7 @@ TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
     ASSERT_EQ(R"({})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, addValueToSet) // NOLINT
+TEST_F(TestTelemetryHelper, addValueToSet)
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -662,4 +669,59 @@ TEST(TestTelemetryHelper, addValueToSet) // NOLINT
     helper.addValueToSet("my-set",2UL);
     helper.addValueToSet("my-set",2UL);
     ASSERT_EQ(R"({"my-set":["a","b","c","string",false,1.0213,1.0,1,2]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, restructureTestMultipleEntries)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.esmName", std::string("esmName"));
+    helper.set("updatescheduler.something", std::string("something"));
+    ASSERT_EQ(R"({"updatescheduler":{"esmName":"esmName","something":"something"}})", helper.serialise());
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"esmName":"esmName","updatescheduler":{"something":"something"}})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, restructureTestSingleEntry)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.esmName", std::string("esmName"));
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"esmName":"esmName"})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, restructureEmptyTelemetry)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, restructureEntryDoesntExist)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("updatescheduler.download-state", 0L);
+    helper.set("updatescheduler.subscriptions-ServerProtectionLinux-Base", "RECOMMENDED");
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"updatescheduler":{"download-state":0,"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED"}})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, restructureAllExpectedEntries)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    //For test purposes treat the second field as a value
+    for (const auto& [interestingField, value] : fieldsToMoveToTopLevel)
+    {
+        helper.set(interestingField, value);
+    }
+
+    std::string expectedFirst = R"({"base-telemetry":{"deviceId":"deviceId","tenantId":"tenantId"},"updatescheduler":{"esmName":"esmName","esmToken":"esmToken","suite-version":"suiteVersion"}})";
+    ASSERT_EQ(expectedFirst, helper.serialise());
+
+    helper.restructureTelemetry();
+    EXPECT_EQ(R"({"deviceId":"deviceId","esmName":"esmName","esmToken":"esmToken","suiteVersion":"suiteVersion","tenantId":"tenantId"})", helper.serialise());
 }

@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "Common/FileSystem/IPidLockFileUtils.h"
+#include "Common/FileSystemImpl/PidLockFile.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

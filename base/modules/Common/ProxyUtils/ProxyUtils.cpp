@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include <json.hpp>
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ObfuscationImpl/Obfuscate.h"
 #include "Common/UtilityImpl/StringUtils.h"

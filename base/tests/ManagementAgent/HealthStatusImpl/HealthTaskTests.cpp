@@ -1,10 +1,9 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/ManagementAgent/HealthStatusImpl/HealthTask.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/HealthStatusImpl/HealthTask.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"

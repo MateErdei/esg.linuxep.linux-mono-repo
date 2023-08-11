@@ -3,6 +3,7 @@
 #include "ApplicationConfiguration.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 namespace
 {
@@ -64,6 +65,11 @@ namespace Common
         void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
         {
             m_configurationData[key] = data;
+        }
+
+        void ApplicationConfiguration::clearData(const std::string& key)
+        {
+            m_configurationData.erase(key);
         }
     } // namespace ApplicationConfigurationImpl
 

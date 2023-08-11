@@ -6,9 +6,9 @@
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
+#include <gmock/gmock.h>
 #include "tests/Common/Helpers/TempDir.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
-#include <gmock/gmock.h>
 #include <cstring>
 
 using namespace Common::DirectoryWatcherImpl;

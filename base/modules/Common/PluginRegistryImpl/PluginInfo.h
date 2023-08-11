@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/ProcessImpl/ProcessInfo.h"
 
 #include <string>

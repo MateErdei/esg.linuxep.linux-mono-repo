@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "Common/TelemetryHelperImpl/TelemetryObject.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
@@ -69,7 +65,7 @@ class TelemetrySerialiserParameterisedTestFixture : public ::testing::TestWithPa
 {
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     ParameterisedJsonTests, // NOLINT
     TelemetrySerialiserParameterisedTestFixture,
     ::testing::Values(

@@ -1,6 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -446,4 +447,12 @@ TEST(TestStringUtils, toLowerMakesAllCharsLowerCase) // NOLINT
     ASSERT_EQ(StringUtils::toLower(testStringUpper), testStringUpperLowered);
     ASSERT_EQ(StringUtils::toLower(testStringLower), testStringLower);
     ASSERT_EQ(StringUtils::toLower(testStringNotLetters), testStringNotLetters);
+}
+
+TEST(TestStringUtils, isPositiveInteger)
+{
+    ASSERT_EQ(StringUtils::isPositiveInteger("1"), true);
+    ASSERT_EQ(StringUtils::isPositiveInteger(""), false);
+    ASSERT_EQ(StringUtils::isPositiveInteger("123e"), false);
+    ASSERT_EQ(StringUtils::isPositiveInteger("e"), false);
 }

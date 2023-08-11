@@ -4,10 +4,15 @@
 #include "LoggerConfig.h"
 #include "LoggingSetup.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+
+using namespace Common::ApplicationConfigurationImpl;
+using namespace Common::ApplicationConfiguration;
 
 Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup()
 {

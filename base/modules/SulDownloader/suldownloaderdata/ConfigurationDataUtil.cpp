@@ -2,6 +2,7 @@
 
 #include "ConfigurationDataUtil.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Logger.h"
 
 #include <algorithm>
@@ -21,6 +22,14 @@ namespace SulDownloader
             if(newPrimarySubscription.rigidName() != previousPrimarySubscription.rigidName()
                || newPrimarySubscription.tag() != previousPrimarySubscription.tag()
                || newPrimarySubscription.fixedVersion() != previousPrimarySubscription.fixedVersion())
+            {
+                return true;
+            }
+
+            auto newEsmVersion = updateSettings.getEsmVersion();
+            auto previousEsmVersion = previousUpdateSettings.getEsmVersion();
+
+            if (newEsmVersion != previousEsmVersion)
             {
                 return true;
             }

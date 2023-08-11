@@ -12,10 +12,9 @@
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.pb.h"
-
 #include <google/protobuf/util/json_util.h>
 
+#include "DownloadReport.pb.h"
 #include <sstream>
 
 using namespace SulDownloader::suldownloaderdata;

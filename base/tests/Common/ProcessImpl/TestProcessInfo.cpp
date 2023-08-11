@@ -1,5 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/ProcessImpl/ProcessInfo.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"

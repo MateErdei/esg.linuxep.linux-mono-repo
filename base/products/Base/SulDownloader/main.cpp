@@ -1,5 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "SulDownloader/SulDownloader.h"
+#include "SulDownloader.h"
 
 #include "Common/UtilityImpl/Main.h"
 

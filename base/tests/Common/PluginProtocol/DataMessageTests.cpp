@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <gmock/gmock-matchers.h>
+#include "gmock/gmock-matchers.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/PluginProtocol/DataMessage.h"

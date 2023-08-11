@@ -7,7 +7,7 @@
 
 #include "Common/PluginApi/ApiException.h"
 
-#include "Common/PluginProtocol/PluginAPIMessage.pb.h"
+#include "PluginAPIMessage.pb.h"
 
 namespace Common
 {

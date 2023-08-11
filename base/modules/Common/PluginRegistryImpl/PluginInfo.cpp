@@ -3,12 +3,11 @@
 #include "PluginInfo.h"
 
 #include "Logger.h"
-#include "Common/PluginRegistryImpl/PluginInfo.pb.h"
+#include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 

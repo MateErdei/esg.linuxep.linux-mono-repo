@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/NoACKReplyException.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"

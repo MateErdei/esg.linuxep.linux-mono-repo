@@ -5,7 +5,8 @@
 #include "Logger.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include <grp.h>
 #include <pwd.h>

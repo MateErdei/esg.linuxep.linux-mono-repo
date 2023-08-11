@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "Common/PluginApi/IPluginCallbackApi.h"
+#include "IPluginCallbackApi.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
