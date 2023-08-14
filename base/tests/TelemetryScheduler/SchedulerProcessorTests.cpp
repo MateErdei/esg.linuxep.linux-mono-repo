@@ -1331,7 +1331,7 @@ TEST_P(SchedulerProcessorInvalidHostnameTests, AfterRecevingAlcPolicyWithInvalid
 
     queue->push({ .taskType = SchedulerTask::TaskType::Policy, .content = policy, .appId = "ALC" });
 
-    EXPECT_TRUE(waitForLog("ERROR - Failed to parse ALC policy: Invalid telemetry host '" + GetParam() + "'"));
+    EXPECT_TRUE(waitForLog("DEBUG - Got empty host from ALC policy"));
     queue->push({ SchedulerTask::TaskType::Shutdown });
 
     processorThread.join();

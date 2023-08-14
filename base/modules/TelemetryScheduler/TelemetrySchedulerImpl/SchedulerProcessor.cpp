@@ -393,7 +393,6 @@ namespace TelemetrySchedulerImpl
         {
             // Note: If malformed hostname given by ALC Policy then a PolicyParse Exception is thrown
             // No more tasks end up on queue so TelemetryScheduler just waits for another ALC Policy
-            // good behaviour... i hope :)
             Common::Policy::ALCPolicy alcPolicy{ policyXml };
             const auto telemetryHost = alcPolicy.getTelemetryHost();
 
@@ -402,7 +401,7 @@ namespace TelemetrySchedulerImpl
                 LOGDEBUG("Didn't get telemetry host from ALC policy");
                 m_telemetryHost = "t1.sophosupd.com"; // Fallback to hardcoded value
             }
-            else if (telemetryHost->empty()) // Value of <Telemetry> field was empty
+            else if (telemetryHost->empty()) // Value of <Telemetry> field was empty or invalid host found in policy
             {
                 LOGDEBUG("Got empty host from ALC policy");
                 m_telemetryHost = ""; // Don't do Telemetry
@@ -424,7 +423,6 @@ namespace TelemetrySchedulerImpl
         }
         catch (const Common::Policy::PolicyParseException& ex)
         {
-            LOGERROR(Common::Exceptions::NestedExceptions::expandException(ex));
             LOGERROR("Failed to parse ALC policy: " << ex.what());
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
