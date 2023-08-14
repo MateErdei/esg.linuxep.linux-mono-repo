@@ -370,10 +370,12 @@ function build()
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
-    # Unfortunately the ParallelQueryProcessorTest cannot currently be run in parallel (using --parallel)
     elif (( ${UNITTEST} == 1 ))
     then
-        ctest --timeout 15 --output-on-failure || {
+        ctest \
+            --prallel $(( NPROC * 2 )) \
+            --timeout 15 \
+            --output-on-failure \ || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
 #            cat Testing/Temporary/LastTest.log || true

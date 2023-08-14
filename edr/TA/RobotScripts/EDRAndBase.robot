@@ -99,10 +99,10 @@ EDR Restarts If File Descriptor Limit Hit
 
 
     ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
-    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${100}
+    Send Plugin Actions  edr  LiveQuery  corr  ${actionContent}  ${100}
 
     Wait For Log Contains From Mark    ${mark}    Early request to stop found.       ${60}
-    Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${360}
+    Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${240}
 
     Wait Until Keyword Succeeds
     ...  30 secs

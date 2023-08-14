@@ -6,6 +6,7 @@ Library         DateTime
 
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OSLibs.py
+Library         ../Libs/ProcessUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/FileSystemLibs.py
 
@@ -304,6 +305,7 @@ Common Teardown
     Run Keyword If Test Failed  Display All SSPL Files Installed
 
 EDR And Base Teardown
+    Run Keyword If Test Failed  Dump Threads    ${EDR_PLUGIN_BIN}
     Stop EDR
     Wait Until Keyword Succeeds
     ...  15 secs

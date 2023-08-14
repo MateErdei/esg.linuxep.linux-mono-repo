@@ -145,10 +145,11 @@ class FakeManagement(object):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         plugin.action(appid, correlation, content)
 
-    def send_plugin_actions(self, plugin_name, appid, correlation, content, count):
+    def send_plugin_actions(self, plugin_name, appid, correlation_prefix, content, count):
         for i in range(count):
+            unique_corr_id = f"{correlation_prefix}{i}"
             plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-            plugin.action(appid, correlation, content)
+            plugin.action(appid, unique_corr_id, content)
             time.sleep(0.01)
 
     def get_plugin_status(self, plugin_name, appid):

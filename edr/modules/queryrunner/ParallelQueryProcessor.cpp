@@ -18,13 +18,14 @@ namespace queryrunner{
 
     void ParallelQueryProcessor::newJobDone(const std::string& id)
     {
+        std::list<std::unique_ptr<queryrunner::IQueryRunner>> processedQueries;
         try
         {
             std::lock_guard<std::mutex> l { m_mutex };
             LOGDEBUG("Query " << id << " finished");
 
             // clearing up previous queries objects that now can be removed as they are not in the same thread.
-            m_processedQueries.clear();
+            processedQueries.swap(m_processedQueries);
 
             // this method retrieves the result and mark the queryRunner to be cleared after as it can not be removed as this method is executed in the queryRunner callback thread.
 
@@ -50,11 +51,6 @@ namespace queryrunner{
         catch (const std::exception& ex)
         {
             LOGERROR("Failed to handle feedback on query finished: " << ex.what());
-        }
-        
-        if (m_shuttingDown)
-        {
-            abortQueries();
         }
     }
 
@@ -95,6 +91,32 @@ namespace queryrunner{
                 if (shutdownThread.joinable())
                 {
                     shutdownThread.join();
+                }
+            }
+            // give up to 0.5 seconds to have all the queries processed.
+            int count = 0;
+            while (count++ < 50)
+            {
+                bool isEmpty=false;
+                {
+                    std::lock_guard<std::mutex> l{m_mutex};
+                    for (auto& p: m_processingQueries)
+                    {
+                        p->requestAbort();
+                    }
+                    isEmpty = m_processingQueries.empty();
+                }
+                if (isEmpty)
+                {
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            {
+                std::lock_guard<std::mutex> l{m_mutex};
+                if (!m_processingQueries.empty())
+                {
+                    LOGDEBUG("Should not have any further queries to process.");
                 }
             }
         }
