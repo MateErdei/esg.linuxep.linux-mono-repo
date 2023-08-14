@@ -374,7 +374,7 @@ On Access Scans File On devtmpfs
 
     On-access Scan Eicar Close  ${destination}/eicar.com
 
-On Access Doesnt Mount AutoFs Mount
+On Access Does Not Mount AutoFs Mount
     ${exports} =    Set Variable  /etc/exports
     ${automaster} =    Set Variable    /etc/auto.master
     ${automount} =    Set Variable    /etc/auto.mount
@@ -411,16 +411,14 @@ On Access Doesnt Mount AutoFs Mount
     Run Shell Process  systemctl restart autofs  OnError=failed to restart autofs
     Register Cleanup   Run Shell Process  systemctl stop autofs     OnError=failed to stop autofs
 
-    ${result1} =   Run Shell Process    mount    OnError=failed to run mount command
-    ${lastline1} =    Get Line    ${result1.stdout}    -1
+    ${lastline1} =  OnAccessUtils.Get last line from mount ignoring tmpfs
     Should Contain    ${lastline1}    ${automount} on ${destination} type autofs
 
     Restart On Access
     #If autofs is 'activated' for this mount the last line will be
     #/dev/sda1 on ${destination} type ext4
     #But this is not dependable on all platforms
-    ${result2} =   Run Shell Process    mount    OnError=failed to run mount command
-    ${lastline2} =    Get Line    ${result2.stdout}    -1
+    ${lastline2} =  OnAccessUtils.Get last line from mount ignoring tmpfs
     Should Contain    ${lastline2}    ${automount} on ${destination} type autofs
 
 On Access Scans File On NFSv4

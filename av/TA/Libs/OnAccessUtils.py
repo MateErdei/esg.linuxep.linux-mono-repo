@@ -6,6 +6,7 @@
 import os
 import re
 import six
+import subprocess
 import time
 
 from robot.libraries.BuiltIn import BuiltIn
@@ -84,3 +85,16 @@ class OnAccessUtils:
                 if value == "e":
                     return True
         raise AssertionError("On-Access status file didn't report enabled within timeout")
+
+    @staticmethod
+    def get_last_line_from_mount_ignoring_tmpfs():
+        result = subprocess.run(["mount"], check=True, stdout=subprocess.PIPE)
+        output = result.stdout.decode("UTF-8")
+        lines = output.splitlines()
+        lines.reverse()
+        for line in lines:
+            if line.startswith("tmpfs on "):
+                continue
+            return line
+
+
