@@ -23,7 +23,7 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(TestManifestDiff, calculateAddedWorksCorrectly) // NOLINT
+    TEST_F(TestManifestDiff, calculateAddedWorksCorrectly)
     {
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
@@ -35,7 +35,7 @@ namespace
         EXPECT_EQ(*(added.begin()), "files/base/bin/manifestdiff");
     }
 
-    TEST_F(TestManifestDiff, writeAdded) // NOLINT
+    TEST_F(TestManifestDiff, writeAdded)
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -46,12 +46,13 @@ namespace
 
         std::string dest = "test";
 
+        EXPECT_CALL(*mockFileSystem, makedirs(_));
         EXPECT_CALL(*mockFileSystem, writeFile(dest, "files/base/bin/manifestdiff\n"));
 
-        EXPECT_NO_THROW(Installer::ManifestDiff::ManifestDiff::writeAdded(dest, old_manifest, new_manifest)); // NOLINT
+        EXPECT_NO_THROW(Installer::ManifestDiff::ManifestDiff::writeAdded(dest, old_manifest, new_manifest));
     }
 
-    TEST_F(TestManifestDiff, writeRemoved) // NOLINT
+    TEST_F(TestManifestDiff, writeRemoved)
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -62,13 +63,14 @@ namespace
 
         std::string dest = "test";
 
+        EXPECT_CALL(*mockFileSystem, makedirs(_));
         EXPECT_CALL(*mockFileSystem, writeFile(dest, "files/base/bin/manifestdiff\n"));
 
-        EXPECT_NO_THROW(                                                                            // NOLINT
-            Installer::ManifestDiff::ManifestDiff::writeRemoved(dest, old_manifest, new_manifest)); // NOLINT
+        EXPECT_NO_THROW(
+            Installer::ManifestDiff::ManifestDiff::writeRemoved(dest, old_manifest, new_manifest));
     }
 
-    TEST_F(TestManifestDiff, writeChanged) // NOLINT
+    TEST_F(TestManifestDiff, writeChanged)
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -79,9 +81,10 @@ namespace
 
         std::string dest = "test";
 
+        EXPECT_CALL(*mockFileSystem, makedirs(_));
         EXPECT_CALL(*mockFileSystem, writeFile(dest, "files/base/bin/SulDownloader\n"));
 
-        EXPECT_NO_THROW(                                                                            // NOLINT
-            Installer::ManifestDiff::ManifestDiff::writeChanged(dest, old_manifest, new_manifest)); // NOLINT
+        EXPECT_NO_THROW(
+            Installer::ManifestDiff::ManifestDiff::writeChanged(dest, old_manifest, new_manifest));
     }
 } // namespace

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 """HTTP Server that exposes locally-built SDDS3 repo over HTTP port 8080"""
 import traceback

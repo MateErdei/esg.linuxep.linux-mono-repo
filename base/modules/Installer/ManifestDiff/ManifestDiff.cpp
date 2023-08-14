@@ -63,7 +63,9 @@ PathSet ManifestDiff::entriesToPaths(const ManifestEntrySet& entries)
 void ManifestDiff::writeFile(const std::string& destination, const PathSet& paths)
 {
     assert(!destination.empty());
-    Common::FileSystem::fileSystem()->writeFile(destination, toString(paths));
+    auto* filesystem = Common::FileSystem::fileSystem();
+    filesystem->makedirs(Common::FileSystem::dirName(destination));
+    filesystem->writeFile(destination, toString(paths));
 }
 
 void ManifestDiff::writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)

@@ -244,7 +244,7 @@ function waitForProcess()
 function makedir()
 {
     # Creates directory and enforces it's permissions
-    if [[ ! -d $2 ]]
+    if [[ ! -d "$2" ]]
     then
         mkdir -p "$2" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2"
     fi
@@ -256,31 +256,31 @@ function makeRootDirectory()
     local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [ -z "${install_path}" ]
+    if [[ -z "${install_path}" ]]
     then
         install_path="/"
     fi
 
-    while [ -n "${install_path}" ] && [ ! -d "${install_path}" ]
+    while [[ -n "${install_path}" ]] && [[ ! -d "${install_path}" ]]
     do
         install_path="${install_path%/*}"
     done
 
-    local createDirs=${SOPHOS_INSTALL#$install_path/}
+    local createDirs="${SOPHOS_INSTALL#$install_path/}"
 
     #Following loop requires trailing slash
     if [[ ${createDirs:-1} != "/" ]]
     then
-        local createDirs=$createDirs/
+        local createDirs="$createDirs/"
     fi
 
     #Iterate through directories giving minimum execute permissions to allow sophos-spl user to run executables
     while [[ -n "$createDirs" ]]
     do
-        currentDir=${createDirs%%/*}
+        currentDir="${createDirs%%/*}"
         install_path="${install_path}/${currentDir}"
         makedir 711 "${install_path}"
-        createDirs=${createDirs#$currentDir/}
+        createDirs="${createDirs#$currentDir/}"
     done
 }
 
@@ -360,14 +360,16 @@ function add_user()
     done <"$INSTALL_OPTIONS_FILE"
   fi
 
-  addUserCmd="${USERADD} -d ${SOPHOS_INSTALL} -g ${groupname} -M -N -r -s /bin/false ${username}"
+  addUserCmd="${USERADD} -g ${groupname} -M -N -r -s /bin/false ${username}"
   if [[ -z "$("${GETENT}" passwd "${username}")" ]]
     then
       if [[ -z "${userId}" ]]
       then
-        ${addUserCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
+        ${addUserCmd} -d "${SOPHOS_INSTALL}" || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
       else
-        ${addUserCmd} "${userId}" || ${addUserCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
+        ${addUserCmd} "${userId}"  -d "${SOPHOS_INSTALL}" \
+          || ${addUserCmd} -d "${SOPHOS_INSTALL}"  \
+          || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
       fi
   fi
 }
@@ -843,7 +845,7 @@ CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat" "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
-generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID}
+generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID} || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to generate manifest diff"
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 

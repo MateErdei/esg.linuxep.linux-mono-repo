@@ -14,29 +14,29 @@ function generate_manifest_diff()
     local PRODUCT_RIGID_NAME="$2"
     local BASE_MANIFEST_DIFF="${SOPHOS_INSTALL}/base/bin/manifestdiff"
 
-    if [[ -f $WORKING_DIST/files/base/bin/manifestdiff ]]
+    if [[ -f "$WORKING_DIST/files/base/bin/manifestdiff" ]]
     then
-        MANIFEST_DIFF=$WORKING_DIST/files/base/bin/manifestdiff
+        MANIFEST_DIFF="$WORKING_DIST/files/base/bin/manifestdiff"
     else
-        MANIFEST_DIFF=${BASE_MANIFEST_DIFF}
+        MANIFEST_DIFF="${BASE_MANIFEST_DIFF}"
     fi
 
     #Find all manifest files in WORKING_DIST
     for CID_MANIFEST_FILE in $(find "$WORKING_DIST"/ -name '*manifest.dat')
     do
-        local NEW_MANIFEST=${CID_MANIFEST_FILE}
-        local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
-        local OLD_MANIFEST_DIR=${SOPHOS_INSTALL}/base/update/${PRODUCT_RIGID_NAME}
-        local OLD_MANIFEST=${OLD_MANIFEST_DIR}/${BASE_NAME}
-        mkdir -p ${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}
+        local NEW_MANIFEST="${CID_MANIFEST_FILE}"
+        local BASE_NAME=$(basename "${CID_MANIFEST_FILE}")
+        local OLD_MANIFEST_DIR="${SOPHOS_INSTALL}/base/update/${PRODUCT_RIGID_NAME}"
+        local OLD_MANIFEST="${OLD_MANIFEST_DIR}/${BASE_NAME}"
 
         "${MANIFEST_DIFF}" \
             --old="${OLD_MANIFEST}" \
             --new="${NEW_MANIFEST}" \
             --added="${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/addedFiles_${BASE_NAME}" \
             --removed="${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/removedFiles_${BASE_NAME}" \
-            --diff="${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/changedFiles_${BASE_NAME}"
+            --diff="${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/changedFiles_${BASE_NAME}" || return $?
     done
+    return 0
 }
 
 function copy_manifests()
@@ -48,12 +48,12 @@ function copy_manifests()
 
     for CID_MANIFEST_FILE in $(find "$WORKING_DIST"/ -name "*manifest.dat")
     do
-        local NEW_MANIFEST=${CID_MANIFEST_FILE}
-        local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
-        local OLD_MANIFEST_DIR=${SOPHOS_INSTALL}/base/update/${PRODUCT_RIGID_NAME}
-        mkdir -p ${OLD_MANIFEST_DIR}
-        cp ${NEW_MANIFEST} ${OLD_MANIFEST_DIR}
-        chmod 600 ${OLD_MANIFEST_DIR}/${BASE_NAME}
+        local NEW_MANIFEST="${CID_MANIFEST_FILE}"
+        local BASE_NAME=$(basename "${CID_MANIFEST_FILE}")
+        local OLD_MANIFEST_DIR="${SOPHOS_INSTALL}/base/update/${PRODUCT_RIGID_NAME}"
+        mkdir -p "${OLD_MANIFEST_DIR}"
+        cp "${NEW_MANIFEST}" "${OLD_MANIFEST_DIR}"
+        chmod 600 "${OLD_MANIFEST_DIR}/${BASE_NAME}"
     done
 }
 
@@ -66,10 +66,10 @@ function changed_or_added()
     local PRODUCT_RIGID_NAME="$3"
     local return_value=1
 
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST/ -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find "$WORKING_DIST/" -name '*manifest.dat')
     do
-        local NEW_MANIFEST=${CID_MANIFEST_FILE}
-        local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
+        local NEW_MANIFEST="${CID_MANIFEST_FILE}"
+        local BASE_NAME=$(basename "${CID_MANIFEST_FILE}")
         grep -q "^${TARGET}\$" "${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/addedFiles_${BASE_NAME}" "${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/changedFiles_${BASE_NAME}" >/dev/null
 
         if [[ $? -eq 0 ]]
@@ -88,10 +88,10 @@ function software_changed()
     local WORKING_DIST="$1"
     local PRODUCT_RIGID_NAME="$2"
 
-    for CID_MANIFEST_FILE in $(find $WORKING_DIST/ -name "*manifest.dat")
+    for CID_MANIFEST_FILE in $(find "$WORKING_DIST/" -name "*manifest.dat")
     do
-        local NEW_MANIFEST=${CID_MANIFEST_FILE}
-        local BASE_NAME=$(basename ${CID_MANIFEST_FILE})
+        local NEW_MANIFEST="${CID_MANIFEST_FILE}"
+        local BASE_NAME=$(basename "${CID_MANIFEST_FILE}")
 
         if [ -s "${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/addedFiles_${BASE_NAME}" ] || \
            [ -s "${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}/changedFiles_${BASE_NAME}" ] || \
@@ -122,19 +122,19 @@ function can_delete()
    # a - sign in front of the path indecates explicitly that files in that path cannot be deleted.  This is for excluding
    # some subpaths is the update/cache folder.
 
-   if [[ -f ${WORKING_DIST}/cleanuprealm.dat ]]
+   if [[ -f "${WORKING_DIST}/cleanuprealm.dat" ]]
    then
-       for REALM_PATH in $(cat ${WORKING_DIST}/cleanuprealm.dat)
+       for REALM_PATH in $(cat "${WORKING_DIST}/cleanuprealm.dat")
        do
          if [[ ${REALM_PATH} == +* ]]
          then
-            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}/${REALM_PATH:1}* ]]
+            if [[ ${FILE_PATH} == "${SOPHOS_INSTALL}/${REALM_PATH:1}"* ]]
             then
               INCLUDED_PATH=1
             fi
          elif [[ ${REALM_PATH} == -* ]]
          then
-            if [[ ${FILE_PATH} == ${SOPHOS_INSTALL}/${REALM_PATH:1}* ]]
+            if [[ ${FILE_PATH} == "${SOPHOS_INSTALL}/${REALM_PATH:1}"* ]]
             then
               EXCLUDED_PATH=2
             fi
@@ -151,7 +151,7 @@ function can_delete()
 # Delete a file and any symlinks in the same directory that point to that file.
 function delete_file_and_links()
 {
-  local to_delete=$1
+  local to_delete="$1"
   local target_dir
   target_dir=$(dirname "$to_delete")
   for file_to_remove in $(find -L "$target_dir" -samefile "$to_delete")
@@ -167,7 +167,7 @@ function perform_cleanup()
     local WORKING_DIST="$1"
     local PRODUCT_RIGID_NAME="$2"
     # get list of folders to search
-    pushd ${SOPHOS_INSTALL}/tmp/
+    pushd "${SOPHOS_INSTALL}/tmp/"
     local DATA_FOLDERS=$(ls -d */)
     popd
 
@@ -178,9 +178,9 @@ function perform_cleanup()
     # "expr {} : '[^/]*/\(.*\)'" removes the first folder from the given path
     # i.e files/base/etc/logger.conf will become base/etc/logger.conf
 
-    for FILES_TO_REMOVE_DATA_FILE in $(find ${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME} -name "removedFiles*")
+    for FILES_TO_REMOVE_DATA_FILE in $(find "${SOPHOS_INSTALL}/tmp/${PRODUCT_RIGID_NAME}" -name "removedFiles*")
     do
-        for FILE_TO_DELETE in $(cat ${FILES_TO_REMOVE_DATA_FILE} | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo ${SOPHOS_INSTALL}/{})
+        for FILE_TO_DELETE in $(cat "${FILES_TO_REMOVE_DATA_FILE}" | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo "${SOPHOS_INSTALL}/{}")
         do
             if [[ $(can_delete "${FILE_TO_DELETE}" "${WORKING_DIST}") == 1 ]]
             then
@@ -201,27 +201,27 @@ function perform_cleanup()
     # Note files my no longer exist, so sending output to dev null.
     # if entry contains a path separator and the path is to a directory the directory will be removed.
 
-    if [[ -f ${WORKING_DIST}/filestodelete.dat ]]
+    if [[ -f "${WORKING_DIST}/filestodelete.dat" ]]
     then
-        for SPECIFIC_FILE_TO_DELETE in $(cat ${WORKING_DIST}/filestodelete.dat)
+        for SPECIFIC_FILE_TO_DELETE in $(cat "${WORKING_DIST}/filestodelete.dat")
         do
             if [[ ${SPECIFIC_FILE_TO_DELETE} != */* ]]
             then
-                for FILE_FOUND in $(find ${SOPHOS_INSTALL} -name ${SPECIFIC_FILE_TO_DELETE})
+                for FILE_FOUND in $(find "${SOPHOS_INSTALL}" -name "${SPECIFIC_FILE_TO_DELETE}")
                 do
-                    if [[ $(can_delete ${FILE_FOUND} ${WORKING_DIST}) == 1 ]]
+                    if [[ $(can_delete "${FILE_FOUND}" "${WORKING_DIST}") == 1 ]]
                     then
                         FILES_OR_DIRECTORIES_DELETED+=", ${FILE_FOUND}"
-                        rm -f ${FILE_FOUND} >/dev/null
+                        rm -f "${FILE_FOUND}" >/dev/null
                     fi
                 done
             else
-                if [[ $(can_delete ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
+                if [[ $(can_delete" ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}" "${WORKING_DIST}") == 1 ]]
                 then
-                    if [[ -d ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ]] || [[ -f ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} ]]
+                    if [[ -d "${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}" ]] || [[ -f "${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}" ]]
                     then
                         FILES_OR_DIRECTORIES_DELETED+=", ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}"
-                        rm -rf ${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE} >/dev/null
+                        rm -rf "${SOPHOS_INSTALL}/${SPECIFIC_FILE_TO_DELETE}" >/dev/null
                     fi
                 fi
             fi
@@ -230,7 +230,7 @@ function perform_cleanup()
 
     # clean up all broken symlinks created by deleting installed files
     for dirname in base plugins bin; do
-        find ${SOPHOS_INSTALL}/${dirname} -xtype l -delete
+        find "${SOPHOS_INSTALL}/${dirname}" -xtype l -delete
     done
     
     if [[ ! -z "${FILES_OR_DIRECTORIES_DELETED}" ]]
