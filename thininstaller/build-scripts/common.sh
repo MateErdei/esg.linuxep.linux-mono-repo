@@ -82,6 +82,19 @@ function unpack_scaffold_gcc_make()
     popd
 }
 
+function set_paths_for_unpacked_tools()
+{
+    if [[ -d /build/input/gcc/bin ]]
+    then
+        export PATH=/build/input/gcc/bin:$PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+    fi
+    if [[ -d /build/input/make/bin ]]
+    then
+        export PATH=/build/input/make/bin:$PATH
+    fi
+}
+
 
 function unpack_scaffold_autotools()
 {

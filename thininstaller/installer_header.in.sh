@@ -182,12 +182,12 @@ function handle_register_errorcodes()
 }
 function check_free_storage()
 {
-    local space=$1
+    local space="$1"
 
     local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [ -z $install_path ]
+    if [[ -z "$install_path" ]]
     then
         install_path="/"
     fi
@@ -199,24 +199,24 @@ function check_free_storage()
 
     # Loop through directory path from right to left, finding the first part of the path that exists.
     # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
-    while [ ! -d ${install_path} ]
+    while [[ ! -d "${install_path}" ]]
     do
-        install_path=${install_path%/*}
+        install_path="${install_path%/*}"
 
         # Make sure that the install_path string is not empty.
-        if [ -z $install_path ]
+        if [[ -z "$install_path" ]]
         then
             install_path="/"
         fi
     done
 
-    local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
-    local mountpoint=$(df -kP ${install_path} | sed -e "1d" | awk '{print $6}')
+    local free=$(df -kP "${install_path}" | sed -e "1d" | awk '{print $4}')
+    local mountpoint=$(df -kP "${install_path}" | sed -e "1d" | awk '{print $6}')
 
     local free_mb
     free_mb=$(( free / 1024 ))
 
-    if [ ${free_mb} -gt ${space} ]
+    if [[ ${free_mb} -gt ${space} ]]
     then
         return 0
     fi
@@ -229,17 +229,17 @@ function check_install_path_has_correct_permissions()
     local install_path="${SOPHOS_INSTALL%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [ -z $install_path ]
+    if [[ -z "$install_path" ]]
     then
         install_path="/"
     fi
 
-    while [ ! -d ${install_path} ]
+    while [ ! -d "${install_path}" ]
     do
-        install_path=${install_path%/*}
+        install_path="${install_path%/*}"
 
         # Make sure that the install_path string is not empty.
-        if [ -z $install_path ]
+        if [[ -z "$install_path" ]]
         then
             install_path="/"
         fi
@@ -247,17 +247,17 @@ function check_install_path_has_correct_permissions()
 
     # continue looping through all the existing directories ensuring that the current permissions will allow sophos-spl to execute
 
-    while [ ${install_path} != "/" ]
+    while [[ "${install_path}" != "/" ]]
     do
-        permissions=$(stat -c '%A' ${install_path})
+        permissions=$(stat -c '%A' "${install_path}")
         if [[ ${permissions: -1} != "x" ]]
         then
             failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
         fi
 
-        install_path=${install_path%/*}
+        install_path="${install_path%/*}"
 
-        if [ -z $install_path ]
+        if [[ -z "$install_path" ]]
         then
             install_path="/"
         fi
