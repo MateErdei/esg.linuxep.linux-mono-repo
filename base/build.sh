@@ -49,6 +49,7 @@ CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
 
 export ENABLE_STRIP=1
 VALGRIND=0
+VAGRANT=0
 UNIT_TESTS=1
 export SDDS3=1
 
@@ -163,6 +164,9 @@ EOF
           ;;
         --sdds3)
           export SDDS3=1
+          ;;
+        --vagrant)
+          VAGRANT=1
           ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -370,6 +374,14 @@ function build()
       fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
+
+    if (( VAGRANT == 1 ))
+    then
+        pwd
+        cd ..
+        ./vagrant rsync
+    fi
+
     echo "Build completed"
 }
 
