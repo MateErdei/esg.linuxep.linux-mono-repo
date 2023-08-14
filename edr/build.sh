@@ -373,9 +373,9 @@ function build()
     elif (( ${UNITTEST} == 1 ))
     then
         ctest \
-            --prallel $(( NPROC * 2 )) \
-            --timeout 15 \
-            --output-on-failure \ || {
+          --parallel $(( NPROC * 2 )) \
+          --timeout 15 \
+          --output-on-failure \ || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
 #            cat Testing/Temporary/LastTest.log || true
