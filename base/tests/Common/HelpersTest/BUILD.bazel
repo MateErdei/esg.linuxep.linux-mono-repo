@@ -7,7 +7,6 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/CurlWrapper",
         "//modules/Common/FileSystemImpl",
         "//tests/Common/Helpers",

@@ -10,7 +10,7 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/CurlWrapper",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
         "//modules/Common/HttpRequests",
         "//modules/Common/Logging",
         "//modules/Common/UtilityImpl:StringUtils",

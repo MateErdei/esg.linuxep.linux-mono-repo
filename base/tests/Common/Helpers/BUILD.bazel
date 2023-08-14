@@ -9,7 +9,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/ApplicationConfiguration",
         "//modules/Common/CurlWrapper",
         "//modules/Common/FileSystemImpl",
         "//modules/Common/Logging",

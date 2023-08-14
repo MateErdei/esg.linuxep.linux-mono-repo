@@ -9,9 +9,9 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/ApplicationConfiguration",
         "//modules/Common/HttpRequests",
-        "//modules/Common/OSUtilities",
+        "//modules/Common/OSUtilities:OSUtilities_interface",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/UtilityImpl:StringUtils",
         "//thirdparty/nlohmann-json",

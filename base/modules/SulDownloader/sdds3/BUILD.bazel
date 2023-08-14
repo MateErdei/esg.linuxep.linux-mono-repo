@@ -10,8 +10,8 @@ soph_cc_library(
     ],
     deps = [
         "//common/sophlib/sdds3",
+        "//modules/Common/ApplicationConfiguration",
         "//modules/Common/CurlWrapper",
-        "//modules/Common/FileSystemImpl",
         "//modules/Common/HttpRequests",
         "//modules/Common/HttpRequestsImpl",
         "//modules/Common/Logging",

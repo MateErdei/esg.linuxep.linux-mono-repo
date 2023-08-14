@@ -10,8 +10,8 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/Logging",
-        "//modules/Common/ReactorImpl",
-        "//modules/Common/ZMQWrapperApi",
+        "//modules/Common/Reactor",
+        "//modules/Common/ZMQWrapperApi:ZMQWrapperApi_interface",
         "//modules/Common/ZeroMQWrapperImpl",
         "@zmq",
     ],

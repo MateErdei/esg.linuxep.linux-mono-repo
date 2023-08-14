@@ -16,10 +16,8 @@ spl_independent_cc_tests(
     ),
     per_test_srcs = HELPER_SOURCES,
     deps = [
-        "//modules/Common/FileSystemImpl",
         "//modules/Common/Logging",
         "//modules/Common/Policy:ConfigurationSettings",
-        "//modules/Common/ProcessImpl",
         "//modules/Common/ProtobufUtil",
         "//modules/Common/UpdateUtilities",
         "//modules/Common/UtilityImpl:ProjectNames",

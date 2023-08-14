@@ -10,7 +10,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ApplicationConfiguration:ApplicationConfiguration_interface",
+        "//modules/Common/FileSystem",
     ],
 )

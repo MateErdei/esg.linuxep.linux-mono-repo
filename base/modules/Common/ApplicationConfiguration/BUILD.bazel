@@ -3,10 +3,24 @@ load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "ApplicationConfiguration",
+    implementation_deps = [
+        # Doesn't propagate headers but still links it in the end
+        "//modules/Common/ApplicationConfigurationImpl",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        ":ApplicationConfiguration_interface",
+    ],
+)
+
+# This should not be used directly as it can result in a linking failure
+soph_cc_library(
+    name = "ApplicationConfiguration_interface",
     hdrs = glob(["*.h"]),
     visibility = [
-        # ApplicationConfiguration is not a full implementation
-        # BUILD files should depend on ApplicationConfigurationImpl
         "//modules/Common/ApplicationConfigurationImpl:__pkg__",
     ],
 )

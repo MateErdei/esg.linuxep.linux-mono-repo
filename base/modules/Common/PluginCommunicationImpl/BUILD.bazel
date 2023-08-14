@@ -11,5 +11,6 @@ soph_cc_library(
     deps = [
         "//modules/Common/PluginCommunication",
         "//modules/Common/UtilityImpl:VectorAsSet",
+        "//modules/Common/ZeroMQWrapper",
     ],
 )

@@ -22,8 +22,9 @@ spl_independent_cc_tests(
         "ReqRepTestImplementations.h",
     ],
     deps = [
-        "//modules/Common/ProcessImpl",
+        "//modules/Common/Process",
         "//modules/Common/Threads",
+        "//modules/Common/ZMQWrapperApi",
         "//modules/Common/ZMQWrapperApiImpl",
         "//modules/Common/ZeroMQWrapperImpl",
         "//tests/Common/Helpers",
@@ -40,8 +41,7 @@ cc_binary(
         "ReqRepTool.cpp",
     ],
     deps = [
-        "//modules/Common/ProcessImpl",
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZMQWrapperApi",
         "//modules/Common/ZeroMQWrapperImpl",
         "//tests/Common/Helpers",
         "@zmq",

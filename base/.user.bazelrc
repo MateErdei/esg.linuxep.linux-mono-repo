@@ -6,3 +6,6 @@ build --copt=-DSPL_BAZEL
 
 # Add modules as a global include search path
 build --define SOPH_ASSET_SOURCE_ROOT=modules
+
+# Allows the use of implementation_deps in libraries
+build --experimental_cc_implementation_deps

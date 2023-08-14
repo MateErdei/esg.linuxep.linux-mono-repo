@@ -13,8 +13,8 @@ soph_cc_library(
         ":PluginAPIMessage",
         "//modules/Common/Logging",
         "//modules/Common/PluginApi",
-        "//modules/Common/ReactorImpl",
-        "//modules/Common/ZeroMQWrapperImpl",
+        "//modules/Common/Reactor",
+        "//modules/Common/ZeroMQWrapper",
     ],
 )
 

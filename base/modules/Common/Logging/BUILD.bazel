@@ -10,8 +10,8 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/FileSystem",
         "//modules/Common/UtilityImpl:StrError",
         "//modules/Common/UtilityImpl:StringUtils",
         "@boost//:property_tree",

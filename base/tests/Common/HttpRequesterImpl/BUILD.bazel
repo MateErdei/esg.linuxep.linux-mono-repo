@@ -11,7 +11,6 @@ spl_independent_cc_tests(
         exclude = ["HttpRequesterLiveNetworkTests.cpp"],
     ),
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/HttpRequestsImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
@@ -22,7 +21,6 @@ soph_cc_binary(
     name = "HttpRequesterLiveNetworkTests",
     srcs = ["HttpRequesterLiveNetworkTests.cpp"],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/HttpRequestsImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",

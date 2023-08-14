@@ -7,9 +7,7 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/DirectoryWatcherImpl",
-        "//modules/Common/FileSystemImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],

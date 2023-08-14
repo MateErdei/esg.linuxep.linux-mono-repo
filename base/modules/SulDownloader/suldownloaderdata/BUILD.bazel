@@ -13,11 +13,9 @@ soph_cc_library(
     ],
     deps = [
         ":DownloadReport",
-        "//modules/Common/FileSystemImpl",
         "//modules/Common/Logging",
         "//modules/Common/PluginRegistryImpl",
         "//modules/Common/Policy",
-        "//modules/Common/ProcessImpl",
         "//modules/Common/ProtobufUtil",
         "//modules/Common/ProxyUtils",
         "//modules/Common/UtilityImpl:OrderedSet",

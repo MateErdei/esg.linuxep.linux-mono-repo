@@ -11,9 +11,9 @@ soph_cc_library(
     ],
     deps = [
         ":PluginInfo",
-        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/ApplicationConfiguration",
         "//modules/Common/Exceptions",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
         "//modules/Common/ProcessImpl",
         "//modules/Common/ProtobufUtil",

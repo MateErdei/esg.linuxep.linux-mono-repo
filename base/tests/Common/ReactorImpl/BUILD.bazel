@@ -32,10 +32,10 @@ spl_independent_cc_tests(
     per_test_srcs = HELPER_SOURCES,
     deps = [
         "//modules/Common/Logging",
-        "//modules/Common/ProcessImpl",
+        "//modules/Common/Process",
         "//modules/Common/ReactorImpl",
         "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZMQWrapperApi",
         "//modules/Common/ZeroMQWrapperImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
@@ -54,6 +54,6 @@ cc_binary(
     ],
     deps = [
         "//modules/Common/ReactorImpl",
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZMQWrapperApi",
     ],
 )

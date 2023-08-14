@@ -9,9 +9,9 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
-        "//modules/Common/Process",
+        "//modules/Common/Process:Process_interface",
         "//modules/Common/Threads",
         "//modules/Common/UtilityImpl:StringUtils",
         "@boost//:asio",

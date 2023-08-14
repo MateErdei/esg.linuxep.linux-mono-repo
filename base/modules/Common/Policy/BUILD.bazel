@@ -13,10 +13,10 @@ soph_cc_library(
     deps = [
         ":ConfigurationSettings",
         "//common/sophlib/hostname",
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
-        "//modules/Common/OSUtilitiesImpl",
+        "//modules/Common/OSUtilities",
         "//modules/Common/ObfuscationImpl",
         "//modules/Common/ProtobufUtil",
         "//modules/Common/UtilityImpl:StringUtils",

@@ -2,14 +2,27 @@ load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "ZMQWrapperApi",
-    srcs = glob(["*.cpp"]),
+    implementation_deps = [
+        # Doesn't propagate headers but still links it in the end
+        "//modules/Common/ZMQWrapperApiImpl",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        ":ZMQWrapperApi_interface",
+    ],
+)
+
+# This should not be used directly as it can result in a linking failure
+soph_cc_library(
+    name = "ZMQWrapperApi_interface",
     hdrs = glob(["*.h"]),
     visibility = [
-        # ZMQWrapperApi is not a full implementation
-        # BUILD files should depend on ZMQWrapperApiImpl
         "//modules/Common/ZMQWrapperApiImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/ZeroMQWrapperImpl",
+        "//modules/Common/ZeroMQWrapper",
     ],
 )

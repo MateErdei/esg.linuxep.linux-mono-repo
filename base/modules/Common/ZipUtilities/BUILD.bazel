@@ -9,7 +9,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
         "//modules/Common/UtilityImpl:StringUtils",
         "@minizip_salted//:minizip",

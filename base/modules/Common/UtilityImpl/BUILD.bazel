@@ -78,7 +78,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
     ],
 )
 

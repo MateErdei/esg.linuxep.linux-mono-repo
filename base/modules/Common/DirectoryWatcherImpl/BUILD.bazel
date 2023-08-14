@@ -9,10 +9,11 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/DirectoryWatcher",
+        "//modules/Common/DirectoryWatcher:DirectoryWatcher_interface",
         "//modules/Common/Logging",
         "//modules/Common/Threads",
         "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/ZeroMQWrapper",
         "//modules/Common/ZeroMQWrapperImpl",
     ],
 )

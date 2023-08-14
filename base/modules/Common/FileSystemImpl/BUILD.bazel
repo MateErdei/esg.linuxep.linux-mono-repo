@@ -10,7 +10,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystem",
+        "//modules/Common/FileSystem:FileSystem_interface",
         "//modules/Common/SystemCallWrapper",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/UtilityImpl:StrError",

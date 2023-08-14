@@ -10,7 +10,7 @@ soph_cc_library(
     ],
     deps = [
         "//modules/Common/Logging",
-        "//modules/Common/Reactor",
+        "//modules/Common/Reactor:Reactor_interface",
         "//modules/Common/Threads",
         "//modules/Common/UtilityImpl:StrError",
         "//modules/Common/ZeroMQWrapperImpl",

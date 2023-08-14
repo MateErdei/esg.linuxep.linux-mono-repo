@@ -9,7 +9,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ZeroMQWrapper",
+        "//modules/Common/ZeroMQWrapper:ZeroMQWrapper_interface",
         "@zmq",
     ],
 )

@@ -9,14 +9,14 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
         "//modules/Common/PluginApi",
         "//modules/Common/PluginCommunication",
         "//modules/Common/PluginProtocol",
         "//modules/Common/TelemetryHelperImpl",
         "//modules/Common/UtilityImpl:ProjectNames",
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZMQWrapperApi",
     ],
 )

@@ -9,11 +9,9 @@ soph_cc_library(
         "//tests/SulDownloader:__pkg__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/FileSystemImpl",
         "//modules/Common/Logging",
         "//modules/Common/Policy",
-        "//modules/Common/ProcessImpl",
+        "//modules/Common/Process",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/UtilityImpl:StringUtils",
     ],
