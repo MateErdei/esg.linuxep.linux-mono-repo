@@ -75,20 +75,20 @@ namespace
     };
 }
 
-TEST_F(TestMounts, TestMountInfoFile_DoesNotExist) // NOLINT
+TEST_F(TestMounts, TestMountInfoFile_DoesNotExist)
 {
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_testDir / "nonexistent.txt"));
     EXPECT_THROW(std::make_shared<Mounts>(m_systemPaths), std::system_error);
 }
 
-TEST_F(TestMounts, Empty_Mount_Info_Path) // NOLINT
+TEST_F(TestMounts, Empty_Mount_Info_Path)
 {
     std::string mountInfoFile;
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(mountInfoFile));
     EXPECT_THROW(std::make_shared<Mounts>(m_systemPaths), std::runtime_error);
 }
 
-TEST_F(TestMounts, Empty_cmdline_info_path) // NOLINT
+TEST_F(TestMounts, Empty_cmdline_info_path)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     std::string cmdlineInfoFile;
@@ -97,7 +97,7 @@ TEST_F(TestMounts, Empty_cmdline_info_path) // NOLINT
     EXPECT_THROW(std::make_shared<Mounts>(m_systemPaths), std::runtime_error);
 }
 
-TEST_F(TestMounts, TestMountInfoFile_Exists) // NOLINT
+TEST_F(TestMounts, TestMountInfoFile_Exists)
 {
     CreateFile(m_mountInfoFile, "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
 
@@ -110,7 +110,7 @@ TEST_F(TestMounts, TestMountInfoFile_Exists) // NOLINT
     EXPECT_GT(allMountpoints.size(), 0);
 }
 
-TEST_F(TestMounts, TestMountPoint_rootDirNotInMountInfoFile) // NOLINT
+TEST_F(TestMounts, TestMountPoint_rootDirNotInMountInfoFile)
 {
     CreateFile(m_mountInfoFile, "tmpfs /run tmpfs rw,nosuid,noexec,relatime,size=1020904k,mode=755 0 0\n");
     CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1\n", S_IRWXU);
@@ -126,7 +126,7 @@ TEST_F(TestMounts, TestMountPoint_rootDirNotInMountInfoFile) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 2);
 }
 
-TEST_F(TestMounts, TestMountPoint_rootfs_uuid) // NOLINT
+TEST_F(TestMounts, TestMountPoint_rootfs_uuid)
 {
     CreateFile(m_mountInfoFile, "/dev/root / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
@@ -144,7 +144,7 @@ TEST_F(TestMounts, TestMountPoint_rootfs_uuid) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
-TEST_F(TestMounts, TestMountPoint_rootfs_label) // NOLINT
+TEST_F(TestMounts, TestMountPoint_rootfs_label)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=LABEL=rootLabel ro quiet splash");
@@ -161,7 +161,7 @@ TEST_F(TestMounts, TestMountPoint_rootfs_label) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
-TEST_F(TestMounts, TestMountPoint_rootfs_noLabelOrUUID) // NOLINT
+TEST_F(TestMounts, TestMountPoint_rootfs_noLabelOrUUID)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic ro quiet splash");
@@ -177,7 +177,7 @@ TEST_F(TestMounts, TestMountPoint_rootfs_noLabelOrUUID) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
-TEST_F(TestMounts, TestMountPoint_findfsAndMountNotExecutable) // NOLINT
+TEST_F(TestMounts, TestMountPoint_findfsAndMountNotExecutable)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
@@ -196,7 +196,7 @@ TEST_F(TestMounts, TestMountPoint_findfsAndMountNotExecutable) // NOLINT
 }
 
 
-TEST_F(TestMounts, TestMountPoint_findfs_fails) // NOLINT
+TEST_F(TestMounts, TestMountPoint_findfs_fails)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
@@ -215,7 +215,7 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails) // NOLINT
 }
 
 
-TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_empty) // NOLINT
+TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_empty)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
@@ -234,7 +234,7 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_empty) // NOLINT
 }
 
 
-TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_one_space) // NOLINT
+TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_one_space)
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
@@ -252,7 +252,7 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_one_space) // NOLIN
     EXPECT_EQ(allMountpoints.size(), 1);
 }
 
-TEST_F(TestMounts, octalEscaped) // NOLINT
+TEST_F(TestMounts, octalEscaped)
 {
     CreateFile(m_mountInfoFile,
                "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n"
@@ -273,7 +273,7 @@ TEST_F(TestMounts, octalEscaped) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 4);
 }
 
-TEST_F(TestMounts, octalEscapedInvalid) // NOLINT
+TEST_F(TestMounts, octalEscapedInvalid)
 {
     CreateFile(m_mountInfoFile,
                "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n"
@@ -301,6 +301,29 @@ TEST_F(TestMounts, getMountFromPath_doesNotIncorrectlyMatchToplevelFoldersWithMo
     EXPECT_FALSE(rootMount->isSpecial());
 }
 
+TEST_F(TestMounts, getMountFromPath_maintainsOrderOfMounts)
+{
+    CreateFile(m_mountInfoFile,
+               "rootfs / rootfs rw 0 0\n"
+               "/dev/sda1 /a/b/c ext4 rw 0 0\n"
+               "/dev/sda2 /a ext4 rw 0 0\n"
+               "/dev/sda3 /a/b ext4 rw 0 0\n"
+    );
+    CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\necho mount: foobar", S_IRWXU);
+    
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
+    EXPECT_CALL(*m_systemPaths, findfsCmdPath()).Times(1).WillRepeatedly(Return(m_findfsCmdPath));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(1).WillRepeatedly(Return(m_mountCmdPath));
+    
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto rootMount = mountInfo->getMountFromPath("/a/b/c/d");
+    EXPECT_EQ(rootMount->device(), "/dev/sda3");
+    EXPECT_EQ(rootMount->mountPoint(), "/a/b");
+}
+
 TEST_F(TestMounts, root_directory_is_a_directory)
 {
     auto systemPaths = std::make_shared<mount_monitor::mountinfoimpl::SystemPaths>();
@@ -309,7 +332,7 @@ TEST_F(TestMounts, root_directory_is_a_directory)
     EXPECT_TRUE(rootMount->isDirectory());
 }
 
-TEST_F(TestMounts, subsequentDuplicateMountPointReplacesPreviousEntry) // NOLINT
+TEST_F(TestMounts, subsequentDuplicateMountPointReplacesPreviousEntry)
 {
     CreateFile(m_mountInfoFile,
                "rootfs / rootfs rw 0 0\n"

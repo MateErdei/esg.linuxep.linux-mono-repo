@@ -3,6 +3,7 @@
 #pragma once
 
 #include "DeviceUtil.h"
+#include "MountsList.h"
 
 #include "mount_monitor/mountinfo/IMountInfo.h"
 #include "mount_monitor/mountinfo/ISystemPaths.h"
@@ -12,8 +13,6 @@
 
 namespace mount_monitor::mountinfoimpl
 {
-    using IMountPointSharedMap = std::map<std::string, mountinfo::IMountPointSharedPtr>;
-    
     class Mounts : virtual public mountinfo::IMountInfo
     {
     public:
@@ -64,7 +63,7 @@ namespace mount_monitor::mountinfoimpl
         std::string scrape(const std::string& path, const std::vector<std::string>& args);
 
         mountinfo::ISystemPathsSharedPtr m_systemPaths;
-        IMountPointSharedMap m_devices;
+        MountsList m_devices;
 
         /**
          * Returns the path to the real mount point for a listing in /proc/mounts

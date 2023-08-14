@@ -7,6 +7,8 @@ add_library(mountinfoimpl SHARED
         Logger.h
         Mounts.cpp
         Mounts.h
+        MountsList.cpp
+        MountsList.h
         SystemPaths.h
         SystemPathsFactory.cpp
         SystemPathsFactory.h
