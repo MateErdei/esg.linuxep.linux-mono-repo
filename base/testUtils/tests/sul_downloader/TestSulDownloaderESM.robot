@@ -58,7 +58,7 @@ Valid ESM Entry Is Requested By Suldownloader
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
 
-    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
+    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d    20
 
     File Should Contain  ${UPDATE_CONFIG}     JWToken
 
@@ -196,7 +196,7 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
     wait_for_log_contains_from_mark  ${sul_mark}    Doing supplement-only update
 
 
@@ -239,7 +239,7 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
     Trigger Update Now
 
     wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
@@ -285,7 +285,7 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
 
     wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
     wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
@@ -329,7 +329,7 @@ New Fixed Version Token Does Trigger Immediate Update
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
 
     wait_for_log_contains_from_mark  ${sul_mark}   "token": "${fixed_version_token}"
     wait_for_log_contains_from_mark  ${sul_mark}   "name": "${fixed_version_name}"
@@ -386,7 +386,7 @@ Install all plugins static-999 then downgrade to all plugins static
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     ${sul_mark} =  mark_log_size  ${SULDOWNLOADER_LOG_PATH}
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
 
     Trigger Update Now
 
@@ -466,7 +466,7 @@ Install all plugins static then upgrade to all plugins static-999
 
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
     Send Policy File  alc    ${tmpPolicy}
-    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}
+    wait_for_log_contains_from_mark  ${update_mark}    Using FixedVersion ${fixed_version_name} with token ${fixed_version_token}    20
 
     Trigger Update Now
 
