@@ -65,7 +65,6 @@ EXITCODE_REGISTRATION_FAILED=51
 EXITCODE_AUTHENTICATION_FAILED=52
 EXITCODE_ALC_POLICY_TRANSLATION_FAILED=53
 
-SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
 MAX_GROUP_NAME_SIZE=1024
@@ -77,6 +76,8 @@ system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | 
 
 # Ensure override is unset so that it can only be set when explicitly passed in by the user with --allow-override-mcs-ca
 unset ALLOW_OVERRIDE_MCS_CA
+
+CREATED_INSTALL_DIRECTORY=0
 
 function cleanup_and_exit()
 {
@@ -90,6 +91,10 @@ function failure()
     code=$1
     removeinstall=1
     if [[ -n "$3" ]]
+    then
+      removeinstall=0
+    fi
+    if [[ $CREATED_INSTALL_DIRECTORY == 0 ]]
     then
       removeinstall=0
     fi
@@ -397,8 +402,16 @@ function check_custom_ids_are_valid()
 
 function verify_install_directory()
 {
-  [[ "$(basename ${SOPHOS_INSTALL})" == "sophos-spl" ]] || failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to ${SOPHOS_INSTALL} because the SPL directory basename is not 'sophos-spl'"
-  realPath=$(realpath "${SOPHOS_INSTALL}")
+  if [[ ! -n "$SOPHOS_INSTALL" ]]
+  then
+      # No custom install location so use default
+      export SOPHOS_INSTALL=/opt/sophos-spl
+      return
+  fi
+  # SOPHOS_INSTALL is custom dirname to contain sophos-spl
+  export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
+
+  realPath=$(realpath -m "${SOPHOS_INSTALL}")
   if [[ "${realPath}" != "${SOPHOS_INSTALL}" ]]
   then
     failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a symlink to '${realPath}'. To install under this directory, please re-run with --install-dir=${realPath}"
@@ -409,18 +422,21 @@ function verify_install_directory()
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
-if [ $? -eq 1 ] ; then
+if [[ $? -eq 1 ]]
+then
     failure ${EXITCODE_NOT_LINUX} "This installer only runs on Linux"
 fi
 
 # Check running as root
-if [ $(id -u) -ne 0 ]; then
+if [[ $(id -u) -ne 0 ]]
+then
     failure ${EXITCODE_NOT_ROOT} "Please run this installer as root"
 fi
 
 # Check machine architecture (only support 64 bit)
 MACHINE_TYPE=`uname -m`
-if [ ${MACHINE_TYPE} = "x86_64" ]; then
+if [[ ${MACHINE_TYPE} = "x86_64" ]]
+then
     BIN="installer/bin"
 else
     failure ${EXITCODE_NOT_64_BIT} "This product can only be installed on a 64bit system"
@@ -434,7 +450,7 @@ for i in "$@"
 do
     case $i in
         --install-dir=*)
-            export SOPHOS_INSTALL="${i#*=}"
+            SOPHOS_INSTALL="${i#*=}"
             shift
         ;;
         --update-source-creds=*)
@@ -649,7 +665,7 @@ then
     fi
 
     # If the user specified a different install dir to the existing one then they must remove the old install first.
-    if [[ "${SOPHOS_INSTALL}" != ${EXISTING_SSPL_PATH} ]]
+    if [[ "${SOPHOS_INSTALL}" != "${EXISTING_SSPL_PATH}" ]]
     then
         failure ${EXITCODE_ALREADY_INSTALLED} "Please uninstall ${PRODUCT_NAME} before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh"
     fi
@@ -674,12 +690,12 @@ then
             echo "Existing installation failed validation and will be reinstalled"
         fi
     fi
-else  # sspl not installed
-    if [ -d "${SOPHOS_INSTALL}" ]
-    then
-        failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder." "Dont remove install directory"
-    fi
+elif [ -d "${SOPHOS_INSTALL}" ]
+then
+    # sspl not installed
+    failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder." "Dont remove install directory"
 fi
+
 # Check there is enough disk space
 check_free_storage 2048
 
@@ -698,7 +714,11 @@ echo "Installation process for ${PRODUCT_NAME} started"
 MCS_TOKEN="$CLOUD_TOKEN"
 MCS_URL="$CLOUD_URL"
 
+# Any created directories need to be executable so that our non-root processes can go through them
+umask 066
 mkdir -p "${SOPHOS_INSTALL}/base/etc/sophosspl"
+CREATED_INSTALL_DIRECTORY=1
+umask 077
 
 if [[ -n "$SOPHOS_LOG_LEVEL" ]]
   then
