@@ -85,7 +85,6 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Run Keyword If    ${is_suse}    Remove Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
-    [Timeout]  10 minutes
     Check EDR Plugin Installed With Base
 
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
