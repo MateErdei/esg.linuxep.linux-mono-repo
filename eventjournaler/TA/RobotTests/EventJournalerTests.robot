@@ -29,6 +29,19 @@ Event Journal Files Are Not Deleted When Downgrading
     Log  ${files}
     Length Should Be  ${files}   ${1}
 
+Event Journal Files has correct permissions after upgrade
+    ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
+    Create Journal Test File  ${filePath}
+    Should Exist  ${filePath}.bin
+    Install Event Journaler Directly from SDDS
+
+    # Journal File may be compressed, so just check we have at 1 file in the event journal
+    ${files} =  List Files In Directory  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/
+    Log  ${files}
+    Length Should Be  ${files}   ${1}
+    ${result}=    Run Process    stat -c %A ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/${files}[0]    shell=True
+    SHOULD BE EQUAL AS STRINGS    ${result.stdout}    -rw-r-----
+
 Event Journal Log Files Are Saved When Downgrading
     Downgrade Event Journaler
 

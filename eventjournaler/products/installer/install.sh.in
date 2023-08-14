@@ -78,9 +78,9 @@ chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh"*
 mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} var dir"
 # data dir
 mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} eventjournals dir"
-chmod  -R 0740 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals"
-chmod  -R 0640 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals/*/*/*bin"
-chmod  -R 0640 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals/*/*/*zip"
+chmod -R 0740 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals"
+find "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals" -not -type d | xargs chmod  0640
+
 # log dir
 mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
