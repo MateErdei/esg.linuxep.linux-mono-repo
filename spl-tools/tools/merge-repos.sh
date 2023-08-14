@@ -43,6 +43,9 @@ function merge_in_repo() {
 # When set to 1 we will remove the working merge dir, default this to off in case we have changes to keep.
 FORCE_REMOVE=0
 
+# When set to 1 the merge dir will not be removed, the script will try and merge in changes from the other repos
+UPDATE=0
+
 # Deal with arguments
 while [[ $# -ge 1 ]]; do
     case $1 in
