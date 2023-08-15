@@ -28,6 +28,7 @@ def params = [
     string(name: 'current_shipping_branch', description: 'Override for the release branch used for the current shipping warehouse'),
     string(name: 'central_api_client_id', description: 'Client ID used to query Central API for fixed versions'),
     string(name: 'central_api_client_secret', description: 'Client secret used to query Central API for fixed versions'),
+    string(name: 'thininstaller_branch', defaultValue: "develop", description: 'Branch to get the thin installer from'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }
