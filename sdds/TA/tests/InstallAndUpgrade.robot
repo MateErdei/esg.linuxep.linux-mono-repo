@@ -154,14 +154,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
 Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
 
-    Start Local Cloud Server
+    start_local_cloud_server
 
-    ${handle}=    Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
+    Start Local SDDS3 Server
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -171,11 +169,13 @@ Install VUT and Check RPATH of Every Binary
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains   Update success
-    Check SulDownloader Log Contains    Running SDDS3 update
+    ...   check_suldownloader_log_contains   Update success
+    check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
-    Trigger Update Now
+    ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    trigger_update_now
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     # Run Process can hang with large outputs which RPATHChecker.sh can have
     # So redirecting RPATHChecker.sh output to a file rather than console
