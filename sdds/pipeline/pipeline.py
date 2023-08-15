@@ -93,7 +93,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
         test_scripts=build / "test-scripts",
         repo=build / "sdds3-repo",
         launchdarkly=build / "sdds3-launchdarkly",
-        thin_installer=context.artifact.from_component("linuxep.thininstaller", "develop", None, org="",
+        thin_installer=context.artifact.from_component("linuxep.thininstaller", parameters.thininstaller_branch, None, org="",
                                                        storage="esg-build-tested") / "build/output",
         dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", previous_dogfood_branch, None,
                                                               org="",
