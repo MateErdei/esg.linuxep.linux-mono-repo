@@ -207,9 +207,11 @@ function(add_imported_library name type location include_directory)
     target_include_directories(${name} INTERFACE ${include_directory})
 endfunction()
 
-set(SAFESTORE_LIB_DIR  ${INPUT}/safestore_input/lib)
+set(SAFESTORE_DIR  ${INPUT}/safestore_input)
+set(SAFESTORE_SSR_DIR  ${SAFESTORE_DIR}/ssr)
+set(SAFESTORE_LIB_DIR  ${SAFESTORE_DIR}/lib)
 add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3  ${INPUT}/openssl/include)
-add_imported_library(safestorelib   SHARED ${SAFESTORE_LIB_DIR}/libsafestore.so.2 ${INPUT}/safestore_input/interface)
+add_imported_library(safestorelib   SHARED ${SAFESTORE_LIB_DIR}/libsafestore.so.2 ${SAFESTORE_DIR}/interface)
 target_link_directories(safestorelib INTERFACE ${SAFESTORE_LIB_DIR} ${CMAKE_BINARY_DIR}/libs)
 
 set(ZLIB_INPUT ${REDIST}/zlib)

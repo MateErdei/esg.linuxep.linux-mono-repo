@@ -86,6 +86,10 @@ install(IMPORTED_RUNTIME_ARTIFACTS
         boost_locale
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
+install(FILES ${SAFESTORE_SSR_DIR}/ssr
+        DESTINATION files/plugins/${PLUGIN_NAME}/sbin
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+
 get_target_property(openssl_crypto_location openssl_crypto LOCATION)
 get_target_property(safestorelib_location safestorelib LOCATION)
 
