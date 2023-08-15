@@ -22,7 +22,7 @@ function failure()
   echo $1
   EXIT_CODE=$2
 }
-ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+ABS_SCRIPTDIR=$(cd "$SCRIPTDIR" && pwd)
 SOPHOS_INSTALL="${ABS_SCRIPTDIR%/bin*}"
 
 if [ ! -f "${SOPHOS_INSTALL}/.sophos" ]
@@ -101,12 +101,12 @@ if [[ -d "$PLUGIN_UNINSTALL_DIR" ]]
 then
     for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
     do
-        UNINSTALLER_BASE=${UNINSTALLER##*/}
+        UNINSTALLER_BASE="${UNINSTALLER##*/}"
         if (( $DOWNGRADE == 0 ))
         then
           bash "$UNINSTALLER" || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
         else
-          bash $UNINSTALLER --downgrade || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
+          bash "$UNINSTALLER" --downgrade || failure "Failed to uninstall ${UNINSTALLER_BASE}: $?"
         fi
     done
 else
@@ -121,7 +121,7 @@ if (( $DOWNGRADE == 0 ))
 then
   rm -rf "$SOPHOS_INSTALL" || failure "Failed to remove all of $SOPHOS_INSTALL"  ${FAILURE_REMOVE_PRODUCT_FILES}
 else
-  input=$SOPHOS_INSTALL/base/etc/backupfileslist.dat
+  input="$SOPHOS_INSTALL/base/etc/backupfileslist.dat"
   while IFS= read -r line
   do
     if [[ -f "$SOPHOS_INSTALL/$line" ]]
@@ -137,22 +137,22 @@ else
       mv "$SOPHOS_INSTALL/tmp/downgrade-backup" "$SOPHOS_INSTALL/$line/downgrade-backup" || failure "Failed to move $line"  ${FAILURE_TO_BACKUP_FILES}
     fi
   done < "$input"
-  input=$SOPHOS_INSTALL/base/etc/downgradepaths.dat
+  input="$SOPHOS_INSTALL/base/etc/downgradepaths.dat"
   while IFS= read -r line
   do
     rm -rf "$SOPHOS_INSTALL/$line" || failure "Failed to remove file/folder $line"  ${FAILURE_REMOVE_PRODUCT_FILES}
   done < "$input"
-  chown sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/policy
-  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action
-  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/event
-  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/status
-  chown -R sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/response
-  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/mcs.config
-  chown root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+  chown sophos-spl-user:sophos-spl-group  "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+  chown -R sophos-spl-user:sophos-spl-group  "${SOPHOS_INSTALL}/base/mcs/policy" \
+    "${SOPHOS_INSTALL}/base/mcs/action" \
+    "${SOPHOS_INSTALL}/base/mcs/event" \
+    "${SOPHOS_INSTALL}/base/mcs/status" \
+    "${SOPHOS_INSTALL}/base/mcs/response"
+  chown root:sophos-spl-group  "${SOPHOS_INSTALL}/base/etc/mcs.config" \
+    "${SOPHOS_INSTALL}/base/etc/machine_id.txt"
 fi
 
-PATH=$PATH:/usr/sbin:/sbin
+PATH="$PATH:/usr/sbin:/sbin"
 
 function removeUser()
 {
@@ -161,7 +161,7 @@ function removeUser()
     grep "$1" /etc/passwd &>/dev/null
   }
 
-  local USERNAME=$1
+  local USERNAME="$1"
   USER_DELETER=$(which deluser 2>/dev/null)
   [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
 
@@ -200,7 +200,7 @@ function removeGroup()
     grep "$1" /etc/group &>/dev/null
   }
 
-  local GROUPNAME=$1
+  local GROUPNAME="$1"
   GROUP_DELETER=$(which delgroup 2>/dev/null)
   [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
   if [[ -x "$GROUP_DELETER" ]]
@@ -227,19 +227,19 @@ then
   if [[ ${DOWNGRADE} == 0 ]]
   then
     SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
-    removeUser    ${SOPHOS_SPL_USER_NAME}
+    removeUser    "${SOPHOS_SPL_USER_NAME}"
 
     LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
-    removeUser    ${LOCAL_USER_NAME}
+    removeUser    "${LOCAL_USER_NAME}"
 
     UPDATESCHEDULER_USER_NAME="@SOPHOS_SPL_UPDATESCHEDULER@"
-    removeUser    ${UPDATESCHEDULER_USER_NAME}
+    removeUser    "${UPDATESCHEDULER_USER_NAME}"
 
     SOPHOS_SPL_GROUP_NAME="@SOPHOS_SPL_GROUP@"
-    removeGroup   ${SOPHOS_SPL_GROUP_NAME}
+    removeGroup   "${SOPHOS_SPL_GROUP_NAME}"
 
     SOPHOS_SPL_IPC_GROUP="@SOPHOS_SPL_IPC_GROUP@"
-    removeGroup   ${SOPHOS_SPL_IPC_GROUP}
+    removeGroup   "${SOPHOS_SPL_IPC_GROUP}"
   fi
 fi
 

@@ -114,7 +114,7 @@ function createWatchdogSystemdService()
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ${DEBUGENV}
-ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
+ExecStart="${SOPHOS_INSTALL}/base/bin/sophos_watchdog"
 Restart=always
 KillMode=mixed
 Delegate=yes
@@ -125,13 +125,13 @@ WantedBy=multi-user.target
 
 [Unit]
 Description=Sophos Linux Protection
-RequiresMountsFor=${SOPHOS_INSTALL}
+RequiresMountsFor="${SOPHOS_INSTALL}"
 EOF
 )
-    if [[ -d /lib/systemd/system ]]
+    if [[ -d "/lib/systemd/system" ]]
         then
             STARTUP_DIR="/lib/systemd/system"
-        elif [[ -d /usr/lib/systemd/system ]]
+        elif [[ -d "/usr/lib/systemd/system" ]]
         then
             STARTUP_DIR="/usr/lib/systemd/system"
         else
@@ -139,17 +139,17 @@ EOF
     fi
 
     EXISTING_SERVICE_INFO=""
-    if [[ -f ${STARTUP_DIR}/sophos-spl.service ]]
+    if [[ -f "${STARTUP_DIR}/sophos-spl.service" ]]
     then
         EXISTING_SERVICE_INFO=$(<${STARTUP_DIR}/sophos-spl.service)
     fi
 
-    if [[ ${EXISTING_SERVICE_INFO} != ${NEW_SERVICE_INFO} || $FORCE_INSTALL ]]
+    if [[ "${EXISTING_SERVICE_INFO}" != "${NEW_SERVICE_INFO}" || $FORCE_INSTALL ]]
     then
-        cat > ${STARTUP_DIR}/sophos-spl.service <<EOF
+        cat > "${STARTUP_DIR}/sophos-spl.service" <<EOF
 ${NEW_SERVICE_INFO}
 EOF
-        chmod 644 ${STARTUP_DIR}/sophos-spl.service
+        chmod 644 "${STARTUP_DIR}/sophos-spl.service"
         systemctl daemon-reload
         systemctl enable --quiet sophos-spl.service
     fi
@@ -169,10 +169,10 @@ function createUpdaterSystemdService()
 {
     if ! isServiceInstalled sophos-spl-update.service || $FORCE_INSTALL
     then
-        if [[ -d /lib/systemd/system ]]
+        if [[ -d "/lib/systemd/system" ]]
         then
             STARTUP_DIR="/lib/systemd/system"
-        elif [[ -d /usr/lib/systemd/system ]]
+        elif [[ -d "/usr/lib/systemd/system" ]]
         then
             STARTUP_DIR="/usr/lib/systemd/system"
         else
@@ -180,17 +180,17 @@ function createUpdaterSystemdService()
         fi
         local service_name="sophos-spl-update.service"
 
-        cat > ${STARTUP_DIR}/${service_name} << EOF
+        cat > "${STARTUP_DIR}/${service_name}" << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
-ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
+ExecStart="${SOPHOS_INSTALL}/base/bin/SulDownloader" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json"
 Restart=no
 
 [Unit]
 Description=Sophos Server Protection Update Service
-RequiresMountsFor=${SOPHOS_INSTALL}
+RequiresMountsFor="${SOPHOS_INSTALL}"
 EOF
-        chmod 644 ${STARTUP_DIR}/${service_name}
+        chmod 644 "${STARTUP_DIR}/${service_name}"
         systemctl daemon-reload
     fi
 }
@@ -199,10 +199,10 @@ function createDiagnoseSystemdService()
 {
     if ! isServiceInstalled sophos-spl-diagnose.service || $FORCE_INSTALL
     then
-        if [[ -d /lib/systemd/system ]]
+        if [[ -d "/lib/systemd/system" ]]
         then
             STARTUP_DIR="/lib/systemd/system"
-        elif [[ -d /usr/lib/systemd/system ]]
+        elif [[ -d "/usr/lib/systemd/system" ]]
         then
             STARTUP_DIR="/usr/lib/systemd/system"
         else
@@ -210,18 +210,18 @@ function createDiagnoseSystemdService()
         fi
         local service_name="sophos-spl-diagnose.service"
 
-        cat > ${STARTUP_DIR}/${service_name} << EOF
+        cat > "${STARTUP_DIR}/${service_name}" << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 
-ExecStart=${SOPHOS_INSTALL}/bin/sophos_diagnose --remote
+ExecStart="${SOPHOS_INSTALL}/bin/sophos_diagnose" --remote
 Restart=no
 
 [Unit]
 Description=Sophos Server Protection Diagnose
-RequiresMountsFor=${SOPHOS_INSTALL}
+RequiresMountsFor="${SOPHOS_INSTALL}"
 EOF
-        chmod 644 ${STARTUP_DIR}/${service_name}
+        chmod 644 "${STARTUP_DIR}/${service_name}"
         systemctl daemon-reload
     fi
 }
