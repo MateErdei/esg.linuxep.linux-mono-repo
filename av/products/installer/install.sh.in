@@ -220,6 +220,7 @@ function apply_permissions()
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
 
     chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
+    chmod -R 0700 "${PLUGIN_INSTALL}/sbin/ssr"
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
 
     mkdir -p "${PLUGIN_INSTALL}/log"
