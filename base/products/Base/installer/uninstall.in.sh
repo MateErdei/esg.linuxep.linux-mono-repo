@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 shopt -s nullglob
 

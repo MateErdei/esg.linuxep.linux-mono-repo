@@ -1,12 +1,12 @@
 #!/bin/bash
 
-export SOPHOS_INSTALL=${SOPHOS_INSTALL:-/opt/sophos-spl}
-OUTPUT=${OUTPUT:-/vagrant/esg.linuxep.everest-base/output}
-SDDS=${SDDS:-$OUTPUT/RA-SDDS-COMPONENT}
+export SOPHOS_INSTALL="${SOPHOS_INSTALL:-/opt/sophos-spl}"
+OUTPUT="${OUTPUT:-/vagrant/esg.linuxep.everest-base/output}"
+SDDS="${SDDS:-$OUTPUT/RA-SDDS-COMPONENT}"
 
-STARTINGDIR=$(pwd)
-cd ${0%/*}
-BASE=$(pwd)
+STARTINGDIR="$(pwd)"
+cd "${0%/*}"
+BASE="$(pwd)"
 
 set -ex
 
@@ -16,5 +16,5 @@ function failure()
     exit 1
 }
 
-[[ -f $SDDS/install.sh ]] || failure "install.sh not found!"
-exec $SDDS/install.sh
+[[ -f "$SDDS/install.sh" ]] || failure "install.sh not found!"
+exec "$SDDS/install.sh" "$@"
