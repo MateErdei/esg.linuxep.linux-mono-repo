@@ -408,14 +408,29 @@ function verify_install_directory()
       export SOPHOS_INSTALL=/opt/sophos-spl
       return
   fi
-  # SOPHOS_INSTALL is custom dirname to contain sophos-spl
-  export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
+
+  # Sophos install must be in an ASCII path - no spaces
+  local LEFT_OVER=$(echo $SOPHOS_INSTALL | tr -d '[:alnum:]_/.-')
+
+  if [[ -n "$LEFT_OVER" ]]
+  then
+      local SPACES=$(echo $SOPHOS_INSTALL | sed -e's/[^ ]//g')
+      if [[ -n "$SPACES" ]]
+      then
+          failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it contains spaces."
+      else
+          failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it contains non-alphanumeric characters: $LEFT_OVER"
+      fi
+  fi
 
   realPath=$(realpath -m "${SOPHOS_INSTALL}")
   if [[ "${realPath}" != "${SOPHOS_INSTALL}" ]]
   then
     failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a symlink to '${realPath}'. To install under this directory, please re-run with --install-dir=${realPath}"
   fi
+
+  # SOPHOS_INSTALL is custom dirname to contain sophos-spl
+  export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
 
   echo "Installing to ${SOPHOS_INSTALL}"
 }
