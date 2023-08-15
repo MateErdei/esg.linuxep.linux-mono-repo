@@ -89,11 +89,15 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
     if not current_shipping_branch:
         current_shipping_branch = "release--2023.2"
 
+    previous_dogfood_branch = previous_dogfood_branch.replace("/", "--")
+    current_shipping_branch = current_shipping_branch.replace("/", "--")
+    thininstaller_branch = parameters.thininstaller_branch.replace("/", "--")
+
     test_inputs = dict(
         test_scripts=build / "test-scripts",
         repo=build / "sdds3-repo",
         launchdarkly=build / "sdds3-launchdarkly",
-        thin_installer=context.artifact.from_component("linuxep.thininstaller", parameters.thininstaller_branch, None, org="",
+        thin_installer=context.artifact.from_component("linuxep.thininstaller", thininstaller_branch, None, org="",
                                                        storage="esg-build-tested") / "build/output",
         dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", previous_dogfood_branch, None,
                                                               org="",
