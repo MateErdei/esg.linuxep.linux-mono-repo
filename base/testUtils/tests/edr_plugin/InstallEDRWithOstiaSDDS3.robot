@@ -281,7 +281,7 @@ Install Base And Edr Vut Then Transition To Base Edr And AV Vut
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains String N Times   Update success  1
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     # Install AV

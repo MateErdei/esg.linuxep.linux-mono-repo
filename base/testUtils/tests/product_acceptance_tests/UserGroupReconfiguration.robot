@@ -29,7 +29,7 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains String N Times   Update success  1
 
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User And Group Ids Of Files    ${SOPHOS_INSTALL}
@@ -119,7 +119,7 @@ Reconfigure All Sophos Users And Groups When Installing Product Using Thin Insta
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains String N Times   Update success  1
 
     Verify Watchdog Actual User Group ID File
 

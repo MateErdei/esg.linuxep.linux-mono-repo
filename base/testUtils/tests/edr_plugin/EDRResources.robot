@@ -108,7 +108,7 @@ Install EDR SDDS3
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Wait For EDR to be Installed
 

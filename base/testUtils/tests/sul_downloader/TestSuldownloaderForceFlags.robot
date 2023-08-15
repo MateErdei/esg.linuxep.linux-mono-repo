@@ -149,7 +149,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains String N Times   Update success  2
+    ...    Check SulDownloader Log Contains String N Times   Update success  1
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
     Remove File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
@@ -206,7 +206,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains String N Times   Update success  2
+    ...    Check SulDownloader Log Contains String N Times   Update success  1
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
     Remove File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker

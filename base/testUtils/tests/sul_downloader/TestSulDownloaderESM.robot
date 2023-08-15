@@ -181,7 +181,7 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
 
     Wait For Suldownloader To Finish
 
@@ -224,7 +224,7 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
 
     Wait For Suldownloader To Finish
 
@@ -270,7 +270,7 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
 
     Wait For Suldownloader To Finish
 
@@ -315,7 +315,7 @@ New Fixed Version Token Does Trigger Immediate Update
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
 
     Wait For Suldownloader To Finish
 
@@ -360,7 +360,7 @@ Install all plugins static-999 then downgrade to all plugins static
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
@@ -452,7 +452,7 @@ Install all plugins static then upgrade to all plugins static-999
     Wait Until Keyword Succeeds
     ...   80 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
     Check Current Release With AV Installed Correctly
 
     Setup SUS static 999

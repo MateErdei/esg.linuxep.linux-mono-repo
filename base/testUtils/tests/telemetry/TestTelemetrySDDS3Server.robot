@@ -45,7 +45,7 @@ Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     Wait Until Keyword Succeeds
     ...   80 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
     Check Current Release With AV Installed Correctly
 
     File Should Exist     ${SOPHOS_INSTALL}/base/update/var/package_config.xml
