@@ -20,7 +20,6 @@ CENTOS_LSB_2 = ["CentOS release 7.4 (Final)", "CentOS", "7.4"]
 CENTOS_LSB_3 = ["CentOS release 7.4.1.4 (Final)", "CentOS", "7.4.1.4"]
 NO_LSB = [None, None, None]
 
-#large_string = 'x' * 300
 large_string = 'miracle123' * 30
 
 @mock.patch('platform.node', return_value='examplehostname')
