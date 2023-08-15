@@ -20,6 +20,9 @@ CENTOS_LSB_2 = ["CentOS release 7.4 (Final)", "CentOS", "7.4"]
 CENTOS_LSB_3 = ["CentOS release 7.4.1.4 (Final)", "CentOS", "7.4.1.4"]
 NO_LSB = [None, None, None]
 
+#large_string = 'x' * 300
+large_string = 'miracle123' * 30
+
 @mock.patch('platform.node', return_value='examplehostname')
 @mock.patch('platform.release', return_value='4.15.0-20-generic')
 @mock.patch('platform.machine', return_value='x86_64')
@@ -82,6 +85,36 @@ class TestTargetSystem(unittest.TestCase):
     def test_os_version_retrieves_miracle_linux_vendor(self, *mockargs):
         target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
         self.assertEqual('miracle', target_system.vendor())
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('mcsrouter.utils.filesystem_utils.read_file_if_exists', return_value=large_string)
+    def test_os_name_from_distro_file_not_longer_than_255_chars(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        target_system.vendor()
+        self.assertLessEqual(len(target_system.os_name()), 255)
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('mcsrouter.utils.filesystem_utils.read_file_if_exists', return_value="MIRACLE")
+    def test_os_name_from_distro_file_is_not_padded_to_255_chars(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        target_system.vendor()
+        self.assertEqual(len(target_system.os_name()), 7)
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('mcsrouter.utils.filesystem_utils.read_file_if_exists', return_value=None)
+    @mock.patch('mcsrouter.utils.filesystem_utils.return_line_from_file', return_value=large_string)
+    def test_os_name_from_os_release_not_longer_than_255_chars(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        target_system.vendor()
+        self.assertLessEqual(len(target_system.os_name()), 255)
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('mcsrouter.utils.filesystem_utils.read_file_if_exists', return_value=None)
+    @mock.patch('mcsrouter.utils.filesystem_utils.return_line_from_file', return_value="MIRACLE")
+    def test_os_name_from_os_release_is_not_padded_to_255_chars(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        target_system.vendor()
+        self.assertEqual(len(target_system.os_name()), 7)
 
     @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=UBUNTU_3_VERSION)
     def test_read_uname_calls_os_uname(self, *mockargs):

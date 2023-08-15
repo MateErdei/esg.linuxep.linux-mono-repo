@@ -34,6 +34,7 @@ DISTRIBUTION_NAME_MAP = {
     'miracle': 'miracle',
     'SUSE': 'suse'
 }
+MAX_OS_NAME_LENGTH = 255
 
 #-----------------------------------------------------------------------------
 # class TargetSystem
@@ -134,7 +135,7 @@ class TargetSystem:
                     if distro_file == '/etc/SUSE-brand':
                         self._check_os_file()
                     else:
-                        self.m_description = contents.strip()
+                        self.m_description = contents.strip()[0:MAX_OS_NAME_LENGTH]
                     return DISTRIBUTION_NAME_MAP[distro_string]
         return None
 
@@ -145,7 +146,7 @@ class TargetSystem:
             # conversion mapping between string at start of file and distro name
             for distro_string in DISTRIBUTION_NAME_MAP:
                 if pretty_name.startswith(distro_string):
-                    self.m_description = pretty_name.strip()
+                    self.m_description = pretty_name.strip()[0:MAX_OS_NAME_LENGTH]
                     return DISTRIBUTION_NAME_MAP[distro_string]
         return None
 
@@ -382,7 +383,7 @@ def _collect_lsb_release():
             line_matched = matcher.match(line)
             if line_matched:
                 if "Description" in line:
-                    description = line_matched.group(2)
+                    description = line_matched.group(2)[0:MAX_OS_NAME_LENGTH]
                 elif "Distributor ID" in line:
                     distributor_id = line_matched.group(2)
                 elif "Release" in line:
