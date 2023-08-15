@@ -3,6 +3,7 @@
 #include "MockAsyncDownloaderRunner.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/FileSystemImpl/PidLockFile.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/UniformIntDistribution.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"

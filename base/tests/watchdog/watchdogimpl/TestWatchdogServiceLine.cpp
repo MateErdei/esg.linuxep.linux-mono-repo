@@ -4,6 +4,7 @@
 #include "ProcessReplacement.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
