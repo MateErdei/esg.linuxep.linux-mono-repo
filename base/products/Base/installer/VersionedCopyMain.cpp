@@ -1,10 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2021 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "Installer/VersionedCopy/VersionedCopy.h"
 #include <sys/stat.h>
