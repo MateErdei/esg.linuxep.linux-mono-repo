@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 #include "MockJournalReaderWrapper.h"
 #include "MockQueryContext.h"
 
@@ -18,14 +14,20 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 using namespace ::testing;
 
-class TestSophosAVDetectionTable : public LogOffInitializedTests
+namespace
 {
-public:
-
-    static std::string getSampleJson()
+    class TestSophosAVDetectionTable : public LogOffInitializedTests
     {
-        //onaccess detection
-        return R"({
+    public:
+        void SetUp() override
+        {
+            unsetenv("SOPHOS_INSTALL");
+        }
+        
+        static std::string getSampleJson()
+        {
+            // onaccess detection
+            return R"({
                "avScanType":201,
                "details": {
                "time": 123123123,
@@ -76,11 +78,11 @@ public:
                 "threatSource": 0,
                 "threatType": 1
                })";
-    }
-    static std::string getOnDemandJson()
-    {
-        //ondemand detection
-        return R"({
+        }
+        static std::string getOnDemandJson()
+        {
+            // ondemand detection
+            return R"({
                "avScanType":203,
                 "detectionName": {
                     "short": "ML/PE-A"
@@ -110,10 +112,10 @@ public:
                 "threatSource": 0,
                 "threatType": 1
                })";
-    }
-    static std::string getSampleJson2()
-    {
-        return R"({
+        }
+        static std::string getSampleJson2()
+        {
+            return R"({
                "details": {
                "time": 123123123,
                "certificates": {},
@@ -160,18 +162,17 @@ public:
                 "threatSource": 0,
                 "threatType": 1
                })";
-    }
+        }
 
-    static std::string getPrimaryItemJson()
-    {
-        return
-            R"({"certificates":{"details":{},"isSigned":false,"signerInfo":[]},"cleanUp":true,"isPeFile":true,"path":"/opt/testdir/file.sh","primary":true,"remotePath":false,"sha256":"c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9","type":1})";
+        static std::string getPrimaryItemJson()
+        {
+            return R"({"certificates":{"details":{},"isSigned":false,"signerInfo":[]},"cleanUp":true,"isPeFile":true,"path":"/opt/testdir/file.sh","primary":true,"remotePath":false,"sha256":"c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9","type":1})";
             ;
-    }
+        }
 
-    static std::string getRuntimeDetectionsSampleJson()
-    {
-        return R"({
+        static std::string getRuntimeDetectionsSampleJson()
+        {
+            return R"({
     "detectionName": {
         "short": "Suspicious Interactive Shell"
     },
@@ -251,15 +252,16 @@ public:
         ]
     }
 })";
-    }
+        }
 
-    static std::string getRuntimeDetectionsPrimaryItemJson()
-    {
-        return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
-    }
+        static std::string getRuntimeDetectionsPrimaryItemJson()
+        {
+            return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
+        }
 
-    static const uint32_t EXPECTED_MAX_MEMORY_THRESHOLD = 50000000;
-};
+        static constexpr uint32_t EXPECTED_MAX_MEMORY_THRESHOLD = 50000000;
+    };
+}
 
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNoEventJournalFilesWillReturnEmptyTableCorrectly)
 {

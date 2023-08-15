@@ -87,7 +87,7 @@ TEST_F(TestBatchTimer, CallbackNotRunIfCancelled)
 
 TEST_F(TestBatchTimer, CallbackNotRunIfDestroyed)
 {
-    for (auto i=1; i<20; ++i)
+    for (auto i=1; i<40; ++i)
     {
         auto delay = 3 * i;
 

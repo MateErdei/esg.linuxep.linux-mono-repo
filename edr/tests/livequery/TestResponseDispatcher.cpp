@@ -1,18 +1,24 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+// File under test
+#include "livequery/ResponseDispatcher.h"
 
-******************************************************************************************************/
+// Product
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-#include <modules/livequery/ResponseDispatcher.h>
+// 3rd party production
 #include <thirdparty/nlohmann-json/json.hpp>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/MockFilePermissions.h>
-#include <Common/Helpers/LogInitializedTests.h>
+
+// Sophos test
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockFileSystem.h"
+
+// Third party test
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 using namespace ::testing;
 using namespace livequery;
@@ -50,7 +56,12 @@ bool serializedJsonContentAreEquivalent(const std::string & v1, const std::strin
     return jv1 == jv2;
 }
 
-class TestResponseDispatcher : public LogOffInitializedTests{};
+namespace
+{
+    class TestResponseDispatcher : public LogOffInitializedTests
+    {
+    };
+}
 
 TEST_F(TestResponseDispatcher, verifySerializedJsonAreEquivalent)
 {
@@ -439,31 +450,33 @@ TEST_F(TestResponseDispatcher, JsonShouldContainDuration)
     EXPECT_TRUE(jCalc == jExp) << "The calculated JSON:" << jCalc.dump() << " does not match the expected JSON: " <<  jExp.dump() << " - Note that the ordering does not matter!";
 }
 
-
-class ResposeDispatcherWithMockFileSystem: public LogOffInitializedTests
+namespace
 {
-public:
-    ResposeDispatcherWithMockFileSystem()
+    class ResposeDispatcherWithMockFileSystem : public LogOffInitializedTests
     {
-        mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-        mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
-    }
-    ~ResposeDispatcherWithMockFileSystem()
-    {
-        Tests::restoreFileSystem();
-    }
-    MockFileSystem * mockFileSystem;
-    MockFilePermissions * mockFilePermissions;
-};
+    public:
+        ResposeDispatcherWithMockFileSystem()
+        {
+            mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+            mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+            Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+            Tests::replaceFilePermissions(
+                std::unique_ptr<Common::FileSystem::IFilePermissions> { mockFilePermissions });
+        }
+        ~ResposeDispatcherWithMockFileSystem() override
+        {
+            Tests::restoreFileSystem();
+        }
+        MockFileSystem* mockFileSystem; // Borrowed pointer
+        MockFilePermissions* mockFilePermissions;  // Borrowed pointer
+    };
+}
 
 TEST_F(ResposeDispatcherWithMockFileSystem, sendResponseShouldCreateFileAsExpected)
 {
-
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
-    rowData["pathname"] = "C:\\\\Windows\\\\System32\\\\pacjsworker.exe";
+    rowData["pathname"] = R"(C:\\Windows\\System32\\pacjsworker.exe)";
     rowData["sophosPID"] = "17984:132164677472649892";
     rowData["start_time"] = "50330";
     columnData.push_back(rowData);
@@ -474,7 +487,10 @@ TEST_F(ResposeDispatcherWithMockFileSystem, sendResponseShouldCreateFileAsExpect
                            ResponseData{headerExample(), columnData},
                            ResponseMetaData()};
     ResponseDispatcher dispatcher;
-    EXPECT_CALL(*mockFileSystem, moveFile(_,"/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json"));
+
+    std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+    std::string expectedPath = rootInstall + "/base/mcs/response/LiveQuery_correlation_response.json";
+    EXPECT_CALL(*mockFileSystem, moveFile(_, expectedPath));
     EXPECT_CALL(*mockFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group"));
     dispatcher.sendResponse("correlation", response);
 }

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -26,9 +22,14 @@ queryrunner::QueryRunnerStatus createDummyResponse(
     return runnerStatus;
 }
 
-class TestResponseDispatcher : public LogOffInitializedTests{};
+namespace
+{
+    class TestLiveQueryTelemetry : public LogOffInitializedTests
+    {
+    };
+}
 
-TEST_F(TestResponseDispatcher, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures2)
+TEST_F(TestLiveQueryTelemetry, MultipleQueriesSameNameShowCorrectTelemetryStatsExcludingFailures2)
 {
     auto response1 = createDummyResponse("query", 100, livequery::ErrorCode::SUCCESS, 800.0);
     auto response2 = createDummyResponse("query", 200, livequery::ErrorCode::SUCCESS, 400.0);

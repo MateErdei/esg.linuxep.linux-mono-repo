@@ -48,6 +48,7 @@ VALGRIND=0
 AFL=0
 TAP=${TAP:-tap}
 BUILD_SDDS3=1
+VAGRANT=0
 
 while [[ $# -ge 1 ]]
 do
@@ -161,6 +162,9 @@ do
             export TAP_PARAMETER_MODE=release
             $TAP fetch edr_plugin.build.release
             NO_BUILD=1
+            ;;
+        --vagrant|--rsync)
+            VAGRANT=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -427,6 +431,12 @@ function build()
     if [[ -d build64/symbols ]]
     then
         cp -a build64/symbols output/
+    fi
+
+    if (( VAGRANT == 1 ))
+    then
+        pwd
+        $BASE/vagrant rsync
     fi
 
     date

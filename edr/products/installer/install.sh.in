@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-# Copyright 2021 Sophos Limited.  All rights reserved.
+# Copyright 2021-2023 Sophos Limited.  All rights reserved.
 set -x
 
 PLUGIN_NAME=@PLUGIN_NAME@
@@ -17,20 +16,20 @@ EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_SERVICE=40
 
-STARTINGDIR=$(pwd)
-SCRIPTDIR=${0%/*}
+STARTINGDIR="$(pwd)"
+SCRIPTDIR="${0%/*}"
 if [[ "$SCRIPTDIR" == "$0" ]]
 then
-    SCRIPTDIR=${STARTINGDIR}
+    SCRIPTDIR="${STARTINGDIR}"
 fi
 
-ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+ABS_SCRIPTDIR=$(cd "$SCRIPTDIR" && pwd)
 
-source ${ABS_SCRIPTDIR}/cleanupinstall.sh
-source ${ABS_SCRIPTDIR}/checkAndRunExtraUpgrade.sh
+source "${ABS_SCRIPTDIR}/cleanupinstall.sh"
+source "${ABS_SCRIPTDIR}/checkAndRunExtraUpgrade.sh"
 
-[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
-[[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
+[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL="/opt/sophos-spl"
+[[ -n "$DIST" ]] || DIST="$ABS_SCRIPTDIR"
 
 failure()
 {
@@ -93,7 +92,7 @@ EOM
 }
 
 
-[[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
+[[ -d "$SOPHOS_INSTALL" ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
 
 # In case this is an upgrade (not a clean install) request the watchdog stops the plugin
 if is_already_installed
@@ -102,83 +101,83 @@ then
     purge_osquery_db_if_required
 fi
 
-check_for_upgrade  "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
+check_for_upgrade  "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" ${PRODUCT_LINE_ID} "${DIST}"
 
 #Create plugin registration file
-TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
+TEMP_REG_FILE="${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json"
 sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
 "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
-rm -f ${TEMP_REG_FILE}
+rm -f "${TEMP_REG_FILE}"
 
 #Install files
 find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
-generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
+generate_manifest_diff "$DIST" ${PRODUCT_LINE_ID}
 
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr etc dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr osquery.conf.d dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr query_packs dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr jrl dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl_tracker || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr jrl tracker dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr etc dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr osquery.conf.d dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr query_packs dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions"  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr jrl dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl_tracker" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr jrl tracker dir"
 
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log
-chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl_tracker
-chmod 0700 ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
+chmod 0700 -R "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl_tracker"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"
 
 
-chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+chown -R "${USER_NAME}":"${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-if software_changed ${DIST} ${PRODUCT_LINE_ID}
+if software_changed "${DIST}" "${PRODUCT_LINE_ID}"
 then
-    perform_cleanup ${DIST} ${PRODUCT_LINE_ID}
+    perform_cleanup "${DIST}" "${PRODUCT_LINE_ID}"
 fi
 
 # note need to perform supplement copy after clean up is called, because the clean-up may remove the supplement if a supplement is
 # replacing a shipped file.
 # Copy supplements into place
-if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ]]
+if [[ -f  "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf" ]]
 then
   # Remove enabled pack to ensure upgrades cannot result in both enabled and disabled query packs being present
-  rm -f ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+  rm -f "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf"
+  cp "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED"
+  cp "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf"
 fi
-if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ]]
+if [[ -f  "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf" ]]
 then
   # Remove enabled pack to ensure upgrades cannot result in both enabled and disabled query packs being present
-  rm -f ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
-  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
+  rm -f "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf"
+  cp "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED"
+  cp "${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf"
 fi
-if [[ -f  ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf ]]
+if [[ -f  "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf" ]]
 then
-  cp ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf
+  cp "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf"
 fi
-if [[ -f  ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf ]]
+if [[ -f  "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf" ]]
 then
-  cp ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf
+  cp "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf"
+  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf"
 fi
-copy_manifests ${DIST} ${PRODUCT_LINE_ID}
+copy_manifests "${DIST}" "${PRODUCT_LINE_ID}"
 
 # Create config file to manage if AuditD should be stopped by the plugin
 CONFIG_FILE="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/plugin.conf"
@@ -227,7 +226,7 @@ function waitForNamedPipeToBeCreated()
 {
     for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
     do
-        [[ -p $1 ]] && return 0
+        [[ -p "$1" ]] && return 0
         sleep 1
     done
 
@@ -246,15 +245,15 @@ function is_rsyslog_running()
 
 function enable_access_for_rsyslog_to_shared_pipe()
 {
-    semanage fcontext -d ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
-    semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null && restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
+    semanage fcontext -d "${SOPHOS_INSTALL}/shared/syslog_pipe" &> /dev/null
+    semanage fcontext -a -t var_log_t "${SOPHOS_INSTALL}/shared/syslog_pipe" &> /dev/null && restorecon -Fv "${SOPHOS_INSTALL}/shared/syslog_pipe" &> /dev/null
 }
 
 function restartRsyslog()
 {
     RyslogRestarted=1
     local RESTART_TRIES=0
-    while [ $RyslogRestarted -eq 1 ] && [ ${RESTART_TRIES} -le 3 ]
+    while [[ $RyslogRestarted -eq 1 ]] && [[ ${RESTART_TRIES} -le 3 ]]
     do
         RESTART_TRIES=$((RESTART_TRIES+1))
         COMMAND_FAILED=0
@@ -296,7 +295,8 @@ then
   then
     if [[ -d /etc/rsyslog.d/ ]]
     then
-      cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
+      sed "${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf" \
+        -e "s/%SOPHOS_INSTALL%/${SOPHOS_INSTALL//\//\\/}/" >/etc/rsyslog.d/rsyslog_sophos-spl.conf
 
       if which getenforce &> /dev/null
       then
