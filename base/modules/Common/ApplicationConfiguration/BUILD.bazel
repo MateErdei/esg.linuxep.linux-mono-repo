@@ -19,6 +19,10 @@ soph_cc_library(
 # This should not be used directly as it can result in a linking failure
 soph_cc_library(
     name = "ApplicationConfiguration_interface",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
     hdrs = glob(["*.h"]),
     visibility = [
         "//modules/Common/ApplicationConfigurationImpl:__pkg__",
