@@ -18,7 +18,10 @@ soph_cc_library(
 # This should not be used directly as it can result in a linking failure
 soph_cc_library(
     name = "OSUtilities_interface",
-    srcs = glob(["*.cpp"]),
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
     hdrs = glob(["*.h"]),
     visibility = [
         "//modules/Common/OSUtilitiesImpl:__pkg__",

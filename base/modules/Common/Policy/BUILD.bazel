@@ -1,9 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 soph_cc_library(
     name = "Policy",
-    srcs = glob(["*.cpp"]),
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
         "//common/sophlib/hostname",
