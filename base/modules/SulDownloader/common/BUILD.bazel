@@ -4,6 +4,13 @@ soph_cc_library(
     name = "common",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/FileSystem",
+        "//modules/Common/Process",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//modules/Common/UtilityImpl:StringUtils",
+    ],
     visibility = [
         "//modules/SulDownloader:__subpackages__",
         "//tests/SulDownloader:__pkg__",
@@ -11,8 +18,5 @@ soph_cc_library(
     deps = [
         "//modules/Common/Logging",
         "//modules/Common/Policy",
-        "//modules/Common/Process",
-        "//modules/Common/UtilityImpl:ProjectNames",
-        "//modules/Common/UtilityImpl:StringUtils",
     ],
 )

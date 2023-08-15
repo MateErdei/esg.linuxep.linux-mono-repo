@@ -4,15 +4,17 @@ soph_cc_library(
     name = "HttpRequestsImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/FileSystem",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/Logging",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/CurlWrapper",
-        "//modules/Common/FileSystem",
         "//modules/Common/HttpRequests",
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:StringUtils",
     ],
 )

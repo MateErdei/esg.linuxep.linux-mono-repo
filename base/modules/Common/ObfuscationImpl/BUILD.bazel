@@ -4,12 +4,14 @@ soph_cc_library(
     name = "ObfuscationImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/Logging",
         "//modules/Common/Obfuscation:Obfuscation_interface",
         "@openssl_linux//:openssl",
     ],

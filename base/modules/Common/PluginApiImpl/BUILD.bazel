@@ -4,19 +4,21 @@ soph_cc_library(
     name = "PluginApiImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/FileSystem",
+        "//modules/Common/Logging",
+        "//modules/Common/PluginCommunication",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//modules/Common/TelemetryHelperImpl",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/FileSystem",
-        "//modules/Common/Logging",
         "//modules/Common/PluginApi",
-        "//modules/Common/PluginCommunication",
         "//modules/Common/PluginProtocol",
-        "//modules/Common/TelemetryHelperImpl",
-        "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/ZMQWrapperApi",
     ],
 )

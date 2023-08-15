@@ -5,16 +5,19 @@ soph_cc_library(
     name = "Helpers",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/FileSystemImpl",
+    ],
     visibility = [
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/ApplicationConfiguration",
         "//modules/Common/CurlWrapper",
-        "//modules/Common/FileSystemImpl",
+        "//modules/Common/FileSystem",
         "//modules/Common/Logging",
         "//modules/Common/PluginApi",
-        "//modules/Common/UtilityImpl:StrError",
         "//modules/Common/UtilityImpl:TimeUtils",
         "@com_google_googletest//:gtest",
     ],

@@ -4,12 +4,14 @@ soph_cc_library(
     name = "ZeroMQWrapperImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "@zmq",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/ZeroMQWrapper:ZeroMQWrapper_interface",
-        "@zmq",
     ],
 )

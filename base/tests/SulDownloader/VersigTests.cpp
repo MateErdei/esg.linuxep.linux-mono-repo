@@ -1,7 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "SulDownloader/suldownloaderdata/IVersig.h"

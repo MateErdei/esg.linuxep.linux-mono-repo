@@ -9,7 +9,6 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
-#include "Common/ProcessImpl/ProcessImpl.h"
 
 #include <algorithm>
 #include <map>

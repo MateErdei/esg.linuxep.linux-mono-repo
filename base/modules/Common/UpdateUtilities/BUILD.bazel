@@ -4,14 +4,14 @@ soph_cc_library(
     name = "UpdateUtilities",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
-    ],
-    deps = [
+    implementation_deps = [
         "//modules/Common/ApplicationConfiguration",
         "//modules/Common/FileSystem",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
     ],
 )

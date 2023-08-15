@@ -4,14 +4,16 @@ soph_cc_library(
     name = "ZipUtilities",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/FileSystem",
+        "//modules/Common/UtilityImpl:StringUtils",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystem",
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:StringUtils",
         "@minizip_salted//:minizip",
     ],
 )

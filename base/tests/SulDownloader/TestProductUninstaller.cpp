@@ -5,7 +5,7 @@
 #include "SulDownloader/ProductUninstaller.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 

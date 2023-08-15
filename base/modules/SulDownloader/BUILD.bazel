@@ -7,20 +7,23 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = ["SulDownloader.h"],
-    visibility = [
-        "//products/Base/SulDownloader:__pkg__",
-        "//tests/SulDownloader:__pkg__",
-    ],
-    deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/Policy",
+    implementation_deps = [
+        "//modules/Common/FileSystem",
         "//modules/Common/UpdateUtilities",
+        "//modules/Common/Process",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/UtilityImpl:StringUtils",
         "//modules/Common/UtilityImpl:TimeUtils",
         "//modules/SulDownloader/common",
         "//modules/SulDownloader/sdds3",
-        "//modules/SulDownloader/suldownloaderdata",
         "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//products/Base/SulDownloader:__pkg__",
+        "//tests/SulDownloader:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/Policy",
+        "//modules/SulDownloader/suldownloaderdata",
     ],
 )

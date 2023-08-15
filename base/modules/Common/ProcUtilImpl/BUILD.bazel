@@ -4,12 +4,12 @@ soph_cc_library(
     name = "ProcUtilImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/FileSystem",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
-    ],
-    deps = [
-        "//modules/Common/FileSystem",
-        "//modules/Common/Logging",
     ],
 )

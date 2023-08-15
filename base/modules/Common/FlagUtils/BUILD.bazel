@@ -4,12 +4,12 @@ soph_cc_library(
     name = "FlagUtils",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+        "//thirdparty/nlohmann-json",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
-    ],
-    deps = [
-        "//modules/Common/Logging",
-        "//thirdparty/nlohmann-json",
     ],
 )

@@ -5,10 +5,7 @@
 #include "Common/Policy/PolicyParseException.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"

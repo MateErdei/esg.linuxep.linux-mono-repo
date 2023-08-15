@@ -4,11 +4,11 @@ soph_cc_library(
     name = "SecurityUtils",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/FileSystem",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
-    ],
-    deps = [
-        "//modules/Common/FileSystem",
     ],
 )

@@ -14,7 +14,7 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 #include <google/protobuf/util/json_util.h>
 
-#include "DownloadReport.pb.h"
+#include "SulDownloader/suldownloaderdata/DownloadReport.pb.h"
 #include <sstream>
 
 using namespace SulDownloader::suldownloaderdata;

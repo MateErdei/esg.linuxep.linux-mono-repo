@@ -4,6 +4,9 @@ soph_cc_library(
     name = "TelemetryConfigImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//thirdparty/nlohmann-json",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
@@ -11,6 +14,5 @@ soph_cc_library(
     deps = [
         "//modules/Common/HttpRequests",
         "//modules/Common/ObfuscationImpl",
-        "//thirdparty/nlohmann-json",
     ],
 )

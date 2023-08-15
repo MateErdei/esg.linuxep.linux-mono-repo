@@ -8,6 +8,7 @@ spl_independent_cc_tests(
     ]),
     deps = [
         "//modules/Common/DirectoryWatcherImpl",
+        "//modules/Common/FileSystemImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
