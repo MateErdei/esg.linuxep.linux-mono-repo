@@ -1,11 +1,9 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include <json.hpp>
-
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/ProxyUtils/ProxyUtils.h"
