@@ -1,11 +1,11 @@
-// Copyright 2018-2023, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessImpl.h"
 
 #include "BoostProcessHolder.h"
 #include "Logger.h"
 
-#include <Common/Process/IProcessException.h>
+#include "Common/Process/IProcessException.h"
 
 #include <algorithm>
 #include <future>

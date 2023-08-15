@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Manifest.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/iostr_utils.h>
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/iostr_utils.h"
 
 #include <cassert>
 #include <fstream>

@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
-#include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include "ManagementAgent/PluginCommunication/IPolicyReceiver.h"
 
 namespace ManagementAgent
 {

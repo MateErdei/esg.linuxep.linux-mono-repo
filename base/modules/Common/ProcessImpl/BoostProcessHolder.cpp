@@ -4,15 +4,15 @@
 #include "IProcessException.h"
 #include "Logger.h"
 
-#include "../UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #pragma GCC diagnostic ignored "-Wsign-compare"
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>

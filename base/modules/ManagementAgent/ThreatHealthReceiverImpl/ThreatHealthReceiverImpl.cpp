@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "ThreatHealthReceiverImpl.h"
 
@@ -10,7 +6,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <json.hpp>
 
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 using ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl;
 

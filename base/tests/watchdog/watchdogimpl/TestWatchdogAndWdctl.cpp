@@ -1,17 +1,17 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #ifndef ARTISANBUILD
 #include "gtest/gtest.h"
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include <gmock/gmock.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/UtilityImpl/StringUtils.h>
-#include <modules/wdctl/wdctlimpl/wdctl_bootstrap.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "wdctl/wdctlimpl/wdctl_bootstrap.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 #include <mutex>
 #include <thread>
 #include <grp.h>

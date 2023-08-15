@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -12,7 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 class SingleManagementRequest
 {

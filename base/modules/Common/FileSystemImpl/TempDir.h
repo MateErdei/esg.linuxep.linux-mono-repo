@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/ITempDir.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/ITempDir.h"
 
 #include <string>
 

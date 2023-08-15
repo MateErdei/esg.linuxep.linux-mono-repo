@@ -1,14 +1,10 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
-#include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h"
+#include "ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/TaskQueueImpl/FakeQueue.h"
 
 class TestThreatHealthReceiverImpl : public ::testing::Test
 {

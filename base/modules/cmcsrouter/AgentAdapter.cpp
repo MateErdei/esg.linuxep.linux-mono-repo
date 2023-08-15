@@ -2,15 +2,15 @@
 
 #include "AgentAdapter.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/OSUtilities/IIPUtils.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-#include <Common/OSUtilitiesImpl/PlatformUtils.h>
-#include <Common/OSUtilitiesImpl/SystemUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/XmlUtilities/Validation.h>
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/OSUtilities/IIPUtils.h"
+#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "Common/OSUtilitiesImpl/PlatformUtils.h"
+#include "Common/OSUtilitiesImpl/SystemUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/XmlUtilities/Validation.h"
 
 #include <iostream>
 

@@ -4,10 +4,10 @@
 
 #include "ITelemetryProvider.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryConfigImpl/Config.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryConfigImpl/Config.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
 

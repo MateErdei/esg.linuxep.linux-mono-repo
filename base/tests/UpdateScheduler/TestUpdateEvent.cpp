@@ -1,19 +1,15 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "DownloadReportTestBuilder.h"
 #include "MockMapHostCacheId.h"
 
-#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
-#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+#include "UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h"
+#include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <tests/Common/UtilityImpl/MockFormattedTime.h>
+#include "tests/Common/UtilityImpl/MockFormattedTime.h"
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace SulDownloader;

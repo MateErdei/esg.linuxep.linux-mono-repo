@@ -1,11 +1,11 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // Product
-#include <cmcsrouter/AgentAdapter.h>
+#include "cmcsrouter/AgentAdapter.h"
 // Test helpers
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockPlatformUtils.h>
-#include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockPlatformUtils.h"
+#include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
 // 3rd party
 #include <gtest/gtest.h>
 // C++ standard

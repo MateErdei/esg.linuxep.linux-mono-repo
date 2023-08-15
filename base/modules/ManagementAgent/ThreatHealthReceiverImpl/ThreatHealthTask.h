@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITask.h>
-#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
+#include "Common/TaskQueue/ITask.h"
+#include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
 
 #include <memory>
 #include <string>

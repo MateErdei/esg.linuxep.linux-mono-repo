@@ -4,10 +4,10 @@
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <cassert>
 #include <memory>

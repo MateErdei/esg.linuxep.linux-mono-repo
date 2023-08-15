@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
+#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 
 #include <map>
 #include <string>

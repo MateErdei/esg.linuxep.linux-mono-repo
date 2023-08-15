@@ -8,9 +8,9 @@
 #include "IStatusReceiver.h"
 #include "PluginHealthStatus.h"
 
-#include <Common/PluginCommunication/IPluginProxy.h>
-#include <Common/PluginProtocol/DataMessage.h>
-#include <PluginRegistryImpl/PluginInfo.h>
+#include "Common/PluginCommunication/IPluginProxy.h"
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
 
 #include <chrono>
 #include <memory>

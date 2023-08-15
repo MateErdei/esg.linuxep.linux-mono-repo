@@ -6,9 +6,9 @@
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "SulDownloader/sdds3/ISdds3Wrapper.h"
-#include "modules/SulDownloader/sdds3/SDDS3Repository.h"
-#include "modules/SulDownloader/suldownloaderdata/CatalogueInfo.h"
-#include "modules/SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "SulDownloader/sdds3/SDDS3Repository.h"
+#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "sophlib/sdds3/PackageRef.h"
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"

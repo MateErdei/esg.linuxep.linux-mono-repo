@@ -4,12 +4,12 @@
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <thread>
 

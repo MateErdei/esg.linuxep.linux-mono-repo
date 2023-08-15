@@ -1,16 +1,16 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h"
 #include <gmock/gmock-matchers.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/OSUtilitiesImpl/MockDnsLookup.h>
-#include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
-#include <Common/Policy/PolicyParseException.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/OSUtilitiesImpl/MockDnsLookup.h"
+#include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
+#include "Common/Policy/PolicyParseException.h"
 
 #include <future>
 

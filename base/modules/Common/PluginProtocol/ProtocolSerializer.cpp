@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ProtocolSerializer.h"
 
@@ -11,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginApi/ApiException.h"
 
-#include <PluginAPIMessage.pb.h>
+#include "PluginAPIMessage.pb.h"
 
 namespace Common
 {

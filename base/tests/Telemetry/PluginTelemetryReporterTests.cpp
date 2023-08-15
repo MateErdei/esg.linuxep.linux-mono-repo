@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "MockPluginProxy.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Process/IProcess.h>
-#include <Telemetry/TelemetryImpl/PluginTelemetryReporter.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Process/IProcess.h"
+#include "Telemetry/TelemetryImpl/PluginTelemetryReporter.h"
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

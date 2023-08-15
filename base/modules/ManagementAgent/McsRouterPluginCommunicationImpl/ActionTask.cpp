@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ActionTask.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 namespace
 {

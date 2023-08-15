@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <cmcsrouter/IAdapter.h>
+#include "cmcsrouter/IAdapter.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

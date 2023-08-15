@@ -1,7 +1,8 @@
-#include "../Helpers/LogInitializedTests.h"
-#include "../Helpers/MockCurlWrapper.h"
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockCurlWrapper.h"
 
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <curl/curl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

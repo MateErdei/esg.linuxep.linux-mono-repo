@@ -1,12 +1,8 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Common/ZMQWrapperApiImpl/ContextImpl.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include <gtest/gtest.h>
 
 using Common::ZeroMQWrapper::ISocketRequesterPtr;

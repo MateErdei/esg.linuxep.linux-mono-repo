@@ -1,5 +1,6 @@
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "TestMacros.h"
- #include <unistd.h>
+#include <unistd.h>
 
 bool skipTest()
 {

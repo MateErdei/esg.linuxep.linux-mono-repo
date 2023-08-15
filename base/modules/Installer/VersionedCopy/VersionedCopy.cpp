@@ -1,15 +1,11 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+
 #include "VersionedCopy.h"
 
-#include <Common/Exceptions/Print.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/Exceptions/Print.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <sys/stat.h>
 
 #include <cassert>

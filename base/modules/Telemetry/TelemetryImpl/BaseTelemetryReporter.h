@@ -1,12 +1,12 @@
-// Copyright 2019-2023 Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ITelemetryProvider.h"
-#include "json.hpp"
+#include <json.hpp>
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <optional>
 #include <utility>

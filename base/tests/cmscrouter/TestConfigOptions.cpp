@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-#include <cmcsrouter/AgentAdapter.h>
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+#include "cmcsrouter/AgentAdapter.h"
 #include <gtest/gtest.h>
-#include <cmcsrouter/ConfigOptions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockPlatformUtils.h>
+#include "cmcsrouter/ConfigOptions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockPlatformUtils.h"
 
 #include <sstream>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 
 
 TEST(TestConfigOptions, testConfigOptionsWrittenCorrectly) // NOLINT

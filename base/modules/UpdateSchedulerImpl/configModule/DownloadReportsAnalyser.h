@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "UpdateEvent.h"
 #include "UpdateStatus.h"
 
-#include <SulDownloader/suldownloaderdata/DownloadReport.h>
+#include "SulDownloader/suldownloaderdata/DownloadReport.h"
 
 #include <string>
 #include <vector>

@@ -1,10 +1,10 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "cmcsrouter/MessageRelay.h"
 
-#include <Common/OSUtilities/IIPUtils.h>
+#include "Common/OSUtilities/IIPUtils.h"
 
 /**
  * Sorts message relays by:

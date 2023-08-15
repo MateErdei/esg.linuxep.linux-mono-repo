@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "CopyPlugin.h"
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/UtilityImpl/ProjectNames.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 

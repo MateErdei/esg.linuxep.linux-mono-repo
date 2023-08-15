@@ -4,20 +4,20 @@
 #include "IProcessException.h"
 #include "Logger.h"
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "UtilityImpl/StrError.h"
-#include "UtilityImpl/StringUtils.h"
-#include "UtilityImpl/SystemExecutableUtils.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/UtilityImpl/StrError.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/SystemExecutableUtils.h"
 
-#include <Common/PluginApi/IPluginCallbackApi.h>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/PluginCommunication/IPluginCommunicationException.h>
-#include <Common/PluginCommunicationImpl/PluginProxy.h>
-#include <Common/Process/IProcess.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/ConfigException.h>
-#include <Common/UtilityImpl/Factory.h>
-#include <Common/ZMQWrapperApi/IContext.h>
+#include "Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginCommunicationImpl/PluginProxy.h"
+#include "Common/Process/IProcess.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/ConfigException.h"
+#include "Common/UtilityImpl/Factory.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
 namespace
 {

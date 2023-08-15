@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginProtocol/AbstractListenerServer.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
 
-#include <Common/ZeroMQWrapper/IReadWrite.h>
+#include "Common/ZeroMQWrapper/IReadWrite.h"
 
 namespace Common
 {

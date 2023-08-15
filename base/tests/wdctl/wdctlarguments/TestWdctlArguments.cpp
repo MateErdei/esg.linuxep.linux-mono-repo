@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/wdctl/wdctlarguments/Arguments.h>
+#include "wdctl/wdctlarguments/Arguments.h"
 
 using Arguments = wdctl::wdctlarguments::Arguments;
 

@@ -4,10 +4,10 @@
 
 #include "Action.h"
 
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <Common/ZeroMQWrapper/IReadable.h>
-#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#include <Common/ZeroMQWrapper/IWritable.h>
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/IWritable.h"
 
 namespace wdctl
 {

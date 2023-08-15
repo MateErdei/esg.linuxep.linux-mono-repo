@@ -1,17 +1,13 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <UpdateSchedulerImpl/Logger.h>
-#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "UpdateSchedulerImpl/Logger.h"
+#include "UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h"
 #include <gmock/gmock-matchers.h>
-#include <tests/Common/Helpers/MockProcess.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <tests/watchdog/watchdogimpl/MockIWatchdogRequest.h>
+#include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/watchdog/watchdogimpl/MockIWatchdogRequest.h"
 
 #include <future>
 #include <thread>

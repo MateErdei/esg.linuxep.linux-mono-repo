@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/ProcessImpl/ProcessInfo.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ProcessImpl/ProcessInfo.h"
 
 #include <string>
 #include <vector>

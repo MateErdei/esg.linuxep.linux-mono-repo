@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ManifestDiff.h"
 
 #include "CommandLineOptions.h"
 #include "Manifest.h"
 
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <cassert>
 #include <fstream>

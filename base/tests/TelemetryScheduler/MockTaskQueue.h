@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <TelemetryScheduler/TelemetrySchedulerImpl/ITaskQueue.h>
+#include "TelemetryScheduler/TelemetrySchedulerImpl/ITaskQueue.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

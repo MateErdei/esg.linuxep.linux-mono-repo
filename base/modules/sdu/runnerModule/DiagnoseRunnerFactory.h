@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <sdu/IAsyncDiagnoseRunner.h>
-#include <sdu/ITaskQueue.h>
+#include "sdu/IAsyncDiagnoseRunner.h"
+#include "sdu/ITaskQueue.h"
 
 #include <functional>
 #include <memory>

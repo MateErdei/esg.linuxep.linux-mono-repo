@@ -6,8 +6,8 @@
 
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <json.hpp>
 #include <string>

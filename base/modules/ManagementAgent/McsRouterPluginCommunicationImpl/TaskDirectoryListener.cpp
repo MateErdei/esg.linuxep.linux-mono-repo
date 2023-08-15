@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "TaskDirectoryListener.h"
 
 #include "ActionTask.h"
 #include "PolicyTask.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 #include <cassert>
 

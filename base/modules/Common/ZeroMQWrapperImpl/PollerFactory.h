@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../ZeroMQWrapper/IPollerFactory.h"
+#include "Common/ZeroMQWrapper/IPollerFactory.h"
 
 namespace Common::ZeroMQWrapperImpl
 {

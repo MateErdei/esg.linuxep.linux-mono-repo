@@ -8,17 +8,17 @@
 
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/Threads/NotifyPipe.h>
-#include <Common/UtilityImpl/ConfigException.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/Threads/NotifyPipe.h"
+#include "Common/UtilityImpl/ConfigException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include <sys/select.h>
 #include <sys/stat.h>
 

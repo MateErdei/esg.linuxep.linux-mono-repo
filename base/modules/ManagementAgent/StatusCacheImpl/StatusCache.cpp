@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "StatusCache.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 #include <sys/stat.h>
 
 using namespace ManagementAgent::StatusCache;

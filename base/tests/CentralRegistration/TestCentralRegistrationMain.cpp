@@ -1,19 +1,19 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "CentralRegistration/MessageRelaySorter.h"
-#include "OSUtilitiesImpl/LocalIPImpl.h"
+#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
 
-#include <CentralRegistration/Main.h>
-#include <CentralRegistration/MessageRelayExtractor.h>
-#include <cmcsrouter/Config.h>
-#include <cmcsrouter/ConfigOptions.h>
+#include "CentralRegistration/Main.h"
+#include "CentralRegistration/MessageRelayExtractor.h"
+#include "cmcsrouter/Config.h"
+#include "cmcsrouter/ConfigOptions.h"
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockSystemUtils.h>
-#include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockSystemUtils.h"
+#include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
 
 class CentralRegistrationMainTests : public LogInitializedTests
 {

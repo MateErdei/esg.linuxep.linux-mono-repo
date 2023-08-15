@@ -1,6 +1,6 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
+#include "TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h"
 #include <gtest/gtest.h>
 
 #include <atomic>

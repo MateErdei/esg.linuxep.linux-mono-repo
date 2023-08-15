@@ -1,16 +1,16 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "json.hpp"
+#include <json.hpp>
 
-#include "../Helpers/FileSystemReplaceAndRestore.h"
-#include "../Helpers/LogInitializedTests.h"
-#include "../Helpers/MockFileSystem.h"
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/ProxyUtils/ProxyUtils.h"
-#include "FileSystem/IFileSystemException.h"
-#include "Obfuscation/ICipherException.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Obfuscation/ICipherException.h"
 
 #include <gtest/gtest.h>
 

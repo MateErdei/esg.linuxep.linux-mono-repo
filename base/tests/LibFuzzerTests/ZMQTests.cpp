@@ -1,6 +1,6 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+/******************************************************************************************************
 
  Documentation and helper to developers.
  ZMQTests goal is to stress the socket layer that we rely on to transmit data accros the plugins and modules.
@@ -68,22 +68,22 @@ ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
 
 #include "google/protobuf/text_format.h"
 
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/FileSystem/IFileSystem.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
-#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <modules/Common/ZeroMQWrapper/ISocketReplier.h>
-#include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
-#include <modules/Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <Common/UtilityImpl/StrError.h>
-#include <Common/ZeroMQWrapperImpl/PollerImpl.h>
-#include <modules/Common/ZeroMQWrapper/IIPCException.h>
-#include <modules/Common/ZeroMQWrapperImpl/SocketImpl.h>
-#include <modules/Common/ZeroMQWrapperImpl/SocketUtil.h>
+#include "Common/UtilityImpl/StrError.h"
+#include "Common/ZeroMQWrapperImpl/PollerImpl.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketUtil.h"
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>

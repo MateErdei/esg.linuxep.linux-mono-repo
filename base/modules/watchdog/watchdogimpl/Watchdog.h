@@ -5,12 +5,12 @@
 #include "PluginProxy.h"
 #include "WatchdogServiceLine.h"
 
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/ProcessMonitoringImpl/ProcessMonitor.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/ProcessMonitoringImpl/ProcessMonitor.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
 
 #include <list>
 

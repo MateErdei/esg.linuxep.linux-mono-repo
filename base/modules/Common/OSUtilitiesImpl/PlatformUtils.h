@@ -1,9 +1,9 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/HttpRequests/IHttpRequester.h>
-#include <Common/OSUtilities/IIPUtils.h>
-#include <Common/OSUtilities/IPlatformUtils.h>
+#include "Common/HttpRequests/IHttpRequester.h"
+#include "Common/OSUtilities/IIPUtils.h"
+#include "Common/OSUtilities/IPlatformUtils.h"
 #include <sys/utsname.h>
 
 namespace Common::OSUtilitiesImpl

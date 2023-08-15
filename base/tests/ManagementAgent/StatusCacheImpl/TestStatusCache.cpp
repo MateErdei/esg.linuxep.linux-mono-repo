@@ -1,17 +1,13 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/StatusCacheImpl/StatusCache.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 class TestStatusCache : public ::testing::Test
 {
 public:

@@ -8,7 +8,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "CurlWrapper/CurlWrapper.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
 

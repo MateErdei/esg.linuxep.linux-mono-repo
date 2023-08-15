@@ -1,12 +1,12 @@
-// Copyright 2018-2023 Sophos All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "SystemTelemetryCollectorImpl.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/UtilityImpl/StrError.h>
-#include <Telemetry/LoggerImpl/Logger.h>
-#include <UtilityImpl/StringUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/UtilityImpl/StrError.h"
+#include "Telemetry/LoggerImpl/Logger.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <algorithm>
 #include <map>

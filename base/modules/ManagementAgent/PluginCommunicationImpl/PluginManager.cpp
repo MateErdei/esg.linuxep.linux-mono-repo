@@ -4,19 +4,19 @@
 
 #include "PluginServerCallback.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/PluginCommunication/IPluginCommunicationException.h>
-#include <Common/PluginCommunicationImpl/PluginProxy.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
-#include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginCommunicationImpl/PluginProxy.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
+#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 #include <sys/stat.h>
 #include <json.hpp>
 

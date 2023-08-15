@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/Process/IProcessInfo.h>
+#include "Common/Process/IProcessInfo.h"
 
 namespace Common
 {

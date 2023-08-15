@@ -2,31 +2,31 @@
 
 #include "ManagementAgentMain.h"
 
-#include "ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Logging/FileLoggingSetup.h>
-#include <Common/PluginCommunication/IPluginCommunicationException.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/TaskQueueImpl/TaskProcessorImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/ConfigException.h>
-#include <Common/UtilityImpl/SystemExecutableUtils.h>
-#include <Common/ZeroMQWrapper/IHasFD.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
-#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
-#include <ManagementAgent/HealthStatusImpl/HealthTask.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/TaskQueueImpl/TaskProcessorImpl.h"
+#include "Common/TaskQueueImpl/TaskQueueImpl.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/ConfigException.h"
+#include "Common/UtilityImpl/SystemExecutableUtils.h"
+#include "Common/ZeroMQWrapper/IHasFD.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "ManagementAgent/EventReceiverImpl/EventReceiverImpl.h"
+#include "ManagementAgent/HealthStatusImpl/HealthTask.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
+#include "ManagementAgent/PluginCommunicationImpl/PluginManager.h"
+#include "ManagementAgent/StatusCacheImpl/StatusCache.h"
+#include "ManagementAgent/StatusReceiverImpl/StatusTask.h"
+#include "ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h"
 #include <sys/stat.h>
 
 #include <csignal>

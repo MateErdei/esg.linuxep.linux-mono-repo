@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "DiagnoseResultDirectoryListener.h"
 
-#include <Common/DirectoryWatcher/IDirectoryWatcher.h>
-#include <Common/Process/IProcess.h>
-#include <sdu/ITaskQueue.h>
+#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
+#include "Common/Process/IProcess.h"
+#include "sdu/ITaskQueue.h"
 
 namespace RemoteDiagnoseImpl
 {

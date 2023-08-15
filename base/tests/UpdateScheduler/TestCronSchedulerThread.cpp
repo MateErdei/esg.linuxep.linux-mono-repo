@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "TestWithMockTimerAbstract.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <UpdateSchedulerImpl/cronModule/CronSchedulerThread.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
 #include <gmock/gmock-matchers.h>
-#include <tests/Common/Helpers/FakeTimeUtils.h>
+#include "tests/Common/Helpers/FakeTimeUtils.h"
 
 
 using namespace UpdateSchedulerImpl;

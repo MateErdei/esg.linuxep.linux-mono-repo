@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/ZeroMQWrapperImpl/SocketHolder.h>
+#include "Common/ZeroMQWrapperImpl/SocketHolder.h"
 #include <gtest/gtest.h>
 
 #include <zmq.h>

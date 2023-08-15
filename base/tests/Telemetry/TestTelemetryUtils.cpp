@@ -1,16 +1,12 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
+#include "Telemetry/TelemetryImpl/TelemetryUtils.h"
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
-******************************************************************************************************/
-#include <Telemetry/TelemetryImpl/TelemetryUtils.h>
-
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 

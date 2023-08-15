@@ -1,13 +1,9 @@
-/******************************************************************************************************
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-Copyright 2022, Sophos Limited.  All rights reserved.
+#include "Common/FlagUtils/FlagUtils.h"
+#include "UpdateSchedulerImpl/UpdateSchedulerUtils.h"
 
-******************************************************************************************************/
-
-#include <Common/FlagUtils/FlagUtils.h>
-#include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
-
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 

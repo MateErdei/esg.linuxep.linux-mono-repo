@@ -6,10 +6,10 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
-#include <Common/FileSystem/IFileTooLargeException.h>
-#include <Common/ProxyUtils/ProxyUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/ZipUtilities/ZipUtils.h>
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 
 //For return value interpretation
 #include <minizip/mz_compat.h>

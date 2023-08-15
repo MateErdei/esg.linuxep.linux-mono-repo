@@ -6,13 +6,13 @@
 
 #include "Common/UtilityImpl/TimeUtils.h"
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <Common/UtilityImpl/FileUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <Telemetry/LoggerImpl/Logger.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Common/UtilityImpl/FileUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Telemetry/LoggerImpl/Logger.h"
 
 #include <iomanip>
 

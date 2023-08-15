@@ -5,7 +5,7 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
-#include "UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <sys/stat.h>
 

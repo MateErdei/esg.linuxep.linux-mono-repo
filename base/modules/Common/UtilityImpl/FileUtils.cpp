@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "FileUtils.h"
 
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/FileSystem/IFileSystem.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 

@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "ProductMetadata.h"
 
 #include "Logger.h"
 
-#include <Common/UtilityImpl/OrderedSet.h>
+#include "Common/UtilityImpl/OrderedSet.h"
 
 #include <cassert>
 #include <stdexcept>

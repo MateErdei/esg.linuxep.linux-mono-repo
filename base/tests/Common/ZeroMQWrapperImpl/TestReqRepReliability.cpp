@@ -1,37 +1,33 @@
- /******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #ifndef ARTISANBUILD
 
-#    include "ReqRepTestImplementations.h"
-#    include <Common/Process/IProcess.h>
-#    include <Common/Process/IProcessException.h>
-#    include <Common/ProcessImpl/ProcessInfo.h>
-#    include <Common/Process/IProcess.h>
-#    include <Common/ZMQWrapperApi/IContext.h>
-#    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#    include <Common/ZeroMQWrapper/IReadable.h>
-#    include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#    include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#    include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#    include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#    include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
-#    include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
-#    include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
-#    include <gmock/gmock.h>
-#    include <gtest/gtest.h>
-#    include <tests/Common/Helpers/TempDir.h>
-#    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#    include <future>
-#    include <stdio.h>
-#    include <stdlib.h>
-#    include <thread>
-#    include <unistd.h>
-#    include <zmq.h>
+#include "ReqRepTestImplementations.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessInfo.h"
+#include "Common/Process/IProcess.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include <future>
+#include <stdio.h>
+#include <stdlib.h>
+#include <thread>
+#include <unistd.h>
+#include <zmq.h>
 
 extern char** environ;
 

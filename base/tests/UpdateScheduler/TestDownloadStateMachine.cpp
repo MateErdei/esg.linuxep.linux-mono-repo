@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "TimeStamp.h"
 
-#include <UpdateSchedulerImpl/stateMachinesModule/DownloadStateMachine.h>
+#include "UpdateSchedulerImpl/stateMachinesModule/DownloadStateMachine.h"
 
 #include <ostream>
 #include <gmock/gmock-matchers.h>

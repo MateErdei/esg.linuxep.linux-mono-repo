@@ -11,11 +11,11 @@
 #include "Common/PluginApiImpl/BaseServiceAPI.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 
-#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
-#include <UpdateScheduler/ICronSchedulerThread.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
-#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
+#include "UpdateScheduler/IAsyncSulDownloaderRunner.h"
+#include "UpdateScheduler/ICronSchedulerThread.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
+#include "UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h"
 
 namespace UpdateSchedulerImpl
 {

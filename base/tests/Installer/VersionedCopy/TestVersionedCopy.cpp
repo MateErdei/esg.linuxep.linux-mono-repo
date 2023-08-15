@@ -1,14 +1,9 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Installer/VersionedCopy/VersionedCopy.h>
+#include "Installer/VersionedCopy/VersionedCopy.h"
 #include <filesystem>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TempDir.h>
+#include "tests/Common/Helpers/TempDir.h"
 
 namespace
 {

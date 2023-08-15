@@ -8,13 +8,13 @@
 #include "TimeTracker.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 #include <google/protobuf/util/json_util.h>
 
-#include <DownloadReport.pb.h>
+#include "DownloadReport.pb.h"
 #include <sstream>
 
 using namespace SulDownloader::suldownloaderdata;

@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <Common/TaskQueue/ITaskProcessor.h>
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
+#include "Common/TaskQueue/ITaskProcessor.h"
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "Common/ZeroMQWrapper/IProxy.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
+#include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include "ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h"
+#include "ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h"
 
 namespace ManagementAgent
 {

@@ -6,7 +6,7 @@
 #include "PluginCallback.h"
 #include "TaskQueue.h"
 
-#include <Common/PluginApi/IBaseServiceApi.h>
+#include "Common/PluginApi/IBaseServiceApi.h"
 
 #include <deque>
 

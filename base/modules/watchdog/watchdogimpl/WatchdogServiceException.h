@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/PluginApi/ApiException.h>
+#include "Common/PluginApi/ApiException.h"
 
 namespace watchdog
 {

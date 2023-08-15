@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
 #include "Logger.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/PluginApi/ApiException.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/PluginApi/ApiException.h"
 
 #include <utility>
 

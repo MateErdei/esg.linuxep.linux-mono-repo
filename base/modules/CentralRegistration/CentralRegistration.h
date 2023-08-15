@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <cmcsrouter/ConfigOptions.h>
-#include <Common/HttpRequests/IHttpRequester.h>
-#include <cmcsrouter/IAdapter.h>
-#include <cmcsrouter/MCSHttpClient.h>
+#include "cmcsrouter/ConfigOptions.h"
+#include "Common/HttpRequests/IHttpRequester.h"
+#include "cmcsrouter/IAdapter.h"
+#include "cmcsrouter/MCSHttpClient.h"
 
 #include <map>
 #include <memory>

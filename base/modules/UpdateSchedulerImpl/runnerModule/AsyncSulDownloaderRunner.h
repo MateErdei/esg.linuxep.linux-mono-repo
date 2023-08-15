@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "SulDownloaderRunner.h"
 
-#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include "UpdateScheduler/IAsyncSulDownloaderRunner.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
 
 #include <future>
 #include <memory>

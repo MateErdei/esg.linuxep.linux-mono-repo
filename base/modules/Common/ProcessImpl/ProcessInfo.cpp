@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessInfo.h"
 
 #include "Logger.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include <grp.h>
 #include <pwd.h>

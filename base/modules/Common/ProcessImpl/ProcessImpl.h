@@ -1,10 +1,10 @@
-// Copyright 2018-2023, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "IProcessHolder.h"
 
-#include <Common/Process/IProcess.h>
+#include "Common/Process/IProcess.h"
 #include <sys/types.h>
 
 #include <atomic>

@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessSecurityUtils.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include <sys/mount.h>
 
 #include <cstdlib>

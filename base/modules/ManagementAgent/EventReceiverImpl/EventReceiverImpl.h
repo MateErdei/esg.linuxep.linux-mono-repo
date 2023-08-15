@@ -4,8 +4,8 @@
 
 #include "IOutbreakModeController.h"
 
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <ManagementAgent/PluginCommunication/IEventReceiver.h>
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "ManagementAgent/PluginCommunication/IEventReceiver.h"
 
 namespace ManagementAgent
 {

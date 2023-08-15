@@ -1,10 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/EventReceiverImpl/EventTask.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/EventReceiverImpl/EventTask.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <utility>
 

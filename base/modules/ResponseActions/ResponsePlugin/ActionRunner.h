@@ -4,7 +4,7 @@
 
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
-#include <Common/Process/IProcess.h>
+#include "Common/Process/IProcess.h"
 
 #include <future>
 namespace ResponsePlugin

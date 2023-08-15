@@ -3,15 +3,15 @@
 #include "ProcessReplacement.h"
 
 #include "Common/ProcessImpl/ProcessImpl.h"
-#include "TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "watchdog/watchdogimpl/PluginProxy.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockProcess.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockProcess.h"
 
 #include <json.hpp>
 

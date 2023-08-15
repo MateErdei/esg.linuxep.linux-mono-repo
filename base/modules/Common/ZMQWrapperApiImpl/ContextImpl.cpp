@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ContextImpl.h"
 
@@ -14,7 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
 
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 
 #include <iostream>
 

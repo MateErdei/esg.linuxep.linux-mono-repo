@@ -2,10 +2,10 @@
 
 #include "SerialiseFunctions.h"
 
-#include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
-#include <ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <FileSystem/IFileSystem.h>
-#include <FileSystem/IFileSystemException.h>
+#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <json.hpp>
 

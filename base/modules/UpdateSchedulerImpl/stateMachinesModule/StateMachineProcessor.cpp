@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "StateMachineProcessor.h"
 
@@ -13,11 +9,11 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "StateMachineData.h"
 #include "StateMachineException.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
-#include <UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 namespace UpdateSchedulerImpl::stateMachinesModule
 {

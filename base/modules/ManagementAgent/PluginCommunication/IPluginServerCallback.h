@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,8 +6,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "IStatusReceiver.h"
 #include "IThreatHealthReceiver.h"
 
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginProtocol/DataMessage.h>
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 #include <string>
 

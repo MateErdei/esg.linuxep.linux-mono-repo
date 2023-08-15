@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SystemTelemetryReporter.h"
 
@@ -10,9 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryProcessor.h"
 #include "TelemetryUtils.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <Telemetry/LoggerImpl/Logger.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Telemetry/LoggerImpl/Logger.h"
 
 namespace Telemetry
 {

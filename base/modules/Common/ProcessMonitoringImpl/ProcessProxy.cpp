@@ -4,11 +4,11 @@
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/Exceptions/Print.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Exceptions/Print.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <cassert>
 

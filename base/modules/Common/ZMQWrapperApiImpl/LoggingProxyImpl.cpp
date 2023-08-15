@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "LoggingProxyImpl.h"
 
 #include "Logger.h"
 
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 
 #include <zmq.h>
 

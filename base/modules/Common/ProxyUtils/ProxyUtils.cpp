@@ -2,12 +2,12 @@
 #include "ProxyUtils.h"
 
 #include "Logger.h"
-#include "json.hpp"
+#include <json.hpp>
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "FileSystem/IFileSystem.h"
-#include "ObfuscationImpl/Obfuscate.h"
-#include "UtilityImpl/StringUtils.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <sstream>
 

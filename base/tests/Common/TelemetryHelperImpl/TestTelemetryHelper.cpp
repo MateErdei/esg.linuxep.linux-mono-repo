@@ -7,8 +7,8 @@
 #include "Common/TelemetryHelperImpl/TelemetryObject.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 
-#include "../Helpers/MemoryAppender.h"
-#include "../Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 #include <json.hpp>

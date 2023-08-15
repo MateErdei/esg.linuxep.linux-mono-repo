@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <ManagementAgent/PluginCommunication/IThreatHealthReceiver.h>
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "ManagementAgent/PluginCommunication/IThreatHealthReceiver.h"
 
 namespace ManagementAgent
 {

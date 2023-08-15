@@ -7,11 +7,11 @@
 #include "Common/Policy/ProductSubscription.h"
 #include "Common/Policy/SerialiseUpdateSettings.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/ProxyUtils/ProxyUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <iostream>
 #include <utility>

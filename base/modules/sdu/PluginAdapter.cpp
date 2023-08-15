@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
 #include "PluginUtils.h"
 #include "Logger.h"
 #include "Common/Exceptions/NestedException.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/PluginApi/ApiException.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApi/ApiException.h"
 
 namespace RemoteDiagnoseImpl
 {

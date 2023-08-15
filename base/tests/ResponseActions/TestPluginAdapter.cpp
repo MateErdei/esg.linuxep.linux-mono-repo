@@ -1,16 +1,16 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/ResponseActions/ResponsePlugin/IActionRunner.h"
-#include "modules/ResponseActions/ResponsePlugin/PluginAdapter.h"
+#include "ResponseActions/ResponsePlugin/IActionRunner.h"
+#include "ResponseActions/ResponsePlugin/PluginAdapter.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockApiBaseServices.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 class TestableActionRunner : public ResponsePlugin::IActionRunner
 {

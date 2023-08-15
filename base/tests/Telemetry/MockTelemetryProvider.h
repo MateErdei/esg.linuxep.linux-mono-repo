@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <gmock/gmock.h>
-#include <modules/Telemetry/TelemetryImpl/ITelemetryProvider.h>
+#include "Telemetry/TelemetryImpl/ITelemetryProvider.h"
 
 #include <string>
 

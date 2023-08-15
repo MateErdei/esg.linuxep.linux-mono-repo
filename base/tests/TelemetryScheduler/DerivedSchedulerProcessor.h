@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include <gtest/gtest.h>
-#include <modules/Common/TelemetryExeConfigImpl/Config.h>
-#include <modules/TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
-#include <modules/TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
+#include "Common/TelemetryConfigImpl/Config.h"
+#include "TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h"
+#include "TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;

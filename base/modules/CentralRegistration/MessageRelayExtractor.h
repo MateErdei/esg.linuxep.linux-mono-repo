@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Logger.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
-#include <cmcsrouter/MessageRelay.h>
+#include "Common/UtilityImpl/StringUtils.h"
+#include "cmcsrouter/MessageRelay.h"
 
 #include <iostream>
 #include <map>

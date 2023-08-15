@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #include "CheckForTar.h"
 
 #include "Logger.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <cstdlib>
 #include <cstring>

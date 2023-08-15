@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Common/Reactor/ICallbackListener.h"
 
-#include <Common/Reactor/IShutdownListener.h>
+#include "Common/Reactor/IShutdownListener.h"
 
 #include <functional>
 namespace Common

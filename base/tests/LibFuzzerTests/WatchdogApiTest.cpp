@@ -1,4 +1,4 @@
-// Copyright 2018-2023, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 /******************************************************************************************************
 
@@ -27,31 +27,31 @@ messages {
 
 #include "google/protobuf/text_format.h"
 
-#include <Common/DirectoryWatcherImpl/Logger.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/FileSystem/IFileSystem.h>
-#include <modules/Common/PluginApi/ApiException.h>
-#include <modules/Common/UtilityImpl/StringUtils.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
-#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <modules/Common/ZeroMQWrapper/IIPCException.h>
-#include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
-#include <modules/ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include "Common/DirectoryWatcherImpl/Logger.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <future>
 #include <stddef.h>
 #include <stdint.h>
 #include <thread>
-#include <watchdogmessage.pb.h>
+#include "watchdogmessage.pb.h"
 
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>

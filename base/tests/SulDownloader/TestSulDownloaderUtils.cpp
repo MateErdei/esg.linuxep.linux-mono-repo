@@ -1,14 +1,14 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/SulDownloader/SulDownloaderUtils.h"
+#include "SulDownloader/SulDownloaderUtils.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Policy/UpdateSettings.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockProcess.h"
 
 #include <gtest/gtest.h>

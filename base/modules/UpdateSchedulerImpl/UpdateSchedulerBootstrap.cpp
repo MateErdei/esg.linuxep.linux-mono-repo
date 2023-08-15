@@ -12,12 +12,12 @@
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/Logging/FileLoggingSetup.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/UtilityImpl/UniformIntDistribution.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/UtilityImpl/UniformIntDistribution.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
 #include <sys/stat.h>
 
 #include <iostream>

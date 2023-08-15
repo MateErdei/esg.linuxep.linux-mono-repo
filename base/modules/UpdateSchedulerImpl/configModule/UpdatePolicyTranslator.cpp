@@ -2,14 +2,14 @@
 
 #include "UpdatePolicyTranslator.h"
 
-#include "../Logger.h"
+#include "UpdateSchedulerImpl/Logger.h"
 
-#include "Policy/PolicyParseException.h"
+#include "Common/Policy/PolicyParseException.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/SslImpl/Digest.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/SslImpl/Digest.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include <algorithm>
 

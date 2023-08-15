@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ExampleManifests.h"
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Installer/ManifestDiff/Manifest.h>
-#include <Installer/ManifestDiff/ManifestDiff.h>
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Installer/ManifestDiff/Manifest.h"
+#include "Installer/ManifestDiff/ManifestDiff.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 namespace
 {

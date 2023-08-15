@@ -1,22 +1,18 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockPluginManager.h"
 #include "MockTaskQueue.h"
 
-#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/TaskQueueImpl/TaskProcessorImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
+#include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/TaskQueueImpl/TaskProcessorImpl.h"
+#include "Common/TaskQueueImpl/TaskQueueImpl.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 class TaskDirectoryListenerTests : public ::testing::Test
 {

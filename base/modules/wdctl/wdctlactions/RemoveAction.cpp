@@ -1,20 +1,16 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "RemoveAction.h"
 
 #include "Logger.h"
 #include "StopAction.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
 
 using namespace wdctl::wdctlactions;
 

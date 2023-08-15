@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "Main.h"
 
@@ -12,10 +8,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "IAsyncDiagnoseRunner.h"
 #include "runnerModule/AsyncDiagnoseRunner.h"
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/Logging/FileLoggingSetup.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/Logging/FileLoggingSetup.h"
 
-#include <Common/PluginApi/IPluginResourceManagement.h>
+#include "Common/PluginApi/IPluginResourceManagement.h"
 
 #include <stdexcept>
 #include <sys/stat.h>

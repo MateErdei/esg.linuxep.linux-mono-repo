@@ -5,7 +5,7 @@
 #include "Event.h"
 #include "IOutbreakModeController.h"
 
-#include <Common/TaskQueue/ITask.h>
+#include "Common/TaskQueue/ITask.h"
 
 #include <string>
 

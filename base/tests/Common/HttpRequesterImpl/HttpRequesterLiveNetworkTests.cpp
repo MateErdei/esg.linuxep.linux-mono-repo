@@ -1,3 +1,4 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 /*
  * This test binary runs against the test server HttpTestServer during TAP test.
  * The tests can also be run locally by running HttpTestServer.py (right click run), and then running the tests here
@@ -6,11 +7,11 @@
  * duplicated for both HTTP and HTTPS. The test server runs both an HTTP and HTTPS server.
  */
 
-#include "../Helpers/LogInitializedTests.h"
-#include "FileSystem/IFileSystem.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <curl/curl.h>
 #include <gtest/gtest.h>
 

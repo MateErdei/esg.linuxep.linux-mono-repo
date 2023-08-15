@@ -1,16 +1,16 @@
-// Copyright 2018-2022, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "SXLMachineID.h"
 
 #include "MACinfo.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/SslImpl/Digest.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/SslImpl/Digest.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <sys/stat.h>
 
 #include <iostream>

@@ -1,11 +1,7 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/FileSystem/IFileSystem.h>
-#include <Diagnose/diagnose/CheckForTar.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Diagnose/diagnose/CheckForTar.h"
 #include <gtest/gtest.h>
 
 TEST(TestCheckForTar, realPath) // NOLINT

@@ -3,15 +3,15 @@
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/FileLoggingSetup.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/FileLoggingSetup.h"
 #include <sys/select.h>
-#include <wdctl/wdctlactions/CopyPlugin.h>
-#include <wdctl/wdctlactions/IsRunning.h>
-#include <wdctl/wdctlactions/RemoveAction.h>
-#include <wdctl/wdctlactions/StartAction.h>
-#include <wdctl/wdctlactions/StopAction.h>
+#include "wdctl/wdctlactions/CopyPlugin.h"
+#include "wdctl/wdctlactions/IsRunning.h"
+#include "wdctl/wdctlactions/RemoveAction.h"
+#include "wdctl/wdctlactions/StartAction.h"
+#include "wdctl/wdctlactions/StopAction.h"
 
 #include <csignal>
 #include <cstdlib>

@@ -7,8 +7,8 @@
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "OSUtilities/IPlatformUtilsException.h"
-#include "OSUtilitiesImpl/CloudMetadataConverters.h"
+#include "Common/OSUtilities/IPlatformUtilsException.h"
+#include "Common/OSUtilitiesImpl/CloudMetadataConverters.h"
 
 #include <array>
 #include <cerrno>

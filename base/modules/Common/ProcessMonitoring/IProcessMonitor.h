@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/ProcessMonitoring/IProcessProxy.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include "Common/ProcessMonitoring/IProcessProxy.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 #include <functional>
 

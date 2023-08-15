@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/DirectoryWatcher/IiNotifyWrapper.h>
+#include "Common/DirectoryWatcher/IiNotifyWrapper.h"
 
 #include <gmock/gmock.h>
 

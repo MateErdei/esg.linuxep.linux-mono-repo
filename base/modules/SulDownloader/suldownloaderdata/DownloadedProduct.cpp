@@ -7,12 +7,12 @@
 
 #include "Common/FileSystem/IFileSystemException.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/Process/IProcess.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/UtilityImpl/StrError.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/UtilityImpl/StrError.h"
 
 #include <cassert>
 #include <cstring>

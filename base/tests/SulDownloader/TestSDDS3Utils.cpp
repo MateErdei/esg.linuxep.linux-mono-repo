@@ -1,9 +1,9 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/SulDownloader/sdds3/SDDS3Repository.h"
-#include "modules/SulDownloader/sdds3/SDDS3Utils.h"
-#include "modules/SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "SulDownloader/sdds3/SDDS3Repository.h"
+#include "SulDownloader/sdds3/SDDS3Utils.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "sophlib/sdds3/PackageRef.h"
 
 #include <gtest/gtest.h>

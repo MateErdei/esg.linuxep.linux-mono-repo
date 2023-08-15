@@ -1,14 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "Sdds3ReplaceAndRestore.h"
 
-#include <SulDownloader/sdds3/Sdds3Wrapper.h>
+#include "SulDownloader/sdds3/Sdds3Wrapper.h"
 #include <mutex>
-#include<iostream>
 namespace{
     std::mutex preventTestsToUseEachOtherSdds3WrapperMock;
 }

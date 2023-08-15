@@ -2,9 +2,9 @@
 
 #include "PluginServerCallback.h"
 
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 namespace ManagementAgent
 {

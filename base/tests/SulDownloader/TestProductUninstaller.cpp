@@ -2,17 +2,17 @@
 
 #include "MockSdds3Repository.h"
 
-#include <SulDownloader/ProductUninstaller.h>
+#include "SulDownloader/ProductUninstaller.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockProcess.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockProcess.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

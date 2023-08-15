@@ -1,28 +1,24 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 #include "TestCompare.h"
 
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/PluginProtocol/MessageBuilder.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <thread>
 

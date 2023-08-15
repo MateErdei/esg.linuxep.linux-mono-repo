@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-#include <sdu/PluginUtils.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
+#include "sdu/PluginUtils.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 
 class PluginUtilsTests : public LogInitializedTests
 {

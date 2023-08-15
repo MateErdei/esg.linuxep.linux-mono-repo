@@ -1,14 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "FileSystemReplaceAndRestore.h"
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include <mutex>
-#include<iostream>
 namespace{
     std::mutex preventTestsToUseEachOtherFileSystemMock; 
 }

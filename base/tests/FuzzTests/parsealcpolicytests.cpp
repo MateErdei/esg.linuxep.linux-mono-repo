@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 
 
 #include <chrono>

@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "SulDownloader.h"
 
-#include <Common/UtilityImpl/Main.h>
+#include "Common/UtilityImpl/Main.h"
 
 static int sul_downloader_main(int argc, char* argv[])
 {

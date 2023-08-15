@@ -4,14 +4,14 @@
 
 #include "PluginServerCallbackHandler.h"
 
-#include <Common/PluginCommunication/IPluginProxy.h>
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
-#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
-#include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
-#include <PluginRegistryImpl/PluginInfo.h>
+#include "Common/PluginCommunication/IPluginProxy.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/IProxy.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
 
 #include <map>
 #include <mutex>

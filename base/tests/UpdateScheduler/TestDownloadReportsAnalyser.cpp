@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DownloadReportTestBuilder.h"
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;

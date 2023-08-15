@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "IWatchdogRequest.h"
 #include "WatchdogServiceException.h"
 
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApiImpl/PluginCallBackHandler.h>
-#include <Common/UtilityImpl/Factory.h>
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApiImpl/PluginCallBackHandler.h"
+#include "Common/UtilityImpl/Factory.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 
 #include <functional>
 

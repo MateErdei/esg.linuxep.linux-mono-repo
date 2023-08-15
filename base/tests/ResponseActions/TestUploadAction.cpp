@@ -1,8 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/FileSystem/IFileTooLargeException.h"
-#include "modules/Common/ZipUtilities/ZipUtils.h"
-#include "modules/ResponseActions/ResponseActionsImpl/UploadFileAction.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/ZipUtilities/ZipUtils.h"
+#include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"

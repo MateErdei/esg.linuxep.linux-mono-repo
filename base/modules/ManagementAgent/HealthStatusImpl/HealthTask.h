@@ -1,14 +1,10 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "HealthStatus.h"
-#include <Common/TaskQueue/ITask.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
+#include "Common/TaskQueue/ITask.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
 namespace ManagementAgent
 {

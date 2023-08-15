@@ -1,14 +1,14 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include <Common/OSUtilitiesImpl/CloudMetadataConverters.h>
-#include <Common/OSUtilitiesImpl/PlatformUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
+#include "Common/OSUtilitiesImpl/CloudMetadataConverters.h"
+#include "Common/OSUtilitiesImpl/PlatformUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockHttpRequester.h>
-#include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockHttpRequester.h"
+#include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
 
 using namespace Common::OSUtilitiesImpl;
 

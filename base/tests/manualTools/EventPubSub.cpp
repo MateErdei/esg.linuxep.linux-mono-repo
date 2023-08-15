@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <iostream>
 #include <string>
@@ -17,9 +13,9 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <sys/stat.h>
 #include <pwd.h>
 
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 
 
 // Listen for event from AV plugin

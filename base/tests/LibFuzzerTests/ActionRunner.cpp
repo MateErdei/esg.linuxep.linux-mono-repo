@@ -4,13 +4,13 @@
 
 #include "google/protobuf/text_format.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 
-#include <ResponseActions/ActionRunner/responseaction_main.h>
+#include "ResponseActions/ActionRunner/responseaction_main.h"
 
-#include <actionrunner.pb.h>
+#include "actionrunner.pb.h"
 
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>

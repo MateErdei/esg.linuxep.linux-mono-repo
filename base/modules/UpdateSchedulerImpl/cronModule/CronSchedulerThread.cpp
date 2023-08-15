@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "CronSchedulerThread.h"
 
 #include "Logger.h"
 
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/UniformIntDistribution.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/UniformIntDistribution.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
 #include <cassert>
 

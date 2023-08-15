@@ -1,16 +1,12 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/UtilityImpl/Main.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
+#include "Common/UtilityImpl/Main.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
 
 
 #include <iostream>

@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 class StateMachineDataBase : public LogOffInitializedTests
 {

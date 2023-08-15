@@ -1,11 +1,6 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Installer/ManifestDiff/ManifestDiff.h>
+#include "Installer/ManifestDiff/ManifestDiff.h"
 
 int main(int argc, char* argv[])
 {

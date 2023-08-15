@@ -447,6 +447,9 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
         ${CMAKE_BINARY_DIR}/Testing
         )
 
+# To be able to include paths starting with "tests"
+include_directories(${CMAKE_SOURCE_DIR})
+
 include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)

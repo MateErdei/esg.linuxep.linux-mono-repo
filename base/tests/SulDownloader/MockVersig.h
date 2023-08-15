@@ -3,7 +3,7 @@
 
 #include "gmock/gmock.h"
 
-#include <SulDownloader/suldownloaderdata/IVersig.h>
+#include "SulDownloader/suldownloaderdata/IVersig.h"
 
 class MockVersig : public SulDownloader::suldownloaderdata::IVersig
 {

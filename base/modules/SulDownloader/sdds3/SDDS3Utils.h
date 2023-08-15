@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <SulDownloader/sdds3/SDDS3Repository.h>
+#include "SulDownloader/sdds3/SDDS3Repository.h"
 
 namespace SulDownloader
 {

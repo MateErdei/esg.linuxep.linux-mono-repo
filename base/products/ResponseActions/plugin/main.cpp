@@ -1,14 +1,14 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/ErrorCodes.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include <ResponseActions/ResponsePlugin/ActionRunner.h>
-#include <ResponseActions/ResponsePlugin/Logger.h>
-#include <ResponseActions/ResponsePlugin/PluginAdapter.h>
-#include <ResponsePlugin/config.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/ErrorCodes.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApi/IPluginResourceManagement.h"
+#include "ResponseActions/ResponsePlugin/ActionRunner.h"
+#include "ResponseActions/ResponsePlugin/Logger.h"
+#include "ResponseActions/ResponsePlugin/PluginAdapter.h"
+#include "ResponsePlugin/config.h"
 
 #include <sstream>
 

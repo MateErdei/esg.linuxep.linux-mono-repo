@@ -4,8 +4,8 @@
 
 #include "PluginServerCallback.h"
 
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/NoPolicyAvailableException.h>
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/NoPolicyAvailableException.h"
 
 #include <cassert>
 

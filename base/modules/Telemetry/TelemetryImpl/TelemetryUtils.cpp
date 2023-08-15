@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "TelemetryUtils.h"
-#include <Telemetry/LoggerImpl/Logger.h>
+#include "Telemetry/LoggerImpl/Logger.h"
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <json.hpp>
 namespace Telemetry

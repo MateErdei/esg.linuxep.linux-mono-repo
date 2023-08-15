@@ -2,7 +2,7 @@
 
 #include "InstalledFeatures.h"
 
-#include "json.hpp"
+#include <json.hpp>
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"

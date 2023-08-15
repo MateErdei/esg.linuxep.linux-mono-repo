@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "FilePermissionsReplaceAndRestore.h"
 
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 
 #include <mutex>
 

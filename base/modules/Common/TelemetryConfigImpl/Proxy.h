@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Constants.h"
 
-#include <Common/ObfuscationImpl/Obfuscate.h>
-#include <Common/ObfuscationImpl/Obscurity.h>
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/ObfuscationImpl/Obscurity.h"
 
 #include <string>
 

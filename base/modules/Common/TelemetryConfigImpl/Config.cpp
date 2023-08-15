@@ -2,7 +2,7 @@
 
 #include "Config.h"
 
-#include "UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 using namespace Common::TelemetryConfigImpl;
 

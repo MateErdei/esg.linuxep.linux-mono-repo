@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Common/ZeroMQWrapperImpl/ContextHolder.h"
 
-#include <Common/ZMQWrapperApi/IContext.h>
+#include "Common/ZMQWrapperApi/IContext.h"
 
 namespace Common
 {

@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITask.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
+#include "Common/TaskQueue/ITask.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
 #include <string>
 

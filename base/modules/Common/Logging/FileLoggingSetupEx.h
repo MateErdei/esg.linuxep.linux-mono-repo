@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/FileSystem/IFilePermissions.h>
+#include "Common/FileSystem/IFilePermissions.h"
 
 #include <string>
 

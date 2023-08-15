@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/PluginApi/IBaseServiceApi.h>
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

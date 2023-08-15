@@ -1,33 +1,29 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #ifndef ARTISANBUILD
 
-#    include <Common/ZMQWrapperApi/IContext.h>
-#    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#    include <Common/ZeroMQWrapper/IReadable.h>
-#    include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#    include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#    include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#    include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#    include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
-#    include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
-#    include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
-#    include <sys/types.h>
-#    include <tests/Common/Helpers/TempDir.h>
-#    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include <sys/types.h>
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 
-#    include <cassert>
-#    include <future>
-#    include <iostream>
-#    include <thread>
-#    include <unistd.h>
-#    include <zmq.h>
+#include <cassert>
+#include <future>
+#include <iostream>
+#include <thread>
+#include <unistd.h>
+#include <zmq.h>
 
 namespace ReqRepTest
 {

@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/FileLoggingSetup.h>
-#include <Common/Logging/PluginLoggingSetup.h>
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "Common/Logging/PluginLoggingSetup.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

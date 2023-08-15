@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginInfo.h"
 
@@ -10,10 +6,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"

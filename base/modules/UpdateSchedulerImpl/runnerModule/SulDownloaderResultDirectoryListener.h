@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/DirectoryWatcher/IDirectoryWatcher.h>
+#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 
 #include <chrono>
 #include <condition_variable>

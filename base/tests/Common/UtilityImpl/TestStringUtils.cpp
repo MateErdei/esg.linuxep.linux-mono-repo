@@ -1,15 +1,11 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
-******************************************************************************************************/
-
-#include "../Helpers/FileSystemReplaceAndRestore.h"
-#include "../Helpers/LogInitializedTests.h"
-#include "../Helpers/MockFileSystem.h"
-
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/CurlWrapper/ICurlWrapper.h>
+#include "Common/CurlWrapper/ICurlWrapper.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Installer/ManifestDiff/CommandLineOptions.h>
+#include "Installer/ManifestDiff/CommandLineOptions.h"
 #include <gtest/gtest.h>
 
 using namespace Installer::ManifestDiff;

@@ -6,14 +6,14 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
-#include "Logging/LoggerConfig.h"
+#include "Common/Logging/LoggerConfig.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileTooLargeException.h>
-#include <Common/ProxyUtils/ProxyUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/ZipUtilities/ZipUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 
 namespace ResponseActionsImpl
 {

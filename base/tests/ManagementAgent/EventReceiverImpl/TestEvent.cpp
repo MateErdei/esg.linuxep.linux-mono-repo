@@ -3,7 +3,7 @@
 // Class under test
 #include "ManagementAgent/EventReceiverImpl/Event.h"
 // Product
-#include "FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 // Test helpers
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"

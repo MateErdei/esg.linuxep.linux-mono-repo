@@ -3,13 +3,13 @@
 
 #include "ISettablePluginServerCallback.h"
 
-#include <Common/PluginProtocol/AbstractListenerServer.h>
-#include <Common/PluginProtocol/MessageBuilder.h>
-#include <Common/ZeroMQWrapper/IReadWrite.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
-#include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
-#include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
+#include "Common/PluginProtocol/AbstractListenerServer.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
+#include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
+#include "ManagementAgent/PluginCommunication/IPolicyReceiver.h"
 
 using namespace Common::PluginProtocol;
 

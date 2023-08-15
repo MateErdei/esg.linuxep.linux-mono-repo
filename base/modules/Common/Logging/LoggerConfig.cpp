@@ -2,9 +2,9 @@
 
 #include "LoggerConfig.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/StrError.h>
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/UtilityImpl/StrError.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>

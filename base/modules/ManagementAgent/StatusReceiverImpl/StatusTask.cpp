@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "StatusTask.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 #include <sys/stat.h>
 #include <cassert>
 

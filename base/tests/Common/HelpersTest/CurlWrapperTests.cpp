@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 /**
  * Component tests for libcurl wrapper
@@ -12,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <memory>
-#include "CurlWrapper/CurlWrapper.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
 
 class FakeCurlWrapper : public Common::CurlWrapper::CurlWrapper
 {

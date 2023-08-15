@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <string>
 #include <vector>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 namespace UpdateSchedulerImpl
 {

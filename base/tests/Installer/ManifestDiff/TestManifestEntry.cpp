@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Installer/ManifestDiff/ManifestEntry.h>
+#include "Installer/ManifestDiff/ManifestEntry.h"
 #include <gtest/gtest.h>
 
 TEST(TestManifestEntry, TestPosixPath) // NOLINT

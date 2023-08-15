@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/Process/IProcessException.h>
+#include "Common/Process/IProcessException.h"
 
 namespace diagnose
 {

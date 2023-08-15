@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "StatusReceiverImpl.h"
 
 #include "StatusTask.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
     Common::TaskQueue::ITaskQueueSharedPtr taskQueue,

@@ -1,12 +1,12 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include <CentralRegistration/CentralRegistration.h>
-#include <cmcsrouter/Config.h>
+#include "CentralRegistration/CentralRegistration.h"
+#include "cmcsrouter/Config.h"
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockHttpRequester.h>
-#include <tests/cmscrouter/MockAgentAdapter.h>
-#include <Common/ObfuscationImpl/Base64.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockHttpRequester.h"
+#include "tests/cmscrouter/MockAgentAdapter.h"
+#include "Common/ObfuscationImpl/Base64.h"
 
 class CentralRegistrationTests : public LogInitializedTests
 {

@@ -4,9 +4,9 @@
 
 #include "ISettablePluginServerCallback.h"
 
-#include <Common/PluginProtocol/DataMessage.h>
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
-#include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
+#include "Common/PluginProtocol/DataMessage.h"
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include "ManagementAgent/PluginCommunication/IPolicyReceiver.h"
 
 #include <string>
 

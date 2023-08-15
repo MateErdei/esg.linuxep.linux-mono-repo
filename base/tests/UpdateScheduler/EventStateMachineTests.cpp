@@ -1,12 +1,8 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+#include "UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h"
 
-******************************************************************************************************/
-
-#include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
-
-#include <UpdateSchedulerImpl/stateMachinesModule/SEUErrors.h>
+#include "UpdateSchedulerImpl/stateMachinesModule/SEUErrors.h"
 #include "TimeStamp.h"
 
 #include <gtest/gtest.h>

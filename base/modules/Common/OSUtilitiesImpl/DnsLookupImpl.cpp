@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DnsLookupImpl.h"
 
-#include <Common/OSUtilities/IIPUtils.h>
+#include "Common/OSUtilities/IIPUtils.h"
 #include <net/if.h>
 
 #include <cstring>

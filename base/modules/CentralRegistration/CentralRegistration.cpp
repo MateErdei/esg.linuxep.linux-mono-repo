@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "CentralRegistration.h"
 
 #include "Logger.h"
 
-#include <cmcsrouter/AgentAdapter.h>
-#include <cmcsrouter/Config.h>
-#include <cmcsrouter/MCSApiCalls.h>
+#include "cmcsrouter/AgentAdapter.h"
+#include "cmcsrouter/Config.h"
+#include "cmcsrouter/MCSApiCalls.h"
 
 #include <json.hpp>
 

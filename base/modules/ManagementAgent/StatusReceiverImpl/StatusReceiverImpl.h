@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ManagementAgent/StatusCache/IStatusCache.h"
 
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <ManagementAgent/PluginCommunication/IStatusReceiver.h>
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "ManagementAgent/PluginCommunication/IStatusReceiver.h"
 
 namespace ManagementAgent
 {

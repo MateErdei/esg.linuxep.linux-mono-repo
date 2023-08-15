@@ -1,10 +1,6 @@
-///******************************************************************************************************
-///
-/// Copyright 2019, Sophos Limited.  All rights reserved.
-///
-///******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <Common/TelemetryHelperImpl/TelemetryValue.h>
+#include "Common/TelemetryHelperImpl/TelemetryValue.h"
 #include <gtest/gtest.h>
 
 static const long TEST_INTEGER = 10L;

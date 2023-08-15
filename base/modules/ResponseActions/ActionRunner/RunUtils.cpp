@@ -7,9 +7,9 @@
 #include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 #include "ResponseActions/ResponseActionsImpl/UploadFolderAction.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
+#include "Common/CurlWrapper/CurlWrapper.h"
 
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 #include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 

@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "tests/Telemetry/MockSystemTelemetryCollector.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Telemetry/TelemetryImpl/SystemTelemetryReporter.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Telemetry/TelemetryImpl/SystemTelemetryReporter.h"
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/Common/Process/IProcess.h>
+#include "Common/Process/IProcess.h"
 
 #include <map>
 #include <regex>

@@ -1,11 +1,11 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "ProcessImpl/ProcessImpl.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 #include "ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
 #include "ResponseActions/ResponseActionsImpl/RunCommandAction.h"
 #include "ResponseActions/ResponsePlugin/PluginCallback.h"
-#include "modules/Common/SystemCallWrapper/SystemCallWrapperFactory.h"
-#include "modules/Common/ZipUtilities/ZipUtils.h"
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/MockSignalHandler.h"

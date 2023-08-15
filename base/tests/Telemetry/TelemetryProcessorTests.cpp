@@ -7,14 +7,14 @@
 #include "DerivedTelemetryProcessor.h"
 #include "MockTelemetryProvider.h"
 
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockHttpRequester.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Telemetry/TelemetryImpl/TelemetryProcessor.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockHttpRequester.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

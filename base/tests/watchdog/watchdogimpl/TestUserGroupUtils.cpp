@@ -1,8 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "FileSystem/IFileNotFoundException.h"
-#include "ProcessImpl/ProcessImpl.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"

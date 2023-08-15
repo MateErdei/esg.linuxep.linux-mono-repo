@@ -1,11 +1,7 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerStatus.h>
-#include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerStatusSerialiser.h>
+#include "TelemetryScheduler/TelemetrySchedulerImpl/SchedulerStatus.h"
+#include "TelemetryScheduler/TelemetrySchedulerImpl/SchedulerStatusSerialiser.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

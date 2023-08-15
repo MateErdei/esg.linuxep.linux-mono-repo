@@ -1,8 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/EventReceiverImpl/EventReceiverImpl.h"
+#include "tests/Common/TaskQueueImpl/FakeQueue.h"
 
 #include <gtest/gtest.h>
 

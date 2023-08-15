@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginApi/StatusInfo.h"
 
-#include <Common/PluginApi/IPluginCallbackApi.h>
+#include "Common/PluginApi/IPluginCallbackApi.h"
 namespace Common
 {
     namespace PluginProtocol

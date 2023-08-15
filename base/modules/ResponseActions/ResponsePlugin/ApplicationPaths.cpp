@@ -3,8 +3,8 @@
 #include "Logger.h"
 #include "config.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 namespace
 {
     std::string fromRelative(const std::string& relative)

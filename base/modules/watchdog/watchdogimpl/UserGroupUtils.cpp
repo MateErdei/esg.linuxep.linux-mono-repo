@@ -5,12 +5,12 @@
 #include "IProcess.h"
 #include "IProcessException.h"
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "FileSystem/IFileNotFoundException.h"
-#include "FileSystem/IFilePermissions.h"
-#include "FileSystem/IFileSystem.h"
-#include "FileSystem/IFileSystemException.h"
-#include "UtilityImpl/StringUtils.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <sys/stat.h>
 

@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "ProcessImpl/ProcessImpl.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
 #include "ResponseActions/ResponsePlugin/ActionRunner.h"
 #include "ResponseActions/ResponsePlugin/TelemetryConsts.h"

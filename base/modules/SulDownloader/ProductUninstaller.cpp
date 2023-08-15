@@ -4,12 +4,12 @@
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Process/IProcess.h>
-#include <Common/Process/IProcessException.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
 
 #include <algorithm>
 #include <map>

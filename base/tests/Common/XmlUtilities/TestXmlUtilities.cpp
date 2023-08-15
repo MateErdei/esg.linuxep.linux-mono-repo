@@ -1,10 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Exceptions/Print.h"
+#include "Common/Exceptions/Print.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/XmlUtilities/Validation.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/XmlUtilities/Validation.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 

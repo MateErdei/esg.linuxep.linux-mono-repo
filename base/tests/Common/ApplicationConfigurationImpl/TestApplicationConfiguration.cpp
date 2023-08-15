@@ -1,8 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <stdlib.h>
 

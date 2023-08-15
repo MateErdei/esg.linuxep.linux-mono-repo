@@ -1,11 +1,7 @@
-/******************************************************************************************************
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-Copyright 2022-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/UtilityImpl/PolicyFileUtilities.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/UtilityImpl/PolicyFileUtilities.h"
 
 
 #include <gtest/gtest.h>

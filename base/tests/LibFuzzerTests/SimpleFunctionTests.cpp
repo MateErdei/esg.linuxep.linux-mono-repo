@@ -1,7 +1,6 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+
 /******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
  SimpleFunctionTests make it easier to create new fuzz targets for simple functions where simple function is
  a function that receives a single string and 'do-something'. It would be useful for parsing, checking, etc...
 
@@ -14,27 +13,27 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "FuzzerUtils.h"
 
 #include "google/protobuf/text_format.h"
-#include <modules/Common/UtilityImpl/StringUtils.h>
-#include <modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
 
-#include <simplefunction.pb.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/Obfuscation/ICipherException.h"
+#include "Common/ObfuscationImpl/Base64.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/Process/IProcess.h"
+#include "Common/SslImpl/Digest.h"
+#include "Common/TelemetryConfigImpl/Serialiser.h"
+#include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
+#include "Common/UtilityImpl/RegexUtilities.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "tests/Common/Helpers/TempDir.h"
+
+#include "simplefunction.pb.h"
+
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #    include <libprotobuf-mutator/src/mutator.h>
 #endif
-#include <future>
-#include <stddef.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/RegexUtilities.h>
-#include <Common/Process/IProcess.h>
-#include <Common/ObfuscationImpl/Base64.h>
-#include <Common/ObfuscationImpl/Obfuscate.h>
-#include <Common/Obfuscation/ICipherException.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <Common/sslimpl/Md5Calc.h>
-#include <Common/TelemetryConfigImpl/Serialiser.h>
 
 class FileWriterForBase64
 {
@@ -140,7 +139,8 @@ void verifyBase64(const std::string & input)
         abort();
     }
 }
-void verifyDeobfuscate(const std::string & input)
+
+void verifyDeobfuscate(const std::string& input)
 {
     try
     {
@@ -154,7 +154,7 @@ void verifyDeobfuscate(const std::string & input)
     {
         std::string reason = ex.what();
 
-        if ( reason.find("SECDeobfuscation Failed") != std::string::npos)
+        if (reason.find("SECDeobfuscation Failed") != std::string::npos)
         {
             return;
         }
@@ -198,9 +198,9 @@ void verifyObfuscate(const std::string& input)
     }
 }
 
-void verifyMD5(const std::string & input)
+void verifyMD5(const std::string& input)
 {
-    (void)Common::sslimpl::md5(input);
+    std::ignore = Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, input);
 }
 
 void verifySplitString(const std::string & input)

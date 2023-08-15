@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <SulDownloader/suldownloaderdata/IRepository.h>
+#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "SulDownloader/suldownloaderdata/IRepository.h"
 
 #include <map>
 #include <string>

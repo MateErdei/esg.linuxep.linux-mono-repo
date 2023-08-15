@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "Main.h"
 
@@ -11,20 +7,20 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "MessageRelayExtractor.h"
 #include "MessageRelaySorter.h"
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Obfuscation/ICipherException.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/Obfuscation/ICipherException.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/OSUtilitiesImpl/SystemUtils.h>
-#include <Common/ObfuscationImpl/Obfuscate.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Logging/ConsoleLoggingSetup.h>
-#include <Logging/FileLoggingSetup.h>
-#include <cmcsrouter/AgentAdapter.h>
-#include <cmcsrouter/Config.h>
-#include <cmcsrouter/ConfigOptions.h>
-#include <cmcsrouter/MessageRelay.h>
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/OSUtilitiesImpl/SystemUtils.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "cmcsrouter/AgentAdapter.h"
+#include "cmcsrouter/Config.h"
+#include "cmcsrouter/ConfigOptions.h"
+#include "cmcsrouter/MessageRelay.h"
 
 namespace CentralRegistration
 {

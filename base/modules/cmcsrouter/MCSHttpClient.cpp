@@ -2,8 +2,8 @@
 
 #include "MCSHttpClient.h"
 
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/ObfuscationImpl/Base64.h>
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/ObfuscationImpl/Base64.h"
 
 #include <memory>
 #include <utility>

@@ -1,18 +1,18 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
 
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <json.hpp>
 #include <gmock/gmock.h>

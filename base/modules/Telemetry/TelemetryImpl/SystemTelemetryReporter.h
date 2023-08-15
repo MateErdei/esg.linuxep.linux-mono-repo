@@ -1,17 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISystemTelemetryCollector.h"
 #include "ITelemetryProvider.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelper/ITelemetryHelper.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
 #include <variant>

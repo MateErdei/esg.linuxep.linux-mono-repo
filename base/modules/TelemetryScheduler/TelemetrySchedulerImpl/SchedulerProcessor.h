@@ -7,11 +7,11 @@
 #include "SchedulerStatus.h"
 #include "SleepyThread.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginCallbackApi.h>
-#include <Common/Process/IProcess.h>
-#include <Common/TelemetryConfigImpl/Config.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/Process/IProcess.h"
+#include "Common/TelemetryConfigImpl/Config.h"
 
 #include <atomic>
 #include <chrono>

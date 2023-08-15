@@ -1,7 +1,7 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <Common/TelemetryConfigImpl/Config.h>
-#include <Common/TelemetryConfigImpl/Serialiser.h>
+#include "Common/TelemetryConfigImpl/Config.h"
+#include "Common/TelemetryConfigImpl/Serialiser.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

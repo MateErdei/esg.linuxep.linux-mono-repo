@@ -6,12 +6,12 @@
 
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 #include <cassert>
 

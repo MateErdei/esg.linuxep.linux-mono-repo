@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "SulDownloaderRunner.h"
 
-#include "../Logger.h"
+#include "UpdateSchedulerImpl/Logger.h"
 
-#include <watchdog/watchdogimpl/IWatchdogRequest.h>
+#include "watchdog/watchdogimpl/IWatchdogRequest.h"
 
 namespace UpdateSchedulerImpl
 {

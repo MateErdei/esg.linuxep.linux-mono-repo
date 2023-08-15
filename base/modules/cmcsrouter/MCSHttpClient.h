@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 
 namespace MCS
 {

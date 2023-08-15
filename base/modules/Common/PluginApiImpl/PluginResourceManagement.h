@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/ISocketSetup.h>
+#include "Common/PluginApi/IPluginResourceManagement.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketSetup.h"
 
 namespace Common
 {

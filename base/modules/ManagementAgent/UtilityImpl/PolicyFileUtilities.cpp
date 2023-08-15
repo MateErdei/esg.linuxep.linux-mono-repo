@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PolicyFileUtilities.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/RegexUtilities.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/RegexUtilities.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 namespace ManagementAgent
 {

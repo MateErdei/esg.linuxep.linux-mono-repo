@@ -4,7 +4,7 @@
 
 #include "TaskQueue.h"
 
-#include <Common/PluginApi/IPluginCallbackApi.h>
+#include "Common/PluginApi/IPluginCallbackApi.h"
 
 #include <atomic>
 

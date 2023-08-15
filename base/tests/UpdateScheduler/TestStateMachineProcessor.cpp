@@ -2,21 +2,21 @@
 
 #include "StateMachineDataBase.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IFileTooLargeException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
-#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/sdu/MockTaskQueue.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
+#include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/sdu/MockTaskQueue.h"
 
 #include <json.hpp>
 

@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "IAdapter.h"
-#include <Common/OSUtilities/ILocalIP.h>
-#include <Common/OSUtilities/IPlatformUtils.h>
-#include <cmcsrouter/Config.h>
+#include "Common/OSUtilities/ILocalIP.h"
+#include "Common/OSUtilities/IPlatformUtils.h"
+#include "cmcsrouter/Config.h"
 
 #include <memory>
 #include <vector>

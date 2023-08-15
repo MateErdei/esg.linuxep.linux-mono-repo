@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "CommandLineOptions.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <iostream>
 

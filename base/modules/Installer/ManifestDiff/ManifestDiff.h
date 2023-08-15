@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "Manifest.h"
 
-#include <Common/Datatypes/StringVector.h>
+#include "Common/Datatypes/StringVector.h"
 
 namespace Installer
 {

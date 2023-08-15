@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 
 #include <atomic>
 #include <future>

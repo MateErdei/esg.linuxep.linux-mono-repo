@@ -1,27 +1,21 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "FuzzerUtils.h"
 
 #include "google/protobuf/text_format.h"
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/FileSystem/IFileSystem.h>
-#include <modules/Common/PluginApiImpl/PluginResourceManagement.h>
-#include <modules/Common/PluginApi/ApiException.h>
-#include <modules/Common/PluginProtocol/Protocol.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
-#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <modules/Common/ZeroMQWrapper/IIPCException.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginProtocol/Protocol.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
 
-#include <vector_strings.pb.h>
+#include "vector_strings.pb.h"
 #include <thread>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
@@ -29,11 +23,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #endif
 
 #include <future>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/PluginApiImpl/BaseServiceAPI.h>
-#include <tests/Common/Helpers/TempDir.h>
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/PluginApiImpl/BaseServiceAPI.h"
+#include "tests/Common/Helpers/TempDir.h"
 
 /** this class is just to allow the tests to be executed without requiring root*/
 class PluginNullFilePermission : public Common::FileSystem::FilePermissionsImpl

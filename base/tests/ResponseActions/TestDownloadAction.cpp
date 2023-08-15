@@ -2,11 +2,11 @@
 
 #define TEST_PUBLIC public
 
-#include "modules/ResponseActions/RACommon/ResponseActionsCommon.h"
-#include "modules/ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
+#include "ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
 
-#include "modules/Common/FileSystem/IFileTooLargeException.h"
-#include "modules/Common/ZipUtilities/ZipUtils.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"

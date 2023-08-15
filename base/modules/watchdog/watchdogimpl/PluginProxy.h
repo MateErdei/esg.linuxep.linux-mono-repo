@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/Process/IProcess.h>
-#include <Common/ProcessMonitoringImpl/ProcessProxy.h>
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/Process/IProcess.h"
+#include "Common/ProcessMonitoringImpl/ProcessProxy.h"
 
 #include <chrono>
 

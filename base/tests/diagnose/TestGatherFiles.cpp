@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/Diagnose/diagnose/GatherFiles.h>
-#include <modules/Diagnose/diagnose/SystemCommands.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "Diagnose/diagnose/GatherFiles.h"
+#include "Diagnose/diagnose/SystemCommands.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 class TestGatherFiles : public LogOffInitializedTests
 {

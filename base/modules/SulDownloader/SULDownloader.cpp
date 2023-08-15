@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "json.hpp"
+#include <json.hpp>
 
 #include "Logger.h"
 #include "ProductUninstaller.h"

@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITaskProcessor.h>
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <Common/Threads/AbstractThread.h>
+#include "Common/TaskQueue/ITaskProcessor.h"
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "Common/Threads/AbstractThread.h"
 
 namespace Common
 {

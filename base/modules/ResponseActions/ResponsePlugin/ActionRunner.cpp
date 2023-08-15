@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 #include "Telemetry.h"
-#include "json.hpp"
+#include <json.hpp>
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"

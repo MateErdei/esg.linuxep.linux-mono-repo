@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "FakeClient.h"
 #include "FakeServer.h"
@@ -10,23 +6,23 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PipeForTests.h"
 #include "ReactorImplTestsPath.h"
 
-#include <Common/Process/IProcess.h>
-#include <Common/Reactor/IReactor.h>
-#include <Common/ReactorImpl/GenericCallbackListener.h>
-#include <Common/ReactorImpl/ReactorImpl.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Common/Process/IProcess.h"
+#include "Common/Reactor/IReactor.h"
+#include "Common/ReactorImpl/GenericCallbackListener.h"
+#include "Common/ReactorImpl/ReactorImpl.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/ReactorImpl/ReadableFd.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/ReactorImpl/ReadableFd.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 
 #include <future>
 #include <zmq.h>

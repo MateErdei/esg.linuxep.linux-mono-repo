@@ -1,24 +1,20 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginResourceManagement.h"
 
 #include "BaseServiceAPI.h"
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include <sys/stat.h>
 
 #include <unistd.h>

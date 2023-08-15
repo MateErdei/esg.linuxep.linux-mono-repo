@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
-#include <modules/SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
+#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

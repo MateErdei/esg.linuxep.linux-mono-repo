@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ExampleManifests.h"
 
-#include <Installer/ManifestDiff/Manifest.h>
+#include "Installer/ManifestDiff/Manifest.h"
 #include <gtest/gtest.h>
 
 namespace

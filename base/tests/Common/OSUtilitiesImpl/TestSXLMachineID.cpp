@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/OSUtilitiesImpl/SXLMachineID.h>
-#include <Common/ProcessImpl/ArgcAndEnv.h>
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/OSUtilitiesImpl/SXLMachineID.h"
+#include "Common/ProcessImpl/ArgcAndEnv.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 class TestSXLMachineID : public ::testing::Test
 {
 public:

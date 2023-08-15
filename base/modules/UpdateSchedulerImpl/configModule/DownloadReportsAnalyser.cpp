@@ -1,12 +1,12 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DownloadReportsAnalyser.h"
 
-#include "../Logger.h"
+#include "UpdateSchedulerImpl/Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <UpdateSchedulerImpl/configModule/UpdateStatus.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "UpdateSchedulerImpl/configModule/UpdateStatus.h"
 
 #include <algorithm>
 #include <cassert>

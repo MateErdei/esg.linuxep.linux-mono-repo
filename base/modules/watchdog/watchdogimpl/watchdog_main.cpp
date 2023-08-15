@@ -5,9 +5,9 @@
 #include "Logger.h"
 #include "Watchdog.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/Logging/FileLoggingSetup.h>
-#include <Common/UtilityImpl/ConfigException.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "Common/UtilityImpl/ConfigException.h"
 #include <sys/stat.h>
 
 #include <unistd.h>

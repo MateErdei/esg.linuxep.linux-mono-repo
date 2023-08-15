@@ -1,19 +1,19 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Process/IProcessInfo.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/ProcessMonitoring/IProcessProxy.h>
-#include <Common/ProcessMonitoringImpl/ProcessProxy.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Process/IProcessInfo.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/ProcessMonitoring/IProcessProxy.h"
+#include "Common/ProcessMonitoringImpl/ProcessProxy.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FakeTimeUtils.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockProcess.h>
+#include "tests/Common/Helpers/FakeTimeUtils.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockProcess.h"
 
 namespace
 {

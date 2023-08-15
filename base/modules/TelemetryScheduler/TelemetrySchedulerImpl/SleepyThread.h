@@ -5,7 +5,7 @@
 #include "ITaskQueue.h"
 #include "SchedulerTask.h"
 
-#include <Common/Threads/AbstractThread.h>
+#include "Common/Threads/AbstractThread.h"
 
 #include <atomic>
 #include <string>

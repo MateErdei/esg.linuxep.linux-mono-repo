@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "PluginTelemetryReporter.h"
 
 #include "TelemetryProcessor.h"
 
-#include <Telemetry/LoggerImpl/Logger.h>
+#include "Telemetry/LoggerImpl/Logger.h"
 
 namespace Telemetry
 {

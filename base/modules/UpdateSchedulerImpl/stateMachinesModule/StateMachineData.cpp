@@ -1,19 +1,15 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "StateMachineData.h"
 
 #include "Logger.h"
 #include "StateMachineException.h"
 
-#include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <google/protobuf/util/json_util.h>
-#include <StateMachineData.pb.h>
+#include "StateMachineData.pb.h"
 #include <sstream>
 
 namespace UpdateSchedulerImpl

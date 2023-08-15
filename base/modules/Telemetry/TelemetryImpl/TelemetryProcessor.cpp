@@ -2,13 +2,13 @@
 
 #include "TelemetryProcessor.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/HttpRequests/IHttpRequester.h>
-#include <Common/ProxyUtils/ProxyUtils.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <Telemetry/LoggerImpl/Logger.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/HttpRequests/IHttpRequester.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Telemetry/LoggerImpl/Logger.h"
 #include <sys/stat.h>
 
 #include <utility>

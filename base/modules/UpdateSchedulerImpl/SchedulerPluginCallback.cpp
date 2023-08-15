@@ -7,9 +7,9 @@
 #include "UpdateSchedulerTelemetryConsts.h"
 #include "UpdateSchedulerUtils.h"
 
-#include <Common/PluginApi/ApiException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
+#include "Common/PluginApi/ApiException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h"
 
 #include <json.hpp>
 #include <unistd.h>

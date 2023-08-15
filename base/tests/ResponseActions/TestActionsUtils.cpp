@@ -1,9 +1,9 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/UtilityImpl/TimeUtils.h"
-#include "modules/ResponseActions/ResponseActionsImpl/ActionRequiredFields.h"
-#include "modules/ResponseActions/ResponseActionsImpl/ActionsUtils.h"
-#include "modules/ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "ResponseActions/ResponseActionsImpl/ActionRequiredFields.h"
+#include "ResponseActions/ResponseActionsImpl/ActionsUtils.h"
+#include "ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"

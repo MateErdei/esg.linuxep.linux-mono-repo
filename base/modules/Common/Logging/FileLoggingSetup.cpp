@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "FileLoggingSetup.h"
 
 #include "LoggerConfig.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/LoggingSetup.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/LoggingSetup.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>

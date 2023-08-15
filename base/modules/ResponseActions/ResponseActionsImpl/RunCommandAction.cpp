@@ -7,9 +7,9 @@
 #include "Logger.h"
 
 #include "Common/ProxyUtils/ProxyUtils.h"
-#include "Process/IProcess.h"
+#include "Common/Process/IProcess.h"
 #include "ResponseActions/RACommon/toUtf8Exception.h"
-#include "UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <sys/poll.h>
 

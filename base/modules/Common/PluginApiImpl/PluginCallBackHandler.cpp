@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallBackHandler.h"
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginCommunication/IPluginCommunicationException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <thread>
 

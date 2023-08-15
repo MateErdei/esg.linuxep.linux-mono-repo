@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "diagnose_main.h"
 
@@ -11,9 +7,9 @@ Copyright 2019-2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "SystemCommands.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Logging/ConsoleFileLoggingSetup.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Logging/ConsoleFileLoggingSetup.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 

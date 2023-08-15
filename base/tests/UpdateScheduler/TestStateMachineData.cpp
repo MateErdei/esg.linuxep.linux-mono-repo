@@ -1,19 +1,15 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "StateMachineDataBase.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateSchedulerImpl::StateData;

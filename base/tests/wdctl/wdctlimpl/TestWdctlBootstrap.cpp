@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/wdctl/wdctlimpl/wdctl_bootstrap.h>
+#include "wdctl/wdctlimpl/wdctl_bootstrap.h"
 
 namespace
 {

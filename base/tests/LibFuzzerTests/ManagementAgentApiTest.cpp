@@ -1,8 +1,6 @@
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
+
 /******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-
  ManagementAgentApiTest enables to Fuzz the Management Agent Input Socket as defined by the PluginApiMessage.proto.
  By adding files like:
 
@@ -29,21 +27,21 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "FuzzerUtils.h"
 
 #include "google/protobuf/text_format.h"
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/FileSystem/IFileSystem.h>
-#include <modules/Common/PluginApi/ApiException.h>
-#include <modules/Common/PluginProtocol/Protocol.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
-#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include <modules/Common/ZeroMQWrapper/IIPCException.h>
-#include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
-#include <modules/ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginProtocol/Protocol.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
 
-#include <PluginAPIMessage.pb.h>
-#include <message.pb.h>
+#include "PluginAPIMessage.pb.h"
+#include "message.pb.h"
 #include <thread>
 #ifdef HasLibFuzzer
 #    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>

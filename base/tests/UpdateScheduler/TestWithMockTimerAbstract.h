@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2019-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/UtilityImpl/TimeUtils.h"
 #include <gmock/gmock-matchers.h>
-#include <tests/Common/Helpers/FakeTimeUtils.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "tests/Common/Helpers/FakeTimeUtils.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 class TestWithMockTimerAbstract : public LogOffInitializedTests
 {

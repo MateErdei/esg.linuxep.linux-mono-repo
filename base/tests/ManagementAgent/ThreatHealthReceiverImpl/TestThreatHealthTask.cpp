@@ -1,14 +1,10 @@
-///******************************************************************************************************
-//
-// Copyright 2021, Sophos Limited.  All rights reserved.
-//
-//******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthTask.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "ManagementAgent/StatusReceiverImpl/StatusTask.h"
+#include "ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthTask.h"
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 class TestThreatHealthTask : public LogInitializedTests
 {

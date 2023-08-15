@@ -3,9 +3,9 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include <modules/Telemetry/TelemetryImpl/ISystemTelemetryCollector.h>
-#include <modules/Telemetry/TelemetryImpl/ITelemetryProvider.h>
-#include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
+#include "Telemetry/TelemetryImpl/ISystemTelemetryCollector.h"
+#include "Telemetry/TelemetryImpl/ITelemetryProvider.h"
+#include "Telemetry/TelemetryImpl/TelemetryProcessor.h"
 
 class DerivedTelemetryProcessor : public Telemetry::TelemetryProcessor
 {

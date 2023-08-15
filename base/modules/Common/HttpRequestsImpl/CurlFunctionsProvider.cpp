@@ -1,14 +1,12 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "CurlFunctionsProvider.h"
 
 #include "Logger.h"
 
-#include "FileSystem/IFileSystem.h"
-#include "FileSystem/IFileSystemException.h"
-#include "UtilityImpl/StringUtils.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
 {

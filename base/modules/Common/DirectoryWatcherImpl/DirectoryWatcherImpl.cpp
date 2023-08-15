@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "DirectoryWatcherImpl.h"
 
 #include "Logger.h"
 
-#include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include <sys/inotify.h>
 
 #include <algorithm>

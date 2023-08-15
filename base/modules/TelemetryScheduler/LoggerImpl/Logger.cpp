@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
 
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/Logging/LoggerConfig.h"
 
 log4cplus::Logger& getTelemetrySchedulerLogger()
 {

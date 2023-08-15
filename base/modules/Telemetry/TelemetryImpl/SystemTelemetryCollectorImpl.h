@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISystemTelemetryCollector.h"
 #include "SystemTelemetryConfig.h"
 
-#include <Common/Process/IProcess.h>
+#include "Common/Process/IProcess.h"
 
 #include <map>
 #include <regex>

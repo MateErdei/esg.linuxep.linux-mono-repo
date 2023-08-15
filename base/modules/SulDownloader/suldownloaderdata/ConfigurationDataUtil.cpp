@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationDataUtil.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Logger.h"
 
 #include <algorithm>

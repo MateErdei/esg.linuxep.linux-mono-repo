@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "MockILocalIP.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/OSUtilities/ILocalIP.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-#include <Common/Process/IProcess.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/OSUtilities/ILocalIP.h"
+#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "Common/Process/IProcess.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

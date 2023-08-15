@@ -1,6 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include "watchdog/watchdogimpl/WatchdogServiceLine.h"
 

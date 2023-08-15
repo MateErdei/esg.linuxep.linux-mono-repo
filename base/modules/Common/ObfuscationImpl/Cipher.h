@@ -1,10 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-//
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 //	Cipher.h
 //
@@ -13,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SecureCollection.h"
 
-#include <Common/Obfuscation/IEvpCipherWrapper.h>
+#include "Common/Obfuscation/IEvpCipherWrapper.h"
 #include <openssl/evp.h>
 
 #include <memory>

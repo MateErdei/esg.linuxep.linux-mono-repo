@@ -5,8 +5,8 @@
 #include "Logger.h"
 #include "Strings.h"
 
-#include <Common/FileSystemImpl/TempDir.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/FileSystemImpl/TempDir.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <algorithm>
 #include <iostream>

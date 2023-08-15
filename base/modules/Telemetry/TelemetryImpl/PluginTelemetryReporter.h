@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ITelemetryProvider.h"
 
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
+#include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
 namespace Telemetry
 {
