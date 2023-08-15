@@ -7,6 +7,7 @@
 #include "MockCronSchedulerThread.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/FileSystemImpl/PidLockFile.h"
 #include "UpdateSchedulerImpl/UpdateSchedulerProcessor.cpp"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>

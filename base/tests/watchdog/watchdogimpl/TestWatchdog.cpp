@@ -1,6 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
