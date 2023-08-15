@@ -17,7 +17,7 @@
       <workingdir>.</workingdir>
 
       <build-asset project="linuxep" repo="everest-base" mode="dev,999">
-        <development-version branch="develop"/>
+        <development-version branch="bugfix/LINUXDAR-7794_space_in_install_path"/>
           <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="999"/>
@@ -46,7 +46,7 @@
       </build-asset>
 
       <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="dev,999">
-        <development-version branch="develop"/>
+        <development-version branch="bugfix/LINUXDAR-7794_spaces_in_install_path"/>
           <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="dev"/>
           <include artifact-path="edr-999/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="999"/>
       </build-asset>
