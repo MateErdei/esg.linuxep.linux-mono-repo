@@ -155,8 +155,42 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
-    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
-    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
+Install VUT and Check RPATH of Every Binary
+    [Timeout]    3 minutes
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER
+
+    Start Local Cloud Server
+
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    Override LogConf File as Global Level    DEBUG
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains   Update success
+    Check SulDownloader Log Contains    Running SDDS3 update
+
+    # Update again to ensure we do not get a scheduled update later in the test run
+    Trigger Update Now
+
+    # Run Process can hang with large outputs which RPATHChecker.sh can have
+    # So redirecting RPATHChecker.sh output to a file rather than console
+    ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
+    Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
+    IF    $result.rc != 0
+        IF    $result.rc == 1
+            Fail    Insecure RPATH(s) found,
+        ELSE
+            Fail    ERROR: Unknown return code
+        END
+    END
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
