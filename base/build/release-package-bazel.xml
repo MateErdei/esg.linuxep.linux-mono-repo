@@ -16,7 +16,7 @@
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="em" repo="esg">
-            <development-version branch="feature/bazeltools/LINUXDAR-6783-spl-build"/>
+            <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="imports/sophlib"/>
             <include artifact-path="sophlib/include" dest-dir="imports/sophlib/include/sophlib"/>
