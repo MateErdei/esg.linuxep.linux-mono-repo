@@ -23,7 +23,7 @@ COVERAGE_MODE = 'coverage'
 NINE_NINE_NINE_MODE = '999'
 ZERO_SIX_ZERO_MODE = '060'
 
-def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
+def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
