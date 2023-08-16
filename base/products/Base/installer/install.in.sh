@@ -241,12 +241,6 @@ function waitForProcess()
     return 1
 }
 
-function is_watchdog_running()
-{
-  confirmProcessRunning "${SOPHOS_INSTALL}/base/bin/watchdog" && return 0
-  return 1
-}
-
 function makedir()
 {
     # Creates directory and enforces it's permissions
@@ -1027,24 +1021,22 @@ then
     fi
     # Provide time to Watchdog to start all managed services
     sleep 2
-else
-    if software_changed "${DIST}" ${PRODUCT_LINE_ID}
+elif software_changed "${DIST}" ${PRODUCT_LINE_ID}
+then
+    if [[ "${SOPHOS_INHIBIT_WATCHDOG_RESTART}" != "true" ]]
     then
-        if is_watchdog_running
-        then
-          stopSsplService
+      stopSsplService
 
-          perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
+      perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
 
-          startSsplService
+      startSsplService
 
-          waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+      waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
-          # Provide time to Watchdog to start all managed services
-          sleep 2
-        else
-          perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
-        fi
+      # Provide time to Watchdog to start all managed services
+      sleep 2
+    else
+      perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
     fi
 fi
 

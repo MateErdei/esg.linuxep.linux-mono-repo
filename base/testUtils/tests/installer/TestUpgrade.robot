@@ -273,6 +273,30 @@ Version Copy Versions All Changed Files When Upgrading
 
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
 
+Verify SPL Is Not Restarted When SulDownloader Env Var Is Set
+    Require Fresh Install
+    ${time} =  Get Current Date  exclude_millis=true
+    ${message} =  Set Variable  : Reloading.
+    ${result} =   Get Folder With Installer
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
+
+    Stop Watchdog
+
+    Copy Directory  ${result}  /opt/tmp/version2
+    Replace Version  ${BaseDevVersion}   9.99.999  /opt/tmp/version2
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
+    Set Environment Variable    SOPHOS_INHIBIT_WATCHDOG_RESTART    true
+    ${result} =  Run Process  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+    Should Not exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
+    Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
+
+    Check Watchdog Not Running
 
 *** Keywords ***
 

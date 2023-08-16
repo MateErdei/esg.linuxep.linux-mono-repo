@@ -406,6 +406,9 @@ namespace SulDownloader
         std::string trackerFile = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
         fileSystem->removeFile(trackerFile, true);
         bool fullRestart = false;
+
+        // Use environment variable to determine if SPL should be restarted after upgrade
+        setenv("SOPHOS_INHIBIT_WATCHDOG_RESTART", "true", 1);
         for (auto& product : products)
         {
             if ( (product.productHasChanged() || product.forceProductReinstall()) && !product.getProductIsBeingUninstalled())
