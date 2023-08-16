@@ -182,7 +182,9 @@ Install VUT and Check RPATH of Every Binary
 
     # Run Process can hang with large outputs which RPATHChecker.sh can have
     # So redirecting RPATHChecker.sh output to a file rather than console
+    Run Process    chmod    +x    ${SUPPORT_FILES}/RPATHChecker.sh
     ${result} =    Run Process    ${SUPPORT_FILES}/RPATHChecker.sh    shell=true    stdout=${RPATHCheckerLog}
+    log file    ${RPATHCheckerLog}
     Log    Output of RPATHChecker.sh written to ${RPATHCheckerLog}    console=True
     IF    $result.rc != 0
         IF    $result.rc == 1
@@ -296,7 +298,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Start Local SDDS3 Server
     trigger_update_now
     Wait For Version Files to Update    &{expectedVUTVersions}
-    
+
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Check AV Plugin Can Scan Files
