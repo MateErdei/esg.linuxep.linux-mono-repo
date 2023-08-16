@@ -40,7 +40,9 @@ ${SDDS3PrimaryRepository}             ${SOPHOS_INSTALL}/base/update/cache/sdds3p
 ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 
-${CUSTOM_INSTALL_DIRECTORY}    /etc/sophos-spl
+# Thin installer appends sophos-spl to the argument
+${CUSTOM_INSTALL_DIRECTORY}    /home/sophos-spl
+${CUSTOM_INSTALL_DIRECTORY_ARG}    /home
 
 
 *** Test Cases ***
@@ -621,7 +623,7 @@ SPL Can Be Installed To A Custom Location
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -685,7 +687,7 @@ Installing New Plugins Respects Custom Installation Location
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
 
     Wait Until Keyword Succeeds
     ...   150 secs
