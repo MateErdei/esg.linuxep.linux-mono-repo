@@ -28,6 +28,7 @@ Watchdog Actual User And Group Config Has Correct Ids After Installation
     Verify Watchdog Config
 
 Test Watchdog Reconfigures User and Group IDs
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Run Full Installer
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
@@ -63,6 +64,7 @@ Test Watchdog Reconfigures User and Group IDs
     # Perform the ID changes requests by writing requested IDs json file and restarting the product
     ${requested_user_and_group_ids} =  Get File  ${SUPPORT_FILES}/watchdog/requested_user_group_ids.json
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   ${requested_user_and_group_ids}
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Restart Product
     Wait For Base Processes To Be Running
 
