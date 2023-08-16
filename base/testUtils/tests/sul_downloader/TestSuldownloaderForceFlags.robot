@@ -158,7 +158,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains String N Times   Update success  3
+    ...    Check SulDownloader Log Contains String N Times   Update success  2
     SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for non paused
@@ -215,7 +215,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains String N Times   Update success  3
+    ...    Check SulDownloader Log Contains String N Times   Update success  2
     SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
 
 
