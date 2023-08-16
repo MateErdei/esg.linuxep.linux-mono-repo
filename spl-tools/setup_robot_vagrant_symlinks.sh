@@ -44,4 +44,10 @@ then
   make_links
 fi
 
-
+# Warehouse
+if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-warehouse ]
+then
+  cd "/home/$USER/gitrepos/esg.linuxep.sspl-warehouse"
+  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/tests/remote_tap.py" tap
+  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/vagrant" vagrant
+fi

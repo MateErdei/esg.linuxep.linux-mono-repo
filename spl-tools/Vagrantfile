@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
         # Warehouse
         if File.directory?(repos_dir + "/esg.linuxep.sspl-warehouse/")
             config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-warehouse/", "/vagrant/esg.linuxep.sspl-warehouse/", type: "rsync",
-            rsync__exclude: ".git/", rsync__args: rsync_options
+            rsync__exclude: ["bazel-bin", "bazel-esg.linuxep.sspl-warehouse", "bazel-out", "bazel-testlogs"], rsync__args: rsync_options
         end
 
         # Thininstaller
