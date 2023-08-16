@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+#define MAX_OS_NAME_LENGTH 255
+
 namespace MCS
 {
     AgentAdapter::AgentAdapter()
@@ -154,12 +156,17 @@ namespace MCS
     std::string AgentAdapter::getPlatformStatus() const
     {
         std::stringstream platformStatusXml;
+        std::string osName = m_platformUtils->getOsName();
+        if (osName.size() > MAX_OS_NAME_LENGTH)
+        {
+            osName = osName.substr(0, MAX_OS_NAME_LENGTH);
+        }
         platformStatusXml << "<posixPlatformDetails>"
                           << "<productType>sspl</productType>"
                           << "<platform>" << m_platformUtils->getPlatform() << "</platform>"
                           << "<vendor>" << m_platformUtils->getVendor() << "</vendor>"
                           << "<isServer>1</isServer>"
-                          << "<osName>" << m_platformUtils->getOsName() << "</osName>"
+                          << "<osName>" << osName << "</osName>"
                           << "<kernelVersion>" << m_platformUtils->getKernelVersion() << "</kernelVersion>"
                           << "<osMajorVersion>" << m_platformUtils->getOsMajorVersion() << "</osMajorVersion>"
                           << "<osMinorVersion>" << m_platformUtils->getOsMinorVersion() << "</osMinorVersion>";

@@ -84,6 +84,19 @@ class TestComputer(unittest.TestCase):
         self.assertTrue(int(minor_version_element) > 0)
         doc.unlink()
 
+    @mock.patch("mcsrouter.targetsystem.TargetSystem.os_name", return_value='miracle123'*30)
+    def testPlatformStatusTruncatesLargeOSNameTo255chars(self, mo, *mockarg):
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+
+        platformStatus = adapter.get_platform_status()
+        logger.debug(platformStatus)
+        doc = xml.dom.minidom.parseString(platformStatus)
+
+        os_name_element = doc.getElementsByTagName("osName")[0].firstChild.data
+
+        self.assertLessEqual(len(os_name_element), 255)
+        doc.unlink()
+
 
     def testFormatIPv6(self):
         self.assertEqual(mcsrouter.adapters.agent_adapter.format_ipv6("00010000000000000000000000000000"),"1::")

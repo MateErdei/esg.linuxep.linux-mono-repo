@@ -3,6 +3,7 @@
 // Product
 #include "cmcsrouter/AgentAdapter.h"
 // Test helpers
+#include "Common/XmlUtilities/AttributesMap.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockPlatformUtils.h"
 #include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
@@ -293,4 +294,40 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions) // NOLI
     std::string expectedXmlBody = expectedXmlBodyContent(true);
     EXPECT_THAT(actualStatusXml, HasSubstr(expectedXmlHeader));
     EXPECT_THAT(actualStatusXml, HasSubstr(expectedXmlBody));
+}
+
+TEST_F(AgentAdapterTests, testGetStatusXmlReturnsOsName255charsOrLess) // NOLINT
+{
+    auto mockPlatformUtil = std::make_shared<StrictMock<MockPlatformUtils>>();
+    auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
+
+    std::string largeOsName(300, 'x');
+    std::string expectedTruncatedOsName(255, 'x');
+
+    EXPECT_CALL(*mockLocalIP, getLocalInterfaces()).WillOnce(Return(MockILocalIP::buildInterfacesHelper()));
+    EXPECT_CALL(*mockPlatformUtil, sortInterfaces(_));
+    EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["fqdn"]));
+    EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
+    EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
+    EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
+    EXPECT_CALL(*mockPlatformUtil, getOsName()).WillRepeatedly(Return(largeOsName));
+    EXPECT_CALL(*mockPlatformUtil, getKernelVersion()).WillRepeatedly(Return(basicXmlContent["kernelVersion"]));
+    EXPECT_CALL(*mockPlatformUtil, getOsMajorVersion()).WillRepeatedly(Return(basicXmlContent["osMajorVersion"]));
+    EXPECT_CALL(*mockPlatformUtil, getOsMinorVersion()).WillRepeatedly(Return(basicXmlContent["osMinorVersion"]));
+    EXPECT_CALL(*mockPlatformUtil, getDomainname()).WillRepeatedly(Return(basicXmlContent["domainName"]));
+    EXPECT_CALL(*mockPlatformUtil, getIp4Addresses(_)).WillRepeatedly(Return(ip4Addresses));
+    EXPECT_CALL(*mockPlatformUtil, getFirstIpAddress(ip4Addresses)).WillRepeatedly(Return(basicXmlContent["ip4Address"]));
+    EXPECT_CALL(*mockPlatformUtil, getIp6Addresses(_)).WillRepeatedly(Return(ip6Addresses));
+    EXPECT_CALL(*mockPlatformUtil, getFirstIpAddress(ip6Addresses)).WillRepeatedly(Return(basicXmlContent["ip6Address"]));
+    EXPECT_CALL(*mockPlatformUtil, getCloudPlatformMetadata(_)).WillRepeatedly(Return(fakeCloudXml));
+    EXPECT_CALL(*mockPlatformUtil, getMacAddresses()).WillRepeatedly(Return(macAddresses));
+
+    MCS::AgentAdapter adapter(mockPlatformUtil, mockLocalIP);
+
+    std::string actualStatusXml = adapter.getStatusXml(optionalXmlContentForParsing);
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(actualStatusXml);
+    auto attributes = xmlMap.lookup("ns:computerStatus/posixPlatformDetails/osName");
+    std::string actualOsName = attributes.contents();
+    EXPECT_EQ(actualOsName, expectedTruncatedOsName);
 }

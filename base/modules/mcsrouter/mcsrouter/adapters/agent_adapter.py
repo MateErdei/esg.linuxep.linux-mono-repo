@@ -19,6 +19,7 @@ from mcsrouter import ip_address
 
 LOGGER = logging.getLogger(__name__)
 
+MAX_OS_NAME_LENGTH = 255
 
 def format_ipv6(ipv6):
     """
@@ -384,7 +385,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         platform = "linux"
         vendor = target_system.vendor()
         kernel = target_system.kernel()
-        os_name = target_system.os_name()
+        os_name = target_system.os_name()[0:MAX_OS_NAME_LENGTH]
 
         # should always be able to obtain first and second values from os_version
         os_version = target_system.os_version()
