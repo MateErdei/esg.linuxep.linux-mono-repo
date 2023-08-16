@@ -1,6 +1,4 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -13,7 +11,14 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 class CurlFunctionsProvider
 {
 public:
-    static size_t curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer);
+    class WriteBackBuffer
+    {
+    public:
+        std::string buffer_;
+        size_t maxSize_ = 0;
+        bool tooBig_ = false;
+    };
+    static size_t curlWriteFunc(void* ptr, size_t size, size_t nmemb, void* buffer);
 
     static size_t curlWriteFileFunc(
         void* ptr,

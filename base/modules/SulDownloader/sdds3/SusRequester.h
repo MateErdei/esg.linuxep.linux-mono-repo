@@ -14,6 +14,8 @@ namespace SulDownloader::SDDS3
     class SusRequester : public ISusRequester
     {
     public:
+        static constexpr size_t MAX_SUS_SIZE = 100 * 1024; // 100 KiB
+
         SusRequester(
             std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient,
             std::unique_ptr<ISignatureVerifierWrapper> verifier);

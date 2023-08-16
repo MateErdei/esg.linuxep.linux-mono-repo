@@ -22,23 +22,44 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFunc)
     size_t length1 = strlen(dataChunk1);
     size_t length2 = strlen(dataChunk2);
 
-    std::string buffer;
+    CurlFunctionsProvider::WriteBackBuffer buffer;
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFunc((void*)dataChunk1, 1, length1, &buffer);
     bytesDealtWith += CurlFunctionsProvider::curlWriteFunc((void*)dataChunk2, 1, length2, &buffer);
 
-    ASSERT_EQ(bytesDealtWith, length1 + length2);
-    ASSERT_EQ(buffer, "This is some data to deal with");
+    EXPECT_FALSE(buffer.tooBig_);
+    EXPECT_EQ(bytesDealtWith, length1 + length2);
+    EXPECT_EQ(buffer.buffer_, "This is some data to deal with");
+}
+
+TEST_F(CurlFunctionsProviderTests, curlWriteFuncTooBig)
+{
+    const char* dataChunk1 = "This is some ";
+    const char* dataChunk2 = "dh";
+    size_t length1 = strlen(dataChunk1);
+    size_t length2 = strlen(dataChunk2);
+
+    CurlFunctionsProvider::WriteBackBuffer buffer;
+    buffer.maxSize_ = 10;
+    auto bytesDealtWith = CurlFunctionsProvider::curlWriteFunc((void*)dataChunk1, 1, length1, &buffer);
+    EXPECT_EQ(bytesDealtWith, CURL_WRITEFUNC_ERROR);
+    EXPECT_TRUE(buffer.tooBig_);
+    bytesDealtWith = CurlFunctionsProvider::curlWriteFunc((void*)dataChunk2, 1, length2, &buffer);
+    EXPECT_EQ(bytesDealtWith, CURL_WRITEFUNC_ERROR);
+    EXPECT_TRUE(buffer.tooBig_);
+
+    ASSERT_EQ(buffer.buffer_, "");
 }
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFuncZeroSize)
 {
     const char* dataChunk1 = "";
-    std::string buffer;
+    CurlFunctionsProvider::WriteBackBuffer buffer;
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFunc((void*)dataChunk1, 1, 0, &buffer);
     ASSERT_EQ(bytesDealtWith, 0);
-    ASSERT_EQ(buffer, "");
+    ASSERT_EQ(buffer.buffer_, "");
+    EXPECT_FALSE(buffer.tooBig_);
 }
 
 

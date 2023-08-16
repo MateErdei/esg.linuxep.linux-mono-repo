@@ -35,6 +35,7 @@ namespace Common::HttpRequests
         std::optional<std::string> proxy = std::nullopt;
         std::optional<std::string> proxyUsername = std::nullopt;
         std::optional<std::string> proxyPassword = std::nullopt;
+        std::optional<size_t> maxSize = std::nullopt;
 
         // Allow underlying library to automatically pick up and use environment proxies, user must explicitly ask for
         // this to be enabled

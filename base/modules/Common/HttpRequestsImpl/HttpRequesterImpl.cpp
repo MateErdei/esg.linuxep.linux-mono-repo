@@ -64,7 +64,12 @@ namespace Common::HttpRequestsImpl
             return response;
         }
 
-        std::string bodyBuffer;
+        CurlFunctionsProvider::WriteBackBuffer bodyBuffer;
+        if (request.maxSize.has_value())
+        {
+            bodyBuffer.maxSize_ = request.maxSize.value();
+        }
+
         ResponseBuffer responseBuffer;
         responseBuffer.url = request.url;
 
@@ -309,7 +314,10 @@ namespace Common::HttpRequestsImpl
             for (auto const& [header, value] : request.headers.value())
             {
                 LOGDEBUG("Append header: " << header << ": " << value);
-                curlHeaders = m_curlWrapper->curlSlistAppend(curlHeaders, header + ": " + value);
+                std::string h = header;
+                h += ": ";
+                h += value;
+                curlHeaders = m_curlWrapper->curlSlistAppend(curlHeaders, h);
                 if (!curlHeaders)
                 {
                     m_curlWrapper->curlSlistFreeAll(curlHeaders);
@@ -380,6 +388,11 @@ namespace Common::HttpRequestsImpl
                         response.error += ". Could not find proxy address used.";
                     }
                 }
+                else if (bodyBuffer.tooBig_)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
+                    response.error = "Response too big";
+                }
                 else
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
@@ -395,7 +408,7 @@ namespace Common::HttpRequestsImpl
         }
 
         // Store the body to be returned in the response, this will be empty if the user opted to download to a file
-        response.body = bodyBuffer;
+        response.body = bodyBuffer.buffer_;
 
         // Store any headers that were sent in the response
         response.headers = responseBuffer.headers;

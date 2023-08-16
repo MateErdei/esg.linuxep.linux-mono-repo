@@ -75,6 +75,8 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
         // Body
         httpRequest.data = requestJson;
 
+        httpRequest.maxSize = MAX_SUS_SIZE;
+
         // Perform request
         auto httpResponse = m_httpClient->post(httpRequest);
 

@@ -8,10 +8,20 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
+size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, void* voidBuffer)
 {
+    auto* buffer = reinterpret_cast<WriteBackBuffer*>(voidBuffer);
     size_t totalSizeBytes = size * nmemb;
-    buffer->append(static_cast<char*>(ptr), totalSizeBytes);
+    if (buffer->tooBig_ || (
+         buffer->maxSize_ > 0 && totalSizeBytes + buffer->buffer_.size() > buffer->maxSize_
+         )
+    )
+    {
+        // too much data
+        buffer->tooBig_ = true;
+        return CURL_WRITEFUNC_ERROR;
+    }
+    buffer->buffer_.append(static_cast<char*>(ptr), totalSizeBytes);
     return totalSizeBytes;
 }
 
