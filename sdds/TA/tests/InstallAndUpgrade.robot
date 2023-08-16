@@ -87,6 +87,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrading to VUT
+    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
     Wait Until Threat Detector Running
@@ -151,6 +152,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
+    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
@@ -313,6 +317,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrade to VUT
+    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
     Wait Until Keyword Succeeds
@@ -369,6 +374,9 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
+    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
