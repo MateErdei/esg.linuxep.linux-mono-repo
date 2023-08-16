@@ -169,7 +169,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
         }
         catch (const std::runtime_error& ex)
         {
-            LOGINFO("Invalid telemetry host '" + *telemetryHost_ + "'");
+            LOGERROR("Invalid telemetry host '" + *telemetryHost_ + "'");
             telemetryHost_ = "";
         }
     }
