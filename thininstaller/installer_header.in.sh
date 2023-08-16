@@ -409,6 +409,13 @@ function verify_install_directory()
       return
   fi
 
+  if [[ "$SOPHOS_INSTALL" == "/opt/sophos-spl" ]]
+  then
+      # Special case if SOPHOS_INSTALL is set to the default, then we just use it and don't append
+      export SOPHOS_INSTALL=/opt/sophos-spl
+      return
+  fi
+
   # Sophos install must be in an ASCII path - no spaces
   local LEFT_OVER=$(echo $SOPHOS_INSTALL | tr -d '[:alnum:]_/.-')
 
