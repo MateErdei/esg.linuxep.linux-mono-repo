@@ -11,15 +11,15 @@ edr.latest.x64:
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023-31/20230808081939-cd86803c301e630dbb43112aa4e32ef3513f56c9-AY81DS/sspl-plugin-anti-virus/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023-31/20230816152510-565401f8691ca29bc120e7660346c37ce6ccabd4-ooM3GZ/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-31/20230808074602-28900c592e68e83dfa632b68c43646fd05bbe44b-2bzEYV/sspl-base/SDDS-COMPONENT/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-31/20230816103025-92761e9acf66526bde95b3c2e52c9e5bfdb5689c-Vv5ykQ/sspl-base/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023-31/20230807123732-0644cb09d0ab973ae695a48d481d1c6fde057fb4-THrLGh/eventjournaler/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023-31/20230816145546-3ae6a0d4653cb1a7ba41cd113c8fdbe7902c009e-od4shz/eventjournaler/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
@@ -27,7 +27,7 @@ liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--version_5_6_0/20230808092404-2fd8ba0fb20150f1203010de80aef76249e23113-TOluKn/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--version_5_6_0/20230815203549-b9a7a995cf5c9dbe9118aed84177e6f59ba9387d-XKQRIC/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
