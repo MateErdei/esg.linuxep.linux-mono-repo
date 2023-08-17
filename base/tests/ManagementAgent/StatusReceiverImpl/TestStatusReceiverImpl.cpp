@@ -49,7 +49,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
-    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
 
     EXPECT_CALL(
         *filesystemMock,

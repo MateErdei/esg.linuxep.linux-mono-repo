@@ -36,7 +36,7 @@ TEST_F(TestEvent, Send)
 {
     auto filesystemMock = createMockFileSystem();
 
-    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(

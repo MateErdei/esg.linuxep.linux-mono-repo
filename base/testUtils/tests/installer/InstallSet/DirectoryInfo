@@ -11,6 +11,7 @@ o700, root, sophos-spl-local, /opt/sophos-spl/var/cache/mcs_fragmented_policies
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/updatecachecerts
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/var/updatescheduler
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/var/updatescheduler/processedReports
+o700, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/tmp
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/remote-diagnose
 o710, sophos-spl-group, root, /opt/sophos-spl/base/update
 o710, sophos-spl-group, root, /opt/sophos-spl/base/update/var
@@ -72,7 +73,6 @@ o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/event
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/internal_policy
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/response
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/status
-o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/tmp
 o770, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/eventcache
 o770, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/status/cache
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache

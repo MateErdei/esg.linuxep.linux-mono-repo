@@ -24,7 +24,7 @@ namespace
             EXPECT_TRUE(xml.hasStatusChanged);
         }
 
-        const std::string m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+        const std::string m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         const std::string m_statusFilePath = Common::ApplicationConfiguration::applicationPathManager().getShsStatusFilePath();
         const std::string m_healthFilePath = Common::ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
         const std::string m_healthDir = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();

@@ -137,7 +137,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(const std:
     auto contents = j.dump();
     try
     {
-        filesystem->writeFileAtomically(path, contents, paths.getManagementAgentTempPath(), 0640);
+        filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0640);
 
         if (::getuid() == 0)
         {

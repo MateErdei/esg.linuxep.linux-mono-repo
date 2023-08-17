@@ -42,7 +42,7 @@ void Event::send() const
     LOGDEBUG("Send event from appid " << appId_ << " to mcsrouter");
     Path eventDir = Common::ApplicationConfiguration::applicationPathManager().getMcsEventFilePath();
     assert(!eventDir.empty());
-    Path tmpDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+    Path tmpDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     assert(!tmpDir.empty());
 
     Path basename = createEventBasename(appId_);

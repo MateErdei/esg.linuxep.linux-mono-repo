@@ -68,7 +68,7 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 
     auto filesystemMock = createMockFileSystem();
 
-    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(
@@ -90,7 +90,7 @@ TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCre
 
     std::string base1;
     std::string base2;
-    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
 
     {
         InSequence seq;

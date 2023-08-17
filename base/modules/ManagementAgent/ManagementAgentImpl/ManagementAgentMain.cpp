@@ -187,7 +187,7 @@ namespace ManagementAgent
 
         void ManagementAgentMain::sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins)
         {
-            std::string tempDir = ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+            std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();
             std::string statusDir = ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
 
             for (auto& pluginName : registeredPlugins)
@@ -248,7 +248,7 @@ namespace ManagementAgent
         {
             std::string filePath = ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
             std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
-            std::string tempDir = ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();;
+            std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();;
 
             auto fs = Common::FileSystem::fileSystem();
             try

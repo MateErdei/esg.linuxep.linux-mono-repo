@@ -795,6 +795,7 @@ fi
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
+makedir 700 "${SOPHOS_INSTALL}/base/mcs/tmp"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/response"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/datafeed"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status"
@@ -803,7 +804,6 @@ makedir 770 "${SOPHOS_INSTALL}/base/mcs/internal_policy"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/eventcache"
 makedir 751 "${SOPHOS_INSTALL}/base/mcs/certs"
-makedir 770 "${SOPHOS_INSTALL}/base/mcs/tmp"
 
 makedir 711 "${SOPHOS_INSTALL}/plugins"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
@@ -816,7 +816,6 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/status"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/internal_policy"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/event"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
-chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/tmp"
 
 # Remote Diagnose
 makedir 751 "${SOPHOS_INSTALL}/base/remote-diagnose/output"
