@@ -114,10 +114,16 @@ TEST_F(TestBatchTimer, UnconfiguredCallbackThrows)
 TEST_F(TestBatchTimer, CallbackExceptionMessage)
 {
     m_timer->Configure([this]{ throw std::runtime_error("test exception"); }, std::chrono::milliseconds(MAX_TIME_MILLISECONDS));
-
+    
     m_timer->Start();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(3 * MAX_TIME_MILLISECONDS));
+    std::this_thread::sleep_for(std::chrono::milliseconds(MAX_TIME_MILLISECONDS));
 
+    // Confirm that the exception is thrown at some point over the next 50 milliseconds
+    int count = 0;
+    while (count++ < 50 && m_timer->getCallbackError().compare("test exception") != 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
     EXPECT_STREQ("test exception", m_timer->getCallbackError().c_str());
 }
