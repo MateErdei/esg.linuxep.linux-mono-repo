@@ -58,7 +58,6 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getForcedAPausedUpdateMarkerPath() const = 0;
 
         [[nodiscard]] virtual std::string getManagementAgentStatusCacheFilePath() const = 0;
-        [[nodiscard]] virtual std::string getManagementAgentTempPath() const = 0;
 
         [[nodiscard]] virtual std::string getLocalWarehouseStoreDir() const = 0;
 

@@ -42,7 +42,6 @@ public:
     MOCK_METHOD(std::string, getMcsFlagsFilePath, (), (const, override));
 
     MOCK_METHOD(std::string, getManagementAgentStatusCacheFilePath, (), (const, override));
-    MOCK_METHOD(std::string, getManagementAgentTempPath, (), (const, override));
 
     MOCK_METHOD(std::string, getLocalWarehouseStoreDir, (), (const, override));
 
