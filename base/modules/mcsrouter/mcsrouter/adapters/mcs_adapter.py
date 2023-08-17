@@ -143,7 +143,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             command.complete()
 
     def _write_action_to_tmp(self, action_name, body):
-        action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)
+        action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
         mcsrouter.utils.filesystem_utils.utf8_write(action_path_tmp, body)
 
         # Make sure that action is group readable so that Management Agent (or plugins) can read the file.

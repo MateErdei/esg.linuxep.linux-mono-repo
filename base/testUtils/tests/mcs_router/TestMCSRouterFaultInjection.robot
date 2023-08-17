@@ -20,7 +20,7 @@ ${PROXY_PASSWORD}          proxypassword
 
 Actions Folder Without Permissions Does Not Cause A Crash
     Check Cloud Server Log For Command Poll
-    Chmod  550  /opt/sophos-spl/base/mcs/action
+    Chmod  550  ${MCS_DIR}/action
 
     Trigger Update Now
     # Action will not be received until the next command poll
@@ -28,12 +28,12 @@ Actions Folder Without Permissions Does Not Cause A Crash
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Check MCSrouter Log Contains    Failed to write an action to: /opt/sophos-spl/tmp/actions
+    ...  Check MCSrouter Log Contains    Failed to write an action to: ${MCS_TMP_DIR}/actions
     Check Action In Atomic Files
 
 
 Overwriting Action File Doesn't Cause Crash
-    Chmod  550  /opt/sophos-spl/base/mcs/action
+    Chmod  550  ${MCS_DIR}/action
 
     Trigger Update Now
     # Action will not be received until the next command poll
@@ -41,12 +41,12 @@ Overwriting Action File Doesn't Cause Crash
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
-    ...  Check MCSrouter Log Contains    Failed to write an action to: /opt/sophos-spl/tmp/actions
+    ...  Check MCSrouter Log Contains    Failed to write an action to: ${MCS_TMP_DIR}/actions
     ${filepath} =  Check Action In Atomic Files
     ${contents} =  Get File  ${filepath}
 
     Create File   ${filepath}    content=fakecontents
-    Chmod  750  /opt/sophos-spl/base/mcs/action
+    Chmod  750  ${MCS_DIR}/action
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
@@ -62,7 +62,7 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    ...  File Should Exist  ${MCS_DIR}/policy/ALC-1_policy.xml
 
     Stop MCSRouter
     ${temp_dir} =  add_temporary_directory  staging

@@ -342,19 +342,19 @@ def temp_dir():
     """
     temp_dir
     """
-    return os.path.join(install_dir(), 'tmp')
+    return os.path.join(install_dir(), 'base', 'mcs', 'tmp')
 
 def policy_temp_dir():
     """
     policy_temp_dir for temporary writing of policies
     """
-    return os.path.join(install_dir(), 'tmp', 'policy')
+    return os.path.join(install_dir(), 'base', 'mcs', 'tmp', 'policy')
 
 def actions_temp_dir():
     """
     actions_temp_dir for temporary writing of actions
     """
-    return os.path.join(install_dir(), 'tmp', 'actions')
+    return os.path.join(install_dir(), 'base', 'mcs', 'tmp', 'actions')
 
 # base/lib:base/lib64
 

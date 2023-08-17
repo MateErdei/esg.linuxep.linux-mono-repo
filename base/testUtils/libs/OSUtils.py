@@ -382,7 +382,7 @@ def get_directory_of_expected_mcs_folders_and_permissions(install_dir="/opt/soph
         f"{install_dir}/base/mcs/policy": ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
         f"{install_dir}/base/mcs/response": ["root", "sophos-spl-group", "drwxrwx---"],
         f"{install_dir}/base/mcs/status": ["root", "sophos-spl-group", "drwxrwx---"],
-        f"{install_dir}/base/mcs/tmp": ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        f"{install_dir}/base/mcs/tmp": ["root", "sophos-spl-group", "drwxrwx---"],
     }
 
 
