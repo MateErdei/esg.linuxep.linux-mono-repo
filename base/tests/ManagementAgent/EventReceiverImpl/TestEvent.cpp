@@ -3,7 +3,7 @@
 // Class under test
 #include "ManagementAgent/EventReceiverImpl/Event.h"
 // Product
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 // Test helpers
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
