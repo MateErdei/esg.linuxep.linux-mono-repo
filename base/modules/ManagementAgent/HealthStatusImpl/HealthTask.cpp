@@ -72,7 +72,7 @@ namespace ManagementAgent
 
             HealthStatus::HealthInfo statusXmlResult =  healthStatus->generateHealthStatusXml();
 
-            Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
             Path statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
             std::string statusFilePath = Common::FileSystem::join(statusDir,"SHS_status.xml");
             std::string overallHealthFilePath = Common::ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();

@@ -24,10 +24,10 @@ namespace
             EXPECT_TRUE(xml.hasStatusChanged);
         }
 
-        const std::string m_tempDir = "/opt/sophos-spl/tmp";
-        const std::string m_statusFilePath = "/opt/sophos-spl/base/mcs/status/SHS_status.xml";
-        const std::string m_healthFilePath = "/opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json";
-        const std::string m_healthDir = "/opt/sophos-spl/base/mcs/internal_policy";
+        const std::string m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
+        const std::string m_statusFilePath = Common::ApplicationConfiguration::applicationPathManager().getShsStatusFilePath();
+        const std::string m_healthFilePath = Common::ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
+        const std::string m_healthDir = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();
         const mode_t m_statusFileMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 
         StrictMock<MockPluginManager> m_mockPluginManager;

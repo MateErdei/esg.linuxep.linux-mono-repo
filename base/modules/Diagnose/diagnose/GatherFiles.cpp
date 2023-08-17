@@ -292,8 +292,11 @@ namespace diagnose
     void GatherFiles::copyFilesInComponentDirectories(const Path& destination)
     {
         Path ssplTmp = Common::FileSystem::join(m_installDirectory, "tmp");
-        std::vector<std::string> componentPaths = m_fileSystem->listDirectories(ssplTmp);
-        for (auto& sourcePath : componentPaths)
+        Path mcsTmp = Common::FileSystem::join(m_installDirectory, "base/mcs/tmp");
+        std::vector<std::string> tmpDirs = m_fileSystem->listDirectories(ssplTmp);
+        std::vector<std::string> mcsTmpDirs = m_fileSystem->listDirectories(ssplTmp);
+        tmpDirs.insert( tmpDirs.end(), mcsTmpDirs.begin(), mcsTmpDirs.end() );
+        for (auto& sourcePath : tmpDirs)
         {
             if (!m_fileSystem->isDirectory(sourcePath))
             {
