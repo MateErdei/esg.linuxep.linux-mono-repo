@@ -3,6 +3,7 @@
 // Class under test
 #include "ManagementAgent/EventReceiverImpl/Event.h"
 // Product
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 // Test helpers
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -35,10 +36,11 @@ TEST_F(TestEvent, Send)
 {
     auto filesystemMock = createMockFileSystem();
 
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(
-            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "XML", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "XML", tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};

@@ -1,5 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "ManagementAgent/EventReceiverImpl/EventTask.h"
@@ -67,10 +68,11 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 
     auto filesystemMock = createMockFileSystem();
 
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(
-            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
         .WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -88,18 +90,19 @@ TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCre
 
     std::string base1;
     std::string base2;
+    std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
 
     {
         InSequence seq;
         EXPECT_CALL(
             *filesystemMock,
             writeFileAtomically(
-                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .WillOnce(SaveArg<0>(&base1));
         EXPECT_CALL(
             *filesystemMock,
             writeFileAtomically(
-                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", "/opt/sophos-spl/tmp", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+                MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"), "EventXml", tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .WillOnce(SaveArg<0>(&base2));
     }
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};

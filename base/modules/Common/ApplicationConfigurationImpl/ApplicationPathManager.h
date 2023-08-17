@@ -37,6 +37,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMcsCurrentProxyFileName() const override;
         std::string getMcsFlagsFilePath() const override;
         std::string getManagementAgentStatusCacheFilePath() const override;
+        std::string getManagementAgentTempPath() const override;
 
         std::string getLocalWarehouseStoreDir() const override;
         std::string getLocalWarehouseRepository() const override;

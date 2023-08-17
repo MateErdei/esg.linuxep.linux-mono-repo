@@ -2,6 +2,7 @@
 
 #define TEST_PUBLIC public
 
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -61,7 +62,7 @@ namespace
             fs::current_path(testDir_);
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, testDir_);
-            fs::create_directories(testDir_ / "tmp");
+            fs::create_directories(testDir_ / "base/mcs/tmp");
             varDir_ = testDir_ / "var" / "sophosspl";
             fs::create_directories(varDir_);
             eventDir_ = testDir_ / "base" / "mcs" / "event";

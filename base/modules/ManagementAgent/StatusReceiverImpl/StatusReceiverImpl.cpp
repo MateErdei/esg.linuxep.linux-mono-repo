@@ -12,7 +12,7 @@ ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
     m_taskQueue(std::move(taskQueue)),
     m_statusCache(statusCache)
 {
-    m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+    m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentTempPath();
     m_statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
 }
 
