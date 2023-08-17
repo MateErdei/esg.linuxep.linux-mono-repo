@@ -2,7 +2,6 @@
 
 #define TEST_PUBLIC public
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
