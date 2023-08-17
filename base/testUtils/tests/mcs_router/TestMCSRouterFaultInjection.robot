@@ -100,12 +100,12 @@ Actions Folder Out Of Space Does Not Crash MCSRouter
 
     Check Cloud Server Log For Command Poll
 
-    Remove Directory  ${SOPHOS_INSTALL}/tmp/actions
-    ${mountpoint} =  Make Tiny File System  5MB  ${SOPHOS_INSTALL}/tmp/actions
-    Chmod  700  ${SOPHOS_INSTALL}/tmp/actions
+    Remove Directory  ${MCS_TMP_DIR}/actions
+    ${mountpoint} =  Make Tiny File System  5MB  ${MCS_TMP_DIR}/actions
+    Chmod  700  ${MCS_TMP_DIR}/actions
     Chown  sophos-spl-local:sophos-spl-group  ${mountpoint}
 
-    Make File Of Size And Expect No Space Error  ${SOPHOS_INSTALL}/tmp/actions/bigFile  10MB
+    Make File Of Size And Expect No Space Error  ${MCS_TMP_DIR}/actions/bigFile  10MB
     Trigger Update Now
     # Action will not be received until the next command poll
     Check Cloud Server Log For Command Poll    2

@@ -55,7 +55,7 @@ Verify Management Agent Sends LiveQuery To EDR Plugin
     ${creation_time_and_ttl} =  get_valid_creation_time_and_ttl
     ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/LiveQuery_correlation-id_request_${creation_time_and_ttl}.json
 
-    ${actionTmpName} =    Set Variable   ${SOPHOS_INSTALL}/tmp/TempAction.json
+    ${actionTmpName} =    Set Variable   ${MCS_TMP_DIR}/TempAction.json
     ${liveQueryContent} =    Set Variable   Live Query Content
     Create File     ${actionTmpName}   ${liveQueryContent}
     Move File       ${actionTmpName}   ${actionFileName}

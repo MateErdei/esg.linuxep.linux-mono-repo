@@ -154,8 +154,8 @@ EDR Does Not Trigger Query On Update Now Action
     ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     ${edr_length_1} =  Get Length  ${edr_log}
 
-    create file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  content="content"
-    move file  ${SOPHOS_INSTALL}/tmp/ALC_action_timestamp.xml  /opt/sophos-spl/base/mcs/action
+    create file  ${MCS_TMP_DIR}/ALC_action_timestamp.xml  content="content"
+    move file  ${MCS_TMP_DIR}/ALC_action_timestamp.xml  ${MCS_DIR}/action
 
     Wait Until Keyword Succeeds
     ...  5 secs

@@ -43,8 +43,8 @@ Setup Tmp Dir And Stop Watchdog
 
     Should Exist   ${SOPHOS_INSTALL}/var/ipc
     Should Exist   ${SOPHOS_INSTALL}/logs/base
-    Should Exist   ${SOPHOS_INSTALL}/tmp
-    Should Exist   ${SOPHOS_INSTALL}/base/mcs/status
+    Should Exist   ${MCS_TMP_DIR}
+    Should Exist   ${MCS_DIR}/status
 
     # stop all spl services, test will need to handle start and stop of management agent
     # At the moment the install.sh script will install and start all services.  This may change later.

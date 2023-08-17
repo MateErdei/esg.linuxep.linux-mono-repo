@@ -85,35 +85,35 @@ Action Applied After Policies
     ...  Check Log Contains In Order
          ...  ${FileSystemWatcherLog}
          ...  deleted: ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-         ...  created: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml
-         ...  created: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  created: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml
+         ...  modified: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml
+         ...  modified: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml
+         ...  modified: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml
+         ...  modified: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml
+         ...  created: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_lagavulin.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  modified: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_lagavulin.xml
-         ...  created: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  created: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_laphroaig.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  modified: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_laphroaig.xml
-         ...  created: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  created: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_talisker.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  modified: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_talisker.xml
-         ...  created: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  created: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_jura.xml
-         ...  modified: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  modified: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_jura.xml
-         ...  moved: ${SOPHOS_INSTALL}/tmp/policy/ALC-1_policy.xml to: ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-         ...  moved: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  moved: ${MCS_TMP_DIR}/policy/ALC-1_policy.xml to: ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+         ...  moved: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_lagavulin.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_lagavulin.xml
-         ...  moved: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  moved: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_laphroaig.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_laphroaig.xml
-         ...  moved: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  moved: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_talisker.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_talisker.xml
-         ...  moved: ${SOPHOS_INSTALL}/tmp/actions/
+         ...  moved: ${MCS_TMP_DIR}/actions/
          ...  _ALC_action_jura.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_jura.xml
 
 *** Keywords ***
