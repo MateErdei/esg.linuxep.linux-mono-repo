@@ -247,8 +247,6 @@ SUS Fault Injection Server Responds With Invalid JSON
 
 
 SUS Fault Injection Server Responds With Large JSON
-    # TODO LINUXDAR-7784: Miracle Linux and SLES12 fail this test
-    [Tags]    EXCLUDE_RHEL    EXCLUDE_SLES12
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
     Set Environment Variable  COMMAND   sus_large_json
     ${handle}=  Start Local SDDS3 Server With Empty Repo
