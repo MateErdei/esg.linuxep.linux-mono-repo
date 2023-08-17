@@ -16,6 +16,7 @@ Test Teardown    Run Keywords
 
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
@@ -249,6 +250,9 @@ SUS Fault Injection Server Responds With Invalid JSON
 SUS Fault Injection Server Responds With Large JSON
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
     Set Environment Variable  COMMAND   sus_large_json
+
+    ${sul_mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
+
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -261,12 +265,8 @@ SUS Fault Injection Server Responds With Large JSON
     ...    1s
     ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   1 secs
-    ...   Check Suldownloader Log Contains In Order
-        ...  Failed to connect to repository: SUS request failed with error: Server returned nothing (no headers, no data)
-        ...  Update failed, with code: 107
+    ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Failed to connect to repository: SUS request failed with error:  timeout=${30}
+    ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Update failed, with code: 107  timeout=${3}
 
 SUS Fault Injection Server Responds With Empty Body
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
