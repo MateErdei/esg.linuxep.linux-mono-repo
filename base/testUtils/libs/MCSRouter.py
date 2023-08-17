@@ -1147,7 +1147,7 @@ class MCSRouter(object):
         return file_path
 
     def get_atomic_files_in_temp_folder(self):
-        tmp_dir = os.path.join(self.sophos_install, "tmp")
+        tmp_dir = os.path.join(self.sophos_install, "base", "mcs", "tmp")
         atomic_files = []
         for root_path, directories, files in os.walk(tmp_dir):
             # we don't care about files in directories that start with this
@@ -1161,7 +1161,7 @@ class MCSRouter(object):
 
 
     def check_temp_policy_folder_doesnt_contain_policies(self, base=None):
-        dir_contents = os.listdir(os.path.join(self.sophos_install, "tmp", "policy"))
+        dir_contents = os.listdir(os.path.join(self.sophos_install, "base", "mcs", "tmp", "policy"))
 
         if len(dir_contents) != 0:
             raise AssertionError("Temp folder is not empty! {}".format(dir_contents))
