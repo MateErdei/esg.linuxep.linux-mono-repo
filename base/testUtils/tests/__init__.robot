@@ -42,7 +42,7 @@ Global Setup Tasks
     Set Global Variable  ${ETC_DIR}                     ${SOPHOS_INSTALL}/base/etc
     Set Global Variable  ${VAR_DIR}                     ${SOPHOS_INSTALL}/var
     Set Global Variable  ${MCS_DIR}                     ${SOPHOS_INSTALL}/base/mcs
-    Set Global Variable  ${MCS_TMP_DIR}                 ${MCS_TMP_DIR}/tmp
+    Set Global Variable  ${MCS_TMP_DIR}                 ${MCS_DIR}/tmp
     Set Global Variable  ${BASE_LOGS_DIR}               ${SOPHOS_INSTALL}/logs/base
     Set Global Variable  ${MCS_ROUTER_LOG}              ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log
     Set Global Variable  ${MCS_ENVELOPE_LOG}            ${BASE_LOGS_DIR}/sophosspl/mcs_envelope.log
