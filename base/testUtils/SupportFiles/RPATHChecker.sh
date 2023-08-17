@@ -6,13 +6,13 @@ green='\033[0;32m' # Unused at the time of writing this comment
 clear='\033[0m'
 
 VALID_RPATHS=(
-  # Actually secure rpaths:
   "\$ORIGIN"
   "\$ORIGIN/../lib64"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN"
   "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../lib"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN/../lib64"
   "\$ORIGIN/../base/lib64"
+  "\$ORIGIN:\$ORIGIN/.."
 )
 
 DEBUG_OUTPUT_ON=0 # 0 = off, 1 = on
