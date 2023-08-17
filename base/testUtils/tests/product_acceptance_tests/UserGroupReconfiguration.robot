@@ -23,7 +23,7 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Start Local Cloud Server
     ${handle} =    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
     Wait Until Keyword Succeeds
@@ -66,6 +66,7 @@ Reconfigure All Sophos Users And Groups In Installed Product
     # Perform the ID changes requests by writing requested IDs json file and restarting the product
     ${requested_user_and_group_ids} =  Get File  ${SUPPORT_FILES}/watchdog/requested_user_group_ids.json
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   ${requested_user_and_group_ids}
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${10}
     Restart Product
     Wait for All Processes To Be Running
 
