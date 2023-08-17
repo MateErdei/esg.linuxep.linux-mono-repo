@@ -29,10 +29,15 @@ namespace
 
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
         MOCK_METHOD(int, _ioctl, (int __fd, unsigned long int __request, char* buffer));
+        MOCK_METHOD(int, _ioctl,
+                    (int __fd, unsigned long int __request,
+                     unsigned long *buffer));
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
         MOCK_METHOD(int, fstatfs, (int fd, struct ::statfs *__buf));
         MOCK_METHOD(int, _stat, (const char *__file, struct ::stat *__buf));
         MOCK_METHOD(int, _open, (const char *__file, int __oflag, mode_t mode));
+        MOCK_METHOD(int, _open, (const char *__file, int __oflag));
+        MOCK_METHOD(int, _close, (int fd));
         MOCK_METHOD(int, pselect, (int __nfds,
                                    fd_set *__restrict __readfds,
                                    fd_set *__restrict __writefds,

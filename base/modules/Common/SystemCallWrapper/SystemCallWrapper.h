@@ -28,6 +28,11 @@ namespace Common::SystemCallWrapper
             return ioctl(fd, request, buffer);
         }
 
+        int _ioctl(int fd, unsigned long int request,
+                   unsigned long *buffer) override {
+            return ioctl(fd, request, buffer);
+        }
+
         int _statfs(const char *file, struct ::statfs *buf) override
         {
             return ::statfs(file, buf);
@@ -47,6 +52,12 @@ namespace Common::SystemCallWrapper
         {
             return ::open(file, oflag, mode);
         }
+
+        int _open(const char *file, int oflag) override {
+            return ::open(file, oflag);
+        }
+
+        int _close(int fd) override { return ::close(fd); }
 
         std::pair<const int, const long> getSystemUpTime() override
         {

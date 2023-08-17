@@ -167,6 +167,8 @@ namespace Common::FileSystem
          * @param capabilities
          */
         virtual void setFileCapabilities(const Path& path, const cap_t& capabilities) const= 0;
+
+        virtual unsigned long getInodeFlags(const Path path) const = 0;
     };
 
     /**

@@ -24,7 +24,11 @@ namespace Common::SystemCallWrapper
         virtual ~ISystemCallWrapper() = default;
         virtual void _exit(int status) = 0;
         virtual int _ioctl(int fd, unsigned long int request, char* buffer) = 0;
+        virtual int _ioctl(int fd, unsigned long int request,
+                           unsigned long *buffer) = 0;
         virtual int _open(const char *file, int oflag, mode_t mode) = 0;
+        virtual int _open(const char *file, int oflag) = 0;
+        virtual int _close(int fd) = 0;
         virtual int _stat(const char *file, struct ::stat *buf) = 0;
         virtual int _statfs(const char *file, struct ::statfs *buf) = 0;
 
