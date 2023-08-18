@@ -115,6 +115,10 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
+        if machine_name.startswith('ubuntu2204'):
+            # On 2023-08-18 NFSv2 tests failed on Ubuntu 22.04 as NFSv2 was no longer supported (?)
+            robot_exclusion_tags.append("nfsv2")
+
         cifs = getattr(machine, "cifs_supported", 1)
         ntfs = getattr(machine, "ntfs_supported", 1)
         sspl_name = getattr(machine, "sspl_name", "unknown")
