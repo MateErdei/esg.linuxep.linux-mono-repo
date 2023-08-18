@@ -1,15 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
-
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockSysCalls.h"
 #include "tests/Common/Helpers/TempDir.h"
 
 #include <gtest/gtest.h>
+#include <linux/fs.h>
 
 #include <grp.h>
 #include <pwd.h>
@@ -320,4 +320,92 @@ namespace
         uid_t gid = filePermissions.getGroupIdOfDirEntry(path);
         EXPECT_EQ(gid, expectedGid);
     }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_GetsFlagsFromRegularFile)
+    {
+        const std::string path = "/testpath/file";
+        const int fd = 123;
+        struct stat fileStat;
+        fileStat.st_mode = __S_IFREG;
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        EXPECT_CALL(*mockSysCalls, _open(_, _)).WillOnce(Return(fd));
+        EXPECT_CALL(*mockSysCalls, fstat(fd, _)).WillOnce(DoAll(SetArgPointee<1>(fileStat), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _ioctl(_, _, An<unsigned long*>()))
+            .WillOnce(DoAll(SetArgPointee<2>(10191), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _close(fd));
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        auto flags = filePermissions.getInodeFlags(path);
+        EXPECT_EQ(flags, 10191);
+    }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_GetsFlagsFromDir)
+    {
+        const std::string path = "/testpath/dir/";
+        const int fd = 123;
+        struct stat fileStat;
+        fileStat.st_mode = __S_IFDIR;
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        EXPECT_CALL(*mockSysCalls, _open(_, _)).WillOnce(Return(fd));
+        EXPECT_CALL(*mockSysCalls, fstat(fd, _)).WillOnce(DoAll(SetArgPointee<1>(fileStat), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _ioctl(_, _, An<unsigned long*>()))
+            .WillOnce(DoAll(SetArgPointee<2>(10191), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _close(fd));
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        auto flags = filePermissions.getInodeFlags(path);
+        EXPECT_EQ(flags, 10191);
+    }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_ThrowsWhenPathIsNotRegularFileOrDir)
+    {
+        const std::string path = "/testpath/file";
+        const int fd = 123;
+        struct stat fileStat;
+        fileStat.st_mode = fileStat.st_mode & ~__S_IFREG & ~__S_IFDIR;
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        EXPECT_CALL(*mockSysCalls, _open(_, _)).WillOnce(Return(fd));
+        EXPECT_CALL(*mockSysCalls, fstat(fd, _)).WillOnce(DoAll(SetArgPointee<1>(fileStat), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _close(fd));
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        EXPECT_THROW(filePermissions.getInodeFlags(path), IFileSystemException);
+    }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_ThrowsWhenPathCannotBeOpened)
+    {
+        const std::string path = "/testpath/file";
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        EXPECT_CALL(*mockSysCalls, _open(_, _)).WillOnce(Return(-1));
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+        EXPECT_THROW(filePermissions.getInodeFlags(path), IFileSystemException);
+    }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_ThrowsWhenIoctlCallFails)
+    {
+        const std::string path = "/testpath/file";
+        const int fd = 123;
+        struct stat fileStat;
+        fileStat.st_mode = __S_IFREG;
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        EXPECT_CALL(*mockSysCalls, _open(_, _)).WillOnce(Return(fd));
+        EXPECT_CALL(*mockSysCalls, fstat(fd, _)).WillOnce(DoAll(SetArgPointee<1>(fileStat), Return(0)));
+        EXPECT_CALL(*mockSysCalls, _ioctl(_, _, An<unsigned long*>())).WillOnce(Return(-1));
+        EXPECT_CALL(*mockSysCalls, _close(fd));
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        EXPECT_THROW(filePermissions.getInodeFlags(path), IFileSystemException);
+    }
+
+    TEST(FilePermissionsImpl, test_getInodeFlags_WorksOnRealFile)
+    {
+        Tests::restoreFileSystem();
+        std::optional<Path> fullPath = Common::FileSystem::fileSystem()->readlink("/proc/self/exe");
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl();
+        auto flags = filePermissions.getInodeFlags(fullPath.value());
+        // Check a couple of flags that should not be set by default.
+        EXPECT_FALSE(flags & FS_IMMUTABLE_FL);
+        EXPECT_FALSE(flags & FS_COMPR_FL);
+    }
+
 } // namespace
