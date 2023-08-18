@@ -95,6 +95,8 @@ class OnAccessUtils:
         for line in lines:
             if line.startswith("tmpfs on "):
                 continue
+            if line.startswith("shm on "):
+                continue
             return line
 
 
