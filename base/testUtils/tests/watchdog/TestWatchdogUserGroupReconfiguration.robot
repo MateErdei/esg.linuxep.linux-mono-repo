@@ -64,6 +64,7 @@ Test Watchdog Reconfigures User and Group IDs
     # Perform the ID changes requests by writing requested IDs json file and restarting the product
     ${requested_user_and_group_ids} =  Get File  ${SUPPORT_FILES}/watchdog/requested_user_group_ids.json
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   ${requested_user_and_group_ids}
+    # waiting for updatescheduler to finish reporting update success to central otherwise watchdog might need to kill it when the restart is done
     wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Restart Product
     Wait For Base Processes To Be Running
