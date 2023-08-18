@@ -266,7 +266,7 @@ class LogMark:
 
     def find_last_match_after_mark(self, line_to_search_for):
         contents = self.get_contents()
-        pos = contents.rfind(line_to_search_for)
+        pos = contents.rfind(ensure_binary(line_to_search_for))
         if pos < 0:
             raise AssertionError("Failed to find %s in %s" % (line_to_search_for, self.get_path()))
         absolute_pos = pos + self.get_size()
