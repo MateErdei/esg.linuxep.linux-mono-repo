@@ -175,13 +175,10 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Wait For Suldownloader To Finish
 
@@ -218,13 +215,10 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Wait For Suldownloader To Finish
 
@@ -264,13 +258,10 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Wait For Suldownloader To Finish
 
@@ -309,13 +300,10 @@ New Fixed Version Token Does Trigger Immediate Update
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Wait For Suldownloader To Finish
 
@@ -354,13 +342,10 @@ Install all plugins static-999 then downgrade to all plugins static
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
@@ -447,12 +432,9 @@ Install all plugins static then upgrade to all plugins static-999
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}/repo  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
-
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
-    Wait Until Keyword Succeeds
-    ...   80 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
     Check Current Release With AV Installed Correctly
 
     Setup SUS static 999

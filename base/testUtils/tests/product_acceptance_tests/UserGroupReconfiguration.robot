@@ -24,12 +24,10 @@ Reconfigure All Sophos Users And Groups In Installed Product
     ${handle} =    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User And Group Ids Of Files    ${SOPHOS_INSTALL}
@@ -115,12 +113,11 @@ Reconfigure All Sophos Users And Groups When Installing Product Using Thin Insta
     ${args} =    Catenate
     ...    --user-ids-to-configure=sophos-spl-local:1995,sophos-spl-updatescheduler:1994,sophos-spl-user:1996,sophos-spl-av:1997,sophos-spl-threat-detector:1998
     ...    --group-ids-to-configure=sophos-spl-group:1996,sophos-spl-ipc:1995
+
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    args=${args}
     Override LogConf File as Global Level    DEBUG
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Verify Watchdog Actual User Group ID File
 

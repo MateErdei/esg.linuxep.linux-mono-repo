@@ -264,6 +264,7 @@ Upgrade VUT to 999
     Check All Product Logs Do Not Contain Critical
 
 Install Base And Edr Vut Then Transition To Base Edr And AV Vut
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Setup SUS all develop
     Install EDR SDDS3  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_no_av.xml
 
@@ -278,11 +279,8 @@ Install Base And Edr Vut Then Transition To Base Edr And AV Vut
     # ensure EDR plugin is installed and running
     Wait For EDR to be Installed
 
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  1
-    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
+    ${sul_mark2} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     # Install AV
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
@@ -292,7 +290,7 @@ Install Base And Edr Vut Then Transition To Base Edr And AV Vut
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV
 
-    wait_for_log_contains_from_mark    ${sul_mark}    Update success    60
+    wait_for_log_contains_from_mark    ${sul_mark2}    Update success    60
 
 
     Wait Until Keyword Succeeds

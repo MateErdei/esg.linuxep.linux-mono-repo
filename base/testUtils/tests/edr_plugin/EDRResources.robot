@@ -103,12 +103,10 @@ Install EDR SDDS3
         ...   20 secs
         ...   1 secs
         ...   Cloud Server Is Running
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
 
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
 
     Wait For EDR to be Installed
 
