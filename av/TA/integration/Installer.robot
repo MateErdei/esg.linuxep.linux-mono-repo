@@ -391,14 +391,10 @@ AV Plugin gets customer id after upgrade
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile}   timeout=12sec
-    ${customerId1} =   Get File   ${customerIdFile}
-    Should Be Equal   ${customerId1}   ${expectedId}
+    Wait Until File Contains  ${customerIdFile}  ${expectedId}  timeout=12sec
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile_chroot}   timeout=12sec
-    ${customerId2} =   Get File   ${customerIdFile_chroot}
-    Should Be Equal   ${customerId2}   ${expectedId}
+    Wait Until File Contains  ${customerIdFile_chroot}  ${expectedId}  timeout=12sec
 
     # force an upgrade, check that customer id is set
     Remove Files   ${customerIdFile}   ${customerIdFile_chroot}
@@ -408,14 +404,10 @@ AV Plugin gets customer id after upgrade
     Run Installer From Install Set
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile}   timeout=12sec
-    ${customerId1} =   Get File   ${customerIdFile}
-    Should Be Equal   ${customerId1}   ${expectedId}
+    Wait Until File Contains  ${customerIdFile}  ${expectedId}  timeout=12sec
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile_chroot}   timeout=12sec
-    ${customerId2} =   Get File   ${customerIdFile_chroot}
-    Should Be Equal   ${customerId2}   ${expectedId}
+    Wait Until File Contains  ${customerIdFile_chroot}  ${expectedId}  timeout=12sec
 
 IDE can be removed
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
@@ -1083,3 +1075,13 @@ Check no duplicate files in directory
 
 Cleanup Mocked Install Set
     Remove Directory    ${MOCKED_INSTALL_SET}    recursive=${True}
+
+Check File Contains
+    [Arguments]  ${filepath}  ${expectedContents}
+    ${actualContents} =   Get File   ${filepath}
+    Should Be Equal   ${actualContents}   ${expectedContents}
+
+Wait Until File Contains
+    [Arguments]  ${filepath}  ${expectedContents}  ${timeout}=12sec
+    Wait Until Created   ${filepath}   timeout=${timeout}
+    Wait Until Keyword Succeeds  ${2}  1 sec  Check File Contains  ${filepath}  ${expectedContents}
