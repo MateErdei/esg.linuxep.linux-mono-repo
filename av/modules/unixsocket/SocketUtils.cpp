@@ -186,3 +186,27 @@ bool unixsocket::writeLengthAndBufferAndFd(int socket_fd, const std::string& buf
     std::ignore = writeLengthAndBuffer(socket_fd, buffer); // throws or returns true
     return (send_fd(socket_fd, fd) > 0);
 }
+
+
+ssize_t unixsocket::readFully(int socket_fd, char* buf, ssize_t bytes, std::chrono::milliseconds timeout)
+{
+    using clock = std::chrono::steady_clock;
+    auto start = clock::now();
+    ssize_t totalRead = 0;
+    while (totalRead != bytes)
+    {
+        auto remaining = bytes - totalRead;
+        auto amount = ::read(socket_fd, buf + totalRead, remaining);
+        if (amount < 0)
+        {
+            return amount;
+        }
+        totalRead += amount;
+        auto now = clock::now();
+        if (now - start > timeout)
+        {
+            return totalRead;
+        }
+    }
+    return totalRead;
+}

@@ -1,5 +1,7 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "SafeStoreSocketMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
@@ -229,12 +231,13 @@ TEST_F(TestSafeStoreServerConnectionThread, max_length)
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
     SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
+    connectionThread.readTimeout_ = std::chrono::milliseconds{10};
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    // length is limited to ~16MB
-    unixsocket::writeLength(clientFd.get(), 0x100007f);
+    // length is limited to 1K
+    unixsocket::writeLength(clientFd.get(), 1024);
     ::close(clientFd.get());
-    EXPECT_TRUE(waitForLog(expected));
+    EXPECT_TRUE(waitForLog(expected, std::chrono::seconds{2}));
     connectionThread.requestStop();
     connectionThread.join();
 

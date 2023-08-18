@@ -18,6 +18,10 @@
 #include <cstdint>
 #include <string>
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace unixsocket
 {
     class SafeStoreServerConnectionThread : public BaseServerConnectionThread
@@ -33,9 +37,15 @@ namespace unixsocket
 
     private:
         void inner_run();
+        bool read_socket(int socketFd);
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
+        uint32_t buffer_size_ = 512;
+        bool loggedLengthOfZero_ = false;
+        kj::Array<capnp::word> proto_buffer_;
+    TEST_PUBLIC:
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     };
 } // namespace unixsocket

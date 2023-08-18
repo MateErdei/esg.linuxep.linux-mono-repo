@@ -113,15 +113,13 @@ void SafeStoreServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
     LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
-    uint32_t buffer_size = 512;
-    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+    proto_buffer_ = kj::heapArray<capnp::word>(buffer_size_);
 
     struct pollfd fds[]
     {
         { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
             { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
-    bool loggedLengthOfZero = false;
 
     while (true)
     {
@@ -158,136 +156,146 @@ void SafeStoreServerConnectionThread::inner_run()
 
         if ((fds[0].revents & POLLIN) != 0)
         {
-            // read length
-            auto length = unixsocket::readLength(socket_fd);
-            if (length == -2)
+            if (!read_socket(socket_fd))
             {
-                LOGDEBUG(m_threadName << " closed: EOF");
-                break;
-            }
-            else if (length < 0)
-            {
-                LOGERROR("Aborting " << m_threadName << ": failed to read length");
-                break;
-            }
-            else if (length == 0)
-            {
-                if (not loggedLengthOfZero)
-                {
-                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
-                    loggedLengthOfZero = true;
-                }
-                continue;
-            }
-
-            // read capn proto
-            if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
-            {
-                buffer_size = 1 + length / sizeof(capnp::word);
-                proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-                loggedLengthOfZero = false;
-            }
-
-            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-            if (bytes_read < 0)
-            {
-                LOGERROR("Aborting " << m_threadName << ": " << errno);
-                break;
-            }
-            else if (bytes_read != length)
-            {
-                LOGERROR("Aborting " << m_threadName << ": failed to read entire message");
-                break;
-            }
-
-            LOGDEBUG(m_threadName << " read capn of " << bytes_read);
-            std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
-
-            try
-            {
-                threatDetectedOptional = parseDetection(proto_buffer, bytes_read);
-            }
-            catch (const std::exception& e)
-            {
-                LOGERROR("Aborting " << m_threadName << ": failed to parse detection");
-                break;
-            }
-
-            scan_messages::ThreatDetected threatDetected = std::move(threatDetectedOptional.value());
-
-            // read fd
-            datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
-            if (file_fd.get() < 0)
-            {
-                LOGERROR("Aborting " << m_threadName << ": failed to read fd");
-                break;
-            }
-            LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
-            threatDetected.autoFd = std::move(file_fd);
-
-            if (threatDetected.filePath.empty())
-            {
-                LOGERROR(m_threadName << " missing file path in detection report ( size=" << bytes_read << ")");
-            }
-            const std::string escapedPath = common::pathForLogging(threatDetected.filePath);
-            LOGDEBUG(
-                "Received Threat:\n  File path: "
-                << escapedPath << "\n  Threat ID: " << threatDetected.threatId
-                << "\n  Threat type: " << threatDetected.threatType << "\n  Threat name: " << threatDetected.threatName
-                << "\n  Threat SHA256: " << threatDetected.threatSha256 << "\n  SHA256: " << threatDetected.sha256
-                << "\n  File descriptor: " << threatDetected.autoFd.get());
-
-            common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
-                threatDetected.filePath,
-                threatDetected.threatId,
-                threatDetected.threatType,
-                threatDetected.threatName,
-                threatDetected.threatSha256,
-                threatDetected.sha256,
-                threatDetected.correlationId,
-                std::move(threatDetected.autoFd));
-
-            switch (quarantineResult)
-            {
-                case common::CentralEnums::QuarantineResult::SUCCESS:
-                {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(
-                        safestore::telemetrySafeStoreQuarantineSuccess, 1ul);
-                    break;
-                }
-                case common::CentralEnums::QuarantineResult::NOT_FOUND:
-                {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(
-                        safestore::telemetrySafeStoreQuarantineFailure, 1ul);
-                    break;
-                }
-                case common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE:
-                {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(
-                        safestore::telemetrySafeStoreUnlinkFailure, 1ul);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-
-            std::string serialised_result = getResponse(quarantineResult);
-
-            try
-            {
-                if (!writeLengthAndBuffer(socket_fd, serialised_result))
-                {
-                    LOGWARN(m_threadName << " failed to write result to unix socket");
-                    break;
-                }
-            }
-            catch (unixsocket::environmentInterruption& e)
-            {
-                LOGWARN("Exiting " << m_threadName << ": " << e.what());
                 break;
             }
         }
     }
+}
+
+bool SafeStoreServerConnectionThread::read_socket(int socketFd)
+{
+    // read length
+    auto length = unixsocket::readLength(socketFd, 1024);
+    if (length == -2)
+    {
+        LOGDEBUG(m_threadName << " closed: EOF");
+        return false;
+    }
+    else if (length < 0)
+    {
+        LOGERROR("Aborting " << m_threadName << ": failed to read length");
+        return false;
+    }
+    else if (length == 0)
+    {
+        if (!loggedLengthOfZero_)
+        {
+            LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
+            loggedLengthOfZero_ = true;
+        }
+        return true;
+    }
+
+    // read capn proto
+    if (static_cast<uint32_t>(length) > (buffer_size_ * sizeof(capnp::word)))
+    {
+        buffer_size_ = 1 + length / sizeof(capnp::word);
+        proto_buffer_ = kj::heapArray<capnp::word>(buffer_size_);
+        loggedLengthOfZero_ = false;
+    }
+
+    auto bytes_read = unixsocket::readFully(socketFd, reinterpret_cast<char*>(proto_buffer_.begin()), length,
+                                            readTimeout_);
+    if (bytes_read < 0)
+    {
+        LOGERROR("Aborting " << m_threadName << ": " << errno);
+        return false;
+    }
+    else if (bytes_read != length)
+    {
+        LOGERROR("Aborting " << m_threadName << ": failed to read entire message");
+        return false;
+    }
+
+    LOGDEBUG(m_threadName << " read capn of " << bytes_read);
+    std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
+
+    try
+    {
+        threatDetectedOptional = parseDetection(proto_buffer_, bytes_read);
+    }
+    catch (const std::exception& e)
+    {
+        LOGERROR("Aborting " << m_threadName << ": failed to parse detection");
+        return false;
+    }
+
+    scan_messages::ThreatDetected threatDetected = std::move(threatDetectedOptional.value());
+
+    // read fd
+    datatypes::AutoFd file_fd(unixsocket::recv_fd(socketFd));
+    if (file_fd.get() < 0)
+    {
+        LOGERROR("Aborting " << m_threadName << ": failed to read fd");
+        return false;
+    }
+    LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
+    threatDetected.autoFd = std::move(file_fd);
+
+    if (threatDetected.filePath.empty())
+    {
+        LOGERROR(m_threadName << " missing file path in detection report ( size=" << bytes_read << ")");
+    }
+    const std::string escapedPath = common::pathForLogging(threatDetected.filePath);
+    LOGDEBUG(
+        "Received Threat:\n  File path: "
+        << escapedPath << "\n  Threat ID: " << threatDetected.threatId
+        << "\n  Threat type: " << threatDetected.threatType << "\n  Threat name: " << threatDetected.threatName
+        << "\n  Threat SHA256: " << threatDetected.threatSha256 << "\n  SHA256: " << threatDetected.sha256
+        << "\n  File descriptor: " << threatDetected.autoFd.get());
+
+    common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
+        threatDetected.filePath,
+        threatDetected.threatId,
+        threatDetected.threatType,
+        threatDetected.threatName,
+        threatDetected.threatSha256,
+        threatDetected.sha256,
+        threatDetected.correlationId,
+        std::move(threatDetected.autoFd));
+
+    switch (quarantineResult)
+    {
+        case common::CentralEnums::QuarantineResult::SUCCESS:
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                safestore::telemetrySafeStoreQuarantineSuccess, 1ul);
+            break;
+        }
+        case common::CentralEnums::QuarantineResult::NOT_FOUND:
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                safestore::telemetrySafeStoreQuarantineFailure, 1ul);
+            break;
+        }
+        case common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE:
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                safestore::telemetrySafeStoreUnlinkFailure, 1ul);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    std::string serialised_result = getResponse(quarantineResult);
+
+    try
+    {
+        if (!writeLengthAndBuffer(socketFd, serialised_result))
+        {
+            LOGWARN(m_threadName << " failed to write result to unix socket");
+            return false;
+        }
+    }
+    catch (unixsocket::environmentInterruption& e)
+    {
+        LOGWARN("Exiting " << m_threadName << ": " << e.what());
+        return false;
+    }
+    return true;
 }

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <utility>
@@ -13,6 +14,7 @@ namespace unixsocket
     bool writeLengthAndBuffer(int socket_fd, const std::string& buffer);
     int recv_fd(int socket);
     ssize_t send_fd(int socket, int fd);
+    ssize_t readFully(int socket_fd, char* buf, ssize_t bytes, std::chrono::milliseconds timeout);
 
     bool writeLengthAndBufferAndFd(int socket_fd, const std::string& buffer, int fd);
 
