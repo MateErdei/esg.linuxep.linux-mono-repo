@@ -219,32 +219,6 @@ TEST_F(TestSafeStoreServerConnectionThread, over_max_length)
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestSafeStoreServerConnectionThread, max_length)
-{
-    const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to read entire message";
-
-    int socket_fds[2];
-    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
-    ASSERT_EQ(ret, 0);
-    datatypes::AutoFd serverFd(socket_fds[0]);
-    datatypes::AutoFd clientFd(socket_fds[1]);
-    ASSERT_GE(serverFd.get(), 0);
-    ASSERT_GE(clientFd.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
-    connectionThread.readTimeout_ = std::chrono::milliseconds{10};
-    connectionThread.start();
-    EXPECT_TRUE(connectionThread.isRunning());
-    // length is limited to 1K
-    unixsocket::writeLength(clientFd.get(), 1024);
-    ::close(clientFd.get());
-    EXPECT_TRUE(waitForLog(expected, std::chrono::seconds{2}));
-    connectionThread.requestStop();
-    connectionThread.join();
-
-    EXPECT_GT(m_memoryAppender->size(), 0);
-    EXPECT_TRUE(appenderContains(expected));
-}
-
 TEST_F(TestSafeStoreServerConnectionThread, corrupt_request)
 {
     const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to parse detection";

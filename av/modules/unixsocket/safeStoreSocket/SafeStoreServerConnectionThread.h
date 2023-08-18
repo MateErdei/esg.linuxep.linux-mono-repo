@@ -12,6 +12,7 @@
 #include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"
+#include "unixsocket/ReadBufferAsync.h"
 #include "unixsocket/ReadLengthAsync.h"
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
@@ -43,10 +44,9 @@ namespace unixsocket
         datatypes::AutoFd m_fd;
         std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
-        uint32_t buffer_size_ = 512;
         bool loggedLengthOfZero_ = false;
-        kj::Array<capnp::word> proto_buffer_;
         unixsocket::ReadLengthAsync readLengthAsync_;
+        unixsocket::ReadBufferAsync readBufferAsync_;
     TEST_PUBLIC:
         std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     };

@@ -35,7 +35,8 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     m_fd(std::move(fd)),
     m_quarantineManager(std::move(quarantineManager)),
     m_sysCalls(std::move(sysCalls)),
-    readLengthAsync_(m_sysCalls, 1024)
+    readLengthAsync_(m_sysCalls, 1024),
+    readBufferAsync_(m_sysCalls, 512)
 {
     if (m_fd < 0)
     {
@@ -114,7 +115,6 @@ void SafeStoreServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
     LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
-    proto_buffer_ = kj::heapArray<capnp::word>(buffer_size_);
 
     struct pollfd fds[]
     {
@@ -167,32 +167,34 @@ void SafeStoreServerConnectionThread::inner_run()
 
 bool SafeStoreServerConnectionThread::read_socket(int socketFd)
 {
-    // read length
-    auto res = readLengthAsync_.read(socketFd);
-    if (res < 0)
-    {
-        if (errno == EAGAIN)
-        {
-            return true;
-        }
-        LOGERROR("Aborting " << m_threadName << ": failed to read length");
-        return false;
-    }
-    else if (res == 0)
-    {
-        // We read zero bytes after being notified the fd was ready
-        LOGDEBUG(m_threadName << " closed: EOF");
-        return false;
-    }
-
     if (!readLengthAsync_.complete())
     {
-        // Not completed reading length
-        return true;
+        // read length
+        auto res = readLengthAsync_.read(socketFd);
+        if (res < 0)
+        {
+            if (errno == EAGAIN)
+            {
+                return true;
+            }
+            LOGERROR("Aborting " << m_threadName << ": failed to read length");
+            return false;
+        }
+        else if (res == 0)
+        {
+            // We read zero bytes after being notified the fd was ready
+            LOGDEBUG(m_threadName << " closed: EOF");
+            return false;
+        }
+
+        if (!readLengthAsync_.complete())
+        {
+            // Not completed reading length
+            return true;
+        }
     }
 
     auto length = readLengthAsync_.getLength();
-    readLengthAsync_.reset();
 
     if (length == 0)
     {
@@ -201,36 +203,36 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
             LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
             loggedLengthOfZero_ = true;
         }
+        readLengthAsync_.reset();
         return true;
     }
 
     // read capn proto
-    if (static_cast<uint32_t>(length) > (buffer_size_ * sizeof(capnp::word)))
+    if (readBufferAsync_.setLength(length))
     {
-        buffer_size_ = 1 + length / sizeof(capnp::word);
-        proto_buffer_ = kj::heapArray<capnp::word>(buffer_size_);
         loggedLengthOfZero_ = false;
     }
+    auto bytes_read = readBufferAsync_.read(socketFd);
 
-    auto bytes_read = unixsocket::readFully(socketFd, reinterpret_cast<char*>(proto_buffer_.begin()), length,
-                                            readTimeout_);
     if (bytes_read < 0)
     {
         LOGERROR("Aborting " << m_threadName << ": " << errno);
         return false;
     }
-    else if (bytes_read != length)
+    else if (!readBufferAsync_.complete())
     {
-        LOGERROR("Aborting " << m_threadName << ": failed to read entire message");
-        return false;
+        // async return hoping for more data in future
+        return true;
     }
 
-    LOGDEBUG(m_threadName << " read capn of " << bytes_read);
+
+    assert(readBufferAsync_.complete());
+    LOGDEBUG(m_threadName << " read capn of " << length);
     std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
 
     try
     {
-        threatDetectedOptional = parseDetection(proto_buffer_, bytes_read);
+        threatDetectedOptional = parseDetection(readBufferAsync_.getBuffer(), length);
     }
     catch (const std::exception& e)
     {
@@ -313,5 +315,6 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
         LOGWARN("Exiting " << m_threadName << ": " << e.what());
         return false;
     }
+    readLengthAsync_.reset();
     return true;
 }

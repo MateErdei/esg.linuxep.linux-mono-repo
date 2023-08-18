@@ -1,6 +1,8 @@
 add_library(unixsocket SHARED
         Logger.cpp
         Logger.h
+        ReadBufferAsync.cpp
+        ReadBufferAsync.h
         ReadLengthAsync.cpp
         ReadLengthAsync.h
         BaseClient.cpp
