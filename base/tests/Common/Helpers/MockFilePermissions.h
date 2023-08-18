@@ -31,6 +31,8 @@ public:
     MOCK_METHOD((std::map<std::string, uid_t>), getAllUserNamesAndIds, (), (const, override));
     MOCK_METHOD(cap_t, getFileCapabilities, (const Path& filePath), (const, override));
     MOCK_METHOD(void, setFileCapabilities, (const Path& filePath, const cap_t& capabilities), (const, override));
+    MOCK_METHOD(unsigned long, getInodeFlags, (const Path &path),
+                (const, override));
 };
 
 class IgnoreFilePermissions

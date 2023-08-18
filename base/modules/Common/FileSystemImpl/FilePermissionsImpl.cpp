@@ -420,7 +420,7 @@ namespace Common::FileSystem
         }
     }
 
-    unsigned long FilePermissionsImpl::getInodeFlags(const Path path) const {
+    unsigned long FilePermissionsImpl::getInodeFlags(const Path &path) const {
         unsigned long flags = 0;
         struct stat buf {};
 

@@ -49,7 +49,7 @@ namespace Common::FileSystem
 
         void setFileCapabilities(const Path& path, const cap_t& capabilities) const override;
 
-        unsigned long getInodeFlags(const Path path) const override;
+        unsigned long getInodeFlags(const Path &path) const override;
 
       private:
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper = nullptr;
