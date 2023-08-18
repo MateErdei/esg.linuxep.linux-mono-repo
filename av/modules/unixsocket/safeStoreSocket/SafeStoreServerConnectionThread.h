@@ -12,6 +12,7 @@
 #include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"
+#include "unixsocket/ReadLengthAsync.h"
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
@@ -45,6 +46,7 @@ namespace unixsocket
         uint32_t buffer_size_ = 512;
         bool loggedLengthOfZero_ = false;
         kj::Array<capnp::word> proto_buffer_;
+        unixsocket::ReadLengthAsync readLengthAsync_;
     TEST_PUBLIC:
         std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     };

@@ -34,7 +34,8 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     BaseServerConnectionThread("SafeStoreServerConnectionThread"),
     m_fd(std::move(fd)),
     m_quarantineManager(std::move(quarantineManager)),
-    m_sysCalls(std::move(sysCalls))
+    m_sysCalls(std::move(sysCalls)),
+    readLengthAsync_(m_sysCalls, 1024)
 {
     if (m_fd < 0)
     {
@@ -167,18 +168,33 @@ void SafeStoreServerConnectionThread::inner_run()
 bool SafeStoreServerConnectionThread::read_socket(int socketFd)
 {
     // read length
-    auto length = unixsocket::readLength(socketFd, 1024);
-    if (length == -2)
+    auto res = readLengthAsync_.read(socketFd);
+    if (res < 0)
     {
-        LOGDEBUG(m_threadName << " closed: EOF");
-        return false;
-    }
-    else if (length < 0)
-    {
+        if (errno == EAGAIN)
+        {
+            return true;
+        }
         LOGERROR("Aborting " << m_threadName << ": failed to read length");
         return false;
     }
-    else if (length == 0)
+    else if (res == 0)
+    {
+        // We read zero bytes after being notified the fd was ready
+        LOGDEBUG(m_threadName << " closed: EOF");
+        return false;
+    }
+
+    if (!readLengthAsync_.complete())
+    {
+        // Not completed reading length
+        return true;
+    }
+
+    auto length = readLengthAsync_.getLength();
+    readLengthAsync_.reset();
+
+    if (length == 0)
     {
         if (!loggedLengthOfZero_)
         {
