@@ -264,6 +264,17 @@ class LogMark:
         self.dump_marked_log()
         raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
 
+    def find_last_match_after_mark(self, line_to_search_for):
+        contents = self.get_contents()
+        pos = contents.rfind(line_to_search_for)
+        if pos < 0:
+            raise AssertionError("Failed to find %s in %s" % (line_to_search_for, self.get_path()))
+        absolute_pos = pos + self.get_size()
+        stat = os.stat(self.__m_log_path)
+        if stat.st_size < absolute_pos:
+            absolute_pos = stat.st_size
+        return LogMark(self.__m_log_path, absolute_pos)
+
 
 class LogHandler:
     def __init__(self, log_path: str):
