@@ -1099,6 +1099,9 @@ File Log Contains
         handler = self.get_log_handler(log_path)
         return handler.Wait_For_Entire_log_contains(expected, timeout)
 
+    def find_last_match_after_mark(self, mark, line_to_search_for):
+        return mark.find_last_match_after_mark(line_to_search_for)
+
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.oa_log))
