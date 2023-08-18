@@ -10,10 +10,7 @@
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
-#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
-
-#include <linux/fs.h>
 
 #include <utility>
 
@@ -75,22 +72,6 @@ void SafeStoreWorker::run()
                                              << parentMount->mountPoint() << ". Will not quarantine.");
                     tryQuarantine = false;
                 }
-            }
-            try
-            {
-                auto fp = Common::FileSystem::filePermissions();
-                if (fp->getInodeFlags(threatDetected.filePath) | FS_IMMUTABLE_FL)
-                {
-                    LOGINFO("File at location: " << escapedPath << " is immutable. Will not quarantine.");
-                    tryQuarantine = false;
-                    threatDetected.quarantineResult = common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
-                }
-            }
-            catch (const Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN(
-                    "Unable to determine if detected file is immutable or not, due to: "
-                    << common::escapePathForLogging(ex.what()) << ". Will continue quarantine attempt.");
             }
         }
         catch (std::runtime_error& error)

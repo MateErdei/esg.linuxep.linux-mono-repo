@@ -5,7 +5,6 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
-#include <datatypes/IUuidGenerator.h>
 #include "safestore/Logger.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
@@ -20,7 +19,8 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "Common/UtilityImpl/WaitForUtils.h"
 
-
+#include <datatypes/IUuidGenerator.h>
+#include <linux/fs.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <utility>
@@ -303,6 +303,22 @@ namespace safestore::QuarantineManager
             LOGERROR(
                 "Cannot quarantine " << escapedPath << " because threat ID (" << threatId << ") is not a valid UUID");
             return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+        }
+
+        try
+        {
+            auto fp = Common::FileSystem::filePermissions();
+            if (fp->getInodeFlags(filePath) & FS_IMMUTABLE_FL)
+            {
+                LOGWARN("File at location: " << escapedPath << " is immutable. Will not quarantine.");
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+            }
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN(
+                "Unable to determine if detected file is immutable or not, due to: "
+                << common::escapePathForLogging(ex.what()) << ". Will continue quarantine attempt.");
         }
 
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
