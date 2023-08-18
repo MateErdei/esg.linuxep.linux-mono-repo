@@ -972,6 +972,17 @@ Check avscanner can detect eicar on read only mount
     Create eicar on read only mount
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
 
+Create immutable eicar and trigger scan
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    File should exist  ${LOCAL_AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${result} =  run process    chattr    +i    ${SCAN_DIRECTORY}/eicar.com
+    Should Be Equal As Integers  ${result.rc}  ${0}
+    # Note that these clean up steps are exectued from last to first.
+    Register Cleanup    Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Register Cleanup    run process    chattr    -i    ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
+
 Create eicar on network mount
     [Tags]   NFS
     ${source} =       Set Variable  /tmp_test/nfsshare

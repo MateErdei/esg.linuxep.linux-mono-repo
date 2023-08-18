@@ -1519,6 +1519,35 @@ Archive With A Lot Of Detections Results In More Than 5000 Characters Being Stor
     File Should Exist    ${NORMAL_DIRECTORY}/test.tar
 
 
+Safestore does not quarantine immutable files
+    ${av_mark} =  Get AV Log Mark
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait Until SafeStore running
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Create immutable eicar and trigger scan
+
+    Wait For Log Contains From Mark  ${safestore_mark}  is immutable. Will not quarantine.
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine failed for threat:  timeout=15
+    File Should Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    ${correlation_id} =  Wait Until Base Has Detection Event
+    ...  user_id=n/a
+    ...  name=EICAR-AV-Test
+    ...  threat_type=1
+    ...  origin=1
+    ...  remote=false
+    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    ...  path=${SCAN_DIRECTORY}/eicar.com
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=${correlation_id}
+    ...  succeeded=0
+    ...  origin=1
+    ...  result=3
+    ...  path=${SCAN_DIRECTORY}/eicar.com
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
