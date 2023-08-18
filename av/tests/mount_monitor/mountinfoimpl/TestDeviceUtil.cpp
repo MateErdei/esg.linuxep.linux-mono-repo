@@ -6,10 +6,10 @@
 #include "Common/Helpers/MockSysCalls.h"
 #include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 
+#include <sys/statfs.h>
+
 #include <gmock/gmock.h>
 #include <linux/magic.h>
-
-#include <sys/statfs.h>
 
 using namespace Common::SystemCallWrapper;
 using namespace mount_monitor::mountinfoimpl;
