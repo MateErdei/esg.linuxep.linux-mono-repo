@@ -10,6 +10,10 @@
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
+
+#include <linux/fs.h>
+
 #include <utility>
 
 using namespace Plugin;
@@ -52,9 +56,9 @@ void SafeStoreWorker::run()
             auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
             auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
             auto parentMount = mountInfo->getMountFromPath(threatDetected.filePath);
+            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
             if (parentMount != nullptr)
             {
-                const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
                 if (parentMount->isNetwork())
                 {
                     LOGINFO(
@@ -71,6 +75,14 @@ void SafeStoreWorker::run()
                     tryQuarantine = false;
                 }
             }
+            auto fp = Common::FileSystem::filePermissions();
+            if (fp->getInodeFlags(threatDetected.filePath) | FS_IMMUTABLE_FL)
+            {
+                LOGINFO("File at location: " << escapedPath << " is immutable. Will not quarantine.");
+                tryQuarantine = false;
+                threatDetected.quarantineResult = common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+            }
+
         }
         catch (std::runtime_error& error)
         {
