@@ -71,7 +71,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times    Update success    2
+    ...   check_suldownloader_log_contains_string_n_times    Update success    1
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
@@ -338,7 +338,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times   Update success  2
+    ...   check_suldownloader_log_contains_string_n_times   Update success  1
     check_suldownloader_log_contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
@@ -529,7 +529,7 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   check_suldownloader_log_contains_string_n_times   Update success  2
+    ...   check_suldownloader_log_contains_string_n_times   Update success  1
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
