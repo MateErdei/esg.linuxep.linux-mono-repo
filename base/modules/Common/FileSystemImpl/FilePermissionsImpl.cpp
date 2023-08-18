@@ -420,26 +420,27 @@ namespace Common::FileSystem
         }
     }
 
-    unsigned long FilePermissionsImpl::getInodeFlags(const Path &path) const {
+    unsigned long FilePermissionsImpl::getInodeFlags(const Path& path) const
+    {
         unsigned long flags = 0;
-        struct stat buf {};
+        struct stat buf
+        {
+        };
 
-        int fd = m_sysCallWrapper->_open(
-            path.c_str(), O_RDONLY | O_NONBLOCK | O_LARGEFILE | O_NOFOLLOW);
-        if (fd == -1) {
+        int fd = m_sysCallWrapper->_open(path.c_str(), O_RDONLY | O_NONBLOCK | O_LARGEFILE | O_NOFOLLOW);
+        if (fd == -1)
+        {
             std::stringstream errorMessage;
-            errorMessage << "Failed to open file to read inode flags: '" << path
-                         << "', due to " << std::strerror(errno);
+            errorMessage << "Failed to open file to read inode flags: '" << path << "', due to "
+                         << std::strerror(errno);
             throw FileSystem::IPermissionDeniedException(errorMessage.str());
         }
 
-        if (!m_sysCallWrapper->fstat(fd, &buf) && !S_ISREG(buf.st_mode) &&
-            !S_ISDIR(buf.st_mode)) {
+        if (!m_sysCallWrapper->fstat(fd, &buf) && !S_ISREG(buf.st_mode) && !S_ISDIR(buf.st_mode))
+        {
             m_sysCallWrapper->_close(fd);
             std::stringstream errorMessage;
-            errorMessage
-                << "Failed to read inode flags, not a regular file or dir: "
-                << path;
+            errorMessage << "Failed to read inode flags, not a regular file or dir: " << path;
             throw FileSystem::IPermissionDeniedException(errorMessage.str());
         }
 
@@ -448,10 +449,10 @@ namespace Common::FileSystem
         // A few ioctl() requests use the return value as an output
         // On error, -1 is returned, and errno is set to indicate the error
         // https://man7.org/linux/man-pages/man2/ioctl.2.html
-        if (rc == -1) {
+        if (rc == -1)
+        {
             std::stringstream errorMessage;
-            errorMessage << "Failed to read inode flags for: '" << path
-                         << "', due to " << std::strerror(errno);
+            errorMessage << "Failed to read inode flags for: '" << path << "', due to " << std::strerror(errno);
             m_sysCallWrapper->_close(fd);
             throw FileSystem::IPermissionDeniedException(errorMessage.str());
         }
