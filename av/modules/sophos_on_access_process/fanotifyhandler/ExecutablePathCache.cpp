@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #include "ExecutablePathCache.h"
 
 // Component
@@ -28,13 +28,16 @@ namespace sophos_on_access_process::fanotifyhandler
         }
 
         auto path = get_executable_path_from_pid_uncached(pid);
-        cache_[pid] = path;
+        if (!path.empty())
+        {
+            cache_[pid] = path;
+        }
         return path;
     }
 
     std::string ExecutablePathCache::get_executable_path_from_pid_uncached(pid_t pid)
     {
-        fs::path target = "/proc";
+        fs::path target = base_;
         target /= std::to_string(pid);
         target /= "exe";
         std::error_code ec;                  // ec is ignored

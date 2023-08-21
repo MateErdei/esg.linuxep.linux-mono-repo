@@ -1,3 +1,4 @@
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2021-2022, Sophos Limited.  All rights reserved.
@@ -54,6 +55,22 @@ namespace test_common
         fs::current_path(fs::temp_directory_path());
         return test_common::remove_all(testDir);
     }
+
+    class TestSpecificDirectoryScope
+    {
+    public:
+        sophos_filesystem::path testSpecificDirectory_;
+
+        TestSpecificDirectoryScope()
+        {
+            testSpecificDirectory_ = createTestSpecificDirectory();
+        }
+
+        ~TestSpecificDirectoryScope()
+        {
+            test_common::removeTestSpecificDirectory(testSpecificDirectory_);
+        }
+    };
 }
 
 namespace

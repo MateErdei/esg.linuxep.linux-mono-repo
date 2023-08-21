@@ -1,9 +1,12 @@
-// Copyright 2023 Sophos All rights reserved.
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+
+// class under test:
+#include "sophos_on_access_process/fanotifyhandler/ExecutablePathCache.h"
+
+// test
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
-
-#include "sophos_on_access_process/fanotifyhandler/ExecutablePathCache.h"
+#include "common/TestSpecificDirectory.h"
 
 #include <gtest/gtest.h>
 
@@ -108,4 +111,35 @@ TEST_F(TestExecutablePathCache, caches_after_expire)
     EXPECT_EQ(exe1, exe2);
     EXPECT_EQ(exe1, exe3);
     EXPECT_EQ(cache.count_, 2);
+}
+
+namespace
+{
+    namespace fs = sophos_filesystem;
+    class OverrideDirectoryExecutablePathCache : public ExecutablePathCache
+    {
+    public:
+        void setBase(fs::path& path)
+        {
+            base_ = path;
+        }
+    };
+}
+
+TEST_F(TestExecutablePathCache, do_not_cache_empty)
+{
+    namespace fs = sophos_filesystem;
+    test_common::TestSpecificDirectoryScope testDirScope;
+    auto& testDir = testDirScope.testSpecificDirectory_;
+    OverrideDirectoryExecutablePathCache cache;
+    cache.setBase(testDir);
+
+    auto ret1 = cache.get_executable_path_from_pid(1);
+    EXPECT_TRUE(ret1.empty());
+
+    fs::create_directory(testDir / "1");
+    fs::create_symlink("/bin/bash", testDir / "1" / "exe");
+
+    auto ret2 = cache.get_executable_path_from_pid(1);
+    EXPECT_EQ(ret2, "/bin/bash");
 }
