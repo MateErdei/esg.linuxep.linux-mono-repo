@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-edr-component" version="1.1.9">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-edr-component" version="1.1.10">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -6,7 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-31" build-id="20230806104148-806ce35de2bea3c3d0c26892d9f6fb0772fd58ce-JvnrhA"/>
+            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
