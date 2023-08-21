@@ -2,7 +2,9 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
     SophosAddTest(TestSocketUtils
             ../common/LogInitializedTests.cpp
             TestSocketUtils.cpp
+            TestReadBufferAsync.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
             )
 
     SophosAddTest(TestProcessControllerServerSocket

@@ -21,7 +21,7 @@ namespace unixsocket
          */
         bool setLength(size_t size);
 
-        int read(int fd);
+        ssize_t read(int fd);
 
         [[nodiscard]] bool complete() const
         {

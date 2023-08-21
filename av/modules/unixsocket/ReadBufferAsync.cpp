@@ -27,7 +27,7 @@ bool unixsocket::ReadBufferAsync::setLength(size_t size)
     return false;
 }
 
-int unixsocket::ReadBufferAsync::read(int fd)
+ssize_t unixsocket::ReadBufferAsync::read(int fd)
 {
     const auto start = reinterpret_cast<char*>(proto_buffer_.begin()) + position_;
     const auto amount = expectedSize_ - position_;
