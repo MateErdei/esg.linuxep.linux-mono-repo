@@ -73,7 +73,7 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsAndHasHardware)
     char driveType[] = "floppy";
 
     EXPECT_CALL(*m_systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
-    EXPECT_CALL(*m_systemCallWrapper, _ioctl(fileDescriptor, _, _)).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
+    EXPECT_CALL(*m_systemCallWrapper, _ioctl(fileDescriptor, _, An<char*>())).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
 
     EXPECT_TRUE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
 }
@@ -96,7 +96,7 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot)
 
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> systemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     EXPECT_CALL(*m_systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
-    EXPECT_CALL(*m_systemCallWrapper, _ioctl(fileDescriptor, _, _)).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
+    EXPECT_CALL(*m_systemCallWrapper, _ioctl(fileDescriptor, _, An<char*>())).WillOnce(DoAll(SetArgPointee<2>(*driveType), Return(1)));
 
     EXPECT_TRUE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
 }
