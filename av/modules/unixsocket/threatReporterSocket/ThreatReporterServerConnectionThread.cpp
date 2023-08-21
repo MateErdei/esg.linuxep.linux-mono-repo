@@ -155,7 +155,7 @@ void ThreatReporterServerConnectionThread::inner_run()
         if ((fds[0].revents & POLLIN) != 0)
         {
             // read length
-            int32_t length = unixsocket::readLength(socket_fd);
+            auto length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
                 LOGDEBUG(m_threadName << " closed: EOF");
@@ -184,7 +184,10 @@ void ThreatReporterServerConnectionThread::inner_run()
                 loggedLengthOfZero = false;
             }
 
-            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+            ssize_t bytes_read = unixsocket::readFully(socket_fd,
+                                                       reinterpret_cast<char*>(proto_buffer.begin()),
+                                                       length,
+                                                       readTimeout_);
             if (bytes_read < 0)
             {
                 LOGERROR("Aborting " << m_threadName << ": " << errno);

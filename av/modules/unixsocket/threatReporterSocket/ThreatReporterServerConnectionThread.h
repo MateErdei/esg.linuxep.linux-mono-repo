@@ -1,9 +1,4 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 
 #pragma once
 
@@ -19,6 +14,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <cstdint>
 #include <string>
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 namespace unixsocket
 {
@@ -39,6 +38,8 @@ namespace unixsocket
         datatypes::AutoFd m_fd;
         std::shared_ptr<IMessageCallback> m_threatReportCallback;
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
+    TEST_PUBLIC:
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     };
 }
 
