@@ -29,6 +29,7 @@ namespace unixsocket
     class SafeStoreServerConnectionThread : public BaseServerConnectionThread
     {
     public:
+        static constexpr size_t MAXIMUM_MESSAGE_SIZE = 128*1024;
         SafeStoreServerConnectionThread(const SafeStoreServerConnectionThread&) = delete;
         SafeStoreServerConnectionThread& operator=(const SafeStoreServerConnectionThread&) = delete;
         explicit SafeStoreServerConnectionThread(

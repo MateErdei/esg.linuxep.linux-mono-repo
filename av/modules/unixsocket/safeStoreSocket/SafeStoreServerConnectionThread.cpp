@@ -35,7 +35,7 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     m_fd(std::move(fd)),
     m_quarantineManager(std::move(quarantineManager)),
     m_sysCalls(std::move(sysCalls)),
-    readLengthAsync_(m_sysCalls, 1024),
+    readLengthAsync_(m_sysCalls, MAXIMUM_MESSAGE_SIZE),
     readBufferAsync_(m_sysCalls, 512)
 {
     if (m_fd < 0)
@@ -177,7 +177,14 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
             {
                 return true;
             }
-            LOGERROR("Aborting " << m_threadName << ": failed to read length");
+            if (errno == E2BIG)
+            {
+                LOGWARN("Aborting " << m_threadName << ": message too big");
+            }
+            else
+            {
+                LOGERROR("Aborting " << m_threadName << ": failed to read length");
+            }
             return false;
         }
         else if (res == 0)

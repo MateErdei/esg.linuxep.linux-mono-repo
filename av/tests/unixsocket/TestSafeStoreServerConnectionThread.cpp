@@ -198,7 +198,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_socket_fd)
 
 TEST_F(TestSafeStoreServerConnectionThread, over_max_length)
 {
-    const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to read length";
+    const std::string expected = "Aborting SafeStoreServerConnectionThread: message too big";
 
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
