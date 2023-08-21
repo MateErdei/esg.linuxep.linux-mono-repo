@@ -734,7 +734,7 @@ TEST_F(TestPluginCallback, calculateThreatDetectorStatus_bad_susi_update)
     }
 
     // PID check - returns green healthy
-    EXPECT_CALL(*m_mockSysCalls, _open).WillOnce(Return(42));
+    EXPECT_CALL(*m_mockSysCalls, _open(_,_,_)).WillOnce(Return(42));
     EXPECT_CALL(*m_mockSysCalls, flock(42, _)).WillOnce(SetErrnoAndReturn(EAGAIN, -1));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
