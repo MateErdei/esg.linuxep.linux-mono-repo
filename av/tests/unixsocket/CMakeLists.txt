@@ -3,6 +3,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../common/LogInitializedTests.cpp
             TestSocketUtils.cpp
             TestReadBufferAsync.cpp
+            TestReadLengthAsync.cpp
             PROJECTS unixsocket
             INC_DIRS ${testhelpersinclude}
             )
