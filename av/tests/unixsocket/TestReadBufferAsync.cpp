@@ -157,3 +157,58 @@ TEST_F(TestReadBufferAsync, reallocate_buffer)
     char* charbuf = reinterpret_cast<char*>(buf.begin());
     EXPECT_STREQ(charbuf, EXPECTED);
 }
+
+TEST_F(TestReadBufferAsync, readReturnsError)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadBufferAsync buffer{mockSysCalls, 512};
+
+    buffer.setLength(10);
+    ASSERT_FALSE(buffer.complete());
+
+    EXPECT_CALL(*mockSysCalls, read(42, _, 10))
+        .WillOnce(SetErrnoAndReturn(EBADF, -1));
+
+    auto ret = buffer.read(42);
+    auto error = errno;
+    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(error, EBADF);
+    EXPECT_FALSE(buffer.complete());
+}
+
+TEST_F(TestReadBufferAsync, errorThenComplete)
+{
+
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadBufferAsync buffer{mockSysCalls, 512};
+
+    buffer.setLength(10);
+    ASSERT_FALSE(buffer.complete());
+
+    static const auto* EXPECTED = "123456789";
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 10))
+        .WillOnce(SetErrnoAndReturn(EBADF, -1))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { std::memcpy(outputbuf, EXPECTED, 10 ); }),
+            Return(10)
+                ));
+
+    auto ret = buffer.read(42);
+    auto error = errno;
+    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(error, EBADF);
+    EXPECT_FALSE(buffer.complete());
+
+    errno = 0;
+    ret = buffer.read(42);
+    error = errno;
+    EXPECT_EQ(ret, 10);
+    EXPECT_EQ(error, 0);
+    EXPECT_TRUE(buffer.complete());
+
+    auto& buf = buffer.getBuffer();
+    char* charbuf = reinterpret_cast<char*>(buf.begin());
+    EXPECT_STREQ(charbuf, EXPECTED);
+}
