@@ -16,14 +16,14 @@ unixsocket::ReadBufferAsync::ReadBufferAsync(
 
 bool unixsocket::ReadBufferAsync::setLength(size_t size)
 {
+    expectedSize_ = size;
+    position_ = 0;
     if (static_cast<uint32_t>(size) > (buffer_size_ * sizeof(capnp::word)))
     {
         buffer_size_ = 1 + size / sizeof(capnp::word);
         proto_buffer_ = kj::heapArray<capnp::word>(buffer_size_);
         return true;
     }
-    expectedSize_ = size;
-    position_ = 0;
     return false;
 }
 

@@ -100,7 +100,8 @@ TEST_F(TestReadBufferAsync, readPartial)
     auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     unixsocket::ReadBufferAsync buffer{mockSysCalls, 512};
 
-    buffer.setLength(10);
+    auto reallocated = buffer.setLength(10);
+    EXPECT_FALSE(reallocated);
     ASSERT_FALSE(buffer.complete());
 
     static const auto* EXPECTED = "123456789";
@@ -125,6 +126,32 @@ TEST_F(TestReadBufferAsync, readPartial)
     ret = buffer.read(42);
     EXPECT_EQ(ret, 9);
     EXPECT_TRUE(buffer.complete());
+
+    auto& buf = buffer.getBuffer();
+    char* charbuf = reinterpret_cast<char*>(buf.begin());
+    EXPECT_STREQ(charbuf, EXPECTED);
+}
+
+TEST_F(TestReadBufferAsync, reallocate_buffer)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadBufferAsync buffer{mockSysCalls, 2};
+
+    auto reallocated = buffer.setLength(10);
+    EXPECT_TRUE(reallocated);
+    ASSERT_FALSE(buffer.complete());
+
+    static const auto* EXPECTED = "123456789";
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 10))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { std::memcpy(outputbuf, EXPECTED, 10 ); }),
+            Return(10)
+                ));
+
+    auto ret = buffer.read(42);
+    EXPECT_EQ(ret, 10);
 
     auto& buf = buffer.getBuffer();
     char* charbuf = reinterpret_cast<char*>(buf.begin());
