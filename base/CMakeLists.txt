@@ -158,7 +158,7 @@ if (DEFINED ENV{VERSION_OVERRIDE})
     set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
     execute_process(
-            COMMAND ${VERSIONING_CLIENT} --component responseactions --version_number 1.0.0
+            COMMAND ${VERSIONING_CLIENT} --component responseactions --version_number 1.0.1
             OUTPUT_VARIABLE RA_PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE
             RESULT_VARIABLE STATUS)
