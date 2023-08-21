@@ -17,3 +17,81 @@ TEST_F(TestReadLengthAsync, construction)
     auto mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
     unixsocket::ReadLengthAsync reader(mockSysCalls, 1000);
 }
+
+TEST_F(TestReadLengthAsync, readZero)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadLengthAsync reader(mockSysCalls, 1000);
+
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 1))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { reinterpret_cast<char*>(outputbuf)[0] = 0; }),
+            Return(1)
+                ));
+
+    auto ret = reader.read(42);
+    EXPECT_EQ(ret, 1);
+    EXPECT_EQ(reader.getLength(), 0);
+}
+
+TEST_F(TestReadLengthAsync, readSmall)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadLengthAsync reader(mockSysCalls, 1000);
+
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 1))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { reinterpret_cast<char*>(outputbuf)[0] = 127; }),
+            Return(1)
+                ));
+
+    auto ret = reader.read(42);
+    EXPECT_EQ(ret, 1);
+    EXPECT_EQ(reader.getLength(), 127);
+}
+
+TEST_F(TestReadLengthAsync, faultInjection_zero_continuation)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadLengthAsync reader(mockSysCalls, 1000);
+
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 1))
+        .WillRepeatedly(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { reinterpret_cast<unsigned char*>(outputbuf)[0] = 0x80; }),
+            Return(1)
+                ));
+
+    auto ret = reader.read(42);
+    auto error = errno;
+    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(error, EINVAL);
+}
+
+TEST_F(TestReadLengthAsync, readLarge)
+{
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    unixsocket::ReadLengthAsync reader(mockSysCalls, 1000);
+
+    void* outputbuf;
+    EXPECT_CALL(*mockSysCalls, read(42, _, 1))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { reinterpret_cast<unsigned char*>(outputbuf)[0] = 0x81; }),
+            Return(1)
+                ))
+        .WillOnce(DoAll(
+            SaveArg<1>(&outputbuf),
+            Invoke([&outputbuf]() { reinterpret_cast<unsigned char*>(outputbuf)[0] = 0x1; }),
+            Return(1)
+                ));
+
+    auto ret = reader.read(42);
+    EXPECT_EQ(ret, 2);
+    EXPECT_EQ(reader.getLength(), 129);
+}
