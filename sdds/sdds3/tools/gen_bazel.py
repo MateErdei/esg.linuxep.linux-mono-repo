@@ -541,9 +541,14 @@ def add_static_flags(static_flags,product,suitedef,suite_src):
     flags = static_flags[product]
     if subscription not in flags:
         flags[subscription] = {}
+    version = suitedef['package_version']
+    #remove the extra version number that is used distingiush between static and non static suite
+    if len(version.split('.')) == 5:
+        version = version[:version.rindex('.')]
+
     flags[subscription] = {
         'suite': suite_src,
-        'version': suitedef['package_version'],
+        'version': version,
     }
 def write_launchdarkly_flags(launchdarkly_flags):
     flagsdir = os.path.join(ROOT, 'output', 'launchdarkly')
