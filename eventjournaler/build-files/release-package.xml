@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.5">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.6">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -6,7 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-31" build-id="20230816103025-92761e9acf66526bde95b3c2e52c9e5bfdb5689c-Vv5ykQ"/>
+            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
