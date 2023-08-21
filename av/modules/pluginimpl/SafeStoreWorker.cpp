@@ -10,7 +10,6 @@
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
-
 #include <utility>
 
 using namespace Plugin;
