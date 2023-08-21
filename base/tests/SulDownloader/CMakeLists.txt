@@ -27,7 +27,9 @@ add_executable(SulDownloaderTests
         Sdds3ReplaceAndRestore.cpp
         TestSusRequester.cpp
         TestInstalledFeatures.cpp
-        TestSulDownloaderUtils.cpp)
+        TestSulDownloaderUtils.cpp
+        SulDownloaderEMSTests.cpp
+        SuldownloaderSDDS3Helper.h)
 
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
         "${GTEST_INCLUDE}"
