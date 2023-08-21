@@ -606,7 +606,7 @@ SafeStore Rescan Does Not Restore Or Report Threats
     ${ss_mark} =  Get SafeStore Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=${60}
 
     Wait Until SafeStore running
 
@@ -639,11 +639,27 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark  ${td_mark}  Triggering rescan of SafeStore database
 
-    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=10
-    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar1}' found it to still be a threat  ${ss_mark}  timeout=5
-    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar2}' found it to still be a threat  ${ss_mark}  timeout=5
-    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
+    ${ss_mark} =  Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=${10}
+    ${ss_mark} =  Wait For SafeStore Log Contains After Mark
+    ...  Requesting metadata rescan of quarantined file (original path '/home/vagrant/this/is/a/directory/for/scanning/eicar1'
+    ...  ${ss_mark}   timeout=${10}
 
+    ${expected} =  Create List
+    ...  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar1}' found it to still be a threat
+    ...  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}
+    Wait For SafeStore Log Contains After Mark  ${expected}  mark=${ss_mark}  timeout=${5}
+
+    ${ss_mark} =  Wait For SafeStore Log Contains After Mark
+    ...  Requesting metadata rescan of quarantined file (original path '/home/vagrant/this/is/a/directory/for/scanning/eicar2'
+    ...  ${ss_mark}   timeout=${10}
+
+    ${expected} =  Create List
+    ...  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar2}' found it to still be a threat
+    ...  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}
+
+    Wait For SafeStore Log Contains After Mark  ${expected}  ${ss_mark}  timeout=${5}
+
+    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
 
 Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore
