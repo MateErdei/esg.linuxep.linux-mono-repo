@@ -10,7 +10,6 @@
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
 
 #include <utility>
 
@@ -54,9 +53,9 @@ void SafeStoreWorker::run()
             auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
             auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
             auto parentMount = mountInfo->getMountFromPath(threatDetected.filePath);
-            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
             if (parentMount != nullptr)
             {
+                const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
                 if (parentMount->isNetwork())
                 {
                     LOGINFO(
