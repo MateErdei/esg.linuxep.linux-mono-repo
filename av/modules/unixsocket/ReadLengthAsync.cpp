@@ -20,9 +20,20 @@ ssize_t unixsocket::ReadLengthAsync::getLength()
     return currentLength_;
 }
 
+int unixsocket::ReadLengthAsync::tooBig()
+{
+    currentLength_ = -1;
+    errno = E2BIG;
+    return -1;
+}
+
 int unixsocket::ReadLengthAsync::read(int fd)
 {
     assert(!complete_);
+    if (currentLength_ < 0)
+    {
+        return -1;
+    }
     uint8_t byte = 0; // For some reason clang-tidy thinks this is signed
     const uint8_t TOP_BIT = 0x80;
     int read = 0;
@@ -40,14 +51,17 @@ int unixsocket::ReadLengthAsync::read(int fd)
             else if ((byte & TOP_BIT) == 0)
             {
                 currentLength_ = currentLength_ * 128 + byte;
+                if (currentLength_ > maxSize_)
+                {
+                    return tooBig();
+                }
                 complete_ = true;
                 return read;
             }
             currentLength_ = currentLength_ * 128 + (byte ^ TOP_BIT);
             if (currentLength_ > maxSize_)
             {
-                errno = E2BIG;
-                return -1;
+                return tooBig();
             }
         }
         else if (count == -1)

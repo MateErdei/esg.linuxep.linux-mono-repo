@@ -20,5 +20,6 @@ namespace unixsocket
         ssize_t currentLength_ = 0;
         const ssize_t maxSize_ = 0;
         bool complete_ = false;
+        int tooBig();
     };
 }
