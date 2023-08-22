@@ -28,7 +28,7 @@ add_executable(SulDownloaderTests
         TestSusRequester.cpp
         TestInstalledFeatures.cpp
         TestSulDownloaderUtils.cpp
-        SulDownloaderEMSTests.cpp
+        SulDownloaderESMTests.cpp
         SuldownloaderSDDS3Helper.h)
 
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
