@@ -59,4 +59,4 @@ version:
   static: 'FTS'
 
   # if true, ESM json output file will contain "xRAMP": "true"
-  xRAMP: true
+#  xRAMP: true
