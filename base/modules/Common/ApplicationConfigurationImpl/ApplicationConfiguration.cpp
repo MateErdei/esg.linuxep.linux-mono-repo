@@ -48,21 +48,25 @@ namespace
 
 namespace Common::ApplicationConfigurationImpl
 {
-    std::string ApplicationConfiguration::getData(const std::string &key) const {
+    std::string ApplicationConfiguration::getData(const std::string &key) const
+    {
         return m_configurationData.at(key);
     }
 
-    ApplicationConfiguration::ApplicationConfiguration() {
+    ApplicationConfiguration::ApplicationConfiguration()
+    {
         m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
         m_configurationData[Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR] = Common::FileSystem::join(
                 m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL], "base/telemetry/cache");
     }
 
-    void ApplicationConfiguration::setData(const std::string &key, const std::string &data) {
+    void ApplicationConfiguration::setData(const std::string &key, const std::string &data)
+    {
         m_configurationData[key] = data;
     }
 
-    void ApplicationConfiguration::clearData(const std::string &key) {
+    void ApplicationConfiguration::clearData(const std::string &key)
+    {
         m_configurationData.erase(key);
     }
 } // namespace Common::ApplicationConfigurationImpl

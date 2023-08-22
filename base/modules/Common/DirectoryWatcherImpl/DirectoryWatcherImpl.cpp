@@ -27,10 +27,14 @@ namespace Common::DirectoryWatcherImpl
     }
 
     int iNotifyWrapper::removeWatch(int fd, int wd)
-    { return ::inotify_rm_watch(fd, wd); }
+    {
+        return ::inotify_rm_watch(fd, wd);
+    }
 
     ssize_t iNotifyWrapper::read(int fd, void *buf, size_t nbytes)
-    { return ::read(fd, buf, nbytes); }
+    {
+        return ::read(fd, buf, nbytes);
+    }
 
     DirectoryWatcher::DirectoryWatcher(std::unique_ptr<IiNotifyWrapper> iNotifyWrapperPtr) :
             m_iNotifyWrapperPtr(std::move(iNotifyWrapperPtr))
