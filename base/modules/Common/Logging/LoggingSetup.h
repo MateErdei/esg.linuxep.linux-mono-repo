@@ -3,29 +3,26 @@
 
 #include <log4cplus/appender.h>
 
-namespace Common
+namespace Common::Logging
 {
-    namespace Logging
+    using AppenderPtr = log4cplus::SharedAppenderPtr;
+
+    class LoggingSetup
     {
-        using AppenderPtr = log4cplus::SharedAppenderPtr;
+    public:
+        /**
+         * Log pattern for standard log files
+         */
+        static inline constexpr const char* const GL_DEFAULT_PATTERN \
+             = "%-7r [%d{%Y-%m-%dT%H:%M:%S.%q}] %7p [%10.10t] %c <> %m%n";
+        /**
+         * Simplified pattern for release Console output.
+         */
+        static inline constexpr const char* const GL_CONSOLE_PATTERN \
+            = "[%d{%H:%M:%S}] %m%n";
 
-        class LoggingSetup
-        {
-        public:
-            /**
-             * Log pattern for standard log files
-             */
-            static inline constexpr const char* const GL_DEFAULT_PATTERN \
-                 = "%-7r [%d{%Y-%m-%dT%H:%M:%S.%q}] %7p [%10.10t] %c <> %m%n";
-            /**
-             * Simplified pattern for release Console output.
-             */
-            static inline constexpr const char* const GL_CONSOLE_PATTERN \
-                = "[%d{%H:%M:%S}] %m%n";
+        static void applyDefaultPattern(AppenderPtr& appender);
 
-            static void applyDefaultPattern(AppenderPtr& appender);
-
-            static void applyPattern(AppenderPtr& appender, const char* pattern);
-        };
-    } // namespace Logging
-} // namespace Common
+        static void applyPattern(AppenderPtr& appender, const char* pattern);
+    };
+} // namespace Common::Logging

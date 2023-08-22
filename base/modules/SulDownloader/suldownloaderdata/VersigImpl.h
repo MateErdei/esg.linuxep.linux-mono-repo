@@ -10,40 +10,39 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IVersig.h"
 
 #include <functional>
-namespace SulDownloader
+
+namespace SulDownloader::suldownloaderdata
 {
-    namespace suldownloaderdata
+    class VersigImpl : public virtual suldownloaderdata::IVersig
     {
-        class VersigImpl : public virtual suldownloaderdata::IVersig
-        {
-        public:
-            VerifySignature verify(
-                const Common::Policy::UpdateSettings& certificate_path,
-                const std::string& productDirectoryPath) const override;
-        private:
-            std::vector<std::string> getListOfManifestFileNames(
-                    const Common::Policy::UpdateSettings& configurationData,
-                    const std::string& productDirectoryPath) const;
-        };
+    public:
+        VerifySignature verify(
+            const Common::Policy::UpdateSettings& certificate_path,
+            const std::string& productDirectoryPath) const override;
+    private:
+        std::vector<std::string> getListOfManifestFileNames(
+                const Common::Policy::UpdateSettings& configurationData,
+                const std::string& productDirectoryPath) const;
+    };
 
-        using IVersigPtr = suldownloaderdata::IVersigPtr;
-        using VersigCreatorFunc = std::function<IVersigPtr(void)>;
+    using IVersigPtr = suldownloaderdata::IVersigPtr;
+    using VersigCreatorFunc = std::function<IVersigPtr(void)>;
 
-        class VersigFactory
-        {
-            VersigFactory();
+    class VersigFactory
+    {
+        VersigFactory();
 
-            VersigCreatorFunc m_creator;
+        VersigCreatorFunc m_creator;
 
-        public:
-            static VersigFactory& instance();
+    public:
+        static VersigFactory& instance();
 
-            IVersigPtr createVersig();
+        IVersigPtr createVersig();
 
-            // for tests only
-            void replaceCreator(VersigCreatorFunc creator);
+        // for tests only
+        void replaceCreator(VersigCreatorFunc creator);
 
-            void restoreCreator();
-        };
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+        void restoreCreator();
+    };
+} // namespace SulDownloader::suldownloaderdata
+

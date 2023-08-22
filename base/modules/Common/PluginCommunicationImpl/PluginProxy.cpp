@@ -12,189 +12,186 @@
 #include <algorithm>
 #include <sstream>
 
-namespace Common
+namespace Common::PluginCommunicationImpl
 {
-    namespace PluginCommunicationImpl
+    PluginProxy::PluginProxy(
+        Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester,
+        const std::string& pluginName)
+        : m_socket(std::move(socketRequester))
+        , m_messageBuilder(pluginName)
+        , m_name(pluginName)
+        , m_serviceHealth(false)
+        , m_threatServiceHealth(false)
+        , m_displayPluginName("")
+
     {
-        PluginProxy::PluginProxy(
-            Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester,
-            const std::string& pluginName)
-            : m_socket(std::move(socketRequester))
-            , m_messageBuilder(pluginName)
-            , m_name(pluginName)
-            , m_serviceHealth(false)
-            , m_threatServiceHealth(false)
-            , m_displayPluginName("")
+        m_appIdCollection.setAppIdsForStatus({ pluginName });
+        m_appIdCollection.setAppIdsForPolicy({ pluginName });
+        m_appIdCollection.setAppIdsForActions({ pluginName });
+    }
 
+    void PluginProxy::applyNewPolicy(const std::string& appId, const std::string& policyXml)
+    {
+        // policyXml will only contain the path to the policy file.
+
+        //            std::string policyXmlData("");
+        //
+        //            try
+        //            {
+        //                policyXmlData = Common::FileSystem::fileSystem()->readFile(policyXml);
+        //            }
+        //            catch(Common::FileSystem::IFileSystemException&)
+        //            {
+        //                std::stringstream errorMessage;
+        //                errorMessage << "Failed to read action file" << policyXml;
+        //                throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
+        //            }
+
+        Common::PluginProtocol::DataMessage replyMessage =
+            getReply(m_messageBuilder.requestApplyPolicyMessage(appId, policyXml));
+        if (!m_messageBuilder.hasAck(replyMessage))
         {
-            m_appIdCollection.setAppIdsForStatus({ pluginName });
-            m_appIdCollection.setAppIdsForPolicy({ pluginName });
-            m_appIdCollection.setAppIdsForActions({ pluginName });
+            throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'policy event'");
+        }
+    }
+
+    void PluginProxy::queueAction(
+        const std::string& appId,
+        const std::string& actionXml,
+        const std::string& correlationId)
+    {
+        //            std::string actionXmlData(actionXml);
+        //            // Some actions are passed as content when not comming from MCS communication channel.
+        //            // i.e. when comming directly from watchdog
+        //
+        //            if (actionXml.find(".xml") != std::string::npos)
+        //            {
+        //                try
+        //                {
+        //                    actionXmlData = Common::FileSystem::fileSystem()->readFile(actionXml);
+        //                }
+        //                catch(Common::FileSystem::IFileSystemException&)
+        //                {
+        //                    std::stringstream errorMessage;
+        //                    errorMessage << "Failed to read action file" << actionXml;
+        //                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
+        //                }
+        //            }
+
+        Common::PluginProtocol::DataMessage replyMessage =
+            getReply(m_messageBuilder.requestDoActionMessage(appId, actionXml, correlationId));
+        if (!m_messageBuilder.hasAck(replyMessage))
+        {
+            throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'action event'");
+        }
+    }
+
+    std::vector<Common::PluginApi::StatusInfo> PluginProxy::getStatus()
+    {
+        std::vector<Common::PluginApi::StatusInfo> statusList;
+        for (auto& appId : m_appIdCollection.statusAppIds())
+        {
+            Common::PluginProtocol::DataMessage reply =
+                getReply(m_messageBuilder.requestRequestPluginStatusMessage(appId));
+            statusList.emplace_back(m_messageBuilder.requestExtractStatus(reply));
         }
 
-        void PluginProxy::applyNewPolicy(const std::string& appId, const std::string& policyXml)
+        return statusList;
+    }
+
+    std::string PluginProxy::getTelemetry()
+    {
+        Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestRequestTelemetryMessage());
+
+        return m_messageBuilder.replyExtractTelemetry(reply);
+    }
+
+    std::string PluginProxy::getHealth()
+    {
+        Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestRequestHealthMessage());
+
+        return m_messageBuilder.replyExtractHealth(reply);
+    }
+
+    Common::PluginProtocol::DataMessage PluginProxy::getReply(
+        const Common::PluginProtocol::DataMessage& request) const
+    {
+        Common::PluginProtocol::Protocol protocol;
+        Common::PluginProtocol::DataMessage reply;
+        try
         {
-            // policyXml will only contain the path to the policy file.
-
-            //            std::string policyXmlData("");
-            //
-            //            try
-            //            {
-            //                policyXmlData = Common::FileSystem::fileSystem()->readFile(policyXml);
-            //            }
-            //            catch(Common::FileSystem::IFileSystemException&)
-            //            {
-            //                std::stringstream errorMessage;
-            //                errorMessage << "Failed to read action file" << policyXml;
-            //                throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
-            //            }
-
-            Common::PluginProtocol::DataMessage replyMessage =
-                getReply(m_messageBuilder.requestApplyPolicyMessage(appId, policyXml));
-            if (!m_messageBuilder.hasAck(replyMessage))
-            {
-                throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'policy event'");
-            }
+            m_socket->write(protocol.serialize(request));
+            reply = protocol.deserialize(m_socket->read());
+        }
+        catch (const std::exception& ex)
+        {
+            std::ostringstream err;
+            err << ex.what() << " from getReply in PluginProxy";
+            std::throw_with_nested(PluginCommunication::IPluginCommunicationException(LOCATION, err.str()));
         }
 
-        void PluginProxy::queueAction(
-            const std::string& appId,
-            const std::string& actionXml,
-            const std::string& correlationId)
+        if (reply.m_command != request.m_command)
         {
-            //            std::string actionXmlData(actionXml);
-            //            // Some actions are passed as content when not comming from MCS communication channel.
-            //            // i.e. when comming directly from watchdog
-            //
-            //            if (actionXml.find(".xml") != std::string::npos)
-            //            {
-            //                try
-            //                {
-            //                    actionXmlData = Common::FileSystem::fileSystem()->readFile(actionXml);
-            //                }
-            //                catch(Common::FileSystem::IFileSystemException&)
-            //                {
-            //                    std::stringstream errorMessage;
-            //                    errorMessage << "Failed to read action file" << actionXml;
-            //                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
-            //                }
-            //            }
-
-            Common::PluginProtocol::DataMessage replyMessage =
-                getReply(m_messageBuilder.requestDoActionMessage(appId, actionXml, correlationId));
-            if (!m_messageBuilder.hasAck(replyMessage))
-            {
-                throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'action event'");
-            }
+            throw PluginCommunication::IPluginCommunicationException(
+                "Received reply from wrong command, Expecting: " +
+                Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
+                ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.m_command));
         }
 
-        std::vector<Common::PluginApi::StatusInfo> PluginProxy::getStatus()
+        if (!reply.m_error.empty())
         {
-            std::vector<Common::PluginApi::StatusInfo> statusList;
-            for (auto& appId : m_appIdCollection.statusAppIds())
-            {
-                Common::PluginProtocol::DataMessage reply =
-                    getReply(m_messageBuilder.requestRequestPluginStatusMessage(appId));
-                statusList.emplace_back(m_messageBuilder.requestExtractStatus(reply));
-            }
-
-            return statusList;
+            throw PluginCommunication::IPluginCommunicationException(reply.m_error);
         }
 
-        std::string PluginProxy::getTelemetry()
-        {
-            Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestRequestTelemetryMessage());
+        return reply;
+    }
 
-            return m_messageBuilder.replyExtractTelemetry(reply);
-        }
+    void PluginProxy::setPolicyAppIds(const std::vector<std::string>& appIds)
+    {
+        m_appIdCollection.setAppIdsForPolicy(appIds);
+    }
 
-        std::string PluginProxy::getHealth()
-        {
-            Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestRequestHealthMessage());
+    void PluginProxy::setActionAppIds(const std::vector<std::string>& appIds)
+    {
+        m_appIdCollection.setAppIdsForActions(appIds);
+    }
 
-            return m_messageBuilder.replyExtractHealth(reply);
-        }
+    void PluginProxy::setStatusAppIds(const std::vector<std::string>& appIds)
+    {
+        m_appIdCollection.setAppIdsForStatus(appIds);
+    }
 
-        Common::PluginProtocol::DataMessage PluginProxy::getReply(
-            const Common::PluginProtocol::DataMessage& request) const
-        {
-            Common::PluginProtocol::Protocol protocol;
-            Common::PluginProtocol::DataMessage reply;
-            try
-            {
-                m_socket->write(protocol.serialize(request));
-                reply = protocol.deserialize(m_socket->read());
-            }
-            catch (const std::exception& ex)
-            {
-                std::ostringstream err;
-                err << ex.what() << " from getReply in PluginProxy";
-                std::throw_with_nested(PluginCommunication::IPluginCommunicationException(LOCATION, err.str()));
-            }
+    bool PluginProxy::hasPolicyAppId(const std::string& appId) { return m_appIdCollection.usePolicyId(appId); }
 
-            if (reply.m_command != request.m_command)
-            {
-                throw PluginCommunication::IPluginCommunicationException(
-                    "Received reply from wrong command, Expecting: " +
-                    Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
-                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.m_command));
-            }
+    bool PluginProxy::hasActionAppId(const std::string& appId)
+    {
+        return m_appIdCollection.implementActionId(appId);
+    }
 
-            if (!reply.m_error.empty())
-            {
-                throw PluginCommunication::IPluginCommunicationException(reply.m_error);
-            }
+    bool PluginProxy::hasStatusAppId(const std::string& appId) { return m_appIdCollection.implementStatus(appId); }
 
-            return reply;
-        }
-
-        void PluginProxy::setPolicyAppIds(const std::vector<std::string>& appIds)
-        {
-            m_appIdCollection.setAppIdsForPolicy(appIds);
-        }
-
-        void PluginProxy::setActionAppIds(const std::vector<std::string>& appIds)
-        {
-            m_appIdCollection.setAppIdsForActions(appIds);
-        }
-
-        void PluginProxy::setStatusAppIds(const std::vector<std::string>& appIds)
-        {
-            m_appIdCollection.setAppIdsForStatus(appIds);
-        }
-
-        bool PluginProxy::hasPolicyAppId(const std::string& appId) { return m_appIdCollection.usePolicyId(appId); }
-
-        bool PluginProxy::hasActionAppId(const std::string& appId)
-        {
-            return m_appIdCollection.implementActionId(appId);
-        }
-
-        bool PluginProxy::hasStatusAppId(const std::string& appId) { return m_appIdCollection.implementStatus(appId); }
-
-        void PluginProxy::setServiceHealth(bool serviceHealth)
-        {
-            m_serviceHealth = serviceHealth;
-        }
-        void PluginProxy::setThreatServiceHealth(bool threatServiceHealth)
-        {
-            m_threatServiceHealth = threatServiceHealth;
-        }
-        void PluginProxy::setDisplayPluginName(const std::string& displayPluginName)
-        {
-            m_displayPluginName = displayPluginName;
-        }
-        bool PluginProxy::getServiceHealth() const
-        {
-            return m_serviceHealth;
-        }
-        bool PluginProxy::getThreatServiceHealth() const
-        {
-            return m_threatServiceHealth;
-        }
-        std::string PluginProxy::getDisplayPluginName() const
-        {
-            return m_displayPluginName;
-        }
-    } // namespace PluginCommunicationImpl
-} // namespace Common
+    void PluginProxy::setServiceHealth(bool serviceHealth)
+    {
+        m_serviceHealth = serviceHealth;
+    }
+    void PluginProxy::setThreatServiceHealth(bool threatServiceHealth)
+    {
+        m_threatServiceHealth = threatServiceHealth;
+    }
+    void PluginProxy::setDisplayPluginName(const std::string& displayPluginName)
+    {
+        m_displayPluginName = displayPluginName;
+    }
+    bool PluginProxy::getServiceHealth() const
+    {
+        return m_serviceHealth;
+    }
+    bool PluginProxy::getThreatServiceHealth() const
+    {
+        return m_threatServiceHealth;
+    }
+    std::string PluginProxy::getDisplayPluginName() const
+    {
+        return m_displayPluginName;
+    }
+} // namespace Common::PluginCommunicationImpl

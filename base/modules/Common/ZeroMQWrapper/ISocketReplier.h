@@ -9,13 +9,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IReadWrite.h"
 #include "ISocketSetup.h"
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class ISocketReplier : public virtual IReadWrite, public virtual ISocketSetup
     {
-        class ISocketReplier : public virtual IReadWrite, public virtual ISocketSetup
-        {
-        public:
-        };
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    public:
+    };
+} // namespace Common::ZeroMQWrapper

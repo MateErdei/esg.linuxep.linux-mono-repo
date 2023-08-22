@@ -13,26 +13,25 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace SulDownloader
+
+namespace SulDownloader::suldownloaderdata
 {
-    namespace suldownloaderdata
+    /**
+     * Interface for SDDS3Repository to enable tests.
+     * For documentation, see SDDS3Repository.h
+     */
+    class ISdds3Repository : public IRepository
     {
-        /**
-         * Interface for SDDS3Repository to enable tests.
-         * For documentation, see SDDS3Repository.h
-         */
-        class ISdds3Repository : public IRepository
-        {
-        public:
+    public:
 
-            virtual ~ISdds3Repository() = default;
+        virtual ~ISdds3Repository() = default;
 
-            virtual bool synchronize(
-                const Common::Policy::UpdateSettings& updateSettings,
-                const suldownloaderdata::ConnectionSetup& connectionSetup,
-                const bool ignoreFailedSupplementRefresh) = 0;
+        virtual bool synchronize(
+            const Common::Policy::UpdateSettings& updateSettings,
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
+            const bool ignoreFailedSupplementRefresh) = 0;
 
-            virtual void distribute() = 0;
+        virtual void distribute() = 0;
 //
 //            /**
 //             * Attempt to connect to a provided connection setup information.
@@ -43,14 +42,14 @@ namespace SulDownloader
 //             * @param configurationData
 //             * @return
 //             */
-            virtual bool tryConnect(
-                const suldownloaderdata::ConnectionSetup& connectionSetup,
-                bool supplementOnly,
-                const Common::Policy::UpdateSettings& updateSettings) = 0;
-            virtual void setWillInstall(const bool willInstall) = 0;
-        };
+        virtual bool tryConnect(
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
+            bool supplementOnly,
+            const Common::Policy::UpdateSettings& updateSettings) = 0;
+        virtual void setWillInstall(const bool willInstall) = 0;
+    };
 
-        using ISDDS3RepositoryPtr = std::unique_ptr<ISdds3Repository>;
+    using ISDDS3RepositoryPtr = std::unique_ptr<ISdds3Repository>;
 
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+} // namespace SulDownloader::suldownloaderdata
+

@@ -8,26 +8,22 @@
 
 #include <sstream>
 
-namespace Common
+namespace Common::PluginProtocol
 {
-    namespace PluginProtocol
+    Protocol::Protocol(std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> protocolFactory) :
+        m_protocolFactory(std::move(protocolFactory))
     {
-        Protocol::Protocol(std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> protocolFactory) :
-            m_protocolFactory(std::move(protocolFactory))
-        {
-        }
+    }
 
-        const data_t Protocol::serialize(const Common::PluginProtocol::DataMessage& dataMessage) const
-        {
-            auto serializer = m_protocolFactory->createProtocolSerializer();
-            return serializer->serialize(dataMessage);
-        }
+    const data_t Protocol::serialize(const Common::PluginProtocol::DataMessage& dataMessage) const
+    {
+        auto serializer = m_protocolFactory->createProtocolSerializer();
+        return serializer->serialize(dataMessage);
+    }
 
-        const Common::PluginProtocol::DataMessage Protocol::deserialize(const data_t& data) const
-        {
-            auto serializer = m_protocolFactory->createProtocolSerializer();
-            return serializer->deserialize(data);
-        }
-
-    } // namespace PluginProtocol
-} // namespace Common
+    const Common::PluginProtocol::DataMessage Protocol::deserialize(const data_t& data) const
+    {
+        auto serializer = m_protocolFactory->createProtocolSerializer();
+        return serializer->deserialize(data);
+    }
+} // namespace Common::PluginProtocol

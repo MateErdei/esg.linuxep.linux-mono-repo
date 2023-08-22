@@ -8,37 +8,34 @@
 #include <atomic>
 #include <functional>
 #include <mutex>
-namespace Common
+namespace Common::ProcessImpl
 {
-    namespace ProcessImpl
+    class IProcessHolder
     {
-        class IProcessHolder
-        {
-        public:
-            virtual ~IProcessHolder(){};
+    public:
+        virtual ~IProcessHolder(){};
 
-            virtual int pid() = 0;
+        virtual int pid() = 0;
 
-            virtual void wait() = 0;
+        virtual void wait() = 0;
 
-            virtual Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) = 0;
+        virtual Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) = 0;
 
-            virtual int exitCode() = 0;
-            virtual int nativeExitCode() = 0;
+        virtual int exitCode() = 0;
+        virtual int nativeExitCode() = 0;
 
-            virtual std::string output() = 0;
-            virtual std::string stderroutput() = 0;
-            virtual std::string stdoutput() = 0;
+        virtual std::string output() = 0;
+        virtual std::string stderroutput() = 0;
+        virtual std::string stdoutput() = 0;
 
-            virtual bool hasFinished() = 0;
+        virtual bool hasFinished() = 0;
 
-            virtual void sendTerminateSignal() = 0;
+        virtual void sendTerminateSignal() = 0;
 
-            virtual void sendAbortSignal() = 0;
+        virtual void sendAbortSignal() = 0;
 
-            virtual void sendUsr1Signal() = 0;
+        virtual void sendUsr1Signal() = 0;
 
-            virtual void kill() = 0;
-        };
-    } // namespace ProcessImpl
-} // namespace Common
+        virtual void kill() = 0;
+    };
+} // namespace Common::ProcessImpl

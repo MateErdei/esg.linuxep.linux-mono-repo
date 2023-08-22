@@ -6,29 +6,23 @@
 
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 
-#include <zmq.h>
-
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class SocketSubscriberImpl : public SocketImpl, virtual public Common::ZeroMQWrapper::ISocketSubscriber
     {
-        class SocketSubscriberImpl : public SocketImpl, virtual public Common::ZeroMQWrapper::ISocketSubscriber
-        {
-        public:
-            explicit SocketSubscriberImpl(ContextHolderSharedPtr context) : SocketImpl(std::move(context), ZMQ_SUB) {}
+    public:
+        explicit SocketSubscriberImpl(ContextHolderSharedPtr context);
 
-            /**
-             * Read a subscribed event from the socket
-             * @return
-             */
-            std::vector<std::string> read() override;
+        /**
+         * Read a subscribed event from the socket
+         * @return
+         */
+        std::vector<std::string> read() override;
 
-            /**
-             * Set the subscription for this socket.
-             * @param subject
-             */
-            void subscribeTo(const std::string& subject) override;
-        };
-
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+        /**
+         * Set the subscription for this socket.
+         * @param subject
+         */
+        void subscribeTo(const std::string& subject) override;
+    };
+} // namespace Common::ZeroMQWrapperImpl

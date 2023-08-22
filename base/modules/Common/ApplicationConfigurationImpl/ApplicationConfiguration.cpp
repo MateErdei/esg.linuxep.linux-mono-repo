@@ -46,39 +46,32 @@ namespace
     }
 } // namespace
 
-namespace Common
+namespace Common::ApplicationConfigurationImpl
 {
-    namespace ApplicationConfigurationImpl
-    {
-        std::string ApplicationConfiguration::getData(const std::string& key) const
-        {
-            return m_configurationData.at(key);
-        }
+    std::string ApplicationConfiguration::getData(const std::string &key) const {
+        return m_configurationData.at(key);
+    }
 
-        ApplicationConfiguration::ApplicationConfiguration()
-        {
-            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
-            m_configurationData[Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR] = Common::FileSystem::join(
+    ApplicationConfiguration::ApplicationConfiguration() {
+        m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
+        m_configurationData[Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR] = Common::FileSystem::join(
                 m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL], "base/telemetry/cache");
-        }
+    }
 
-        void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
-        {
-            m_configurationData[key] = data;
-        }
+    void ApplicationConfiguration::setData(const std::string &key, const std::string &data) {
+        m_configurationData[key] = data;
+    }
 
-        void ApplicationConfiguration::clearData(const std::string& key)
-        {
-            m_configurationData.erase(key);
-        }
-    } // namespace ApplicationConfigurationImpl
+    void ApplicationConfiguration::clearData(const std::string &key) {
+        m_configurationData.erase(key);
+    }
+} // namespace Common::ApplicationConfigurationImpl
 
-    namespace ApplicationConfiguration
+namespace Common::ApplicationConfiguration
+{
+    IApplicationConfiguration& applicationConfiguration()
     {
-        IApplicationConfiguration& applicationConfiguration()
-        {
-            static Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
-            return applicationConfiguration;
-        }
-    } // namespace ApplicationConfiguration
-} // namespace Common
+        static Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
+        return applicationConfiguration;
+    }
+} // namespace Common::ApplicationConfiguration

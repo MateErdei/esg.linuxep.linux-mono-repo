@@ -11,22 +11,19 @@
 
 #pragma GCC diagnostic pop
 
-namespace Common
+namespace Common::ProtobufUtil
 {
-    namespace ProtobufUtil
+    std::string MessageUtility::protoBuf2Json(const google::protobuf::Message& message)
     {
-        std::string MessageUtility::protoBuf2Json(const google::protobuf::Message& message)
+        using namespace google::protobuf::util;
+        std::string json_output;
+        JsonPrintOptions options;
+        options.add_whitespace = true;
+        auto status = MessageToJsonString(message, &json_output, options);
+        if (!status.ok())
         {
-            using namespace google::protobuf::util;
-            std::string json_output;
-            JsonPrintOptions options;
-            options.add_whitespace = true;
-            auto status = MessageToJsonString(message, &json_output, options);
-            if (!status.ok())
-            {
-                throw MessageException(status.ToString());
-            }
-            return json_output;
+            throw MessageException(status.ToString());
         }
-    } // namespace ProtobufUtil
+        return json_output;
+    }
 } // namespace Common

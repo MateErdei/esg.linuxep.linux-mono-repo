@@ -7,42 +7,39 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::OSUtilitiesImpl
 {
-    namespace OSUtilitiesImpl
+    class SXLMachineID
     {
-        class SXLMachineID
-        {
-        public:
-            /**
-             * Grab the machine ID defined at INSTALL_ROOT/base/etc/machine_id.txt
-             * @return return the content of the file or empty string
-             */
-            std::string getMachineID();
-            /**
-             * Write to file machine ID
-             */
-            void createMachineIDFile();
-
-            /**
-             * Create a machine id that is composed by: a fixed prefix: sspl-machineid + list of macs.
-             * The calculated md5 of the resulted string.
-             * @return machine id string
-             */
-            std::string generateMachineID();
-
-        private:
-            std::string machineIDPath() const;
-        };
+    public:
+        /**
+         * Grab the machine ID defined at INSTALL_ROOT/base/etc/machine_id.txt
+         * @return return the content of the file or empty string
+         */
+        std::string getMachineID();
+        /**
+         * Write to file machine ID
+         */
+        void createMachineIDFile();
 
         /**
-         * Receives as first argument SOPHOS_INSTALL.
-         * Verify if the machine id exists. If it does not, create.
-         *
-         * @param argc
-         * @param argv: program-name , sophos_install
-         * @return 0 for success, otherwise error code
+         * Create a machine id that is composed by: a fixed prefix: sspl-machineid + list of macs.
+         * The calculated md5 of the resulted string.
+         * @return machine id string
          */
-        int mainEntry(int argc, char* argv[]);
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+        std::string generateMachineID();
+
+    private:
+        std::string machineIDPath() const;
+    };
+
+    /**
+     * Receives as first argument SOPHOS_INSTALL.
+     * Verify if the machine id exists. If it does not, create.
+     *
+     * @param argc
+     * @param argv: program-name , sophos_install
+     * @return 0 for success, otherwise error code
+     */
+    int mainEntry(int argc, char* argv[]);
+} // namespace Common::OSUtilitiesImpl

@@ -7,37 +7,33 @@
 #include <string>
 #include <vector>
 
-namespace SulDownloader
+namespace SulDownloader::suldownloaderdata
 {
-    namespace suldownloaderdata
+    /**
+     * Holds enough information to setup a SDDS3 connection
+     */
+    class ConnectionSetup
     {
-        /**
-         * Holds enough information to setup a SDDS3 connection
-         */
-        class ConnectionSetup
-        {
-        public:
-            using proxy_t = Common::Policy::Proxy;
+    public:
+        using proxy_t = Common::Policy::Proxy;
 
-            explicit ConnectionSetup(
-                const std::string& updateLocationURL,
-                bool isCacheUpdate = false,
-                const proxy_t& proxy = proxy_t());
+        explicit ConnectionSetup(
+            const std::string& updateLocationURL,
+            bool isCacheUpdate = false,
+            const proxy_t& proxy = proxy_t());
 
-            [[nodiscard]] const proxy_t& getProxy() const;
+        [[nodiscard]] const proxy_t& getProxy() const;
 
-            [[nodiscard]] const std::string& getUpdateLocationURL() const;
+        [[nodiscard]] const std::string& getUpdateLocationURL() const;
 
-            std::string toString() const;
+        std::string toString() const;
 
-            bool isCacheUpdate() const;
+        bool isCacheUpdate() const;
 
-        private:
+    private:
 
-            std::string m_updateLocationURL;
-            bool m_isUpdateCache;
-            proxy_t m_proxy;
-        };
-
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+        std::string m_updateLocationURL;
+        bool m_isUpdateCache;
+        proxy_t m_proxy;
+    };
+} // namespace SulDownloader::suldownloaderdata

@@ -12,115 +12,111 @@
 #include <pwd.h>
 #include <unistd.h>
 
-namespace Common
+namespace Common::ProcessImpl
 {
-    namespace ProcessImpl
+    ProcessInfo::ProcessInfo() noexcept : m_secondsToShutDown(2), m_executableUser(-1), m_executableGroup(-1) {}
+
+    std::vector<std::string> ProcessInfo::getExecutableArguments() const { return m_executableArguments; }
+
+    Process::EnvPairs ProcessInfo::getExecutableEnvironmentVariables() const
     {
-        ProcessInfo::ProcessInfo() noexcept : m_secondsToShutDown(2), m_executableUser(-1), m_executableGroup(-1) {}
+        return m_executableEnvironmentVariables;
+    }
 
-        std::vector<std::string> ProcessInfo::getExecutableArguments() const { return m_executableArguments; }
+    std::string ProcessInfo::getExecutableFullPath() const { return m_executableFullPath; }
 
-        Process::EnvPairs ProcessInfo::getExecutableEnvironmentVariables() const
+    void ProcessInfo::setExecutableFullPath(const std::string& executableFullPath)
+    {
+        m_executableFullPath = executableFullPath;
+    }
+
+    void ProcessInfo::setExecutableArguments(const std::vector<std::string>& executableArguments)
+    {
+        m_executableArguments = executableArguments;
+    }
+
+    void ProcessInfo::addExecutableArguments(const std::string& executableArgument)
+    {
+        m_executableArguments.push_back(executableArgument);
+    }
+
+    void ProcessInfo::setExecutableEnvironmentVariables(const Process::EnvPairs& executableEnvironmentVariables)
+    {
+        m_executableEnvironmentVariables = executableEnvironmentVariables;
+    }
+
+    void ProcessInfo::addExecutableEnvironmentVariables(
+        const std::string& environmentName,
+        const std::string& environmentValue)
+    {
+        m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
+    }
+
+    void ProcessInfo::refreshUserAndGroupIds()
+    {
+        setExecutableUserAndGroup(m_executableUserAndGroupAsString);
+    }
+
+    void ProcessInfo::setExecutableUserAndGroup(const std::string& executableUserAndGroup)
+    {
+        m_executableUser = -1;
+        m_executableGroup = -1;
+
+        m_executableUserAndGroupAsString = executableUserAndGroup;
+
+        size_t pos = executableUserAndGroup.find(':');
+
+        std::string userName = executableUserAndGroup.substr(0, pos);
+
+        std::string groupName;
+        if (pos != std::string::npos)
         {
-            return m_executableEnvironmentVariables;
+            groupName = executableUserAndGroup.substr(pos + 1);
         }
 
-        std::string ProcessInfo::getExecutableFullPath() const { return m_executableFullPath; }
+        auto ifperms = Common::FileSystem::filePermissions();
 
-        void ProcessInfo::setExecutableFullPath(const std::string& executableFullPath)
+        try
         {
-            m_executableFullPath = executableFullPath;
-        }
+            std::pair<uid_t, gid_t> userAndGroupId =
+                ifperms->getUserAndGroupId(userName.c_str());
 
-        void ProcessInfo::setExecutableArguments(const std::vector<std::string>& executableArguments)
-        {
-            m_executableArguments = executableArguments;
-        }
-
-        void ProcessInfo::addExecutableArguments(const std::string& executableArgument)
-        {
-            m_executableArguments.push_back(executableArgument);
-        }
-
-        void ProcessInfo::setExecutableEnvironmentVariables(const Process::EnvPairs& executableEnvironmentVariables)
-        {
-            m_executableEnvironmentVariables = executableEnvironmentVariables;
-        }
-
-        void ProcessInfo::addExecutableEnvironmentVariables(
-            const std::string& environmentName,
-            const std::string& environmentValue)
-        {
-            m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
-        }
-
-        void ProcessInfo::refreshUserAndGroupIds()
-        {
-            setExecutableUserAndGroup(m_executableUserAndGroupAsString);
-        }
-
-        void ProcessInfo::setExecutableUserAndGroup(const std::string& executableUserAndGroup)
-        {
-            m_executableUser = -1;
-            m_executableGroup = -1;
-
-            m_executableUserAndGroupAsString = executableUserAndGroup;
-
-            size_t pos = executableUserAndGroup.find(':');
-
-            std::string userName = executableUserAndGroup.substr(0, pos);
-
-            std::string groupName;
-            if (pos != std::string::npos)
+            m_executableUser = userAndGroupId.first;
+            if (groupName.empty())
             {
-                groupName = executableUserAndGroup.substr(pos + 1);
+                m_executableGroup = userAndGroupId.second;
             }
-
-            auto ifperms = Common::FileSystem::filePermissions();
-
-            try
+            else
             {
-                std::pair<uid_t, gid_t> userAndGroupId =
-                    ifperms->getUserAndGroupId(userName.c_str());
-
-                m_executableUser = userAndGroupId.first;
-                if (groupName.empty())
-                {
-                    m_executableGroup = userAndGroupId.second;
-                }
-                else
-                {
-                    m_executableGroup = ifperms->getGroupId(groupName);
-                }
-            }
-            catch (const Common::FileSystem::IFileSystemException& exception)
-            {
-                LOGERROR(exception.what());
+                m_executableGroup = ifperms->getGroupId(groupName);
             }
         }
-
-        std::string ProcessInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
-
-        std::pair<bool, uid_t> ProcessInfo::getExecutableUser() const
+        catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            uid_t userId = static_cast<uid_t>(m_executableUser);
-
-            return std::make_pair(m_executableUser != -1, userId);
+            LOGERROR(exception.what());
         }
+    }
 
-        std::pair<bool, gid_t> ProcessInfo::getExecutableGroup() const
-        {
-            gid_t groupId = static_cast<gid_t>(m_executableGroup);
+    std::string ProcessInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
 
-            return std::make_pair(m_executableGroup != -1, groupId);
-        }
+    std::pair<bool, uid_t> ProcessInfo::getExecutableUser() const
+    {
+        uid_t userId = static_cast<uid_t>(m_executableUser);
 
-        int ProcessInfo::getSecondsToShutDown() const { return m_secondsToShutDown; }
+        return std::make_pair(m_executableUser != -1, userId);
+    }
 
-        void ProcessInfo::setSecondsToShutDown(int seconds) { m_secondsToShutDown = seconds; }
+    std::pair<bool, gid_t> ProcessInfo::getExecutableGroup() const
+    {
+        gid_t groupId = static_cast<gid_t>(m_executableGroup);
 
-    } // namespace ProcessImpl
-} // namespace Common
+        return std::make_pair(m_executableGroup != -1, groupId);
+    }
+
+    int ProcessInfo::getSecondsToShutDown() const { return m_secondsToShutDown; }
+
+    void ProcessInfo::setSecondsToShutDown(int seconds) { m_secondsToShutDown = seconds; }
+} // namespace Common::ProcessImpl
 namespace Common::Process
 {
     IProcessInfoPtr createEmptyProcessInfo() { return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo); }

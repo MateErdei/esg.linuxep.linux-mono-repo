@@ -95,16 +95,13 @@ namespace
     }
 } // namespace
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    void StringUtils::enforceUTF8(const std::string& input)
     {
-        void StringUtils::enforceUTF8(const std::string& input)
+        if (!isValidUtf8(input))
         {
-            if (!isValidUtf8(input))
-            {
-                throw std::invalid_argument{ "Not a valid UTF-8 string" };
-            }
+            throw std::invalid_argument{ "Not a valid UTF-8 string" };
         }
-    } // namespace UtilityImpl
-} // namespace Common
+    }
+} // namespace Common::UtilityImpl

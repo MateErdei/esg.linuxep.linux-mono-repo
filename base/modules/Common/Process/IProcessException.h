@@ -4,14 +4,11 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::Process
 {
-    namespace Process
+    class IProcessException : public Common::Exceptions::IException
     {
-        class IProcessException : public Common::Exceptions::IException
-        {
-        public:
-            explicit IProcessException(const std::string& what) : Common::Exceptions::IException(what) {}
-        };
-    } // namespace Process
-} // namespace Common
+    public:
+        explicit IProcessException(const std::string& what) : Common::Exceptions::IException(what) {}
+    };
+} // namespace Common::Process

@@ -7,18 +7,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ApiException.h"
 
-namespace Common
+namespace Common::PluginApi
 {
-    namespace PluginApi
+    /**
+     * Exception class to report that No Policy is available
+     */
+    class NoPolicyAvailableException : public ApiException
     {
-        /**
-         * Exception class to report that No Policy is available
-         */
-        class NoPolicyAvailableException : public ApiException
-        {
-        public:
-            static const std::string NoPolicyAvailable;
-            explicit NoPolicyAvailableException() : ApiException(NoPolicyAvailable) {}
-        };
-    } // namespace PluginApi
-} // namespace Common
+    public:
+        static const std::string NoPolicyAvailable;
+        explicit NoPolicyAvailableException() : ApiException(NoPolicyAvailable) {}
+    };
+} // namespace Common::PluginApi

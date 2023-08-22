@@ -7,31 +7,30 @@
 #include <memory>
 #include <string>
 
-namespace SulDownloader
+
+namespace SulDownloader::suldownloaderdata
 {
-    namespace suldownloaderdata
+    class IVersig
     {
-        class IVersig
+    public:
+        virtual ~IVersig() = default;
+
+        enum class VerifySignature
         {
-        public:
-            virtual ~IVersig() = default;
-
-            enum class VerifySignature
-            {
-                SIGNATURE_VERIFIED,
-                SIGNATURE_FAILED,
-                INVALID_ARGUMENTS
-            };
-
-            using settings_t = Common::Policy::UpdateSettings;
-
-            virtual VerifySignature verify(
-                const settings_t& configurationData,
-                const std::string& productDirectoryPath) const = 0;
+            SIGNATURE_VERIFIED,
+            SIGNATURE_FAILED,
+            INVALID_ARGUMENTS
         };
 
-        using IVersigPtr = std::unique_ptr<IVersig>;
+        using settings_t = Common::Policy::UpdateSettings;
 
-        IVersigPtr createVersig();
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+        virtual VerifySignature verify(
+            const settings_t& configurationData,
+            const std::string& productDirectoryPath) const = 0;
+    };
+
+    using IVersigPtr = std::unique_ptr<IVersig>;
+
+    IVersigPtr createVersig();
+} // namespace SulDownloader::suldownloaderdata
+

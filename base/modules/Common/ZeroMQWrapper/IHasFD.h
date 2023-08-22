@@ -8,17 +8,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class IHasFD
     {
-        class IHasFD
-        {
-        public:
-            virtual ~IHasFD() = default;
-            virtual int fd() = 0;
-        };
+    public:
+        virtual ~IHasFD() = default;
+        virtual int fd() = 0;
+    };
 
-        using IHasFDPtr = std::unique_ptr<IHasFD>;
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    using IHasFDPtr = std::unique_ptr<IHasFD>;
+} // namespace Common::ZeroMQWrapper

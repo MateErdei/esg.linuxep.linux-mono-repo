@@ -3,20 +3,17 @@
 
 #include "Common/Datatypes/StringVector.h"
 
-namespace wdctl
+namespace wdctl::wdctlarguments
 {
-    namespace wdctlarguments
+    class Arguments
     {
-        class Arguments
-        {
-        public:
-            using StringVector = Common::Datatypes::StringVector;
-            void parseArguments(const StringVector& args);
-            StringVector m_positionalArgs;
-            StringVector m_options;
-            std::string m_command;
-            std::string m_argument;
-            bool m_quietMode = false;
-        };
-    } // namespace wdctlarguments
-} // namespace wdctl
+    public:
+        using StringVector = Common::Datatypes::StringVector;
+        void parseArguments(const StringVector& args);
+        StringVector m_positionalArgs;
+        StringVector m_options;
+        std::string m_command;
+        std::string m_argument;
+        bool m_quietMode = false;
+    };
+} // namespace wdctl::wdctlarguments

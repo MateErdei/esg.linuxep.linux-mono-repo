@@ -8,16 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::PluginCommunication
 {
-    namespace PluginCommunication
+    class IPolicyReceiver
     {
-        class IPolicyReceiver
-        {
-        public:
-            virtual ~IPolicyReceiver() = default;
+    public:
+        virtual ~IPolicyReceiver() = default;
 
-            virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) = 0;
-        };
-    } // namespace PluginCommunication
-} // namespace ManagementAgent
+        virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) = 0;
+    };
+} // namespace ManagementAgent::PluginCommunication

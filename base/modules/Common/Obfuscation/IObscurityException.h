@@ -8,14 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IObfuscationException.h"
 
-namespace Common
+namespace Common::Obfuscation
 {
-    namespace Obfuscation
+    class IObscurityException : public IObfuscationException
     {
-        class IObscurityException : public IObfuscationException
-        {
-        public:
-            explicit IObscurityException(const std::string& what) : IObfuscationException(what) {}
-        };
-    } // namespace Obfuscation
-} // namespace Common
+    public:
+        explicit IObscurityException(const std::string& what) : IObfuscationException(what) {}
+    };
+} // namespace Common::Obfuscation

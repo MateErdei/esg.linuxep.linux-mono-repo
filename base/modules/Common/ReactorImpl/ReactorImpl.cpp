@@ -28,201 +28,198 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::ReactorImpl
 {
-    namespace ReactorImpl
+    using namespace Common::Reactor;
+    ReactorThreadImpl::ReactorThreadImpl() : m_shutdownListener(nullptr) {}
+
+    ReactorThreadImpl::~ReactorThreadImpl() { m_callbackListeners.clear(); }
+
+    void ReactorThreadImpl::addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback)
     {
-        using namespace Common::Reactor;
-        ReactorThreadImpl::ReactorThreadImpl() : m_shutdownListener(nullptr) {}
+        ReaderListener entry{ .reader = readable, .listener = callback };
+        // LOGDEBUG("add listeners: " << entry.reader->fd());
+        m_callbackListeners.push_back(entry);
+    }
 
-        ReactorThreadImpl::~ReactorThreadImpl() { m_callbackListeners.clear(); }
+    void ReactorThreadImpl::setShutdownListener(IShutdownListener* shutdownListener)
+    {
+        assert(shutdownListener != nullptr);
 
-        void ReactorThreadImpl::addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback)
+        m_shutdownListener = shutdownListener;
+    }
+
+    void ReactorThreadImpl::main_loop()
+    {
+        Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
+        // LOGERROR("Running Thread Impl");
+        bool monitorForSignalsForShutdown = false;
+
+        Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::pollerFactory().create();
+
+        for (auto& readList : m_callbackListeners)
         {
-            ReaderListener entry{ .reader = readable, .listener = callback };
-            // LOGDEBUG("add listeners: " << entry.reader->fd());
-            m_callbackListeners.push_back(entry);
+            // LOGDEBUG("add call back: " << readList.reader->fd());
+            poller->addEntry(*(readList.reader), Common::ZeroMQWrapper::IPoller::POLLIN);
         }
 
-        void ReactorThreadImpl::setShutdownListener(IShutdownListener* shutdownListener)
+        if (m_shutdownListener)
         {
-            assert(shutdownListener != nullptr);
-
-            m_shutdownListener = shutdownListener;
-        }
-
-        void ReactorThreadImpl::main_loop()
-        {
-            Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
-            // LOGERROR("Running Thread Impl");
-            bool monitorForSignalsForShutdown = false;
-
-            Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::pollerFactory().create();
-
-            for (auto& readList : m_callbackListeners)
+            std::lock_guard<std::mutex> mutexLock(GL_signalMutex);
+            if (GL_signalPipe != nullptr)
             {
-                // LOGDEBUG("add call back: " << readList.reader->fd());
-                poller->addEntry(*(readList.reader), Common::ZeroMQWrapper::IPoller::POLLIN);
+                LOGERROR("Attempting to configure shutdown monitor in ReactorThread while another ReactorThread is "
+                         "running");
             }
-
-            if (m_shutdownListener)
+            else
             {
-                std::lock_guard<std::mutex> mutexLock(GL_signalMutex);
-                if (GL_signalPipe != nullptr)
-                {
-                    LOGERROR("Attempting to configure shutdown monitor in ReactorThread while another ReactorThread is "
-                             "running");
-                }
-                else
-                {
-                    // add the onShutdown listener
-                    GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
-                    struct sigaction action{};
-                    action.sa_handler = s_signal_handler;
-                    action.sa_flags = SA_RESTART;
-                    sigemptyset(&action.sa_mask);
-                    sigaction(SIGINT, &action, nullptr);
-                    sigaction(SIGTERM, &action, nullptr);
-
-                    shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-                    monitorForSignalsForShutdown = true;
-                }
-            }
-
-            // LOGDEBUG("add pipe call back");
-            auto stopRequestedFD = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-            announceThreadStarted();
-            bool callBackRequestedStop = false;
-            while (!stopRequested() && !callBackRequestedStop)
-            {
-                auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(100000));
-
-                // LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
-                if (monitorForSignalsForShutdown && GL_signalPipe->notified())
-                {
-                    m_shutdownListener->notifyShutdownRequested();
-                    break;
-                }
-
-                for (auto& hasFd : filedescriptors)
-                {
-                    for (auto& ireader : m_callbackListeners)
-                    {
-                        // LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
-                        if (hasFd->fd() == ireader.reader->fd())
-                        {
-                            Common::ZeroMQWrapper::IReadable::data_t request;
-                            try
-                            {
-                                request = ireader.reader->read();
-                            }
-                            catch (std::exception& ex)
-                            {
-                                LOGERROR("Reactor: failed to read message from callback listener: " << ex.what());
-                                throw;
-                            }
-                            try
-                            {
-                                ireader.listener->messageHandler(request);
-                            }
-                            catch (StopReactorRequestException&)
-                            {
-                                callBackRequestedStop = true;
-                            }
-                            catch (std::exception& ex)
-                            {
-                                LOGERROR("Reactor: callback process failed with message: " << ex.what());
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Clear signal handlers
-            if (monitorForSignalsForShutdown)
-            {
-                // Reset signal handlers if we set them before
+                // add the onShutdown listener
+                GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
                 struct sigaction action{};
-                action.sa_handler = SIG_DFL;
+                action.sa_handler = s_signal_handler;
                 action.sa_flags = SA_RESTART;
                 sigemptyset(&action.sa_mask);
                 sigaction(SIGINT, &action, nullptr);
                 sigaction(SIGTERM, &action, nullptr);
 
-                GL_signalPipe.reset();
+                shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+                monitorForSignalsForShutdown = true;
             }
         }
 
-        void ReactorThreadImpl::run()
+        // LOGDEBUG("add pipe call back");
+        auto stopRequestedFD = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+        announceThreadStarted();
+        bool callBackRequestedStop = false;
+        while (!stopRequested() && !callBackRequestedStop)
         {
-            try
+            auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(100000));
+
+            // LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
+            if (monitorForSignalsForShutdown && GL_signalPipe->notified())
             {
-                main_loop();
-                // since the reactor run in a different thread, the safest option when the system fails is to terminate.
+                m_shutdownListener->notifyShutdownRequested();
+                break;
             }
-            catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException& ex)
+
+            for (auto& hasFd : filedescriptors)
             {
-                LOGERROR("Error associated with the poller: " << ex.what());
-                std::terminate();
+                for (auto& ireader : m_callbackListeners)
+                {
+                    // LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
+                    if (hasFd->fd() == ireader.reader->fd())
+                    {
+                        Common::ZeroMQWrapper::IReadable::data_t request;
+                        try
+                        {
+                            request = ireader.reader->read();
+                        }
+                        catch (std::exception& ex)
+                        {
+                            LOGERROR("Reactor: failed to read message from callback listener: " << ex.what());
+                            throw;
+                        }
+                        try
+                        {
+                            ireader.listener->messageHandler(request);
+                        }
+                        catch (StopReactorRequestException&)
+                        {
+                            callBackRequestedStop = true;
+                        }
+                        catch (std::exception& ex)
+                        {
+                            LOGERROR("Reactor: callback process failed with message: " << ex.what());
+                        }
+                    }
+                }
             }
-            catch (std::exception& ex)
-            {
-                LOGERROR(ex.what());
-                std::terminate();
-            }
         }
 
-        void ReactorImpl::addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback)
+        // Clear signal handlers
+        if (monitorForSignalsForShutdown)
         {
-            assert(m_ReactorState == ReactorState::Ready);
-            m_reactorthread->addListener(readable, callback);
-        }
+            // Reset signal handlers if we set them before
+            struct sigaction action{};
+            action.sa_handler = SIG_DFL;
+            action.sa_flags = SA_RESTART;
+            sigemptyset(&action.sa_mask);
+            sigaction(SIGINT, &action, nullptr);
+            sigaction(SIGTERM, &action, nullptr);
 
-        void ReactorImpl::armShutdownListener(IShutdownListener* shutdownListener)
+            GL_signalPipe.reset();
+        }
+    }
+
+    void ReactorThreadImpl::run()
+    {
+        try
         {
-            assert(m_ReactorState == ReactorState::Ready);
-            m_reactorthread->setShutdownListener(shutdownListener);
+            main_loop();
+            // since the reactor run in a different thread, the safest option when the system fails is to terminate.
         }
-
-        void ReactorImpl::start()
+        catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException& ex)
         {
-            assert(m_ReactorState == ReactorState::Ready);
-            m_ReactorState = ReactorState::Started;
-            m_reactorthread->start();
+            LOGERROR("Error associated with the poller: " << ex.what());
+            std::terminate();
         }
-
-        void ReactorImpl::stop()
+        catch (std::exception& ex)
         {
-            if (m_ReactorState == ReactorState::Stopped)
-            {
-                return;
-            }
-
-            m_ReactorState = ReactorState::Stopped;
-            m_reactorthread->requestStop();
+            LOGERROR(ex.what());
+            std::terminate();
         }
+    }
 
-        ReactorImpl::ReactorImpl()
+    void ReactorImpl::addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback)
+    {
+        assert(m_ReactorState == ReactorState::Ready);
+        m_reactorthread->addListener(readable, callback);
+    }
+
+    void ReactorImpl::armShutdownListener(IShutdownListener* shutdownListener)
+    {
+        assert(m_ReactorState == ReactorState::Ready);
+        m_reactorthread->setShutdownListener(shutdownListener);
+    }
+
+    void ReactorImpl::start()
+    {
+        assert(m_ReactorState == ReactorState::Ready);
+        m_ReactorState = ReactorState::Started;
+        m_reactorthread->start();
+    }
+
+    void ReactorImpl::stop()
+    {
+        if (m_ReactorState == ReactorState::Stopped)
         {
-            m_ReactorState = ReactorState::Ready;
-            m_reactorthread = std::unique_ptr<ReactorThreadImpl>(new ReactorThreadImpl());
+            return;
         }
 
-        void ReactorImpl::join()
-        {
-            m_ReactorState = ReactorState::Ready;
-            m_reactorthread->join();
-        }
+        m_ReactorState = ReactorState::Stopped;
+        m_reactorthread->requestStop();
+    }
 
-        ReactorImpl::~ReactorImpl()
-        {
-            // cppcheck-suppress virtualCallInConstructor
-            stop();
-            // cppcheck-suppress virtualCallInConstructor
-            join();
-        }
-    } // namespace ReactorImpl
-} // namespace Common
+    ReactorImpl::ReactorImpl()
+    {
+        m_ReactorState = ReactorState::Ready;
+        m_reactorthread = std::unique_ptr<ReactorThreadImpl>(new ReactorThreadImpl());
+    }
+
+    void ReactorImpl::join()
+    {
+        m_ReactorState = ReactorState::Ready;
+        m_reactorthread->join();
+    }
+
+    ReactorImpl::~ReactorImpl()
+    {
+        // cppcheck-suppress virtualCallInConstructor
+        stop();
+        // cppcheck-suppress virtualCallInConstructor
+        join();
+    }
+} // namespace Common::ReactorImpl
 std::unique_ptr<Common::Reactor::IReactor> Common::Reactor::createReactor()
 {
     return Common::Reactor::IReactorPtr(new Common::ReactorImpl::ReactorImpl());

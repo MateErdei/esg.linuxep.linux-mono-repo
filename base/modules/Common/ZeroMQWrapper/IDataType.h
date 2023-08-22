@@ -8,10 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
-    {
-        using data_t = std::vector<std::string>;
-    }
-} // namespace Common
+    using data_t = std::vector<std::string>;
+} // namespace Common::ZeroMQWrapper

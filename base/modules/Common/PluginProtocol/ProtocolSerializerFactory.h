@@ -10,14 +10,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace Common
+namespace Common::PluginProtocol
 {
-    namespace PluginProtocol
+    class ProtocolSerializerFactory
     {
-        class ProtocolSerializerFactory
-        {
-        public:
-            std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> createProtocolSerializer();
-        };
-    } // namespace PluginProtocol
-} // namespace Common
+    public:
+        std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> createProtocolSerializer();
+    };
+} // namespace Common::PluginProtocol

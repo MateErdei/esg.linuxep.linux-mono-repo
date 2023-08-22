@@ -8,14 +8,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::OSUtilities
 {
-    namespace OSUtilities
+    class IPlatformUtilsException : public Common::Exceptions::IException
     {
-        class IPlatformUtilsException : public Common::Exceptions::IException
-        {
-        public:
-            explicit IPlatformUtilsException(const std::string& what) : Common::Exceptions::IException(what) {}
-        };
-    } // namespace OSUtilities
-} // namespace Common
+    public:
+        explicit IPlatformUtilsException(const std::string& what) : Common::Exceptions::IException(what) {}
+    };
+} // namespace Common::OSUtilities

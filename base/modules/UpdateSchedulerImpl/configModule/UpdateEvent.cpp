@@ -136,28 +136,25 @@ namespace
     }
 } // namespace
 
-namespace UpdateSchedulerImpl
+namespace UpdateSchedulerImpl::configModule
 {
-    namespace configModule
+    using namespace UpdateScheduler;
+
+    std::string serializeUpdateEvent(
+        const UpdateEvent& updateEvent,
+        const IMapHostCacheId& iMapHostCacheId,
+        const Common::UtilityImpl::IFormattedTime& iFormattedTime)
     {
-        using namespace UpdateScheduler;
-
-        std::string serializeUpdateEvent(
-            const UpdateEvent& updateEvent,
-            const IMapHostCacheId& iMapHostCacheId,
-            const Common::UtilityImpl::IFormattedTime& iFormattedTime)
+        std::string timestamp = iFormattedTime.currentTime();
+        std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
+        if (updateSource.empty())
         {
-            std::string timestamp = iFormattedTime.currentTime();
-            std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
-            if (updateSource.empty())
-            {
-                // https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
-                // setting to Sophos as stated in the wiki page above
-                updateSource = "Sophos";
-            }
-            std::string messageNumber = std::to_string(updateEvent.MessageNumber);
-
-            return eventXML(updateEvent, timestamp, messageNumber, updateSource);
+            // https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
+            // setting to Sophos as stated in the wiki page above
+            updateSource = "Sophos";
         }
-    } // namespace configModule
-} // namespace UpdateSchedulerImpl
+        std::string messageNumber = std::to_string(updateEvent.MessageNumber);
+
+        return eventXML(updateEvent, timestamp, messageNumber, updateSource);
+    }
+} // namespace UpdateSchedulerImpl::configModule

@@ -6,34 +6,31 @@
 #include "Common/TaskQueue/ITaskQueue.h"
 #include "Common/Threads/AbstractThread.h"
 
-namespace Common
+namespace Common::TaskQueueImpl
 {
-    namespace TaskQueueImpl
+    using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+
+    class TaskProcessorImplThread : public Common::Threads::AbstractThread
     {
-        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+    public:
+        explicit TaskProcessorImplThread(ITaskQueueSharedPtr taskQueue);
+        ~TaskProcessorImplThread() override;
+        std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
 
-        class TaskProcessorImplThread : public Common::Threads::AbstractThread
-        {
-        public:
-            explicit TaskProcessorImplThread(ITaskQueueSharedPtr taskQueue);
-            ~TaskProcessorImplThread() override;
-            std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
+    private:
+        void run() override;
+    };
 
-        private:
-            void run() override;
-        };
+    class TaskProcessorImpl : public virtual Common::TaskQueue::ITaskProcessor
+    {
+    public:
+        explicit TaskProcessorImpl(ITaskQueueSharedPtr taskQueue);
 
-        class TaskProcessorImpl : public virtual Common::TaskQueue::ITaskProcessor
-        {
-        public:
-            explicit TaskProcessorImpl(ITaskQueueSharedPtr taskQueue);
+        void start() override;
 
-            void start() override;
+        void stop() override;
 
-            void stop() override;
-
-        private:
-            TaskProcessorImplThread m_thread;
-        };
-    } // namespace TaskQueueImpl
-} // namespace Common
+    private:
+        TaskProcessorImplThread m_thread;
+    };
+} // namespace Common::TaskQueueImpl

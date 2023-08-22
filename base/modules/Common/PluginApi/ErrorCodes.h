@@ -6,14 +6,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-namespace Common
+namespace Common::PluginApi
 {
-    namespace PluginApi
+    enum ErrorCodes
     {
-        enum ErrorCodes
-        {
-            PLUGIN_API_CREATION_FAILED = 43
-        };
-
-    } // namespace PluginApi
-} // namespace Common
+        PLUGIN_API_CREATION_FAILED = 43
+    };
+} // namespace Common::PluginApi

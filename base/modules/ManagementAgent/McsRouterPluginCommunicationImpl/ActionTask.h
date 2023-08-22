@@ -8,28 +8,25 @@
 #include <stdexcept>
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::McsRouterPluginCommunicationImpl
 {
-    namespace McsRouterPluginCommunicationImpl
+    class ActionTask : public virtual Common::TaskQueue::ITask
     {
-        class ActionTask : public virtual Common::TaskQueue::ITask
-        {
-        public:
-            ActionTask(PluginCommunication::IPluginManager& pluginManager, const std::string& filePath);
-            void run() override;
-            static bool isAlive(const std::string& ttl);
+    public:
+        ActionTask(PluginCommunication::IPluginManager& pluginManager, const std::string& filePath);
+        void run() override;
+        static bool isAlive(const std::string& ttl);
 
-        private:
-            PluginCommunication::IPluginManager& m_pluginManager;
-            std::string m_filePath;
-        };
+    private:
+        PluginCommunication::IPluginManager& m_pluginManager;
+        std::string m_filePath;
+    };
 
 
-        class FailedToConvertTtlException : public std::runtime_error
-        {
-        public:
-            virtual ~FailedToConvertTtlException() = default;
-            explicit FailedToConvertTtlException(const std::string& what) : std::runtime_error(what) {}
-        };
-    } // namespace McsRouterPluginCommunicationImpl
-} // namespace ManagementAgent
+    class FailedToConvertTtlException : public std::runtime_error
+    {
+    public:
+        virtual ~FailedToConvertTtlException() = default;
+        explicit FailedToConvertTtlException(const std::string& what) : std::runtime_error(what) {}
+    };
+} // namespace ManagementAgent::McsRouterPluginCommunicationImpl

@@ -5,23 +5,19 @@
 #include "Common/TaskQueue/ITaskQueue.h"
 #include "ManagementAgent/PluginCommunication/IThreatHealthReceiver.h"
 
-namespace ManagementAgent
+namespace ManagementAgent::ThreatHealthReceiverImpl
 {
-    namespace ThreatHealthReceiverImpl
+    class ThreatHealthReceiverImpl : public virtual ManagementAgent::PluginCommunication::IThreatHealthReceiver
     {
-        class ThreatHealthReceiverImpl : public virtual ManagementAgent::PluginCommunication::IThreatHealthReceiver
-        {
-        public:
-            explicit ThreatHealthReceiverImpl(Common::TaskQueue::ITaskQueueSharedPtr taskQueue);
+    public:
+        explicit ThreatHealthReceiverImpl(Common::TaskQueue::ITaskQueueSharedPtr taskQueue);
 
-            bool receivedThreatHealth(
-                const std::string& pluginName,
-                const std::string& threatHealth,
-                std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
+        bool receivedThreatHealth(
+            const std::string& pluginName,
+            const std::string& threatHealth,
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
 
-        private:
-            Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
-        };
-
-    } // namespace ThreatHealthReceiverImpl
-} // namespace ManagementAgent
+    private:
+        Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
+    };
+} // namespace ManagementAgent::ThreatHealthReceiverImpl

@@ -16,22 +16,19 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::ZMQWrapperApi
 {
-    namespace ZMQWrapperApi
+    class IContext
     {
-        class IContext
-        {
-        public:
-            virtual ~IContext() = default;
+    public:
+        virtual ~IContext() = default;
 
-            virtual ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() = 0;
-            virtual ZeroMQWrapper::ISocketPublisherPtr getPublisher() = 0;
-            virtual ZeroMQWrapper::ISocketRequesterPtr getRequester() = 0;
-            virtual ZeroMQWrapper::ISocketReplierPtr getReplier() = 0;
-            virtual ZeroMQWrapper::IProxyPtr getProxy(const std::string& frontend, const std::string& backend) = 0;
-        };
+        virtual ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() = 0;
+        virtual ZeroMQWrapper::ISocketPublisherPtr getPublisher() = 0;
+        virtual ZeroMQWrapper::ISocketRequesterPtr getRequester() = 0;
+        virtual ZeroMQWrapper::ISocketReplierPtr getReplier() = 0;
+        virtual ZeroMQWrapper::IProxyPtr getProxy(const std::string& frontend, const std::string& backend) = 0;
+    };
 
-        extern ZMQWrapperApi::IContextSharedPtr createContext();
-    } // namespace ZMQWrapperApi
-} // namespace Common
+    extern ZMQWrapperApi::IContextSharedPtr createContext();
+} // namespace Common::ZMQWrapperApi

@@ -7,16 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ZMQAction.h"
 
-namespace wdctl
+namespace wdctl::wdctlactions
 {
-    namespace wdctlactions
+    class RemoveAction : public ZMQAction
     {
-        class RemoveAction : public ZMQAction
-        {
-        public:
-            explicit RemoveAction(const Action::Arguments& args);
+    public:
+        explicit RemoveAction(const Action::Arguments& args);
 
-            int run() override;
-        };
-    } // namespace wdctlactions
-} // namespace wdctl
+        int run() override;
+    };
+} // namespace wdctl::wdctlactions

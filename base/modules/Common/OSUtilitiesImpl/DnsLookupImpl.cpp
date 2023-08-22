@@ -67,18 +67,14 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::OSUtilitiesImpl
 {
-    namespace OSUtilitiesImpl
-    {
-        Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri) const { return ::ipResolution(uri); }
+    Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri) const { return ::ipResolution(uri); }
 
-        void replaceDnsLookup(IDnsLookupPtr other) { LocalDnsStaticPointer().reset(other.release()); }
+    void replaceDnsLookup(IDnsLookupPtr other) { LocalDnsStaticPointer().reset(other.release()); }
 
-        void restoreDnsLookup() { LocalDnsStaticPointer().reset(new DnsLookupImpl()); }
-
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+    void restoreDnsLookup() { LocalDnsStaticPointer().reset(new DnsLookupImpl()); }
+} // namespace Common::OSUtilitiesImpl
 
 Common::OSUtilities::IDnsLookup* Common::OSUtilities::dnsLookup()
 {

@@ -7,15 +7,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "StopAction.h"
 #include "ZMQAction.h"
-namespace wdctl
+namespace wdctl::wdctlactions
 {
-    namespace wdctlactions
+    class IsRunning : public StopAction
     {
-        class IsRunning : public StopAction
-        {
-        public:
-            using StopAction::StopAction;
-            int run() override;
-        };
-    } // namespace wdctlactions
-} // namespace wdctl
+    public:
+        using StopAction::StopAction;
+        int run() override;
+    };
+} // namespace wdctl::wdctlactions

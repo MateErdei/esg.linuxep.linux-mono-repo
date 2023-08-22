@@ -9,20 +9,17 @@
 
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::EventReceiverImpl
 {
-    namespace EventReceiverImpl
+    class EventTask : public virtual Common::TaskQueue::ITask
     {
-        class EventTask : public virtual Common::TaskQueue::ITask
-        {
-        public:
-            EventTask(Event event,
-                      IOutbreakModeControllerPtr outbreakModeController);
-            void run() override;
+    public:
+        EventTask(Event event,
+                  IOutbreakModeControllerPtr outbreakModeController);
+        void run() override;
 
-        private:
-            Event event_;
-            IOutbreakModeControllerPtr outbreakModeController_;
-        };
-    } // namespace EventReceiverImpl
-} // namespace ManagementAgent
+    private:
+        Event event_;
+        IOutbreakModeControllerPtr outbreakModeController_;
+    };
+} // namespace ManagementAgent::EventReceiverImpl

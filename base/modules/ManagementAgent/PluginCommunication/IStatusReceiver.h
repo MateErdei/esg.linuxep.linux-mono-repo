@@ -6,24 +6,21 @@
 
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::PluginCommunication
 {
-    namespace PluginCommunication
+    class IStatusReceiver
     {
-        class IStatusReceiver
-        {
-        public:
-            virtual ~IStatusReceiver() = default;
+    public:
+        virtual ~IStatusReceiver() = default;
 
-            /**
-             * Handle the situation where a plugin is sending a changed status to the management agent
-             *
-             * @param appId
-             * @param statusInfo
-             */
-            virtual void receivedChangeStatus(
-                const std::string& appId,
-                const Common::PluginApi::StatusInfo& statusInfo) = 0;
-        };
-    } // namespace PluginCommunication
-} // namespace ManagementAgent
+        /**
+         * Handle the situation where a plugin is sending a changed status to the management agent
+         *
+         * @param appId
+         * @param statusInfo
+         */
+        virtual void receivedChangeStatus(
+            const std::string& appId,
+            const Common::PluginApi::StatusInfo& statusInfo) = 0;
+    };
+} // namespace ManagementAgent::PluginCommunication

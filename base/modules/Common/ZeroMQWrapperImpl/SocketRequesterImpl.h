@@ -6,18 +6,15 @@
 
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class SocketRequesterImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketRequester
     {
-        class SocketRequesterImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketRequester
-        {
-        public:
-            explicit SocketRequesterImpl(ContextHolderSharedPtr context);
+    public:
+        explicit SocketRequesterImpl(ContextHolderSharedPtr context);
 
-            std::vector<std::string> read() override;
+        std::vector<std::string> read() override;
 
-            void write(const std::vector<std::string>& data) override;
-        };
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+        void write(const std::vector<std::string>& data) override;
+    };
+} // namespace Common::ZeroMQWrapperImpl

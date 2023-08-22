@@ -8,16 +8,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/Exceptions/IException.h"
 
-namespace SulDownloader
+
+namespace SulDownloader::suldownloaderdata
 {
-    namespace suldownloaderdata
+    class SulDownloaderException : public Common::Exceptions::IException
     {
-        class SulDownloaderException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
+    public:
+        using Common::Exceptions::IException::IException;
 
-        };
+    };
 
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+} // namespace SulDownloader::suldownloaderdata
+

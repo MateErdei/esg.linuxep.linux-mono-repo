@@ -208,144 +208,141 @@ namespace
     };
 
 } // namespace
-namespace watchdog
+namespace watchdog::watchdogimpl
 {
-    namespace watchdogimpl
+    void WatchdogServiceLine::requestUpdateService(Common::ZMQWrapperApi::IContext& context)
     {
-        void WatchdogServiceLine::requestUpdateService(Common::ZMQWrapperApi::IContext& context)
+        LOGINFO("Request Watchdog to trigger Update service.");
+        try
         {
-            LOGINFO("Request Watchdog to trigger Update service.");
-            try
+            auto requester = context.getRequester();
+            Common::PluginApiImpl::PluginResourceManagement::setupRequester(
+                *requester, WatchdogServiceLineName(), 5000, 5000);
+            Common::PluginCommunicationImpl::PluginProxy pluginProxy(
+                std::move(requester), WatchdogServiceLineName());
+            pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate(), "");
+            LOGINFO("Update Acknowledged.");
+        }
+        catch (Common::PluginCommunication::IPluginCommunicationException& ex)
+        {
+            std::string exceptionInfo = ex.what();
+            if (exceptionInfo == UpdateServiceReportError::ErrorReported())
             {
-                auto requester = context.getRequester();
-                Common::PluginApiImpl::PluginResourceManagement::setupRequester(
+                throw UpdateServiceReportError();
+            }
+            else
+            {
+                LOGERROR(exceptionInfo);
+            }
+            throw WatchdogServiceException("Service Unavailable");
+        }
+        catch (std::exception& ex)
+        {
+            LOGERROR("Unexpected exception thrown while requesting update: " << ex.what());
+            assert(false); // not expecting other type of exception.
+            throw WatchdogServiceException(ex.what());
+        }
+    }
+
+    void WatchdogServiceLine::requestUpdateService()
+    {
+        auto context = Common::ZMQWrapperApi::createContext();
+        requestUpdateService(*context);
+    }
+    void WatchdogServiceLine::requestDiagnoseService(Common::ZMQWrapperApi::IContext& context)
+    {
+        LOGINFO("Request Watchdog to trigger Diagnose service.");
+        try
+        {
+            auto requester = context.getRequester();
+            Common::PluginApiImpl::PluginResourceManagement::setupRequester(
                     *requester, WatchdogServiceLineName(), 5000, 5000);
-                Common::PluginCommunicationImpl::PluginProxy pluginProxy(
+            Common::PluginCommunicationImpl::PluginProxy pluginProxy(
                     std::move(requester), WatchdogServiceLineName());
-                pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate(), "");
-                LOGINFO("Update Acknowledged.");
-            }
-            catch (Common::PluginCommunication::IPluginCommunicationException& ex)
-            {
-                std::string exceptionInfo = ex.what();
-                if (exceptionInfo == UpdateServiceReportError::ErrorReported())
-                {
-                    throw UpdateServiceReportError();
-                }
-                else
-                {
-                    LOGERROR(exceptionInfo);
-                }
-                throw WatchdogServiceException("Service Unavailable");
-            }
-            catch (std::exception& ex)
-            {
-                LOGERROR("Unexpected exception thrown while requesting update: " << ex.what());
-                assert(false); // not expecting other type of exception.
-                throw WatchdogServiceException(ex.what());
-            }
+            pluginProxy.queueAction("", WDServiceCallBack::TriggerDiagnose(), "");
+            LOGINFO("Start Diagnose Acknowledged.");
         }
+        catch (Common::PluginCommunication::IPluginCommunicationException& ex)
+        {
+            std::string exceptionInfo = ex.what();
+            if (exceptionInfo == UpdateServiceReportError::ErrorReported())
+            {
+                throw UpdateServiceReportError();
+            }
+            else
+            {
+                LOGERROR(exceptionInfo);
+            }
+            throw WatchdogServiceException("Service Unavailable");
+        }
+        catch (std::exception& ex)
+        {
+            LOGERROR("Unexpected exception thrown while requesting diagnose: " << ex.what());
+            assert(false); // not expecting other type of exception.
+            throw WatchdogServiceException(ex.what());
+        }
+    }
 
-        void WatchdogServiceLine::requestUpdateService()
+    void WatchdogServiceLine::requestDiagnoseService()
+    {
+        auto context = Common::ZMQWrapperApi::createContext();
+        requestDiagnoseService(*context);
+    }
+    WatchdogServiceLine::WatchdogServiceLine(
+        Common::ZMQWrapperApi::IContextSharedPtr context,
+        std::function<std::vector<std::string>(void)> getPluginListFunc) :
+        m_context(context)
+    {
+        try
         {
-            auto context = Common::ZMQWrapperApi::createContext();
-            requestUpdateService(*context);
-        }
-        void WatchdogServiceLine::requestDiagnoseService(Common::ZMQWrapperApi::IContext& context)
-        {
-            LOGINFO("Request Watchdog to trigger Diagnose service.");
-            try
-            {
-                auto requester = context.getRequester();
-                Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                        *requester, WatchdogServiceLineName(), 5000, 5000);
-                Common::PluginCommunicationImpl::PluginProxy pluginProxy(
-                        std::move(requester), WatchdogServiceLineName());
-                pluginProxy.queueAction("", WDServiceCallBack::TriggerDiagnose(), "");
-                LOGINFO("Start Diagnose Acknowledged.");
-            }
-            catch (Common::PluginCommunication::IPluginCommunicationException& ex)
-            {
-                std::string exceptionInfo = ex.what();
-                if (exceptionInfo == UpdateServiceReportError::ErrorReported())
-                {
-                    throw UpdateServiceReportError();
-                }
-                else
-                {
-                    LOGERROR(exceptionInfo);
-                }
-                throw WatchdogServiceException("Service Unavailable");
-            }
-            catch (std::exception& ex)
-            {
-                LOGERROR("Unexpected exception thrown while requesting diagnose: " << ex.what());
-                assert(false); // not expecting other type of exception.
-                throw WatchdogServiceException(ex.what());
-            }
-        }
+            Common::Telemetry::TelemetryHelper::getInstance().restore(WatchdogServiceLineName());
 
-        void WatchdogServiceLine::requestDiagnoseService()
-        {
-            auto context = Common::ZMQWrapperApi::createContext();
-            requestDiagnoseService(*context);
+            auto replier = m_context->getReplier();
+            Common::PluginApiImpl::PluginResourceManagement::setupReplier(
+                *replier, WatchdogServiceLineName(), 5000, 5000);
+            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(
+                getPluginListFunc) };
+            m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
+                WatchdogServiceLineName(),
+                std::move(replier),
+                std::move(pluginCallback),
+                Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
+            m_pluginHandler->start();
         }
-        WatchdogServiceLine::WatchdogServiceLine(
-            Common::ZMQWrapperApi::IContextSharedPtr context,
-            std::function<std::vector<std::string>(void)> getPluginListFunc) :
-            m_context(context)
+        catch (std::exception& ex)
         {
-            try
-            {
-                Common::Telemetry::TelemetryHelper::getInstance().restore(WatchdogServiceLineName());
+            throw Common::UtilityImpl::ConfigException("WatchdogService", ex.what());
+        }
+    }
 
-                auto replier = m_context->getReplier();
-                Common::PluginApiImpl::PluginResourceManagement::setupReplier(
-                    *replier, WatchdogServiceLineName(), 5000, 5000);
-                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(
-                    getPluginListFunc) };
-                m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
-                    WatchdogServiceLineName(),
-                    std::move(replier),
-                    std::move(pluginCallback),
-                    Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
-                m_pluginHandler->start();
-            }
-            catch (std::exception& ex)
-            {
-                throw Common::UtilityImpl::ConfigException("WatchdogService", ex.what());
-            }
-        }
-
-        WatchdogServiceLine::~WatchdogServiceLine()
+    WatchdogServiceLine::~WatchdogServiceLine()
+    {
+        if (m_pluginHandler)
         {
-            if (m_pluginHandler)
-            {
-                m_pluginHandler->stopAndJoin();
-            }
-            Common::Telemetry::TelemetryHelper::getInstance().save();
+            m_pluginHandler->stopAndJoin();
         }
+        Common::Telemetry::TelemetryHelper::getInstance().save();
+    }
 
-        Common::UtilityImpl::Factory<IWatchdogRequest>& factory()
-        {
-            static Common::UtilityImpl::Factory<IWatchdogRequest> theFactory{ []() {
-                return std::unique_ptr<IWatchdogRequest>(new WatchdogRequestImpl());
-            } };
-            return theFactory;
-        }
+    Common::UtilityImpl::Factory<IWatchdogRequest>& factory()
+    {
+        static Common::UtilityImpl::Factory<IWatchdogRequest> theFactory{ []() {
+            return std::unique_ptr<IWatchdogRequest>(new WatchdogRequestImpl());
+        } };
+        return theFactory;
+    }
 
-        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName)
-        {
-            std::stringstream telemetryMessage;
-            telemetryMessage << pluginName << "-unexpected-restarts";
-            return telemetryMessage.str();
-        }
+    std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName)
+    {
+        std::stringstream telemetryMessage;
+        telemetryMessage << pluginName << "-unexpected-restarts";
+        return telemetryMessage.str();
+    }
 
-        std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code)
-        {
-            std::stringstream telemetryMessage;
-            telemetryMessage << pluginName << "-unexpected-restarts-" << code;
-            return telemetryMessage.str();
-        }
-    } // namespace watchdogimpl
-} // namespace watchdog
+    std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code)
+    {
+        std::stringstream telemetryMessage;
+        telemetryMessage << pluginName << "-unexpected-restarts-" << code;
+        return telemetryMessage.str();
+    }
+} // namespace watchdog::watchdogimpl

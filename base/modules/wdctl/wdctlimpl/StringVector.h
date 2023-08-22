@@ -3,10 +3,7 @@
 
 #include "Common/Datatypes/StringVector.h"
 
-namespace wdctl
+namespace wdctl::wdctlimpl
 {
-    namespace wdctlimpl
-    {
-        using StringVector = Common::Datatypes::StringVector;
-    }
-} // namespace wdctl
+    using StringVector = Common::Datatypes::StringVector;
+} // namespace wdctl::wdctlimpl

@@ -6,18 +6,15 @@
 
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class SocketReplierImpl : public SocketImpl, virtual public Common::ZeroMQWrapper::ISocketReplier
     {
-        class SocketReplierImpl : public SocketImpl, virtual public Common::ZeroMQWrapper::ISocketReplier
-        {
-        public:
-            explicit SocketReplierImpl(ContextHolderSharedPtr context);
+    public:
+        explicit SocketReplierImpl(ContextHolderSharedPtr context);
 
-            std::vector<std::string> read() override;
+        std::vector<std::string> read() override;
 
-            void write(const std::vector<std::string>& data) override;
-        };
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+        void write(const std::vector<std::string>& data) override;
+    };
+} // namespace Common::ZeroMQWrapperImpl

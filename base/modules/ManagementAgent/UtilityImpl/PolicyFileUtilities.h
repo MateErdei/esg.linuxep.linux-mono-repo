@@ -8,14 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::UtilityImpl
 {
-    namespace UtilityImpl
-    {
-        /**
-         * The policy file pattern currently implemented by mcsrouter: GenericAdapter::__processPolicy
-         * is as follow: AppID[-PolicyType]_policy.xml
-         */
-        std::string extractAppIdFromPolicyFile(const std::string& policyPath);
-    } // namespace UtilityImpl
-} // namespace ManagementAgent
+    /**
+     * The policy file pattern currently implemented by mcsrouter: GenericAdapter::__processPolicy
+     * is as follow: AppID[-PolicyType]_policy.xml
+     */
+    std::string extractAppIdFromPolicyFile(const std::string& policyPath);
+} // namespace ManagementAgent::UtilityImpl

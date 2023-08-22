@@ -7,16 +7,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    class FileUtils
     {
-        class FileUtils
-        {
-        public:
-            static std::pair<std::string, std::string> extractValueFromFile(
-                const std::string& filePath,
-                const std::string& key);
-        };
-    } // namespace UtilityImpl
-} // namespace Common
+    public:
+        static std::pair<std::string, std::string> extractValueFromFile(
+            const std::string& filePath,
+            const std::string& key);
+    };
+} // namespace Common::UtilityImpl

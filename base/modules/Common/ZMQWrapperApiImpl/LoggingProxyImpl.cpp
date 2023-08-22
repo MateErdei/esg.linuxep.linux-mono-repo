@@ -68,38 +68,35 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::ZMQWrapperApiImpl
 {
-    namespace ZMQWrapperApiImpl
+    LoggingProxyImpl::LoggingProxyImpl(
+        const std::string& frontend,
+        const std::string& backend,
+        Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
+        ProxyImpl(frontend, backend, context),
+        m_captureAddress("inproc://Capture"),
+        m_capture(context, ZMQ_PUSH),
+        m_captureListener(new SocketPullImpl(context)),
+        m_debugLoggerCallbackPtr(new DebugLogHandler),
+        m_reactor(Common::Reactor::createReactor())
     {
-        LoggingProxyImpl::LoggingProxyImpl(
-            const std::string& frontend,
-            const std::string& backend,
-            Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
-            ProxyImpl(frontend, backend, context),
-            m_captureAddress("inproc://Capture"),
-            m_capture(context, ZMQ_PUSH),
-            m_captureListener(new SocketPullImpl(context)),
-            m_debugLoggerCallbackPtr(new DebugLogHandler),
-            m_reactor(Common::Reactor::createReactor())
-        {
-            Common::ZeroMQWrapperImpl::SocketUtil::listen(m_capture, m_captureAddress);
-            m_captureListener->connect(m_captureAddress);
-            m_reactor->addListener(m_captureListener.get(), m_debugLoggerCallbackPtr.get());
-            m_captureZMQSocket = m_capture.skt();
-        }
+        Common::ZeroMQWrapperImpl::SocketUtil::listen(m_capture, m_captureAddress);
+        m_captureListener->connect(m_captureAddress);
+        m_reactor->addListener(m_captureListener.get(), m_debugLoggerCallbackPtr.get());
+        m_captureZMQSocket = m_capture.skt();
+    }
 
-        void LoggingProxyImpl::start()
-        {
-            m_reactor->start();
-            ProxyImpl::start();
-        }
+    void LoggingProxyImpl::start()
+    {
+        m_reactor->start();
+        ProxyImpl::start();
+    }
 
-        void LoggingProxyImpl::stop()
-        {
-            ProxyImpl::stop();
-            m_reactor->stop();
-            m_reactor->join();
-        }
-    } // namespace ZMQWrapperApiImpl
-} // namespace Common
+    void LoggingProxyImpl::stop()
+    {
+        ProxyImpl::stop();
+        m_reactor->stop();
+        m_reactor->join();
+    }
+} // namespace Common::ZMQWrapperApiImpl

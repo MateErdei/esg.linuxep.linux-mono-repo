@@ -7,19 +7,15 @@
 #include "Common/Reactor/IShutdownListener.h"
 
 #include <functional>
-namespace Common
+namespace Common::ReactorImpl
 {
-    namespace ReactorImpl
+    class GenericShutdownListener : public virtual Reactor::IShutdownListener
     {
-        class GenericShutdownListener : public virtual Reactor::IShutdownListener
-        {
-        public:
-            explicit GenericShutdownListener(std::function<void()> callback);
-            void notifyShutdownRequested() override;
+    public:
+        explicit GenericShutdownListener(std::function<void()> callback);
+        void notifyShutdownRequested() override;
 
-        private:
-            std::function<void()> m_callback;
-        };
-
-    } // namespace ReactorImpl
-} // namespace Common
+    private:
+        std::function<void()> m_callback;
+    };
+} // namespace Common::ReactorImpl

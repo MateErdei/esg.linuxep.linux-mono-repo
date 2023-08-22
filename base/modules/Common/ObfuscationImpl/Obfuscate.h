@@ -10,11 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 // All of the ObsfucationImpl was adapted from //dev/EndInf/Blockbuster/ei/common/ in perforce.
 
-namespace Common
+namespace Common::ObfuscationImpl
 {
-    namespace ObfuscationImpl
-    {
-        Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData);
-        std::string SECObfuscate(const std::string& password);
-    }
-} // namespace Common
+    Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData);
+    std::string SECObfuscate(const std::string& password);
+} // namespace Common::ObfuscationImpl

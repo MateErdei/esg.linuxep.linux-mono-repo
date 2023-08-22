@@ -37,252 +37,248 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::ObfuscationImpl
 {
-    namespace ObfuscationImpl
+    /* Notes:
+     * First of all, this implementation is an attempt to obscure sensitive data.
+     *
+     *
+     *
+     *
+     * The goal of this implementation is to make 'raise the bar' of difficulty in
+     * discovering sensitive data. The techniques it uses to do this are:
+     * 1) uses an asymetric key to encrypt and decrypt the data
+     *    However, the asymetric key is stored in the program (i.e. hardcoded)
+     * 2) So, the asymetric key is split into parts, and
+     * 3) Each part is obscured in a different way.
+     * 4) The assembled asymetric key is kept in memory for the minimum period.
+     *
+     * However, the algorithms to obscure the key **very** simplistic;
+     *    DO NOT RELY ON THEM TO SECURE SENSITIVE DATA!!!!
+     *
+     * The simplest way to crack this is to catch the parameters as they are passed into OpenSSL
+     * to perform the encrypt/decrypt processing, so the obscuring of the key at this level is a
+     * compromise at deterring the stupid, knowing that the smart will look in the right place!
+     *
+     * In the event that we need a second obscurity algorithm, we mark (and check)
+     * that this data was obscured by this algorithm by prepending a byte containing
+     * this algorithm identifier.
+     */
+    // const unsigned char CObscurity::ALGORITHM_IDENT = 0x07;
+
+    CObscurity::CObscurity() = default;
+
+    CObscurity::~CObscurity() = default;
+
+    Common::ObfuscationImpl::SecureDynamicBuffer CObscurity::GetPassword() const
     {
-        /* Notes:
-         * First of all, this implementation is an attempt to obscure sensitive data.
-         *
-         *
-         *
-         *
-         * The goal of this implementation is to make 'raise the bar' of difficulty in
-         * discovering sensitive data. The techniques it uses to do this are:
-         * 1) uses an asymetric key to encrypt and decrypt the data
-         *    However, the asymetric key is stored in the program (i.e. hardcoded)
-         * 2) So, the asymetric key is split into parts, and
-         * 3) Each part is obscured in a different way.
-         * 4) The assembled asymetric key is kept in memory for the minimum period.
-         *
-         * However, the algorithms to obscure the key **very** simplistic;
-         *    DO NOT RELY ON THEM TO SECURE SENSITIVE DATA!!!!
-         *
-         * The simplest way to crack this is to catch the parameters as they are passed into OpenSSL
-         * to perform the encrypt/decrypt processing, so the obscuring of the key at this level is a
-         * compromise at deterring the stupid, knowing that the smart will look in the right place!
-         *
-         * In the event that we need a second obscurity algorithm, we mark (and check)
-         * that this data was obscured by this algorithm by prepending a byte containing
-         * this algorithm identifier.
-         */
-        // const unsigned char CObscurity::ALGORITHM_IDENT = 0x07;
+        constexpr int SECTION_COUNT = 4;
+        LenVal_t sections[SECTION_COUNT];
 
-        CObscurity::CObscurity() = default;
+        unsigned char* data1;
+        size_t dataLen1;
+        unsigned char* data2;
+        size_t dataLen2;
 
-        CObscurity::~CObscurity() = default;
+        // Unobscure the sections of the password
+        data1 = R1(CKeyDo::GetData(), CKeyDo::GetDataLen(), &dataLen1);
+        data2 = R2(data1, dataLen1, &dataLen2);
+        sections[0].value = data2;
+        sections[0].len = dataLen2;
+        delete[] data1;
 
-        Common::ObfuscationImpl::SecureDynamicBuffer CObscurity::GetPassword() const
+        data1 = R3(CKeyRa::GetData(), CKeyRa::GetDataLen(), &dataLen1);
+        data2 = R2(data1, dataLen1, &dataLen2);
+        sections[1].value = data2;
+        sections[1].len = dataLen2;
+        delete[] data1;
+
+        data1 = R3(CKeyMi::GetData(), CKeyMi::GetDataLen(), &dataLen1);
+        data2 = R1(data1, dataLen1, &dataLen2);
+        sections[2].value = data2;
+        sections[2].len = dataLen2;
+        delete[] data1;
+
+        data1 = R2(CKeyFa::GetData(), CKeyFa::GetDataLen(), &dataLen1);
+        data2 = R1(data1, dataLen1, &dataLen2);
+        sections[3].value = data2;
+        sections[3].len = dataLen2;
+        delete[] data1;
+
+        // Join up sections to make the password
+        data1 = Join(sections, SECTION_COUNT, &dataLen1);
+
+        SecureDynamicBuffer buffer(data1, data1 + dataLen1);
+
+        // Free data
+        Scribble(data1, dataLen1);
+        delete[] data1;
+
+        for (int i = 0; i < SECTION_COUNT; i++)
         {
-            constexpr int SECTION_COUNT = 4;
-            LenVal_t sections[SECTION_COUNT];
-
-            unsigned char* data1;
-            size_t dataLen1;
-            unsigned char* data2;
-            size_t dataLen2;
-
-            // Unobscure the sections of the password
-            data1 = R1(CKeyDo::GetData(), CKeyDo::GetDataLen(), &dataLen1);
-            data2 = R2(data1, dataLen1, &dataLen2);
-            sections[0].value = data2;
-            sections[0].len = dataLen2;
-            delete[] data1;
-
-            data1 = R3(CKeyRa::GetData(), CKeyRa::GetDataLen(), &dataLen1);
-            data2 = R2(data1, dataLen1, &dataLen2);
-            sections[1].value = data2;
-            sections[1].len = dataLen2;
-            delete[] data1;
-
-            data1 = R3(CKeyMi::GetData(), CKeyMi::GetDataLen(), &dataLen1);
-            data2 = R1(data1, dataLen1, &dataLen2);
-            sections[2].value = data2;
-            sections[2].len = dataLen2;
-            delete[] data1;
-
-            data1 = R2(CKeyFa::GetData(), CKeyFa::GetDataLen(), &dataLen1);
-            data2 = R1(data1, dataLen1, &dataLen2);
-            sections[3].value = data2;
-            sections[3].len = dataLen2;
-            delete[] data1;
-
-            // Join up sections to make the password
-            data1 = Join(sections, SECTION_COUNT, &dataLen1);
-
-            SecureDynamicBuffer buffer(data1, data1 + dataLen1);
-
-            // Free data
-            Scribble(data1, dataLen1);
-            delete[] data1;
-
-            for (int i = 0; i < SECTION_COUNT; i++)
-            {
-                delete[] sections[i].value;
-            }
-
-            return buffer;
+            delete[] sections[i].value;
         }
 
-        unsigned char* CObscurity::Join(const CObscurity::LenVal_t* sections, size_t count, size_t* dataLen)
+        return buffer;
+    }
+
+    unsigned char* CObscurity::Join(const CObscurity::LenVal_t* sections, size_t count, size_t* dataLen)
+    {
+        // Join up sections - first count size of buffer
+        size_t bufSize = 0;
+        for (unsigned int i = 0; i < count; i++)
         {
-            // Join up sections - first count size of buffer
-            size_t bufSize = 0;
-            for (unsigned int i = 0; i < count; i++)
-            {
-                bufSize += sections[i].len;
-            }
-
-            // Now allocate and populate
-            unsigned char* data = new unsigned char[bufSize];
-
-            unsigned char* ptr = data;
-            for (unsigned int j = 0; j < count; j++)
-            {
-                // ACE_OS::memcpy(ptr, sections[j].value, sections[j].len); //lint !e534 :ignore ret val
-                memcpy(ptr, sections[j].value, sections[j].len); // lint !e534 :ignore ret val
-                ptr += sections[j].len;
-            }
-
-            *dataLen = bufSize;
-            return data;
+            bufSize += sections[i].len;
         }
 
-        unsigned char* CObscurity::R1(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+        // Now allocate and populate
+        unsigned char* data = new unsigned char[bufSize];
+
+        unsigned char* ptr = data;
+        for (unsigned int j = 0; j < count; j++)
         {
-            // Reverse Transposition of data - ADCB becomes ABCD
-            unsigned char* retData = new unsigned char[obscuredDataLen];
-            for (unsigned int i = 0; i < obscuredDataLen; i++)
-            {
-                unsigned int mod2 = i % 2;
-                if (0 == mod2)
-                {
-                    retData[i] = obscuredData[i / 2]; // even
-                }
-                else
-                {
-                    retData[i] = obscuredData[(obscuredDataLen - (i / 2)) - 1]; // odd
-                }
-            }
-            *dataLen = obscuredDataLen;
-            return retData;
+            // ACE_OS::memcpy(ptr, sections[j].value, sections[j].len); //lint !e534 :ignore ret val
+            memcpy(ptr, sections[j].value, sections[j].len); // lint !e534 :ignore ret val
+            ptr += sections[j].len;
         }
 
-        static unsigned char GetMask(unsigned int salt)
+        *dataLen = bufSize;
+        return data;
+    }
+
+    unsigned char* CObscurity::R1(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+    {
+        // Reverse Transposition of data - ADCB becomes ABCD
+        unsigned char* retData = new unsigned char[obscuredDataLen];
+        for (unsigned int i = 0; i < obscuredDataLen; i++)
         {
-            static const unsigned char KEY[] = "FDGASSkwpodkfgfspwoegre;[addq[pad.col";
-            unsigned char mask = 0;
-            unsigned int mod3 = salt % 3;
-            if (0 == mod3)
+            unsigned int mod2 = i % 2;
+            if (0 == mod2)
             {
-                mask = KEY[salt * 13 % sizeof(KEY)];
-            }
-            else if (1 == mod3)
-            {
-                mask = KEY[salt * 11 % sizeof(KEY)];
+                retData[i] = obscuredData[i / 2]; // even
             }
             else
             {
-                mask = KEY[salt * 7 % sizeof(KEY)];
+                retData[i] = obscuredData[(obscuredDataLen - (i / 2)) - 1]; // odd
             }
-            return mask;
         }
+        *dataLen = obscuredDataLen;
+        return retData;
+    }
 
-        unsigned char* CObscurity::R2(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+    static unsigned char GetMask(unsigned int salt)
+    {
+        static const unsigned char KEY[] = "FDGASSkwpodkfgfspwoegre;[addq[pad.col";
+        unsigned char mask = 0;
+        unsigned int mod3 = salt % 3;
+        if (0 == mod3)
         {
-            // Reverse O2()
-            unsigned char* retData = new unsigned char[obscuredDataLen];
-            for (unsigned int i = 0; i < obscuredDataLen; i++)
-            {
-                retData[i] = obscuredData[i] ^ GetMask(i);
-            }
-            *dataLen = obscuredDataLen;
-            return retData;
+            mask = KEY[salt * 13 % sizeof(KEY)];
         }
-
-        unsigned char* CObscurity::R3(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+        else if (1 == mod3)
         {
-            // Reverse data transposition
-            unsigned char* tmpData = new unsigned char[(obscuredDataLen / 2) + 4];
-            unsigned int tmpIndex = 0;
-            for (unsigned int i = 0; i < obscuredDataLen; i++)
-            {
-                unsigned int mod8 = i % 8;
-                if (0 == mod8)
-                {
-                    tmpData[tmpIndex++] = obscuredData[i];
-                }
-                else if (3 == mod8)
-                {
-                    tmpData[tmpIndex++] = obscuredData[i];
-                }
-                else if (5 == mod8)
-                {
-                    tmpData[tmpIndex++] = obscuredData[i];
-                }
-                else if (6 == mod8)
-                {
-                    tmpData[tmpIndex++] = obscuredData[i];
-                }
-            }
-            *dataLen = tmpIndex;
-            return tmpData;
+            mask = KEY[salt * 11 % sizeof(KEY)];
         }
-
-        SecureString CObscurity::Reveal(const std::string& obscuredData) const
+        else
         {
-            const char MarkAES256Algorithm = Cipher::AES256ObfuscationImpl::AlgorithmByte;
-            SecureDynamicBuffer password = GetPassword();
-
-            // Check algorithm identification
-            if (MarkAES256Algorithm != obscuredData[0])
-            {
-                LOGDEBUG("Obscure:Invalid algorithm ident=" << static_cast<unsigned int>(obscuredData[0]));
-                throw Common::Obfuscation::IObscurityException("SECDeobfuscation Failed.");
-            }
-
-            SecureDynamicBuffer obscuredText(begin(obscuredData) + 1, end(obscuredData));
-
-            return Cipher::Decrypt(password, obscuredText);
+            mask = KEY[salt * 7 % sizeof(KEY)];
         }
+        return mask;
+    }
 
-        std::string CObscurity::Conceal(const std::string& plainPassword) const
+    unsigned char* CObscurity::R2(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+    {
+        // Reverse O2()
+        unsigned char* retData = new unsigned char[obscuredDataLen];
+        for (unsigned int i = 0; i < obscuredDataLen; i++)
         {
-            if (plainPassword.empty())
-            {
-                throw Common::Obfuscation::IObscurityException("Obfuscate: plaintext is empty");
-            }
-            if (plainPassword.size() >= Cipher::maxPasswordSize)
-            {
-                throw Common::Obfuscation::IObscurityException("Obfuscate: plaintext exceeds max size; " + std::to_string(Cipher::maxPasswordSize));
-            }
-
-            ObfuscationImpl::SecureDynamicBuffer salt(Cipher::AES256ObfuscationImpl::SaltLength);
-            randomSalt(salt);
-            std::string ciphertext = Cipher::Encrypt(GetPassword(), salt, plainPassword);
-
-            auto totalLength =
-                (2 +                   // 2-byte header (algorithm ID + salt length)
-                 Cipher::AES256ObfuscationImpl::SaltLength +          // salt bytes
-                 ciphertext.length()); // ciphertext
-            std::vector<char> buf(totalLength, 0);
-            buf[0] = Cipher::AES256ObfuscationImpl::AlgorithmByte;
-            buf[1] = (unsigned char)Cipher::AES256ObfuscationImpl::SaltLength;
-            memcpy(&buf[2], &salt[0], Cipher::AES256ObfuscationImpl::SaltLength);
-            memcpy(&buf[2 + Cipher::AES256ObfuscationImpl::SaltLength], ciphertext.c_str(), ciphertext.size());
-            return { &buf[0], buf.size() };
+            retData[i] = obscuredData[i] ^ GetMask(i);
         }
+        *dataLen = obscuredDataLen;
+        return retData;
+    }
 
-        void CObscurity::randomSalt(ObfuscationImpl::SecureDynamicBuffer& salt)
+    unsigned char* CObscurity::R3(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
+    {
+        // Reverse data transposition
+        unsigned char* tmpData = new unsigned char[(obscuredDataLen / 2) + 4];
+        unsigned int tmpIndex = 0;
+        for (unsigned int i = 0; i < obscuredDataLen; i++)
         {
-            static std::random_device rd;
-            static std::uniform_int_distribution<int> rdist(0, 255);
-
-            for (auto& c : salt)
+            unsigned int mod8 = i % 8;
+            if (0 == mod8)
             {
-                c = rdist(rd) & 0xFF;
+                tmpData[tmpIndex++] = obscuredData[i];
+            }
+            else if (3 == mod8)
+            {
+                tmpData[tmpIndex++] = obscuredData[i];
+            }
+            else if (5 == mod8)
+            {
+                tmpData[tmpIndex++] = obscuredData[i];
+            }
+            else if (6 == mod8)
+            {
+                tmpData[tmpIndex++] = obscuredData[i];
             }
         }
+        *dataLen = tmpIndex;
+        return tmpData;
+    }
 
-    } // namespace ObfuscationImpl
-} // namespace Common
+    SecureString CObscurity::Reveal(const std::string& obscuredData) const
+    {
+        const char MarkAES256Algorithm = Cipher::AES256ObfuscationImpl::AlgorithmByte;
+        SecureDynamicBuffer password = GetPassword();
+
+        // Check algorithm identification
+        if (MarkAES256Algorithm != obscuredData[0])
+        {
+            LOGDEBUG("Obscure:Invalid algorithm ident=" << static_cast<unsigned int>(obscuredData[0]));
+            throw Common::Obfuscation::IObscurityException("SECDeobfuscation Failed.");
+        }
+
+        SecureDynamicBuffer obscuredText(begin(obscuredData) + 1, end(obscuredData));
+
+        return Cipher::Decrypt(password, obscuredText);
+    }
+
+    std::string CObscurity::Conceal(const std::string& plainPassword) const
+    {
+        if (plainPassword.empty())
+        {
+            throw Common::Obfuscation::IObscurityException("Obfuscate: plaintext is empty");
+        }
+        if (plainPassword.size() >= Cipher::maxPasswordSize)
+        {
+            throw Common::Obfuscation::IObscurityException("Obfuscate: plaintext exceeds max size; " + std::to_string(Cipher::maxPasswordSize));
+        }
+
+        ObfuscationImpl::SecureDynamicBuffer salt(Cipher::AES256ObfuscationImpl::SaltLength);
+        randomSalt(salt);
+        std::string ciphertext = Cipher::Encrypt(GetPassword(), salt, plainPassword);
+
+        auto totalLength =
+            (2 +                   // 2-byte header (algorithm ID + salt length)
+             Cipher::AES256ObfuscationImpl::SaltLength +          // salt bytes
+             ciphertext.length()); // ciphertext
+        std::vector<char> buf(totalLength, 0);
+        buf[0] = Cipher::AES256ObfuscationImpl::AlgorithmByte;
+        buf[1] = (unsigned char)Cipher::AES256ObfuscationImpl::SaltLength;
+        memcpy(&buf[2], &salt[0], Cipher::AES256ObfuscationImpl::SaltLength);
+        memcpy(&buf[2 + Cipher::AES256ObfuscationImpl::SaltLength], ciphertext.c_str(), ciphertext.size());
+        return { &buf[0], buf.size() };
+    }
+
+    void CObscurity::randomSalt(ObfuscationImpl::SecureDynamicBuffer& salt)
+    {
+        static std::random_device rd;
+        static std::uniform_int_distribution<int> rdist(0, 255);
+
+        for (auto& c : salt)
+        {
+            c = rdist(rd) & 0xFF;
+        }
+    }
+} // namespace Common::ObfuscationImpl

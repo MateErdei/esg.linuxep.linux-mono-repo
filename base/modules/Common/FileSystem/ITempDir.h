@@ -7,15 +7,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "IFileSystem.h"
 
-namespace Common
+namespace Common::FileSystem
 {
-    namespace FileSystem
+    class ITempDir
     {
-        class ITempDir
-        {
-        public:
-            virtual ~ITempDir() {}
-            virtual Path dirPath() const = 0;
-        };
-    } // namespace FileSystem
-} // namespace Common
+    public:
+        virtual ~ITempDir() {}
+        virtual Path dirPath() const = 0;
+    };
+} // namespace Common::FileSystem

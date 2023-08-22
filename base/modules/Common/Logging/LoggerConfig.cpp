@@ -152,182 +152,178 @@ log4cplus::Logger Common::Logging::getInstance(const std::string& loggername) no
     return logger;
 }
 
-namespace Common
+namespace Common::Logging
 {
-    namespace Logging
+    namespace pt = boost::property_tree;
+    class LoggerSophosSettings::LoggerConfigTree
     {
-        namespace pt = boost::property_tree;
-        class LoggerSophosSettings::LoggerConfigTree
+    public:
+        /* it may throw if the content of the file is invalid or if the file can not be accessed
+         *  The reason to use the filePath and not the file content is to avoid a circular dependency.
+         *
+         *  For tests purpose, I would like the capability of mocking out the file and probably use the
+         * Common::FileSystem to change content. The problem is that fileSystem depends on the logging, hence,
+         * logging must not depend on fileSystem
+         *
+         */
+        LoggerConfigTree(const std::string& confFilePath);
+
+        /** if session is empty, it will find the verbosity defined for global or no session associated.
+         *
+         * return empty string if VERBOSITY does not exist in the session
+         * */
+        std::string getVerbosity(const std::string& session = "") const;
+
+        bool hasSession(const std::string& session) const;
+
+        void mergeConfigTree(const LoggerConfigTree& treeToMerge);
+
+        pt::ptree getPTree() const;
+
+    private:
+        pt::ptree m_ptree;
+        static inline constexpr const char* const VERBOSITY{ "VERBOSITY" };
+    };
+
+    LoggerSophosSettings::LoggerConfigTree::LoggerConfigTree(const std::string& confFilePath)
+    {
+        if (confFilePath.empty())
         {
-        public:
-            /* it may throw if the content of the file is invalid or if the file can not be accessed
-             *  The reason to use the filePath and not the file content is to avoid a circular dependency.
-             *
-             *  For tests purpose, I would like the capability of mocking out the file and probably use the
-             * Common::FileSystem to change content. The problem is that fileSystem depends on the logging, hence,
-             * logging must not depend on fileSystem
-             *
-             */
-            LoggerConfigTree(const std::string& confFilePath);
-
-            /** if session is empty, it will find the verbosity defined for global or no session associated.
-             *
-             * return empty string if VERBOSITY does not exist in the session
-             * */
-            std::string getVerbosity(const std::string& session = "") const;
-
-            bool hasSession(const std::string& session) const;
-
-            void mergeConfigTree(const LoggerConfigTree& treeToMerge);
-
-            pt::ptree getPTree() const;
-
-        private:
-            pt::ptree m_ptree;
-            static inline constexpr const char* const VERBOSITY{ "VERBOSITY" };
-        };
-
-        LoggerSophosSettings::LoggerConfigTree::LoggerConfigTree(const std::string& confFilePath)
+            return;
+        }
+        // uses fstream as logging can not depend on Common::FileSystem
+        int backup_errno = errno;
+        std::fstream i(confFilePath, std::ifstream::in);
+        if (i)
         {
-            if (confFilePath.empty())
+            pt::read_ini(i, m_ptree);
+        }
+        else
+        {
+            int error = errno;
+            std::stringstream s;
+            s << "Invalid path for log config: " << confFilePath
+              << ". Err: " << Common::UtilityImpl::StrError(error);
+            errno = backup_errno;
+            throw std::runtime_error(s.str());
+        }
+    }
+
+    std::string LoggerSophosSettings::LoggerConfigTree::getVerbosity(const std::string& session) const
+    {
+        boost::optional<std::string> value;
+        if (session.empty())
+        {
+            value = m_ptree.get_optional<std::string>(std::string{"global."} + VERBOSITY);
+            if (value)
             {
-                return;
+                return value.get();
             }
-            // uses fstream as logging can not depend on Common::FileSystem
-            int backup_errno = errno;
-            std::fstream i(confFilePath, std::ifstream::in);
-            if (i)
+            value = m_ptree.get_optional<std::string>(VERBOSITY);
+            if (value)
             {
-                pt::read_ini(i, m_ptree);
-            }
-            else
-            {
-                int error = errno;
-                std::stringstream s;
-                s << "Invalid path for log config: " << confFilePath
-                  << ". Err: " << Common::UtilityImpl::StrError(error);
-                errno = backup_errno;
-                throw std::runtime_error(s.str());
+                return value.get();
             }
         }
-
-        std::string LoggerSophosSettings::LoggerConfigTree::getVerbosity(const std::string& session) const
+        else
         {
-            boost::optional<std::string> value;
-            if (session.empty())
+            value = m_ptree.get_optional<std::string>(session + "." + VERBOSITY);
+            if (value)
             {
-                value = m_ptree.get_optional<std::string>(std::string{"global."} + VERBOSITY);
-                if (value)
-                {
-                    return value.get();
-                }
-                value = m_ptree.get_optional<std::string>(VERBOSITY);
-                if (value)
-                {
-                    return value.get();
-                }
+                return value.get();
             }
-            else
-            {
-                value = m_ptree.get_optional<std::string>(session + "." + VERBOSITY);
-                if (value)
-                {
-                    return value.get();
-                }
-            }
-            return std::string{};
         }
+        return std::string{};
+    }
 
-        bool LoggerSophosSettings::LoggerConfigTree::hasSession(const std::string& session) const
+    bool LoggerSophosSettings::LoggerConfigTree::hasSession(const std::string& session) const
+    {
+        auto session_tree = m_ptree.get_child_optional(session);
+        return bool(session_tree);
+    }
+
+    void LoggerSophosSettings::LoggerConfigTree::mergeConfigTree(const LoggerSophosSettings::LoggerConfigTree& treeToMerge)
+    {
+        pt::ptree ptreeToMerge = treeToMerge.getPTree();
+
+        for ( auto entry : ptreeToMerge)
         {
-            auto session_tree = m_ptree.get_child_optional(session);
-            return bool(session_tree);
+            m_ptree.erase(entry.first);
+            m_ptree.push_back(std::make_pair(entry.first, entry.second));
         }
+    }
 
-        void LoggerSophosSettings::LoggerConfigTree::mergeConfigTree(const LoggerSophosSettings::LoggerConfigTree& treeToMerge)
+    pt::ptree LoggerSophosSettings::LoggerConfigTree::getPTree() const {
+        return m_ptree;
+    }
+
+    LoggerSophosSettings::LoggerSophosSettings()
+    {
+        if (LoggerSophosSettings::InTestMode)
         {
-            pt::ptree ptreeToMerge = treeToMerge.getPTree();
-
-            for ( auto entry : ptreeToMerge)
-            {
-                m_ptree.erase(entry.first);
-                m_ptree.push_back(std::make_pair(entry.first, entry.second));
-            }
+            // do not try to load the file property if TestMode = true
+            return;
         }
+        auto& pathMan = Common::ApplicationConfiguration::applicationPathManager();
 
-        pt::ptree LoggerSophosSettings::LoggerConfigTree::getPTree() const {
-            return m_ptree;
-        }
-
-        LoggerSophosSettings::LoggerSophosSettings()
+        try
         {
-            if (LoggerSophosSettings::InTestMode)
-            {
-                // do not try to load the file property if TestMode = true
-                return;
-            }
-            auto& pathMan = Common::ApplicationConfiguration::applicationPathManager();
+            m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree(pathMan.getLogConfFilePath()));
 
-            try
+            if (FileSystem::fileSystem()->isFile((pathMan.getLocalLogConfFilePath())))
             {
-                m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree(pathMan.getLogConfFilePath()));
-
-                if (FileSystem::fileSystem()->isFile((pathMan.getLocalLogConfFilePath())))
-                {
-                    LoggerConfigTree localConfigTree = LoggerConfigTree(pathMan.getLocalLogConfFilePath());
-                    m_configTree->mergeConfigTree(localConfigTree);
-                }
-            }
-            catch (std::exception& ex)
-            {
-                // it can not use the logger yet, hence, will use the std::err
-                std::cerr << "Failed to read the config file " << pathMan.getLogConfFilePath()
-                          << ". All settings will be set to their default value" << std::endl;
+                LoggerConfigTree localConfigTree = LoggerConfigTree(pathMan.getLocalLogConfFilePath());
+                m_configTree->mergeConfigTree(localConfigTree);
             }
         }
-
-        LoggerSophosSettings::~LoggerSophosSettings() {}
-
-        LoggerSophosSettings& LoggerSophosSettings::instance()
+        catch (std::exception& ex)
         {
-            static LoggerSophosSettings loggerSophosSettings;
-            return loggerSophosSettings;
+            // it can not use the logger yet, hence, will use the std::err
+            std::cerr << "Failed to read the config file " << pathMan.getLogConfFilePath()
+                      << ". All settings will be set to their default value" << std::endl;
         }
+    }
 
-        bool LoggerSophosSettings::hasSpecializationFor(const std::string& productName) const
+    LoggerSophosSettings::~LoggerSophosSettings() {}
+
+    LoggerSophosSettings& LoggerSophosSettings::instance()
+    {
+        static LoggerSophosSettings loggerSophosSettings;
+        return loggerSophosSettings;
+    }
+
+    bool LoggerSophosSettings::hasSpecializationFor(const std::string& productName) const
+    {
+        if (m_configTree)
+        {
+            return m_configTree->hasSession(productName);
+        }
+        return false;
+    }
+
+    bool LoggerSophosSettings::logLevel(const std::string& productName, log4cplus::LogLevel& logLevelOut) const
+    {
+        std::string verbosity;
+
+        if (hasSpecializationFor(productName))
+        {
+            // it can assume config tree is valid as there is a specialization for the product
+            verbosity = m_configTree->getVerbosity(productName);
+        }
+        else
         {
             if (m_configTree)
             {
-                return m_configTree->hasSession(productName);
+                // get the option for global
+                verbosity = m_configTree->getVerbosity();
             }
+        }
+
+        if (verbosity.empty())
+        {
             return false;
         }
 
-        bool LoggerSophosSettings::logLevel(const std::string& productName, log4cplus::LogLevel& logLevelOut) const
-        {
-            std::string verbosity;
-
-            if (hasSpecializationFor(productName))
-            {
-                // it can assume config tree is valid as there is a specialization for the product
-                verbosity = m_configTree->getVerbosity(productName);
-            }
-            else
-            {
-                if (m_configTree)
-                {
-                    // get the option for global
-                    verbosity = m_configTree->getVerbosity();
-                }
-            }
-
-            if (verbosity.empty())
-            {
-                return false;
-            }
-
-            return fromNameToLog(verbosity, logLevelOut);
-        }
-
-    } // namespace Logging
-} // namespace Common
+        return fromNameToLog(verbosity, logLevelOut);
+    }
+} // namespace Common::Logging

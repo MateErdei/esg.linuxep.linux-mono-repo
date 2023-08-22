@@ -7,18 +7,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::Logging
 {
-    namespace Logging
+    class PluginLoggingSetup
     {
-        class PluginLoggingSetup
-        {
-        public:
-            explicit PluginLoggingSetup(const std::string& pluginName, const std::string& overrideFileName = "");
-            ~PluginLoggingSetup();
+    public:
+        explicit PluginLoggingSetup(const std::string& pluginName, const std::string& overrideFileName = "");
+        ~PluginLoggingSetup();
 
-        private:
-            static void setupFileLogging(const std::string& pluginNameDir, const std::string& pluginFileName);
-        };
-    } // namespace Logging
-} // namespace Common
+    private:
+        static void setupFileLogging(const std::string& pluginNameDir, const std::string& pluginFileName);
+    };
+} // namespace Common::Logging

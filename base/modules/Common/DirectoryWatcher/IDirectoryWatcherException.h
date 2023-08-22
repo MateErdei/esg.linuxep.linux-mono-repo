@@ -4,14 +4,11 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::DirectoryWatcher
 {
-    namespace DirectoryWatcher
+    class IDirectoryWatcherException : public Common::Exceptions::IException
     {
-        class IDirectoryWatcherException : public Common::Exceptions::IException
-        {
-        public:
-            explicit IDirectoryWatcherException(const std::string& what) : Common::Exceptions::IException(what) {}
-        };
-    } // namespace DirectoryWatcher
-} // namespace Common
+    public:
+        explicit IDirectoryWatcherException(const std::string& what) : Common::Exceptions::IException(what) {}
+    };
+} // namespace Common::DirectoryWatcher

@@ -6,19 +6,16 @@
 #include "Common/TaskQueue/ITask.h"
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
-namespace ManagementAgent
+namespace ManagementAgent::HealthStatusImpl
 {
-    namespace HealthStatusImpl
+    class HealthTask : public Common::TaskQueue::ITask
     {
-        class HealthTask : public Common::TaskQueue::ITask
-        {
-        public:
-            explicit HealthTask(PluginCommunication::IPluginManager& pluginManager);
+    public:
+        explicit HealthTask(PluginCommunication::IPluginManager& pluginManager);
 
-            void run() override;
+        void run() override;
 
-        private:
-            PluginCommunication::IPluginManager& m_pluginManager;
-        };
-    } // namespace McsRouterPluginCommunicationImpl
-} // namespace ManagementAgent
+    private:
+        PluginCommunication::IPluginManager& m_pluginManager;
+    };
+} // namespace ManagementAgent::HealthStatusImpl

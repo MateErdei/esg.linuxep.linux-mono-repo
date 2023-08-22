@@ -2,17 +2,14 @@
 #pragma once
 
 #include <string>
-namespace Common
+namespace Common::Logging
 {
-    namespace Logging
+    class ConsoleLoggingSetup
     {
-        class ConsoleLoggingSetup
-        {
-        public:
-            ConsoleLoggingSetup();
-            ConsoleLoggingSetup(const std::string&);
-            ~ConsoleLoggingSetup();
-            static void consoleSetupLogging();
-        };
-    } // namespace Logging
-} // namespace Common
+    public:
+        ConsoleLoggingSetup();
+        ConsoleLoggingSetup(const std::string&);
+        ~ConsoleLoggingSetup();
+        static void consoleSetupLogging();
+    };
+} // namespace Common::Logging

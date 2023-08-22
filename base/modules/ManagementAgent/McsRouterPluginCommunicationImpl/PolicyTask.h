@@ -7,20 +7,17 @@
 
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::McsRouterPluginCommunicationImpl
 {
-    namespace McsRouterPluginCommunicationImpl
+    class PolicyTask : public virtual Common::TaskQueue::ITask
     {
-        class PolicyTask : public virtual Common::TaskQueue::ITask
-        {
-        public:
-            void run() override;
-            PolicyTask(PluginCommunication::IPluginManager& pluginManager, std::string filePath, const std::string& pluginName="");
+    public:
+        void run() override;
+        PolicyTask(PluginCommunication::IPluginManager& pluginManager, std::string filePath, const std::string& pluginName="");
 
-        private:
-            PluginCommunication::IPluginManager& m_pluginManager;
-            std::string m_filePath;
-            std::string m_pluginName;
-        };
-    } // namespace McsRouterPluginCommunicationImpl
-} // namespace ManagementAgent
+    private:
+        PluginCommunication::IPluginManager& m_pluginManager;
+        std::string m_filePath;
+        std::string m_pluginName;
+    };
+} // namespace ManagementAgent::McsRouterPluginCommunicationImpl

@@ -47,42 +47,41 @@ namespace UpdateSchedulerImpl
         };
         WarehouseTelemetry warehouseTelemetry_;
     };
-
-
-    namespace configModule
-    {
-        struct SettingsHolder
-        {
-            using WeekDayAndTimeForDelay = Common::Policy::WeekDayAndTimeForDelay;
-
-            Common::Policy::UpdateSettings configurationData;
-            std::string updateCacheCertificatesContent;
-            std::chrono::minutes schedulerPeriod;
-            WeekDayAndTimeForDelay weeklySchedule;
-        };
-
-        class PolicyValidationException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
-
-        class UpdatePolicyTranslator : public virtual UpdateScheduler::IMapHostCacheId
-        {
-        public:
-            // may throw PolicyValidationException if the policy does not pass the validation criteria.
-            SettingsHolder translatePolicy(const std::string& policyXml);
-
-            std::string cacheID(const std::string& hostname) const override;
-
-            std::string revID() const;
-            UpdatePolicyTranslator();
-            ~UpdatePolicyTranslator();
-        private:
-            SettingsHolder _translatePolicy(const std::string& policyXml);
-            std::shared_ptr<Common::Policy::ALCPolicy> updatePolicy_;
-
-            UpdatePolicyTelemetry updatePolicyTelemetry_;
-        };
-    } // namespace configModule
 } // namespace UpdateSchedulerImpl
+
+namespace UpdateSchedulerImpl::configModule
+{
+    struct SettingsHolder
+    {
+        using WeekDayAndTimeForDelay = Common::Policy::WeekDayAndTimeForDelay;
+
+        Common::Policy::UpdateSettings configurationData;
+        std::string updateCacheCertificatesContent;
+        std::chrono::minutes schedulerPeriod;
+        WeekDayAndTimeForDelay weeklySchedule;
+    };
+
+    class PolicyValidationException : public Common::Exceptions::IException
+    {
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+
+    class UpdatePolicyTranslator : public virtual UpdateScheduler::IMapHostCacheId
+    {
+    public:
+        // may throw PolicyValidationException if the policy does not pass the validation criteria.
+        SettingsHolder translatePolicy(const std::string& policyXml);
+
+        std::string cacheID(const std::string& hostname) const override;
+
+        std::string revID() const;
+        UpdatePolicyTranslator();
+        ~UpdatePolicyTranslator();
+    private:
+        SettingsHolder _translatePolicy(const std::string& policyXml);
+        std::shared_ptr<Common::Policy::ALCPolicy> updatePolicy_;
+
+        UpdatePolicyTelemetry updatePolicyTelemetry_;
+    };
+} // namespace UpdateSchedulerImpl::configModule

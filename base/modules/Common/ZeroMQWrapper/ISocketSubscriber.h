@@ -9,14 +9,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IReadable.h"
 #include "ISocketSetup.h"
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class ISocketSubscriber : public virtual IReadable, public virtual ISocketSetup
     {
-        class ISocketSubscriber : public virtual IReadable, public virtual ISocketSetup
-        {
-        public:
-            virtual void subscribeTo(const std::string& subject) = 0;
-        };
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    public:
+        virtual void subscribeTo(const std::string& subject) = 0;
+    };
+} // namespace Common::ZeroMQWrapper

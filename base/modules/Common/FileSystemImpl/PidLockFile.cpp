@@ -10,96 +10,93 @@
 #include <sstream>
 #include <unistd.h>
 
-namespace Common
+namespace Common::FileSystemImpl
 {
-    namespace FileSystemImpl
+    using namespace Common::FileSystem;
+    using namespace Common::UtilityImpl;
+    PidLockFile::PidLockFile(const std::string& pidfile) : m_fileDescriptor(-1), m_pidfile(pidfile)
     {
-        using namespace Common::FileSystem;
-        using namespace Common::UtilityImpl;
-        PidLockFile::PidLockFile(const std::string& pidfile) : m_fileDescriptor(-1), m_pidfile(pidfile)
+        int localfd = pidLockUtils()->open(m_pidfile, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
+
+        if (localfd == -1)
         {
-            int localfd = pidLockUtils()->open(m_pidfile, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
-
-            if (localfd == -1)
-            {
-                std::stringstream errorStream;
-                errorStream << "Failed to open lock file " << m_pidfile << " because " << StrError(errno) << "("
-                            << errno << ")";
-                throw std::system_error(errno, std::generic_category(), errorStream.str());
-            }
-
-            if (pidLockUtils()->flock(localfd) == -1)
-            {
-                // unable to lock the file
-                pidLockUtils()->close(localfd);
-                std::stringstream errorStream;
-                errorStream << "Failed to lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno
-                            << ")";
-                throw std::system_error(errno, std::generic_category(), errorStream.str());
-            }
-
-            // truncate and write new PID
-            if (pidLockUtils()->ftruncate(localfd, 0) != 0)
-            {
-                pidLockUtils()->close(localfd);
-                std::stringstream errorStream;
-                errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << StrError(errno) << "("
-                            << errno << ")";
-                throw std::system_error(errno, std::generic_category(), errorStream.str());
-            }
-
-            // write new PID
-            char pid[15];
-            snprintf(pid, 14, "%ld", static_cast<long>(pidLockUtils()->getpid()));
-            pid[14] = 0;
-            size_t pidLen = strlen(pid);
-
-            ssize_t written = pidLockUtils()->write(localfd, pid, pidLen);
-            if (written < 0 || static_cast<size_t>(written) != pidLen)
-            {
-                pidLockUtils()->close(localfd);
-                std::stringstream errorStream;
-                errorStream << "Failed to write pid to pidfile" << m_pidfile << " because " << StrError(errno) << "("
-                            << errno << ")";
-                throw std::system_error(errno, std::generic_category(), errorStream.str());
-            }
-
-            m_fileDescriptor = localfd;
+            std::stringstream errorStream;
+            errorStream << "Failed to open lock file " << m_pidfile << " because " << StrError(errno) << "("
+                        << errno << ")";
+            throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
-        PidLockFile::~PidLockFile()
+        if (pidLockUtils()->flock(localfd) == -1)
         {
-            if (m_fileDescriptor >= 0)
-            {
-                pidLockUtils()->close(m_fileDescriptor);
-                m_fileDescriptor = -1;
-                pidLockUtils()->unlink(m_pidfile);
-            }
+            // unable to lock the file
+            pidLockUtils()->close(localfd);
+            std::stringstream errorStream;
+            errorStream << "Failed to lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno
+                        << ")";
+            throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
-        std::string PidLockFile::filePath() const
+        // truncate and write new PID
+        if (pidLockUtils()->ftruncate(localfd, 0) != 0)
         {
-            return m_pidfile;
+            pidLockUtils()->close(localfd);
+            std::stringstream errorStream;
+            errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << StrError(errno) << "("
+                        << errno << ")";
+            throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
-        int PidLockFileUtils::open(const std::string& pathname, int flags, mode_t mode) const
+        // write new PID
+        char pid[15];
+        snprintf(pid, 14, "%ld", static_cast<long>(pidLockUtils()->getpid()));
+        pid[14] = 0;
+        size_t pidLen = strlen(pid);
+
+        ssize_t written = pidLockUtils()->write(localfd, pid, pidLen);
+        if (written < 0 || static_cast<size_t>(written) != pidLen)
         {
-            return ::open(pathname.c_str(), flags, mode);
+            pidLockUtils()->close(localfd);
+            std::stringstream errorStream;
+            errorStream << "Failed to write pid to pidfile" << m_pidfile << " because " << StrError(errno) << "("
+                        << errno << ")";
+            throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
-        int PidLockFileUtils::flock(int fd) const { return ::flock(fd, LOCK_EX | LOCK_NB); }
+        m_fileDescriptor = localfd;
+    }
 
-        int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }
+    PidLockFile::~PidLockFile()
+    {
+        if (m_fileDescriptor >= 0)
+        {
+            pidLockUtils()->close(m_fileDescriptor);
+            m_fileDescriptor = -1;
+            pidLockUtils()->unlink(m_pidfile);
+        }
+    }
 
-        ssize_t PidLockFileUtils::write(int fd, const void* buf, size_t count) const { return ::write(fd, buf, count); }
+    std::string PidLockFile::filePath() const
+    {
+        return m_pidfile;
+    }
 
-        void PidLockFileUtils::close(int fd) const { ::close(fd); }
+    int PidLockFileUtils::open(const std::string& pathname, int flags, mode_t mode) const
+    {
+        return ::open(pathname.c_str(), flags, mode);
+    }
 
-        void PidLockFileUtils::unlink(const std::string& pathname) const { ::unlink(pathname.c_str()); }
+    int PidLockFileUtils::flock(int fd) const { return ::flock(fd, LOCK_EX | LOCK_NB); }
 
-        __pid_t PidLockFileUtils::getpid() const { return ::getpid(); }
-    } // namespace FileSystemImpl
-} // namespace Common
+    int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }
+
+    ssize_t PidLockFileUtils::write(int fd, const void* buf, size_t count) const { return ::write(fd, buf, count); }
+
+    void PidLockFileUtils::close(int fd) const { ::close(fd); }
+
+    void PidLockFileUtils::unlink(const std::string& pathname) const { ::unlink(pathname.c_str()); }
+
+    __pid_t PidLockFileUtils::getpid() const { return ::getpid(); }
+} // namespace Common::FileSystemImpl
 
 std::unique_ptr<Common::FileSystem::ILockFileHolder> Common::FileSystem::acquireLockFile(const std::string& fullPath)
 {

@@ -8,21 +8,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class ContextHolder final
     {
-        class ContextHolder final
-        {
-        public:
-            ContextHolder();
-            ~ContextHolder();
-            void* ctx();
-            void reset();
+    public:
+        ContextHolder();
+        ~ContextHolder();
+        void* ctx();
+        void reset();
 
-        private:
-            void* m_context;
-        };
-        using ContextHolderSharedPtr = std::shared_ptr<ContextHolder>;
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+    private:
+        void* m_context;
+    };
+    using ContextHolderSharedPtr = std::shared_ptr<ContextHolder>;
+} // namespace Common::ZeroMQWrapperImpl

@@ -16,14 +16,10 @@ namespace
     }
 } // namespace
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    ConfigException::ConfigException(const std::string& where, const std::string& cause) :
+        ConfigException(combineMessages(where, cause))
     {
-        ConfigException::ConfigException(const std::string& where, const std::string& cause) :
-            ConfigException(combineMessages(where, cause))
-        {
-        }
-    } // namespace UtilityImpl
-
-} // namespace Common
+    }
+} // namespace Common::UtilityImpl

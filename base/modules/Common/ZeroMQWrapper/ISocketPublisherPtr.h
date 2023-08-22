@@ -8,11 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
-    {
-        class ISocketPublisher;
-        using ISocketPublisherPtr = std::unique_ptr<ISocketPublisher>;
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    class ISocketPublisher;
+    using ISocketPublisherPtr = std::unique_ptr<ISocketPublisher>;
+} // namespace Common::ZeroMQWrapper

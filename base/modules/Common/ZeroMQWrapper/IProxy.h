@@ -9,18 +9,15 @@
 #include <memory>
 #include <string>
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class IProxy
     {
-        class IProxy
-        {
-        public:
-            virtual ~IProxy() = default;
-            virtual void start() = 0;
-            virtual void stop() = 0;
-        };
+    public:
+        virtual ~IProxy() = default;
+        virtual void start() = 0;
+        virtual void stop() = 0;
+    };
 
-        using IProxyPtr = std::unique_ptr<IProxy>;
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    using IProxyPtr = std::unique_ptr<IProxy>;
+} // namespace Common::ZeroMQWrapper

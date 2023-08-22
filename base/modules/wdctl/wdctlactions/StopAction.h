@@ -7,22 +7,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ZMQAction.h"
 
-namespace wdctl
+namespace wdctl::wdctlactions
 {
-    namespace wdctlactions
+    class StopAction : public ZMQAction
     {
-        class StopAction : public ZMQAction
+    public:
+        enum class IsRunningStatus
         {
-        public:
-            enum class IsRunningStatus
-            {
-                IsRunning,
-                IsNotRunning,
-                Undefined
-            };
-            explicit StopAction(const wdctl::wdctlarguments::Arguments& args);
-            int run() override;
-            IsRunningStatus checkIsRunning();
+            IsRunning,
+            IsNotRunning,
+            Undefined
         };
-    } // namespace wdctlactions
-} // namespace wdctl
+        explicit StopAction(const wdctl::wdctlarguments::Arguments& args);
+        int run() override;
+        IsRunningStatus checkIsRunning();
+    };
+} // namespace wdctl::wdctlactions

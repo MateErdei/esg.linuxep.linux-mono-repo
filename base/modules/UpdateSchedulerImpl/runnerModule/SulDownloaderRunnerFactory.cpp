@@ -7,40 +7,37 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "AsyncSulDownloaderRunner.h"
 
-namespace UpdateSchedulerImpl
+namespace UpdateSchedulerImpl::runnerModule
 {
-    namespace runnerModule
+    using namespace UpdateScheduler;
+
+    /**Factory */
+
+    SulDownloaderRunnerFactory::SulDownloaderRunnerFactory() { restoreCreator(); }
+
+    SulDownloaderRunnerFactory& SulDownloaderRunnerFactory::instance()
     {
-        using namespace UpdateScheduler;
+        static SulDownloaderRunnerFactory factory;
+        return factory;
+    }
 
-        /**Factory */
+    std::unique_ptr<IAsyncSulDownloaderRunner> SulDownloaderRunnerFactory::createSulDownloaderRunner(
+        std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+        const std::string& dirPath)
+    {
+        return m_creator(schedulerTaskQueue, dirPath);
+    }
 
-        SulDownloaderRunnerFactory::SulDownloaderRunnerFactory() { restoreCreator(); }
+    void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
 
-        SulDownloaderRunnerFactory& SulDownloaderRunnerFactory::instance()
-        {
-            static SulDownloaderRunnerFactory factory;
-            return factory;
-        }
-
-        std::unique_ptr<IAsyncSulDownloaderRunner> SulDownloaderRunnerFactory::createSulDownloaderRunner(
-            std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
-            const std::string& dirPath)
-        {
-            return m_creator(schedulerTaskQueue, dirPath);
-        }
-
-        void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
-
-        void SulDownloaderRunnerFactory::restoreCreator()
-        {
-            m_creator = [](std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath) {
-                return std::unique_ptr<IAsyncSulDownloaderRunner>(
-                    new AsyncSulDownloaderRunner(schedulerTaskQueue, dirPath));
-            };
-        }
-    } // namespace runnerModule
-} // namespace UpdateSchedulerImpl
+    void SulDownloaderRunnerFactory::restoreCreator()
+    {
+        m_creator = [](std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath) {
+            return std::unique_ptr<IAsyncSulDownloaderRunner>(
+                new AsyncSulDownloaderRunner(schedulerTaskQueue, dirPath));
+        };
+    }
+} // namespace UpdateSchedulerImpl::runnerModule
 namespace UpdateScheduler
 {
     std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(

@@ -9,20 +9,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Base64.h"
 #include "Obscurity.h"
 
-namespace Common
+namespace Common::ObfuscationImpl
 {
-    namespace ObfuscationImpl
+    Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData)
     {
-        Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData)
-        {
-            CObscurity obscurity;
-            return obscurity.Reveal(Base64::Decode(srcData));
-        }
+        CObscurity obscurity;
+        return obscurity.Reveal(Base64::Decode(srcData));
+    }
 
-        std::string SECObfuscate(const std::string& password)
-        {
-            CObscurity obscurity;
-            return Base64::Encode(obscurity.Conceal(password));
-        }
-    } // namespace ObfuscationImpl
-} // namespace Common
+    std::string SECObfuscate(const std::string& password)
+    {
+        CObscurity obscurity;
+        return Base64::Encode(obscurity.Conceal(password));
+    }
+} // namespace Common::ObfuscationImpl

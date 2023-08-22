@@ -7,26 +7,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <random>
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    /**
+     * Wraps a std::uniform_int_distribution.
+     *
+     * Generates random int in the range [minValue, maxValue] (i.e. including generating minValue and maxValue)
+     */
+    class UniformIntDistribution
     {
-        /**
-         * Wraps a std::uniform_int_distribution.
-         *
-         * Generates random int in the range [minValue, maxValue] (i.e. including generating minValue and maxValue)
-         */
-        class UniformIntDistribution
-        {
-        public:
-            UniformIntDistribution(int minValue, int maxValue);
+    public:
+        UniformIntDistribution(int minValue, int maxValue);
 
-            int next();
+        int next();
 
-        private:
-            std::random_device m_randomDevice;
-            std::uniform_int_distribution<> m_uid;
-            std::default_random_engine m_engine;
-        };
-    } // namespace UtilityImpl
-} // namespace Common
+    private:
+        std::random_device m_randomDevice;
+        std::uniform_int_distribution<> m_uid;
+        std::default_random_engine m_engine;
+    };
+} // namespace Common::UtilityImpl

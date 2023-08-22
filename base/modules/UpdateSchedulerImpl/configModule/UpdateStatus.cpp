@@ -141,67 +141,63 @@ namespace
 
 } // namespace
 
-namespace UpdateSchedulerImpl
+namespace UpdateSchedulerImpl::configModule
 {
-    namespace configModule
+    std::string SerializeUpdateStatus(
+        const UpdateSchedulerImpl::configModule::UpdateStatus& status,
+        const std::string& revID,
+        const std::string& versionId,
+        const std::string& machineId,
+        const Common::UtilityImpl::IFormattedTime& iFormattedTime,
+        const std::vector<std::string>& subscriptionsInPolicy,
+        const std::vector<std::string>& features,
+        const StateData::StateMachineData& stateMachineData)
     {
-        std::string SerializeUpdateStatus(
-            const UpdateSchedulerImpl::configModule::UpdateStatus& status,
-            const std::string& revID,
-            const std::string& versionId,
-            const std::string& machineId,
-            const Common::UtilityImpl::IFormattedTime& iFormattedTime,
-            const std::vector<std::string>& subscriptionsInPolicy,
-            const std::vector<std::string>& features,
-            const StateData::StateMachineData& stateMachineData)
-        {
-            static const std::string L_STATUS_TEMPLATE{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+        static const std::string L_STATUS_TEMPLATE{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
-    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
-    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="@@version@@">
-        <endpoint id="@@endpointid@@" />
-    <rebootState>
-            <required>no</required>
-    </rebootState>
-    <downloadState>
-            <state>@@downloadStateValue@@</state>
-            <!-- <failedSince>@@downloadFailedSinceTime@@</failedSince> -->
-    </downloadState>
-    <installState>
-            <state>@@installStateValue@@</state>
-            <!-- <lastGood>@@lastGoodInstallTime@@</lastGood>
-            <failedSince>@@installFailedSinceTime@@</failedSince> -->
-    </installState>
-    </autoUpdate>
-    <subscriptions><!-- @@subscriptionsElement@@ -->
-    </subscriptions>
-    <products><!-- @@productsElement@@ -->
-    </products>
-    <Features>
-    </Features>
+<CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
+<autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="@@version@@">
+    <endpoint id="@@endpointid@@" />
+<rebootState>
+        <required>no</required>
+</rebootState>
+<downloadState>
+        <state>@@downloadStateValue@@</state>
+        <!-- <failedSince>@@downloadFailedSinceTime@@</failedSince> -->
+</downloadState>
+<installState>
+        <state>@@installStateValue@@</state>
+        <!-- <lastGood>@@lastGoodInstallTime@@</lastGood>
+        <failedSince>@@installFailedSinceTime@@</failedSince> -->
+</installState>
+</autoUpdate>
+<subscriptions><!-- @@subscriptionsElement@@ -->
+</subscriptions>
+<products><!-- @@productsElement@@ -->
+</products>
+<Features>
+</Features>
 </status>)sophos" };
 
-            namespace pt = boost::property_tree;
-            pt::ptree tree = parseString(L_STATUS_TEMPLATE);
+        namespace pt = boost::property_tree;
+        pt::ptree tree = parseString(L_STATUS_TEMPLATE);
 
-            std::string bootTime = iFormattedTime.bootTime();
+        std::string bootTime = iFormattedTime.bootTime();
 
-            auto& statusNode = tree.get_child("status"); // Needs to be a reference so that we mutate the actual tree!
+        auto& statusNode = tree.get_child("status"); // Needs to be a reference so that we mutate the actual tree!
 
-            statusNode.put("CompRes.<xmlattr>.RevID", revID);
-            auto& autoUpdate =
-                statusNode.get_child("autoUpdate"); // Needs to be a reference so that we mutate the actual tree!
+        statusNode.put("CompRes.<xmlattr>.RevID", revID);
+        auto& autoUpdate =
+            statusNode.get_child("autoUpdate"); // Needs to be a reference so that we mutate the actual tree!
 
-            autoUpdate.put("<xmlattr>.version", versionId);
-            autoUpdate.put("endpoint.<xmlattr>.id", machineId);
+        autoUpdate.put("<xmlattr>.version", versionId);
+        autoUpdate.put("endpoint.<xmlattr>.id", machineId);
 
-            addStates(autoUpdate, stateMachineData);
+        addStates(autoUpdate, stateMachineData);
 
-            addSubscriptionElements(status.Subscriptions, subscriptionsInPolicy, statusNode.get_child("subscriptions"));
-            addProductsElements(status.Products, statusNode.get_child("products"));
-            addFeatures(features,statusNode.get_child("Features"));
-            return toString(tree);
-        }
-
-    } // namespace configModule
-} // namespace UpdateSchedulerImpl
+        addSubscriptionElements(status.Subscriptions, subscriptionsInPolicy, statusNode.get_child("subscriptions"));
+        addProductsElements(status.Products, statusNode.get_child("products"));
+        addFeatures(features,statusNode.get_child("Features"));
+        return toString(tree);
+    }
+} // namespace UpdateSchedulerImpl::configModule

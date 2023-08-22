@@ -8,32 +8,29 @@
 
 #include "Common/ZeroMQWrapper/IReadWrite.h"
 
-namespace Common
+namespace Common::PluginApiImpl
 {
-    namespace PluginApiImpl
+    class PluginCallBackHandler : public Common::PluginProtocol::AbstractListenerServer
     {
-        class PluginCallBackHandler : public Common::PluginProtocol::AbstractListenerServer
-        {
-        public:
-            PluginCallBackHandler(
-                const std::string& pluginName,
-                std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
-                Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY policy =
-                    Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::HANDLESHUTDOWN);
-            ~PluginCallBackHandler() override;
+    public:
+        PluginCallBackHandler(
+            const std::string& pluginName,
+            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
+            Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY policy =
+                Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::HANDLESHUTDOWN);
+        ~PluginCallBackHandler() override;
 
-        protected:
-            std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
-                const;
+    protected:
+        std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
+            const;
 
-        private:
-            Common::PluginProtocol::DataMessage process(
-                const Common::PluginProtocol::DataMessage& request) const override;
-            void onShutdownRequested() override;
-            Common::PluginProtocol::MessageBuilder m_messageBuilder;
-            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
-            bool m_shutdownRequested = false;
-        };
-    } // namespace PluginApiImpl
-} // namespace Common
+    private:
+        Common::PluginProtocol::DataMessage process(
+            const Common::PluginProtocol::DataMessage& request) const override;
+        void onShutdownRequested() override;
+        Common::PluginProtocol::MessageBuilder m_messageBuilder;
+        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
+        bool m_shutdownRequested = false;
+    };
+} // namespace Common::PluginApiImpl

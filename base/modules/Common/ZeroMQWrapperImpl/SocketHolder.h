@@ -8,27 +8,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ContextHolder.h"
 
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class SocketHolder final
     {
-        class SocketHolder final
-        {
-        public:
-            explicit SocketHolder(void* zmq_socket = nullptr);
-            explicit SocketHolder(ContextHolderSharedPtr& context, int type);
-            ~SocketHolder();
-            void* skt();
-            void reset(void* zmq_socket = nullptr);
-            void reset(ContextHolderSharedPtr& context, int type);
-            /**
-             * Release the socket we're holding - for testing
-             * @return
-             */
-            void* release();
+    public:
+        explicit SocketHolder(void* zmq_socket = nullptr);
+        explicit SocketHolder(ContextHolderSharedPtr& context, int type);
+        ~SocketHolder();
+        void* skt();
+        void reset(void* zmq_socket = nullptr);
+        void reset(ContextHolderSharedPtr& context, int type);
+        /**
+         * Release the socket we're holding - for testing
+         * @return
+         */
+        void* release();
 
-        private:
-            void* m_socket;
-        };
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+    private:
+        void* m_socket;
+    };
+} // namespace Common::ZeroMQWrapperImpl

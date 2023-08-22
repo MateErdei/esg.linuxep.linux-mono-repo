@@ -5,16 +5,16 @@
 
 #include <memory>
 namespace Common::OSUtilitiesImpl
+{
+    class LocalIPImpl : public Common::OSUtilities::ILocalIP
     {
-        class LocalIPImpl : public Common::OSUtilities::ILocalIP
-        {
-        public:
-            Common::OSUtilities::IPs getLocalIPs() const override;
-            std::vector<Common::OSUtilities::Interface> getLocalInterfaces() const override;
-        };
+    public:
+        Common::OSUtilities::IPs getLocalIPs() const override;
+        std::vector<Common::OSUtilities::Interface> getLocalInterfaces() const override;
+    };
 
-        /** To be used in tests only */
-        using ILocalIPPtr = std::unique_ptr<Common::OSUtilities::ILocalIP>;
-        void replaceLocalIP(ILocalIPPtr);
-        void restoreLocalIP();
-    } // namespace Common::OSUtilitiesImpl
+    /** To be used in tests only */
+    using ILocalIPPtr = std::unique_ptr<Common::OSUtilities::ILocalIP>;
+    void replaceLocalIP(ILocalIPPtr);
+    void restoreLocalIP();
+} // namespace Common::OSUtilitiesImpl

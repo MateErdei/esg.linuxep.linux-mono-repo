@@ -11,31 +11,27 @@
 
 #include <functional>
 
-namespace watchdog
+namespace watchdog::watchdogimpl
 {
-    namespace watchdogimpl
+    class WatchdogServiceLine
     {
-        class WatchdogServiceLine
-        {
-        public:
-            WatchdogServiceLine(
-                Common::ZMQWrapperApi::IContextSharedPtr,
-                std::function<std::vector<std::string>(void)> getPluginListFunc);
-            ~WatchdogServiceLine();
+    public:
+        WatchdogServiceLine(
+            Common::ZMQWrapperApi::IContextSharedPtr,
+            std::function<std::vector<std::string>(void)> getPluginListFunc);
+        ~WatchdogServiceLine();
 
-            static std::string WatchdogServiceLineName() { return "watchdogservice"; }
-            static void requestUpdateService(Common::ZMQWrapperApi::IContext&);
-            static void requestUpdateService();
-            static void requestDiagnoseService(Common::ZMQWrapperApi::IContext&);
-            static void requestDiagnoseService();
+        static std::string WatchdogServiceLineName() { return "watchdogservice"; }
+        static void requestUpdateService(Common::ZMQWrapperApi::IContext&);
+        static void requestUpdateService();
+        static void requestDiagnoseService(Common::ZMQWrapperApi::IContext&);
+        static void requestDiagnoseService();
 
-        private:
-            Common::ZMQWrapperApi::IContextSharedPtr m_context;
-            std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
-        };
+    private:
+        Common::ZMQWrapperApi::IContextSharedPtr m_context;
+        std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
+    };
 
-        std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName);
-        std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code);
-
-    } // namespace watchdogimpl
-} // namespace watchdog
+    std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName);
+    std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code);
+} // namespace watchdog::watchdogimpl

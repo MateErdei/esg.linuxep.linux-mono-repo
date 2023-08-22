@@ -10,20 +10,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace Common
+namespace Common::TaskQueue
 {
-    namespace TaskQueue
+    using ITaskPtr = std::unique_ptr<Common::TaskQueue::ITask>;
+
+    class ITaskQueue
     {
-        using ITaskPtr = std::unique_ptr<Common::TaskQueue::ITask>;
+    public:
+        virtual ~ITaskQueue() = default;
+        virtual void queueTask(ITaskPtr task) = 0;
+        virtual ITaskPtr popTask() = 0;
+    };
 
-        class ITaskQueue
-        {
-        public:
-            virtual ~ITaskQueue() = default;
-            virtual void queueTask(ITaskPtr task) = 0;
-            virtual ITaskPtr popTask() = 0;
-        };
-
-        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
-    } // namespace TaskQueue
-} // namespace Common
+    using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+} // namespace Common::TaskQueue

@@ -4,14 +4,11 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::PluginCommunication
 {
-    namespace PluginCommunication
+    class IPluginCommunicationException : public Exceptions::IException
     {
-        class IPluginCommunicationException : public Exceptions::IException
-        {
-        public:
-            using Exceptions::IException::IException;
-        };
-    } // namespace PluginCommunication
-} // namespace Common
+    public:
+        using Exceptions::IException::IException;
+    };
+} // namespace Common::PluginCommunication

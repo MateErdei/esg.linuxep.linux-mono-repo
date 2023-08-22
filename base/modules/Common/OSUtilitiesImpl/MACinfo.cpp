@@ -33,76 +33,72 @@ namespace
     };
 } // namespace
 
-namespace Common
+namespace Common::OSUtilitiesImpl
 {
-    namespace OSUtilitiesImpl
-    {
-        using MACType = std::array<unsigned char, 6>;
+    using MACType = std::array<unsigned char, 6>;
 
-        std::string stringfyMAC(const MACType& macAddress)
+    std::string stringfyMAC(const MACType& macAddress)
+    {
+        std::stringstream s;
+        for (int i = 0; i < 6; i++)
         {
-            std::stringstream s;
-            for (int i = 0; i < 6; i++)
+            if (i != 0)
             {
-                if (i != 0)
-                {
-                    s << ':';
-                }
-                s << std::hex << std::setw(2) << std::setfill('0') << (int)macAddress[i];
+                s << ':';
             }
-            return s.str();
+            s << std::hex << std::setw(2) << std::setfill('0') << (int)macAddress[i];
+        }
+        return s.str();
+    }
+
+    std::vector<std::string> sortedSystemMACs()
+    {
+        std::vector<std::string> macs;
+        struct ifreq ifr;
+        struct ifconf ifc;
+        std::array<char, 1024> buf;
+
+        SocketRAII sock(socket(AF_INET, SOCK_DGRAM, IPPROTO_IP));
+
+        ifc.ifc_len = buf.size();
+        ifc.ifc_buf = buf.data();
+        // get ifaces list
+        if (ioctl(sock.socketfd, SIOCGIFCONF, &ifc) == -1)
+        {
+            throw std::system_error(
+                errno, std::generic_category(), "Failed to get information for the interfaces configured.");
         }
 
-        std::vector<std::string> sortedSystemMACs()
+        struct ifreq* it = ifc.ifc_req;
+        const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
+
+        for (; it != end; ++it)
         {
-            std::vector<std::string> macs;
-            struct ifreq ifr;
-            struct ifconf ifc;
-            std::array<char, 1024> buf;
-
-            SocketRAII sock(socket(AF_INET, SOCK_DGRAM, IPPROTO_IP));
-
-            ifc.ifc_len = buf.size();
-            ifc.ifc_buf = buf.data();
-            // get ifaces list
-            if (ioctl(sock.socketfd, SIOCGIFCONF, &ifc) == -1)
+            strcpy(ifr.ifr_name, it->ifr_name);
+            if (ioctl(sock.socketfd, SIOCGIFFLAGS, &ifr) == 0)
             {
-                throw std::system_error(
-                    errno, std::generic_category(), "Failed to get information for the interfaces configured.");
-            }
-
-            struct ifreq* it = ifc.ifc_req;
-            const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
-
-            for (; it != end; ++it)
-            {
-                strcpy(ifr.ifr_name, it->ifr_name);
-                if (ioctl(sock.socketfd, SIOCGIFFLAGS, &ifr) == 0)
-                {
-                    if (!(ifr.ifr_flags & IFF_LOOPBACK))
-                    { // don't count loopback
-                        if (ioctl(sock.socketfd, SIOCGIFHWADDR, &ifr) == 0)
-                        {
-                            MACType mac_address;
-                            memcpy(mac_address.data(), ifr.ifr_hwaddr.sa_data, mac_address.size());
-                            macs.push_back(stringfyMAC(mac_address));
-                        }
+                if (!(ifr.ifr_flags & IFF_LOOPBACK))
+                { // don't count loopback
+                    if (ioctl(sock.socketfd, SIOCGIFHWADDR, &ifr) == 0)
+                    {
+                        MACType mac_address;
+                        memcpy(mac_address.data(), ifr.ifr_hwaddr.sa_data, mac_address.size());
+                        macs.push_back(stringfyMAC(mac_address));
                     }
                 }
-                else
-                {
-                    throw std::system_error(errno, std::generic_category(), "Failed to get information mac address.");
-                }
             }
-
-            std::sort(std::begin(macs), std::end(macs));
-
-            // remove duplicates
-            auto last = std::unique(std::begin(macs), std::end(macs));
-            macs.erase(last, macs.end());
-
-            return macs;
+            else
+            {
+                throw std::system_error(errno, std::generic_category(), "Failed to get information mac address.");
+            }
         }
 
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+        std::sort(std::begin(macs), std::end(macs));
+
+        // remove duplicates
+        auto last = std::unique(std::begin(macs), std::end(macs));
+        macs.erase(last, macs.end());
+
+        return macs;
+    }
+} // namespace Common::OSUtilitiesImpl

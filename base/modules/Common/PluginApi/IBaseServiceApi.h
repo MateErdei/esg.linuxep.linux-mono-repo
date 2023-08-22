@@ -10,97 +10,94 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::PluginApi
 {
-    namespace PluginApi
+    /** Plugin in this product is related to executables that implement one or more functionalities expected by
+     * Management Console from an App.
+     *
+     *  @see https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol
+     *
+     *  From the point of view of the Management Console an endpoint will have App installed ( for example, SAV,
+     * ALC, HBT, etc). Each App is required to be able to understand its Policy and provide feedback via Status.
+     *  Some Apps also support Actions.
+     *
+     *  For the design of this product, the Plugins are managed by the Management Agent and their status, policies
+     * and actions go to and come from Management Console indirectly via this Management Agent.
+     *
+     *  The IPluginApi aims to simplify the interaction and facilitate the development of Plugins in the product,
+     * implementing all the ipc communication between the Plugin and the Agent and exposing a simple API for Plugins
+     * developers.
+     *
+     *  The Plugin is to be created by IPluginResourceManagement and it requires for its creation to be given also
+     * the IPluginCallback which defines the services that a Plugin must provide to the Management Agent.
+     *
+     *  The common case will be that there will be a one-to-one map between the Plugin and the Management Console
+     * App representation. But there are scenario that a Plugin may want to implement functionalities of two Apps or
+     * that two Plugins colaborate to implement a single App. For this reason,
+     *  ::sendEvent and ::changeStatus and ::getPolicy require that the appId must be provide explicitly.
+     *
+     */
+    class IBaseServiceApi
     {
-        /** Plugin in this product is related to executables that implement one or more functionalities expected by
-         * Management Console from an App.
+    public:
+        virtual ~IBaseServiceApi() = default;
+
+        /**
+         * Send an Event to Management Console via the Management Agent.
          *
-         *  @see https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol
+         * The EventXml must conform to the protocol defined in
+         * https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol section  "Events & Status:
+         * Endpoint → Management"
          *
-         *  From the point of view of the Management Console an endpoint will have App installed ( for example, SAV,
-         * ALC, HBT, etc). Each App is required to be able to understand its Policy and provide feedback via Status.
-         *  Some Apps also support Actions.
-         *
-         *  For the design of this product, the Plugins are managed by the Management Agent and their status, policies
-         * and actions go to and come from Management Console indirectly via this Management Agent.
-         *
-         *  The IPluginApi aims to simplify the interaction and facilitate the development of Plugins in the product,
-         * implementing all the ipc communication between the Plugin and the Agent and exposing a simple API for Plugins
-         * developers.
-         *
-         *  The Plugin is to be created by IPluginResourceManagement and it requires for its creation to be given also
-         * the IPluginCallback which defines the services that a Plugin must provide to the Management Agent.
-         *
-         *  The common case will be that there will be a one-to-one map between the Plugin and the Management Console
-         * App representation. But there are scenario that a Plugin may want to implement functionalities of two Apps or
-         * that two Plugins colaborate to implement a single App. For this reason,
-         *  ::sendEvent and ::changeStatus and ::getPolicy require that the appId must be provide explicitly.
-         *
+         * @param appId The App name as required by Management Console.
+         * @param eventXml The content of the xml to be sent to Management Console.
+         * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
          */
-        class IBaseServiceApi
-        {
-        public:
-            virtual ~IBaseServiceApi() = default;
+        virtual void sendEvent(const std::string& appId, const std::string& eventXml) const = 0;
 
-            /**
-             * Send an Event to Management Console via the Management Agent.
-             *
-             * The EventXml must conform to the protocol defined in
-             * https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol section  "Events & Status:
-             * Endpoint → Management"
-             *
-             * @param appId The App name as required by Management Console.
-             * @param eventXml The content of the xml to be sent to Management Console.
-             * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
-             */
-            virtual void sendEvent(const std::string& appId, const std::string& eventXml) const = 0;
+        /**
+         * Report the App Status to Management Console.
+         *
+         * Management Console require that status of Apps in an Endpoint be sent periodically and whenever it
+         * changes.
+         *
+         * The expected content of status for each App is available in the wiki (link provided).
+         *
+         * The EndPoint is requested to not send status to Management Console unless it has changed. To simplify the
+         * algorithm that track if status has changed, Management Agent keep track of statusWithoutTimestampsXml and
+         * compare previous content with any received one.
+         *
+         * Hence, a plugin may decide that instead of sending the content of the status twice, it will send as
+         * statusWithoutTimestampXml a hash of the content of the status that does not change with timestamps and
+         * can be compared against future statusWithoutTimestampsXml to define if the received status has changed or
+         * not.
+         *
+         * @param appId The App name as required by Management Console.
+         * @param statusXml The content of the xml to be sent to Management Console.
+         * @param statusWithoutTimestampsXml A representation of status that can be used reliably to identify that
+         * status has in effect changed.
+         * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
+         */
+        virtual void sendStatus(
+            const std::string& appId,
+            const std::string& statusXml,
+            const std::string& statusWithoutTimestampsXml) const = 0;
 
-            /**
-             * Report the App Status to Management Console.
-             *
-             * Management Console require that status of Apps in an Endpoint be sent periodically and whenever it
-             * changes.
-             *
-             * The expected content of status for each App is available in the wiki (link provided).
-             *
-             * The EndPoint is requested to not send status to Management Console unless it has changed. To simplify the
-             * algorithm that track if status has changed, Management Agent keep track of statusWithoutTimestampsXml and
-             * compare previous content with any received one.
-             *
-             * Hence, a plugin may decide that instead of sending the content of the status twice, it will send as
-             * statusWithoutTimestampXml a hash of the content of the status that does not change with timestamps and
-             * can be compared against future statusWithoutTimestampsXml to define if the received status has changed or
-             * not.
-             *
-             * @param appId The App name as required by Management Console.
-             * @param statusXml The content of the xml to be sent to Management Console.
-             * @param statusWithoutTimestampsXml A representation of status that can be used reliably to identify that
-             * status has in effect changed.
-             * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
-             */
-            virtual void sendStatus(
-                const std::string& appId,
-                const std::string& statusXml,
-                const std::string& statusWithoutTimestampsXml) const = 0;
+        /**
+         * Request the management to send the policies for the appid. It will be sent via the applyNewPolicy method.
+         * @param appId The App name as required by Management Console.
+         * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
+         */
+        virtual void requestPolicies(const std::string& appId) const = 0;
 
-            /**
-             * Request the management to send the policies for the appid. It will be sent via the applyNewPolicy method.
-             * @param appId The App name as required by Management Console.
-             * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
-             */
-            virtual void requestPolicies(const std::string& appId) const = 0;
+        /*
+         * Allow plugins to send Threat Health to Management Agent.
+         * JSON format: {"ThreatHealth": 1}
+         * 1 = good, 2 = suspicious, 3 = bad
+         * https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42132014794/EMP+status-health
+         */
+        virtual void sendThreatHealth(const std::string& healthJson) const = 0;
+    };
 
-            /*
-             * Allow plugins to send Threat Health to Management Agent.
-             * JSON format: {"ThreatHealth": 1}
-             * 1 = good, 2 = suspicious, 3 = bad
-             * https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42132014794/EMP+status-health
-             */
-            virtual void sendThreatHealth(const std::string& healthJson) const = 0;
-        };
-
-        // std::string getLibraryVersion();
-    } // namespace PluginApi
-} // namespace Common
+    // std::string getLibraryVersion();
+} // namespace Common::PluginApi

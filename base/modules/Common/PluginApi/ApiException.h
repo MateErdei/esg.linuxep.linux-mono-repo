@@ -4,17 +4,14 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::PluginApi
 {
-    namespace PluginApi
+    /**
+     * Exception class to report failures when handling the api requests.
+     */
+    class ApiException : public Common::Exceptions::IException
     {
-        /**
-         * Exception class to report failures when handling the api requests.
-         */
-        class ApiException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
-    } // namespace PluginApi
-} // namespace Common
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+} // namespace Common::PluginApi

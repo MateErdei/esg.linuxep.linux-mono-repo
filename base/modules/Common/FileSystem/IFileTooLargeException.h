@@ -4,14 +4,11 @@
 
 #include "IFileSystemException.h"
 
-namespace Common
+namespace Common::FileSystem
 {
-    namespace FileSystem
+    class IFileTooLargeException : public IFileSystemException
     {
-        class IFileTooLargeException : public IFileSystemException
-        {
-        public:
-            explicit IFileTooLargeException(const std::string& what) : IFileSystemException(what) {}
-        };
-    } // namespace FileSystem
-} // namespace Common
+    public:
+        explicit IFileTooLargeException(const std::string& what) : IFileSystemException(what) {}
+    };
+} // namespace Common::FileSystem

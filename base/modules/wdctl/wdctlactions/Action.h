@@ -3,33 +3,30 @@
 
 #include "wdctl/wdctlarguments/Arguments.h"
 
-namespace wdctl
+namespace wdctl::wdctlactions
 {
-    namespace wdctlactions
+    class Action
     {
-        class Action
-        {
-        public:
-            using Arguments = wdctl::wdctlarguments::Arguments;
-            /**
-             *
-             * @param args BORROWED reference to arguments
-             */
-            explicit Action(const Arguments& args);
-            Action(const Action&) = delete;
+    public:
+        using Arguments = wdctl::wdctlarguments::Arguments;
+        /**
+         *
+         * @param args BORROWED reference to arguments
+         */
+        explicit Action(const Arguments& args);
+        Action(const Action&) = delete;
 
-            virtual ~Action() = default;
+        virtual ~Action() = default;
 
-            virtual int run() = 0;
+        virtual int run() = 0;
 
-            void setSkipWatchdogDetection() { m_detectWatchdog = false; }
+        void setSkipWatchdogDetection() { m_detectWatchdog = false; }
 
-        protected:
-            const Arguments& m_args;
-            bool detectWatchdog() const { return m_detectWatchdog; }
+    protected:
+        const Arguments& m_args;
+        bool detectWatchdog() const { return m_detectWatchdog; }
 
-        private:
-            bool m_detectWatchdog = true;
-        };
-    } // namespace wdctlactions
-} // namespace wdctl
+    private:
+        bool m_detectWatchdog = true;
+    };
+} // namespace wdctl::wdctlactions

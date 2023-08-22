@@ -4,14 +4,11 @@
 
 #include "IIPCException.h"
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class IIPCTimeoutException : public IIPCException
     {
-        class IIPCTimeoutException : public IIPCException
-        {
-        public:
-            using IIPCException::IIPCException;
-        };
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    public:
+        using IIPCException::IIPCException;
+    };
+} // namespace Common::ZeroMQWrapper

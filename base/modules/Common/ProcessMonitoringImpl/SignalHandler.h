@@ -6,23 +6,20 @@
 
 #include "Common/Threads/NotifyPipe.h"
 
-namespace Common
+namespace Common::ProcessMonitoringImpl
 {
-    namespace ProcessMonitoringImpl
+    class SignalHandler : public ISignalHandler
     {
-        class SignalHandler : public ISignalHandler
-        {
-        public:
-            SignalHandler();
-            ~SignalHandler();
+    public:
+        SignalHandler();
+        ~SignalHandler();
 
-            bool clearSubProcessExitPipe() override;
-            bool clearTerminationPipe() override;
-            bool clearUSR1Pipe() override;
+        bool clearSubProcessExitPipe() override;
+        bool clearTerminationPipe() override;
+        bool clearUSR1Pipe() override;
 
-            int subprocessExitFileDescriptor() override;
-            int terminationFileDescriptor() override;
-            int usr1FileDescriptor() override;
-        };
-    } // namespace ProcessMonitoringImpl
-} // namespace Common
+        int subprocessExitFileDescriptor() override;
+        int terminationFileDescriptor() override;
+        int usr1FileDescriptor() override;
+    };
+} // namespace Common::ProcessMonitoringImpl

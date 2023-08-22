@@ -6,25 +6,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "GenericCallbackListener.h"
 
-namespace Common
+namespace Common::ReactorImpl
 {
-    namespace ReactorImpl
+    void GenericCallbackListener::messageHandler(Common::ZeroMQWrapper::IReadable::data_t data)
     {
-        void GenericCallbackListener::messageHandler(Common::ZeroMQWrapper::IReadable::data_t data)
-        {
-            m_callback(data);
-        }
+        m_callback(data);
+    }
 
-        GenericCallbackListener::GenericCallbackListener(GenericCallbackListener::CallbackFunction callback)
+    GenericCallbackListener::GenericCallbackListener(GenericCallbackListener::CallbackFunction callback)
+    {
+        if (callback)
         {
-            if (callback)
-            {
-                m_callback = callback;
-            }
-            else
-            {
-                m_callback = [](Common::ZeroMQWrapper::IReadable::data_t) {};
-            }
+            m_callback = callback;
         }
-    } // namespace ReactorImpl
-} // namespace Common
+        else
+        {
+            m_callback = [](Common::ZeroMQWrapper::IReadable::data_t) {};
+        }
+    }
+} // namespace Common::ReactorImpl

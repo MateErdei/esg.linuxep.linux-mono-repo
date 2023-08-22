@@ -6,33 +6,29 @@
 
 #include <functional>
 
-namespace UpdateSchedulerImpl
+namespace UpdateSchedulerImpl::runnerModule
 {
-    namespace runnerModule
+    class SulDownloaderRunnerFactory
     {
-        class SulDownloaderRunnerFactory
-        {
-            SulDownloaderRunnerFactory();
+        SulDownloaderRunnerFactory();
 
-        public:
-            using FunctionType = std::function<std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner>(
-                std::shared_ptr<UpdateScheduler::SchedulerTaskQueue>,
-                const std::string&)>;
+    public:
+        using FunctionType = std::function<std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner>(
+            std::shared_ptr<UpdateScheduler::SchedulerTaskQueue>,
+            const std::string&)>;
 
-            static SulDownloaderRunnerFactory& instance();
+        static SulDownloaderRunnerFactory& instance();
 
-            std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> createSulDownloaderRunner(
-                std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue,
-                const std::string& dirPath);
+        std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> createSulDownloaderRunner(
+            std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue,
+            const std::string& dirPath);
 
-            // for tests only
-            void replaceCreator(FunctionType creator);
+        // for tests only
+        void replaceCreator(FunctionType creator);
 
-            void restoreCreator();
+        void restoreCreator();
 
-        private:
-            FunctionType m_creator;
-        };
-
-    } // namespace runnerModule
-} // namespace UpdateSchedulerImpl
+    private:
+        FunctionType m_creator;
+    };
+} // namespace UpdateSchedulerImpl::runnerModule

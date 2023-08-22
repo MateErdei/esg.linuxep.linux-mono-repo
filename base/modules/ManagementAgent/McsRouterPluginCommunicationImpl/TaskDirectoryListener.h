@@ -8,31 +8,27 @@
 
 #include <vector>
 
-namespace ManagementAgent
+namespace ManagementAgent::McsRouterPluginCommunicationImpl
 {
-    namespace McsRouterPluginCommunicationImpl
+    using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+
+    class TaskDirectoryListener : public virtual Common::DirectoryWatcher::IDirectoryWatcherListener
     {
-        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+    public:
+        TaskDirectoryListener(
+            const std::string& path,
+            ITaskQueueSharedPtr taskQueue,
+            PluginCommunication::IPluginManager& pluginManager);
+        ~TaskDirectoryListener() = default;
 
-        class TaskDirectoryListener : public virtual Common::DirectoryWatcher::IDirectoryWatcherListener
-        {
-        public:
-            TaskDirectoryListener(
-                const std::string& path,
-                ITaskQueueSharedPtr taskQueue,
-                PluginCommunication::IPluginManager& pluginManager);
-            ~TaskDirectoryListener() = default;
+        std::string getPath() const override;
+        void fileMoved(const std::string& filename) override;
+        void watcherActive(bool active) override;
 
-            std::string getPath() const override;
-            void fileMoved(const std::string& filename) override;
-            void watcherActive(bool active) override;
-
-        private:
-            PluginCommunication::IPluginManager& m_pluginManager;
-            std::string m_directoryPath;
-            ITaskQueueSharedPtr m_taskQueue;
-            bool m_active;
-        };
-
-    } // namespace McsRouterPluginCommunicationImpl
-} // namespace ManagementAgent
+    private:
+        PluginCommunication::IPluginManager& m_pluginManager;
+        std::string m_directoryPath;
+        ITaskQueueSharedPtr m_taskQueue;
+        bool m_active;
+    };
+} // namespace ManagementAgent::McsRouterPluginCommunicationImpl

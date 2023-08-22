@@ -4,14 +4,11 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::PluginRegistryImpl
 {
-    namespace PluginRegistryImpl
+    class PluginRegistryException : public Common::Exceptions::IException
     {
-        class PluginRegistryException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
-    } // namespace PluginRegistryImpl
-} // namespace Common
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+} // namespace Common::PluginRegistryImpl

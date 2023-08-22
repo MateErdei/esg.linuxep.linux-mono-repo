@@ -4,14 +4,11 @@
 
 #include "IFileSystemException.h"
 
-namespace Common
+namespace Common::FileSystem
 {
-    namespace FileSystem
+    class IPermissionDeniedException : public IFileSystemException
     {
-        class IPermissionDeniedException : public IFileSystemException
-        {
-        public:
-            explicit IPermissionDeniedException(const std::string& what) : IFileSystemException(what) {}
-        };
-    } // namespace FileSystem
-} // namespace Common
+    public:
+        explicit IPermissionDeniedException(const std::string& what) : IFileSystemException(what) {}
+    };
+} // namespace Common::FileSystem

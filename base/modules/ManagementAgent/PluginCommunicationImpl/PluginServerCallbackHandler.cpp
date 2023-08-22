@@ -9,117 +9,114 @@
 
 #include <cassert>
 
-namespace ManagementAgent
+namespace ManagementAgent::PluginCommunicationImpl
 {
-    namespace PluginCommunicationImpl
+    PluginServerCallbackHandler::PluginServerCallbackHandler(
+        std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+        ServerCallbackPtr serverCallback,
+        std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) :
+        AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::DONOTARM),
+        m_messageBuilder("NotUsed"),
+        m_serverCallback(std::move(serverCallback)),
+        m_healthStatusSharedObj(std::move(healthStatusSharedObj))
     {
-        PluginServerCallbackHandler::PluginServerCallbackHandler(
-            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-            ServerCallbackPtr serverCallback,
-            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) :
-            AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::DONOTARM),
-            m_messageBuilder("NotUsed"),
-            m_serverCallback(std::move(serverCallback)),
-            m_healthStatusSharedObj(std::move(healthStatusSharedObj))
-        {
-        }
+    }
 
-        DataMessage PluginServerCallbackHandler::process(const DataMessage& request) const
+    DataMessage PluginServerCallbackHandler::process(const DataMessage& request) const
+    {
+        try
         {
-            try
+            std::string policyXml;
+            switch (request.m_command)
             {
-                std::string policyXml;
-                switch (request.m_command)
+                case Commands::PLUGIN_SEND_EVENT:
+                    m_serverCallback->receivedSendEvent(
+                        request.m_applicationId, m_messageBuilder.requestExtractEvent(request));
+                    return m_messageBuilder.replyAckMessage(request);
+                case Commands::PLUGIN_SEND_STATUS:
+                    m_serverCallback->receivedChangeStatus(
+                        request.m_applicationId, m_messageBuilder.requestExtractStatus(request));
+                    return m_messageBuilder.replyAckMessage(request);
+                case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                 {
-                    case Commands::PLUGIN_SEND_EVENT:
-                        m_serverCallback->receivedSendEvent(
-                            request.m_applicationId, m_messageBuilder.requestExtractEvent(request));
-                        return m_messageBuilder.replyAckMessage(request);
-                    case Commands::PLUGIN_SEND_STATUS:
-                        m_serverCallback->receivedChangeStatus(
-                            request.m_applicationId, m_messageBuilder.requestExtractStatus(request));
-                        return m_messageBuilder.replyAckMessage(request);
-                    case Commands::PLUGIN_QUERY_CURRENT_POLICY:
+                    if (m_serverCallback->receivedGetPolicyRequest(request.m_applicationId, request.m_pluginName))
                     {
-                        if (m_serverCallback->receivedGetPolicyRequest(request.m_applicationId, request.m_pluginName))
-                        {
-                            return m_messageBuilder.replyAckMessage(request);
-                        }
-                        else
-                        {
-                            return m_messageBuilder.replySetErrorIfEmpty(
-                                request, Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable);
-                        }
-                    }
-                    case Commands::PLUGIN_SEND_REGISTER:
-                        m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
                         return m_messageBuilder.replyAckMessage(request);
-                    case Commands::PLUGIN_SEND_THREAT_HEALTH:
-                        if (m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj))
-                        {
-                            return m_messageBuilder.replyAckMessage(request);
-                        }
-                        else
-                        {
-                            return m_messageBuilder.replySetErrorIfEmpty(
-                                request, "Threat receiver failed to process threat health");
-                        }
-                    default:
-                        return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");
+                    }
+                    else
+                    {
+                        return m_messageBuilder.replySetErrorIfEmpty(
+                            request, Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable);
+                    }
                 }
-            }
-            catch (Common::PluginApi::ApiException& ex)
-            {
-                return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
-            }
-            catch (std::exception& ex)
-            {
-                return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
+                case Commands::PLUGIN_SEND_REGISTER:
+                    m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
+                    return m_messageBuilder.replyAckMessage(request);
+                case Commands::PLUGIN_SEND_THREAT_HEALTH:
+                    if (m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj))
+                    {
+                        return m_messageBuilder.replyAckMessage(request);
+                    }
+                    else
+                    {
+                        return m_messageBuilder.replySetErrorIfEmpty(
+                            request, "Threat receiver failed to process threat health");
+                    }
+                default:
+                    return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");
             }
         }
-
-        void PluginServerCallbackHandler::onShutdownRequested()
-        { /**not used **/
-        }
-
-        void PluginServerCallbackHandler::setStatusReceiver(
-            std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+        catch (Common::PluginApi::ApiException& ex)
         {
-            assert(m_serverCallback);
-            if (m_serverCallback) // for non-debug builds, don't crash
-            {
-                m_serverCallback->setStatusReceiver(statusReceiver);
-            }
+            return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
         }
-
-        void PluginServerCallbackHandler::setEventReceiver(
-            std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+        catch (std::exception& ex)
         {
-            assert(m_serverCallback);
-            if (m_serverCallback) // for non-debug builds, don't crash
-            {
-                m_serverCallback->setEventReceiver(receiver);
-            }
+            return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
         }
+    }
 
-        void PluginServerCallbackHandler::setPolicyReceiver(
-            std::shared_ptr<PluginCommunication::IPolicyReceiver>& policyReceiver)
-        {
-            assert(m_serverCallback);
-            if (m_serverCallback) // for non-debug builds, don't crash
-            {
-                m_serverCallback->setPolicyReceiver(policyReceiver);
-            }
-        }
+    void PluginServerCallbackHandler::onShutdownRequested()
+    { /**not used **/
+    }
 
-        void PluginServerCallbackHandler::setThreatHealthReceiver(
-            std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+    void PluginServerCallbackHandler::setStatusReceiver(
+        std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+    {
+        assert(m_serverCallback);
+        if (m_serverCallback) // for non-debug builds, don't crash
         {
-            assert(m_serverCallback);
-            if (m_serverCallback)
-            {
-                m_serverCallback->setThreatHealthReceiver(receiver);
-            }
+            m_serverCallback->setStatusReceiver(statusReceiver);
         }
-    } // namespace PluginCommunicationImpl
-} // namespace ManagementAgent
+    }
+
+    void PluginServerCallbackHandler::setEventReceiver(
+        std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+    {
+        assert(m_serverCallback);
+        if (m_serverCallback) // for non-debug builds, don't crash
+        {
+            m_serverCallback->setEventReceiver(receiver);
+        }
+    }
+
+    void PluginServerCallbackHandler::setPolicyReceiver(
+        std::shared_ptr<PluginCommunication::IPolicyReceiver>& policyReceiver)
+    {
+        assert(m_serverCallback);
+        if (m_serverCallback) // for non-debug builds, don't crash
+        {
+            m_serverCallback->setPolicyReceiver(policyReceiver);
+        }
+    }
+
+    void PluginServerCallbackHandler::setThreatHealthReceiver(
+        std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+    {
+        assert(m_serverCallback);
+        if (m_serverCallback)
+        {
+            m_serverCallback->setThreatHealthReceiver(receiver);
+        }
+    }
+} // namespace ManagementAgent::PluginCommunicationImpl

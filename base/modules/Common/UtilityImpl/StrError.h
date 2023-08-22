@@ -7,11 +7,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
-    {
-        /// Implements a thread safe retrieval of strerror
-        std::string StrError(int errNumber);
-    } // namespace UtilityImpl
-} // namespace Common
+    /// Implements a thread safe retrieval of strerror
+    std::string StrError(int errNumber);
+} // namespace Common::UtilityImpl

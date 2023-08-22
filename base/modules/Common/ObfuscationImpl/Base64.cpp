@@ -82,85 +82,82 @@ namespace
     }
 } // namespace
 
-namespace Common
+namespace Common::ObfuscationImpl
 {
-    namespace ObfuscationImpl
+    std::string Base64::Encode(const std::string& orig)
     {
-        std::string Base64::Encode(const std::string& orig)
+        if (orig.size() == 0)
+            return "";
+
+        unsigned buff_size = encode_buffer_size( orig.size() );
+        std::vector<unsigned char> b64_buff( buff_size + 1 );
+        EVP_EncodeBlock( &*b64_buff.begin(), reinterpret_cast<const unsigned char*>(&*orig.begin()), int( orig.size() ) );
+
+        return std::string( b64_buff.begin(), b64_buff.begin() + buff_size );
+    }
+    /**
+     * Decode a base64 string.
+     * @param sEncoded
+     * @return
+     */
+    std::string Base64::Decode(const std::string& sEncoded)
+    {
+        // Take a copy of the encoded string, and remove any newline and padding characters. There
+        // should only be at most two padding characters.
+
+        std::string s = sEncoded;
+        std::string sPlain;
+        erase_all(s, "\r\n");
+
+        if (s.empty())
         {
-            if (orig.size() == 0)
-                return "";
-
-            unsigned buff_size = encode_buffer_size( orig.size() );
-            std::vector<unsigned char> b64_buff( buff_size + 1 );
-            EVP_EncodeBlock( &*b64_buff.begin(), reinterpret_cast<const unsigned char*>(&*orig.begin()), int( orig.size() ) );
-
-            return std::string( b64_buff.begin(), b64_buff.begin() + buff_size );
-        }
-        /**
-         * Decode a base64 string.
-         * @param sEncoded
-         * @return
-         */
-        std::string Base64::Decode(const std::string& sEncoded)
-        {
-            // Take a copy of the encoded string, and remove any newline and padding characters. There
-            // should only be at most two padding characters.
-
-            std::string s = sEncoded;
-            std::string sPlain;
-            erase_all(s, "\r\n");
-
-            if (s.empty())
-            {
-                return sPlain;
-            }
-
-            erase_from_end(s, '=');
-
-            // If the encoded string is empty, the decoded string is also empty.
-            if (s.empty())
-            {
-                return sPlain;
-            }
-
-            // Decode the string. Each four input characters result in up to three output characters. The
-            // value of an output character can be made up from bits of the current and previous
-            // input characters.
-
-            unsigned int uPrev = 0, uNext = 0;
-
-            for (std::string::const_iterator it = s.begin(), itEnd = s.end(); it != itEnd;)
-            {
-                uPrev = GetEncodedCharacter(it, itEnd);
-                uNext = GetEncodedCharacter(it, itEnd);
-
-                sPlain += static_cast<char>((uPrev << 2) + (uNext >> 4));
-
-                if (it == itEnd)
-                {
-                    break;
-                }
-
-                uPrev = uNext;
-                uNext = GetEncodedCharacter(it, itEnd);
-
-                sPlain += static_cast<char>(((uPrev & 0x1f) << 4) + (uNext >> 2));
-
-                if (it == itEnd)
-                {
-                    break;
-                }
-
-                uPrev = uNext;
-                uNext = GetEncodedCharacter(it, itEnd);
-
-                sPlain += static_cast<char>(((uPrev & 0x03) << 6) + uNext);
-            }
-
-            // Return the decoded string.
-
             return sPlain;
         }
-    } // namespace ObfuscationImpl
-} // namespace Common
+
+        erase_from_end(s, '=');
+
+        // If the encoded string is empty, the decoded string is also empty.
+        if (s.empty())
+        {
+            return sPlain;
+        }
+
+        // Decode the string. Each four input characters result in up to three output characters. The
+        // value of an output character can be made up from bits of the current and previous
+        // input characters.
+
+        unsigned int uPrev = 0, uNext = 0;
+
+        for (std::string::const_iterator it = s.begin(), itEnd = s.end(); it != itEnd;)
+        {
+            uPrev = GetEncodedCharacter(it, itEnd);
+            uNext = GetEncodedCharacter(it, itEnd);
+
+            sPlain += static_cast<char>((uPrev << 2) + (uNext >> 4));
+
+            if (it == itEnd)
+            {
+                break;
+            }
+
+            uPrev = uNext;
+            uNext = GetEncodedCharacter(it, itEnd);
+
+            sPlain += static_cast<char>(((uPrev & 0x1f) << 4) + (uNext >> 2));
+
+            if (it == itEnd)
+            {
+                break;
+            }
+
+            uPrev = uNext;
+            uNext = GetEncodedCharacter(it, itEnd);
+
+            sPlain += static_cast<char>(((uPrev & 0x03) << 6) + uNext);
+        }
+
+        // Return the decoded string.
+
+        return sPlain;
+    }
+} // namespace Common::ObfuscationImpl

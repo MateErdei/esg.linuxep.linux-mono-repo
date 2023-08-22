@@ -6,31 +6,28 @@
 
 #include <map>
 
-namespace ManagementAgent
+namespace ManagementAgent::StatusCacheImpl
 {
-    namespace StatusCacheImpl
+    class StatusCache : public virtual ManagementAgent::StatusCache::IStatusCache
     {
-        class StatusCache : public virtual ManagementAgent::StatusCache::IStatusCache
-        {
-        public:
-            StatusCache() = default;
-            StatusCache(const StatusCache&) = delete;
-            ~StatusCache() override = default;
-            bool statusChanged(const std::string& appid, const std::string& statusForComparison) override;
-            void loadCacheFromDisk() override;
+    public:
+        StatusCache() = default;
+        StatusCache(const StatusCache&) = delete;
+        ~StatusCache() override = default;
+        bool statusChanged(const std::string& appid, const std::string& statusForComparison) override;
+        void loadCacheFromDisk() override;
 
-        private:
-            /**
-             * Possibly need to convert to on-disk, or use on-disk as well
-             */
-            std::map<std::string, std::string> m_statusCache;
+    private:
+        /**
+         * Possibly need to convert to on-disk, or use on-disk as well
+         */
+        std::map<std::string, std::string> m_statusCache;
 
-            /**
-             * Update m_statusCache and return true.
-             * @param appid
-             * @param statusForComparison
-             */
-            void updateStatus(const std::string& appid, const std::string& statusForComparison);
-        };
-    } // namespace StatusCacheImpl
-} // namespace ManagementAgent
+        /**
+         * Update m_statusCache and return true.
+         * @param appid
+         * @param statusForComparison
+         */
+        void updateStatus(const std::string& appid, const std::string& statusForComparison);
+    };
+} // namespace ManagementAgent::StatusCacheImpl

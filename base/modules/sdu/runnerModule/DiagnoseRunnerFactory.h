@@ -7,33 +7,29 @@
 #include <functional>
 #include <memory>
 
-namespace RemoteDiagnoseImpl
+namespace RemoteDiagnoseImpl::runnerModule
 {
-    namespace runnerModule
+    class DiagnoseRunnerFactory
     {
-        class DiagnoseRunnerFactory
-        {
-            DiagnoseRunnerFactory();
+        DiagnoseRunnerFactory();
 
-        public:
-            using FunctionType = std::function<std::unique_ptr<RemoteDiagnoseImpl::IAsyncDiagnoseRunner>(
-                std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue>,
-                const std::string&)>;
+    public:
+        using FunctionType = std::function<std::unique_ptr<RemoteDiagnoseImpl::IAsyncDiagnoseRunner>(
+            std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue>,
+            const std::string&)>;
 
-            static DiagnoseRunnerFactory& instance();
+        static DiagnoseRunnerFactory& instance();
 
-            std::unique_ptr<RemoteDiagnoseImpl::IAsyncDiagnoseRunner> createDiagnoseRunner(
-                std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue,
-                const std::string& dirPath);
+        std::unique_ptr<RemoteDiagnoseImpl::IAsyncDiagnoseRunner> createDiagnoseRunner(
+            std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue,
+            const std::string& dirPath);
 
-            // for tests only
-            void replaceCreator(FunctionType creator);
+        // for tests only
+        void replaceCreator(FunctionType creator);
 
-            void restoreCreator();
+        void restoreCreator();
 
-        private:
-            FunctionType m_creator;
-        };
-
-    } // namespace runnerModule
-} // namespace RemoteDiagnoseImpl
+    private:
+        FunctionType m_creator;
+    };
+} // namespace RemoteDiagnoseImpl::runnerModule

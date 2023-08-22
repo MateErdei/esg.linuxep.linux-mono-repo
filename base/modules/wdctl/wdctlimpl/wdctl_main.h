@@ -5,10 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-namespace wdctl
+namespace wdctl::wdctlimpl
 {
-    namespace wdctlimpl
-    {
-        int wdctl_main(int argc, char* argv[]);
-    }
-} // namespace wdctl
+    int wdctl_main(int argc, char* argv[]);
+} // namespace wdctl::wdctlimpl

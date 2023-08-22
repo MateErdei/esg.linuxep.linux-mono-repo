@@ -8,26 +8,23 @@
 #include <memory>
 #include <string>
 
-namespace ManagementAgent
+namespace ManagementAgent::PluginCommunication
 {
-    namespace PluginCommunication
+    class IThreatHealthReceiver
     {
-        class IThreatHealthReceiver
-        {
-        public:
-            virtual ~IThreatHealthReceiver() = default;
+    public:
+        virtual ~IThreatHealthReceiver() = default;
 
-            /**
-             * Handle plugin sending threat health to Management Agent
-             *
-             * @param pluginName
-             * @param threatHealth Threat health in JSON format detailed in IBaseServiceApi.h
-             */
-            virtual bool receivedThreatHealth(
-                const std::string& pluginName,
-                const std::string& threatHealth,
-                std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>
-                    healthStatusSharedObj) = 0;
-        };
-    } // namespace PluginCommunication
-} // namespace ManagementAgent
+        /**
+         * Handle plugin sending threat health to Management Agent
+         *
+         * @param pluginName
+         * @param threatHealth Threat health in JSON format detailed in IBaseServiceApi.h
+         */
+        virtual bool receivedThreatHealth(
+            const std::string& pluginName,
+            const std::string& threatHealth,
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>
+                healthStatusSharedObj) = 0;
+    };
+} // namespace ManagementAgent::PluginCommunication

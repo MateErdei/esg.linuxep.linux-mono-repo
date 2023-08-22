@@ -7,15 +7,11 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    class SystemExecutableUtils
     {
-        class SystemExecutableUtils
-        {
-        public:
-            static std::string getSystemExecutablePath(const std::string& executableName);
-        };
-
-    }
-}
+    public:
+        static std::string getSystemExecutablePath(const std::string& executableName);
+    };
+} // namespace Common::UtilityImpl

@@ -6,16 +6,13 @@
 
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 
-namespace Common
+namespace Common::ZeroMQWrapperImpl
 {
-    namespace ZeroMQWrapperImpl
+    class SocketPublisherImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketPublisher
     {
-        class SocketPublisherImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketPublisher
-        {
-        public:
-            explicit SocketPublisherImpl(ContextHolderSharedPtr context);
+    public:
+        explicit SocketPublisherImpl(ContextHolderSharedPtr context);
 
-            void write(const std::vector<std::string>& data) override;
-        };
-    } // namespace ZeroMQWrapperImpl
-} // namespace Common
+        void write(const std::vector<std::string>& data) override;
+    };
+} // namespace Common::ZeroMQWrapperImpl

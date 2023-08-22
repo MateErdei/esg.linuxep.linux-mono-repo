@@ -4,14 +4,11 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class IIPCException : public Common::Exceptions::IException
     {
-        class IIPCException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+} // namespace Common::ZeroMQWrapper

@@ -8,20 +8,16 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <exception>
 #include <string>
-namespace UpdateSchedulerImpl
+namespace UpdateSchedulerImpl::StateData
 {
-    namespace StateData
+    class StateMachineException : public std::exception
     {
-        class StateMachineException : public std::exception
-        {
-        public:
-            explicit StateMachineException(std::string message);
+    public:
+        explicit StateMachineException(std::string message);
 
-            const char* what() const noexcept override;
+        const char* what() const noexcept override;
 
-        private:
-            std::string m_message;
-        };
-
-    } // namespace StateData
-} // namespace UpdateSchedulerImpl
+    private:
+        std::string m_message;
+    };
+} // namespace UpdateSchedulerImpl::StateData

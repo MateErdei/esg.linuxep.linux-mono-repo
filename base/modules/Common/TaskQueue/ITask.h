@@ -6,15 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-namespace Common
+namespace Common::TaskQueue
 {
-    namespace TaskQueue
+    class ITask
     {
-        class ITask
-        {
-        public:
-            virtual ~ITask() = default;
-            virtual void run() = 0;
-        };
-    } // namespace TaskQueue
-} // namespace Common
+    public:
+        virtual ~ITask() = default;
+        virtual void run() = 0;
+    };
+} // namespace Common::TaskQueue

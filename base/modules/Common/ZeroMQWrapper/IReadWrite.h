@@ -9,12 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IReadable.h"
 #include "IWritable.h"
 
-namespace Common
+namespace Common::ZeroMQWrapper
 {
-    namespace ZeroMQWrapper
+    class IReadWrite : public virtual IReadable, public virtual IWritable
     {
-        class IReadWrite : public virtual IReadable, public virtual IWritable
-        {
-        };
-    } // namespace ZeroMQWrapper
-} // namespace Common
+    };
+} // namespace Common::ZeroMQWrapper

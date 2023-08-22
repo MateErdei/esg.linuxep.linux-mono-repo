@@ -8,10 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common
+namespace Common::Datatypes
 {
-    namespace Datatypes
-    {
-        using StringVector = std::vector<std::string>;
-    }
-} // namespace Common
+    using StringVector = std::vector<std::string>;
+} // namespace Common::Datatypes

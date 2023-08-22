@@ -8,22 +8,15 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace google
+namespace google::protobuf
 {
-    namespace protobuf
-    {
-        class Message;
-    }
-} // namespace google
-namespace Common
+    class Message;
+} // namespace google::protobuf
+namespace Common::ProtobufUtil
 {
-    namespace ProtobufUtil
+    class MessageUtility
     {
-        class MessageUtility
-        {
-        public:
-            static std::string protoBuf2Json(const google::protobuf::Message& message);
-        };
-
-    } // namespace ProtobufUtil
-} // namespace Common
+    public:
+        static std::string protoBuf2Json(const google::protobuf::Message& message);
+    };
+} // namespace Common::ProtobufUtil

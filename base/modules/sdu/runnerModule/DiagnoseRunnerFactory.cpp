@@ -7,39 +7,35 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "AsyncDiagnoseRunner.h"
 
-namespace RemoteDiagnoseImpl
+namespace RemoteDiagnoseImpl::runnerModule
 {
-    namespace runnerModule
+    /**Factory */
+
+    DiagnoseRunnerFactory::DiagnoseRunnerFactory() { restoreCreator(); }
+
+    DiagnoseRunnerFactory& DiagnoseRunnerFactory::instance()
     {
+        static DiagnoseRunnerFactory factory;
+        return factory;
+    }
 
-        /**Factory */
+    std::unique_ptr<IAsyncDiagnoseRunner> DiagnoseRunnerFactory::createDiagnoseRunner(
+        std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue,
+        const std::string& dirPath)
+    {
+        return m_creator(schedulerTaskQueue, dirPath);
+    }
 
-        DiagnoseRunnerFactory::DiagnoseRunnerFactory() { restoreCreator(); }
+    void DiagnoseRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
 
-        DiagnoseRunnerFactory& DiagnoseRunnerFactory::instance()
-        {
-            static DiagnoseRunnerFactory factory;
-            return factory;
-        }
-
-        std::unique_ptr<IAsyncDiagnoseRunner> DiagnoseRunnerFactory::createDiagnoseRunner(
-            std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue,
-            const std::string& dirPath)
-        {
-            return m_creator(schedulerTaskQueue, dirPath);
-        }
-
-        void DiagnoseRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
-
-        void DiagnoseRunnerFactory::restoreCreator()
-        {
-            m_creator = [](std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue, const std::string& dirPath) {
-                return std::unique_ptr<IAsyncDiagnoseRunner>(
-                    new AsyncDiagnoseRunner(schedulerTaskQueue, dirPath));
-            };
-        }
-    } // namespace runnerModule
-} // namespace RemoteDiagnoseImpl
+    void DiagnoseRunnerFactory::restoreCreator()
+    {
+        m_creator = [](std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue, const std::string& dirPath) {
+            return std::unique_ptr<IAsyncDiagnoseRunner>(
+                new AsyncDiagnoseRunner(schedulerTaskQueue, dirPath));
+        };
+    }
+} // namespace RemoteDiagnoseImpl::runnerModule
 namespace RemoteDiagnoseImpl
 {
     std::unique_ptr<IAsyncDiagnoseRunner> createDiagnoseRunner(

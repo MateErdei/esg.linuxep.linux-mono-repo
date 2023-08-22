@@ -10,36 +10,33 @@
 
 #include <memory>
 
-namespace Common
+namespace Common::PluginProtocol
 {
-    namespace PluginProtocol
+    using namespace PluginProtocol;
+
+    class AbstractListenerServer : public virtual Common::Reactor::ICallbackListener,
+                                   public virtual Common::Reactor::IShutdownListener
     {
-        using namespace PluginProtocol;
-
-        class AbstractListenerServer : public virtual Common::Reactor::ICallbackListener,
-                                       public virtual Common::Reactor::IShutdownListener
+    public:
+        enum class ARMSHUTDOWNPOLICY
         {
-        public:
-            enum class ARMSHUTDOWNPOLICY
-            {
-                DONOTARM,
-                HANDLESHUTDOWN
-            };
-            AbstractListenerServer(
-                std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                ARMSHUTDOWNPOLICY armshutdownpolicy);
-            void start();
-            void stop();
-            void stopAndJoin();
-
-        private:
-            virtual DataMessage process(const DataMessage& request) const = 0;
-            virtual void onShutdownRequested() = 0;
-
-            void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) override;
-            void notifyShutdownRequested() override;
-            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> m_ireadWrite;
-            std::unique_ptr<Common::Reactor::IReactor> m_reactor;
+            DONOTARM,
+            HANDLESHUTDOWN
         };
-    } // namespace PluginProtocol
-} // namespace Common
+        AbstractListenerServer(
+            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+            ARMSHUTDOWNPOLICY armshutdownpolicy);
+        void start();
+        void stop();
+        void stopAndJoin();
+
+    private:
+        virtual DataMessage process(const DataMessage& request) const = 0;
+        virtual void onShutdownRequested() = 0;
+
+        void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) override;
+        void notifyShutdownRequested() override;
+        std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> m_ireadWrite;
+        std::unique_ptr<Common::Reactor::IReactor> m_reactor;
+    };
+} // namespace Common::PluginProtocol

@@ -7,22 +7,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common
+namespace Common::UtilityImpl
 {
-    namespace UtilityImpl
+    class VectorAsSet
     {
-        class VectorAsSet
-        {
-            std::vector<std::string> m_entries;
+        std::vector<std::string> m_entries;
 
-        public:
-            VectorAsSet() = default;
+    public:
+        VectorAsSet() = default;
 
-            void setEntries(std::vector<std::string> entries);
+        void setEntries(std::vector<std::string> entries);
 
-            bool hasEntry(const std::string& entry) const;
+        bool hasEntry(const std::string& entry) const;
 
-            const std::vector<std::string>& entries() const;
-        };
-    } // namespace UtilityImpl
-} // namespace Common
+        const std::vector<std::string>& entries() const;
+    };
+} // namespace Common::UtilityImpl

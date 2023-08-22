@@ -51,49 +51,46 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::ProcessMonitoringImpl
 {
-    namespace ProcessMonitoringImpl
+    SignalHandler::SignalHandler() { setSignalHandler(); }
+
+    SignalHandler::~SignalHandler() { clearSignalHandler(); }
+
+    bool SignalHandler::clearSubProcessExitPipe()
     {
-        SignalHandler::SignalHandler() { setSignalHandler(); }
-
-        SignalHandler::~SignalHandler() { clearSignalHandler(); }
-
-        bool SignalHandler::clearSubProcessExitPipe()
+        bool ret = false;
+        while (GL_CHILD_PROCESS_TERMINATED_PIPE.notified())
         {
-            bool ret = false;
-            while (GL_CHILD_PROCESS_TERMINATED_PIPE.notified())
-            {
-                ret = true;
-            }
-            return ret;
+            ret = true;
         }
+        return ret;
+    }
 
-        bool SignalHandler::clearTerminationPipe()
+    bool SignalHandler::clearTerminationPipe()
+    {
+        bool ret = false;
+        while (GL_TERM_PIPE.notified())
         {
-            bool ret = false;
-            while (GL_TERM_PIPE.notified())
-            {
-                ret = true;
-            }
-            return ret;
+            ret = true;
         }
+        return ret;
+    }
 
-        bool SignalHandler::clearUSR1Pipe()
+    bool SignalHandler::clearUSR1Pipe()
+    {
+        bool ret = false;
+        while (GL_USR1_PIPE.notified())
         {
-            bool ret = false;
-            while (GL_USR1_PIPE.notified())
-            {
-                ret = true;
-            }
-            return ret;
+            ret = true;
         }
+        return ret;
+    }
 
 
-        int SignalHandler::subprocessExitFileDescriptor() { return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd(); }
+    int SignalHandler::subprocessExitFileDescriptor() { return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd(); }
 
-        int SignalHandler::terminationFileDescriptor() { return GL_TERM_PIPE.readFd(); }
+    int SignalHandler::terminationFileDescriptor() { return GL_TERM_PIPE.readFd(); }
 
-        int SignalHandler::usr1FileDescriptor() { return GL_USR1_PIPE.readFd(); }
-    } // namespace ProcessMonitoringImpl
-} // namespace Common
+    int SignalHandler::usr1FileDescriptor() { return GL_USR1_PIPE.readFd(); }
+} // namespace Common::ProcessMonitoringImpl

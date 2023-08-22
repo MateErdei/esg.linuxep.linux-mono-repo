@@ -10,22 +10,19 @@
 #include <memory>
 #include <mutex>
 
-namespace Common
+namespace Common::TaskQueueImpl
 {
-    namespace TaskQueueImpl
+    using ITaskPtr = Common::TaskQueue::ITaskPtr;
+
+    class TaskQueueImpl : public virtual Common::TaskQueue::ITaskQueue
     {
-        using ITaskPtr = Common::TaskQueue::ITaskPtr;
+    public:
+        void queueTask(ITaskPtr task) override;
+        ITaskPtr popTask() override;
 
-        class TaskQueueImpl : public virtual Common::TaskQueue::ITaskQueue
-        {
-        public:
-            void queueTask(ITaskPtr task) override;
-            ITaskPtr popTask() override;
-
-        protected:
-            std::deque<ITaskPtr> m_tasks;
-            std::mutex m_queueMutex;
-            std::condition_variable m_condition;
-        };
-    } // namespace TaskQueueImpl
-} // namespace Common
+    protected:
+        std::deque<ITaskPtr> m_tasks;
+        std::mutex m_queueMutex;
+        std::condition_variable m_condition;
+    };
+} // namespace Common::TaskQueueImpl

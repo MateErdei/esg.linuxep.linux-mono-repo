@@ -4,18 +4,15 @@
 #include "Common/PluginApi/ApiException.h"
 #include "Common/UtilityImpl/Factory.h"
 
-namespace watchdog
+namespace watchdog::watchdogimpl
 {
-    namespace watchdogimpl
+    class IWatchdogRequest
     {
-        class IWatchdogRequest
-        {
-        public:
-            virtual ~IWatchdogRequest() = default;
-            virtual void requestUpdateService() = 0;
-            virtual void requestDiagnoseService() = 0;
-        };
+    public:
+        virtual ~IWatchdogRequest() = default;
+        virtual void requestUpdateService() = 0;
+        virtual void requestDiagnoseService() = 0;
+    };
 
-        Common::UtilityImpl::Factory<IWatchdogRequest>& factory();
-    } // namespace watchdogimpl
-} // namespace watchdog
+    Common::UtilityImpl::Factory<IWatchdogRequest>& factory();
+} // namespace watchdog::watchdogimpl

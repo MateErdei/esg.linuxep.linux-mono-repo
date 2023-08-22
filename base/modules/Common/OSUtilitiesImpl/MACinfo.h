@@ -9,12 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common
+namespace Common::OSUtilitiesImpl
 {
-    namespace OSUtilitiesImpl
-    {
-        using MACType = std::array<unsigned char, 6>;
-        std::string stringfyMAC(const MACType& macAddress);
-        std::vector<std::string> sortedSystemMACs();
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+    using MACType = std::array<unsigned char, 6>;
+    std::string stringfyMAC(const MACType& macAddress);
+    std::vector<std::string> sortedSystemMACs();
+} // namespace Common::OSUtilitiesImpl

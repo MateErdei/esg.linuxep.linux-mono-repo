@@ -8,14 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/Exceptions/IException.h"
 
-namespace Common
+namespace Common::FileSystem
 {
-    namespace FileSystem
+    class IFileSystemException : public Common::Exceptions::IException
     {
-        class IFileSystemException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
-    } // namespace FileSystem
-} // namespace Common
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+} // namespace Common::FileSystem

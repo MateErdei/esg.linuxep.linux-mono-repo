@@ -16,7 +16,7 @@
 #include "Common/Process/IProcessException.h"
 #include "Common/TelemetryConfigImpl/Serialiser.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "Common/Exceptions/NestedExceptions.h"
+#include "Common/Exceptions/NestedException.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
 
 namespace TelemetrySchedulerImpl
