@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
-set -x
+#set -x
 
 MERGE_DIR="/home/$USER/repo_merge"
 BRANCH_CLEAN=merge-branch-clean
 BRANCH_MERGE=merge-branch-rebased
 
-function merge_in_repo() {
+function merge_in_repo()
+{
     mono_repo_remote=$1
     remote=$2
     subdir=$3
@@ -92,9 +93,13 @@ else
     fi
 fi
 
+# Enable rerere so git remembers previous rebase conflict resolutions
+# https://git-scm.com/book/en/v2/Git-Tools-Rerere
+git config --global rerere.enabled true
+
 # Note - To make this smoother you can cache your ssh key passphrase using ssh-agent and adding your private key
 # Start ssh-agent:
-if ps -p $SSH_AGENT_PID > /dev/null
+if ps -p $SSH_AGENT_PID &> /dev/null
 then
    echo "ssh-agent is already running"
    # Do something knowing the pid exists, i.e. the process with $PID is running
