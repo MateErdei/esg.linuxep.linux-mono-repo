@@ -20,12 +20,18 @@ echoEicar()
      echo "$EICAR"
      return 0
 }
+
+for F in /tmp/altdir/eicar.com /tmp/altdir/subdir/eicar.com /tmp/dir/eicar.com \
+    /tmp/dir/subdir/eicar.com
+do
+    mkdir -p "${F%/*}"
+done
+
 sleep 3
 for F in /tmp/altdir/eicar.com /tmp/altdir/subdir/eicar.com /tmp/dir/eicar.com \
     /tmp/dir/subdir/eicar.com /tmp/eicar.com /tmp/eicar.com.com \
     /tmp/eicar.exe /tmp/noteicar.com
 do
-    mkdir -p "${F%/*}"
     echoEicar >$F
 done
 
