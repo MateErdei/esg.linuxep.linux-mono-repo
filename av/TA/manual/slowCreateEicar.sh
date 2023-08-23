@@ -27,11 +27,17 @@ do
     mkdir -p "${F%/*}"
 done
 
-sleep 3
+sleep 2
+
+echo PID=$$
+ls -l /proc/$$/exe
+
 for F in /tmp/altdir/eicar.com /tmp/altdir/subdir/eicar.com /tmp/dir/eicar.com \
     /tmp/dir/subdir/eicar.com /tmp/eicar.com /tmp/eicar.com.com \
     /tmp/eicar.exe /tmp/noteicar.com
 do
     echoEicar >$F
 done
+
+sleep 1
 

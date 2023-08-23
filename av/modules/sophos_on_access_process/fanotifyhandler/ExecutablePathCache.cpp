@@ -1,6 +1,9 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #include "ExecutablePathCache.h"
 
+// Package
+#include "Logger.h"
+
 // Component
 #include "datatypes/sophos_filesystem.h"
 
@@ -27,20 +30,20 @@ namespace sophos_on_access_process::fanotifyhandler
             }
         }
 
-        auto path = get_executable_path_from_pid_uncached(pid);
-        if (!path.empty())
+        std::error_code ec;                  // ec is ignored
+        auto path = get_executable_path_from_pid_uncached(pid, ec);
+        if (!ec)
         {
             cache_[pid] = path;
         }
         return path;
     }
 
-    std::string ExecutablePathCache::get_executable_path_from_pid_uncached(pid_t pid)
+    std::string ExecutablePathCache::get_executable_path_from_pid_uncached(pid_t pid, std::error_code& ec)
     {
         fs::path target = base_;
         target /= std::to_string(pid);
         target /= "exe";
-        std::error_code ec;                  // ec is ignored
         return fs::read_symlink(target, ec); // Empty path on errors
     }
 }

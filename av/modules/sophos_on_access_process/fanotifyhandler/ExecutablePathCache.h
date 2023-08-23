@@ -17,7 +17,7 @@ namespace sophos_on_access_process::fanotifyhandler
     public:
         virtual ~ExecutablePathCache() = default;
         std::string get_executable_path_from_pid(pid_t pid);
-        virtual std::string get_executable_path_from_pid_uncached(pid_t pid);
+        virtual std::string get_executable_path_from_pid_uncached(pid_t pid, std::error_code& ec);
     protected:
         using cache_t = std::unordered_map<pid_t, std::string>;
         using clock_t = std::chrono::steady_clock;

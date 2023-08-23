@@ -54,10 +54,10 @@ namespace
     {
     public:
         int count_ = 0;
-        std::string get_executable_path_from_pid_uncached(pid_t pid) override
+        std::string get_executable_path_from_pid_uncached(pid_t pid, std::error_code& ec) override
         {
             count_++;
-            return ExecutablePathCache::get_executable_path_from_pid_uncached(pid);
+            return ExecutablePathCache::get_executable_path_from_pid_uncached(pid, ec);
         }
 
         void setCacheLifetime(std::chrono::milliseconds lifetime)

@@ -72,11 +72,13 @@ On Access Excludes Binaries Within AV Plugin Directory When Scanning In Custom L
 
     ${oa_mark} =    mark_log_size    ${CUSTOM_ON_ACCESS_LOG_PATH}
     ${result} =    Run Process    ${CUSTOM_AV_PLUGIN_PATH}/bash    ${TEST_SCRIPTS_PATH}/manual/slowCreateEicar.sh
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
     FOR  ${eicarPath}  IN  @{tmpEicarFiles}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process /    ${oa_mark}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process /   ${oa_mark}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process    ${oa_mark}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process   ${oa_mark}
         check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    detected "${eicarPath}" is infected with EICAR-AV-Test    ${oa_mark}
         Remove File    ${eicarPath}
     END
