@@ -30,7 +30,7 @@ namespace sophos_on_access_process::fanotifyhandler
             }
         }
 
-        std::error_code ec;                  // ec is ignored
+        std::error_code ec;
         auto path = get_executable_path_from_pid_uncached(pid, ec);
         if (!ec)
         {
