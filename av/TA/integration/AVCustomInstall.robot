@@ -75,8 +75,8 @@ On Access Excludes Binaries Within AV Plugin Directory When Scanning In Custom L
     Should Be Equal As Integers  ${result.rc}  ${0}
 
     FOR  ${eicarPath}  IN  @{tmpEicarFiles}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process    ${oa_mark}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process    ${oa_mark}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process /    ${oa_mark}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process /   ${oa_mark}
         check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    detected "${eicarPath}" is infected with EICAR-AV-Test    ${oa_mark}
         Remove File    ${eicarPath}
     END
