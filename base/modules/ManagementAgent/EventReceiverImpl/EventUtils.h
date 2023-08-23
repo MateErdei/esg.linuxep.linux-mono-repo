@@ -11,4 +11,4 @@ namespace ManagementAgent::EventReceiverImpl
      * @param event
      */
     void sendEvent(const Event& event);
-}
+} // namespace ManagementAgent::EventReceiverImpl

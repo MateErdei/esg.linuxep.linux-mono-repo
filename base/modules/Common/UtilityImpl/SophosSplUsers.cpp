@@ -5,11 +5,23 @@
 
 namespace sophos
 {
-    std::string SophosSplUsers::splUser() const { return sophos::user(); }
+    std::string SophosSplUsers::splUser() const
+    {
+        return sophos::user();
+    }
 
-    std::string SophosSplUsers::splGroup() const { return sophos::group(); }
+    std::string SophosSplUsers::splGroup() const
+    {
+        return sophos::group();
+    }
 
-    std::string sophos::SophosSplUsers::splLocalUser() const { return sophos::localUser(); }
+    std::string sophos::SophosSplUsers::splLocalUser() const
+    {
+        return sophos::localUser();
+    }
 
-    std::string sophos::SophosSplUsers::splLocalGroup() const { return sophos::localGroup(); }
+    std::string sophos::SophosSplUsers::splLocalGroup() const
+    {
+        return sophos::localGroup();
+    }
 } // namespace sophos

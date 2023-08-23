@@ -2,10 +2,10 @@
 
 #include "SerialiseFunctions.h"
 
-#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 
 #include <json.hpp>
 
@@ -74,9 +74,13 @@ namespace ManagementAgent::HealthStatusImpl
         return threatHealthMap;
     }
 
-    std::pair<bool,std::string> compareAndUpdateOverallHealth(healthValue_t health,healthValue_t service,healthValue_t threatService, healthValue_t threat)
+    std::pair<bool, std::string> compareAndUpdateOverallHealth(
+        healthValue_t health,
+        healthValue_t service,
+        healthValue_t threatService,
+        healthValue_t threat)
     {
-        std::pair<bool,std::string> healthInfo = std::make_pair(false,"");
+        std::pair<bool, std::string> healthInfo = std::make_pair(false, "");
         nlohmann::json currentJson;
         currentJson["health"] = health;
         currentJson["service"] = service;
@@ -100,9 +104,11 @@ namespace ManagementAgent::HealthStatusImpl
             {
                 LOGERROR("Could not load cached Overall Health: " << exception.what());
             }
-            catch (nlohmann::json::parse_error &ex) {
+            catch (nlohmann::json::parse_error& ex)
+            {
                 std::stringstream errorMessage;
-                errorMessage << "Could not parse json file: " << overallHealthJsonFilePath << " with error: " << ex.what();
+                errorMessage << "Could not parse json file: " << overallHealthJsonFilePath
+                             << " with error: " << ex.what();
                 LOGERROR(errorMessage.str());
             }
         }

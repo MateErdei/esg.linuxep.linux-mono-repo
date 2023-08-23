@@ -1,6 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "Common/Logging/LoggerConfig.h"
+
 #include <log4cplus/logger.h>
 
 log4cplus::Logger& getRemoteDiagnoseLogger()

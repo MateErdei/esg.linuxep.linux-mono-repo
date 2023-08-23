@@ -5,10 +5,9 @@
 #include "IVersig.h"
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
@@ -60,7 +59,8 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
     std::string installShFile = installerPath();
     std::string productName = m_productMetadata.getLine();
-    std::string installOutputFile = Common::ApplicationConfiguration::applicationPathManager().getProductInstallLogFilePath(productName);
+    std::string installOutputFile =
+        Common::ApplicationConfiguration::applicationPathManager().getProductInstallLogFilePath(productName);
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {

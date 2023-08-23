@@ -57,5 +57,3 @@ namespace SulDownloader::suldownloaderdata
         }
     };
 } // namespace SulDownloader::suldownloaderdata
-
-

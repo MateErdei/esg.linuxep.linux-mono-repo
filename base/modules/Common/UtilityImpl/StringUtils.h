@@ -57,10 +57,7 @@ namespace Common::UtilityImpl
          * @param replace Replacement string
          * @return pattern with all non-overlapping instances of key replaced with replace
          */
-        static std::string replaceAll(
-            const std::string& pattern,
-            const std::string& key,
-            const std::string& replace)
+        static std::string replaceAll(const std::string& pattern, const std::string& key, const std::string& replace)
         {
             if (key.empty())
             {
@@ -319,7 +316,8 @@ namespace Common::UtilityImpl
             }
             catch (const std::invalid_argument& e)
             {
-                throw std::runtime_error("Failed to find unsigned long from output :" + stringToConvert + ". Error message: " + e.what());
+                throw std::runtime_error(
+                    "Failed to find unsigned long from output :" + stringToConvert + ". Error message: " + e.what());
             }
             catch (const std::out_of_range& e)
             {
@@ -336,8 +334,7 @@ namespace Common::UtilityImpl
             const std::function<bool(char)>& trimComparator = [](char c) { return std::isspace(c); })
         {
             string.erase(
-                std::find_if(
-                    string.rbegin(), string.rend(), [trimComparator](char c) { return !trimComparator(c); })
+                std::find_if(string.rbegin(), string.rend(), [trimComparator](char c) { return !trimComparator(c); })
                     .base(),
                 string.end());
             return string;
@@ -353,8 +350,7 @@ namespace Common::UtilityImpl
         {
             string.erase(
                 string.begin(),
-                std::find_if(
-                    string.begin(), string.end(), [trimComparator](char c) { return !trimComparator(c); }));
+                std::find_if(string.begin(), string.end(), [trimComparator](char c) { return !trimComparator(c); }));
             return string;
         }
 
@@ -374,8 +370,8 @@ namespace Common::UtilityImpl
          */
         static std::string toLower(std::string& string)
         {
-            std::transform(string.begin(), string.end(), string.begin(),
-                           [](unsigned char c){ return std::tolower(c); });
+            std::transform(
+                string.begin(), string.end(), string.begin(), [](unsigned char c) { return std::tolower(c); });
             return string;
         }
     };

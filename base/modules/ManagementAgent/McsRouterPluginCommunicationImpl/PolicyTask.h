@@ -13,7 +13,10 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
     {
     public:
         void run() override;
-        PolicyTask(PluginCommunication::IPluginManager& pluginManager, std::string filePath, const std::string& pluginName="");
+        PolicyTask(
+            PluginCommunication::IPluginManager& pluginManager,
+            std::string filePath,
+            const std::string& pluginName = "");
 
     private:
         PluginCommunication::IPluginManager& m_pluginManager;

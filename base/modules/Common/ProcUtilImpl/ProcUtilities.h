@@ -39,12 +39,9 @@ namespace Proc
         std::string m_comm;
 
     public:
-        CommMatcher(const std::string& filename) : m_comm(filename) {};
+        CommMatcher(const std::string& filename) : m_comm(filename){};
         bool operator()(const std::string& comm) const;
-        bool operator()(const ProcStat& procStat) const
-        {
-            return operator()(procStat.comm);
-        }
+        bool operator()(const ProcStat& procStat) const { return operator()(procStat.comm); }
     };
 
     /** Parse the content of /proc/pid/stat and return the ProcStat as optional for cases where the parse can not suceed
@@ -78,8 +75,8 @@ namespace Proc
     void killProcess(int pid);
 
     std::vector<ProcStat> listProcessesByComm(
-            const std::string& partOfComm,
-            const std::string& requiresFullPathContainsPath);
+        const std::string& partOfComm,
+        const std::string& requiresFullPathContainsPath);
 
     /**
      *
@@ -90,10 +87,9 @@ namespace Proc
      * sophos-spl.
      */
     void ensureNoExecWithThisCommIsRunning(
-            const std::string& partOfComm,
-            const std::string& requiresFullPathContainsPath);
+        const std::string& partOfComm,
+        const std::string& requiresFullPathContainsPath);
 
     int getNumberOfOwnFileDescriptors();
-
 
 } // namespace Proc

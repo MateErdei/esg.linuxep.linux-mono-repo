@@ -10,4 +10,4 @@ namespace Common::Policy
     public:
         using Common::Exceptions::IException::IException;
     };
-}
+} // namespace Common::Policy

@@ -1,11 +1,11 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "TelemetryUtils.h"
-#include "Telemetry/LoggerImpl/Logger.h"
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Telemetry/LoggerImpl/Logger.h"
 
 #include <json.hpp>
 namespace Telemetry
@@ -13,7 +13,8 @@ namespace Telemetry
     std::string TelemetryUtils::getCloudPlatform()
     {
         auto fs = Common::FileSystem::fileSystem();
-        std::string metadataFile = Common::ApplicationConfiguration::applicationPathManager().getCloudMetadataJsonPath();
+        std::string metadataFile =
+            Common::ApplicationConfiguration::applicationPathManager().getCloudMetadataJsonPath();
         try
         {
             if (fs->isFile(metadataFile))
@@ -78,4 +79,4 @@ namespace Telemetry
         }
         return "Direct";
     }
-}
+} // namespace Telemetry

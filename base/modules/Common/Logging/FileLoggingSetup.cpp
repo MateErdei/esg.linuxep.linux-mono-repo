@@ -7,6 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/LoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
+
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>

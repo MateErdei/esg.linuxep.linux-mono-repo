@@ -8,25 +8,18 @@
 #include <sstream>
 #include <stdexcept>
 
-
 namespace Common::Exceptions
 {
     class IException : public std::runtime_error
     {
     public:
         ~IException() override = default;
-        explicit IException(const std::string& what)
-            :
-            std::runtime_error(what),
-            file_(nullptr),
-            line_(0)
-        {}
+        explicit IException(const std::string& what) : std::runtime_error(what), file_(nullptr), line_(0) {}
 
         IException(const char* file, const unsigned long line, const std::string& what) :
-            std::runtime_error(what),
-            file_(file),
-            line_(line)
-        {}
+            std::runtime_error(what), file_(file), line_(line)
+        {
+        }
 
         [[nodiscard]] std::string what_with_location() const
         {
@@ -38,6 +31,7 @@ namespace Common::Exceptions
             }
             return what();
         }
+
     protected:
         const char* file_;
         const unsigned long line_;

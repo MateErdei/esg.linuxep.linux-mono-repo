@@ -41,11 +41,11 @@ namespace SulDownloader
         virtual sophlib::sdds3::Config loadConfig(std::string& path) = 0;
     };
     /**
-    * Return a BORROWED pointer to a static ISdds3Wrapper instance.
-    *
-    * Do not delete this yourself.
-    *
-    * @return BORROWED ISdds3Wrapper pointer
-    */
+     * Return a BORROWED pointer to a static ISdds3Wrapper instance.
+     *
+     * Do not delete this yourself.
+     *
+     * @return BORROWED ISdds3Wrapper pointer
+     */
     ISdds3Wrapper* sdds3Wrapper();
 } // namespace SulDownloader

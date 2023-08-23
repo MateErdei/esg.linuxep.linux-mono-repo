@@ -37,4 +37,3 @@ namespace SulDownloader::suldownloaderdata
         bool m_syncTimeSet = false;
     };
 } // namespace SulDownloader::suldownloaderdata
-

@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "Common/UtilityImpl/Main.h"
+
 #include "ResponseActions/ActionRunner/responseaction_main.h"
 
 static int action_runner_main(int argc, char* argv[])

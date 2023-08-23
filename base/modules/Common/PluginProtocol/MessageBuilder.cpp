@@ -37,9 +37,8 @@ namespace Common::PluginProtocol
         return createDefaultDataMessage(Commands::PLUGIN_QUERY_CURRENT_POLICY, appId, std::string());
     }
 
-    DataMessage MessageBuilder::requestApplyPolicyMessage(
-        const std::string& appId,
-        const std::string& policyContent) const
+    DataMessage MessageBuilder::requestApplyPolicyMessage(const std::string& appId, const std::string& policyContent)
+        const
     {
         return createDefaultDataMessage(Commands::REQUEST_PLUGIN_APPLY_POLICY, appId, policyContent);
     }
@@ -183,7 +182,10 @@ namespace Common::PluginProtocol
         return dataMessage;
     }
 
-    bool MessageBuilder::hasAck(const DataMessage& dataMessage) const { return dataMessage.m_acknowledge; }
+    bool MessageBuilder::hasAck(const DataMessage& dataMessage) const
+    {
+        return dataMessage.m_acknowledge;
+    }
 
     DataMessage MessageBuilder::replyHealth(const DataMessage& dataMessage, const std::string& healthContent) const
     {

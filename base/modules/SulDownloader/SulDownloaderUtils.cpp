@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "SulDownloaderUtils.h"
+
 #include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
@@ -15,7 +16,6 @@
 #include <sys/stat.h>
 
 #include <map>
-
 
 using namespace Common::Policy;
 
@@ -56,9 +56,7 @@ namespace SulDownloader
         }
         else
         {
-
-            fs->removeFile(markerFile,true);
-
+            fs->removeFile(markerFile, true);
         }
 
         std::string pausedMarkerFile = pathManager.getForcedAPausedUpdateMarkerPath();
@@ -71,7 +69,7 @@ namespace SulDownloader
         }
         else
         {
-            fs->removeFile(pausedMarkerFile,true);
+            fs->removeFile(pausedMarkerFile, true);
         }
 
         return false;
@@ -84,7 +82,7 @@ namespace SulDownloader
         try
         {
             std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
-            std::vector<std::string> args = {"status","sophos-spl"};
+            std::vector<std::string> args = { "status", "sophos-spl" };
             process->exec(path, args);
             auto status = process->wait(Common::Process::Milliseconds(100), 20);
             if (status != Common::Process::ProcessStatus::FINISHED)
@@ -93,7 +91,7 @@ namespace SulDownloader
                 process->kill();
             }
             auto output = process->output();
-            LOGDEBUG("systemctl status sophos-spl output: " <<output);
+            LOGDEBUG("systemctl status sophos-spl output: " << output);
             exitCode = process->exitCode();
         }
         catch (Common::Process::IProcessException& ex)
@@ -114,7 +112,7 @@ namespace SulDownloader
         try
         {
             std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
-            std::vector<std::string> args = {"stop","sophos-spl"};
+            std::vector<std::string> args = { "stop", "sophos-spl" };
             process->exec(path, args);
             auto status = process->wait(Common::Process::Milliseconds(1000), 60);
             if (status != Common::Process::ProcessStatus::FINISHED)
@@ -149,7 +147,7 @@ namespace SulDownloader
         try
         {
             std::string path = Common::FileSystem::fileSystem()->getSystemCommandExecutablePath("systemctl");
-            std::vector<std::string> args = {"start","sophos-spl"};
+            std::vector<std::string> args = { "start", "sophos-spl" };
             process->exec(path, args);
             auto status = process->wait(Common::Process::Milliseconds(1000), 60);
             if (status != Common::Process::ProcessStatus::FINISHED)
@@ -181,20 +179,21 @@ namespace SulDownloader
     std::vector<std::string> SulDownloaderUtils::checkUpdatedComponentsAreRunning()
     {
         std::vector<std::string> listOfFailedProducts;
-        std::map<std::string,std::string> products;
-        std::string trackerFile = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
+        std::map<std::string, std::string> products;
+        std::string trackerFile =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(trackerFile))
         {
             LOGINFO("Checking that updated components are running");
             std::vector<std::string> lines = fs->readLines(trackerFile);
-            for (const auto& line: lines)
+            for (const auto& line : lines)
             {
-                std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(line,",");
+                std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(line, ",");
                 if (parts.size() != 2)
                 {
                     LOGWARN("line " << line << " in tracker file " << trackerFile << " is malformed, discarding it");
-                    continue ;
+                    continue;
                 }
 
                 if (!waitForComponentToRun(parts[0]))
@@ -230,7 +229,7 @@ namespace SulDownloader
         try
         {
             std::string path = Common::ApplicationConfiguration::applicationPathManager().getWdctlPath();
-            std::vector<std::string> args = {"isrunning",component};
+            std::vector<std::string> args = { "isrunning", component };
             process->exec(path, args);
             auto status = process->wait(Common::Process::Milliseconds(1000), 2);
             if (status != Common::Process::ProcessStatus::FINISHED)
@@ -262,7 +261,7 @@ namespace SulDownloader
             filePermissions->getGroupId(sophos::group());
             groupExists = true;
         }
-        catch(const Common::FileSystem::IFileSystemException& exception)
+        catch (const Common::FileSystem::IFileSystemException& exception)
         {
             LOGDEBUG("The group " << sophos::group() << " does not exist, indicating running via Thin Installer");
         }
@@ -271,7 +270,8 @@ namespace SulDownloader
         {
             try
             {
-                // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is running.
+                // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is
+                // running.
                 filePermissions->chown(filePath, "root", sophos::group());
                 filePermissions->chmod(filePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
             }
@@ -281,4 +281,4 @@ namespace SulDownloader
             }
         }
     }
-}
+} // namespace SulDownloader

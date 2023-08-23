@@ -8,15 +8,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-
 namespace SulDownloader::suldownloaderdata
 {
     struct Tag
     {
         Tag(std::string t, std::string b, std::string l) :
-            tag(std::move(t)),
-            baseversion(std::move(b)),
-            label(std::move(l))
+            tag(std::move(t)), baseversion(std::move(b)), label(std::move(l))
         {
         }
 
@@ -25,4 +22,3 @@ namespace SulDownloader::suldownloaderdata
         std::string label;
     };
 } // namespace SulDownloader::suldownloaderdata
-

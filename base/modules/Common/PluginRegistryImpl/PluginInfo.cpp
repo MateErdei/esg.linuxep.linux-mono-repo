@@ -3,11 +3,12 @@
 #include "PluginInfo.h"
 
 #include "Logger.h"
-#include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/PluginRegistryImpl/PluginInfo.pb.h"
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
@@ -20,20 +21,35 @@
 
 namespace Common::PluginRegistryImpl
 {
-    std::vector<std::string> PluginInfo::getPolicyAppIds() const { return m_policyAppIds; }
+    std::vector<std::string> PluginInfo::getPolicyAppIds() const
+    {
+        return m_policyAppIds;
+    }
 
-    std::vector<std::string> PluginInfo::getActionAppIds() const { return m_actionAppIds; }
+    std::vector<std::string> PluginInfo::getActionAppIds() const
+    {
+        return m_actionAppIds;
+    }
 
-    std::string PluginInfo::getPluginName() const { return m_pluginName; }
+    std::string PluginInfo::getPluginName() const
+    {
+        return m_pluginName;
+    }
 
     std::string PluginInfo::getPluginIpcAddress() const
     {
         return Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(m_pluginName);
     }
 
-    std::string PluginInfo::getXmlTranslatorPath() const { return m_xmlTranslatorPath; }
+    std::string PluginInfo::getXmlTranslatorPath() const
+    {
+        return m_xmlTranslatorPath;
+    }
 
-    bool PluginInfo::getIsManagedPlugin() const { return m_isManagedPlugin; }
+    bool PluginInfo::getIsManagedPlugin() const
+    {
+        return m_isManagedPlugin;
+    }
 
     bool PluginInfo::getHasThreatServiceHealth() const
     {
@@ -65,19 +81,34 @@ namespace Common::PluginRegistryImpl
         m_displayPluginName = displayPluginName;
     }
 
-    void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
+    void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs)
+    {
+        m_policyAppIds = appIDs;
+    }
 
-    void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
+    void PluginInfo::addPolicyAppIds(const std::string& appID)
+    {
+        m_policyAppIds.push_back(appID);
+    }
 
-    void PluginInfo::addActionAppIds(const std::string& appID) { m_actionAppIds.push_back(appID); }
+    void PluginInfo::addActionAppIds(const std::string& appID)
+    {
+        m_actionAppIds.push_back(appID);
+    }
 
-    void PluginInfo::setPluginName(const std::string& pluginName) { m_pluginName = pluginName; }
+    void PluginInfo::setPluginName(const std::string& pluginName)
+    {
+        m_pluginName = pluginName;
+    }
 
     void PluginInfo::setXmlTranslatorPath(const std::string& xmlTranslationPath)
     {
         m_xmlTranslatorPath = xmlTranslationPath;
     }
-    void PluginInfo::setIsManagedPlugin(bool isManaged) { m_isManagedPlugin = isManaged; }
+    void PluginInfo::setIsManagedPlugin(bool isManaged)
+    {
+        m_isManagedPlugin = isManaged;
+    }
 
     std::string PluginInfo::serializeToString(const PluginInfo& pluginInfo)
     {
@@ -240,17 +271,25 @@ namespace Common::PluginRegistryImpl
             Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath());
     }
 
-    std::vector<std::string> PluginInfo::getStatusAppIds() const { return m_statusAppIds; }
+    std::vector<std::string> PluginInfo::getStatusAppIds() const
+    {
+        return m_statusAppIds;
+    }
 
-    void PluginInfo::setStatusAppIds(const std::vector<std::string>& appIDs) { m_statusAppIds = appIDs; }
+    void PluginInfo::setStatusAppIds(const std::vector<std::string>& appIDs)
+    {
+        m_statusAppIds = appIDs;
+    }
 
-    void PluginInfo::addStatusAppIds(const std::string& appID) { m_statusAppIds.push_back(appID); }
+    void PluginInfo::addStatusAppIds(const std::string& appID)
+    {
+        m_statusAppIds.push_back(appID);
+    }
 
     std::pair<PluginInfo, bool> PluginInfo::loadPluginInfoFromRegistry(const std::string& pluginName)
     {
         Path pluginFilePath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(),
-            pluginName + ".json");
+            Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(), pluginName + ".json");
 
         if (!Common::FileSystem::fileSystem()->isFile(pluginFilePath))
         {

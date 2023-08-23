@@ -1,16 +1,16 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-
 #include "PluginUtils.h"
+
 #include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
-#include "Common/XmlUtilities/AttributesMap.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 
 namespace RemoteDiagnoseImpl
 {
@@ -37,7 +37,7 @@ namespace RemoteDiagnoseImpl
     {
         std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         auto fs = Common::FileSystem::fileSystem();
-        std::string filepath = Common::FileSystem::join(output,"sspl.zip");
+        std::string filepath = Common::FileSystem::join(output, "sspl.zip");
         UrlData data;
         try
         {
@@ -74,8 +74,10 @@ namespace RemoteDiagnoseImpl
 
         try
         {
-            std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-            Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(std::move(curlWrapper));
+            std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+                std::make_shared<Common::CurlWrapper::CurlWrapper>();
+            Common::HttpRequestsImpl::HttpRequesterImpl client =
+                Common::HttpRequestsImpl::HttpRequesterImpl(std::move(curlWrapper));
 
             Common::HttpRequests::Response response = client.put(requestConfig);
 
@@ -112,18 +114,19 @@ namespace RemoteDiagnoseImpl
     {
         UrlData data;
         data.filename = Common::FileSystem::basename(url);
-        if (!Common::UtilityImpl::StringUtils::startswith(url,"https://"))
+        if (!Common::UtilityImpl::StringUtils::startswith(url, "https://"))
         {
             throw std::runtime_error("Malformed url missing protocol");
         }
 
         std::string noProtocol = url.substr(8);
-        data.resourcePath = noProtocol.substr(noProtocol.find_first_of('/')+1);// plus one so we don't include the first slash
-        data.domain = noProtocol.substr(0,noProtocol.find_first_of('/'));
+        data.resourcePath =
+            noProtocol.substr(noProtocol.find_first_of('/') + 1); // plus one so we don't include the first slash
+        data.domain = noProtocol.substr(0, noProtocol.find_first_of('/'));
 
         if (data.domain.find_first_of(':') != std::string::npos)
         {
-            std::string p = data.domain.substr(noProtocol.find_first_of(':')+1);
+            std::string p = data.domain.substr(noProtocol.find_first_of(':') + 1);
 
             std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(p);
             if (value.second.empty())
@@ -136,7 +139,7 @@ namespace RemoteDiagnoseImpl
                 errorMsg << "Url : " << url << " does not contain a valid port";
                 throw std::runtime_error(errorMsg.str());
             }
-            data.domain = data.domain.substr(0,noProtocol.find_first_of(':'));
+            data.domain = data.domain.substr(0, noProtocol.find_first_of(':'));
         }
 
         return data;
@@ -144,29 +147,31 @@ namespace RemoteDiagnoseImpl
 
     std::string PluginUtils::getStatus(int isRunning)
     {
-        std::string statusTemplate {
-        R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
+        std::string statusTemplate{
+            R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos"
+        };
 
-        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager(
-                ).getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
+        std::string versionFile =
+            Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
+                "ServerProtectionLinux-Base-component");
         std::string version = "";
         std::stringstream errorMsg;
-        errorMsg << "Cannot access VERSION.ini file at location "<< versionFile << " due to ";
+        errorMsg << "Cannot access VERSION.ini file at location " << versionFile << " due to ";
         try
         {
-             version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile,"PRODUCT_VERSION");
+            version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN( errorMsg.str() +  exception.what());
+            LOGWARN(errorMsg.str() + exception.what());
         }
         catch (std::runtime_error& exception)
         {
-            LOGWARN(errorMsg.str() +  exception.what());
+            LOGWARN(errorMsg.str() + exception.what());
         }
         std::string newStatus = Common::UtilityImpl::StringUtils::replaceAll(statusTemplate, "@VERSION@", version);
 
-        newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus,"@IS_RUNNING@",std::to_string(isRunning));
+        newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus, "@IS_RUNNING@", std::to_string(isRunning));
         return newStatus;
     }
-}
+} // namespace RemoteDiagnoseImpl

@@ -18,10 +18,9 @@ namespace std
     template<typename Data>
     struct default_delete<Common::Threads::LockableData<Data>>
     {
-        void operator()(Common::Threads::LockableData<Data>* p)
-            const noexcept { p->m_mutex.unlock(); }
+        void operator()(Common::Threads::LockableData<Data>* p) const noexcept { p->m_mutex.unlock(); }
     };
-}
+} // namespace std
 
 namespace Common::Threads
 {
@@ -29,16 +28,16 @@ namespace Common::Threads
     struct [[nodiscard]] LockedData
     {
         explicit LockedData(Lockable* l = nullptr) : l(l)
-        { if (l) l->m_mutex.lock(); }
+        {
+            if (l)
+                l->m_mutex.lock();
+        }
 
-        auto operator->() const noexcept
-        { return std::addressof(l->m_data); }
+        auto operator->() const noexcept { return std::addressof(l->m_data); }
 
-        auto& operator*() noexcept
-        { return l->ref(); }
+        auto& operator*() noexcept { return l->ref(); }
 
-        const auto& operator*() const noexcept
-        { return l->ref(); }
+        const auto& operator*() const noexcept { return l->ref(); }
 
     private:
         std::unique_ptr<Lockable> l;
@@ -50,26 +49,18 @@ namespace Common::Threads
     public:
         using lock_t = LockedData<LockableData>;
         LockableData() = default;
-        explicit LockableData(Data initialValue)
-            : m_data(std::move(initialValue))
-        {}
+        explicit LockableData(Data initialValue) : m_data(std::move(initialValue)) {}
         lock_t lock() { return LockedData(this); }
 
     private:
         friend struct LockedData<LockableData>;
         friend struct std::default_delete<LockableData>;
 
-        const Data& ref() const noexcept
-        {
-            return m_data;
-        }
+        const Data& ref() const noexcept { return m_data; }
 
-        Data& ref() noexcept
-        {
-            return m_data;
-        }
+        Data& ref() noexcept { return m_data; }
 
         std::mutex m_mutex;
         Data m_data;
     };
-}
+} // namespace Common::Threads

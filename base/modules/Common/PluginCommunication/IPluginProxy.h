@@ -134,6 +134,5 @@ namespace Common::PluginCommunication
          * @return string to be used as the display name for the plugin
          */
         virtual std::string getDisplayPluginName() const = 0;
-
     };
 } // namespace Common::PluginCommunication

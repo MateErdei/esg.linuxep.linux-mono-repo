@@ -2,8 +2,6 @@
 
 #include "ManagementAgentMain.h"
 
-#include "Common/ZMQWrapperApi/IContext.h"
-
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -16,6 +14,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/ConfigException.h"
 #include "Common/UtilityImpl/SystemExecutableUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IHasFD.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 #include "ManagementAgent/EventReceiverImpl/EventReceiverImpl.h"
@@ -27,6 +26,7 @@
 #include "ManagementAgent/StatusCacheImpl/StatusCache.h"
 #include "ManagementAgent/StatusReceiverImpl/StatusTask.h"
 #include "ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h"
+
 #include <sys/stat.h>
 
 #include <csignal>
@@ -118,9 +118,10 @@ namespace ManagementAgent::ManagementAgentImpl
             sendCurrentPluginsStatus(registeredPlugins);
             sendCurrentActions();
             m_ppid = ::getppid();
-        } catch (std::exception & ex)
+        }
+        catch (std::exception& ex)
         {
-            std::throw_with_nested(Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what()));
+            std::throw_with_nested(Common::UtilityImpl::ConfigException("Configure Management Agent", ex.what()));
         }
     }
 
@@ -135,9 +136,10 @@ namespace ManagementAgent::ManagementAgentImpl
             if (plugin.getIsManagedPlugin())
             {
                 m_pluginManager->registerAndConfigure(
-                        plugin.getPluginName(), PluginCommunication::PluginDetails(plugin));
-                LOGINFO("Registered plugin " << plugin.getPluginName() << ", executable path "
-                    << plugin.getExecutableFullPath());
+                    plugin.getPluginName(), PluginCommunication::PluginDetails(plugin));
+                LOGINFO(
+                    "Registered plugin " << plugin.getPluginName() << ", executable path "
+                                         << plugin.getExecutableFullPath());
             }
 
             if (plugin.getHasThreatServiceHealth())
@@ -161,17 +163,13 @@ namespace ManagementAgent::ManagementAgentImpl
     void ManagementAgentMain::initialiseDirectoryWatcher()
     {
         m_policyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(),
-                m_taskQueue,
-                *m_pluginManager);
+            ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(), m_taskQueue, *m_pluginManager);
         m_internalPolicyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath(),
-                m_taskQueue,
-                *m_pluginManager);
+            ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath(),
+            m_taskQueue,
+            *m_pluginManager);
         m_actionListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(),
-                m_taskQueue,
-                *m_pluginManager);
+            ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), m_taskQueue, *m_pluginManager);
 
         m_directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
         m_directoryWatcher->addListener(*m_policyListener);
@@ -184,7 +182,8 @@ namespace ManagementAgent::ManagementAgentImpl
         m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(m_taskQueue, *m_pluginManager);
         m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(m_taskQueue, m_statusCache);
         m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(m_taskQueue);
-        m_threatHealthReceiver = std::make_shared<ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl>(m_taskQueue);
+        m_threatHealthReceiver =
+            std::make_shared<ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl>(m_taskQueue);
 
         m_pluginManager->setPolicyReceiver(m_policyReceiver);
         m_pluginManager->setStatusReceiver(m_statusReceiver);
@@ -255,7 +254,8 @@ namespace ManagementAgent::ManagementAgentImpl
     {
         std::string filePath = ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
         std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
-        std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();;
+        std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();
+        ;
 
         auto fs = Common::FileSystem::fileSystem();
         try
@@ -285,7 +285,9 @@ namespace ManagementAgent::ManagementAgentImpl
         Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
         GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
-        struct sigaction action{};
+        struct sigaction action
+        {
+        };
         action.sa_handler = s_signal_handler;
         action.sa_flags = SA_RESTART;
         sigemptyset(&action.sa_mask);
@@ -303,7 +305,7 @@ namespace ManagementAgent::ManagementAgentImpl
         bool running = true;
         auto startTime = std::chrono::steady_clock::now();
         auto lastHealthCheck = startTime;
-        const auto waitPeriod = std::chrono::seconds{15}; // Should not exceed health refresh period of 15 seconds.
+        const auto waitPeriod = std::chrono::seconds{ 15 }; // Should not exceed health refresh period of 15 seconds.
         bool servicesShouldHaveStarted = false;
         while (running)
         {
@@ -378,7 +380,7 @@ namespace ManagementAgent::ManagementAgentImpl
 
         if (withPersistentTelemetry)
         {
-            //save telemetry to disk
+            // save telemetry to disk
             Common::Telemetry::TelemetryHelper::getInstance().save();
         }
 
@@ -386,5 +388,8 @@ namespace ManagementAgent::ManagementAgentImpl
         return 0;
     }
 
-    void ManagementAgentMain::test_request_stop() { GL_signalPipe->notify(); }
+    void ManagementAgentMain::test_request_stop()
+    {
+        GL_signalPipe->notify();
+    }
 } // namespace ManagementAgent::ManagementAgentImpl

@@ -4,9 +4,9 @@
 
 #include "ThreatHealthTask.h"
 
-#include <json.hpp>
-
 #include "ManagementAgent/LoggerImpl/Logger.h"
+
+#include <json.hpp>
 
 using ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl;
 

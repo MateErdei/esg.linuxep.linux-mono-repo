@@ -41,9 +41,15 @@ namespace Common::PluginProtocol
         }
     }
 
-    void AbstractListenerServer::start() { m_reactor->start(); }
+    void AbstractListenerServer::start()
+    {
+        m_reactor->start();
+    }
 
-    void AbstractListenerServer::stop() { m_reactor->stop(); }
+    void AbstractListenerServer::stop()
+    {
+        m_reactor->stop();
+    }
 
     void AbstractListenerServer::stopAndJoin()
     {
@@ -51,5 +57,8 @@ namespace Common::PluginProtocol
         m_reactor->join();
     }
 
-    void AbstractListenerServer::notifyShutdownRequested() { onShutdownRequested(); }
+    void AbstractListenerServer::notifyShutdownRequested()
+    {
+        onShutdownRequested();
+    }
 } // namespace Common::PluginProtocol

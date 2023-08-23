@@ -18,30 +18,35 @@
 
 namespace MCS
 {
-    AgentAdapter::AgentAdapter()
-    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>()),
+    AgentAdapter::AgentAdapter() :
+        m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>()),
         m_localIp(std::make_shared<Common::OSUtilitiesImpl::LocalIPImpl>())
-    {}
+    {
+    }
 
-    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils, std::shared_ptr<Common::OSUtilities::ILocalIP> localIp)
-    : m_platformUtils(std::move(platformUtils)), m_localIp(std::move(localIp))
-    {}
+    AgentAdapter::AgentAdapter(
+        std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils,
+        std::shared_ptr<Common::OSUtilities::ILocalIP> localIp) :
+        m_platformUtils(std::move(platformUtils)), m_localIp(std::move(localIp))
+    {
+    }
 
-    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions, const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
+    std::string AgentAdapter::getStatusXml(
+        std::map<std::string, std::string>& configOptions,
+        const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
     {
         std::stringstream statusXml;
-        statusXml << getStatusHeader(configOptions)
-                  << getCommonStatusXml(configOptions)
-                  << getCloudPlatformsStatus(client)
-                  << getPlatformStatus()
-                  << getStatusFooter();
+        statusXml << getStatusHeader(configOptions) << getCommonStatusXml(configOptions)
+                  << getCloudPlatformsStatus(client) << getPlatformStatus() << getStatusFooter();
         return statusXml.str();
     }
 
     std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
     {
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         return getStatusXml(configOptions, client);
     }
 
@@ -87,20 +92,23 @@ namespace MCS
         return commonStatusXml.str();
     }
 
-    std::string AgentAdapter::getOptionalStatusValues(const std::map<std::string, std::string>& configOptions,
-                                                      const std::vector<std::string>& ip4Addresses,
-                                                      const std::vector<std::string>& ip6Addresses) const
+    std::string AgentAdapter::getOptionalStatusValues(
+        const std::map<std::string, std::string>& configOptions,
+        const std::vector<std::string>& ip4Addresses,
+        const std::vector<std::string>& ip6Addresses) const
     {
         // For Groups, Products, and IP addresses
         std::stringstream optionals;
 
         if (configOptions.find(MCS::MCS_PRODUCTS) != configOptions.end())
         {
-            std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions.at(MCS::MCS_PRODUCTS), " ", "");
+            std::string productsAsString =
+                Common::UtilityImpl::StringUtils::replaceAll(configOptions.at(MCS::MCS_PRODUCTS), " ", "");
             optionals << "<productsToInstall>";
             if (productsAsString != "none")
             {
-                std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
+                std::vector<std::string> products =
+                    Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
                 for (const std::string& product : products)
                 {
                     if (!product.empty() && Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(product))
@@ -148,7 +156,8 @@ namespace MCS
         return optionals.str();
     }
 
-    std::string AgentAdapter::getCloudPlatformsStatus(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
+    std::string AgentAdapter::getCloudPlatformsStatus(
+        const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
     {
         return m_platformUtils->getCloudPlatformMetadata(client);
     }
@@ -180,5 +189,8 @@ namespace MCS
         return platformStatusXml.str();
     }
 
-    std::string AgentAdapter::getStatusFooter() const { return "</ns:computerStatus>"; }
-}
+    std::string AgentAdapter::getStatusFooter() const
+    {
+        return "</ns:computerStatus>";
+    }
+} // namespace MCS

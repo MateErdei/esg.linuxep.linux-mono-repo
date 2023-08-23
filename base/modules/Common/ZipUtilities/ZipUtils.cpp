@@ -8,10 +8,11 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
+#include <sys/stat.h>
+
 #include <fstream>
 #include <memory>
 #include <stdio.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <utime.h>
 #include <zlib.h>
@@ -20,9 +21,7 @@
 
 namespace
 {
-    void restoreFileInfo(
-        const std::string& filepath,
-        unz_file_info64 file_info)
+    void restoreFileInfo(const std::string& filepath, unz_file_info64 file_info)
     {
         struct utimbuf ut;
         struct tm newdate;
@@ -35,11 +34,11 @@ namespace
         if (tmu_date.tm_year > 1900)
             newdate.tm_year = tmu_date.tm_year - 1900;
         else
-            newdate.tm_year = tmu_date.tm_year ;
+            newdate.tm_year = tmu_date.tm_year;
         newdate.tm_isdst = -1;
 
-        ut.actime=ut.modtime=mktime(&newdate);
-        ::utime(filepath.c_str(),&ut);
+        ut.actime = ut.modtime = mktime(&newdate);
+        ::utime(filepath.c_str(), &ut);
         ::chmod(filepath.c_str(), file_info.external_fa);
         char f_mode[20];
         sprintf(f_mode, "%3o", file_info.external_fa & 0777);
@@ -47,14 +46,11 @@ namespace
         LOGDEBUG("Restoring mode to: " << f_mode);
     }
 
-    void getFileInfo(
-        const std::string& filepath,
-        zip_fileinfo* zfi,
-        unsigned long crcFile)
+    void getFileInfo(const std::string& filepath, zip_fileinfo* zfi, unsigned long crcFile)
     {
         struct stat s;
         struct tm* filedate;
-        time_t tm_t=0;
+        time_t tm_t = 0;
 
         if (::stat(filepath.c_str(), &s) != 0)
         {
@@ -68,11 +64,11 @@ namespace
         zfi->dosDate = 0;
         zfi->internal_fa = 0;
         zfi->external_fa = s.st_mode;
-        zfi->tmz_date.tm_sec  = filedate->tm_sec;
-        zfi->tmz_date.tm_min  = filedate->tm_min;
+        zfi->tmz_date.tm_sec = filedate->tm_sec;
+        zfi->tmz_date.tm_min = filedate->tm_min;
         zfi->tmz_date.tm_hour = filedate->tm_hour;
         zfi->tmz_date.tm_mday = filedate->tm_mday;
-        zfi->tmz_date.tm_mon  = filedate->tm_mon ;
+        zfi->tmz_date.tm_mon = filedate->tm_mon;
         zfi->tmz_date.tm_year = filedate->tm_year;
 
         char time_buf[256];
@@ -80,23 +76,23 @@ namespace
 
         char f_mode[20];
         sprintf(f_mode, "%3o", zfi->external_fa & 0777);
-        LOGDEBUG("Filename: " << filepath << ", crc: " << crcFile << ", timestamp: " << time_buf << ", mode: " << f_mode);
+        LOGDEBUG(
+            "Filename: " << filepath << ", crc: " << crcFile << ", timestamp: " << time_buf << ", mode: " << f_mode);
     }
 
-    int extractCurrentfile(
-        std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf,
-        const char* password)
+    int extractCurrentfile(std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf, const char* password)
     {
         char filename_inzip[256];
         char* filename_withoutpath;
         char* p;
-        FILE *fout = nullptr;
+        FILE* fout = nullptr;
         void* buf;
         unsigned int size_buf;
         auto fs = Common::FileSystem::fileSystem();
 
         unz_file_info64 file_info;
-        int err = unzGetCurrentFileInfo64(uf->get(), &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
+        int err = unzGetCurrentFileInfo64(
+            uf->get(), &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
         if (err != UNZ_OK)
         {
             LOGERROR("Error getting current file info from zipfile: " << std::to_string(err));
@@ -114,14 +110,14 @@ namespace
         p = filename_withoutpath = filename_inzip;
         while ((*p) != '\0')
         {
-            if (((*p)=='/') || ((*p)=='\\'))
+            if (((*p) == '/') || ((*p) == '\\'))
             {
                 filename_withoutpath = p + 1;
             }
             p++;
         }
 
-        if ((*filename_withoutpath)=='\0')
+        if ((*filename_withoutpath) == '\0')
         {
             LOGINFO("Creating directory: " << filename_inzip);
             fs->makedirs(filename_inzip);
@@ -143,11 +139,11 @@ namespace
                 /* some zipfile don't contain directory alone before file */
                 if ((fout == nullptr) && (filename_withoutpath != (char*)filename_inzip))
                 {
-                    char c = *(filename_withoutpath-1);
-                    *(filename_withoutpath-1) = '\0';
+                    char c = *(filename_withoutpath - 1);
+                    *(filename_withoutpath - 1) = '\0';
                     fs->makedirs(write_filename);
-                    *(filename_withoutpath-1) = c;
-                    fout = fopen64(write_filename,"wb");
+                    *(filename_withoutpath - 1) = c;
+                    fout = fopen64(write_filename, "wb");
                 }
 
                 if (fout == nullptr)
@@ -177,8 +173,7 @@ namespace
                             break;
                         }
                     }
-                }
-                while (err > 0);
+                } while (err > 0);
 
                 if (fout)
                 {
@@ -209,9 +204,7 @@ namespace
         return err;
     }
 
-    int extractAll(
-        std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf,
-        const char* password)
+    int extractAll(std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf, const char* password)
     {
         unz_global_info64 gi;
         int err = unzGetGlobalInfo64(uf->get(), &gi);
@@ -229,7 +222,7 @@ namespace
                 break;
             }
 
-            if ((i+1) < gi.number_entry)
+            if ((i + 1) < gi.number_entry)
             {
                 err = unzGoToNextFile(uf->get());
                 if (err != UNZ_OK)
@@ -241,7 +234,7 @@ namespace
         }
         return err;
     }
-}
+} // namespace
 
 namespace Common::ZipUtilities
 {
@@ -326,12 +319,12 @@ namespace Common::ZipUtilities
             else
             {
                 std::string temp = srcPath;
-                if (Common::UtilityImpl::StringUtils::endswith(srcPath,"/"))
+                if (Common::UtilityImpl::StringUtils::endswith(srcPath, "/"))
                 {
-                    temp = temp.substr(0, temp.size()-1);
+                    temp = temp.substr(0, temp.size() - 1);
                 }
 
-                relativeFilePath = fullFilePath.substr(temp.find_last_of("/")+1, fullFilePath.size());
+                relativeFilePath = fullFilePath.substr(temp.find_last_of("/") + 1, fullFilePath.size());
             }
 
             unsigned long crcFile = 0;
@@ -361,8 +354,17 @@ namespace Common::ZipUtilities
             }
             else
             {
-                ret = zipOpenNewFileInZip(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                          MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT);
+                ret = zipOpenNewFileInZip(
+                    zf,
+                    relativeFilePath.c_str(),
+                    &zfi,
+                    nullptr,
+                    0,
+                    nullptr,
+                    0,
+                    nullptr,
+                    MZ_COMPRESS_METHOD_DEFLATE,
+                    MZ_COMPRESS_LEVEL_DEFAULT);
             }
 
             if (ret != ZIP_OK)

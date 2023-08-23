@@ -1,8 +1,8 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace Common::OSUtilitiesImpl
 {
@@ -35,4 +35,4 @@ namespace Common::OSUtilitiesImpl
          */
         static std::string parseOracleMetadataJson(std::string& responseBody);
     };
-}
+} // namespace Common::OSUtilitiesImpl

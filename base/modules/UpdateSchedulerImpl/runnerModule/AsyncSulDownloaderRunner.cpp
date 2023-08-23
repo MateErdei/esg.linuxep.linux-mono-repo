@@ -63,9 +63,9 @@ namespace UpdateSchedulerImpl::runnerModule
     {
         std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
 
-        std::chrono::duration<double> elapsed_seconds = m_sulDownloaderRunnerStartTime-currentTime;
+        std::chrono::duration<double> elapsed_seconds = m_sulDownloaderRunnerStartTime - currentTime;
 
-        if(elapsed_seconds < std::chrono::seconds(600))
+        if (elapsed_seconds < std::chrono::seconds(600))
         {
             return false;
         }

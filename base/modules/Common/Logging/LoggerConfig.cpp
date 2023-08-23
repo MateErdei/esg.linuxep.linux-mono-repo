@@ -3,8 +3,9 @@
 #include "LoggerConfig.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/UtilityImpl/StrError.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StrError.h"
+
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>
@@ -22,7 +23,7 @@ namespace
     bool fromNameToLog(const std::string& logLevelName, log4cplus::LogLevel& logLevel)
     {
         using sp = Common::Logging::SophosLogLevel;
-        static std::vector<std::string> LogNames{ { "OFF" }, { "TRACE" }, { "DEBUG" }, { "INFO" },
+        static std::vector<std::string> LogNames{ { "OFF" },     { "TRACE" }, { "DEBUG" }, { "INFO" },
                                                   { "SUPPORT" }, { "WARN" },  { "ERROR" } };
         static std::vector<sp> LogLevels{ sp::OFF, sp::TRACE, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
 
@@ -40,7 +41,7 @@ namespace
     std::string fromLogLevelToString(log4cplus::LogLevel& logLevel)
     {
         using sp = Common::Logging::SophosLogLevel;
-        static std::vector<std::string> LogNames{ { "OFF" }, { "TRACE" }, { "DEBUG" }, { "INFO" },
+        static std::vector<std::string> LogNames{ { "OFF" },     { "TRACE" }, { "DEBUG" }, { "INFO" },
                                                   { "SUPPORT" }, { "WARN" },  { "ERROR" } };
         static std::vector<sp> LogLevels{ sp::OFF, sp::TRACE, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
 
@@ -202,8 +203,7 @@ namespace Common::Logging
         {
             int error = errno;
             std::stringstream s;
-            s << "Invalid path for log config: " << confFilePath
-              << ". Err: " << Common::UtilityImpl::StrError(error);
+            s << "Invalid path for log config: " << confFilePath << ". Err: " << Common::UtilityImpl::StrError(error);
             errno = backup_errno;
             throw std::runtime_error(s.str());
         }
@@ -214,7 +214,7 @@ namespace Common::Logging
         boost::optional<std::string> value;
         if (session.empty())
         {
-            value = m_ptree.get_optional<std::string>(std::string{"global."} + VERBOSITY);
+            value = m_ptree.get_optional<std::string>(std::string{ "global." } + VERBOSITY);
             if (value)
             {
                 return value.get();
@@ -242,18 +242,20 @@ namespace Common::Logging
         return bool(session_tree);
     }
 
-    void LoggerSophosSettings::LoggerConfigTree::mergeConfigTree(const LoggerSophosSettings::LoggerConfigTree& treeToMerge)
+    void LoggerSophosSettings::LoggerConfigTree::mergeConfigTree(
+        const LoggerSophosSettings::LoggerConfigTree& treeToMerge)
     {
         pt::ptree ptreeToMerge = treeToMerge.getPTree();
 
-        for ( auto entry : ptreeToMerge)
+        for (auto entry : ptreeToMerge)
         {
             m_ptree.erase(entry.first);
             m_ptree.push_back(std::make_pair(entry.first, entry.second));
         }
     }
 
-    pt::ptree LoggerSophosSettings::LoggerConfigTree::getPTree() const {
+    pt::ptree LoggerSophosSettings::LoggerConfigTree::getPTree() const
+    {
         return m_ptree;
     }
 

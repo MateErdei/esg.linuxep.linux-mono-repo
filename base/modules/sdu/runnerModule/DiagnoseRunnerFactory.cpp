@@ -11,7 +11,10 @@ namespace RemoteDiagnoseImpl::runnerModule
 {
     /**Factory */
 
-    DiagnoseRunnerFactory::DiagnoseRunnerFactory() { restoreCreator(); }
+    DiagnoseRunnerFactory::DiagnoseRunnerFactory()
+    {
+        restoreCreator();
+    }
 
     DiagnoseRunnerFactory& DiagnoseRunnerFactory::instance()
     {
@@ -26,14 +29,15 @@ namespace RemoteDiagnoseImpl::runnerModule
         return m_creator(schedulerTaskQueue, dirPath);
     }
 
-    void DiagnoseRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
+    void DiagnoseRunnerFactory::replaceCreator(FunctionType creator)
+    {
+        m_creator = creator;
+    }
 
     void DiagnoseRunnerFactory::restoreCreator()
     {
-        m_creator = [](std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue, const std::string& dirPath) {
-            return std::unique_ptr<IAsyncDiagnoseRunner>(
-                new AsyncDiagnoseRunner(schedulerTaskQueue, dirPath));
-        };
+        m_creator = [](std::shared_ptr<RemoteDiagnoseImpl::ITaskQueue> schedulerTaskQueue, const std::string& dirPath)
+        { return std::unique_ptr<IAsyncDiagnoseRunner>(new AsyncDiagnoseRunner(schedulerTaskQueue, dirPath)); };
     }
 } // namespace RemoteDiagnoseImpl::runnerModule
 namespace RemoteDiagnoseImpl

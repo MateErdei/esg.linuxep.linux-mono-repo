@@ -236,7 +236,8 @@ namespace Common::FileSystem
         else if (ret != 0)
         {
             std::stringstream errorStream;
-            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret << ")";
+            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret
+                        << ")";
             throw IFileSystemException(errorStream.str());
         }
     }
@@ -247,7 +248,8 @@ namespace Common::FileSystem
         if (ret != 0)
         {
             std::stringstream errorStream;
-            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret << ")";
+            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret
+                        << ")";
             throw IFileSystemException(errorStream.str());
         }
     }
@@ -406,7 +408,6 @@ namespace Common::FileSystem
             throw IFileSystemException(path + " is a directory");
         }
         throw IFileSystemException(path + " is not a file");
-
     }
 
     void FileSystemImpl::appendFile(const Path& path, const std::string& content) const
@@ -476,8 +477,7 @@ namespace Common::FileSystem
         }
     }
 
-    void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
-        const
+    void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const
     {
         return FileSystemImpl::writeFileAtomically(path, content, tempDir, 0);
     }
@@ -530,8 +530,7 @@ namespace Common::FileSystem
                 }
 
                 std::ostringstream ost;
-                ost << "Failed to create directory " << path << " error " << StrError(error) << " (" << error
-                    << ")";
+                ost << "Failed to create directory " << path << " error " << StrError(error) << " (" << error << ")";
 
                 throw IFileSystemException(ost.str());
             }
@@ -568,7 +567,9 @@ namespace Common::FileSystem
 
             if (ifs.peek() != EOF)
             {
-                throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', failed to complete writing to file, check space available on device.");
+                throw IFileSystemException(
+                    "Failed to copy file: '" + src + "' to '" + dest +
+                    "', failed to complete writing to file, check space available on device.");
             }
         }
 
@@ -605,8 +606,7 @@ namespace Common::FileSystem
         if (!directoryPtr)
         {
             int error = errno;
-            throw IFileSystemException(
-                "Failed to read directory: '" + directoryPath + "', error:  " + StrError(error));
+            throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + StrError(error));
         }
 
         assert(isReaddirSafe(directoryPath));
@@ -936,7 +936,8 @@ namespace Common::FileSystem
 
             std::string error_cause = StrError(error);
             throw Common::FileSystem::IFileSystemException(
-                "Failed to delete directory entry using directory FD: (relative path) " + path + ". Cause: " + error_cause);
+                "Failed to delete directory entry using directory FD: (relative path) " + path +
+                ". Cause: " + error_cause);
         }
     }
     void FileSystemImpl::removeFilesInDirectory(const Path& path) const

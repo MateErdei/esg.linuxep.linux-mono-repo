@@ -107,7 +107,8 @@ namespace Common::FileSystem
 
         [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path) const override;
 
-        [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec) const override;
+        [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec)
+            const override;
         std::string getSystemCommandExecutablePath(const std::string& executableName) const override;
 
     protected:

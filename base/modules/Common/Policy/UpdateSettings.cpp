@@ -1,15 +1,16 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "Logger.h"
 #include "UpdateSettings.h"
+
+#include "Logger.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 
 using namespace Common::Policy;
 
-const std::vector<std::string> UpdateSettings::DefaultSophosCDNUrls{"https://sdds3.sophosupd.com:443", "https://sdds3.sophosupd.net:443"};
-const std::string UpdateSettings::DefaultSophosSusUrl="https://sus.sophosupd.com";
-
+const std::vector<std::string> UpdateSettings::DefaultSophosCDNUrls{ "https://sdds3.sophosupd.com:443",
+                                                                     "https://sdds3.sophosupd.net:443" };
+const std::string UpdateSettings::DefaultSophosSusUrl = "https://sus.sophosupd.com";
 
 bool UpdateSettings::isProductSubscriptionValid(const ProductSubscription& productSubscription)
 {
@@ -97,7 +98,8 @@ bool UpdateSettings::verifySettingsAreValid()
         return false;
     }
 
-    std::string localWarehouseStore = Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir();
+    std::string localWarehouseStore =
+        Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir();
     if (!fileSystem->isDirectory(localWarehouseStore))
     {
         LOGERROR(

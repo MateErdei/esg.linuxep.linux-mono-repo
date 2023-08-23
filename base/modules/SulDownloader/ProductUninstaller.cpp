@@ -2,13 +2,12 @@
 
 #include "ProductUninstaller.h"
 
-#include "Logger.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include "common/Logger.h"
 
 #include <algorithm>
 #include <map>
@@ -54,9 +53,8 @@ namespace SulDownloader
             auto productItr = std::find_if(
                 downloadedProducts.begin(),
                 downloadedProducts.end(),
-                [&productLine](const suldownloaderdata::DownloadedProduct& product) {
-                    return product.getLine() == productLine;
-                });
+                [&productLine](const suldownloaderdata::DownloadedProduct& product)
+                { return product.getLine() == productLine; });
 
             if (productItr == downloadedProducts.end())
             {
@@ -99,7 +97,7 @@ namespace SulDownloader
             try
             {
                 LOGDEBUG("Executing " << uninstallScript << " with --downgrade and --force");
-                process->exec(uninstallScript, {"--downgrade", "--force"}, {});
+                process->exec(uninstallScript, { "--downgrade", "--force" }, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
                 int exitCode = process->exitCode();
@@ -108,14 +106,14 @@ namespace SulDownloader
                 {
                     return true;
                 }
-                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '" << exitCode
-                             << "' with error, Process did not complete successfully.";
+                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript << "', code '"
+                             << exitCode << "' with error, Process did not complete successfully.";
                 LOGERROR(errorMessage.str());
             }
             catch (Common::Process::IProcessException& ex)
             {
-                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript <<
-                    "' with error, " << ex.what();
+                errorMessage << "Failed to prepare product for downgrade, running '" << uninstallScript
+                             << "' with error, " << ex.what();
                 LOGERROR(errorMessage.str());
             }
         }
@@ -171,7 +169,8 @@ namespace SulDownloader
                 try
                 {
                     std::string localSDDS3DistributionRepository =
-                        Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+                        Common::ApplicationConfiguration::applicationPathManager()
+                            .getLocalSdds3DistributionRepository();
                     if (distributePath.find(localSDDS3DistributionRepository) == std::string::npos)
                     {
                         throw std::logic_error(

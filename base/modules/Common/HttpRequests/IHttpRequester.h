@@ -4,10 +4,10 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
-#include <ostream>
 
 namespace Common::HttpRequests
 {

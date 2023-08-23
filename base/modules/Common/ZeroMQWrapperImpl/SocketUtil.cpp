@@ -99,7 +99,8 @@ void Common::ZeroMQWrapperImpl::SocketUtil::listen(
     int rc = zmq_bind(socket.skt(), address.c_str());
     if (rc != 0)
     {
-        throw ZeroMQWrapperException(LOCATION, std::string("Failed to bind to ") + address + " errno: " + std::to_string(errno));
+        throw ZeroMQWrapperException(
+            LOCATION, std::string("Failed to bind to ") + address + " errno: " + std::to_string(errno));
     }
 }
 

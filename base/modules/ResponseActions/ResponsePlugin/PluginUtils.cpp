@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "PluginUtils.h"
+
 #include "Logger.h"
 
 #include <limits.h>
@@ -71,4 +72,4 @@ namespace ResponsePlugin
         return { type, timeout };
     }
 
-}
+} // namespace ResponsePlugin

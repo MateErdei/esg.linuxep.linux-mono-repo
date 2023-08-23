@@ -31,7 +31,6 @@ namespace SulDownloader::suldownloaderdata
         bool isCacheUpdate() const;
 
     private:
-
         std::string m_updateLocationURL;
         bool m_isUpdateCache;
         proxy_t m_proxy;

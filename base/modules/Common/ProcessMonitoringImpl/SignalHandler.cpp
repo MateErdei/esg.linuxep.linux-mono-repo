@@ -53,9 +53,15 @@ namespace
 
 namespace Common::ProcessMonitoringImpl
 {
-    SignalHandler::SignalHandler() { setSignalHandler(); }
+    SignalHandler::SignalHandler()
+    {
+        setSignalHandler();
+    }
 
-    SignalHandler::~SignalHandler() { clearSignalHandler(); }
+    SignalHandler::~SignalHandler()
+    {
+        clearSignalHandler();
+    }
 
     bool SignalHandler::clearSubProcessExitPipe()
     {
@@ -87,10 +93,18 @@ namespace Common::ProcessMonitoringImpl
         return ret;
     }
 
+    int SignalHandler::subprocessExitFileDescriptor()
+    {
+        return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd();
+    }
 
-    int SignalHandler::subprocessExitFileDescriptor() { return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd(); }
+    int SignalHandler::terminationFileDescriptor()
+    {
+        return GL_TERM_PIPE.readFd();
+    }
 
-    int SignalHandler::terminationFileDescriptor() { return GL_TERM_PIPE.readFd(); }
-
-    int SignalHandler::usr1FileDescriptor() { return GL_USR1_PIPE.readFd(); }
+    int SignalHandler::usr1FileDescriptor()
+    {
+        return GL_USR1_PIPE.readFd();
+    }
 } // namespace Common::ProcessMonitoringImpl

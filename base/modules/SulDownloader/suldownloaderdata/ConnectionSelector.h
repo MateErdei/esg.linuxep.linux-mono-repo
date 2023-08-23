@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include "ConnectionSetup.h"
+
 #include "Common/Policy/Proxy.h"
 #include "Common/Policy/UpdateSettings.h"
-#include "ConnectionSetup.h"
 
 namespace SulDownloader::suldownloaderdata
 {
@@ -25,12 +26,15 @@ namespace SulDownloader::suldownloaderdata
          *  first vector is a list of all the ways we can connect to Sus
          *  second vector is a list of all the ways we can connect to a Sophos CDN
          */
-        std::pair<std::vector<ConnectionSetup>,std::vector<ConnectionSetup>> getConnectionCandidates(const Common::Policy::UpdateSettings& updateSettings);
+        std::pair<std::vector<ConnectionSetup>, std::vector<ConnectionSetup>> getConnectionCandidates(
+            const Common::Policy::UpdateSettings& updateSettings);
+
     private:
-        std::vector<ConnectionSetup> getSDDS3Candidates(std::vector<Common::Policy::Proxy>& proxies,
-                                                        std::vector<std::string>& urls,
-                                                        const std::string& key,
-                                                        std::vector<std::string>& caches);
+        std::vector<ConnectionSetup> getSDDS3Candidates(
+            std::vector<Common::Policy::Proxy>& proxies,
+            std::vector<std::string>& urls,
+            const std::string& key,
+            std::vector<std::string>& caches);
         bool validateUrl(const std::string& url);
     };
 } // namespace SulDownloader::suldownloaderdata

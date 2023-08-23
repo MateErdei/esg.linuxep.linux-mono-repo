@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "cmcsrouter/MessageRelay.h"
-
 #include "Common/OSUtilities/IIPUtils.h"
+#include "cmcsrouter/MessageRelay.h"
 
 /**
  * Sorts message relays by:

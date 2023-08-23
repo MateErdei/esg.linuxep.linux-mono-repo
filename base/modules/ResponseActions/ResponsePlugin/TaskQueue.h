@@ -18,8 +18,8 @@ namespace ResponsePlugin
         };
         TaskType m_taskType;
         std::string m_content;
-        std::string m_appId="";
-        std::string m_correlationId="";
+        std::string m_appId = "";
+        std::string m_correlationId = "";
     };
 
     class TaskQueue

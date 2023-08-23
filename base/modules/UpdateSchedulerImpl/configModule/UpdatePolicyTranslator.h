@@ -1,11 +1,11 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
+#include "Common/Exceptions/IException.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/Policy/ESMVersion.h"
-#include "Common/Exceptions/IException.h"
-#include "Common/Threads/LockableData.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/Threads/LockableData.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "UpdateScheduler/IMapHostCacheId.h"
 
@@ -27,14 +27,16 @@ namespace UpdateSchedulerImpl
         /**
          *  Called while parsing a policy, after above setting methods to update telemetry
          */
-        void resetTelemetry(Common::Telemetry::TelemetryHelper& );
+        void resetTelemetry(Common::Telemetry::TelemetryHelper&);
         /**
          * Called by resetTelemetry
          * and after generating telemetry - by reset callback
          */
-        void setSubscriptions(Common::Telemetry::TelemetryHelper& );
+        void setSubscriptions(Common::Telemetry::TelemetryHelper&);
+
     private:
-        struct CombinedVersionInfo {
+        struct CombinedVersionInfo
+        {
             SubscriptionVector subscriptionVector;
             Common::Policy::ESMVersion esmVersion;
         };
@@ -78,6 +80,7 @@ namespace UpdateSchedulerImpl::configModule
         std::string revID() const;
         UpdatePolicyTranslator();
         ~UpdatePolicyTranslator();
+
     private:
         SettingsHolder _translatePolicy(const std::string& policyXml);
         std::shared_ptr<Common::Policy::ALCPolicy> updatePolicy_;

@@ -8,15 +8,15 @@
 #include "SchedulerTask.h"
 #include "TaskQueue.h"
 
-#include "Common/ZeroMQWrapper/IIPCException.h"
-
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
 #include "Common/TaskQueue/ITaskQueue.h"
 #include "Common/TaskQueueImpl/TaskQueueImpl.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
+
 #include <sys/stat.h>
 
 namespace TelemetrySchedulerImpl

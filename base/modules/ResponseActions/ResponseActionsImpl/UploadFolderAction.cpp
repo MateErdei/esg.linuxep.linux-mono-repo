@@ -41,7 +41,8 @@ namespace ResponseActionsImpl
 
         if (ActionsUtils::isExpired(info.expiration))
         {
-            std::string error = "Upload folder action has expired";;
+            std::string error = "Upload folder action has expired";
+            ;
             LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 4, error);
             return response;
@@ -189,7 +190,8 @@ namespace ResponseActionsImpl
             else
             {
                 std::stringstream error;
-                error << "Failed to upload zip file: " << m_pathToUpload << " with http error code " << httpresponse.status;
+                error << "Failed to upload zip file: " << m_pathToUpload << " with http error code "
+                      << httpresponse.status;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
             }

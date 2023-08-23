@@ -161,7 +161,7 @@ const Common::HttpRequests::Headers& Config::getHeaders() const
     return m_headers;
 }
 
-void Config::setHeaders(const  Common::HttpRequests::Headers& headers)
+void Config::setHeaders(const Common::HttpRequests::Headers& headers)
 {
     m_headers = headers;
 }

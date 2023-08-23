@@ -120,7 +120,7 @@ namespace Common::Logging
 
     private:
         friend void applyGeneralConfig(const std::string&);
-        static inline bool InTestMode{false};
+        static inline bool InTestMode{ false };
 
         class LoggerConfigTree;
         std::unique_ptr<LoggerConfigTree> m_configTree;

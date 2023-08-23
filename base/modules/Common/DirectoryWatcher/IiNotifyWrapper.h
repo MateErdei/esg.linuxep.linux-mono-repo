@@ -29,7 +29,7 @@ namespace Common::DirectoryWatcher
          * @param mask - contains bits that describe the event that is being watched
          * @return watch descriptor
          */
-        virtual int addWatch(int fd, const char *name, uint32_t mask) = 0;
+        virtual int addWatch(int fd, const char* name, uint32_t mask) = 0;
 
         /**
          * Removes a watch on a specific watch descriptor (as returned by add_watch)
@@ -46,7 +46,7 @@ namespace Common::DirectoryWatcher
          * @param nbytes - Number of bytes requested
          * @return  - Number of bytes read
          */
-        virtual ssize_t read(int fd, void *buf, size_t nbytes) = 0;
+        virtual ssize_t read(int fd, void* buf, size_t nbytes) = 0;
     };
 
     using IiNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>;

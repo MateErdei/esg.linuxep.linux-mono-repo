@@ -8,7 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common::ReactorImpl
 {
-    void GenericShutdownListener::notifyShutdownRequested() { m_callback(); }
+    void GenericShutdownListener::notifyShutdownRequested()
+    {
+        m_callback();
+    }
 
     GenericShutdownListener::GenericShutdownListener(std::function<void()> callback)
     {

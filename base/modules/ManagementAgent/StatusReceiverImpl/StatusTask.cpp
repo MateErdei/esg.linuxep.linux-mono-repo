@@ -4,7 +4,9 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
+
 #include <sys/stat.h>
+
 #include <cassert>
 
 namespace
@@ -14,7 +16,10 @@ namespace
      * @param appId
      * @return
      */
-    Path createStatusFilename(const std::string& appId) { return appId + "_status.xml"; }
+    Path createStatusFilename(const std::string& appId)
+    {
+        return appId + "_status.xml";
+    }
 } // namespace
 
 void ManagementAgent::StatusReceiverImpl::StatusTask::run()
@@ -27,7 +32,8 @@ void ManagementAgent::StatusReceiverImpl::StatusTask::run()
         Path filepath = Common::FileSystem::join(m_statusDir, basename);
         assert(!filepath.empty());
         // write file to directory
-        Common::FileSystem::fileSystem()->writeFileAtomically(filepath, m_statusXml, m_tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        Common::FileSystem::fileSystem()->writeFileAtomically(
+            filepath, m_statusXml, m_tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     }
 }
 

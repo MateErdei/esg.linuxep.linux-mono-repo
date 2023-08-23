@@ -47,17 +47,16 @@ namespace RemoteDiagnoseImpl
             Task task;
             task.taskType = Task::TaskType::UNDEFINED;
             std::list<Task>::iterator iter;
-                for (iter = m_list.begin(); iter != m_list.end(); ++iter)
+            for (iter = m_list.begin(); iter != m_list.end(); ++iter)
+            {
+                if (iter->taskType != Task::TaskType::ACTION)
                 {
-                    if (iter->taskType != Task::TaskType::ACTION)
-                    {
-                        task = *iter;
-                        m_list.erase(iter);
-                        break;
-                    }
+                    task = *iter;
+                    m_list.erase(iter);
+                    break;
                 }
+            }
             return task;
         }
-
     }
 } // namespace RemoteDiagnoseImpl

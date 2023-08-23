@@ -5,10 +5,6 @@
 #include "Logger.h"
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Common/UtilityImpl/StrError.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/UtilityImpl/SystemExecutableUtils.h"
-
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/PluginCommunication/IPluginCommunicationException.h"
@@ -17,6 +13,9 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/ConfigException.h"
 #include "Common/UtilityImpl/Factory.h"
+#include "Common/UtilityImpl/StrError.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/SystemExecutableUtils.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 
 namespace
@@ -160,7 +159,7 @@ namespace
             const auto& commandExecutablePath = path;
             std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
 
-            process->exec(commandExecutablePath,{ "-B", "1000", "-sx", installPath });
+            process->exec(commandExecutablePath, { "-B", "1000", "-sx", installPath });
             process->setOutputLimit(1024 * 10);
 
             auto status = process->wait(Common::Process::Milliseconds(1000), 120);
@@ -179,7 +178,8 @@ namespace
             }
 
             auto output = process->output();
-            std::string strippedOutput = Common::UtilityImpl::StringUtils::trim(Common::UtilityImpl::StringUtils::splitString(output, " ")[0]);
+            std::string strippedOutput =
+                Common::UtilityImpl::StringUtils::trim(Common::UtilityImpl::StringUtils::splitString(output, " ")[0]);
 
             try
             {
@@ -187,7 +187,8 @@ namespace
             }
             catch (std::runtime_error& e)
             {
-                throw std::runtime_error("Failed to convert string to unsigned long: " + output + ". Error: " + e.what());
+                throw std::runtime_error(
+                    "Failed to convert string to unsigned long: " + output + ". Error: " + e.what());
             }
         }
 
@@ -218,8 +219,7 @@ namespace watchdog::watchdogimpl
             auto requester = context.getRequester();
             Common::PluginApiImpl::PluginResourceManagement::setupRequester(
                 *requester, WatchdogServiceLineName(), 5000, 5000);
-            Common::PluginCommunicationImpl::PluginProxy pluginProxy(
-                std::move(requester), WatchdogServiceLineName());
+            Common::PluginCommunicationImpl::PluginProxy pluginProxy(std::move(requester), WatchdogServiceLineName());
             pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate(), "");
             LOGINFO("Update Acknowledged.");
         }
@@ -256,9 +256,8 @@ namespace watchdog::watchdogimpl
         {
             auto requester = context.getRequester();
             Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                    *requester, WatchdogServiceLineName(), 5000, 5000);
-            Common::PluginCommunicationImpl::PluginProxy pluginProxy(
-                    std::move(requester), WatchdogServiceLineName());
+                *requester, WatchdogServiceLineName(), 5000, 5000);
+            Common::PluginCommunicationImpl::PluginProxy pluginProxy(std::move(requester), WatchdogServiceLineName());
             pluginProxy.queueAction("", WDServiceCallBack::TriggerDiagnose(), "");
             LOGINFO("Start Diagnose Acknowledged.");
         }

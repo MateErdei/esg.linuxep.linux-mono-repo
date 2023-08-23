@@ -28,7 +28,6 @@ namespace StateData
         bad = 1,
     };
 
-
     ///// The data for status messages to Central /////
 
     struct DownloadStatus
@@ -36,7 +35,7 @@ namespace StateData
         StatusEnum status{};
         std::chrono::system_clock::time_point failedSince{};
     };
-    inline auto TieMembers(const DownloadStatus & o)
+    inline auto TieMembers(const DownloadStatus& o)
     {
         return CppCommon::TieWithCheck<DownloadStatus>(o.status, o.failedSince);
     }
@@ -49,12 +48,11 @@ namespace StateData
         std::chrono::system_clock::time_point lastGood{};
         std::chrono::system_clock::time_point failedSince{};
     };
-    inline auto TieMembers(const InstallStatus & o)
+    inline auto TieMembers(const InstallStatus& o)
     {
         return CppCommon::TieWithCheck<InstallStatus>(o.status, o.lastGood, o.failedSince);
     }
     MAKE_STRICT_TOTAL_ORDER(InstallStatus);
-
 
     ///// Internal data for the state machines /////
 
@@ -70,7 +68,7 @@ namespace StateData
 
         std::chrono::system_clock::time_point failedSince{};
     };
-    inline auto TieMembers(const DownloadMachineState & o)
+    inline auto TieMembers(const DownloadMachineState& o)
     {
         return CppCommon::TieWithCheck<DownloadMachineState>(o.credit, o.failedSince);
     }
@@ -87,7 +85,7 @@ namespace StateData
         std::chrono::system_clock::time_point lastGood{};
         std::chrono::system_clock::time_point failedSince{};
     };
-    inline auto TieMembers(const InstallMachineState & o)
+    inline auto TieMembers(const InstallMachineState& o)
     {
         return CppCommon::TieWithCheck<InstallMachineState>(o.credit, o.lastGood, o.failedSince);
     }
@@ -100,7 +98,7 @@ namespace StateData
         int lastError{};
         std::chrono::system_clock::time_point lastTime{};
     };
-    inline auto TieMembers(const EventMachineState & o)
+    inline auto TieMembers(const EventMachineState& o)
     {
         return CppCommon::TieWithCheck<EventMachineState>(o.lastError, o.lastTime);
     }

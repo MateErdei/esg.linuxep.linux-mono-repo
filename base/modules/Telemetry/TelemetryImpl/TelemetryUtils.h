@@ -15,4 +15,4 @@ namespace Telemetry
         static std::string getCloudPlatform();
         static std::string getMCSProxy();
     };
-}
+} // namespace Telemetry

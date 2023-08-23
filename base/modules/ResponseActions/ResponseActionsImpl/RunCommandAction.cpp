@@ -6,17 +6,18 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
-#include "Common/ProxyUtils/ProxyUtils.h"
 #include "Common/Process/IProcess.h"
-#include "ResponseActions/RACommon/toUtf8Exception.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "ResponseActions/RACommon/toUtf8Exception.h"
 
 #include <sys/poll.h>
 
 using namespace ResponseActionsImpl;
 
-RunCommandAction::RunCommandAction(Common::ISignalHandlerSharedPtr sigHandler
-                                   , Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory) :
+RunCommandAction::RunCommandAction(
+    Common::ISignalHandlerSharedPtr sigHandler,
+    Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory) :
     m_SignalHandler(std::move(sigHandler))
 {
     m_SysCallWrapper = sysCallFactory->createSystemCallWrapper();
@@ -108,11 +109,10 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action)
     else
     {
         // Check if any commands did not exit with success (0 exitcode)
-        bool anyErrors =
-            std::find_if(
-                response.commandResults.cbegin(),
-                response.commandResults.cend(),
-                [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
+        bool anyErrors = std::find_if(
+                             response.commandResults.cbegin(),
+                             response.commandResults.cend(),
+                             [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
 
         response.result = anyErrors ? ResponseActions::RACommon::ResponseResult::ERROR
                                     : ResponseActions::RACommon::ResponseResult::SUCCESS;
@@ -138,23 +138,20 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     auto process = ::Common::Process::createProcess();
     std::vector<std::string> cmd = { "-c", command };
     Common::Process::EnvPairVector env;
-    env.emplace_back(std::make_pair<std::string, std::string>("LANG","C"));
+    env.emplace_back(std::make_pair<std::string, std::string>("LANG", "C"));
     process->exec("/bin/bash", cmd, env);
 
     assert(process != nullptr);
 
-    struct pollfd fds[]
-    {
-        { .fd = m_SignalHandler->terminationFileDescriptor(), .events = POLLIN, .revents = 0 },
-        { .fd = m_SignalHandler->subprocessExitFileDescriptor(), .events = POLLIN, .revents = 0 },
-        { .fd = m_SignalHandler->usr1FileDescriptor(), .events = POLLIN, .revents = 0 }
-    };
+    struct pollfd fds[]{ { .fd = m_SignalHandler->terminationFileDescriptor(), .events = POLLIN, .revents = 0 },
+                         { .fd = m_SignalHandler->subprocessExitFileDescriptor(), .events = POLLIN, .revents = 0 },
+                         { .fd = m_SignalHandler->usr1FileDescriptor(), .events = POLLIN, .revents = 0 } };
 
-    while(true)
+    while (true)
     {
         auto ret = m_SysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
 
-        //Shouldnt be timing out
+        // Shouldnt be timing out
         assert(ret != 0);
 
         if (ret < 0)
@@ -165,7 +162,8 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
                 LOGDEBUG("Ignoring EINTR from ppoll");
                 continue;
             }
-            LOGERROR("Error from ppoll while waiting for command to finish: " << std::strerror(err) << "(" << err << ")");
+            LOGERROR(
+                "Error from ppoll while waiting for command to finish: " << std::strerror(err) << "(" << err << ")");
             break;
         }
         else
@@ -179,8 +177,8 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
             if ((fds[1].revents & POLLIN) != 0)
             {
                 LOGDEBUG("Child Process has received termination command");
-                //There is a delay between the child getting the signal and boost reporting the process as finished
-                process->wait(Common::Process::Milliseconds{100}, 10);
+                // There is a delay between the child getting the signal and boost reporting the process as finished
+                process->wait(Common::Process::Milliseconds{ 100 }, 10);
                 break;
             }
             if ((fds[2].revents & POLLIN) != 0)
@@ -205,7 +203,6 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
         }
         process->waitUntilProcessEnds();
     }
-
 
     std::optional<std::string> stdOutput = ResponseActions::RACommon::toUtf8(process->standardOutput());
     if (stdOutput.has_value())

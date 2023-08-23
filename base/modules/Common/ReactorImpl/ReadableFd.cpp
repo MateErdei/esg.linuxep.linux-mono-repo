@@ -49,7 +49,10 @@ namespace Common::ReactorImpl
         return data;
     }
 
-    int ReadableFd::fd() { return m_fd; }
+    int ReadableFd::fd()
+    {
+        return m_fd;
+    }
 
     void ReadableFd::close()
     {

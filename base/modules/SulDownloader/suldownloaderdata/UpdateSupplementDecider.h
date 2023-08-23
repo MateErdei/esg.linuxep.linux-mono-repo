@@ -39,7 +39,8 @@ namespace SulDownloader::suldownloaderdata
          * @return
          */
         time_t lastScheduledProductUpdate();
+
     private:
         WeekDayAndTimeForDelay m_schedule;
     };
-}
+} // namespace SulDownloader::suldownloaderdata

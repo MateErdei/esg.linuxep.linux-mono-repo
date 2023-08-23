@@ -49,14 +49,14 @@ namespace SulDownloader::suldownloaderdata
         [[nodiscard]] virtual bool hasError() const = 0;
 
         /**
-        * Do we have an error that means we should abort the update immediately?
-        *
-        * Currently: PACKAGESOURCEMISSING
-        *
-        * Subset of hasError()
-        *
-        * @return true if we should abort the update
-        */
+         * Do we have an error that means we should abort the update immediately?
+         *
+         * Currently: PACKAGESOURCEMISSING
+         *
+         * Subset of hasError()
+         *
+         * @return true if we should abort the update
+         */
         [[nodiscard]] virtual bool hasImmediateFailError() const = 0;
 
         [[nodiscard]] virtual RepositoryError getError() const = 0;
@@ -67,14 +67,13 @@ namespace SulDownloader::suldownloaderdata
 
         [[nodiscard]] virtual std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const = 0;
 
-        [[nodiscard]] virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
+        [[nodiscard]] virtual std::string getProductDistributionPath(
+            const suldownloaderdata::DownloadedProduct&) const = 0;
 
         [[nodiscard]] virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
 
         virtual void purge() const = 0;
-
     };
 
     using IRepositoryPtr = std::unique_ptr<IRepository>;
-}
-
+} // namespace SulDownloader::suldownloaderdata

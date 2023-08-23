@@ -36,5 +36,4 @@ int StartAction::run()
 
     LOGERROR("Failed to start " << m_args.m_argument << ": " << response.at(0));
     return 1;
-
 }

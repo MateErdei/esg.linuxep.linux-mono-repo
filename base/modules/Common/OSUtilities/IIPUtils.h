@@ -45,7 +45,7 @@ namespace Common::OSUtilities
         explicit IP6(const std::string& stringAddress);
         int distance(const IP6& other) const;
         std::string stringAddress() const { return m_address; };
-        Ip6addr ipAddress() const{ return m_ip6addr; };
+        Ip6addr ipAddress() const { return m_ip6addr; };
     };
 
     struct IPs

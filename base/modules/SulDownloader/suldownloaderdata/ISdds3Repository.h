@@ -13,7 +13,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-
 namespace SulDownloader::suldownloaderdata
 {
     /**
@@ -23,7 +22,6 @@ namespace SulDownloader::suldownloaderdata
     class ISdds3Repository : public IRepository
     {
     public:
-
         virtual ~ISdds3Repository() = default;
 
         virtual bool synchronize(
@@ -32,16 +30,16 @@ namespace SulDownloader::suldownloaderdata
             const bool ignoreFailedSupplementRefresh) = 0;
 
         virtual void distribute() = 0;
-//
-//            /**
-//             * Attempt to connect to a provided connection setup information.
-//             *
-//             *
-//             * @param connectionSetup
-//             * @param supplementOnly  Only download supplements
-//             * @param configurationData
-//             * @return
-//             */
+        //
+        //            /**
+        //             * Attempt to connect to a provided connection setup information.
+        //             *
+        //             *
+        //             * @param connectionSetup
+        //             * @param supplementOnly  Only download supplements
+        //             * @param configurationData
+        //             * @return
+        //             */
         virtual bool tryConnect(
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             bool supplementOnly,
@@ -52,4 +50,3 @@ namespace SulDownloader::suldownloaderdata
     using ISDDS3RepositoryPtr = std::unique_ptr<ISdds3Repository>;
 
 } // namespace SulDownloader::suldownloaderdata
-

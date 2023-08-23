@@ -24,7 +24,7 @@ void Arguments::parseArguments(const StringVector& args)
     m_options = std::move(options);
     m_positionalArgs = std::move(positionalArgs);
 
-    for (const auto& arg: m_options)
+    for (const auto& arg : m_options)
     {
         if (arg == "--quiet")
         {

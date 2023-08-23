@@ -6,10 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/Policy/UpdateSettings.h"
 #include "ProductMetadata.h"
 #include "RepositoryError.h"
 
+#include "Common/Policy/UpdateSettings.h"
 
 namespace SulDownloader::suldownloaderdata
 {
@@ -172,4 +172,3 @@ namespace SulDownloader::suldownloaderdata
         bool m_productDowngrade = false;
     };
 } // namespace SulDownloader::suldownloaderdata
-

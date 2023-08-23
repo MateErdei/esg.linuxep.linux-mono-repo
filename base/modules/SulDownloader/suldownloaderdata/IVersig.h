@@ -7,7 +7,6 @@
 #include <memory>
 #include <string>
 
-
 namespace SulDownloader::suldownloaderdata
 {
     class IVersig
@@ -24,13 +23,11 @@ namespace SulDownloader::suldownloaderdata
 
         using settings_t = Common::Policy::UpdateSettings;
 
-        virtual VerifySignature verify(
-            const settings_t& configurationData,
-            const std::string& productDirectoryPath) const = 0;
+        virtual VerifySignature verify(const settings_t& configurationData, const std::string& productDirectoryPath)
+            const = 0;
     };
 
     using IVersigPtr = std::unique_ptr<IVersig>;
 
     IVersigPtr createVersig();
 } // namespace SulDownloader::suldownloaderdata
-

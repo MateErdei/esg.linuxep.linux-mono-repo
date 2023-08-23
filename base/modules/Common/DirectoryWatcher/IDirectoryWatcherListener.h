@@ -26,7 +26,7 @@ namespace Common::DirectoryWatcher
          * of the name of a file moved into the directory that the listener
          * is listening to. Receives just the filename.
          */
-        virtual void fileMoved(const std::string &filename) = 0;
+        virtual void fileMoved(const std::string& filename) = 0;
 
         /**
          * Directory watcher informs the listener through this method

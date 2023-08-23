@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
 #include "ManagementAgent/PluginCommunication/IEventReceiver.h"
+#include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
 #include "ManagementAgent/PluginCommunication/IPolicyReceiver.h"
 #include "ManagementAgent/PluginCommunication/IStatusReceiver.h"
 
@@ -20,4 +20,4 @@ namespace ManagementAgent::PluginCommunicationImpl
         virtual void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) = 0;
         virtual void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) = 0;
     };
-}
+} // namespace ManagementAgent::PluginCommunicationImpl

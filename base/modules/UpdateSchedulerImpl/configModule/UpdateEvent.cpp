@@ -44,24 +44,23 @@ namespace
             return;
         }
 
-        auto addMessageInsert = [&](auto messageInsertsNode, auto value, auto defaultValue) {
-          if (value.empty())
-          {
-              messageInsertsNode->add("insert", defaultValue);
-          }
-          else
-          {
-              messageInsertsNode->add("insert", value);
-          }
+        auto addMessageInsert = [&](auto messageInsertsNode, auto value, auto defaultValue)
+        {
+            if (value.empty())
+            {
+                messageInsertsNode->add("insert", defaultValue);
+            }
+            else
+            {
+                messageInsertsNode->add("insert", value);
+            }
         };
 
-        auto sendName = [&](auto e, auto messageInsertsNode, auto defaultValue) {
-            addMessageInsert(messageInsertsNode, e.PackageName, defaultValue);
-        };
+        auto sendName = [&](auto e, auto messageInsertsNode, auto defaultValue)
+        { addMessageInsert(messageInsertsNode, e.PackageName, defaultValue); };
 
-        auto sendDetails = [&](auto e, auto messageInsertsNode, auto defaultValue) {
-            addMessageInsert(messageInsertsNode, e.ErrorDetails, defaultValue);
-        };
+        auto sendDetails = [&](auto e, auto messageInsertsNode, auto defaultValue)
+        { addMessageInsert(messageInsertsNode, e.ErrorDetails, defaultValue); };
 
         std::set<int> errorCodes = { EventMessageNumber::INSTALLFAILED,
                                      EventMessageNumber::INSTALLCAUGHTERROR,

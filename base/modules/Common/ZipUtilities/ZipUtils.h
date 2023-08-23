@@ -31,5 +31,3 @@ namespace Common::ZipUtilities
     };
 
 } // namespace Common::ZipUtilities
-
-

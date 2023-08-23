@@ -17,4 +17,4 @@ namespace ResponseActions::RACommon
     private:
         std::string m_message;
     };
-}
+} // namespace ResponseActions::RACommon

@@ -6,6 +6,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+
 #include <log4cplus/logger.h>
 
 Common::Logging::PluginLoggingSetup::PluginLoggingSetup(

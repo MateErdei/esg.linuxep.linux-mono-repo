@@ -1,10 +1,11 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ProcUtilities.h"
+
 #include "Logger.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 
 #include <signal.h>
 #include <sstream>
@@ -77,7 +78,7 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
 
 std::vector<Proc::ProcStat> Proc::listAndFilterProcesses(std::function<bool(const Proc::ProcStat&)> predicate)
 {
-    std::vector<Proc::ProcStat> procStatList {};
+    std::vector<Proc::ProcStat> procStatList{};
     std::vector<std::string> entries = Common::FileSystem::fileSystem()->listFilesAndDirectories("/proc");
     for (const auto& entry : entries)
     {
@@ -108,8 +109,8 @@ std::vector<Proc::ProcStat> Proc::listProcesses()
 }
 
 std::vector<Proc::ProcStat> Proc::filterProcesses(
-        const std::vector<Proc::ProcStat>& processes,
-        std::function<bool(const Proc::ProcStat&)> filter)
+    const std::vector<Proc::ProcStat>& processes,
+    std::function<bool(const Proc::ProcStat&)> filter)
 {
     std::vector<ProcStat> response;
     for (auto& procStat : processes)
@@ -123,17 +124,19 @@ std::vector<Proc::ProcStat> Proc::filterProcesses(
 }
 
 std::vector<Proc::ProcStat> Proc::listProcessesByComm(
-        const std::string& partOfComm,
-        const std::string& requiresFullPathContainsPath)
+    const std::string& partOfComm,
+    const std::string& requiresFullPathContainsPath)
 {
-    Proc::CommMatcher commMatcher { partOfComm };
+    Proc::CommMatcher commMatcher{ partOfComm };
 
-    auto fullPathContains = [&requiresFullPathContainsPath](const ProcStat& commEntry) {
+    auto fullPathContains = [&requiresFullPathContainsPath](const ProcStat& commEntry)
+    {
         if (requiresFullPathContainsPath.empty())
         {
             return true;
         }
-        std::optional<Path> fullPath = Common::FileSystem::fileSystem()->readlink("/proc/" + std::to_string(commEntry.pid) + "/exe");
+        std::optional<Path> fullPath =
+            Common::FileSystem::fileSystem()->readlink("/proc/" + std::to_string(commEntry.pid) + "/exe");
         if (fullPath.has_value() && fullPath.value().find(requiresFullPathContainsPath) == 0)
         {
             return true;
@@ -166,8 +169,8 @@ std::vector<Proc::ProcStat> Proc::listProcessesByComm(
 }
 
 void Proc::ensureNoExecWithThisCommIsRunning(
-        const std::string& partOfComm,
-        const std::string& requiresFullPathContainsPath)
+    const std::string& partOfComm,
+    const std::string& requiresFullPathContainsPath)
 {
     LOGSUPPORT("Checking currently running executables that contain comm: " << partOfComm);
     auto sortByPid = [](const Proc::ProcStat& lh, const Proc::ProcStat& rh) { return lh.pid < rh.pid; };
@@ -342,13 +345,13 @@ bool Proc::CommMatcher::operator()(const std::string& comm) const
     {
         return false;
     }
-    std::string_view entryToMatch { m_comm };
+    std::string_view entryToMatch{ m_comm };
     if (entryToMatch.size() > 15)
     {
         entryToMatch = entryToMatch.substr(0, 15);
     }
 
-    std::string_view procComm { comm };
+    std::string_view procComm{ comm };
     procComm = procComm.substr(1, procComm.size() - 2);
 
     if (procComm.size() == 15)

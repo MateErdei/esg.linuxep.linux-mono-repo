@@ -20,7 +20,10 @@ namespace UpdateSchedulerImpl::runnerModule
     {
     }
 
-    std::string SulDownloaderResultDirectoryListener::getPath() const { return m_directoryToWatch; }
+    std::string SulDownloaderResultDirectoryListener::getPath() const
+    {
+        return m_directoryToWatch;
+    }
 
     void SulDownloaderResultDirectoryListener::fileMoved(const std::string& filename)
     {
@@ -34,7 +37,10 @@ namespace UpdateSchedulerImpl::runnerModule
         m_fileDetected.notify_all();
     }
 
-    void SulDownloaderResultDirectoryListener::watcherActive(bool active) { m_active = active; }
+    void SulDownloaderResultDirectoryListener::watcherActive(bool active)
+    {
+        m_active = active;
+    }
 
     std::string SulDownloaderResultDirectoryListener::waitForFile(std::chrono::seconds timeoutInSeconds)
     {
@@ -53,7 +59,13 @@ namespace UpdateSchedulerImpl::runnerModule
         m_fileDetected.notify_all();
     }
 
-    bool SulDownloaderResultDirectoryListener::wasAborted() { return m_aborted; }
+    bool SulDownloaderResultDirectoryListener::wasAborted()
+    {
+        return m_aborted;
+    }
 
-    bool SulDownloaderResultDirectoryListener::shouldStop() { return m_fileFound || m_aborted; }
+    bool SulDownloaderResultDirectoryListener::shouldStop()
+    {
+        return m_fileFound || m_aborted;
+    }
 } // namespace UpdateSchedulerImpl::runnerModule

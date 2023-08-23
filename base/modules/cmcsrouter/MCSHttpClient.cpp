@@ -10,56 +10,69 @@
 
 namespace MCS
 {
-    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
-        m_base_url(std::move(mcsUrl)),m_registerToken(std::move(registerToken)),m_client(std::move(client)){}
-
-    Common::HttpRequests::Response  MCSHttpClient::sendRegistration(const std::string& statusXml, const std::string& token)
+    MCSHttpClient::MCSHttpClient(
+        std::string mcsUrl,
+        std::string registerToken,
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :
+        m_base_url(std::move(mcsUrl)), m_registerToken(std::move(registerToken)), m_client(std::move(client))
     {
-        Common::HttpRequests::Headers requestHeaders
-            {
-                {"Authorization",getRegistrationAuthorizationHeader(token)},
-                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ token},
-                {"Content-Type","application/xml; charset=utf-8"}
-            };
+    }
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/register", .headers = requestHeaders, .data = statusXml, .timeout = HTTP_MAX_TIMEOUT};
+    Common::HttpRequests::Response MCSHttpClient::sendRegistration(
+        const std::string& statusXml,
+        const std::string& token)
+    {
+        Common::HttpRequests::Headers requestHeaders{ { "Authorization", getRegistrationAuthorizationHeader(token) },
+                                                      { "User-Agent",
+                                                        "Sophos MCS Client/" + m_version + " Linux sessions " + token },
+                                                      { "Content-Type", "application/xml; charset=utf-8" } };
+
+        Common::HttpRequests::RequestConfig request{
+            .url = m_base_url + "/register", .headers = requestHeaders, .data = statusXml, .timeout = HTTP_MAX_TIMEOUT
+        };
         updateProxyInfo(request);
         updateCertPath(request);
 
         return m_client->post(request);
     }
 
-    Common::HttpRequests::Response  MCSHttpClient::sendPreregistration(const std::string& statusXml, const std::string& customerToken)
+    Common::HttpRequests::Response MCSHttpClient::sendPreregistration(
+        const std::string& statusXml,
+        const std::string& customerToken)
     {
-        Common::HttpRequests::Headers requestHeaders
-            {
-                {"Authorization",getDeploymentInfoV2AuthorizationHeader(customerToken)},
-                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ customerToken},
-                {"Content-Type","application/json;charset=UTF-8"}
-            };
+        Common::HttpRequests::Headers requestHeaders{
+            { "Authorization", getDeploymentInfoV2AuthorizationHeader(customerToken) },
+            { "User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions " + customerToken },
+            { "Content-Type", "application/json;charset=UTF-8" }
+        };
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/install/deployment-info/2", .headers = requestHeaders, .data = statusXml, .timeout = HTTP_MAX_TIMEOUT};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/install/deployment-info/2",
+                                                     .headers = requestHeaders,
+                                                     .data = statusXml,
+                                                     .timeout = HTTP_MAX_TIMEOUT };
         updateProxyInfo(request);
         updateCertPath(request);
 
         return m_client->post(request);
     }
 
-    Common::HttpRequests::Response  MCSHttpClient::sendMessage(
+    Common::HttpRequests::Response MCSHttpClient::sendMessage(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        const Common::HttpRequests::Headers& headers
-    )
+        const Common::HttpRequests::Headers& headers)
     {
         Common::HttpRequests::Headers requestHeaders;
-        requestHeaders.insert({"Authorization",getV1AuthorizationHeader()});
-        requestHeaders.insert({"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken});
+        requestHeaders.insert({ "Authorization", getV1AuthorizationHeader() });
+        requestHeaders.insert(
+            { "User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions " + m_registerToken });
         for (const auto& head : headers)
         {
-            requestHeaders.insert({head.first,head.second});
+            requestHeaders.insert({ head.first, head.second });
         }
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders, .timeout = HTTP_MAX_TIMEOUT};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + url,
+                                                     .headers = requestHeaders,
+                                                     .timeout = HTTP_MAX_TIMEOUT };
         updateProxyInfo(request);
         updateCertPath(request);
 
@@ -80,15 +93,15 @@ namespace MCS
         return response;
     }
 
-    Common::HttpRequests::Response  MCSHttpClient::sendMessageWithID(
+    Common::HttpRequests::Response MCSHttpClient::sendMessageWithID(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
         const Common::HttpRequests::Headers& headers)
     {
-        return sendMessage(url + getID(),requestType, headers);
+        return sendMessage(url + getID(), requestType, headers);
     }
 
-    Common::HttpRequests::Response  MCSHttpClient::sendMessageWithIDAndRole(
+    Common::HttpRequests::Response MCSHttpClient::sendMessageWithIDAndRole(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
         const Common::HttpRequests::Headers& headers)
@@ -146,7 +159,10 @@ namespace MCS
         m_certPath = certPath;
     }
 
-    void MCSHttpClient::setProxyInfo(const std::string& proxy,const std::string& proxyUser,const std::string& proxyPassword)
+    void MCSHttpClient::setProxyInfo(
+        const std::string& proxy,
+        const std::string& proxyUser,
+        const std::string& proxyPassword)
     {
         m_proxy = proxy;
         m_proxyUser = proxyUser;
@@ -173,4 +189,4 @@ namespace MCS
             request.certPath = m_certPath;
         }
     }
-}
+} // namespace MCS

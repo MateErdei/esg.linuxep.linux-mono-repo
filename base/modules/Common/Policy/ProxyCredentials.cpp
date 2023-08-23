@@ -1,18 +1,14 @@
 // Copyright 2018-2023 Sophos All rights reserved.
 #include "ProxyCredentials.h"
 
-#include <utility>
-
 #include "Common/ObfuscationImpl/Obfuscate.h"
+
+#include <utility>
 
 using namespace Common::Policy;
 
-ProxyCredentials::ProxyCredentials(
-    const std::string& username,
-    const std::string& password,
-    std::string proxyType) :
-    Credentials(username, password),
-    m_proxyType(std::move(proxyType))
+ProxyCredentials::ProxyCredentials(const std::string& username, const std::string& password, std::string proxyType) :
+    Credentials(username, password), m_proxyType(std::move(proxyType))
 {
 }
 
@@ -25,7 +21,7 @@ Common::ObfuscationImpl::SecureString ProxyCredentials::getDeobfuscatedPassword(
     else
     {
         auto& pwd = getPassword();
-        return {pwd.begin(), pwd.end()};
+        return { pwd.begin(), pwd.end() };
     }
 }
 

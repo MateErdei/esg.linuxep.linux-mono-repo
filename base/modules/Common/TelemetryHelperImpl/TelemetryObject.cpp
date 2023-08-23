@@ -62,7 +62,6 @@ void Common::Telemetry::TelemetryObject::removeKey(const std::string& key)
     nodes.erase(key);
 }
 
-
 Common::Telemetry::TelemetryObject& Common::Telemetry::TelemetryObject::getObject(const std::string& key)
 {
     checkType(Type::object);

@@ -2,9 +2,8 @@
 #pragma once
 #include "IActionRunner.h"
 
-#include "ResponseActions/RACommon/ResponseActionsCommon.h"
-
 #include "Common/Process/IProcess.h"
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include <future>
 namespace ResponsePlugin

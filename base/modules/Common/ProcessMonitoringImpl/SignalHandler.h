@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Common/ProcessMonitoring/ISignalHandler.h"
-
 #include "Common/Threads/NotifyPipe.h"
 
 namespace Common::ProcessMonitoringImpl

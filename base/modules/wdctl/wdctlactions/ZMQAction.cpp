@@ -2,13 +2,12 @@
 
 #include "ZMQAction.h"
 
-#include "watchdog/watchdogimpl/Watchdog.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 namespace
 {
@@ -88,13 +87,12 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(
     }
 }
 
-bool wdctl::wdctlactions::ZMQAction::isWatchdogNotRunning(
-    const Common::ZeroMQWrapper::IReadable::data_t& response)
+bool wdctl::wdctlactions::ZMQAction::isWatchdogNotRunning(const Common::ZeroMQWrapper::IReadable::data_t& response)
 {
     if (response.size() == 1)
     {
         std::string responseString = response.at(0);
-        return ( responseString == watchdogNotRunning);
+        return (responseString == watchdogNotRunning);
     }
     else
     {

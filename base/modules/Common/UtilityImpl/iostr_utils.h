@@ -31,19 +31,28 @@ namespace std
     //  Various character classes
     //
 
-    inline bool char_class_num(char c) { return (c >= '0' && c <= '9'); }
+    inline bool char_class_num(char c)
+    {
+        return (c >= '0' && c <= '9');
+    }
     // inline bool char_class_alpha(char c)    { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
     // inline bool char_class_alphanum(char c) { return char_class_num(c) || char_class_alpha(c); }
 
     // inline bool char_class_base64(char c)   { return char_class_alphanum(c) || (c == '+') || (c == '/'); }
-    inline bool char_class_hex(char c) { return char_class_num(c) || (c >= 'a' && c <= 'f'); }
+    inline bool char_class_hex(char c)
+    {
+        return char_class_num(c) || (c >= 'a' && c <= 'f');
+    }
     // Note - this has been changed to allow the windows file separator as part of a filename.
     inline bool char_class_file(char c)
     {
         return (c >= 32 && c <= 126) && (c != '"') && (c != ':') && (c != '|') //&& (c != '\\')
                && (c != '<') && (c != '>') && (c != '*') && (c != '?');
     }
-    inline bool char_literal_eq(char c) { return (c == '='); }
+    inline bool char_literal_eq(char c)
+    {
+        return (c == '=');
+    }
 
     ////////////////////////////////////////////////////////////
     // cin << expect("some constant string")

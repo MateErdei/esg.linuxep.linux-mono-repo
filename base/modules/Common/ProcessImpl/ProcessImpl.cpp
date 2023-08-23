@@ -13,8 +13,8 @@
 #include <pwd.h>
 #include <queue>
 #include <thread>
-#include <utility>
 #include <unistd.h>
+#include <utility>
 
 std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
 {
@@ -52,12 +52,9 @@ namespace Common::ProcessImpl
         explicit FailedToStartProcess(int errorCode) : m_errorCode(errorCode) {}
         int pid() override { return -1; }
 
-        void wait() override { }
+        void wait() override {}
 
-        Process::ProcessStatus wait(std::chrono::milliseconds) override
-        {
-            return Process::ProcessStatus::FINISHED;
-        };
+        Process::ProcessStatus wait(std::chrono::milliseconds) override { return Process::ProcessStatus::FINISHED; };
 
         int exitCode() override { return m_errorCode; }
         int nativeExitCode() override { return m_errorCode; }
@@ -68,11 +65,11 @@ namespace Common::ProcessImpl
 
         bool hasFinished() override { return true; }
 
-        void sendTerminateSignal() override { }
-        void sendAbortSignal() override { }
-        void sendUsr1Signal() override { };
+        void sendTerminateSignal() override {}
+        void sendAbortSignal() override {}
+        void sendUsr1Signal() override{};
 
-        void kill() override { }
+        void kill() override {}
     };
 
     /* Initial state, keep track that no exec was ever called */
@@ -81,12 +78,9 @@ namespace Common::ProcessImpl
     public:
         int pid() override { return -1; }
 
-        void wait() override { }
+        void wait() override {}
 
-        Process::ProcessStatus wait(std::chrono::milliseconds) override
-        {
-            return Process::ProcessStatus::NOTSTARTED;
-        };
+        Process::ProcessStatus wait(std::chrono::milliseconds) override { return Process::ProcessStatus::NOTSTARTED; };
 
         int exitCode() override
         {
@@ -99,16 +93,19 @@ namespace Common::ProcessImpl
         }
 
         std::string output() override { throw Process::IProcessException("Output can be called only after exec."); }
-        std::string stderroutput() override { throw Process::IProcessException("Output can be called only after exec."); }
+        std::string stderroutput() override
+        {
+            throw Process::IProcessException("Output can be called only after exec.");
+        }
         std::string stdoutput() override { throw Process::IProcessException("Output can be called only after exec."); }
 
         bool hasFinished() override { return true; }
 
-        void sendTerminateSignal() override { }
-        void sendAbortSignal() override { }
-        void sendUsr1Signal() override { };
+        void sendTerminateSignal() override {}
+        void sendAbortSignal() override {}
+        void sendUsr1Signal() override{};
 
-        void kill() override { }
+        void kill() override {}
     };
 
     ProcessImpl::ProcessImpl() :
@@ -219,7 +216,10 @@ namespace Common::ProcessImpl
         return processOnBoost->stdoutput();
     }
 
-    bool ProcessImpl::kill() { return kill(2); }
+    bool ProcessImpl::kill()
+    {
+        return kill(2);
+    }
 
     bool ProcessImpl::kill(int secondsBeforeSIGKILL)
     {
@@ -268,18 +268,30 @@ namespace Common::ProcessImpl
         return Process::ProcessStatus::RUNNING;
     }
 
-    void ProcessImpl::setOutputLimit(size_t limit) { m_outputLimit = limit; }
+    void ProcessImpl::setOutputLimit(size_t limit)
+    {
+        m_outputLimit = limit;
+    }
 
-    void ProcessImpl::setFlushBufferOnNewLine(bool flushOnNewLine) { m_flushOnNewLine = flushOnNewLine; }
+    void ProcessImpl::setFlushBufferOnNewLine(bool flushOnNewLine)
+    {
+        m_flushOnNewLine = flushOnNewLine;
+    }
 
     void ProcessImpl::setNotifyProcessFinishedCallBack(Process::IProcess::functor callback)
     {
         m_callback = std::move(callback);
     }
 
-    int ProcessImpl::childPid() const { return m_pid; }
+    int ProcessImpl::childPid() const
+    {
+        return m_pid;
+    }
 
-    ProcessFactory::ProcessFactory() { restoreCreator(); }
+    ProcessFactory::ProcessFactory()
+    {
+        restoreCreator();
+    }
 
     ProcessFactory& ProcessFactory::instance()
     {
@@ -287,7 +299,10 @@ namespace Common::ProcessImpl
         return singleton;
     }
 
-    std::unique_ptr<Process::IProcess> ProcessFactory::createProcess() { return m_creator(); }
+    std::unique_ptr<Process::IProcess> ProcessFactory::createProcess()
+    {
+        return m_creator();
+    }
 
     void ProcessFactory::replaceCreator(std::function<std::unique_ptr<Process::IProcess>(void)> creator)
     {
@@ -296,9 +311,7 @@ namespace Common::ProcessImpl
 
     void ProcessFactory::restoreCreator()
     {
-        m_creator = []() {
-            return std::unique_ptr<Common::Process::IProcess>(new Common::ProcessImpl::ProcessImpl());
-        };
+        m_creator = []() { return std::unique_ptr<Common::Process::IProcess>(new Common::ProcessImpl::ProcessImpl()); };
     }
 
     void ProcessImpl::waitUntilProcessEnds()

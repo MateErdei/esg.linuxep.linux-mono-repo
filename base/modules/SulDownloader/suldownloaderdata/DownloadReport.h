@@ -9,7 +9,6 @@
 #include <string>
 #include <vector>
 
-
 namespace SulDownloader::suldownloaderdata
 {
     class DownloadedProduct;
@@ -50,7 +49,7 @@ namespace SulDownloader::suldownloaderdata
             // clang-format on
         }
     };
-    bool operator< (ProductReport::ProductStatus lh, ProductReport::ProductStatus rh );
+    bool operator<(ProductReport::ProductStatus lh, ProductReport::ProductStatus rh);
     /**
      * DownloadReport holds the relevant information about an attempt to run SULDownloader.
      * It will eventually be serialized to json via the SulDownloaderProto::DownloadStatusReport.
@@ -65,7 +64,7 @@ namespace SulDownloader::suldownloaderdata
     class DownloadReport
     {
     public:
-        DownloadReport() {};
+        DownloadReport(){};
 
         friend class DownloadReportTestBuilder;
 
@@ -88,8 +87,8 @@ namespace SulDownloader::suldownloaderdata
             const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
             TimeTracker* timeTracker,
             VerifyState verify,
-            bool supplementOnly=false,
-            bool baseDowngrade=false);
+            bool supplementOnly = false,
+            bool baseDowngrade = false);
 
         static DownloadReport Report(const std::string& errorDescription);
 
@@ -128,17 +127,11 @@ namespace SulDownloader::suldownloaderdata
 
         void combinePreviousReportIfRequired(const DownloadReport& previousReport);
 
-        [[nodiscard]] bool isSupplementOnlyUpdate() const
-        {
-            return m_supplementOnly;
-        }
+        [[nodiscard]] bool isSupplementOnlyUpdate() const { return m_supplementOnly; }
 
         [[nodiscard]] bool isSuccesfulProductUpdateCheck() const;
 
-        [[nodiscard]] bool wasBaseDowngraded() const
-        {
-            return m_baseDowngrade;
-        }
+        [[nodiscard]] bool wasBaseDowngraded() const { return m_baseDowngrade; }
         static std::string getInstalledVersion(const std::string& rigidName);
 
         [[nodiscard]] bool operator==(const DownloadReport& other) const
@@ -164,9 +157,10 @@ namespace SulDownloader::suldownloaderdata
         void setTimings(const TimeTracker&);
         void setProducts(const std::vector<ProductReport>& products);
         void setRepositoryComponents(const std::vector<ProductInfo>& repositoryComponents);
-        static const std::vector<ProductInfo> updateRepositoryComponentInstalledVersion(const std::vector<ProductInfo>& repositoryComponents);
+        static const std::vector<ProductInfo> updateRepositoryComponentInstalledVersion(
+            const std::vector<ProductInfo>& repositoryComponents);
 
-        RepositoryStatus m_status= RepositoryStatus::UNSPECIFIED;
+        RepositoryStatus m_status = RepositoryStatus::UNSPECIFIED;
         std::string m_description;
         std::string m_sulError;
         std::string m_startTime;
@@ -180,7 +174,5 @@ namespace SulDownloader::suldownloaderdata
         bool m_processedReport = false;
         bool m_supplementOnly = false;
         bool m_baseDowngrade = false;
-
     };
 } // namespace SulDownloader::suldownloaderdata
-

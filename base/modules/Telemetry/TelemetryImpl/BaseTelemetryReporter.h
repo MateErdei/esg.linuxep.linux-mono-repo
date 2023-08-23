@@ -3,17 +3,17 @@
 #pragma once
 
 #include "ITelemetryProvider.h"
-#include <json.hpp>
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 
+#include <json.hpp>
 #include <optional>
 #include <utility>
 #include <variant>
 
 #ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
+#    define TEST_PUBLIC private
 #endif
 
 namespace Telemetry
@@ -33,8 +33,7 @@ namespace Telemetry
         std::string getName() override { return "base-telemetry"; }
         std::string getTelemetry() override;
 
-    TEST_PUBLIC:
-        using clock_t = std::chrono::system_clock;
+        TEST_PUBLIC : using clock_t = std::chrono::system_clock;
         using time_point_t = std::chrono::time_point<clock_t>;
         static std::optional<std::string> getOutbreakModeCurrent();
         static std::optional<std::string> getOutbreakModeToday(time_point_t now);
@@ -49,6 +48,5 @@ namespace Telemetry
         static std::optional<std::string> getVersion();
         static std::optional<std::string> getOverallHealth();
         static std::optional<std::string> getOutbreakModeTodayWrapper();
-
     };
 } // namespace Telemetry

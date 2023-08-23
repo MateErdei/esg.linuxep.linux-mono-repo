@@ -61,11 +61,10 @@ namespace SulDownloader
     }
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer()
     {
-        static std::unique_ptr<ISdds3Wrapper> instance =
-            std::unique_ptr<ISdds3Wrapper>(new Sdds3Wrapper());
+        static std::unique_ptr<ISdds3Wrapper> instance = std::unique_ptr<ISdds3Wrapper>(new Sdds3Wrapper());
         return instance;
     }
-}
+} // namespace SulDownloader
 SulDownloader::ISdds3Wrapper* SulDownloader::sdds3Wrapper()
 {
     return SulDownloader::sdds3WrapperStaticPointer().get();

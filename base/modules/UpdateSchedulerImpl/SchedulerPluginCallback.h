@@ -1,9 +1,9 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 #include <atomic>
 #include <condition_variable>

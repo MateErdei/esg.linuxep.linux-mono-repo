@@ -7,7 +7,7 @@
 #include <chrono>
 
 #ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
+#    define TEST_PUBLIC private
 #endif
 
 namespace ManagementAgent::EventReceiverImpl
@@ -20,12 +20,9 @@ namespace ManagementAgent::EventReceiverImpl
         [[nodiscard]] bool outbreakMode() const override;
         void processAction(const std::string& actionXml) override;
 
-    TEST_PUBLIC:
-        using clock_t = std::chrono::system_clock;
+        TEST_PUBLIC : using clock_t = std::chrono::system_clock;
         using time_point_t = std::chrono::time_point<clock_t>;
-        bool processEvent(const Event& event,
-                          time_point_t now
-                        );
+        bool processEvent(const Event& event, time_point_t now);
 
     private:
         static std::string generateUUID();
@@ -45,4 +42,4 @@ namespace ManagementAgent::EventReceiverImpl
     };
 
     using OutbreakModeControllerPtr = std::shared_ptr<OutbreakModeController>;
-}
+} // namespace ManagementAgent::EventReceiverImpl

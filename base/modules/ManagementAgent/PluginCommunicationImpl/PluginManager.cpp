@@ -6,8 +6,8 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/PluginCommunication/IPluginCommunicationException.h"
 #include "Common/PluginCommunicationImpl/PluginProxy.h"
@@ -17,9 +17,10 @@
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
 #include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
-#include <sys/stat.h>
-#include <json.hpp>
 
+#include <sys/stat.h>
+
+#include <json.hpp>
 #include <memory>
 #include <thread>
 
@@ -40,7 +41,7 @@ namespace
         }
         return "";
     }
-}
+} // namespace
 
 namespace ManagementAgent::PluginCommunicationImpl
 {
@@ -99,11 +100,20 @@ namespace ManagementAgent::PluginCommunicationImpl
         m_serverCallbackHandler->start();
     }
 
-    void PluginManager::setDefaultTimeout(int timeoutMs) { m_defaultTimeout = timeoutMs; }
+    void PluginManager::setDefaultTimeout(int timeoutMs)
+    {
+        m_defaultTimeout = timeoutMs;
+    }
 
-    void PluginManager::setDefaultConnectTimeout(int timeoutMs) { m_defaultConnectTimeout = timeoutMs; }
+    void PluginManager::setDefaultConnectTimeout(int timeoutMs)
+    {
+        m_defaultConnectTimeout = timeoutMs;
+    }
 
-    int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName)
+    int PluginManager::applyNewPolicy(
+        const std::string& appId,
+        const std::string& policyXml,
+        const std::string& pluginName)
     {
         if (pluginName.empty())
         {
@@ -194,8 +204,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         return pluginsNotified;
     }
 
-    void PluginManager::checkPluginRegistry(
-        const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors)
+    void PluginManager::checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors)
     {
         for (auto& plugin : pluginsAndErrors)
         {
@@ -291,8 +300,14 @@ namespace ManagementAgent::PluginCommunicationImpl
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         auto plugin = locked_createPlugin(pluginName, lock);
-        locked_setAppIds(plugin, pluginDetails.policyAppIds, pluginDetails.actionAppIds, pluginDetails.statusAppIds, lock);
-        locked_setHealth(plugin, pluginDetails.hasServiceHealth, pluginDetails.hasThreatServiceHealth, pluginDetails.displayName, lock);
+        locked_setAppIds(
+            plugin, pluginDetails.policyAppIds, pluginDetails.actionAppIds, pluginDetails.statusAppIds, lock);
+        locked_setHealth(
+            plugin,
+            pluginDetails.hasServiceHealth,
+            pluginDetails.hasThreatServiceHealth,
+            pluginDetails.displayName,
+            lock);
     }
 
     Common::PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(
@@ -303,8 +318,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         Common::PluginApiImpl::PluginResourceManagement::setupRequester(
             *requester, pluginName, m_defaultTimeout, m_defaultConnectTimeout);
         std::unique_ptr<Common::PluginCommunication::IPluginProxy> proxyPlugin =
-            std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
-                std::move(requester), pluginName);
+            std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(std::move(requester), pluginName);
         m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
         return m_RegisteredPlugins[pluginName].get();
     }
@@ -325,7 +339,10 @@ namespace ManagementAgent::PluginCommunicationImpl
         m_RegisteredPlugins.erase(pluginName);
     }
 
-    Common::ZMQWrapperApi::IContextSharedPtr PluginManager::getSocketContext() { return m_context; }
+    Common::ZMQWrapperApi::IContextSharedPtr PluginManager::getSocketContext()
+    {
+        return m_context;
+    }
 
     void PluginManager::setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket)
     {
@@ -361,8 +378,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         }
     }
 
-    void PluginManager::setThreatHealthReceiver(
-        std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+    void PluginManager::setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
     {
         if (m_serverCallbackHandler != nullptr)
         {
@@ -383,7 +399,9 @@ namespace ManagementAgent::PluginCommunicationImpl
         return pluginNameList;
     }
 
-    ManagementAgent::PluginCommunication::PluginHealthStatus PluginManager::getHealthStatusForPlugin(const std::string& pluginName, bool prevHealthMissing)
+    ManagementAgent::PluginCommunication::PluginHealthStatus PluginManager::getHealthStatusForPlugin(
+        const std::string& pluginName,
+        bool prevHealthMissing)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         auto plugin = getPlugin(pluginName);
@@ -435,13 +453,13 @@ namespace ManagementAgent::PluginCommunicationImpl
         {
             nlohmann::json healthResult = nlohmann::json::parse(health);
             pluginHealthStatus.healthValue = healthResult["Health"];
-            if(healthResult.contains("activeHeartbeatUtmId") && healthResult.contains("activeHeartbeat"))
+            if (healthResult.contains("activeHeartbeatUtmId") && healthResult.contains("activeHeartbeat"))
             {
                 pluginHealthStatus.activeHeartbeatUtmId = healthResult["activeHeartbeatUtmId"];
                 pluginHealthStatus.activeHeartbeat = healthResult["activeHeartbeat"];
             }
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             LOGWARN("Failed to read plugin health for: " << pluginName << ", with error" << ex.what());
             // default to not running if value is not valid.
@@ -449,8 +467,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         }
         return pluginHealthStatus;
     }
-    std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> PluginManager::
-        getSharedHealthStatusObj()
+    std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> PluginManager::getSharedHealthStatusObj()
     {
         return m_healthStatus;
     }

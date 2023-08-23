@@ -13,7 +13,8 @@ namespace zmqchecker
 {
     Client::~Client() = default;
 
-    Client::Client(const std::string& address, int timeout) : m_iContextSharedPtr(Common::ZMQWrapperApi::createContext())
+    Client::Client(const std::string& address, int timeout) :
+        m_iContextSharedPtr(Common::ZMQWrapperApi::createContext())
     {
         m_socketRequester = m_iContextSharedPtr->getRequester();
         if (timeout != -1)
@@ -25,11 +26,12 @@ namespace zmqchecker
     }
 
     Common::ZeroMQWrapper::IReadable::data_t Client::requestReply(
-            const Common::ZeroMQWrapper::IReadable::data_t& request, bool ignoreReply)
+        const Common::ZeroMQWrapper::IReadable::data_t& request,
+        bool ignoreReply)
     {
         std::cout << "Writing request " << std::endl;
         m_socketRequester->write(request);
-        if( !ignoreReply )
+        if (!ignoreReply)
         {
             std::cout << "awaiting response " << std::endl;
             return m_socketRequester->read();
@@ -40,4 +42,4 @@ namespace zmqchecker
             return {};
         }
     }
-}
+} // namespace zmqchecker

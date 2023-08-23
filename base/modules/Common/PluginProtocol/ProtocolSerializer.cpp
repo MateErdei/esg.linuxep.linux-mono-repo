@@ -6,8 +6,7 @@
 #include "ProtocolSerializerFactory.h"
 
 #include "Common/PluginApi/ApiException.h"
-
-#include "PluginAPIMessage.pb.h"
+#include "Common/PluginProtocol/PluginAPIMessage.pb.h"
 
 namespace Common::PluginProtocol
 {
@@ -16,25 +15,20 @@ namespace Common::PluginProtocol
         switch (command)
         {
             case Commands::PLUGIN_SEND_EVENT:
-                return PluginProtocolProto::PluginAPIMessage_CommandOption::
-                    PluginAPIMessage_CommandOption_SendEvent;
+                return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_SendEvent;
             case Commands::PLUGIN_SEND_STATUS:
-                return PluginProtocolProto::PluginAPIMessage_CommandOption::
-                    PluginAPIMessage_CommandOption_SendStatus;
+                return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_SendStatus;
             case Commands::PLUGIN_SEND_REGISTER:
-                return PluginProtocolProto::PluginAPIMessage_CommandOption::
-                    PluginAPIMessage_CommandOption_Registration;
+                return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_Registration;
             case Commands::REQUEST_PLUGIN_APPLY_POLICY:
-                return PluginProtocolProto::PluginAPIMessage_CommandOption::
-                    PluginAPIMessage_CommandOption_ApplyPolicy;
+                return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_ApplyPolicy;
             case Commands::REQUEST_PLUGIN_DO_ACTION:
                 return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_DoAction;
             case Commands::REQUEST_PLUGIN_STATUS:
                 return PluginProtocolProto::PluginAPIMessage_CommandOption::
                     PluginAPIMessage_CommandOption_RequestStatus;
             case Commands::REQUEST_PLUGIN_TELEMETRY:
-                return PluginProtocolProto::PluginAPIMessage_CommandOption::
-                    PluginAPIMessage_CommandOption_Telemetry;
+                return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_Telemetry;
             case Commands::REQUEST_PLUGIN_HEALTH:
                 return PluginProtocolProto::PluginAPIMessage_CommandOption::
                     PluginAPIMessage_CommandOption_RequestHealth;

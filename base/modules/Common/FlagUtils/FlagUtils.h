@@ -14,4 +14,4 @@ namespace Common
     public:
         static bool isFlagSet(const std::string& flag, const std::string& flagContent);
     };
-}
+} // namespace Common

@@ -4,9 +4,8 @@
 
 #include "Logger.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include <grp.h>
 #include <pwd.h>
@@ -16,14 +15,20 @@ namespace Common::ProcessImpl
 {
     ProcessInfo::ProcessInfo() noexcept : m_secondsToShutDown(2), m_executableUser(-1), m_executableGroup(-1) {}
 
-    std::vector<std::string> ProcessInfo::getExecutableArguments() const { return m_executableArguments; }
+    std::vector<std::string> ProcessInfo::getExecutableArguments() const
+    {
+        return m_executableArguments;
+    }
 
     Process::EnvPairs ProcessInfo::getExecutableEnvironmentVariables() const
     {
         return m_executableEnvironmentVariables;
     }
 
-    std::string ProcessInfo::getExecutableFullPath() const { return m_executableFullPath; }
+    std::string ProcessInfo::getExecutableFullPath() const
+    {
+        return m_executableFullPath;
+    }
 
     void ProcessInfo::setExecutableFullPath(const std::string& executableFullPath)
     {
@@ -78,8 +83,7 @@ namespace Common::ProcessImpl
 
         try
         {
-            std::pair<uid_t, gid_t> userAndGroupId =
-                ifperms->getUserAndGroupId(userName.c_str());
+            std::pair<uid_t, gid_t> userAndGroupId = ifperms->getUserAndGroupId(userName.c_str());
 
             m_executableUser = userAndGroupId.first;
             if (groupName.empty())
@@ -97,7 +101,10 @@ namespace Common::ProcessImpl
         }
     }
 
-    std::string ProcessInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
+    std::string ProcessInfo::getExecutableUserAndGroupAsString() const
+    {
+        return m_executableUserAndGroupAsString;
+    }
 
     std::pair<bool, uid_t> ProcessInfo::getExecutableUser() const
     {
@@ -113,11 +120,20 @@ namespace Common::ProcessImpl
         return std::make_pair(m_executableGroup != -1, groupId);
     }
 
-    int ProcessInfo::getSecondsToShutDown() const { return m_secondsToShutDown; }
+    int ProcessInfo::getSecondsToShutDown() const
+    {
+        return m_secondsToShutDown;
+    }
 
-    void ProcessInfo::setSecondsToShutDown(int seconds) { m_secondsToShutDown = seconds; }
+    void ProcessInfo::setSecondsToShutDown(int seconds)
+    {
+        m_secondsToShutDown = seconds;
+    }
 } // namespace Common::ProcessImpl
 namespace Common::Process
 {
-    IProcessInfoPtr createEmptyProcessInfo() { return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo); }
+    IProcessInfoPtr createEmptyProcessInfo()
+    {
+        return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo);
+    }
 } // namespace Common::Process

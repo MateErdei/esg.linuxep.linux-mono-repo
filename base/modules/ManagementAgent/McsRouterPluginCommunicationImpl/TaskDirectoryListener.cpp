@@ -16,14 +16,14 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
         const std::string& directoryPath,
         ITaskQueueSharedPtr taskQueue,
         PluginCommunication::IPluginManager& pluginManager) :
-        m_pluginManager(pluginManager),
-        m_directoryPath(directoryPath),
-        m_taskQueue(taskQueue),
-        m_active(false)
+        m_pluginManager(pluginManager), m_directoryPath(directoryPath), m_taskQueue(taskQueue), m_active(false)
     {
     }
 
-    std::string TaskDirectoryListener::getPath() const { return m_directoryPath; }
+    std::string TaskDirectoryListener::getPath() const
+    {
+        return m_directoryPath;
+    }
 
     void TaskDirectoryListener::fileMoved(const std::string& filename)
     {
@@ -33,8 +33,8 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
 
         LOGDEBUG("filename=" << filename);
 
-        if (filename.find("policy") != std::string::npos || filename.find("flags") != std::string::npos
-            || filename.find("internal") != std::string::npos)
+        if (filename.find("policy") != std::string::npos || filename.find("flags") != std::string::npos ||
+            filename.find("internal") != std::string::npos)
         {
             task.reset(new PolicyTask(m_pluginManager, filename));
         }
@@ -52,5 +52,8 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
         m_taskQueue->queueTask(std::move(task));
     }
 
-    void TaskDirectoryListener::watcherActive(bool active) { m_active = active; }
+    void TaskDirectoryListener::watcherActive(bool active)
+    {
+        m_active = active;
+    }
 } // namespace ManagementAgent::McsRouterPluginCommunicationImpl

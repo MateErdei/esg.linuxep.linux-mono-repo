@@ -2,11 +2,11 @@
 
 #include "ReactorImpl.h"
 
-#include "Common/ZeroMQWrapper/IPoller.h"
 #include "Logger.h"
 
-#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
 #include "Common/ZeroMQWrapperImpl/PollerFactory.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
 #include <cassert>
 #include <csignal>
@@ -33,7 +33,10 @@ namespace Common::ReactorImpl
     using namespace Common::Reactor;
     ReactorThreadImpl::ReactorThreadImpl() : m_shutdownListener(nullptr) {}
 
-    ReactorThreadImpl::~ReactorThreadImpl() { m_callbackListeners.clear(); }
+    ReactorThreadImpl::~ReactorThreadImpl()
+    {
+        m_callbackListeners.clear();
+    }
 
     void ReactorThreadImpl::addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback)
     {
@@ -75,7 +78,9 @@ namespace Common::ReactorImpl
             {
                 // add the onShutdown listener
                 GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
-                struct sigaction action{};
+                struct sigaction action
+                {
+                };
                 action.sa_handler = s_signal_handler;
                 action.sa_flags = SA_RESTART;
                 sigemptyset(&action.sa_mask);
@@ -140,7 +145,9 @@ namespace Common::ReactorImpl
         if (monitorForSignalsForShutdown)
         {
             // Reset signal handlers if we set them before
-            struct sigaction action{};
+            struct sigaction action
+            {
+            };
             action.sa_handler = SIG_DFL;
             action.sa_flags = SA_RESTART;
             sigemptyset(&action.sa_mask);

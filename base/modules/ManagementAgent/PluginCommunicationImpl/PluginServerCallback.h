@@ -20,11 +20,13 @@ namespace ManagementAgent::PluginCommunicationImpl
         void receivedSendEvent(const std::string& appId, const std::string& eventXml) override;
         void handleAction(const std::string& actionXml) override;
 
-        void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo)
-            override;
+        void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) override;
         bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) override;
         void receivedRegisterWithManagementAgent(const std::string& pluginName) override;
-        bool receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
+        bool receivedThreatHealth(
+            const std::string& pluginName,
+            const std::string& threatHealth,
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
 
         void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
         void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;

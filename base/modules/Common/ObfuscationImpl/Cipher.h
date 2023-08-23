@@ -8,6 +8,7 @@
 #include "SecureCollection.h"
 
 #include "Common/Obfuscation/IEvpCipherWrapper.h"
+
 #include <openssl/evp.h>
 
 #include <memory>
@@ -98,5 +99,5 @@ namespace Common::ObfuscationImpl
         };
 
         const int maxPasswordSize = 128;
-    }
+    } // namespace Cipher
 } // namespace Common::ObfuscationImpl

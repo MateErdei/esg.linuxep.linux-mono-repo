@@ -80,8 +80,7 @@ namespace Common::ProcessImpl
                 // make sure all environment variables are valid.
                 if (env.first.empty())
                 {
-                    throw Common::Process::IProcessException(
-                        "Environment name cannot be empty: '' = " + env.second);
+                    throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second);
                 }
                 envArguments.push_back(env.first + '=' + env.second);
             }
@@ -114,8 +113,7 @@ namespace Common::ProcessImpl
                 // make sure all environment variables are valid.
                 if (env.first.empty())
                 {
-                    throw Common::Process::IProcessException(
-                        "Environment name cannot be empty: '' = " + env.second);
+                    throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second);
                 }
                 envArguments.push_back(env.first + '=' + env.second);
                 uniqueEnvironmentNames.insert(env.first);

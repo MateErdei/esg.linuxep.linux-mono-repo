@@ -2,10 +2,7 @@
 
 #include "UnzipFileWrapper.h"
 
-Common::ZipUtilities::UnzipFileWrapper::UnzipFileWrapper(unzFile unzipFile)
-: m_unzipFile(unzipFile)
-{
-}
+Common::ZipUtilities::UnzipFileWrapper::UnzipFileWrapper(unzFile unzipFile) : m_unzipFile(unzipFile) {}
 
 Common::ZipUtilities::UnzipFileWrapper::~UnzipFileWrapper()
 {

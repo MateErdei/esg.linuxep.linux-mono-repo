@@ -6,9 +6,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ZmqCheckerMessageHandler.h"
+
 #include "Common/Reactor/IReactor.h"
 #include "Common/ZMQWrapperApi/IContext.h"
-#include "ZmqCheckerMessageHandler.h"
 
 #include <string>
 #include <vector>
@@ -16,9 +17,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace zmqchecker
 {
     class Server
-   {
+    {
     public:
-        Server(const std::string &socketAddress, bool captureSignals, bool ignoreRequests = true);
+        Server(const std::string& socketAddress, bool captureSignals, bool ignoreRequests = true);
 
         void run();
 
@@ -33,4 +34,4 @@ namespace zmqchecker
         Common::ZMQWrapperApi::IContextSharedPtr m_ContextSharedPtr;
         bool m_ignoreRequests;
     };
-}
+} // namespace zmqchecker

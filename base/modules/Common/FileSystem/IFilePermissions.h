@@ -166,7 +166,7 @@ namespace Common::FileSystem
          * @param path
          * @param capabilities
          */
-        virtual void setFileCapabilities(const Path& path, const cap_t& capabilities) const= 0;
+        virtual void setFileCapabilities(const Path& path, const cap_t& capabilities) const = 0;
 
         /*
          * Return the inode flags that are set for a regular file or dir.
@@ -174,7 +174,7 @@ namespace Common::FileSystem
          * @param path - Path to regular file or dir
          * @return the inode flags
          */
-        virtual unsigned long getInodeFlags(const Path &path) const = 0;
+        virtual unsigned long getInodeFlags(const Path& path) const = 0;
     };
 
     /**

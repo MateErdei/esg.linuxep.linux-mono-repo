@@ -1,17 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "common/Logger.h"
-#include "ProductUninstaller.h"
 #include "SulDownloader.h"
-#include "common/SulDownloaderUtils.h"
-#include "SulDownloader/sdds3/SDDS3Utils.h"
-#include "SulDownloader/sdds3/Sdds3RepositoryFactory.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
-#include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
-#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
-#include "SulDownloader/suldownloaderdata/TimeTracker.h"
+
+#include "ProductUninstaller.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -25,14 +16,23 @@
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "SulDownloader/sdds3/SDDS3Utils.h"
+#include "SulDownloader/sdds3/Sdds3RepositoryFactory.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
+#include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
+#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
+#include "SulDownloader/suldownloaderdata/TimeTracker.h"
+#include "common/Logger.h"
+#include "common/SulDownloaderUtils.h"
 
 #include <sys/stat.h>
 
 #include <algorithm>
 #include <cassert>
-#include <thread>
-
 #include <json.hpp>
+#include <thread>
 
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
@@ -51,7 +51,6 @@ namespace
         return false;
     }
 
-
 } // namespace
 
 namespace SulDownloader
@@ -66,7 +65,8 @@ namespace SulDownloader
         }
         catch (const nlohmann::detail::exception& jsonException)
         {
-            LOGERROR("The installed features list could not be serialised for persisting to disk: " << jsonException.what());
+            LOGERROR(
+                "The installed features list could not be serialised for persisting to disk: " << jsonException.what());
         }
         catch (const Common::FileSystem::IFileSystemException& fileSystemException)
         {
@@ -91,10 +91,10 @@ namespace SulDownloader
         }
 
         const std::vector<ProductReport>& productReports = previousDownloadReport.getProducts();
-        auto productReportItr =
-            std::find_if(productReports.begin(), productReports.end(), [&product](const ProductReport& report) {
-                return report.rigidName == product.getLine();
-            });
+        auto productReportItr = std::find_if(
+            productReports.begin(),
+            productReports.end(),
+            [&product](const ProductReport& report) { return report.rigidName == product.getLine(); });
 
         if (productReportItr != productReports.end())
         {
@@ -109,13 +109,14 @@ namespace SulDownloader
         return false;
     }
 
-    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool success,
-                                                                         IRepositoryPtr repository,
-                                                                         TimeTracker& timeTracker,
-                                                                         const UpdateSettings& configurationData,
-                                                                         const DownloadReport& previousDownloadReport,
-                                                                         bool forceReinstallAllProducts,
-                                                                         const bool supplementOnly)
+    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(
+        const bool success,
+        IRepositoryPtr repository,
+        TimeTracker& timeTracker,
+        const UpdateSettings& configurationData,
+        const DownloadReport& previousDownloadReport,
+        bool forceReinstallAllProducts,
+        const bool supplementOnly)
     {
         if (!success)
         {
@@ -129,7 +130,8 @@ namespace SulDownloader
                 report = DownloadReport::Report(*repository, timeTracker);
                 if (report.getProducts().empty() && report.getRepositoryComponents().empty())
                 {
-                    // Populate report products warehouse components from previous report, so that any issues from previously update are carried over into the next update.
+                    // Populate report products warehouse components from previous report, so that any issues from
+                    // previously update are carried over into the next update.
                     report.combinePreviousReportIfRequired(previousDownloadReport);
                 }
             }
@@ -156,8 +158,7 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
             "base/update/var/updatescheduler/await_scheduled_update");
         // Only do the above behaviour if installed base version is older than 1.2.3, otherwise the issue isn't there
-        const auto baseVersionIniPath =
-            Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
+        const auto baseVersionIniPath = Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
         bool isVersionOlderThan123 = true;
         try
         {
@@ -193,13 +194,14 @@ namespace SulDownloader
                 writeForceMarkerFile = true;
                 if (SulDownloaderUtils::isEndpointPaused(configurationData))
                 {
-                    forcedUpdateMarkerFilePath = Common::ApplicationConfiguration::applicationPathManager().getForcedAPausedUpdateMarkerPath();
+                    forcedUpdateMarkerFilePath =
+                        Common::ApplicationConfiguration::applicationPathManager().getForcedAPausedUpdateMarkerPath();
                 }
                 else
                 {
-                    forcedUpdateMarkerFilePath = Common::ApplicationConfiguration::applicationPathManager().getForcedAnUpdateMarkerPath();
+                    forcedUpdateMarkerFilePath =
+                        Common::ApplicationConfiguration::applicationPathManager().getForcedAnUpdateMarkerPath();
                 }
-
             }
         }
 
@@ -293,8 +295,8 @@ namespace SulDownloader
             {
                 LOGDEBUG(
                     "Mark product to be reinstalled. Reason: AllProducts: "
-                        << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
-                        << ". Product = " << product.getLine());
+                    << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
+                    << ". Product = " << product.getLine());
                 product.setForceProductReinstall(true);
                 productChanging = true;
             }
@@ -346,7 +348,6 @@ namespace SulDownloader
             {
                 LOGWARN("Failed to create update marker file due to error: " << ex.what());
             }
-
         }
         // Note: Should only get here if Download has been successful, if no products are downloaded then
         // a warehouse error should have been generated, preventing getting this far, therefore preventing
@@ -403,7 +404,8 @@ namespace SulDownloader
         }
 
         // try to install all products and report error for those that failed (if any)
-        std::string trackerFile = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
+        std::string trackerFile =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderInstalledTrackerFile();
         fileSystem->removeFile(trackerFile, true);
         bool fullRestart = false;
         bool copyConfig = false;
@@ -412,7 +414,8 @@ namespace SulDownloader
         setenv("SOPHOS_INHIBIT_WATCHDOG_RESTART", "true", 1);
         for (auto& product : products)
         {
-            if ( (product.productHasChanged() || product.forceProductReinstall()) && !product.getProductIsBeingUninstalled())
+            if ((product.productHasChanged() || product.forceProductReinstall()) &&
+                !product.getProductIsBeingUninstalled())
             {
                 if ((product.getLine() == "ServerProtectionLinux-Base-component"))
                 {
@@ -447,7 +450,7 @@ namespace SulDownloader
                                 S_IRUSR | S_IWUSR | S_IRGRP);
                         }
                     }
-                    catch (const Common::FileSystem::IFileSystemException &exception)
+                    catch (const Common::FileSystem::IFileSystemException& exception)
                     {
                         LOGWARN(
                             "Failed to copy update config generated by thininstaller into standard location with "
@@ -470,7 +473,7 @@ namespace SulDownloader
         }
 
         std::vector<std::string> failedProducts = SulDownloaderUtils::checkUpdatedComponentsAreRunning();
-        for (const auto& failed: failedProducts)
+        for (const auto& failed : failedProducts)
         {
             for (auto& product : products)
             {
@@ -491,7 +494,8 @@ namespace SulDownloader
         {
             try
             {
-                std::string updateMarkerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+                std::string updateMarkerFile =
+                    Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
                 if (fileSystem->isFile(updateMarkerFile))
                 {
                     fileSystem->removeFile(updateMarkerFile);
@@ -510,7 +514,7 @@ namespace SulDownloader
         {
             try
             {
-                fileSystem->writeFile(forcedUpdateMarkerFilePath,"");
+                fileSystem->writeFile(forcedUpdateMarkerFilePath, "");
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
@@ -532,8 +536,6 @@ namespace SulDownloader
             supplementOnly,
             setForceInstallForAllProducts);
     }
-
-
 
     void createSdds3UpdateCacheFolders()
     {
@@ -559,18 +561,21 @@ namespace SulDownloader
         }
     }
 
-    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(const UpdateSettings& updateSettings,
-                                                              const bool supplementOnly,
-                                                              const suldownloaderdata::DownloadReport& previousDownloadReport,
-                                                              const bool forceReinstallAllProducts)
+    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(
+        const UpdateSettings& updateSettings,
+        const bool supplementOnly,
+        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        const bool forceReinstallAllProducts)
     {
         ConnectionSelector connectionSelector;
-        auto [susCandidates, connectionCandidates]  = connectionSelector.getConnectionCandidates(updateSettings);
+        auto [susCandidates, connectionCandidates] = connectionSelector.getConnectionCandidates(updateSettings);
         auto repository = Sdds3RepositoryFactory::instance().createRepository();
-        //sus
+        // sus
         for (auto& connectionCandidate : susCandidates)
         {
-            LOGDEBUG("Trying connection candidate, URL: " << connectionCandidate.getUpdateLocationURL() << ", proxy: " << connectionCandidate.getProxy().getUrl());
+            LOGDEBUG(
+                "Trying connection candidate, URL: " << connectionCandidate.getUpdateLocationURL()
+                                                     << ", proxy: " << connectionCandidate.getProxy().getUrl());
             if (repository->tryConnect(connectionCandidate, supplementOnly, updateSettings))
             {
                 break;
@@ -601,8 +606,8 @@ namespace SulDownloader
             LOGWARN("Failed to delete SDDS2 cache, reason:" << ex.what());
         }
 
-        //using iterator here instead of a for range to avoid ignoringSupplementFailure early
-        // if there is a duplicate in the list for the last candidate
+        // using iterator here instead of a for range to avoid ignoringSupplementFailure early
+        //  if there is a duplicate in the list for the last candidate
         for (auto it = connectionCandidates.begin(); it != connectionCandidates.end(); ++it)
         {
             if (repository->synchronize(updateSettings, *it, false))
@@ -690,8 +695,8 @@ namespace SulDownloader
                 LOGINFO("Running SDDS3 update");
                 // Make sure root directories are created
                 createSdds3UpdateCacheFolders();
-                repositoryResult = updateFromSDDS3Repository(updateSettings, supplementOnly, previousDownloadReport,
-                                                             forceReinstallAllProducts);
+                repositoryResult = updateFromSDDS3Repository(
+                    updateSettings, supplementOnly, previousDownloadReport, forceReinstallAllProducts);
             }
             else
             {
@@ -699,16 +704,15 @@ namespace SulDownloader
             }
         }
 
-        return processRepositoryAndGenerateReport(repositoryResult.first,
-                                                  std::move(repositoryResult.second),
-                                                  timeTracker,
-                                                  updateSettings,
-                                                  previousDownloadReport,
-                                                  forceReinstallAllProducts,
-                                                  supplementOnly);
-
+        return processRepositoryAndGenerateReport(
+            repositoryResult.first,
+            std::move(repositoryResult.second),
+            timeTracker,
+            updateSettings,
+            previousDownloadReport,
+            forceReinstallAllProducts,
+            supplementOnly);
     }
-
 
     std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& inputFilePath,
@@ -720,7 +724,7 @@ namespace SulDownloader
     {
         bool readSuccessful = false;
         auto report = DownloadReport::Report("SulDownloader failed.");
-        auto* fileSystem  = Common::FileSystem::fileSystem();
+        auto* fileSystem = Common::FileSystem::fileSystem();
         try
         {
             int readAttempt = 0;
@@ -862,14 +866,11 @@ namespace SulDownloader
             Common::FileSystem::dirName(inputFilePath),
             Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
-
         bool supplementOnly = false;
         if (!supplementOnlyMarkerFilePath.empty() && fileSystem->isFile(supplementOnlyMarkerFilePath))
         {
             supplementOnly = true;
         }
-
-
 
         // check can create the output
         if (fileSystem->isDirectory(outputFilePath))
@@ -889,9 +890,8 @@ namespace SulDownloader
         int exitCode = -1;
         std::string jsonReport;
         bool baseDowngraded = false;
-        std::tie(exitCode, jsonReport, baseDowngraded) =
-            configAndRunDownloader(inputFilePath, previousSettingFilePath, previousReportData, supplementOnly,
-                                   readFailedRetryInterval);
+        std::tie(exitCode, jsonReport, baseDowngraded) = configAndRunDownloader(
+            inputFilePath, previousSettingFilePath, previousReportData, supplementOnly, readFailedRetryInterval);
 
         if (exitCode == 0)
         {
@@ -924,8 +924,7 @@ namespace SulDownloader
         return exitCode;
     }
 
-    int main_entry(int argc, char* argv[],
-                   std::chrono::milliseconds readFailedRetryInterval)
+    int main_entry(int argc, char* argv[], std::chrono::milliseconds readFailedRetryInterval)
     {
         umask(S_IRWXG | S_IRWXO);
         // Configure logging
@@ -960,7 +959,8 @@ namespace SulDownloader
 
         try
         {
-            return fileEntriesAndRunDownloader(inputPath, outputPath, supplementOnlyMarkerPath, readFailedRetryInterval);
+            return fileEntriesAndRunDownloader(
+                inputPath, outputPath, supplementOnlyMarkerPath, readFailedRetryInterval);
         } // failed or unable to either read or to write files
         catch (std::exception& ex)
         {

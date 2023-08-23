@@ -18,4 +18,4 @@ namespace watchdog::watchdogimpl
 
         UpdateServiceReportError() : WatchdogServiceException(ErrorReported()) {}
     };
-} // namespace watchdog
+} // namespace watchdog::watchdogimpl

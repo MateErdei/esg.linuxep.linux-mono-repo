@@ -36,7 +36,10 @@ namespace watchdog::watchdogimpl
         return userGroupContents;
     }
 
-    std::set<std::string> getInvalidIdsToRemove(const std::string& jsonKey, const WatchdogUserGroupIDs& requestedConfigJson, const WatchdogUserGroupIDs& actualConfigJson)
+    std::set<std::string> getInvalidIdsToRemove(
+        const std::string& jsonKey,
+        const WatchdogUserGroupIDs& requestedConfigJson,
+        const WatchdogUserGroupIDs& actualConfigJson)
     {
         std::set<std::string> idsToRemove;
 
@@ -58,7 +61,8 @@ namespace watchdog::watchdogimpl
             catch (Common::FileSystem::IFileSystemException& exception)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Failed to verify that there are no duplicate " << jsonKey << " on the system when reconfiguring IDs due to: " << exception.what();
+                errorMessage << "Failed to verify that there are no duplicate " << jsonKey
+                             << " on the system when reconfiguring IDs due to: " << exception.what();
                 throw std::runtime_error(errorMessage.str());
             }
 
@@ -96,7 +100,9 @@ namespace watchdog::watchdogimpl
                         // Prevent noisy logging for when the ID change has already been performed
                         if (name != existingName)
                         {
-                            LOGWARN("Will not perform requested ID change on " << name << " as ID (" << id << ") is already used by " << existingName);
+                            LOGWARN(
+                                "Will not perform requested ID change on " << name << " as ID (" << id
+                                                                           << ") is already used by " << existingName);
                         }
                         idsToRemove.insert(name);
                         break;
@@ -107,7 +113,10 @@ namespace watchdog::watchdogimpl
                 {
                     if (name != nameToCheckForDups && id == idToCheckForDups)
                     {
-                        LOGWARN("Will not update " << name << " to ID " << id << " because the ID is not unique in config. Conflict exists with: " << nameToCheckForDups);
+                        LOGWARN(
+                            "Will not update "
+                            << name << " to ID " << id
+                            << " because the ID is not unique in config. Conflict exists with: " << nameToCheckForDups);
                         idsToRemove.insert(name);
                         break;
                     }
@@ -125,7 +134,8 @@ namespace watchdog::watchdogimpl
         WatchdogUserGroupIDs verifiedUsersAndGroups = std::move(configJson);
         WatchdogUserGroupIDs actualUserGroupConfigJson;
 
-        std::string actualConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+        std::string actualConfigPath =
+            Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
         std::string actualConfigContent;
         try
         {
@@ -139,12 +149,16 @@ namespace watchdog::watchdogimpl
         }
         catch (const nlohmann::detail::exception& exception)
         {
-            LOGWARN("Failed to parse the contents of " << actualConfigPath << ", " << exception.what() << ", content: " << actualConfigContent);
+            LOGWARN(
+                "Failed to parse the contents of " << actualConfigPath << ", " << exception.what()
+                                                   << ", content: " << actualConfigContent);
             return {};
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Failed to read " << actualConfigPath << " to verify the requested user and group ID changes due to, " << exception.what());
+            LOGWARN(
+                "Failed to read " << actualConfigPath << " to verify the requested user and group ID changes due to, "
+                                  << exception.what());
             return {};
         }
 
@@ -152,7 +166,8 @@ namespace watchdog::watchdogimpl
         {
             if (verifiedUsersAndGroups.contains(GROUPS_KEY))
             {
-                std::set<std::string> groupsToRemove = getInvalidIdsToRemove(GROUPS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
+                std::set<std::string> groupsToRemove =
+                    getInvalidIdsToRemove(GROUPS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
 
                 for (const auto& groupToRemove : groupsToRemove)
                 {
@@ -162,7 +177,8 @@ namespace watchdog::watchdogimpl
 
             if (verifiedUsersAndGroups.contains(USERS_KEY))
             {
-                std::set<std::string> usersToRemove = getInvalidIdsToRemove(USERS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
+                std::set<std::string> usersToRemove =
+                    getInvalidIdsToRemove(USERS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
 
                 for (const auto& userToRemove : usersToRemove)
                 {
@@ -196,9 +212,12 @@ namespace watchdog::watchdogimpl
         std::string strippedContent;
         try
         {
-            if (Common::FileSystem::filePermissions()->getFilePermissions(requestedConfigPath) != (S_IFREG | S_IRUSR | S_IWUSR))
+            if (Common::FileSystem::filePermissions()->getFilePermissions(requestedConfigPath) !=
+                (S_IFREG | S_IRUSR | S_IWUSR))
             {
-                LOGWARN("Requested IDs config file " + requestedConfigPath + " does not have the accepted permissions (0600)");
+                LOGWARN(
+                    "Requested IDs config file " + requestedConfigPath +
+                    " does not have the accepted permissions (0600)");
                 return {};
             }
 
@@ -215,11 +234,15 @@ namespace watchdog::watchdogimpl
         }
         catch (const nlohmann::detail::exception& exception)
         {
-            LOGWARN("Failed to parse the requested user and group IDs file: " << requestedConfigPath << ", " << exception.what() << ", content: " << strippedContent);
+            LOGWARN(
+                "Failed to parse the requested user and group IDs file: "
+                << requestedConfigPath << ", " << exception.what() << ", content: " << strippedContent);
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Failed to access the requested user and group IDs file: " << requestedConfigPath << ", " << exception.what());
+            LOGWARN(
+                "Failed to access the requested user and group IDs file: " << requestedConfigPath << ", "
+                                                                           << exception.what());
         }
         return {};
     }
@@ -250,7 +273,8 @@ namespace watchdog::watchdogimpl
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGERROR("Failed to set group ID of " << filePath << " to " << newGroupId << " due to: " << exception.what());
+            LOGERROR(
+                "Failed to set group ID of " << filePath << " to " << newGroupId << " due to: " << exception.what());
         }
     }
 
@@ -334,7 +358,9 @@ namespace watchdog::watchdogimpl
 
     void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId)
     {
-        LOGDEBUG("Remapping user IDs of directory entries in " << rootPath << " from " << currentUserId << " to " << newUserId);
+        LOGDEBUG(
+            "Remapping user IDs of directory entries in " << rootPath << " from " << currentUserId << " to "
+                                                          << newUserId);
         auto filePermissions = Common::FileSystem::filePermissions();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
@@ -357,11 +383,15 @@ namespace watchdog::watchdogimpl
                 }
                 catch (const Common::FileSystem::IFileNotFoundException& exception)
                 {
-                    LOGDEBUG("Failed to remap user ID of " << entry << " to " << newUserId << " because the file no longer exists");
+                    LOGDEBUG(
+                        "Failed to remap user ID of " << entry << " to " << newUserId
+                                                      << " because the file no longer exists");
                 }
                 catch (const Common::FileSystem::IFileSystemException& exception)
                 {
-                    LOGERROR("Failed to remap user ID of " << entry << " to " << newUserId << " due to: " << exception.what());
+                    LOGERROR(
+                        "Failed to remap user ID of " << entry << " to " << newUserId
+                                                      << " due to: " << exception.what());
                 }
             }
         }
@@ -373,7 +403,9 @@ namespace watchdog::watchdogimpl
 
     void remapGroupIdOfFiles(const std::string& rootPath, gid_t currentGroupId, gid_t newGroupId)
     {
-        LOGDEBUG("Remapping group IDs of directory entries in " << rootPath << " from " << currentGroupId << " to " << newGroupId);
+        LOGDEBUG(
+            "Remapping group IDs of directory entries in " << rootPath << " from " << currentGroupId << " to "
+                                                           << newGroupId);
         auto filePermissions = Common::FileSystem::filePermissions();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
@@ -396,11 +428,15 @@ namespace watchdog::watchdogimpl
                 }
                 catch (const Common::FileSystem::IFileNotFoundException& exception)
                 {
-                    LOGDEBUG("Failed to remap group ID of " << entry << " to " << newGroupId << " because the file no longer exists");
+                    LOGDEBUG(
+                        "Failed to remap group ID of " << entry << " to " << newGroupId
+                                                       << " because the file no longer exists");
                 }
                 catch (const Common::FileSystem::IFileSystemException& exception)
                 {
-                    LOGERROR("Failed to remap group ID of " << entry << " to " << newGroupId << " due to: " << exception.what());
+                    LOGERROR(
+                        "Failed to remap group ID of " << entry << " to " << newGroupId
+                                                       << " due to: " << exception.what());
                 }
             }
         }
@@ -432,7 +468,9 @@ namespace watchdog::watchdogimpl
                 }
                 catch (const std::exception& exception)
                 {
-                    LOGERROR("Failed to reconfigure " << userName << " user ID to " << newUserId << ": " << exception.what());
+                    LOGERROR(
+                        "Failed to reconfigure " << userName << " user ID to " << newUserId << ": "
+                                                 << exception.what());
                 }
             }
         }
@@ -452,7 +490,9 @@ namespace watchdog::watchdogimpl
                 }
                 catch (const std::exception& exception)
                 {
-                    LOGERROR("Failed to reconfigure " << groupName << " group ID to " << newGroupId << ": " << exception.what());
+                    LOGERROR(
+                        "Failed to reconfigure " << groupName << " group ID to " << newGroupId << ": "
+                                                 << exception.what());
                 }
             }
         }

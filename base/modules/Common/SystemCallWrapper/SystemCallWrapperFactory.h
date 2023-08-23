@@ -13,4 +13,4 @@ namespace Common::SystemCallWrapper
     public:
         ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
     };
-}
+} // namespace Common::SystemCallWrapper

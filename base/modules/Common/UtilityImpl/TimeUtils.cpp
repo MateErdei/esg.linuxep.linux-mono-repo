@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/sysinfo.h>
 
 #include <cassert>
-#include <iomanip>
 #include <chrono>
+#include <iomanip>
 
 namespace
 {
@@ -28,7 +28,9 @@ namespace
 
 namespace Common::UtilityImpl
 {
-    std::string TimeUtils::MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity) noexcept
+    std::string TimeUtils::MessageTimeStamp(
+        const std::chrono::system_clock::time_point& time_point,
+        Common::UtilityImpl::Granularity granularity) noexcept
     {
         auto tt{ std::chrono::system_clock::to_time_t(time_point) };
         std::tm gmtime{};
@@ -58,9 +60,15 @@ namespace Common::UtilityImpl
         return fromTime(time_tm, format);
     }
 
-    std::time_t TimeUtils::getCurrTime() { return staticTimeSource()->getCurrentTime(); }
+    std::time_t TimeUtils::getCurrTime()
+    {
+        return staticTimeSource()->getCurrentTime();
+    }
 
-    std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet(), "%Y%m%d %H%M%S"); }
+    std::string TimeUtils::getBootTime()
+    {
+        return fromTime(getBootTimeAsTimet(), "%Y%m%d %H%M%S");
+    }
 
     std::time_t TimeUtils::getBootTimeAsTimet()
     {
@@ -111,11 +119,20 @@ namespace Common::UtilityImpl
         return timegm(&timebuffer); // should be UTC time
     }
 
-    std::string TimeUtils::fromTime(std::time_t time_) { return fromTime(time_, "%Y%m%d %H%M%S"); }
+    std::string TimeUtils::fromTime(std::time_t time_)
+    {
+        return fromTime(time_, "%Y%m%d %H%M%S");
+    }
 
-    std::string TimeUtils::fromTime(std::tm time_tm) { return fromTime(time_tm, "%Y%m%d %H%M%S"); }
+    std::string TimeUtils::fromTime(std::tm time_tm)
+    {
+        return fromTime(time_tm, "%Y%m%d %H%M%S");
+    }
 
-    std::time_t TimeUtils::toTime(const std::string& str) { return toTime(str, "%Y%m%d %H%M%S"); }
+    std::time_t TimeUtils::toTime(const std::string& str)
+    {
+        return toTime(str, "%Y%m%d %H%M%S");
+    }
 
     std::string TimeUtils::toEpochTime(const std::string& dateTime)
     {
@@ -129,21 +146,16 @@ namespace Common::UtilityImpl
 
     long int TimeUtils::getMinutesSince(std::string timestamp)
     {
-
         tm tm = {};
         std::stringstream ss(timestamp);
         ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
 
-        std::chrono::system_clock::time_point then =
-            std::chrono::system_clock::from_time_t(mktime(&tm));
+        std::chrono::system_clock::time_point then = std::chrono::system_clock::from_time_t(mktime(&tm));
 
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        return
-            std::chrono::duration_cast<std::chrono::minutes>(
-                now.time_since_epoch()-
-                then.time_since_epoch()
-                    ).count();
+        return std::chrono::duration_cast<std::chrono::minutes>(now.time_since_epoch() - then.time_since_epoch())
+            .count();
     }
 
     // copied from SED
@@ -164,7 +176,10 @@ namespace Common::UtilityImpl
     {
         return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S");
     }
-    std::string FormattedTime::bootTime() const { return TimeUtils::getBootTime(); }
+    std::string FormattedTime::bootTime() const
+    {
+        return TimeUtils::getBootTime();
+    }
 
     std::string FormattedTime::currentEpochTimeInSeconds() const
     {
@@ -181,5 +196,8 @@ namespace Common::UtilityImpl
         staticTimeSource().reset(mockTimer.release());
     }
 
-    ScopedReplaceITime::~ScopedReplaceITime() { staticTimeSource().reset(new TimeSource{}); }
+    ScopedReplaceITime::~ScopedReplaceITime()
+    {
+        staticTimeSource().reset(new TimeSource{});
+    }
 } // namespace Common::UtilityImpl

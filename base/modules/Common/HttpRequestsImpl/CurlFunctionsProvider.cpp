@@ -12,10 +12,7 @@ size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb
 {
     auto* buffer = reinterpret_cast<WriteBackBuffer*>(voidBuffer);
     size_t totalSizeBytes = size * nmemb;
-    if (buffer->tooBig_ || (
-         buffer->maxSize_ > 0 && totalSizeBytes + buffer->buffer_.size() > buffer->maxSize_
-         )
-    )
+    if (buffer->tooBig_ || (buffer->maxSize_ > 0 && totalSizeBytes + buffer->buffer_.size() > buffer->maxSize_))
     {
         // too much data
         buffer->tooBig_ = true;

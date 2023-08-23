@@ -111,4 +111,4 @@ namespace Common::OSUtilitiesImpl
             return "";
         }
     }
-}
+} // namespace Common::OSUtilitiesImpl

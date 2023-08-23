@@ -4,10 +4,9 @@
 
 #include "Logger.h"
 
-#include "Common/ProcessMonitoringImpl/SignalHandler.h"
-
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/ProcessMonitoringImpl/SignalHandler.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
@@ -17,16 +16,17 @@
 
 namespace Common::ProcessMonitoringImpl
 {
-    ProcessMonitor::ProcessMonitor()
-        : ProcessMonitor(Common::ZMQWrapperApi::createContext())
-    {}
+    ProcessMonitor::ProcessMonitor() : ProcessMonitor(Common::ZMQWrapperApi::createContext()) {}
 
     ProcessMonitor::ProcessMonitor(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(std::move(context))
     {
         m_processTerminationCallbackPipe = std::make_shared<Common::Threads::NotifyPipe>();
     }
 
-    ProcessMonitor::~ProcessMonitor() { m_context.reset(); }
+    ProcessMonitor::~ProcessMonitor()
+    {
+        m_context.reset();
+    }
 
     int ProcessMonitor::run()
     {
@@ -88,9 +88,7 @@ namespace Common::ProcessMonitoringImpl
                 if (fd == callbackFD.get())
                 {
                     // Wake up to collect terminations, and restart processes
-                    while (m_processTerminationCallbackPipe->notified())
-                    {
-                    }
+                    while (m_processTerminationCallbackPipe->notified()) {}
                 }
                 for (auto& socketHandleFunction : m_socketHandleFunctionList)
                 {
@@ -103,8 +101,7 @@ namespace Common::ProcessMonitoringImpl
                         catch (const std::exception& exception)
                         {
                             LOGERROR(
-                                "Unexpected error occurred when handling socket communication: "
-                                << exception.what());
+                                "Unexpected error occurred when handling socket communication: " << exception.what());
                         }
                         catch (...)
                         {

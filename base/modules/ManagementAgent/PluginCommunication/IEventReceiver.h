@@ -30,7 +30,6 @@ namespace ManagementAgent::PluginCommunication
          * @return
          */
         [[nodiscard]] virtual bool outbreakMode() const = 0;
-
     };
 
     using IEventReceiverPtr = std::shared_ptr<IEventReceiver>;

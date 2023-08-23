@@ -25,4 +25,4 @@ namespace Common::Policy
         std::string username_;
         std::string password_;
     };
-}
+} // namespace Common::Policy

@@ -2,9 +2,9 @@
 
 #include "TaskProcessorImpl.h"
 
-#include <utility>
-
 #include "Logger.h"
+
+#include <utility>
 
 Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue) :
     m_thread(std::move(taskQueue))
@@ -28,10 +28,7 @@ namespace
     {
     public:
         explicit StopTask(Common::Threads::AbstractThread& thread) : m_thread(thread) {}
-        void run() override
-        {
-            m_thread.requestStop();
-        }
+        void run() override { m_thread.requestStop(); }
 
     private:
         Common::Threads::AbstractThread& m_thread;

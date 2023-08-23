@@ -7,6 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
+
 #include <sys/stat.h>
 
 using namespace ManagementAgent::StatusCache;
@@ -83,7 +84,8 @@ namespace ManagementAgent::StatusCacheImpl
                 Common::FileSystem::fileSystem()->removeFile(statusCacheFullFilePath);
             }
             Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
-            Common::FileSystem::filePermissions()->chmod(statusCacheFullFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+            Common::FileSystem::filePermissions()->chmod(
+                statusCacheFullFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         }
         catch (Common::FileSystem::IFileSystemException& e)
         {

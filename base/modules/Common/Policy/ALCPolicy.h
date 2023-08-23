@@ -7,9 +7,9 @@
 #include "Common/XmlUtilities/AttributesMap.h"
 
 #include <chrono>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 namespace Common::Policy
 {

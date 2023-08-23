@@ -25,6 +25,7 @@ namespace SulDownloader::suldownloaderdata
     {
     private:
         ConfigurationData() = delete;
+
     public:
         // Static utility functions
 
@@ -47,13 +48,12 @@ namespace SulDownloader::suldownloaderdata
         static std::string toJsonSettings(const Common::Policy::UpdateSettings&);
 
         /**
-         * Retrieve the Proxy URL and Credentials for authenticated proxy in the format http(s)://username:password@192.168.0.1:8080
-         * proxyurl without credentials is passed through as is.
+         * Retrieve the Proxy URL and Credentials for authenticated proxy in the format
+         * http(s)://username:password@192.168.0.1:8080 proxyurl without credentials is passed through as is.
          * @param savedProxyURL the string with proxy url and optionally credentials as can be used on command line
          * @return Proxy object
          */
         static std::optional<Common::Policy::Proxy> proxyFromSavedProxyUrl(const std::string& savedProxyURL);
-
 
         static std::optional<Common::Policy::Proxy> currentMcsProxy();
 
@@ -65,6 +65,5 @@ namespace SulDownloader::suldownloaderdata
          * @return list of proxies to try to connection.
          */
         static std::vector<Common::Policy::Proxy> proxiesList(const Common::Policy::UpdateSettings&);
-
     };
 } // namespace SulDownloader::suldownloaderdata

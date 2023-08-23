@@ -13,9 +13,7 @@ namespace RemoteDiagnoseImpl::runnerModule
     class DiagnoseResultDirectoryListener : public Common::DirectoryWatcher::IDirectoryWatcherListener
     {
     public:
-        explicit DiagnoseResultDirectoryListener(
-            const std::string& directory,
-            const std::string& nameOfFileToWaitFor);
+        explicit DiagnoseResultDirectoryListener(const std::string& directory, const std::string& nameOfFileToWaitFor);
 
         std::string getPath() const override;
 

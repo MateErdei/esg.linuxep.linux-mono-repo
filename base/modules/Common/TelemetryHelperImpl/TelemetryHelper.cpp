@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryHelper.h"
 
 #include "Logger.h"
+#include "TelemetryFieldStructure.h"
 #include "TelemetrySerialiser.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -33,21 +34,48 @@ namespace Common::Telemetry
         m_fileSystem = std::move(fs);
     }
 
-    void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
-    void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value, false); }
+    void TelemetryHelper::set(const std::string& key, long value)
+    {
+        setInternal(key, value, false);
+    }
+    void TelemetryHelper::set(const std::string& key, unsigned long value)
+    {
+        setInternal(key, value, false);
+    }
 
-    void TelemetryHelper::set(const std::string& key, double value) { setInternal(key, value, false); }
+    void TelemetryHelper::set(const std::string& key, double value)
+    {
+        setInternal(key, value, false);
+    }
 
-    void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value, false); }
-    void TelemetryHelper::set(const std::string& key, const char* value) { setInternal(key, value, false); }
+    void TelemetryHelper::set(const std::string& key, const std::string& value)
+    {
+        setInternal(key, value, false);
+    }
+    void TelemetryHelper::set(const std::string& key, const char* value)
+    {
+        setInternal(key, value, false);
+    }
 
-    void TelemetryHelper::set(const std::string& key, bool value) { setInternal(key, value, false); }
+    void TelemetryHelper::set(const std::string& key, bool value)
+    {
+        setInternal(key, value, false);
+    }
 
-    void TelemetryHelper::increment(const std::string& key, long value) { incrementInternal(key, value); }
+    void TelemetryHelper::increment(const std::string& key, long value)
+    {
+        incrementInternal(key, value);
+    }
 
-    void TelemetryHelper::increment(const std::string& key, unsigned long value) { incrementInternal(key, value); }
+    void TelemetryHelper::increment(const std::string& key, unsigned long value)
+    {
+        incrementInternal(key, value);
+    }
 
-    void TelemetryHelper::appendValue(const std::string& arrayKey, long value) { appendValueInternal(arrayKey, value); }
+    void TelemetryHelper::appendValue(const std::string& arrayKey, long value)
+    {
+        appendValueInternal(arrayKey, value);
+    }
 
     void TelemetryHelper::appendValue(const std::string& arrayKey, unsigned long value)
     {
@@ -69,7 +97,10 @@ namespace Common::Telemetry
         appendValueInternal(arrayKey, value);
     }
 
-    void TelemetryHelper::appendValue(const std::string& arrayKey, bool value) { appendValueInternal(arrayKey, value); }
+    void TelemetryHelper::appendValue(const std::string& arrayKey, bool value)
+    {
+        appendValueInternal(arrayKey, value);
+    }
 
     void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, long value)
     {
@@ -311,7 +342,10 @@ namespace Common::Telemetry
         }
     }
 
-    void TelemetryHelper::noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot) { m_root = savedTelemetryRoot; }
+    void TelemetryHelper::noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot)
+    {
+        m_root = savedTelemetryRoot;
+    }
 
     void TelemetryHelper::save()
     {

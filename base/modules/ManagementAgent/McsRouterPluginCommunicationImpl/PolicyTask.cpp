@@ -22,7 +22,8 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
             return;
         }
 
-        int newPolicyResult = m_pluginManager.applyNewPolicy(appId, Common::FileSystem::basename(m_filePath), m_pluginName);
+        int newPolicyResult =
+            m_pluginManager.applyNewPolicy(appId, Common::FileSystem::basename(m_filePath), m_pluginName);
         LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
     }
 
@@ -30,9 +31,7 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
         ManagementAgent::PluginCommunication::IPluginManager& pluginManager,
         std::string filePath,
         const std::string& pluginName) :
-        m_pluginManager(pluginManager),
-        m_filePath(std::move(filePath)),
-        m_pluginName(pluginName)
+        m_pluginManager(pluginManager), m_filePath(std::move(filePath)), m_pluginName(pluginName)
     {
     }
 } // namespace ManagementAgent::McsRouterPluginCommunicationImpl

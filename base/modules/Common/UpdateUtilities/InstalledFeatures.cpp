@@ -2,14 +2,14 @@
 
 #include "InstalledFeatures.h"
 
-#include <json.hpp>
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 
 #include <sys/stat.h>
+
+#include <json.hpp>
 #include <string>
 #include <vector>
 

@@ -19,4 +19,4 @@ namespace Common::Policy
         static UpdateSettings fromJsonSettings(const std::string& settingsString);
         static std::string toJsonSettings(const UpdateSettings& configurationData);
     };
-}
+} // namespace Common::Policy

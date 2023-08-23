@@ -40,7 +40,8 @@ namespace
         }
         else
         {
-            if (Common::UtilityImpl::StringUtils::isSubstring(filename, "_action_") && Common::UtilityImpl::StringUtils::endswith(filename, ".xml") )
+            if (Common::UtilityImpl::StringUtils::isSubstring(filename, "_action_") &&
+                Common::UtilityImpl::StringUtils::endswith(filename, ".xml"))
             {
                 actionFilenameFields.m_appId = fileNameFields[0];
                 actionFilenameFields.m_correlationId = "";
@@ -49,12 +50,11 @@ namespace
         }
         return actionFilenameFields;
     }
-}
+} // namespace
 ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
     ManagementAgent::PluginCommunication::IPluginManager& pluginManager,
     const std::string& filePath) :
-    m_pluginManager(pluginManager),
-    m_filePath(filePath)
+    m_pluginManager(pluginManager), m_filePath(filePath)
 {
 }
 
@@ -101,6 +101,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         return;
     }
 
-    int pluginsNotified = m_pluginManager.queueAction(actionFilenameFields.m_appId,  Common::FileSystem::basename(m_filePath), actionFilenameFields.m_correlationId);
+    int pluginsNotified = m_pluginManager.queueAction(
+        actionFilenameFields.m_appId, Common::FileSystem::basename(m_filePath), actionFilenameFields.m_correlationId);
     LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
 }

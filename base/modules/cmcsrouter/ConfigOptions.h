@@ -8,9 +8,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MessageRelay.h"
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace MCS
 {

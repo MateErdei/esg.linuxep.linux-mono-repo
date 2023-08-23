@@ -4,9 +4,8 @@
 
 #include "DataMessage.h"
 
-#include "Common/PluginApi/StatusInfo.h"
-
 #include "Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/PluginApi/StatusInfo.h"
 namespace Common::PluginProtocol
 {
     class MessageBuilder
@@ -36,7 +35,6 @@ namespace Common::PluginProtocol
         DataMessage requestRequestTelemetryMessage() const;
         DataMessage requestRequestHealthMessage() const;
         DataMessage sendThreatHealthMessage(const std::string& threatHealthJson) const;
-
 
         /** Extracting information from requests as server **/
         std::string requestExtractEvent(const DataMessage&) const;

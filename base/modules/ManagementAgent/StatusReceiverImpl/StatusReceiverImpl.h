@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include "ManagementAgent/StatusCache/IStatusCache.h"
-
 #include "Common/TaskQueue/ITaskQueue.h"
 #include "ManagementAgent/PluginCommunication/IStatusReceiver.h"
+#include "ManagementAgent/StatusCache/IStatusCache.h"
 
 namespace ManagementAgent::StatusReceiverImpl
 {
@@ -16,8 +15,7 @@ namespace ManagementAgent::StatusReceiverImpl
             Common::TaskQueue::ITaskQueueSharedPtr taskQueue,
             const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache);
 
-        void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo)
-            override;
+        void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) override;
 
     private:
         Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;

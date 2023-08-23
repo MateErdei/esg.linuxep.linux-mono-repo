@@ -1,5 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #include "ApplicationPaths.h"
+
 #include "Logger.h"
 #include "config.h"
 
@@ -19,6 +20,3 @@ std::string ResponsePlugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");
 }
-
-
-

@@ -1,9 +1,9 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "BoostProcessHolder.h"
 
-#include "Common/Process/IProcessException.h"
 #include "Logger.h"
 
+#include "Common/Process/IProcessException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
@@ -12,6 +12,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #include "Common/FileSystem/IFilePermissions.h"
+
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>
@@ -82,7 +83,6 @@ namespace Common::ProcessImpl
         template<typename Sequence>
         void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
         {
-
             // Must set groups first whilst still root
             std::string userName = Common::FileSystem::filePermissions()->getUserName(m_uid);
 
@@ -90,7 +90,9 @@ namespace Common::ProcessImpl
             {
                 if (::initgroups(userName.c_str(), m_gid) != 0)
                 {
-                    exec.set_error(boost::process::detail::get_last_error(), "initgroups failed for: " + userName + " with errno " + std::to_string(errno));
+                    exec.set_error(
+                        boost::process::detail::get_last_error(),
+                        "initgroups failed for: " + userName + " with errno " + std::to_string(errno));
                     return;
                 }
             }
@@ -121,12 +123,9 @@ namespace Common::ProcessImpl
         boost::asio::async_read(
             asyncPipeOut,
             boost::asio::buffer(m_bufferForIOServiceOut),
-            [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t {
-                return this->completionCondition(ec, size,m_bufferForIOServiceOut);
-            },
-            [this](const boost::system::error_code& ec, std::size_t size) {
-                return this->handleOutMessage(ec, size);
-            });
+            [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t
+            { return this->completionCondition(ec, size,  m_bufferForIOServiceOut); },
+            [this](const boost::system::error_code& ec, std::size_t size) { return this->handleOutMessage(ec, size); });
     }
 
     void BoostProcessHolder::armAsyncReaderForChildStdErr()
@@ -134,14 +133,10 @@ namespace Common::ProcessImpl
         boost::asio::async_read(
             asyncPipeErr,
             boost::asio::buffer(m_bufferForIOServiceErr),
-            [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t {
-                return this->completionCondition(ec, size,m_bufferForIOServiceErr);
-            },
-            [this](const boost::system::error_code& ec, std::size_t size) {
-                return this->handleErrMessage(ec, size);
-            });
+            [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t
+            { return this->completionCondition(ec, size,  m_bufferForIOServiceErr); },
+            [this](const boost::system::error_code& ec, std::size_t size) { return this->handleErrMessage(ec, size); });
     }
-
 
     /** Method that is executed when the asio io service detects that either an error occurred or the
      *  given buffer was full.
@@ -176,8 +171,8 @@ namespace Common::ProcessImpl
                 // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
                 if (m_outputLimit == 0)
                 {
-                    m_stdout +=
-                        std::string(this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
+                    m_stdout += std::string(
+                        this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
                 }
                 else
                 {
@@ -199,10 +194,10 @@ namespace Common::ProcessImpl
                     }
                     // notice the absence of += the output has been assigned the latest value in the
                     // m_bufferForIOServiceOut.
-                    m_stdout =
-                        std::string(this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
+                    m_stdout = std::string(
+                        this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
 
-                    if (shouldBufferBeFlushed(size,m_bufferForIOServiceOut))
+                    if (shouldBufferBeFlushed(size, m_bufferForIOServiceOut))
                     {
                         m_notifyTrimmed(m_stdout);
                         m_stdout = "";
@@ -241,8 +236,8 @@ namespace Common::ProcessImpl
                 // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
                 if (m_outputLimit == 0)
                 {
-                    m_stderr +=
-                        std::string(this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
+                    m_stderr += std::string(
+                        this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
                 }
                 else
                 {
@@ -264,10 +259,10 @@ namespace Common::ProcessImpl
                     }
                     // notice the absence of += the output has been assigned the latest value in the
                     // m_bufferForIOServiceErr.
-                    m_stderr =
-                        std::string(this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
+                    m_stderr = std::string(
+                        this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
 
-                    if (shouldBufferBeFlushed(size,m_bufferForIOServiceErr))
+                    if (shouldBufferBeFlushed(size, m_bufferForIOServiceErr))
                     {
                         m_notifyTrimmed(m_stderr);
                         m_stderr = "";
@@ -328,7 +323,7 @@ namespace Common::ProcessImpl
                 result.output = m_stdout;
                 result.errorlog = m_stderr;
             }
-            result.exitCode = m_child->exit_code(); // Signal overloaded with exit code
+            result.exitCode = m_child->exit_code();              // Signal overloaded with exit code
             result.nativeExitCode = m_child->native_exit_code(); // Separate signal and exit code
             /*
              * Use native_exit_code to allow us to differentiate signals and exit codes.
@@ -399,7 +394,10 @@ namespace Common::ProcessImpl
         }
     }
 
-    std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size, std::vector<char>& buffer)
+    std::size_t BoostProcessHolder::completionCondition(
+        const boost::system::error_code& ec,
+        std::size_t size,
+        std::vector<char>& buffer)
     {
         if (ec.value() != 0)
         {
@@ -411,7 +409,7 @@ namespace Common::ProcessImpl
             return m_outputLimit == 0 ? buffer.size() : m_outputLimit;
         }
 
-        if (shouldBufferBeFlushed(size,buffer))
+        if (shouldBufferBeFlushed(size, buffer))
         {
             return 0;
         }
@@ -461,7 +459,7 @@ namespace Common::ProcessImpl
         int sinkErr = asyncPipeErr.native_sink();
         int sourceOut = asyncPipeOut.native_source();
         int sinkOut = asyncPipeOut.native_sink();
-        auto fds = getFileDescriptorsToCloseAfterFork({ sourceErr, sinkErr, sourceOut, sinkOut});
+        auto fds = getFileDescriptorsToCloseAfterFork({ sourceErr, sinkErr, sourceOut, sinkOut });
         m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
             boost::process::exe = path,
             boost::process::args = arguments,
@@ -498,9 +496,15 @@ namespace Common::ProcessImpl
         }
     }
 
-    int BoostProcessHolder::pid() { return m_pid; }
+    int BoostProcessHolder::pid()
+    {
+        return m_pid;
+    }
 
-    void BoostProcessHolder::wait() { cacheResult(); }
+    void BoostProcessHolder::wait()
+    {
+        cacheResult();
+    }
 
     Process::ProcessStatus BoostProcessHolder::wait(std::chrono::milliseconds timeToWait)
     {
@@ -545,9 +549,9 @@ namespace Common::ProcessImpl
         }
         if (!m_cached.output.empty() && !m_cached.errorlog.empty())
         {
-            return m_cached.output +"\n"+m_cached.errorlog;
+            return m_cached.output + "\n" + m_cached.errorlog;
         }
-        else if(!m_cached.output.empty())
+        else if (!m_cached.output.empty())
         {
             return m_cached.output;
         }
@@ -555,7 +559,6 @@ namespace Common::ProcessImpl
         {
             return m_cached.errorlog;
         }
-
     }
 
     std::string BoostProcessHolder::stderroutput()
@@ -570,7 +573,10 @@ namespace Common::ProcessImpl
         return m_cached.output;
     }
 
-    bool BoostProcessHolder::hasFinished() { return m_status == Process::ProcessStatus::FINISHED; }
+    bool BoostProcessHolder::hasFinished()
+    {
+        return m_status == Process::ProcessStatus::FINISHED;
+    }
 
     void BoostProcessHolder::sendTerminateSignal()
     {
@@ -615,12 +621,11 @@ namespace Common::ProcessImpl
         cacheResult();
     }
 
-    bool BoostProcessHolder::shouldBufferBeFlushed(std::size_t size,std::vector<char>& buffer)
+    bool BoostProcessHolder::shouldBufferBeFlushed(std::size_t size, std::vector<char>& buffer)
     {
         if (m_enableBufferFlushOnNewLine)
         {
-            return std::find(buffer.begin(), buffer.begin() + size, '\n') !=
-                   buffer.end();
+            return std::find(buffer.begin(), buffer.begin() + size, '\n') != buffer.end();
         }
         return false;
     }

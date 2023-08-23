@@ -16,4 +16,4 @@ namespace Common::SystemCallWrapper
     };
 
     using ISystemCallWrapperFactorySharedPtr = std::shared_ptr<ISystemCallWrapperFactory>;
-}
+} // namespace Common::SystemCallWrapper

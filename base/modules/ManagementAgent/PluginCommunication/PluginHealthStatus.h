@@ -37,7 +37,8 @@ namespace ManagementAgent::PluginCommunication
         bool operator==(const PluginHealthStatus& rhs) const
         {
             return this->healthValue == rhs.healthValue && this->displayName == rhs.displayName &&
-                   this->healthValue == rhs.healthValue && this->activeHeartbeat == rhs.activeHeartbeat && this->activeHeartbeatUtmId == rhs.activeHeartbeatUtmId;
+                   this->healthValue == rhs.healthValue && this->activeHeartbeat == rhs.activeHeartbeat &&
+                   this->activeHeartbeatUtmId == rhs.activeHeartbeatUtmId;
         }
 
         std::string displayName;

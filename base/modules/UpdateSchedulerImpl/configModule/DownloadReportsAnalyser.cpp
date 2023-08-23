@@ -1,11 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DownloadReportsAnalyser.h"
 
-#include "UpdateSchedulerImpl/Logger.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "UpdateSchedulerImpl/Logger.h"
 #include "UpdateSchedulerImpl/configModule/UpdateStatus.h"
 
 #include <algorithm>
@@ -159,7 +158,11 @@ namespace
 
         for (const auto& whComponent : report.getRepositoryComponents())
         {
-             status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version, whComponent.m_installedVersion);
+            status.Products.emplace_back(
+                whComponent.m_rigidName,
+                whComponent.m_productName,
+                whComponent.m_version,
+                whComponent.m_installedVersion);
         }
         return status;
     }
@@ -170,9 +173,10 @@ namespace
         const DownloadReportsAnalyser::DownloadReportVector& reports)
     {
         auto rind = std::find_if(
-            reports.rbegin(), reports.rend(), [](const DownloadReportsAnalyser::DownloadReport& report) {
-              return report.isSuccesfulProductUpdateCheck();
-            });
+            reports.rbegin(),
+            reports.rend(),
+            [](const DownloadReportsAnalyser::DownloadReport& report)
+            { return report.isSuccesfulProductUpdateCheck(); });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
 
@@ -180,8 +184,7 @@ namespace
 
 namespace UpdateSchedulerImpl::configModule
 {
-    ReportCollectionResult DownloadReportsAnalyser::processReports(
-        const DownloadReportVector& reportCollection)
+    ReportCollectionResult DownloadReportsAnalyser::processReports(const DownloadReportVector& reportCollection)
     {
         if (reportCollection.empty())
         {
@@ -228,8 +231,8 @@ namespace UpdateSchedulerImpl::configModule
         std::vector<FileAndDownloadReport> reportCollection;
         reportCollection.reserve(listOfReportFiles.size());
 
-        const std::string processedReportPath = Common::ApplicationConfiguration::applicationPathManager()
-            .getSulDownloaderProcessedReportPath();
+        const std::string processedReportPath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath();
 
         for (const auto& filepath : listOfReportFiles)
         {
@@ -241,13 +244,12 @@ namespace UpdateSchedulerImpl::configModule
 
                 // check to see if report has been processed
                 if (Common::FileSystem::fileSystem()->isFile(
-                    Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
+                        Common::FileSystem::join(processedReportPath, Common::FileSystem::basename(filepath))))
                 {
                     fileReport.setProcessedReport(true);
                 }
 
-                reportCollection.push_back(
-                    FileAndDownloadReport{ filepath, fileReport, fileReport.getStartTime() });
+                reportCollection.push_back(FileAndDownloadReport{ filepath, fileReport, fileReport.getStartTime() });
             }
             catch (const std::exception& ex)
             {
@@ -257,9 +259,8 @@ namespace UpdateSchedulerImpl::configModule
         std::sort(
             reportCollection.begin(),
             reportCollection.end(),
-            [](const FileAndDownloadReport& lhs, const FileAndDownloadReport& rhs) {
-              return lhs.sortKey < rhs.sortKey;
-            });
+            [](const FileAndDownloadReport& lhs, const FileAndDownloadReport& rhs)
+            { return lhs.sortKey < rhs.sortKey; });
 
         return reportCollection;
     }
@@ -306,8 +307,7 @@ namespace UpdateSchedulerImpl::configModule
      * @param reportCollection
      * @return
      */
-    ReportCollectionResult DownloadReportsAnalyser::handleSuccessReports(
-        const DownloadReportVector& reportCollection)
+    ReportCollectionResult DownloadReportsAnalyser::handleSuccessReports(const DownloadReportVector& reportCollection)
     {
         assert(!reportCollection.empty());
         DownloadReportVectorSizeType lastIndex = reportCollection.size() - 1;
@@ -322,8 +322,7 @@ namespace UpdateSchedulerImpl::configModule
         // LastSyncTime
         // LastInstallStartedTime;
         // FirstFailedTime;
-        collectionResult.SchedulerStatus =
-            extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
+        collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
 
         // given that is a success, it has synchronized successfully
         collectionResult.SchedulerStatus.LastSyncTime = lastReport.getSyncTime();
@@ -365,15 +364,13 @@ namespace UpdateSchedulerImpl::configModule
                 ReportCollectionResult::SignificantReportMark::MustKeepReport;
         }
 
-
         // is the event relevant?
         // there is at least two elements.
         assert(lastIndex > 0);
         DownloadReportVectorSizeType previousIndex = lastIndex - 1;
         // if previous one was an error, send event, otherwise do not send.
-        collectionResult.SchedulerEvent.IsRelevantToSend |=
-            reportCollection.at(previousIndex).getStatus() !=
-            SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
+        collectionResult.SchedulerEvent.IsRelevantToSend |= reportCollection.at(previousIndex).getStatus() !=
+                                                            SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
 
         // Run through the report collection, and check if there is an old un-processed report containing
         // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
@@ -387,8 +384,7 @@ namespace UpdateSchedulerImpl::configModule
 
             for (const auto& product : report.getProducts())
             {
-                if (product.productStatus ==
-                        SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
+                if (product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
                     product.productStatus ==
                         SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
                 {
@@ -404,8 +400,7 @@ namespace UpdateSchedulerImpl::configModule
         return collectionResult;
     }
 
-    ReportCollectionResult DownloadReportsAnalyser::handleFailureReports(
-        const DownloadReportVector& reportCollection)
+    ReportCollectionResult DownloadReportsAnalyser::handleFailureReports(const DownloadReportVector& reportCollection)
     {
         assert(!reportCollection.empty());
         DownloadReportVectorSizeType lastIndex = reportCollection.size() - 1;
@@ -423,8 +418,7 @@ namespace UpdateSchedulerImpl::configModule
         // LastSyncTime
         // LastInstallStartedTime;
         // FirstFailedTime;
-        collectionResult.SchedulerStatus =
-            extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
+        collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
 
         collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(
             reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport);
@@ -493,8 +487,7 @@ namespace UpdateSchedulerImpl::configModule
         {
             for (const auto& product : report.getProducts())
             {
-                if (product.productStatus ==
-                    SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded)
+                if (product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded)
                 {
                     return true;
                 }
@@ -507,18 +500,20 @@ namespace UpdateSchedulerImpl::configModule
         const DownloadReportVector& reports)
     {
         auto rind = std::find_if(
-            reports.rbegin(), reports.rend(), [](const SulDownloader::suldownloaderdata::DownloadReport& report) {
-                return hasUpgrade(report);
-            });
+            reports.rbegin(),
+            reports.rend(),
+            [](const SulDownloader::suldownloaderdata::DownloadReport& report) { return hasUpgrade(report); });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
 
     DownloadReportsAnalyser::DownloadReportVectorDifferenceType DownloadReportsAnalyser::lastGoodSync(
         const DownloadReportVector& reports)
     {
-        auto rind = std::find_if(reports.rbegin(), reports.rend(), [](const DownloadReport& report) {
-            return report.getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
-        });
+        auto rind = std::find_if(
+            reports.rbegin(),
+            reports.rend(),
+            [](const DownloadReport& report)
+            { return report.getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS; });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
 
@@ -556,7 +551,7 @@ namespace UpdateSchedulerImpl::configModule
         }
         std::reverse(reportCollection.begin(), reportCollection.end());
 
-        for (const auto& reportHolder :  reportCollection )
+        for (const auto& reportHolder : reportCollection)
         {
             /*
              * Only consider successful update-checks

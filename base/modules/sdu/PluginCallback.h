@@ -32,7 +32,6 @@ namespace RemoteDiagnoseImpl
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
 
-        Common::PluginApi::StatusInfo m_statusInfo =
-        Common::PluginApi::StatusInfo{};
+        Common::PluginApi::StatusInfo m_statusInfo = Common::PluginApi::StatusInfo{};
     };
 } // namespace RemoteDiagnoseImpl

@@ -30,4 +30,4 @@ namespace Common::Policy
     private:
         std::string m_proxyType;
     };
-}
+} // namespace Common::Policy

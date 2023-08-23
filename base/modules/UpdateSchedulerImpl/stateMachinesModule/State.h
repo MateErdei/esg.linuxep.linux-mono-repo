@@ -4,7 +4,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
 #include "DownloadStateMachine.h"
@@ -15,17 +14,17 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-class State: public IState
+class State : public IState
 {
 public:
-	State();
+    State();
 
-	int ExitCode() override;
+    int ExitCode() override;
 
-	void SetLastSubscriptionVersions(LineVersionMap_t const &versions) override;
-	LineVersionMap_t GetLastSubscriptionVersions() const override;
-	void SetError(const SEUError& error) override;
-	SEUError GetLastError() const override;
+    void SetLastSubscriptionVersions(LineVersionMap_t const& versions) override;
+    LineVersionMap_t GetLastSubscriptionVersions() const override;
+    void SetError(const SEUError& error) override;
+    SEUError GetLastError() const override;
 
     void SignalDownloadResult(StateData::DownloadResultEnum downloadResult) override;
     void SignalInstallResult(StateData::StatusEnum resultStatus) override;
@@ -33,16 +32,16 @@ public:
     StateData::DownloadMachineState GetDownloadState() const override;
     StateData::InstallMachineState GetInstallState() const override;
     StateData::EventMachineState GetEventState() const override;
-	bool GetRebootRequiredSetThisUpdate() override;
-	void SetForceRebootAfterThisUpdate(bool forceReboot) override;
-	bool GetForceRebootAfterThisUpdate() override;
-	void SetSuiteVersion(const std::string& version) override;
-	std::string GetSuiteVersion() override;
-	void SetMarketingVersion(const std::string& version) override;
-	std::string GetMarketingVersion() override;
-	bool SetMarketingVersionFromPath(const std::string& rootPath) override;
-	void SetProductType(const std::string& type) override;
-	std::string GetProductType() const override;
+    bool GetRebootRequiredSetThisUpdate() override;
+    void SetForceRebootAfterThisUpdate(bool forceReboot) override;
+    bool GetForceRebootAfterThisUpdate() override;
+    void SetSuiteVersion(const std::string& version) override;
+    std::string GetSuiteVersion() override;
+    void SetMarketingVersion(const std::string& version) override;
+    std::string GetMarketingVersion() override;
+    bool SetMarketingVersionFromPath(const std::string& rootPath) override;
+    void SetProductType(const std::string& type) override;
+    std::string GetProductType() const override;
     bool IsDelayedProductUpdate() const override;
     void SetDelayedProductUpdate(bool isDelayedProductUpdate) override;
     bool IsFallbackUpdate() const override;
@@ -53,17 +52,16 @@ public:
     void RawSetEventState(const StateData::EventMachineState& machineState) override;
 
 private:
-
-	LineVersionMap_t m_lineVersions;
-	SEUError lastError_;
+    LineVersionMap_t m_lineVersions;
+    SEUError lastError_;
     stateMachinesModule::DownloadStateMachine downloadStateMachine_;
     stateMachinesModule::InstallStateMachine installStateMachine_;
     stateMachinesModule::EventStateMachine eventStateMachine_;
-	bool forceReboot_;
-	bool rebootSetThisUpdate_;
+    bool forceReboot_;
+    bool rebootSetThisUpdate_;
     bool isDelayedProductUpdate_;
     bool isFallbackUpdate_;
-	std::string suiteVersion_;
-	std::string marketingVersion_;
-	std::string productType_;
+    std::string suiteVersion_;
+    std::string marketingVersion_;
+    std::string productType_;
 };

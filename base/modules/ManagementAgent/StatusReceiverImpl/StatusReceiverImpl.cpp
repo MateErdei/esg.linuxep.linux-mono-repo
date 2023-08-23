@@ -9,8 +9,7 @@
 ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
     Common::TaskQueue::ITaskQueueSharedPtr taskQueue,
     const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache) :
-    m_taskQueue(std::move(taskQueue)),
-    m_statusCache(statusCache)
+    m_taskQueue(std::move(taskQueue)), m_statusCache(statusCache)
 {
     m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     m_statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();

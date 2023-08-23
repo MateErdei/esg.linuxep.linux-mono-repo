@@ -23,11 +23,23 @@ namespace Common::PluginCommunicationImpl
         m_statusSet.setEntries(std::move(appIds));
     }
 
-    bool AppIdCollection::usePolicyId(const std::string& appId) const { return m_policySet.hasEntry(appId); }
+    bool AppIdCollection::usePolicyId(const std::string& appId) const
+    {
+        return m_policySet.hasEntry(appId);
+    }
 
-    bool AppIdCollection::implementActionId(const std::string& appId) const { return m_actionSet.hasEntry(appId); }
+    bool AppIdCollection::implementActionId(const std::string& appId) const
+    {
+        return m_actionSet.hasEntry(appId);
+    }
 
-    bool AppIdCollection::implementStatus(const std::string& appId) const { return m_statusSet.hasEntry(appId); }
+    bool AppIdCollection::implementStatus(const std::string& appId) const
+    {
+        return m_statusSet.hasEntry(appId);
+    }
 
-    const std::vector<std::string>& AppIdCollection::statusAppIds() const { return m_statusSet.entries(); }
+    const std::vector<std::string>& AppIdCollection::statusAppIds() const
+    {
+        return m_statusSet.entries();
+    }
 } // namespace Common::PluginCommunicationImpl

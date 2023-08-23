@@ -35,23 +35,14 @@ namespace Common::Policy
             localUpdateCacheHosts_ = localUpdateCacheHosts;
         }
 
-        [[nodiscard]] UpdateCacheHosts_t getLocalUpdateCacheHosts() const
-        {
-            return localUpdateCacheHosts_;
-        }
+        [[nodiscard]] UpdateCacheHosts_t getLocalUpdateCacheHosts() const { return localUpdateCacheHosts_; }
 
         /**
          * Sets the configured update proxy
          * @param proxy object containing the proxy details.
          */
-        void setPolicyProxy(const Proxy& proxy)
-        {
-            policyProxy_ = proxy;
-        }
-        [[nodiscard]] Proxy getPolicyProxy() const
-        {
-            return policyProxy_;
-        }
+        void setPolicyProxy(const Proxy& proxy) { policyProxy_ = proxy; }
+        [[nodiscard]] Proxy getPolicyProxy() const { return policyProxy_; }
 
         /**
          * Set the primary subscription. The primary subscription is meant to be used to enforce that it can never
@@ -63,10 +54,7 @@ namespace Common::Policy
             primarySubscription_ = productSubscription;
         }
 
-        [[nodiscard]] ProductSubscription getPrimarySubscription() const
-        {
-            return primarySubscription_;
-        }
+        [[nodiscard]] ProductSubscription getPrimarySubscription() const { return primarySubscription_; }
 
         /**
          * Set the list of other products to be installed. Plugins
@@ -77,10 +65,7 @@ namespace Common::Policy
             productSubscriptions_ = std::move(productsSubscriptions);
         }
 
-        [[nodiscard]] std::vector<ProductSubscription> getProductsSubscription() const
-        {
-            return productSubscriptions_;
-        }
+        [[nodiscard]] std::vector<ProductSubscription> getProductsSubscription() const { return productSubscriptions_; }
 
         /**
          * Set the list of features that the downloaded products should have.
@@ -89,16 +74,9 @@ namespace Common::Policy
          * EndPoint is meant to have.
          * @param features
          */
-        void setFeatures(std::vector<std::string> features)
-        {
-            features_ = std::move(features);
-        }
+        void setFeatures(std::vector<std::string> features) { features_ = std::move(features); }
 
-        [[nodiscard]] std::vector<std::string> getFeatures() const
-        {
-            return features_;
-        }
-
+        [[nodiscard]] std::vector<std::string> getFeatures() const { return features_; }
 
         /**
          * Sets the list of arguments that need to be passed to all product install.sh scripts.
@@ -108,23 +86,14 @@ namespace Common::Policy
         {
             installArguments_ = installArguments;
         }
-        [[nodiscard]] std::vector<std::string> getInstallArguments() const
-        {
-            return installArguments_;
-        }
+        [[nodiscard]] std::vector<std::string> getInstallArguments() const { return installArguments_; }
 
         /**
          * Set the list of mandatory manifest (relative) file paths that must exist for all packages.
          * @param manifestNames
          */
-        void setManifestNames(const std::vector<std::string>& manifestNames)
-        {
-            manifestNames_ = manifestNames;
-        }
-        [[nodiscard]] std::vector<std::string> getManifestNames() const
-        {
-            return manifestNames_;
-        }
+        void setManifestNames(const std::vector<std::string>& manifestNames) { manifestNames_ = manifestNames; }
+        [[nodiscard]] std::vector<std::string> getManifestNames() const { return manifestNames_; }
 
         /**
          * Set the list of optional manifest (relative) file paths that are may exist for packages.
@@ -134,20 +103,10 @@ namespace Common::Policy
         {
             optionalManifestNames_ = optionalManifestNames;
         }
-        [[nodiscard]] std::vector<std::string> getOptionalManifestNames() const
-        {
-            return optionalManifestNames_;
-        }
+        [[nodiscard]] std::vector<std::string> getOptionalManifestNames() const { return optionalManifestNames_; }
 
-        void setUseSlowSupplements(bool useSlowSupplements)
-        {
-            useSlowSupplements_ = useSlowSupplements;
-        }
-        [[nodiscard]] bool getUseSlowSupplements() const
-        {
-            return useSlowSupplements_;
-        }
-
+        void setUseSlowSupplements(bool useSlowSupplements) { useSlowSupplements_ = useSlowSupplements; }
+        [[nodiscard]] bool getUseSlowSupplements() const { return useSlowSupplements_; }
 
         /**
          * Handling for the SDDS3 URLs:
@@ -155,25 +114,13 @@ namespace Common::Policy
 
         using url_list_t = std::vector<std::string>;
 
-        void setSophosCDNURLs(const url_list_t& urls)
-        {
-            sophosCDNURLs_ = urls;
-        }
+        void setSophosCDNURLs(const url_list_t& urls) { sophosCDNURLs_ = urls; }
 
-        [[nodiscard]] url_list_t getSophosCDNURLs() const
-        {
-            return sophosCDNURLs_;
-        }
+        [[nodiscard]] url_list_t getSophosCDNURLs() const { return sophosCDNURLs_; }
 
-        void setSophosSusURL(const std::string& url)
-        {
-            sophosSUSUrl_ = url;
-        }
+        void setSophosSusURL(const std::string& url) { sophosSUSUrl_ = url; }
 
-        [[nodiscard]] std::string getSophosSusURL() const
-        {
-            return sophosSUSUrl_;
-        }
+        [[nodiscard]] std::string getSophosSusURL() const { return sophosSUSUrl_; }
         /**
          * Used to verify all required settings stored in the ConfigurationData object
          * @test sophosUpdateUrls list is not empty
@@ -191,7 +138,6 @@ namespace Common::Policy
          * @return true, if configuration data is valid, false otherwise.
          */
         [[nodiscard]] bool isVerified() const;
-
 
         void setForceReinstallAllProducts(const bool forceReinstallAllProducts)
         {
@@ -225,7 +171,6 @@ namespace Common::Policy
          * @param deviceId
          */
         void setDeviceId(const std::string& deviceId) { deviceId_ = deviceId; }
-
 
         /**
          * @return string containing the latest JWToken
@@ -275,55 +220,37 @@ namespace Common::Policy
          * Gets the VersigPath
          * @return string containing the latest VersigPath
          */
-        const std::string& getVersigPath() const
-        {
-            return versigPath_;
-        }
+        const std::string& getVersigPath() const { return versigPath_; }
 
         /**
          * Sets the configured VersigPath
          * @param pstring containing the latest VersigPath
          */
-        void setVersigPath(const std::string& path)
-        {
-            versigPath_ = path;
-        }
+        void setVersigPath(const std::string& path) { versigPath_ = path; }
 
         /**
          * Gets the log level parameter that has been set for the application.
          * @return LogLevel, enum specifying the set log level.
          */
-        LogLevel getLogLevel() const
-        {
-            return logLevel_;
-        }
+        LogLevel getLogLevel() const { return logLevel_; }
 
         /**
          * Set the default log level.
          * @param level
          */
-        void setLogLevel(LogLevel level)
-        {
-            logLevel_ = level;
-        }
+        void setLogLevel(LogLevel level) { logLevel_ = level; }
 
         /**
          * Gets the updateCache certificates Path
          * @return string containing the latest updateCache certificates Path
          */
-        [[nodiscard]] const std::string& getUpdateCacheCertPath() const
-        {
-            return updateCacheCertPath_;
-        }
+        [[nodiscard]] const std::string& getUpdateCacheCertPath() const { return updateCacheCertPath_; }
 
         /**
          * Sets the configured updateCache certificates Path
          * @param pstring containing the latest updateCache certificates Path
          */
-        void setUpdateCacheCertPath(const std::string& path)
-        {
-            updateCacheCertPath_ = path;
-        }
+        void setUpdateCacheCertPath(const std::string& path) { updateCacheCertPath_ = path; }
 
         /**
          * Gets the path to the local warehouse repository relative to the install root path.
@@ -346,7 +273,7 @@ namespace Common::Policy
         /**
          * @param contains string representing esmVersionToken
          */
-       void setEsmVersion(const ESMVersion& esmVersion) { esmVersion_ = esmVersion; }
+        void setEsmVersion(const ESMVersion& esmVersion) { esmVersion_ = esmVersion; }
 
         /**
          * @return string containing the esmVersionToken
@@ -389,4 +316,4 @@ namespace Common::Policy
     private:
         bool isProductSubscriptionValid(const ProductSubscription& productSubscription);
     };
-}
+} // namespace Common::Policy

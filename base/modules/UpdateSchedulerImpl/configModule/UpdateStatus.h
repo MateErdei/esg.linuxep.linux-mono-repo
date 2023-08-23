@@ -2,19 +2,17 @@
 #pragma once
 
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 #include <string>
 #include <vector>
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 namespace UpdateSchedulerImpl::configModule
 {
     struct ProductStatus
     {
         ProductStatus(std::string rigid, std::string name, std::string downversion) :
-                RigidName(std::move(rigid)),
-                ProductName(std::move(name)),
-                DownloadedVersion(std::move(downversion))
+            RigidName(std::move(rigid)), ProductName(std::move(name)), DownloadedVersion(std::move(downversion))
         {
         }
 

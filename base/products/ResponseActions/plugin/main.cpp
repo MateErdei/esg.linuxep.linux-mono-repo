@@ -14,7 +14,8 @@
 
 const char* PluginName = RA_PLUGIN_NAME;
 
-enum returnCode {
+enum returnCode
+{
     SUCCESS = 0,
     EXCEPTIONTHROWN = 40,
 };
@@ -38,7 +39,7 @@ int main()
     {
         baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
     }
-    catch (const Common::PluginApi::ApiException & apiException)
+    catch (const Common::PluginApi::ApiException& apiException)
     {
         LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;

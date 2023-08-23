@@ -37,4 +37,4 @@ namespace SulDownloader
         sophlib::sdds3::Config loadConfig(std::string& path) override;
     };
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer();
-}
+} // namespace SulDownloader

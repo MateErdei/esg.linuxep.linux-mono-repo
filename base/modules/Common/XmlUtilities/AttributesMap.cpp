@@ -2,6 +2,7 @@
 #include "AttributesMap.h"
 
 #include "Logger.h"
+
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <algorithm>
@@ -157,7 +158,10 @@ namespace
         return elementPath;
     }
 
-    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const { return m_attributesMap; }
+    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const
+    {
+        return m_attributesMap;
+    }
 
     /** call backs for lib expat **/
 
@@ -213,7 +217,10 @@ namespace Common::XmlUtilities
 
     Attributes::Attributes() = default;
 
-    auto Attributes::empty() const -> bool { return m_attributes.empty(); }
+    auto Attributes::empty() const -> bool
+    {
+        return m_attributes.empty();
+    }
 
     auto Attributes::value(const std::string& attributeName, const std::string& defaultValue) const -> std::string
     {
@@ -227,7 +234,10 @@ namespace Common::XmlUtilities
         return defaultValue;
     }
 
-    auto Attributes::contents() const -> std::string { return m_contents; }
+    auto Attributes::contents() const -> std::string
+    {
+        return m_contents;
+    }
 
     /** SimpleXml **/
     AttributesMap::AttributesMap(

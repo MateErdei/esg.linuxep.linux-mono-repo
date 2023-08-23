@@ -63,7 +63,9 @@ namespace Common::UtilityImpl
          * No exceptions are thrown since a likely use is for logging where handling an exception would be awkward.
          * The time stamp is composed of ASCII characters so may be used in UTF-8 files.
          */
-        static std::string MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
+        static std::string MessageTimeStamp(
+            const std::chrono::system_clock::time_point& time_point,
+            Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
 
         /*
          * Get current unix timestamp, in seconds e.g. 1687350741
@@ -90,8 +92,8 @@ namespace Common::UtilityImpl
         static std::time_t toUTCTime(const std::string&, const char* format);
         static std::string toEpochTime(const std::string& dateTime);
 
-        // Windows FILETIME contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC)
-        // https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+        // Windows FILETIME contains a 64-bit value representing the number of 100-nanosecond intervals since January 1,
+        // 1601 (UTC) https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
         static std::time_t WindowsFileTimeToEpoch(int64_t ft);
         static int64_t EpochToWindowsFileTime(std::time_t t);
     };

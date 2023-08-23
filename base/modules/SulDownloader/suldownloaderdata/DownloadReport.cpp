@@ -12,9 +12,10 @@
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "SulDownloader/suldownloaderdata/DownloadReport.pb.h"
+
 #include <google/protobuf/util/json_util.h>
 
-#include "SulDownloader/suldownloaderdata/DownloadReport.pb.h"
 #include <sstream>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -71,10 +72,11 @@ namespace
     }
 
 } // namespace
-bool SulDownloader::suldownloaderdata::operator< (SulDownloader::suldownloaderdata::ProductReport::ProductStatus lh, 
-                                                    SulDownloader::suldownloaderdata::ProductReport::ProductStatus rh )
+bool SulDownloader::suldownloaderdata::operator<(
+    SulDownloader::suldownloaderdata::ProductReport::ProductStatus lh,
+    SulDownloader::suldownloaderdata::ProductReport::ProductStatus rh)
 {
-    return static_cast<int>(lh) < static_cast<int>(rh); 
+    return static_cast<int>(lh) < static_cast<int>(rh);
 }
 
 namespace SulDownloader
@@ -97,7 +99,6 @@ namespace SulDownloader
             report.m_status = RepositoryStatus::SUCCESS;
             report.m_description = "";
         }
-
 
         report.m_urlSource = repository.getSourceURL();
         report.m_productReport = combineProductsAndSubscriptions(
@@ -206,17 +207,35 @@ namespace SulDownloader
         return previousReportFiles;
     }
 
-    RepositoryStatus DownloadReport::getStatus() const { return m_status; }
+    RepositoryStatus DownloadReport::getStatus() const
+    {
+        return m_status;
+    }
 
-    const std::string& DownloadReport::getDescription() const { return m_description; }
+    const std::string& DownloadReport::getDescription() const
+    {
+        return m_description;
+    }
 
-    const std::string& DownloadReport::getStartTime() const { return m_startTime; }
+    const std::string& DownloadReport::getStartTime() const
+    {
+        return m_startTime;
+    }
 
-    const std::string& DownloadReport::getFinishedTime() const { return m_finishedTime; }
+    const std::string& DownloadReport::getFinishedTime() const
+    {
+        return m_finishedTime;
+    }
 
-    const std::string& DownloadReport::getSyncTime() const { return m_sync_time; }
+    const std::string& DownloadReport::getSyncTime() const
+    {
+        return m_sync_time;
+    }
 
-    const std::vector<ProductReport>& DownloadReport::getProducts() const { return m_productReport; }
+    const std::vector<ProductReport>& DownloadReport::getProducts() const
+    {
+        return m_productReport;
+    }
 
     void DownloadReport::combinePreviousReportIfRequired(const DownloadReport& previousReport)
     {
@@ -248,11 +267,12 @@ namespace SulDownloader
         }
     }
 
-    const std::vector<ProductInfo> DownloadReport::updateRepositoryComponentInstalledVersion(const std::vector<ProductInfo>& repositoryComponents)
+    const std::vector<ProductInfo> DownloadReport::updateRepositoryComponentInstalledVersion(
+        const std::vector<ProductInfo>& repositoryComponents)
     {
         std::vector<ProductInfo> updatedRepositoryComponents;
 
-        for(auto& repositoryComponent : repositoryComponents)
+        for (auto& repositoryComponent : repositoryComponents)
         {
             ProductInfo repositoryProductInfo;
             repositoryProductInfo.m_rigidName = repositoryComponent.m_rigidName;
@@ -309,28 +329,40 @@ namespace SulDownloader
                     productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
             }
-            LOGDEBUG("Product Report for product downloaded: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
+            LOGDEBUG(
+                "Product Report for product downloaded: " << productReportEntry.rigidName << " "
+                                                          << productReportEntry.statusToString()
+                                                          << " err: " << productReportEntry.errorDescription);
 
             productReport[productReportEntry.rigidName] = productReportEntry;
-            if (productReportEntry.productStatus == ProductReport::ProductStatus::Uninstalled || productReportEntry.productStatus == ProductReport::ProductStatus::UninstallFailed)
+            if (productReportEntry.productStatus == ProductReport::ProductStatus::Uninstalled ||
+                productReportEntry.productStatus == ProductReport::ProductStatus::UninstallFailed)
             {
-                auto productMatchSubscriptionEntry = [&productReportEntry](const SubscriptionInfo & sI){ return sI.rigidName == productReportEntry.rigidName; }; 
-                if ( std::find_if(subscriptionsInfo.begin(), subscriptionsInfo.end(), productMatchSubscriptionEntry) == subscriptionsInfo.end() )
+                auto productMatchSubscriptionEntry = [&productReportEntry](const SubscriptionInfo& sI)
+                { return sI.rigidName == productReportEntry.rigidName; };
+                if (std::find_if(subscriptionsInfo.begin(), subscriptionsInfo.end(), productMatchSubscriptionEntry) ==
+                    subscriptionsInfo.end())
                 {
                     // uninstalled products will not be in the subscription info, hence, explicitly adding it
-                    LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
+                    LOGDEBUG(
+                        "Adding information for uninstalled products directly to the combined list "
+                        << productReportEntry.rigidName << " " << productReportEntry.statusToString()
+                        << " err: " << productReportEntry.errorDescription);
                     productsRep.push_back(productReportEntry);
                 }
             }
         }
         LOGDEBUG("Combine the products to merge into the subscriptions");
-        
+
         for (const auto& subscriptionInfo : subscriptionsInfo)
         {
             auto found = productReport.find(subscriptionInfo.rigidName);
             if (found != productReport.end())
             {
-                LOGDEBUG("Product Report merged to subscription: " << found->second.rigidName << " " << found->second.statusToString() << " err: " << found->second.errorDescription);
+                LOGDEBUG(
+                    "Product Report merged to subscription: " << found->second.rigidName << " "
+                                                              << found->second.statusToString()
+                                                              << " err: " << found->second.errorDescription);
                 auto entry = found->second;
                 entry.downloadedVersion = subscriptionInfo.version;
                 productsRep.push_back(entry);
@@ -341,7 +373,7 @@ namespace SulDownloader
                 productReportEntry.rigidName = subscriptionInfo.rigidName;
                 productReportEntry.downloadedVersion = subscriptionInfo.version;
                 productReportEntry.name = subscriptionInfo.rigidName;
-                productReportEntry.installedVersion = getInstalledVersion( productReportEntry.rigidName);
+                productReportEntry.installedVersion = getInstalledVersion(productReportEntry.rigidName);
                 std::string combinedError;
                 ProductReport::ProductStatus combinedStatus{ ProductReport::ProductStatus::UpToDate };
 
@@ -363,14 +395,16 @@ namespace SulDownloader
                         {
                             if (product.getLine() == subComp.m_line)
                             {
-                                if (Common::UtilityImpl::StringUtils::isSubstring(product.installerPath(), subComp.m_line))
+                                if (Common::UtilityImpl::StringUtils::isSubstring(
+                                        product.installerPath(), subComp.m_line))
                                 {
                                     // installer located in sub component.
                                     LOGDEBUG("Added subcomponent to report entry for :" << subComp.m_line);
                                     ProductReport subProductReportEntry;
                                     subProductReportEntry.rigidName = subComp.m_line;
                                     subProductReportEntry.downloadedVersion = subComp.m_version;
-                                    subProductReportEntry.installedVersion = getInstalledVersion(subProductReportEntry.rigidName);
+                                    subProductReportEntry.installedVersion =
+                                        getInstalledVersion(subProductReportEntry.rigidName);
                                     subProductReportEntry.name = subComp.m_line;
                                     subProductReportEntry.productStatus = subComponentProduct->second.productStatus;
                                     subProductReportEntry.errorDescription = product.getError().Description;
@@ -396,7 +430,10 @@ namespace SulDownloader
                 }
                 productReportEntry.productStatus = combinedStatus;
                 productReportEntry.errorDescription = combinedError;
-                LOGDEBUG("Product Report merged to subscription: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
+                LOGDEBUG(
+                    "Product Report merged to subscription: " << productReportEntry.rigidName << " "
+                                                              << productReportEntry.statusToString()
+                                                              << " err: " << productReportEntry.errorDescription);
 
                 productsRep.push_back(productReportEntry);
             }
@@ -412,7 +449,10 @@ namespace SulDownloader
         m_finishedTime = timeTracker.finishedTime();
     }
 
-    const std::string& DownloadReport::getSulError() const { return m_sulError; }
+    const std::string& DownloadReport::getSulError() const
+    {
+        return m_sulError;
+    }
 
     void DownloadReport::setError(const RepositoryError& error)
     {
@@ -421,7 +461,10 @@ namespace SulDownloader
         m_sulError = error.LibError;
     }
 
-    int DownloadReport::getExitCode() const { return static_cast<int>(m_status); }
+    int DownloadReport::getExitCode() const
+    {
+        return static_cast<int>(m_status);
+    }
 
     // add one return the json content directly.
     std::string DownloadReport::fromReport(const DownloadReport& report)
@@ -467,8 +510,8 @@ namespace SulDownloader
 
         DownloadStatusReport protoReport;
         JsonParseOptions jsonParseOptions;
-        jsonParseOptions.ignore_unknown_fields = true; 
-        
+        jsonParseOptions.ignore_unknown_fields = true;
+
         auto status = JsonStringToMessage(serializedVersion, &protoReport, jsonParseOptions);
         if (!status.ok())
         {
@@ -524,13 +567,25 @@ namespace SulDownloader
         return std::tuple<int, std::string>(report.getExitCode(), json);
     }
 
-    const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
+    const std::string DownloadReport::getSourceURL() const
+    {
+        return m_urlSource;
+    }
 
-    const std::vector<ProductInfo>& DownloadReport::getRepositoryComponents() const { return m_repositoryComponents; }
+    const std::vector<ProductInfo>& DownloadReport::getRepositoryComponents() const
+    {
+        return m_repositoryComponents;
+    }
 
-    bool DownloadReport::isProcessedReport() const { return m_processedReport; }
+    bool DownloadReport::isProcessedReport() const
+    {
+        return m_processedReport;
+    }
 
-    void DownloadReport::setProcessedReport(bool isProcessed) { m_processedReport = isProcessed; }
+    void DownloadReport::setProcessedReport(bool isProcessed)
+    {
+        m_processedReport = isProcessed;
+    }
 
     bool DownloadReport::isSuccesfulProductUpdateCheck() const
     {
@@ -597,7 +652,7 @@ namespace SulDownloader
         {
             LOGDEBUG("Unable to read version for \"" << rigidName << "\" err: " << ex.what());
         }
-        return "";  // return an empty string if installed version not found
+        return ""; // return an empty string if installed version not found
     }
 
 } // namespace SulDownloader

@@ -6,6 +6,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ITaskQueue.h"
+
 #include <memory>
 namespace RemoteDiagnoseImpl
 {
@@ -23,8 +24,6 @@ namespace RemoteDiagnoseImpl
         virtual bool hasTimedOut() = 0;
     };
 
-    std::unique_ptr<IAsyncDiagnoseRunner> createDiagnoseRunner(
-        std::shared_ptr<ITaskQueue>,
-        std::string dirPath);
+    std::unique_ptr<IAsyncDiagnoseRunner> createDiagnoseRunner(std::shared_ptr<ITaskQueue>, std::string dirPath);
 
-} // namespace UpdateScheduler
+} // namespace RemoteDiagnoseImpl

@@ -14,17 +14,29 @@ namespace Telemetry
     {
     }
 
-    std::string PluginTelemetryReporter::getName() { return m_pluginProxy->name(); }
+    std::string PluginTelemetryReporter::getName()
+    {
+        return m_pluginProxy->name();
+    }
 
-    std::string PluginTelemetryReporter::getTelemetry() { return m_pluginProxy->getTelemetry(); }
+    std::string PluginTelemetryReporter::getTelemetry()
+    {
+        return m_pluginProxy->getTelemetry();
+    }
 
     PluginTelemetryReporterWithoutIPC::PluginTelemetryReporterWithoutIPC(std::string pluginName) :
         m_pluginName(std::move(pluginName))
     {
     }
 
-    std::string PluginTelemetryReporterWithoutIPC::getName() { return m_pluginName; }
+    std::string PluginTelemetryReporterWithoutIPC::getName()
+    {
+        return m_pluginName;
+    }
 
-    std::string PluginTelemetryReporterWithoutIPC::getTelemetry() { return "{}"; }
+    std::string PluginTelemetryReporterWithoutIPC::getTelemetry()
+    {
+        return "{}";
+    }
 
 } // namespace Telemetry

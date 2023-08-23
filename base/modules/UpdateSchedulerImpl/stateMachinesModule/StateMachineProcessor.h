@@ -32,4 +32,4 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         ::StateData::EventMachineState m_eventMachineState{};
     };
 
-}
+} // namespace UpdateSchedulerImpl::stateMachinesModule

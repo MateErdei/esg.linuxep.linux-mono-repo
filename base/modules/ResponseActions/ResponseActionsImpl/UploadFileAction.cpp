@@ -6,11 +6,10 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
-#include "Common/Logging/LoggerConfig.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/Logging/LoggerConfig.h"
 #include "Common/ProxyUtils/ProxyUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
@@ -168,7 +167,7 @@ namespace ResponseActionsImpl
             .url = info.url, .headers = requestHeaders, .fileToUpload = m_pathToUpload, .timeout = info.timeout
         };
         auto logLevel = getResponseActionsImplLogger().getChainedLogLevel();
-        if(logLevel <= Common::Logging::DEBUG)
+        if (logLevel <= Common::Logging::DEBUG)
         {
             LOGDEBUG("Uploading file: " << m_pathToUpload << " to url: " << info.url);
         }

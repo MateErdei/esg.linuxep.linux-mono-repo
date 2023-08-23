@@ -118,7 +118,6 @@ namespace Common::ProcessMonitoringImpl
             time_t m_killIssuedTime;
 
             int m_lastExit = 0;
-
         };
 
         void notifyProcessTerminationCallbackPipe();
@@ -145,6 +144,5 @@ namespace Common::ProcessMonitoringImpl
          * Full path to the executable
          */
         std::string m_exe;
-
     };
 } // namespace Common::ProcessMonitoringImpl

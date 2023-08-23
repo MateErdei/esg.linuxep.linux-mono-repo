@@ -6,20 +6,21 @@
 #include "Strings.h"
 #include "SystemCommandException.h"
 
-#include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StrError.h"
-#include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/SystemExecutableUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
-#include <algorithm>
-#include <iostream>
 #include <sys/stat.h>
+
+#include <algorithm>
 #include <fstream>
+#include <iostream>
 
 namespace diagnose
 {
@@ -40,7 +41,7 @@ namespace diagnose
         try
         {
             std::string exePath = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath(command);
-            auto output = runCommandOutputToString(exePath, arguments,exitcodes, retries);
+            auto output = runCommandOutputToString(exePath, arguments, exitcodes, retries);
             fileSystem()->writeFile(filePath, output);
             return EXIT_SUCCESS;
         }
@@ -68,10 +69,11 @@ namespace diagnose
         return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::runCommandOutputToString(const std::string& command
-                                                         , std::vector<std::string> args
-                                                         , const std::vector<u_int16_t>& exitcodes
-                                                         , const int& retries) const
+    std::string SystemCommands::runCommandOutputToString(
+        const std::string& command,
+        std::vector<std::string> args,
+        const std::vector<u_int16_t>& exitcodes,
+        const int& retries) const
     {
         std::string commandAndArgs(command);
         std::for_each(
@@ -117,13 +119,10 @@ namespace diagnose
                         std::to_string(exitCode) + ", Error message: " + Common::UtilityImpl::StrError(exitCode),
                     output);
             }
-
         }
         else if (exitCode != 0)
         {
-            throw SystemCommandsException(
-                 Common::UtilityImpl::StrError(exitCode),
-                output);
+            throw SystemCommandsException(Common::UtilityImpl::StrError(exitCode), output);
         }
         return output;
     }
@@ -136,17 +135,16 @@ namespace diagnose
 
         std::string timestamp = formattedTime.currentTime();
         std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
-        std::string prefix = "sspl-diagnose_" + timestamp ;
+        std::string prefix = "sspl-diagnose_" + timestamp;
         std::string tarfileName = prefix + ".tar.gz";
 
         std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
         std::string prefixpath = Common::FileSystem::join(srcPath, prefix);
         std::string oldpath = Common::FileSystem::join(srcPath, DIAGNOSE_FOLDER);
         auto fs = fileSystem();
-        fs->moveFile(oldpath,prefixpath);
+        fs->moveFile(oldpath, prefixpath);
         // use -C to move the current working directory to the temp folder holding Diagnose output
-        std::string tarCommand =
-            "tar -czf " + tarfile + " -C '" + srcPath + "' " + prefix;
+        std::string tarCommand = "tar -czf " + tarfile + " -C '" + srcPath + "' " + prefix;
 
         int ret = system(tarCommand.c_str());
         if (ret != 0)
@@ -166,11 +164,11 @@ namespace diagnose
         Common::UtilityImpl::FormattedTime formattedTime;
         std::string timestamp = formattedTime.currentTime();
         std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
-        std::string prefix = "sspl-diagnose_" + timestamp ;
+        std::string prefix = "sspl-diagnose_" + timestamp;
 
         std::string prefixpath = Common::FileSystem::join(Common::FileSystem::dirName(srcPath), prefix);
         auto fs = fileSystem();
-        fs->moveFile(srcPath,prefixpath);
+        fs->moveFile(srcPath, prefixpath);
         LOGINFO("Running zip on: " << srcPath);
         std::string zipFileName = "sspl.zip";
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");

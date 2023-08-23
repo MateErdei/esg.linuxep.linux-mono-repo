@@ -33,8 +33,7 @@ namespace RemoteDiagnoseImpl::runnerModule
 
         m_diagnoseRunnerStartTime = std::chrono::system_clock::now();
 
-        m_diagnoseRunner.reset(
-            new DiagnoseRunner(m_taskQueue, m_dirPath, "sspl.zip", std::chrono::minutes(10)));
+        m_diagnoseRunner.reset(new DiagnoseRunner(m_taskQueue, m_dirPath, "sspl.zip", std::chrono::minutes(10)));
         m_diagnoseExecHandle = std::async(std::launch::async, [this]() { m_diagnoseRunner->run(); });
     }
 
@@ -61,9 +60,9 @@ namespace RemoteDiagnoseImpl::runnerModule
     {
         std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
 
-        std::chrono::duration<double> elapsed_seconds = m_diagnoseRunnerStartTime-currentTime;
+        std::chrono::duration<double> elapsed_seconds = m_diagnoseRunnerStartTime - currentTime;
 
-        if(elapsed_seconds < std::chrono::seconds(600))
+        if (elapsed_seconds < std::chrono::seconds(600))
         {
             return false;
         }

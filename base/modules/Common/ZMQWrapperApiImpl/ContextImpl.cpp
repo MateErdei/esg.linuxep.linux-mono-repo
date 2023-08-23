@@ -4,13 +4,12 @@
 
 #include "LoggingProxyImpl.h"
 
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 #include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
-
-#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 
 #include <iostream>
 

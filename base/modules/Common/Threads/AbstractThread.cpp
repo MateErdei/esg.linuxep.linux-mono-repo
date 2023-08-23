@@ -24,7 +24,10 @@ namespace Common::Threads
         m_ensureThreadStarted.wait(lock, [this]() { return m_threadStartedFlag; });
     }
 
-    void AbstractThread::requestStop() { m_notifyPipe.notify(); }
+    void AbstractThread::requestStop()
+    {
+        m_notifyPipe.notify();
+    }
 
     void AbstractThread::join()
     {
@@ -35,7 +38,10 @@ namespace Common::Threads
         m_threadStartedFlag = false;
     }
 
-    bool AbstractThread::stopRequested() { return m_notifyPipe.notified(); }
+    bool AbstractThread::stopRequested()
+    {
+        return m_notifyPipe.notified();
+    }
 
     void AbstractThread::announceThreadStarted()
     {

@@ -10,18 +10,26 @@ namespace MCS
     class MCSHttpClient
     {
     public:
-        MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester>);
-        Common::HttpRequests::Response  sendRegistration(const std::string& statusXml, const std::string& token);
-        Common::HttpRequests::Response  sendPreregistration(const std::string& statusXml, const std::string& customerToken);
-        Common::HttpRequests::Response  sendMessage(const std::string& url,
-                                                   Common::HttpRequests::RequestType requestType,
-                                                   const Common::HttpRequests::Headers& headers={});
-        Common::HttpRequests::Response  sendMessageWithID(const std::string& url,
-                                                         Common::HttpRequests::RequestType requestType,
-                                                         const Common::HttpRequests::Headers& header={});
-        Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,
-                                                                Common::HttpRequests::RequestType requestType,
-                                                                const Common::HttpRequests::Headers& headers={});
+        MCSHttpClient(
+            std::string mcsUrl,
+            std::string registerToken,
+            std::shared_ptr<Common::HttpRequests::IHttpRequester>);
+        Common::HttpRequests::Response sendRegistration(const std::string& statusXml, const std::string& token);
+        Common::HttpRequests::Response sendPreregistration(
+            const std::string& statusXml,
+            const std::string& customerToken);
+        Common::HttpRequests::Response sendMessage(
+            const std::string& url,
+            Common::HttpRequests::RequestType requestType,
+            const Common::HttpRequests::Headers& headers = {});
+        Common::HttpRequests::Response sendMessageWithID(
+            const std::string& url,
+            Common::HttpRequests::RequestType requestType,
+            const Common::HttpRequests::Headers& header = {});
+        Common::HttpRequests::Response sendMessageWithIDAndRole(
+            const std::string& url,
+            Common::HttpRequests::RequestType requestType,
+            const Common::HttpRequests::Headers& headers = {});
         std::string getID();
         std::string getPassword();
 
@@ -29,7 +37,7 @@ namespace MCS
         void setVersion(const std::string& version);
         void setPassword(const std::string& password);
         void setCertPath(const std::string& password);
-        void setProxyInfo(const std::string& proxy,const std::string& proxyUser,const std::string& proxyPassword);
+        void setProxyInfo(const std::string& proxy, const std::string& proxyUser, const std::string& proxyPassword);
 
     private:
         std::string getV1AuthorizationHeader();
@@ -51,6 +59,5 @@ namespace MCS
         std::string m_proxyPassword;
         std::string m_certPath;
         uint16_t HTTP_MAX_TIMEOUT = 60;
-
     };
-}
+} // namespace MCS

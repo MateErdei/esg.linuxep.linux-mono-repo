@@ -49,7 +49,6 @@ int StopAction::run()
         return 3;
     }
 
-
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
     std::string registryFile = m_args.m_argument + ".json";
 

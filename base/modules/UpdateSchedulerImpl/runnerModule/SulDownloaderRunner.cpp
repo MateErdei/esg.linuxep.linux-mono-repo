@@ -3,7 +3,6 @@
 #include "SulDownloaderRunner.h"
 
 #include "UpdateSchedulerImpl/Logger.h"
-
 #include "watchdog/watchdogimpl/IWatchdogRequest.h"
 
 namespace UpdateSchedulerImpl::runnerModule
@@ -97,5 +96,8 @@ namespace UpdateSchedulerImpl::runnerModule
         return std::make_tuple(0, std::string());
     }
 
-    void SulDownloaderRunner::abortWaitingForReport() { m_listener.abort(); }
+    void SulDownloaderRunner::abortWaitingForReport()
+    {
+        m_listener.abort();
+    }
 } // namespace UpdateSchedulerImpl::runnerModule

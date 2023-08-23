@@ -53,6 +53,7 @@ namespace Common::Telemetry
 
         bool operator==(const TelemetryObject& rhs) const;
         bool operator!=(const TelemetryObject& rhs) const;
+
     private:
         void checkType(Type expectedType) const;
 

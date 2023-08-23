@@ -20,5 +20,8 @@ namespace Common::UtilityImpl
         return std::binary_search(m_entries.begin(), m_entries.end(), entry);
     }
 
-    const std::vector<std::string>& VectorAsSet::entries() const { return m_entries; }
+    const std::vector<std::string>& VectorAsSet::entries() const
+    {
+        return m_entries;
+    }
 } // namespace Common::UtilityImpl

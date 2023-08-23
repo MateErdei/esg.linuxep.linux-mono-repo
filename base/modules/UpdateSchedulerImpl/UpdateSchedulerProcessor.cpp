@@ -1,22 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Logger.h"
 #include "UpdateSchedulerProcessor.h"
+
+#include "Logger.h"
 #include "UpdateSchedulerUtils.h"
 
-#include "configModule/DownloadReportsAnalyser.h"
-#include "configModule/UpdateActionParser.h"
-#include "runnerModule/AsyncSulDownloaderRunner.h"
-#include "stateMachinesModule/EventStateMachine.h"
-#include "stateMachinesModule/StateMachineProcessor.h"
-
-#include "UpdateScheduler/SchedulerTaskQueue.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FlagUtils/FlagUtils.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IPidLockFileUtils.h"
+#include "Common/FlagUtils/FlagUtils.h"
 #include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"
@@ -24,6 +17,12 @@
 #include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
 #include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
+#include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "configModule/DownloadReportsAnalyser.h"
+#include "configModule/UpdateActionParser.h"
+#include "runnerModule/AsyncSulDownloaderRunner.h"
+#include "stateMachinesModule/EventStateMachine.h"
+#include "stateMachinesModule/StateMachineProcessor.h"
 
 // StringUtils is required for debug builds!
 #include "UpdateSchedulerTelemetryConsts.h"
@@ -50,14 +49,17 @@ namespace UpdateSchedulerImpl
         }
         catch (const nlohmann::detail::exception& jsonException)
         {
-            LOGERROR("The installed features list could not be deserialised for reading from disk: " << jsonException.what());
+            LOGERROR(
+                "The installed features list could not be deserialised for reading from disk: "
+                << jsonException.what());
         }
         return {};
     }
 
     bool isSuldownloaderRunning()
     {
-        auto sulLockFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
+        auto sulLockFilePath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
         try
         {
             LOGDEBUG("Trying to take suldownloader lock " << sulLockFilePath);
@@ -153,7 +155,8 @@ namespace UpdateSchedulerImpl
         catch (const Common::PluginApi::ApiException& apiException)
         {
             std::string errorMsg(apiException.what());
-            assert(errorMsg.find(Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) == std::string::npos);
+            assert(
+                errorMsg.find(Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) == std::string::npos);
             LOGERROR("Unexpected error when requesting policy: " << apiException.what());
         }
 
@@ -167,7 +170,8 @@ namespace UpdateSchedulerImpl
                 hasTask = m_queueTask->pop(task, QUEUE_TIMEOUT);
                 if (hasTask)
                 {
-                    switch (task.taskType) {
+                    switch (task.taskType)
+                    {
                         case SchedulerTask::TaskType::UpdateNow:
                             processUpdateNow(task.content);
                             break;
@@ -203,7 +207,8 @@ namespace UpdateSchedulerImpl
             {
                 if (hasTask)
                 {
-                    LOGWARN("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
+                    LOGWARN(
+                        "Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
                 }
                 else
                 {
@@ -215,7 +220,8 @@ namespace UpdateSchedulerImpl
             {
                 if (hasTask)
                 {
-                    LOGERROR("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
+                    LOGERROR(
+                        "Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
                 }
                 else
                 {
@@ -230,7 +236,8 @@ namespace UpdateSchedulerImpl
     {
         try
         {
-            // If the update config file is missing we still need to reprocess a duplicate policy in order to regenerate it
+            // If the update config file is missing we still need to reprocess a duplicate policy in order to regenerate
+            // it
             if (m_currentPolicies.at(appId) == policyXml && Common::FileSystem::fileSystem()->isFile(m_configfilePath))
             {
                 LOGDEBUG("Policy with app id " << appId << " unchanged, will not be processed");
@@ -271,9 +278,13 @@ namespace UpdateSchedulerImpl
     {
         LOGINFO("New ALC policy received");
 
-        if (!m_flagsPolicyProcessed || !Common::FileSystem::fileSystem()->exists(Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath()))
+        if (!m_flagsPolicyProcessed ||
+            !Common::FileSystem::fileSystem()->exists(
+                Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath()))
         {
-            LOGDEBUG(Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath() << " does not exist, performing a short wait for Central flags");
+            LOGDEBUG(
+                Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath()
+                << " does not exist, performing a short wait for Central flags");
 
             // Waiting for flags policy to attempt to get the latest central flags
             std::string flagsPolicy = waitForPolicy(*m_queueTask, 5, UpdateSchedulerProcessor::FLAGS_API);
@@ -323,14 +334,16 @@ namespace UpdateSchedulerImpl
             writeConfigurationData(updateSettings.configurationData);
             weeklySchedule_ = updateSettings.weeklySchedule;
             m_subscriptionRigidNamesInPolicy.clear();
-            m_subscriptionRigidNamesInPolicy.push_back(updateSettings.configurationData.getPrimarySubscription().rigidName());
+            m_subscriptionRigidNamesInPolicy.push_back(
+                updateSettings.configurationData.getPrimarySubscription().rigidName());
 
             for (auto& productSubscription : updateSettings.configurationData.getProductsSubscription())
             {
                 m_subscriptionRigidNamesInPolicy.push_back(productSubscription.rigidName());
             }
 
-            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingEnabled, weeklySchedule_.enabled);
+            Common::Telemetry::TelemetryHelper::getInstance().set(
+                Telemetry::scheduledUpdatingEnabled, weeklySchedule_.enabled);
             if (weeklySchedule_.enabled)
             {
                 char updateDay[20];
@@ -339,26 +352,29 @@ namespace UpdateSchedulerImpl
                 scheduledTime.tm_wday = weeklySchedule_.weekDay;
                 scheduledTime.tm_hour = weeklySchedule_.hour;
                 scheduledTime.tm_min = weeklySchedule_.minute;
-                if (strftime(updateDay, sizeof(updateDay), "%A", &scheduledTime) && strftime(updateTime, sizeof(updateTime), "%H:%M", &scheduledTime))
+                if (strftime(updateDay, sizeof(updateDay), "%A", &scheduledTime) &&
+                    strftime(updateTime, sizeof(updateTime), "%H:%M", &scheduledTime))
                 {
-                    Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingDay, std::string(updateDay));
-                    Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::scheduledUpdatingTime, std::string(updateTime));
+                    Common::Telemetry::TelemetryHelper::getInstance().set(
+                        Telemetry::scheduledUpdatingDay, std::string(updateDay));
+                    Common::Telemetry::TelemetryHelper::getInstance().set(
+                        Telemetry::scheduledUpdatingTime, std::string(updateTime));
                     LOGINFO("Scheduling product updates for " << updateDay << " at " << updateTime);
-                    LOGINFO("Scheduling data updates every "<< updatePeriod << " minutes");
+                    LOGINFO("Scheduling data updates every " << updatePeriod << " minutes");
                 }
             }
             else
             {
-                LOGINFO("Scheduling updates every "<< updatePeriod << " minutes");
+                LOGINFO("Scheduling updates every " << updatePeriod << " minutes");
             }
 
             auto previousConfigurationData = UpdateSchedulerUtils::getPreviousConfigurationData();
 
             if (previousConfigurationData.has_value() &&
-                    (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                        updateSettings.configurationData, previousConfigurationData.value()) ||
-                    SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceUpdate(
-                                    updateSettings.configurationData, previousConfigurationData.value())))
+                (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                     updateSettings.configurationData, previousConfigurationData.value()) ||
+                 SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceUpdate(
+                     updateSettings.configurationData, previousConfigurationData.value())))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;
@@ -372,7 +388,6 @@ namespace UpdateSchedulerImpl
                 // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
                 // there is no new results to be processed.
                 std::string lastUpdate = processSulDownloaderFinished("update_report.json");
-
             }
 
             if (m_pendingUpdate)
@@ -450,8 +465,11 @@ namespace UpdateSchedulerImpl
         }
 
         currentFlag = m_forcePausedUpdate;
-        m_forcePausedUpdate = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG, flagsContent);
-        LOGDEBUG("Received " << UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value: " << m_forcePausedUpdate);
+        m_forcePausedUpdate =
+            Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG, flagsContent);
+        LOGDEBUG(
+            "Received " << UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG
+                        << " flag value: " << m_forcePausedUpdate);
 
         if (currentFlag == m_forcePausedUpdate)
         {
@@ -491,7 +509,9 @@ namespace UpdateSchedulerImpl
     }
 
     std::string UpdateSchedulerProcessor::waitForPolicy(
-        SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId)
+        SchedulerTaskQueue& queueTask,
+        int maxTasksThreshold,
+        const std::string& policyAppId)
     {
         std::vector<SchedulerTask> nonPolicyTasks;
         std::string policyContent;
@@ -509,7 +529,7 @@ namespace UpdateSchedulerImpl
                 LOGINFO("First " << policyAppId << " policy received.");
                 break;
             }
-            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
+            LOGDEBUG("Keep task: " << static_cast<int>(task.taskType));
             nonPolicyTasks.emplace_back(task);
             if (task.taskType == SchedulerTask::TaskType::Stop)
             {
@@ -570,8 +590,7 @@ namespace UpdateSchedulerImpl
         // Check if we should do a supplement-only update or not
         time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
         SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(weeklySchedule_);
-        updateProducts = decider.updateProducts(lastProductUpdateCheck,UpdateNow);
-
+        updateProducts = decider.updateProducts(lastProductUpdateCheck, UpdateNow);
 
         if (!updateProducts)
         {
@@ -632,7 +651,6 @@ namespace UpdateSchedulerImpl
             LOGINFO("SulDownloader Finished.");
             safeMoveDownloaderReportFile(m_reportfilePath);
             UpdateSchedulerUtils::cleanUpMarkerFile();
-
         }
 
         LOGSUPPORT("Process reports to get events and status.");
@@ -681,7 +699,7 @@ namespace UpdateSchedulerImpl
 
         std::string lastInstallTime(reportAndFiles.reportCollectionResult.SchedulerStatus.LastInstallStartedTime);
 
-        if(lastInstallTime.empty())
+        if (lastInstallTime.empty())
         {
             // last install time come from the start time in the update report if an upgrade has happened.
             // only need to set to LastStartTime if cannot get LastInstallStartedTime
@@ -696,7 +714,7 @@ namespace UpdateSchedulerImpl
         //  if the state machine says we can send.
         //  Note we will only send an event if the overall status changes (SUCCESS to FAILED for example) based
         //  on the state machine logic, or once every 24 hours / updates.
-        if ( stateMachineProcessor.getStateMachineData().canSendEvent())
+        if (stateMachineProcessor.getStateMachineData().canSendEvent())
         {
             std::string eventXml = serializeUpdateEvent(
                 reportAndFiles.reportCollectionResult.SchedulerEvent, m_policyTranslator, m_formattedTime);
@@ -728,7 +746,14 @@ namespace UpdateSchedulerImpl
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_subscriptionRigidNamesInPolicy, m_featuresCurrentlyInstalled, stateMachineProcessor.getStateMachineData());
+            copyStatus,
+            m_policyTranslator.revID(),
+            VERSIONID,
+            m_machineID,
+            m_formattedTime,
+            m_subscriptionRigidNamesInPolicy,
+            m_featuresCurrentlyInstalled,
+            stateMachineProcessor.getStateMachineData());
         m_callback->setStateMachine(stateMachineProcessor.getStateMachineData());
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
@@ -738,15 +763,19 @@ namespace UpdateSchedulerImpl
         {
             if (product.RigidName == "ServerProtectionLinux-Base-component")
             {
-                Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::suiteVersion, product.DownloadedVersion);
+                Common::Telemetry::TelemetryHelper::getInstance().set(
+                    Telemetry::suiteVersion, product.DownloadedVersion);
             }
         }
 
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
             Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, true);
-            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::successfulUpdateTime, duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
-            Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::sddsMechanism, UpdateSchedulerUtils::getSDDSMechanism(true));
+            Common::Telemetry::TelemetryHelper::getInstance().set(
+                Telemetry::successfulUpdateTime,
+                duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+            Common::Telemetry::TelemetryHelper::getInstance().set(
+                Telemetry::sddsMechanism, UpdateSchedulerUtils::getSDDSMechanism(true));
 
             // on successful update copy the current update configuration to previous update configuration
             // the previous configuration file will be used on the next policy change and by suldownloader
@@ -756,7 +785,6 @@ namespace UpdateSchedulerImpl
                 std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
                 std::string content = Common::FileSystem::fileSystem()->readFile(m_configfilePath);
                 Common::FileSystem::fileSystem()->writeFileAtomically(m_previousConfigFilePath, content, tempPath);
-
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
@@ -811,8 +839,7 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(updatecacheCertPath, cacheCertificateContent);
     }
 
-    void UpdateSchedulerProcessor::writeConfigurationData(
-        const Common::Policy::UpdateSettings& updateSettings)
+    void UpdateSchedulerProcessor::writeConfigurationData(const Common::Policy::UpdateSettings& updateSettings)
     {
         std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string serializedUpdateSettings =
@@ -850,15 +877,22 @@ namespace UpdateSchedulerImpl
         iFileSystem->moveFile(originalJsonFilePath, targetPathName);
     }
 
-    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish() { waitForSulDownloaderToFinish(1); }
+    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish()
+    {
+        waitForSulDownloaderToFinish(1);
+    }
 
-    std::string UpdateSchedulerProcessor::getAppId() { return ALC_API; }
+    std::string UpdateSchedulerProcessor::getAppId()
+    {
+        return ALC_API;
+    }
 
     void UpdateSchedulerProcessor::waitForSulDownloaderToFinish(int numberOfSecondsToWait)
     {
         std::string pathFromMarkerFile = UpdateSchedulerUtils::readMarkerFile();
         std::string pathOfSulDownloader;
-        // if the marker file is empty or has a slash it in Suldownloader is running from the default location and not from thinstaller
+        // if the marker file is empty or has a slash it in Suldownloader is running from the default location and not
+        // from thinstaller
         if (pathFromMarkerFile.empty())
         {
             pathOfSulDownloader = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderPath();

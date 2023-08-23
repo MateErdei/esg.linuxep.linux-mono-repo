@@ -4,8 +4,8 @@
 
 #include "ActionsUtils.h"
 
-#include "Common/SystemCallWrapper/ISystemCallWrapperFactory.h"
 #include "Common/ProcessMonitoring/ISignalHandler.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapperFactory.h"
 
 #include <string>
 
@@ -29,20 +29,21 @@ namespace ResponseActionsImpl
 
     class RunCommandAction
     {
-        public:
-            RunCommandAction(Common::ISignalHandlerSharedPtr sigHandler
-                             , Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory);
-            RunCommandAction() = delete;
+    public:
+        RunCommandAction(
+            Common::ISignalHandlerSharedPtr sigHandler,
+            Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory);
+        RunCommandAction() = delete;
 
-            nlohmann::json run(const std::string& actionJson, const std::string& correlationId);
-            CommandResponse runCommands(const CommandRequest& action);
-            SingleCommandResult runCommand(const std::string& command);
+        nlohmann::json run(const std::string& actionJson, const std::string& correlationId);
+        CommandResponse runCommands(const CommandRequest& action);
+        SingleCommandResult runCommand(const std::string& command);
 
-        private:
-            Common::ISignalHandlerSharedPtr m_SignalHandler;
-            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_SysCallWrapper;
+    private:
+        Common::ISignalHandlerSharedPtr m_SignalHandler;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_SysCallWrapper;
 
-            bool m_terminate = false;
-            bool m_timeout = false;
+        bool m_terminate = false;
+        bool m_timeout = false;
     };
 } // namespace ResponseActionsImpl

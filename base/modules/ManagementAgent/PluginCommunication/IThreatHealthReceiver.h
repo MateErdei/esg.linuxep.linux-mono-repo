@@ -24,7 +24,6 @@ namespace ManagementAgent::PluginCommunication
         virtual bool receivedThreatHealth(
             const std::string& pluginName,
             const std::string& threatHealth,
-            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>
-                healthStatusSharedObj) = 0;
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) = 0;
     };
 } // namespace ManagementAgent::PluginCommunication

@@ -29,14 +29,12 @@ namespace ResponseActionsImpl
         COMMAND
     };
 
-    static const std::map<ActionType, std::string> actionTypeStrMap {
-        {ActionType::UPLOADFILE, "UploadFile"},
-        {ActionType::UPLOADFOLDER, "UploadFolder"},
-        {ActionType::DOWNLOAD, "Download"},
-        {ActionType::COMMAND, "RunCommand"}
-    };
+    static const std::map<ActionType, std::string> actionTypeStrMap{ { ActionType::UPLOADFILE, "UploadFile" },
+                                                                     { ActionType::UPLOADFOLDER, "UploadFolder" },
+                                                                     { ActionType::DOWNLOAD, "Download" },
+                                                                     { ActionType::COMMAND, "RunCommand" } };
 
-    //Download Action
+    // Download Action
     struct DownloadInfo
     {
         std::string targetPath;

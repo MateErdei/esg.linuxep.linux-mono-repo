@@ -1,7 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "UpdateSchedulerBootstrap.h"
-
 #include "Common/UtilityImpl/Main.h"
+
+#include "UpdateSchedulerBootstrap.h"
 
 static int update_scheduler_main()
 {

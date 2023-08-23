@@ -22,7 +22,8 @@ namespace SulDownloader
 
         for (const auto& subscription : parameters.subscriptions)
         {
-            std::map<std::string, std::string> subscriptionMap = { { "id", subscription.rigidName() }, { "tag", subscription.tag() }};
+            std::map<std::string, std::string> subscriptionMap = { { "id", subscription.rigidName() },
+                                                                   { "tag", subscription.tag() } };
             if (!subscription.fixedVersion().empty())
             {
                 subscriptionMap.insert({ "fixedVersion", subscription.fixedVersion() });

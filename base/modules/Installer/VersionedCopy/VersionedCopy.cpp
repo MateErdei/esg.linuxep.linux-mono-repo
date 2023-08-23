@@ -6,6 +6,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/StringUtils.h"
+
 #include <sys/stat.h>
 
 #include <cassert>
@@ -45,9 +46,15 @@ namespace
         return ret;
     }
 
-    Path getDirname(const Path& path) { return Common::FileSystem::dirName(path); }
+    Path getDirname(const Path& path)
+    {
+        return Common::FileSystem::dirName(path);
+    }
 
-    void makedirs(const Path& origpath) { Common::FileSystem::fileSystem()->makedirs(origpath); }
+    void makedirs(const Path& origpath)
+    {
+        Common::FileSystem::fileSystem()->makedirs(origpath);
+    }
 
     Path getLinkDestination(const Path& link)
     {
@@ -124,7 +131,10 @@ namespace
         Common::FileSystem::fileSystem()->copyFileAndSetPermissions(src, dest, mode, ownerName, groupName);
     }
 
-    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFile(src, dest); }
+    void copyFile(const Path& src, const Path& dest)
+    {
+        Common::FileSystem::fileSystem()->copyFile(src, dest);
+    }
 
     void createSymbolicLink(const Path& target, const Path& destination)
     {

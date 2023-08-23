@@ -2,10 +2,9 @@
 
 #pragma once
 
-
-#include "PluginCallback.h"
-#include "ITaskQueue.h"
 #include "IAsyncDiagnoseRunner.h"
+#include "ITaskQueue.h"
+#include "PluginCallback.h"
 
 #include "Common/DirectoryWatcher/IiNotifyWrapper.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
@@ -13,15 +12,14 @@
 
 #include <functional>
 #include <future>
-#include <optional>
 #include <map>
 #include <memory>
+#include <optional>
 
 namespace RemoteDiagnoseImpl
 {
     class PluginUtils
     {
-
     public:
         struct UrlData
         {
@@ -34,7 +32,6 @@ namespace RemoteDiagnoseImpl
 
         ~PluginUtils();
 
-
         static std::string processAction(const std::string& actionXml);
         /*
          * @brief  Retrieves the status of the SDU, updating the is_running field based on the parameter.
@@ -45,6 +42,5 @@ namespace RemoteDiagnoseImpl
         static void processZip(const std::string& url);
         static UrlData processUrl(const std::string& url);
     };
-
 
 } // namespace RemoteDiagnoseImpl

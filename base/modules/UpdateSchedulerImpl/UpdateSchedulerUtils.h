@@ -4,7 +4,6 @@
 
 #include "Common/Exceptions/IException.h"
 #include "Common/Policy/UpdateSettings.h"
-
 #include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 #include <optional>
@@ -18,8 +17,8 @@ namespace UpdateSchedulerImpl
      * @param e
      * @param level
      */
-    void log_exception(const std::exception& e, int level=0);
-    void log_exception(const Common::Exceptions::IException& e, int level=0);
+    void log_exception(const std::exception& e, int level = 0);
+    void log_exception(const Common::Exceptions::IException& e, int level = 0);
 
     class UpdateSchedulerUtils
     {
@@ -35,7 +34,8 @@ namespace UpdateSchedulerImpl
         static std::optional<Common::Policy::UpdateSettings> getCurrentConfigurationData();
         static std::optional<Common::Policy::UpdateSettings> getPreviousConfigurationData();
         static std::pair<Common::Policy::UpdateSettings, bool> getUpdateConfigWithLatestJWT();
-        static std::optional<Common::Policy::UpdateSettings> getConfigurationDataFromJsonFile(const std::string& filePath);
+        static std::optional<Common::Policy::UpdateSettings> getConfigurationDataFromJsonFile(
+            const std::string& filePath);
 
         inline static const std::string FORCE_UPDATE_ENABLED_FLAG = "sdds3.force-update";
         inline static const std::string FORCE_PAUSED_UPDATE_ENABLED_FLAG = "sdds3.force-paused-update";
@@ -44,5 +44,4 @@ namespace UpdateSchedulerImpl
     private:
         static std::string getValueFromMCSConfig(const std::string& key);
     };
-}
-
+} // namespace UpdateSchedulerImpl

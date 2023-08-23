@@ -9,6 +9,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 #include "Telemetry/LoggerImpl/Logger.h"
+
 #include <sys/stat.h>
 
 #include <utility>
@@ -20,7 +21,9 @@ TelemetryProcessor::TelemetryProcessor(
     std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
     std::shared_ptr<Common::HttpRequests::IHttpRequester> httpRequester,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
-    m_config(std::move(config)), m_httpRequester(std::move(httpRequester)), m_telemetryProviders(std::move(telemetryProviders))
+    m_config(std::move(config)),
+    m_httpRequester(std::move(httpRequester)),
+    m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 

@@ -20,5 +20,4 @@ namespace ResponsePlugin
         static std::pair<std::string, int> getType(const std::string& actionJson);
     };
 
-}
-
+} // namespace ResponsePlugin

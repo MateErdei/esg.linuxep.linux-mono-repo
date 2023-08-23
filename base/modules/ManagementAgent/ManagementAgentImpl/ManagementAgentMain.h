@@ -5,8 +5,8 @@
 #include "Common/TaskQueue/ITaskProcessor.h"
 #include "Common/TaskQueue/ITaskQueue.h"
 #include "Common/ZeroMQWrapper/IProxy.h"
-#include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
 #include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 #include "ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h"
 #include "ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h"
@@ -17,7 +17,8 @@ namespace ManagementAgent::ManagementAgentImpl
     {
     public:
         static int main(int argc, char* argv[]);
-        static int mainForValidArguments(bool withPersistentTelemetry=true);
+        static int mainForValidArguments(bool withPersistentTelemetry = true);
+
     protected:
         using IPluginManager = ManagementAgent::PluginCommunication::IPluginManager;
         using PluginManagerPtr = std::shared_ptr<IPluginManager>;
@@ -38,7 +39,8 @@ namespace ManagementAgent::ManagementAgentImpl
         PluginManagerPtr m_pluginManager;
 
         std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_policyListener;
-        std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_internalPolicyListener;
+        std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener>
+            m_internalPolicyListener;
         std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_actionListener;
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
 

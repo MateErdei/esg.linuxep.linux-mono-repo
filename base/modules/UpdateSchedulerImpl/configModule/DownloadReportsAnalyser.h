@@ -67,7 +67,6 @@ namespace UpdateSchedulerImpl::configModule
         static time_t getLastProductUpdateCheck();
 
     private:
-
         struct FileAndDownloadReport
         {
             std::string filepath;

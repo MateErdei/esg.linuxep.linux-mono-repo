@@ -5,8 +5,8 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/UtilityImpl/StrError.h"
-#include "Telemetry/LoggerImpl/Logger.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Telemetry/LoggerImpl/Logger.h"
 
 #include <algorithm>
 #include <map>

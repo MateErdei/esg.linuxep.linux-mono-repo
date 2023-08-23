@@ -4,6 +4,7 @@
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
+
 #include <sys/capability.h>
 
 namespace Common::FileSystem
@@ -49,9 +50,9 @@ namespace Common::FileSystem
 
         void setFileCapabilities(const Path& path, const cap_t& capabilities) const override;
 
-        unsigned long getInodeFlags(const Path &path) const override;
+        unsigned long getInodeFlags(const Path& path) const override;
 
-      private:
+    private:
         Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper = nullptr;
     };
     std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();

@@ -7,6 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/LoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
+
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>
@@ -49,7 +50,9 @@ void Common::Logging::FileLoggingSetupEx::setupFileLogging(const std::string& lo
     setupFileLoggingWithPath(logFilename, logbase);
 }
 
-void Common::Logging::FileLoggingSetupEx::setupFileLoggingWithPath(const std::string& logfilepath, const std::string& instanceName)
+void Common::Logging::FileLoggingSetupEx::setupFileLoggingWithPath(
+    const std::string& logfilepath,
+    const std::string& instanceName)
 {
     log4cplus::initialize();
 
@@ -60,7 +63,7 @@ void Common::Logging::FileLoggingSetupEx::setupFileLoggingWithPath(const std::st
     const bool createDirs = true;
 
     log4cplus::SharedAppenderPtr appender(
-                    new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
+        new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
     Common::Logging::LoggingSetup::applyDefaultPattern(appender);
     auto logger = Common::Logging::getInstance(instanceName);
     logger.addAppender(appender);

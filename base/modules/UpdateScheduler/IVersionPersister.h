@@ -14,7 +14,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 typedef std::string LineId_t;
 
 // Version of the rigid name
-struct LineVersion {
+struct LineVersion
+{
     std::string version;
     std::string displayVersion;
 };
@@ -22,7 +23,7 @@ struct LineVersion {
 // Case-insensitive comparison for Line IDs.
 struct LineIdLessThan
 {
-    bool operator()(LineId_t const &lineId1, LineId_t const &lineId2) const
+    bool operator()(LineId_t const& lineId1, LineId_t const& lineId2) const
     {
         std::string lineId1_string = lineId1;
         std::string lineId2_string = lineId2;
@@ -43,5 +44,5 @@ struct IVersionPersister
 {
     ~IVersionPersister() {}
     virtual LineVersionMap_t Load() = 0;
-    virtual void Save(LineVersionMap_t const &) = 0;
+    virtual void Save(LineVersionMap_t const&) = 0;
 };

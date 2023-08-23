@@ -9,8 +9,8 @@
 #include "TelemetryProcessor.h"
 
 #include "Common/CurlWrapper/CurlWrapper.h"
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginCommunication/IPluginProxy.h"
 #include "Common/PluginCommunicationImpl/PluginProxy.h"
@@ -98,11 +98,12 @@ namespace Telemetry
         // Plugins telemetry providers
         appendTelemetryProvidersForPlugins(telemetryProviders, telemetryConfig);
 
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(
             telemetryConfig,
             std::make_unique<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper),
-                telemetryProviders);
+            telemetryProviders);
 
         return telemetryProcessor;
     }

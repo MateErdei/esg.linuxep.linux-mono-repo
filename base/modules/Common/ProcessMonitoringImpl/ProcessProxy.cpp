@@ -36,11 +36,13 @@ namespace Common::ProcessMonitoringImpl
         }
         assert(m_sharedState.m_process != nullptr);
         m_sharedState.m_process->setOutputLimit(1024 * 1024);
-        m_sharedState.m_process->setNotifyProcessFinishedCallBack([this](){
-                                                                      LOGDEBUG("Notify process finished callback called");
-                                                                      m_termination_callback_called.store(true);
-                                                                      notifyProcessTerminationCallbackPipe(); // Will definitely happen after the store
-                                                                  });
+        m_sharedState.m_process->setNotifyProcessFinishedCallBack(
+            [this]()
+            {
+                LOGDEBUG("Notify process finished callback called");
+                m_termination_callback_called.store(true);
+                notifyProcessTerminationCallbackPipe(); // Will definitely happen after the store
+            });
     }
 
     void ProcessProxy::start()
@@ -137,7 +139,6 @@ namespace Common::ProcessMonitoringImpl
         int code = m_sharedState.m_process->nativeExitCode();
 
         return code;
-
     }
 
     ProcessProxy::exit_status_t ProcessProxy::checkForExit()
@@ -148,16 +149,16 @@ namespace Common::ProcessMonitoringImpl
         {
             m_termination_callback_called = false;
 
-            LOGINFO("Waiting for "<<m_exe<<" to exit");
+            LOGINFO("Waiting for " << m_exe << " to exit");
             auto start = std::chrono::steady_clock::now();
             // In the process of terminating, so need to wait for exit
             using Common::Process::Milliseconds;
             lock.unlock(); // Lock has to be released while we wait, since callback could take it
-            statusCode = m_sharedState.m_process->wait(Milliseconds{10}, 10);
+            statusCode = m_sharedState.m_process->wait(Milliseconds{ 10 }, 10);
             lock.lock();
             auto end = std::chrono::steady_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            LOGDEBUG("Finished waiting for "<<m_exe<<" to exit after "<<duration.count() << "ms");
+            LOGDEBUG("Finished waiting for " << m_exe << " to exit after " << duration.count() << "ms");
         }
         else
         {
@@ -167,7 +168,7 @@ namespace Common::ProcessMonitoringImpl
         if (!m_sharedState.m_running)
         {
             // Don't print out multiple times
-            return {std::chrono::hours(1), statusCode};
+            return { std::chrono::hours(1), statusCode };
         }
         if (statusCode == Common::Process::ProcessStatus::FINISHED)
         {
@@ -234,9 +235,9 @@ namespace Common::ProcessMonitoringImpl
         else if (!m_sharedState.m_enabled)
         {
             LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
-            return {std::chrono::seconds(5), statusCode};
+            return { std::chrono::seconds(5), statusCode };
         }
-        return {std::chrono::hours(1), statusCode};
+        return { std::chrono::hours(1), statusCode };
     }
 
     std::chrono::seconds ProcessProxy::ensureStateMatchesOptions()
@@ -308,7 +309,10 @@ namespace Common::ProcessMonitoringImpl
         return data.second == Process::ProcessStatus::RUNNING;
     }
 
-    std::string ProcessProxy::name() const { return ""; }
+    std::string ProcessProxy::name() const
+    {
+        return "";
+    }
 
     bool ProcessProxy::runningFlag()
     {

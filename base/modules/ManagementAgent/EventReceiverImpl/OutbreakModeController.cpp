@@ -65,22 +65,18 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
         auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
         auto outbreakXml = generateCoreOutbreakEvent(timestamp);
         LOGDEBUG("Sending outbreak mode report: " << outbreakXml);
-        ManagementAgent::EventReceiverImpl::sendEvent({"CORE", outbreakXml});
+        ManagementAgent::EventReceiverImpl::sendEvent({ "CORE", outbreakXml });
         save(timestamp);
     }
     return false; // Still send the 100th event
 }
 
-
 std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateUUID()
 {
     return Common::UtilityImpl::Uuid::CreateVersion5(
-        { 0xed, 0xbe, 0x6e, 0x5d,
-          0x89, 0x43,
-          0x42, 0x6d,
-          0xa2, 0x28,
-          0x98, 0x92, 0x7d, 0xb0, 0xd8, 0x57
-        }, // "edbe6e5d-8943-426d-a228-98927db0d857" Random Namespace
+        { 0xed, 0xbe, 0x6e, 0x5d, 0x89, 0x43, 0x42, 0x6d, 0xa2, 0x28, 0x98, 0x92, 0x7d, 0xb0, 0xd8, 0x57 }, // "edbe6e5d-8943-426d-a228-98927db0d857"
+                                                                                                            // Random
+                                                                                                            // Namespace
         "OUTBREAK EVENT" // Name
     );
 }
@@ -106,7 +102,9 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
     ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
 {
     auto nowTime = clock_t::to_time_t(now);
-    struct tm nowTm{};
+    struct tm nowTm
+    {
+    };
     localtime_r(&nowTime, &nowTm);
     // We need to compare year, month and day, to avoid aliasing
     // e.g. 99 alters 2023-01-17, and 2 more 2023-02-17, would go into outbreak mode

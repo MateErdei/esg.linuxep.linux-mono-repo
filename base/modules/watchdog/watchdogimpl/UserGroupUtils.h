@@ -24,7 +24,10 @@ namespace watchdog::watchdogimpl
      * @param actualConfigJson
      * @return id changes that are valid and should be applied
      */
-    std::set<std::string> getInvalidIdsToRemove(const std::string& jsonKey, const WatchdogUserGroupIDs& requestedConfigJson, const WatchdogUserGroupIDs& actualConfigJson);
+    std::set<std::string> getInvalidIdsToRemove(
+        const std::string& jsonKey,
+        const WatchdogUserGroupIDs& requestedConfigJson,
+        const WatchdogUserGroupIDs& actualConfigJson);
 
     /**
      * Validates requested user and group ID changes, removing root or duplicated user/group ID
@@ -100,6 +103,6 @@ namespace watchdog::watchdogimpl
     /**
      * Apply capabilities on files that components require to function
      */
-     void applyCapabilities();
+    void applyCapabilities();
 
 } // namespace watchdog::watchdogimpl

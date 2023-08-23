@@ -34,9 +34,7 @@ namespace UpdateSchedulerImpl::cronModule
         m_onDelayUpdateWaitTime(onDelayUpdateWaitTime),
         m_actionOnInterrupt(ActionOnInterrupt::NOTHING),
         m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes)),
-        m_crossThreadState{ .m_periodTick = { repeatPeriod },
-                            .m_updateOnStartUp = true,
-                            .m_changed = true },
+        m_crossThreadState{ .m_periodTick = { repeatPeriod }, .m_updateOnStartUp = true, .m_changed = true },
         m_inThreadState{}
     {
     }
@@ -129,7 +127,6 @@ namespace UpdateSchedulerImpl::cronModule
                     LOGSUPPORT("Trigger new update"); // this one is the regular update does not need INFO level.
                     m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                 }
-
             }
             else
             {
@@ -175,9 +172,15 @@ namespace UpdateSchedulerImpl::cronModule
         return copyAction;
     }
 
-    void CronSchedulerThread::start() { AbstractThread::start(); }
+    void CronSchedulerThread::start()
+    {
+        AbstractThread::start();
+    }
 
-    void CronSchedulerThread::join() { AbstractThread::join(); }
+    void CronSchedulerThread::join()
+    {
+        AbstractThread::join();
+    }
 
     void CronSchedulerThread::updateInThreadState()
     {

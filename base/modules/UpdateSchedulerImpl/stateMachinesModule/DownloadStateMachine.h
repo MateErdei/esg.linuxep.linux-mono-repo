@@ -17,7 +17,9 @@ namespace stateMachinesModule
         void HandleFailure(const std::chrono::system_clock::time_point& now, int decrement);
 
     public:
-        DownloadStateMachine(const StateData::DownloadMachineState& state, const std::chrono::system_clock::time_point& now);
+        DownloadStateMachine(
+            const StateData::DownloadMachineState& state,
+            const std::chrono::system_clock::time_point& now);
 
         void SignalDownloadResult(
             StateData::DownloadResultEnum downloadResult,
@@ -26,6 +28,5 @@ namespace stateMachinesModule
         StateData::DownloadMachineState CurrentState() const;
 
         int getOverallState() const;
-
     };
 } // namespace stateMachinesModule

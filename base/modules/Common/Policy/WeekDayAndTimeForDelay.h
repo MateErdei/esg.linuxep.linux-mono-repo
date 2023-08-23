@@ -12,4 +12,4 @@ namespace Common::Policy
         int minute = 0;
         // seconds is not used when setting up delayed updates
     };
-}
+} // namespace Common::Policy

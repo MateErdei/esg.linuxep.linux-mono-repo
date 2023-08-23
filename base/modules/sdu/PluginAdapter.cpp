@@ -1,10 +1,11 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
-#include "PluginUtils.h"
-#include "Logger.h"
-#include "Common/Exceptions/NestedException.h"
 
+#include "Logger.h"
+#include "PluginUtils.h"
+
+#include "Common/Exceptions/NestedException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/PluginApi/ApiException.h"
 
@@ -44,7 +45,7 @@ namespace RemoteDiagnoseImpl
                     // and another to state we are finished.  Diagnose can only take a few seconds which is too quick
                     // with regards to sending status message that will not overwrite each other and for
                     // the status messages to be processed by central.
-                    std::this_thread::sleep_for(std::chrono::seconds (120));
+                    std::this_thread::sleep_for(std::chrono::seconds(120));
                     LOGDEBUG("Starting diagnose");
                     m_processing = true;
                     processAction(task.Content);
@@ -72,18 +73,18 @@ namespace RemoteDiagnoseImpl
                     break;
                 default:
                     break;
-
             }
         }
         LOGSUPPORT("Left the plugin adapter main thread");
     }
 
-    void PluginAdapter::processAction(const std::string& actionXml) {
+    void PluginAdapter::processAction(const std::string& actionXml)
+    {
         try
         {
             m_url = RemoteDiagnoseImpl::PluginUtils::processAction(actionXml);
         }
-        catch(std::exception& ex)
+        catch (std::exception& ex)
         {
             LOGERROR("Error when processing action in processAction()");
             LOGERROR(Common::Exceptions::NestedExceptions::expandException(ex));
@@ -101,12 +102,12 @@ namespace RemoteDiagnoseImpl
     void PluginAdapter::sendStartedStatus()
     {
         std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(1);
-        m_baseService->sendStatus("SDU",status,status);
+        m_baseService->sendStatus("SDU", status, status);
     }
     void PluginAdapter::sendFinishedStatus()
     {
         std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
-        m_baseService->sendStatus("SDU",status,status);
+        m_baseService->sendStatus("SDU", status, status);
     }
 
     PluginAdapter::~PluginAdapter()

@@ -4,6 +4,7 @@
 
 #include "SocketUtil.h"
 #include "ZeroMQWrapperException.h"
+
 #include <zmq.h>
 
 using namespace Common::ZeroMQWrapperImpl;

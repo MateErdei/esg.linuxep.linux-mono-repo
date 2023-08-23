@@ -15,42 +15,43 @@
 #include <list>
 
 namespace watchdog::watchdogimpl
+{
+    using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
+    using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
+
+    static const std::string watchdogReturnsOk = "OK";                  // NOLINT
+    static const std::string watchdogReturnsNotRunning = "Not Running"; // NOLINT
+
+    class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
     {
-        using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
-        using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
+    public:
+        explicit Watchdog();
+        explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
+        ~Watchdog() override;
+        int initialiseAndRun();
+        PluginInfoVector readPluginConfigs();
+        std::vector<std::string> getListOfPluginNames();
 
-        static const std::string watchdogReturnsOk = "OK";                  // NOLINT
-        static const std::string watchdogReturnsNotRunning = "Not Running"; // NOLINT
+    protected:
+        std::string getIPCPath();
+        void setupSocket();
+        void handleSocketRequest();
+        void writeExecutableUserAndGroupToActualUserGroupIdConfig();
+        std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
+        void reconfigureUserAndGroupIds();
 
-        class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
-        {
-        public:
-            explicit Watchdog();
-            explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
-            ~Watchdog() override;
-            int initialiseAndRun();
-            PluginInfoVector readPluginConfigs();
-            std::vector<std::string> getListOfPluginNames();
-        protected:
-            std::string getIPCPath();
-            void setupSocket();
-            void handleSocketRequest();
-            void writeExecutableUserAndGroupToActualUserGroupIdConfig();
-            std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
-            void reconfigureUserAndGroupIds();
+        std::string disablePlugin(const std::string& pluginName);
+        std::string enablePlugin(const std::string& pluginName);
+        std::string checkPluginIsRunning(const std::string& pluginName);
+        /**
+         * Stop the plugin if it is running, and remove it from m_pluginProxies.
+         * @param pluginName
+         * @return "OK" or an error
+         */
+        std::string removePlugin(const std::string& pluginName);
 
-            std::string disablePlugin(const std::string& pluginName);
-            std::string enablePlugin(const std::string& pluginName);
-            std::string checkPluginIsRunning(const std::string& pluginName);
-            /**
-             * Stop the plugin if it is running, and remove it from m_pluginProxies.
-             * @param pluginName
-             * @return "OK" or an error
-             */
-            std::string removePlugin(const std::string& pluginName);
-
-        private:
-            Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
-            WatchdogServiceLine m_watchdogservice;
-        };
-    } // namespace watchdog::watchdogimpl
+    private:
+        Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
+        WatchdogServiceLine m_watchdogservice;
+    };
+} // namespace watchdog::watchdogimpl

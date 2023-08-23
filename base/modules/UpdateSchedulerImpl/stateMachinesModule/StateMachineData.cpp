@@ -3,93 +3,117 @@
 #include "StateMachineData.h"
 
 #include "Logger.h"
+#include "StateMachineData.pb.h"
 #include "StateMachineException.h"
 
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <google/protobuf/util/json_util.h>
-#include "StateMachineData.pb.h"
+
 #include <sstream>
 
 namespace UpdateSchedulerImpl::StateData
 {
-    StateMachineData::StateMachineData()
-    : m_downloadFailedSinceTime("0")
-     , m_downloadState("1")
-     , m_downloadStateCredit("0")
-     , m_eventStateLastError("0")
-     , m_eventStateLastTime("0")
-     , m_installFailedSinceTime("0")
-     , m_installState("1")
-     , m_installStateCredit("0")
-     , m_lastGoodInstallTime("0")
-     , m_canSendEvent(true)
+    StateMachineData::StateMachineData() :
+        m_downloadFailedSinceTime("0"),
+        m_downloadState("1"),
+        m_downloadStateCredit("0"),
+        m_eventStateLastError("0"),
+        m_eventStateLastTime("0"),
+        m_installFailedSinceTime("0"),
+        m_installState("1"),
+        m_installStateCredit("0"),
+        m_lastGoodInstallTime("0"),
+        m_canSendEvent(true)
     {
-
     }
     const std::string& StateMachineData::getDownloadFailedSinceTime() const
     {
         return m_downloadFailedSinceTime;
     }
 
-    const std::string& StateMachineData::getDownloadState() const { return m_downloadState; }
+    const std::string& StateMachineData::getDownloadState() const
+    {
+        return m_downloadState;
+    }
 
-    const std::string& StateMachineData::getDownloadStateCredit() const { return m_downloadStateCredit; }
+    const std::string& StateMachineData::getDownloadStateCredit() const
+    {
+        return m_downloadStateCredit;
+    }
 
-    const std::string& StateMachineData::getEventStateLastError() const { return m_eventStateLastError; }
+    const std::string& StateMachineData::getEventStateLastError() const
+    {
+        return m_eventStateLastError;
+    }
 
-    const std::string& StateMachineData::getEventStateLastTime() const { return m_eventStateLastTime; }
+    const std::string& StateMachineData::getEventStateLastTime() const
+    {
+        return m_eventStateLastTime;
+    }
 
-    const std::string& StateMachineData::getInstallFailedSinceTime() const { return m_installFailedSinceTime; }
+    const std::string& StateMachineData::getInstallFailedSinceTime() const
+    {
+        return m_installFailedSinceTime;
+    }
 
-    const std::string& StateMachineData::getInstallState() const { return m_installState; }
+    const std::string& StateMachineData::getInstallState() const
+    {
+        return m_installState;
+    }
 
-    const std::string& StateMachineData::getInstallStateCredit() const { return m_installStateCredit; }
+    const std::string& StateMachineData::getInstallStateCredit() const
+    {
+        return m_installStateCredit;
+    }
 
-    const std::string& StateMachineData::getLastGoodInstallTime() const { return m_lastGoodInstallTime; }
+    const std::string& StateMachineData::getLastGoodInstallTime() const
+    {
+        return m_lastGoodInstallTime;
+    }
 
-    void StateMachineData::setDownloadFailedSinceTime( const std::string& downloadFailedSinceTime)
+    void StateMachineData::setDownloadFailedSinceTime(const std::string& downloadFailedSinceTime)
     {
         m_downloadFailedSinceTime = downloadFailedSinceTime;
     }
 
-    void StateMachineData::setDownloadState( const std::string& downloadState)
+    void StateMachineData::setDownloadState(const std::string& downloadState)
     {
         m_downloadState = downloadState;
     }
 
-    void StateMachineData::setDownloadStateCredit( const std::string& downloadStateCredit)
+    void StateMachineData::setDownloadStateCredit(const std::string& downloadStateCredit)
     {
         m_downloadStateCredit = downloadStateCredit;
     }
 
-    void StateMachineData::setEventStateLastError( const std::string& eventStateLastError)
+    void StateMachineData::setEventStateLastError(const std::string& eventStateLastError)
     {
         m_eventStateLastError = eventStateLastError;
     }
 
-    void StateMachineData::setEventStateLastTime( const std::string& eventStateLastTime)
+    void StateMachineData::setEventStateLastTime(const std::string& eventStateLastTime)
     {
         m_eventStateLastTime = eventStateLastTime;
     }
 
-    void StateMachineData::setInstallFailedSinceTime( const std::string& installFailedSinceTime)
+    void StateMachineData::setInstallFailedSinceTime(const std::string& installFailedSinceTime)
     {
         m_installFailedSinceTime = installFailedSinceTime;
     }
 
-    void StateMachineData::setInstallState( const std::string& installState)
+    void StateMachineData::setInstallState(const std::string& installState)
     {
         m_installState = installState;
     }
 
-    void StateMachineData::setInstallStateCredit( const std::string& installStateCredit)
+    void StateMachineData::setInstallStateCredit(const std::string& installStateCredit)
     {
         m_installStateCredit = installStateCredit;
     }
 
-    void StateMachineData::setLastGoodInstallTime( const std::string& lastGoodInstallTime)
+    void StateMachineData::setLastGoodInstallTime(const std::string& lastGoodInstallTime)
     {
         m_lastGoodInstallTime = lastGoodInstallTime;
     }
@@ -145,8 +169,8 @@ namespace UpdateSchedulerImpl::StateData
 
         stateMachineData.m_downloadFailedSinceTime = std::to_string(
             Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.downloadfailedsincetime()).first);
-        stateMachineData.m_downloadState = std::to_string(
-            Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.downloadstate()).first);
+        stateMachineData.m_downloadState =
+            std::to_string(Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.downloadstate()).first);
         stateMachineData.m_downloadStateCredit = std::to_string(
             Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.downloadstatecredit()).first);
         stateMachineData.m_eventStateLastError = protoStateMachine.eventstatelasterror();
@@ -154,10 +178,10 @@ namespace UpdateSchedulerImpl::StateData
             Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.eventstatelasttime()).first);
         stateMachineData.m_installFailedSinceTime = std::to_string(
             Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.installfailedsincetime()).first);
-        stateMachineData.m_installState = std::to_string(
-            Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstate()).first);
-        stateMachineData.m_installStateCredit = std::to_string(
-            Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstatecredit()).first);
+        stateMachineData.m_installState =
+            std::to_string(Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstate()).first);
+        stateMachineData.m_installStateCredit =
+            std::to_string(Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstatecredit()).first);
         stateMachineData.m_lastGoodInstallTime = std::to_string(
             Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.lastgoodinstalltime()).first);
         stateMachineData.m_canSendEvent = protoStateMachine.cansendevent();

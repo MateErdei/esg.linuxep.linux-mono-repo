@@ -34,7 +34,8 @@ PluginProxy::exit_status_t PluginProxy::checkForExit()
                 watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()), 1UL);
             auto nativeCode = nativeExitCode();
             Common::Telemetry::TelemetryHelper::getInstance().increment(
-                watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(name(), nativeCode), 1UL);
+                watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(name(), nativeCode),
+                1UL);
         }
     }
     return processProxyPair;

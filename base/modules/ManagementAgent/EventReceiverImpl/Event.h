@@ -17,8 +17,6 @@ namespace ManagementAgent::EventReceiverImpl
 
         bool isCountableEvent() const;
         bool isBlockableEvent() const;
-
     };
 
-
-}
+} // namespace ManagementAgent::EventReceiverImpl

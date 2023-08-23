@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/Reactor/ICallbackListener.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
+
 #include <functional>
 
 namespace zmqchecker
@@ -16,7 +17,8 @@ namespace zmqchecker
     {
     public:
         explicit ZmqCheckerMessageHandler(
-                std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier, bool ignoreRequests=false);
+            std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier,
+            bool ignoreRequests = false);
 
         void messageHandler(Common::ZeroMQWrapper::IReadable::data_t) override;
 
@@ -24,4 +26,4 @@ namespace zmqchecker
         std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> m_socketReplier;
         bool m_ignoreRequests;
     };
-}
+} // namespace zmqchecker

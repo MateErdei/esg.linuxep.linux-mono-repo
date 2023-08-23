@@ -4,8 +4,8 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "ManagementAgent/LoggerImpl/Logger.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 #include <sys/stat.h>
 
@@ -14,9 +14,7 @@
 
 using namespace ManagementAgent::EventReceiverImpl;
 
-Event::Event(std::string appId, std::string eventXml)
-    : appId_(std::move(appId)), eventXml_(std::move(eventXml))
-{}
+Event::Event(std::string appId, std::string eventXml) : appId_(std::move(appId)), eventXml_(std::move(eventXml)) {}
 
 namespace
 {
@@ -51,7 +49,8 @@ void Event::send() const
     Path dest = Common::FileSystem::join(eventDir, basename);
     assert(!dest.empty());
 
-    Common::FileSystem::fileSystem()->writeFileAtomically(dest, eventXml_, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    Common::FileSystem::fileSystem()->writeFileAtomically(
+        dest, eventXml_, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 }
 
 bool Event::isCountableEvent() const

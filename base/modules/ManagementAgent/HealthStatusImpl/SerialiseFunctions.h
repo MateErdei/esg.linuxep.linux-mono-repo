@@ -13,5 +13,9 @@ namespace ManagementAgent::HealthStatusImpl
 
     std::map<std::string, PluginCommunication::PluginHealthStatus> deserialiseThreatHealth(
         const std::string& pluginThreatHealthJsonString);
-    std::pair<bool,std::string> compareAndUpdateOverallHealth(healthValue_t health,healthValue_t service,healthValue_t threatService,healthValue_t threat);
+    std::pair<bool, std::string> compareAndUpdateOverallHealth(
+        healthValue_t health,
+        healthValue_t service,
+        healthValue_t threatService,
+        healthValue_t threat);
 } // namespace ManagementAgent::HealthStatusImpl

@@ -8,8 +8,8 @@
 
 namespace ManagementAgent::PluginCommunicationImpl
 {
-    PluginServerCallback::PluginServerCallback(PluginCommunication::IPluginManager& pluginManagerPtr)
-            : m_pluginManager(pluginManagerPtr)
+    PluginServerCallback::PluginServerCallback(PluginCommunication::IPluginManager& pluginManagerPtr) :
+        m_pluginManager(pluginManagerPtr)
     {
     }
 
@@ -73,12 +73,10 @@ namespace ManagementAgent::PluginCommunicationImpl
                 "Information for the plugin not found in the registry: " + pluginName);
         }
         // Creates the pluginProxy
-        m_pluginManager.registerAndConfigure(
-            pluginName, pluginInfo);
+        m_pluginManager.registerAndConfigure(pluginName, pluginInfo);
     }
 
-    void PluginServerCallback::setStatusReceiver(
-        std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+    void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
     {
         LOGDEBUG("Status Receiver armed");
         m_statusReceiver = statusReceiver;
@@ -96,13 +94,17 @@ namespace ManagementAgent::PluginCommunicationImpl
         m_policyReceiver = receiver;
     }
 
-    void PluginServerCallback::setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+    void PluginServerCallback::setThreatHealthReceiver(
+        std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
     {
         LOGDEBUG("Threat Health Receiver armed");
         m_threatHealthReceiver = receiver;
     }
 
-    bool PluginServerCallback::receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj)
+    bool PluginServerCallback::receivedThreatHealth(
+        const std::string& pluginName,
+        const std::string& threatHealth,
+        std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj)
     {
         LOGDEBUG("Received Threat Health: " << pluginName << ":" << threatHealth);
         bool successful = false;

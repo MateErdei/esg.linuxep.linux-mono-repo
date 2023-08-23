@@ -37,10 +37,7 @@ namespace Common::PluginApiImpl
         Common::ZMQWrapperApi::IContextSharedPtr getSocketContext();
 
     private:
-        static void setTimeouts(
-            Common::ZeroMQWrapper::ISocketSetup& socket,
-            int defaultTimeout,
-            int ConnectTimeOut);
+        static void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket, int defaultTimeout, int ConnectTimeOut);
         void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
         Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
         int m_defaultTimeout;

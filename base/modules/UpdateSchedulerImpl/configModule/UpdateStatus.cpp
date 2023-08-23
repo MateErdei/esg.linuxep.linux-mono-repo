@@ -5,7 +5,6 @@
 
 #include "Common/UtilityImpl/TimeUtils.h"
 
-
 namespace
 {
     namespace pt = boost::property_tree;
@@ -19,14 +18,17 @@ namespace
      * @param products
      * @param subscriptionsNode
      */
-    void addSubscriptionElements(const std::vector<ProductStatus>& products, const std::vector<std::string>& subscriptionsInPolicy, pt::ptree& subscriptionsNode)
+    void addSubscriptionElements(
+        const std::vector<ProductStatus>& products,
+        const std::vector<std::string>& subscriptionsInPolicy,
+        pt::ptree& subscriptionsNode)
     {
         for (auto& product : products)
         {
             // Central will only process subscription data which it has been hard cooded to know about.
             // Need to filter out products based on subscription list taken from ALC policy.
             bool subscriptionValid = false;
-            for(auto& validSubscriptionRigidName : subscriptionsInPolicy)
+            for (auto& validSubscriptionRigidName : subscriptionsInPolicy)
             {
                 if (product.RigidName == validSubscriptionRigidName)
                 {
@@ -77,7 +79,7 @@ namespace
         }
     }
 
-    void addStates(pt::ptree& autoUpdate, const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData )
+    void addStates(pt::ptree& autoUpdate, const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData)
     {
         // Adding Download State Machine Data
         std::string downloadStateStatusValue("bad");
@@ -91,9 +93,11 @@ namespace
 
         if (stateMachineData.getDownloadState() != "0")
         {
-            long epoch = stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getDownloadFailedSinceTime());
+            long epoch = stateMachineData.getDownloadFailedSinceTime().empty()
+                             ? 0
+                             : std::stol(stateMachineData.getDownloadFailedSinceTime());
             std::chrono::system_clock::time_point tpdownloadFailed((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpdownloadFailed);
+            convertedtimeStamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpdownloadFailed);
             autoUpdate.add("downloadState.failedSince", convertedtimeStamp);
         }
 
@@ -108,18 +112,22 @@ namespace
 
         autoUpdate.put("installState.state", installStateStatusValue);
 
-        if(stateMachineData.getInstallState() == "0")
+        if (stateMachineData.getInstallState() == "0")
         {
-            long epoch = stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(stateMachineData.getLastGoodInstallTime());
+            long epoch = stateMachineData.getLastGoodInstallTime().empty()
+                             ? 0
+                             : std::stol(stateMachineData.getLastGoodInstallTime());
             std::chrono::system_clock::time_point tpLastGoodInstall((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpLastGoodInstall);
+            convertedtimeStamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpLastGoodInstall);
             autoUpdate.add("installState.lastGood", convertedtimeStamp);
         }
         else
         {
-            long epoch = stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getInstallFailedSinceTime());
+            long epoch = stateMachineData.getInstallFailedSinceTime().empty()
+                             ? 0
+                             : std::stol(stateMachineData.getInstallFailedSinceTime());
             std::chrono::system_clock::time_point tpInstallFailed((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpInstallFailed);
+            convertedtimeStamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpInstallFailed);
             autoUpdate.add("installState.failedSince", convertedtimeStamp);
         }
     }
@@ -197,7 +205,7 @@ namespace UpdateSchedulerImpl::configModule
 
         addSubscriptionElements(status.Subscriptions, subscriptionsInPolicy, statusNode.get_child("subscriptions"));
         addProductsElements(status.Products, statusNode.get_child("products"));
-        addFeatures(features,statusNode.get_child("Features"));
+        addFeatures(features, statusNode.get_child("Features"));
         return toString(tree);
     }
 } // namespace UpdateSchedulerImpl::configModule

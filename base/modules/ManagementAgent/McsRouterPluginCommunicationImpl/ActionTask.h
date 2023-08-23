@@ -22,7 +22,6 @@ namespace ManagementAgent::McsRouterPluginCommunicationImpl
         std::string m_filePath;
     };
 
-
     class FailedToConvertTtlException : public std::runtime_error
     {
     public:

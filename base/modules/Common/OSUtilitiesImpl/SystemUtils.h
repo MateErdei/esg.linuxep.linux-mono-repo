@@ -8,6 +8,6 @@ namespace OSUtilitiesImpl
     class SystemUtils : public OSUtilities::ISystemUtils
     {
     public:
-         std::string getEnvironmentVariable(const std::string& key) const override;
+        std::string getEnvironmentVariable(const std::string& key) const override;
     };
-}
+} // namespace OSUtilitiesImpl

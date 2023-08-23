@@ -20,7 +20,7 @@ namespace UpdateScheduler
         std::unique_lock<std::mutex> lock(m_mutex);
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        m_cond.wait_until(lock, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        m_cond.wait_until(lock, now + std::chrono::seconds(timeout), [this] { return !m_list.empty(); });
 
         if (m_list.empty())
         {
@@ -29,7 +29,7 @@ namespace UpdateScheduler
 
         SchedulerTask val = m_list.front();
         m_list.pop_front();
-        task =  val;
+        task = val;
         return true;
     }
 

@@ -6,7 +6,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 
 namespace RemoteDiagnoseImpl
@@ -35,4 +34,4 @@ namespace RemoteDiagnoseImpl
         virtual Task pop(bool isRunning) = 0;
     };
 
-} // namespace TelemetrySchedulerImpl
+} // namespace RemoteDiagnoseImpl

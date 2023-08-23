@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Common/Reactor/ICallbackListener.h"
-
 #include "Common/Reactor/IShutdownListener.h"
 
 #include <functional>

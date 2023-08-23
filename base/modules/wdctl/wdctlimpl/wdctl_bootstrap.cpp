@@ -6,12 +6,13 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/FileLoggingSetup.h"
-#include <sys/select.h>
 #include "wdctl/wdctlactions/CopyPlugin.h"
 #include "wdctl/wdctlactions/IsRunning.h"
 #include "wdctl/wdctlactions/RemoveAction.h"
 #include "wdctl/wdctlactions/StartAction.h"
 #include "wdctl/wdctlactions/StopAction.h"
+
+#include <sys/select.h>
 
 #include <csignal>
 #include <cstdlib>
@@ -25,7 +26,7 @@ int wdctl_bootstrap::main(int argc, char** argv)
     if (argc < 3)
     {
         // calling wdctl with wrong number of arguments will happen by users calling, hence, console output is correct.
-        std::cerr << "Error: Wrong number of arguments expected at least 2 got " << (argc-1) << std::endl;
+        std::cerr << "Error: Wrong number of arguments expected at least 2 got " << (argc - 1) << std::endl;
         return 2;
     }
 

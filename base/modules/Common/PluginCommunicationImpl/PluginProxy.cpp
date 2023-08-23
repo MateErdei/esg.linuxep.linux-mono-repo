@@ -16,13 +16,13 @@ namespace Common::PluginCommunicationImpl
 {
     PluginProxy::PluginProxy(
         Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester,
-        const std::string& pluginName)
-        : m_socket(std::move(socketRequester))
-        , m_messageBuilder(pluginName)
-        , m_name(pluginName)
-        , m_serviceHealth(false)
-        , m_threatServiceHealth(false)
-        , m_displayPluginName("")
+        const std::string& pluginName) :
+        m_socket(std::move(socketRequester)),
+        m_messageBuilder(pluginName),
+        m_name(pluginName),
+        m_serviceHealth(false),
+        m_threatServiceHealth(false),
+        m_displayPluginName("")
 
     {
         m_appIdCollection.setAppIdsForStatus({ pluginName });
@@ -113,8 +113,7 @@ namespace Common::PluginCommunicationImpl
         return m_messageBuilder.replyExtractHealth(reply);
     }
 
-    Common::PluginProtocol::DataMessage PluginProxy::getReply(
-        const Common::PluginProtocol::DataMessage& request) const
+    Common::PluginProtocol::DataMessage PluginProxy::getReply(const Common::PluginProtocol::DataMessage& request) const
     {
         Common::PluginProtocol::Protocol protocol;
         Common::PluginProtocol::DataMessage reply;
@@ -161,14 +160,20 @@ namespace Common::PluginCommunicationImpl
         m_appIdCollection.setAppIdsForStatus(appIds);
     }
 
-    bool PluginProxy::hasPolicyAppId(const std::string& appId) { return m_appIdCollection.usePolicyId(appId); }
+    bool PluginProxy::hasPolicyAppId(const std::string& appId)
+    {
+        return m_appIdCollection.usePolicyId(appId);
+    }
 
     bool PluginProxy::hasActionAppId(const std::string& appId)
     {
         return m_appIdCollection.implementActionId(appId);
     }
 
-    bool PluginProxy::hasStatusAppId(const std::string& appId) { return m_appIdCollection.implementStatus(appId); }
+    bool PluginProxy::hasStatusAppId(const std::string& appId)
+    {
+        return m_appIdCollection.implementStatus(appId);
+    }
 
     void PluginProxy::setServiceHealth(bool serviceHealth)
     {

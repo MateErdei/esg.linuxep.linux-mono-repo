@@ -80,6 +80,7 @@ namespace diagnose
          * Returns the location the diagnose files are being gathered in
          */
         Path getRootLocation();
+
     protected:
         /*
          * Creates directories

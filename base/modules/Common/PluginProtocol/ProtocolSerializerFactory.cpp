@@ -11,8 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common::PluginProtocol
 {
-    std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::
-        createProtocolSerializer()
+    std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::createProtocolSerializer()
     {
         return std::unique_ptr<Common::PluginProtocol::IProtocolSerializer>(
             new Common::PluginProtocol::ProtocolSerializer());

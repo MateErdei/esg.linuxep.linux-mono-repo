@@ -15,6 +15,7 @@
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+
 #include <sys/stat.h>
 
 #include <unistd.h>
@@ -25,7 +26,7 @@ namespace Common
     {
         return std::unique_ptr<IPluginResourceManagement>(new Common::PluginApiImpl::PluginResourceManagement());
     }
-}
+} // namespace Common
 
 namespace Common::PluginApiImpl
 {
@@ -71,9 +72,7 @@ namespace Common::PluginApiImpl
     }
 
     PluginResourceManagement::PluginResourceManagement() :
-        m_contextPtr(Common::ZMQWrapperApi::createContext()),
-        m_defaultTimeout(10000),
-        m_defaultConnectTimeout(10000)
+        m_contextPtr(Common::ZMQWrapperApi::createContext()), m_defaultTimeout(10000), m_defaultConnectTimeout(10000)
     {
     }
     PluginResourceManagement::PluginResourceManagement(Common::ZMQWrapperApi::IContextSharedPtr context) :
@@ -116,9 +115,15 @@ namespace Common::PluginApiImpl
         }
     }
 
-    void PluginResourceManagement::setDefaultTimeout(int timeoutMs) { m_defaultTimeout = timeoutMs; }
+    void PluginResourceManagement::setDefaultTimeout(int timeoutMs)
+    {
+        m_defaultTimeout = timeoutMs;
+    }
 
-    void PluginResourceManagement::setDefaultConnectTimeout(int timeoutMs) { m_defaultConnectTimeout = timeoutMs; }
+    void PluginResourceManagement::setDefaultConnectTimeout(int timeoutMs)
+    {
+        m_defaultConnectTimeout = timeoutMs;
+    }
 
     void PluginResourceManagement::setTimeouts(
         Common::ZeroMQWrapper::ISocketSetup& socket,
@@ -133,5 +138,8 @@ namespace Common::PluginApiImpl
         setTimeouts(socket, m_defaultTimeout, m_defaultConnectTimeout);
     }
 
-    Common::ZMQWrapperApi::IContextSharedPtr PluginResourceManagement::getSocketContext() { return m_contextPtr; }
+    Common::ZMQWrapperApi::IContextSharedPtr PluginResourceManagement::getSocketContext()
+    {
+        return m_contextPtr;
+    }
 } // namespace Common::PluginApiImpl

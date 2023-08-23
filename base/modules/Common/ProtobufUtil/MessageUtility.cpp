@@ -26,4 +26,4 @@ namespace Common::ProtobufUtil
         }
         return json_output;
     }
-} // namespace Common
+} // namespace Common::ProtobufUtil

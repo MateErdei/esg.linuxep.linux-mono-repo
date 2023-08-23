@@ -6,13 +6,8 @@
 
 using namespace SulDownloader::suldownloaderdata;
 
-ConnectionSetup::ConnectionSetup(
-    const std::string& updateLocationURL,
-    bool isCacheUpdate,
-    const proxy_t& proxy) :
-    m_updateLocationURL(updateLocationURL),
-    m_isUpdateCache(isCacheUpdate),
-    m_proxy(proxy)
+ConnectionSetup::ConnectionSetup(const std::string& updateLocationURL, bool isCacheUpdate, const proxy_t& proxy) :
+    m_updateLocationURL(updateLocationURL), m_isUpdateCache(isCacheUpdate), m_proxy(proxy)
 {
 }
 

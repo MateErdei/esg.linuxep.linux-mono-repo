@@ -1,24 +1,24 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "HttpRequesterImpl.h"
 
 #include "CurlFunctionsProvider.h"
 #include "Logger.h"
 
+#include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "Common/CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
+
+#include <utility>
 
 namespace Common::HttpRequestsImpl
 {
 
     HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) :
-        m_curlWrapper(curlWrapper)
+        m_curlWrapper(std::move(curlWrapper))
     {
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT);
         if (result != CURLE_OK)
@@ -76,9 +76,11 @@ namespace Common::HttpRequestsImpl
         // cURL options are built up in this container and then applied at the end
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
 
-        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_HEADERFUNCTION, (void *)CurlFunctionsProvider::curlWriteHeadersFunc);
+        m_curlWrapper->curlEasySetFuncOpt(
+            m_curlHandle, CURLOPT_HEADERFUNCTION, (void*)CurlFunctionsProvider::curlWriteHeadersFunc);
         m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
-        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_DEBUGFUNCTION, (void *)CurlFunctionsProvider::curlWriteDebugFunc);
+        m_curlWrapper->curlEasySetFuncOpt(
+            m_curlHandle, CURLOPT_DEBUGFUNCTION, (void*)CurlFunctionsProvider::curlWriteDebugFunc);
 
         // Handle data being downloaded, directly to buffer or to a file.
         if (request.fileDownloadLocation.has_value())
@@ -100,12 +102,14 @@ namespace Common::HttpRequestsImpl
                 LOGDEBUG("Saving downloaded file to file: " << request.fileDownloadLocation.value());
                 responseBuffer.downloadFilePath = request.fileDownloadLocation.value();
             }
-            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFileFunc);
+            m_curlWrapper->curlEasySetFuncOpt(
+                m_curlHandle, CURLOPT_WRITEFUNCTION, (void*)CurlFunctionsProvider::curlWriteFileFunc);
             m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
         }
         else
         {
-            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFunc);
+            m_curlWrapper->curlEasySetFuncOpt(
+                m_curlHandle, CURLOPT_WRITEFUNCTION, (void*)CurlFunctionsProvider::curlWriteFunc);
             m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
         }
 
@@ -137,7 +141,8 @@ namespace Common::HttpRequestsImpl
         {
             if (FileSystem::fileSystem()->isFile(request.fileToUpload.value()))
             {
-                m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_READFUNCTION, (void *)CurlFunctionsProvider::curlFileReadFunc);
+                m_curlWrapper->curlEasySetFuncOpt(
+                    m_curlHandle, CURLOPT_READFUNCTION, (void*)CurlFunctionsProvider::curlFileReadFunc);
                 fileToSend.reset(fopen(request.fileToUpload.value().c_str(), "rb"));
                 if (fileToSend != nullptr)
                 {
@@ -147,8 +152,12 @@ namespace Common::HttpRequestsImpl
 
                     m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_UPLOAD, 1L);
                     m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
-                    m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
-                    m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_SEEKFUNCTION, (void *)CurlFunctionsProvider::curlSeekFileFunc);
+                    m_curlWrapper->curlEasySetOpt(
+                        m_curlHandle,
+                        CURLOPT_INFILESIZE_LARGE,
+                        (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+                    m_curlWrapper->curlEasySetFuncOpt(
+                        m_curlHandle, CURLOPT_SEEKFUNCTION, (void*)CurlFunctionsProvider::curlSeekFileFunc);
                     m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_SEEKDATA, fileToSend.get());
                 }
                 else
@@ -221,7 +230,8 @@ namespace Common::HttpRequestsImpl
             curlOptions.emplace_back(
                 "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
                 CURLOPT_PROXYAUTH,
-                static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
+                static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but
+                                                 // the constant is unsigned long
             curlOptions.emplace_back("Specify proxy - CURLOPT_PROXY", CURLOPT_PROXY, request.proxy.value());
             if (request.proxyUsername.has_value() && request.proxyPassword.has_value())
             {
@@ -240,7 +250,8 @@ namespace Common::HttpRequestsImpl
                 curlOptions.emplace_back(
                     "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
                     CURLOPT_PROXYAUTH,
-                    static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
+                    static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long
+                                                     // but the constant is unsigned long
             }
             else
             {
@@ -376,6 +387,10 @@ namespace Common::HttpRequestsImpl
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
                 }
+                else if (result == CURLE_COULDNT_RESOLVE_HOST)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST;
+                }
                 else if (result == CURLE_COULDNT_RESOLVE_PROXY)
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY;
@@ -384,7 +399,7 @@ namespace Common::HttpRequestsImpl
                         response.error += " — " + request.proxy.value();
                     }
                     else
-                    {   // Should not be able to get here
+                    { // Should not be able to get here
                         response.error += ". Could not find proxy address used.";
                     }
                 }

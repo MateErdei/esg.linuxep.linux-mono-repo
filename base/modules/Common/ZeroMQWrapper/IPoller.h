@@ -15,7 +15,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace Common::ZeroMQWrapper
 {
     using milliseconds = std::chrono::milliseconds;
-    inline milliseconds ms(unsigned int v) { return milliseconds(v); }
+    inline milliseconds ms(unsigned int v)
+    {
+        return milliseconds(v);
+    }
 
     class IPoller
     {

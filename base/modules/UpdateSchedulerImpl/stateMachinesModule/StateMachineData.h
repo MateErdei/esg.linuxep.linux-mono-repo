@@ -13,9 +13,8 @@ namespace UpdateSchedulerImpl::StateData
 {
     class StateMachineData
     {
-
     public:
-        StateMachineData() ;
+        StateMachineData();
 
         static std::string toJsonStateMachineData(const StateMachineData& state);
 
@@ -39,23 +38,23 @@ namespace UpdateSchedulerImpl::StateData
 
         const std::string& getLastGoodInstallTime() const;
 
-        void setDownloadFailedSinceTime( const std::string& downloadFailedSinceTime);
+        void setDownloadFailedSinceTime(const std::string& downloadFailedSinceTime);
 
-        void setDownloadState( const std::string& downloadState);
+        void setDownloadState(const std::string& downloadState);
 
-        void setDownloadStateCredit( const std::string& downloadStateCredit);
+        void setDownloadStateCredit(const std::string& downloadStateCredit);
 
-        void setEventStateLastError( const std::string& eventStateLastError);
+        void setEventStateLastError(const std::string& eventStateLastError);
 
-        void setEventStateLastTime( const std::string& eventStateLastTime);
+        void setEventStateLastTime(const std::string& eventStateLastTime);
 
-        void setInstallFailedSinceTime( const std::string& installFailedSinceTime);
+        void setInstallFailedSinceTime(const std::string& installFailedSinceTime);
 
-        void setInstallState( const std::string& installState);
+        void setInstallState(const std::string& installState);
 
-        void setInstallStateCredit( const std::string& installStateCredit);
+        void setInstallStateCredit(const std::string& installStateCredit);
 
-        void setLastGoodInstallTime( const std::string& lastGoodInstallTime);
+        void setLastGoodInstallTime(const std::string& lastGoodInstallTime);
 
         void setCanSendEvent(bool canSendEvent);
 
@@ -72,6 +71,5 @@ namespace UpdateSchedulerImpl::StateData
         std::string m_installStateCredit;
         std::string m_lastGoodInstallTime;
         bool m_canSendEvent;
-
     };
 } // namespace UpdateSchedulerImpl::StateData

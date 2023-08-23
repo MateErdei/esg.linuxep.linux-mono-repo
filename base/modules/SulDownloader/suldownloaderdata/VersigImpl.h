@@ -19,10 +19,11 @@ namespace SulDownloader::suldownloaderdata
         VerifySignature verify(
             const Common::Policy::UpdateSettings& certificate_path,
             const std::string& productDirectoryPath) const override;
+
     private:
         std::vector<std::string> getListOfManifestFileNames(
-                const Common::Policy::UpdateSettings& configurationData,
-                const std::string& productDirectoryPath) const;
+            const Common::Policy::UpdateSettings& configurationData,
+            const std::string& productDirectoryPath) const;
     };
 
     using IVersigPtr = suldownloaderdata::IVersigPtr;
@@ -45,4 +46,3 @@ namespace SulDownloader::suldownloaderdata
         void restoreCreator();
     };
 } // namespace SulDownloader::suldownloaderdata
-

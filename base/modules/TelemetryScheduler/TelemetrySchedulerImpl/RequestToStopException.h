@@ -11,4 +11,4 @@ namespace TelemetrySchedulerImpl
     public:
         using Common::Exceptions::IException::IException;
     };
-}
+} // namespace TelemetrySchedulerImpl

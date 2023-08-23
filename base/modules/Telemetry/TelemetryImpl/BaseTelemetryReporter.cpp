@@ -4,13 +4,12 @@
 
 #include "TelemetryProcessor.h"
 
-#include "Common/UtilityImpl/TimeUtils.h"
-
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 #include "Common/UtilityImpl/FileUtils.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "Telemetry/LoggerImpl/Logger.h"
 
@@ -128,7 +127,7 @@ namespace Telemetry
         return std::nullopt;
     }
 
-    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeHistoric() //just check if file exists
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeHistoric() // just check if file exists
     {
         Path outbreakModeStatusFilepath =
             Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
@@ -169,10 +168,9 @@ namespace Telemetry
                 }
                 else if (timeDifference < 0)
                 {
-                    LOGERROR("System Clock has gone backwards: now="
-                             <<nowTime
-                             << " outbreakStartTime="<<recordedTimeAsTime
-                             << " difference="<<timeDifference);
+                    LOGERROR(
+                        "System Clock has gone backwards: now="
+                        << nowTime << " outbreakStartTime=" << recordedTimeAsTime << " difference=" << timeDifference);
                 }
                 else
                 {
@@ -210,8 +208,7 @@ namespace Telemetry
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
     {
-        std::pair<std::string, std::string> value =
-            Common::UtilityImpl::FileUtils::extractValueFromFile(filePath, key);
+        std::pair<std::string, std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(filePath, key);
         if (value.first.empty() && !value.second.empty())
         {
             LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: " << value.second);

@@ -1,12 +1,14 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MCSApiCalls.h"
+
 #include "AgentAdapter.h"
 #include "Config.h"
 #include "Logger.h"
+
+#include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/ObfuscationImpl/Base64.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 
 #include <iostream>
@@ -15,29 +17,28 @@
 
 namespace
 {
-    template <class CharacterType, class Traits, class Rep, class Period>
-    std::basic_ostream<CharacterType, Traits>&
-    operator<<(std::basic_ostream<CharacterType, Traits>& os,
-               const std::chrono::duration<Rep, Period>& d)
+    template<class CharacterType, class Traits, class Rep, class Period>
+    std::basic_ostream<CharacterType, Traits>& operator<<(
+        std::basic_ostream<CharacterType, Traits>& os,
+        const std::chrono::duration<Rep, Period>& d)
     {
         auto seconds = std::chrono::duration_cast<std::chrono::seconds>(d);
         os << std::to_string(seconds.count()) << " seconds";
         return os;
     }
-}
+} // namespace
 
 namespace MCS
 {
-    std::map<std::string,std::string> MCSApiCalls::getAuthenticationInfo(const std::shared_ptr<MCS::MCSHttpClient>& client)
+    std::map<std::string, std::string> MCSApiCalls::getAuthenticationInfo(
+        const std::shared_ptr<MCS::MCSHttpClient>& client)
     {
-        std::map<std::string,std::string> list;
+        std::map<std::string, std::string> list;
 
         Common::HttpRequests::Headers requestHeaders;
-        requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});
-        Common::HttpRequests::Response response =
-            client->sendMessageWithIDAndRole("/authenticate/endpoint/",
-                                      Common::HttpRequests::RequestType::POST,
-                                          requestHeaders);
+        requestHeaders.insert({ "Content-Type", "application/xml; charset=utf-8" });
+        Common::HttpRequests::Response response = client->sendMessageWithIDAndRole(
+            "/authenticate/endpoint/", Common::HttpRequests::RequestType::POST, requestHeaders);
         if (response.status == 200)
         {
             nlohmann::json j;
@@ -51,10 +52,9 @@ namespace MCS
                 errorMessage << "Could not parse json: " << response.body << " with error: " << ex.what();
                 LOGWARN(errorMessage.str());
             }
-            list.insert({"tenant_id",j.value("tenant_id","")});
-            list.insert({"device_id",j.value("device_id","")});
-            list.insert({"access_token",j.value("access_token","")});
-
+            list.insert({ "tenant_id", j.value("tenant_id", "") });
+            list.insert({ "device_id", j.value("device_id", "") });
+            list.insert({ "access_token", j.value("access_token", "") });
         }
         return list;
     }
@@ -75,9 +75,11 @@ namespace MCS
         {
             client->setCertPath(configOptions.config[MCS::MCS_CERT]);
         }
-        
-        client->setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
-        Common::HttpRequests::Response response = client->sendPreregistration(statusXml, configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
+
+        client->setProxyInfo(
+            proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
+        Common::HttpRequests::Response response =
+            client->sendPreregistration(statusXml, configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
         return response.body;
     }
 
@@ -123,8 +125,8 @@ namespace MCS
                 {
                     // Note that updating the configOptions here should be propagated back to the caller as it is all
                     // passed by reference.
-                    configOptions.config[MCS::MCS_ID] = responseValues[0]; // endpointId
-                    configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
+                    configOptions.config[MCS::MCS_ID] = responseValues[0];       // endpointId
+                    configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; // MCS Password
                     return true;
                 }
             }
@@ -196,7 +198,7 @@ namespace MCS
                     {
                         continue;
                     }
-                    commandPolicyId =  assignmentsXml.lookup(assignment + "/policyId").contents();
+                    commandPolicyId = assignmentsXml.lookup(assignment + "/policyId").contents();
                     break;
                 }
             }
@@ -234,7 +236,6 @@ namespace MCS
             std::this_thread::sleep_for(pollInterval);
         }
 
-
         if (commandPolicyId.has_value())
         {
             // fetch last policy in command
@@ -253,4 +254,4 @@ namespace MCS
         }
         return std::nullopt;
     }
-}
+} // namespace MCS

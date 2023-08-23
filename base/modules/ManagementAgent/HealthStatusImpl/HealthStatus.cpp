@@ -17,7 +17,10 @@ namespace ManagementAgent::HealthStatusImpl
         loadThreatHealth();
     }
 
-    HealthStatus::~HealthStatus() { storeThreatHealth(); }
+    HealthStatus::~HealthStatus()
+    {
+        storeThreatHealth();
+    }
 
     void HealthStatus::resetPluginHealthLists()
     {
@@ -97,11 +100,11 @@ namespace ManagementAgent::HealthStatusImpl
         for (const auto& health : m_pluginServiceHealth)
         {
             healthValue = std::max(convertDetailedValueToOverallValue(health.second.healthValue), healthValue);
-            if(!health.second.activeHeartbeatUtmId.empty())
+            if (!health.second.activeHeartbeatUtmId.empty())
             {
                 activeHeartbeatUtmId = health.second.activeHeartbeatUtmId;
             }
-            if(health.second.activeHeartbeat)
+            if (health.second.activeHeartbeat)
             {
                 activeHeartbeat = true;
             }
@@ -148,8 +151,8 @@ namespace ManagementAgent::HealthStatusImpl
 
         for (auto& status : healthMap)
         {
-            statusXml << R"(<detail name=")" << status.second.displayName << R"(" value=")"
-                      << status.second.healthValue << R"(" />)";
+            statusXml << R"(<detail name=")" << status.second.displayName << R"(" value=")" << status.second.healthValue
+                      << R"(" />)";
         }
 
         statusXml << R"(</item>)";
@@ -161,7 +164,8 @@ namespace ManagementAgent::HealthStatusImpl
         std::stringstream statusXml;
 
         statusXml << R"(<?xml version="1.0" encoding="utf-8" ?>)"
-                  << R"(<health version="3.0.0" activeHeartbeat=")" << (m_activeHeartbeat ? "true" : "false") << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
+                  << R"(<health version="3.0.0" activeHeartbeat=")" << (m_activeHeartbeat ? "true" : "false")
+                  << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
                   << R"(<item name="health" value=")" << m_overallHealth << R"(" />)";
 
         if (!m_pluginServiceHealth.empty())
@@ -179,17 +183,24 @@ namespace ManagementAgent::HealthStatusImpl
                   << R"(</health>)";
 
         bool hasStatusChanged = (statusXml.str() != m_cachedHealthStatusXml);
-        std::pair<bool,std::string> overallHealth{false,""};
+        std::pair<bool, std::string> overallHealth{ false, "" };
         if (hasStatusChanged)
         {
             LOGDEBUG("Health status changed, cached: " << m_cachedHealthStatusXml << ", new: " << statusXml.str());
-            overallHealth = compareAndUpdateOverallHealth(m_overallHealth,m_overallPluginServiceHealth,m_overallPluginThreatServiceHealth,m_overallPluginThreatDetectionHealth);
+            overallHealth = compareAndUpdateOverallHealth(
+                m_overallHealth,
+                m_overallPluginServiceHealth,
+                m_overallPluginThreatServiceHealth,
+                m_overallPluginThreatDetectionHealth);
         }
         m_cachedHealthStatusXml = statusXml.str();
 
-        return HealthInfo{hasStatusChanged, statusXml.str(), overallHealth.first, overallHealth.second};
+        return HealthInfo{ hasStatusChanged, statusXml.str(), overallHealth.first, overallHealth.second };
     }
-    void HealthStatus::resetCachedHealthStatusXml() { m_cachedHealthStatusXml.clear(); }
+    void HealthStatus::resetCachedHealthStatusXml()
+    {
+        m_cachedHealthStatusXml.clear();
+    }
 
     void HealthStatus::storeThreatHealth()
     {

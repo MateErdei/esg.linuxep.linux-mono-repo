@@ -6,12 +6,13 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+
 #include <log4cplus/logger.h>
 
 Common::Logging::PluginLoggingSetupEx::PluginLoggingSetupEx(
-        const std::string& pluginName,
-        const std::string& overrideFileName,
-        const std::string& instanceName)
+    const std::string& pluginName,
+    const std::string& overrideFileName,
+    const std::string& instanceName)
 {
     std::string fileName(overrideFileName);
     std::string logInstanceName(instanceName);
@@ -20,7 +21,7 @@ Common::Logging::PluginLoggingSetupEx::PluginLoggingSetupEx(
     {
         fileName = pluginName;
     }
-    if(logInstanceName.empty())
+    if (logInstanceName.empty())
     {
         logInstanceName = pluginName;
     }
@@ -35,12 +36,12 @@ Common::Logging::PluginLoggingSetupEx::~PluginLoggingSetupEx()
 }
 
 void Common::Logging::PluginLoggingSetupEx::setupFileLogging(
-        const std::string& pluginNameDir,
-        const std::string& pluginFileName,
-        const std::string& instanceName)
+    const std::string& pluginNameDir,
+    const std::string& pluginFileName,
+    const std::string& instanceName)
 {
     std::string logPath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "plugins", pluginNameDir);
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "plugins", pluginNameDir);
     logPath = Common::FileSystem::join(logPath, "log", pluginFileName + ".log");
     Common::Logging::FileLoggingSetupEx::setupFileLoggingWithPath(logPath, instanceName);
 }

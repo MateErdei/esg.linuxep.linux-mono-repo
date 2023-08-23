@@ -12,8 +12,8 @@ using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 std::vector<std::string> VersigImpl::getListOfManifestFileNames(
-                const UpdateSettings& updateSettings,
-                const std::string& productDirectoryPath) const
+    const UpdateSettings& updateSettings,
+    const std::string& productDirectoryPath) const
 {
     auto fileSystem = Common::FileSystem::fileSystem();
 
@@ -28,9 +28,8 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
 
     auto optionalManifestPaths = updateSettings.getOptionalManifestNames();
 
-    for(auto& relativeManifestPath : optionalManifestPaths)
+    for (auto& relativeManifestPath : optionalManifestPaths)
     {
-
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
@@ -41,16 +40,17 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
         }
         else
         {
-            //supplements will attached to a product and get downloaded under the product root look for their
-            //manifest one level below the product directory path
+            // supplements will attached to a product and get downloaded under the product root look for their
+            // manifest one level below the product directory path
             auto optionalManifestDirs = fileSystem->listDirectories(productDirectoryPath);
-            for(const auto& optManifestDir : optionalManifestDirs)
+            for (const auto& optManifestDir : optionalManifestDirs)
             {
                 auto supplement_manifestPath = Common::FileSystem::join(optManifestDir, relativeManifestPath);
                 if (fileSystem->isFile(supplement_manifestPath))
                 {
                     LOGDEBUG("Supplement manifest at: " << supplement_manifestPath);
-                    manifestPaths.emplace_back(Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
+                    manifestPaths.emplace_back(
+                        Common::FileSystem::join(Common::FileSystem::basename(optManifestDir), relativeManifestPath));
                     break;
                 }
             }
@@ -58,7 +58,6 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     }
 
     return manifestPaths;
-
 }
 
 IVersig::VerifySignature VersigImpl::verify(

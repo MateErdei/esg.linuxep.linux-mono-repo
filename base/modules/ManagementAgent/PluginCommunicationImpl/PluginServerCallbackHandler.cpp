@@ -53,7 +53,10 @@ namespace ManagementAgent::PluginCommunicationImpl
                     m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
                     return m_messageBuilder.replyAckMessage(request);
                 case Commands::PLUGIN_SEND_THREAT_HEALTH:
-                    if (m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj))
+                    if (m_serverCallback->receivedThreatHealth(
+                            request.m_pluginName,
+                            m_messageBuilder.requestExtractThreatHealth(request),
+                            m_healthStatusSharedObj))
                     {
                         return m_messageBuilder.replyAckMessage(request);
                     }
@@ -90,8 +93,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         }
     }
 
-    void PluginServerCallbackHandler::setEventReceiver(
-        std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+    void PluginServerCallbackHandler::setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
     {
         assert(m_serverCallback);
         if (m_serverCallback) // for non-debug builds, don't crash

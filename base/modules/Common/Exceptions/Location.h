@@ -10,4 +10,4 @@
 //        throw GeneralException(LOCATION, "DB007", "This martini has been stirred!");
 //
 
-#define LOCATION __FILE__,__LINE__
+#define LOCATION __FILE__, __LINE__

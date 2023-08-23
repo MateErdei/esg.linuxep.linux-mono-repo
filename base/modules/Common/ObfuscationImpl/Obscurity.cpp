@@ -17,9 +17,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <cstring>
 #include <iostream>
-#include <sstream>
 #include <random>
-#include <cstring>
+#include <sstream>
 
 namespace
 {
@@ -252,7 +251,8 @@ namespace Common::ObfuscationImpl
         }
         if (plainPassword.size() >= Cipher::maxPasswordSize)
         {
-            throw Common::Obfuscation::IObscurityException("Obfuscate: plaintext exceeds max size; " + std::to_string(Cipher::maxPasswordSize));
+            throw Common::Obfuscation::IObscurityException(
+                "Obfuscate: plaintext exceeds max size; " + std::to_string(Cipher::maxPasswordSize));
         }
 
         ObfuscationImpl::SecureDynamicBuffer salt(Cipher::AES256ObfuscationImpl::SaltLength);
@@ -260,9 +260,9 @@ namespace Common::ObfuscationImpl
         std::string ciphertext = Cipher::Encrypt(GetPassword(), salt, plainPassword);
 
         auto totalLength =
-            (2 +                   // 2-byte header (algorithm ID + salt length)
-             Cipher::AES256ObfuscationImpl::SaltLength +          // salt bytes
-             ciphertext.length()); // ciphertext
+            (2 +                                         // 2-byte header (algorithm ID + salt length)
+             Cipher::AES256ObfuscationImpl::SaltLength + // salt bytes
+             ciphertext.length());                       // ciphertext
         std::vector<char> buf(totalLength, 0);
         buf[0] = Cipher::AES256ObfuscationImpl::AlgorithmByte;
         buf[1] = (unsigned char)Cipher::AES256ObfuscationImpl::SaltLength;

@@ -2,19 +2,20 @@
 
 #include "Main.h"
 
-#include "PluginCallback.h"
-#include "PluginAdapter.h"
-#include "TaskQueue.h"
-#include "Logger.h"
 #include "IAsyncDiagnoseRunner.h"
-#include "runnerModule/AsyncDiagnoseRunner.h"
+#include "Logger.h"
+#include "PluginAdapter.h"
+#include "PluginCallback.h"
+#include "TaskQueue.h"
+
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
-
 #include "Common/PluginApi/IPluginResourceManagement.h"
+#include "runnerModule/AsyncDiagnoseRunner.h"
+
+#include <sys/stat.h>
 
 #include <stdexcept>
-#include <sys/stat.h>
 
 namespace RemoteDiagnoseImpl
 {
@@ -39,11 +40,10 @@ namespace RemoteDiagnoseImpl
 
             std::string dirPath = pathManager.getDiagnoseOutputPath();
             std::unique_ptr<IAsyncDiagnoseRunner> runner =
-                    std::unique_ptr<IAsyncDiagnoseRunner>(new runnerModule::AsyncDiagnoseRunner(taskQueue, dirPath));
-            PluginAdapter pluginAdapter(
-                    taskQueue, std::move(baseService), pluginCallBack, std::move(runner));
+                std::unique_ptr<IAsyncDiagnoseRunner>(new runnerModule::AsyncDiagnoseRunner(taskQueue, dirPath));
+            PluginAdapter pluginAdapter(taskQueue, std::move(baseService), pluginCallBack, std::move(runner));
             pluginAdapter.mainLoop();
-            //pluginCallBack->setRunning(false);
+            // pluginCallBack->setRunning(false);
 
             LOGINFO("SDU finished");
         }

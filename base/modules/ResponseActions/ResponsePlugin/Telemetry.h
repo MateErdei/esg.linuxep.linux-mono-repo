@@ -13,4 +13,4 @@ namespace ResponsePlugin::Telemetry
     void incrementFailedActions(const std::string& type);
     void incrementTimedOutActions(const std::string& type);
     void incrementExpiredActions(const std::string& type);
-}
+} // namespace ResponsePlugin::Telemetry

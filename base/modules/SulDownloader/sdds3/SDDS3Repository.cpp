@@ -13,7 +13,6 @@
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
-
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
 #include "sophlib/sdds3/PackageRef.h"
@@ -47,9 +46,7 @@ namespace SulDownloader
     {
         setupSdds3LibLogger();
     }
-    SDDS3Repository::~SDDS3Repository()
-    {
-    }
+    SDDS3Repository::~SDDS3Repository() {}
 
     bool SDDS3Repository::tryConnect(
         const suldownloaderdata::ConnectionSetup& connectionSetup,
@@ -132,7 +129,10 @@ namespace SulDownloader
         return m_error.status == PACKAGESOURCEMISSING;
     }
 
-    RepositoryError SDDS3Repository::getError() const { return m_error; }
+    RepositoryError SDDS3Repository::getError() const
+    {
+        return m_error;
+    }
 
     std::vector<DownloadedProduct> SDDS3Repository::getProducts() const
     {
@@ -151,7 +151,8 @@ namespace SulDownloader
 
     std::string SDDS3Repository::getProductDistributionPath(const DownloadedProduct& product) const
     {
-        std::string rootDistributionPath = Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+        std::string rootDistributionPath =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
         return Common::FileSystem::join(rootDistributionPath, product.getLine());
     }
 
@@ -177,9 +178,9 @@ namespace SulDownloader
         m_configFeatures = configfeatures;
     }
 
-
-    SDDS3::SusData SDDS3Repository::getDataToSync(const suldownloaderdata::ConnectionSetup& connectionSetup,
-                                   const UpdateSettings& updateSettings)
+    SDDS3::SusData SDDS3Repository::getDataToSync(
+        const suldownloaderdata::ConnectionSetup& connectionSetup,
+        const UpdateSettings& updateSettings)
     {
         SDDS3::SusData susData;
         try
@@ -188,8 +189,8 @@ namespace SulDownloader
             requestParameters.product = "linuxep";
             requestParameters.platformToken = "LINUX_INTEL_LIBC6";
             requestParameters.subscriptions = updateSettings.getProductsSubscription();
-            requestParameters.subscriptions.insert(requestParameters.subscriptions.begin(),
-                                                   updateSettings.getPrimarySubscription());
+            requestParameters.subscriptions.insert(
+                requestParameters.subscriptions.begin(), updateSettings.getPrimarySubscription());
             requestParameters.tenantId = updateSettings.getTenantId();
             requestParameters.deviceId = updateSettings.getDeviceId();
             requestParameters.baseUrl = connectionSetup.getUpdateLocationURL();
@@ -228,11 +229,13 @@ namespace SulDownloader
         return susData;
     }
 
-    void SDDS3Repository::checkForMissingPackages(const std::vector<ProductSubscription>& subscriptions,const std::set<std::string>& suites)
+    void SDDS3Repository::checkForMissingPackages(
+        const std::vector<ProductSubscription>& subscriptions,
+        const std::set<std::string>& suites)
     {
         LOGDEBUG("Checking for missing packages");
         const std::string prefix{ "sdds3." };
-        for (const auto& sub: subscriptions)
+        for (const auto& sub : subscriptions)
         {
             const std::string& productID = sub.rigidName();
 
@@ -319,13 +322,13 @@ namespace SulDownloader
             m_session->httpConfig.useUpdateCache = true;
             if (updateSetting.getUpdateCacheCertPath().empty())
             {
-                m_session->httpConfig.sophosCertificateStore = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
+                m_session->httpConfig.sophosCertificateStore =
+                    Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
             }
             else
             {
                 m_session->httpConfig.sophosCertificateStore = updateSetting.getUpdateCacheCertPath();
             }
-
         }
         else if (!connectionSetup.getProxy().empty())
         {
@@ -344,13 +347,14 @@ namespace SulDownloader
         sophlib::sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
 
-        m_session->httpConfig.userAgent = generateUserAgentString(updateSetting.getTenantId(), updateSetting.getDeviceId());
+        m_session->httpConfig.userAgent =
+            generateUserAgentString(updateSetting.getTenantId(), updateSetting.getDeviceId());
 
         try
         {
             LOGINFO("Performing Sync using " << srcUrl);
             SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
-            m_sourceUrl = srcUrl;  // store which source was used - for reporting later.
+            m_sourceUrl = srcUrl; // store which source was used - for reporting later.
             if (!ignoreFailedSupplementRefresh)
             {
                 // supplementFallbackCount is intialized then the sync call failed to pull down the latest supplements
@@ -403,7 +407,7 @@ namespace SulDownloader
                 LOGINFO("Failed to find config file: " << configFilePathString);
             }
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             LOGERROR("Failed to read previous SDDS3 config file, error:" << ex.what());
         }
@@ -416,7 +420,7 @@ namespace SulDownloader
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
 
         std::string configFilePathString =
-                Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
+            Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
         try
         {
             // save config to disk after getPackagesToInstall, which generates package thumbprints for m_config
@@ -426,7 +430,7 @@ namespace SulDownloader
         {
             LOGERROR(ex.what());
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
         }
@@ -506,10 +510,9 @@ namespace SulDownloader
                 m_willInstall = true;
             }
 
-            product.setDistributePath(
-                       Common::FileSystem::join(
-                        Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository(),
-                        package.lineId_));
+            product.setDistributePath(Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository(),
+                package.lineId_));
 
             // ensure that the primary product is the first in the list,
             // so that primary product always being installed first.
@@ -524,11 +527,11 @@ namespace SulDownloader
         }
 
         // Add suites details to the subscription list
-        std::vector<sophlib::sdds3::Suite> suites = SulDownloader::sdds3Wrapper()->getSuites(*m_session.get(), m_repo, m_config);
-        for(auto& suite : suites)
+        std::vector<sophlib::sdds3::Suite> suites =
+            SulDownloader::sdds3Wrapper()->getSuites(*m_session.get(), m_repo, m_config);
+        for (auto& suite : suites)
         {
-            m_selectedSubscriptions.push_back(
-                {suite.name_, suite.marketing_version_, {}});
+            m_selectedSubscriptions.push_back({ suite.name_, suite.marketing_version_, {} });
         }
     }
 
@@ -539,20 +542,23 @@ namespace SulDownloader
 
     void SDDS3Repository::distribute()
     {
-        if (hasError()  || !m_willInstall)
+        if (hasError() || !m_willInstall)
         {
             return;
         }
         try
         {
-            SulDownloader::sdds3Wrapper()->extractPackagesTo(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
+            SulDownloader::sdds3Wrapper()->extractPackagesTo(
+                *m_session.get(),
+                m_repo,
+                m_config,
+                Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
         }
         catch (...)
         {
             m_error.status = RepositoryStatus::DOWNLOADFAILED;
             m_error.Description = "Failed to extract packages";
         }
-
     }
 
 } // namespace SulDownloader

@@ -23,15 +23,12 @@ namespace ManagementAgent::EventReceiverImpl
          * @param eventXml      IN XML contents of event
          * @return True if we should drop the event and not send to Central
          */
-        [[nodiscard]] virtual bool processEvent(
-            const Event& event
-            ) = 0;
+        [[nodiscard]] virtual bool processEvent(const Event& event) = 0;
 
         [[nodiscard]] virtual bool outbreakMode() const = 0;
-
 
         virtual void processAction(const std::string& actionXml) = 0;
     };
 
     using IOutbreakModeControllerPtr = std::shared_ptr<IOutbreakModeController>;
-}
+} // namespace ManagementAgent::EventReceiverImpl

@@ -182,14 +182,10 @@ namespace Common::FileSystem
          * @param mode the chmod to be applied when the file is created (can be used to extend file to read group).
          * If set to 0, no permisison will be changed.
          */
-        virtual void writeFileAtomically(
-            const Path& path,
-            const std::string& content,
-            const Path& tempDir,
-            mode_t mode) const = 0;
-        /** Keep the interface without mode_t, by setting it to 0 (do not change it) */
-        virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
+        virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
             const = 0;
+        /** Keep the interface without mode_t, by setting it to 0 (do not change it) */
+        virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const = 0;
 
         /**
          * Appends the given string content to the given file. Function can throw.
@@ -437,7 +433,8 @@ namespace Common::FileSystem
          * @return std::filesystem::space_info struct which contains capacity, free and available space in bytes
          */
         [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path) const = 0;
-        [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec) const = 0;
+        [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec)
+            const = 0;
 
         /**
          * Gets full path of system executable

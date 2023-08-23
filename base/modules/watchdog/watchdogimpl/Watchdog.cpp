@@ -6,20 +6,20 @@
 #include "PluginProxy.h"
 #include "UserGroupUtils.h"
 
-#include "Common/ProcessMonitoringImpl/SignalHandler.h"
-
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/ProcessMonitoringImpl/SignalHandler.h"
 #include "Common/Threads/NotifyPipe.h"
 #include "Common/UtilityImpl/ConfigException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
+
 #include <sys/select.h>
 #include <sys/stat.h>
 
@@ -132,7 +132,8 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
 {
     LOGINFO("Requesting stop of " << pluginName);
     PluginStatus status{ PluginStatus::NotFound };
-    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy) {
+    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy)
+    {
         processProxy.setEnabled(false);
         if (std::getenv("SOPHOS_CORE_DUMP_ON_PLUGIN_KILL"))
         {
@@ -155,9 +156,8 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
 {
     LOGINFO("Starting " << pluginName);
     bool pluginIsManaged = false;
-    auto detectPluginIsManaged = [&pluginIsManaged](Common::ProcessMonitoring::IProcessProxy&) {
-        pluginIsManaged = true;
-    };
+    auto detectPluginIsManaged = [&pluginIsManaged](Common::ProcessMonitoring::IProcessProxy&)
+    { pluginIsManaged = true; };
 
     auto enablePlugin = [](Common::ProcessMonitoring::IProcessProxy& processProxy) { processProxy.setEnabled(true); };
 
@@ -182,7 +182,8 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     {
         // update info from disk
 
-        auto infoUpdater = [&loadResult, this](Common::ProcessMonitoring::IProcessProxy& processProxy) {
+        auto infoUpdater = [&loadResult, this](Common::ProcessMonitoring::IProcessProxy& processProxy)
+        {
             auto* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if (proxy != nullptr)
             {
@@ -253,7 +254,8 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
 std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
 {
     PluginStatus status{ PluginStatus::NotFound };
-    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy) {
+    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy)
+    {
         if (processProxy.isRunning())
         {
             status = PluginStatus::Running;
@@ -282,9 +284,10 @@ void Watchdog::writeExecutableUserAndGroupToActualUserGroupIdConfig()
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     auto filePermissions = Common::FileSystem::filePermissions();
-    std::string actualUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+    std::string actualUserGroupIdConfigPath =
+        Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
 
-    std::set<std::string> groups{"sophos-spl-ipc"};
+    std::set<std::string> groups{ "sophos-spl-ipc" };
     std::set<std::string> users;
 
     PluginInfoVector pluginConfigs = readPluginConfigs();
@@ -294,7 +297,8 @@ void Watchdog::writeExecutableUserAndGroupToActualUserGroupIdConfig()
 
         if (Common::UtilityImpl::StringUtils::isSubstring(executableUserAndGroupAsString, ":"))
         {
-            std::vector<std::string> userAndGroup = Common::UtilityImpl::StringUtils::splitString(executableUserAndGroupAsString, ":");
+            std::vector<std::string> userAndGroup =
+                Common::UtilityImpl::StringUtils::splitString(executableUserAndGroupAsString, ":");
             if (userAndGroup.size() == 2 && !userAndGroup[1].empty())
             {
                 std::string userName = userAndGroup[0];
@@ -328,11 +332,11 @@ void Watchdog::writeExecutableUserAndGroupToActualUserGroupIdConfig()
             LOGDEBUG("Overwriting existing user and group ID config " << actualUserGroupIdConfigPath);
         }
 
-        for (const std::string& user: users)
+        for (const std::string& user : users)
         {
             userGroupIdConfig["users"][user] = filePermissions->getUserId(user);
         }
-        for (const std::string& group: groups)
+        for (const std::string& group : groups)
         {
             userGroupIdConfig["groups"][group] = filePermissions->getGroupId(group);
         }
@@ -363,5 +367,4 @@ void Watchdog::reconfigureUserAndGroupIds()
     {
         LOGERROR("Failed to reconfigure user and group IDs: " << exception.what());
     }
-
 }

@@ -19,4 +19,4 @@ namespace SulDownloader
         Common::Policy::Proxy proxy;
         Common::Policy::ESMVersion esmVersion;
     };
-}
+} // namespace SulDownloader

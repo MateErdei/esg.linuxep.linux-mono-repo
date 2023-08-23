@@ -2,6 +2,7 @@
 #include "DnsLookupImpl.h"
 
 #include "Common/OSUtilities/IIPUtils.h"
+
 #include <net/if.h>
 
 #include <cstring>
@@ -69,11 +70,20 @@ namespace
 
 namespace Common::OSUtilitiesImpl
 {
-    Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri) const { return ::ipResolution(uri); }
+    Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri) const
+    {
+        return ::ipResolution(uri);
+    }
 
-    void replaceDnsLookup(IDnsLookupPtr other) { LocalDnsStaticPointer().reset(other.release()); }
+    void replaceDnsLookup(IDnsLookupPtr other)
+    {
+        LocalDnsStaticPointer().reset(other.release());
+    }
 
-    void restoreDnsLookup() { LocalDnsStaticPointer().reset(new DnsLookupImpl()); }
+    void restoreDnsLookup()
+    {
+        LocalDnsStaticPointer().reset(new DnsLookupImpl());
+    }
 } // namespace Common::OSUtilitiesImpl
 
 Common::OSUtilities::IDnsLookup* Common::OSUtilities::dnsLookup()

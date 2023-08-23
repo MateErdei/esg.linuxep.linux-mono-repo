@@ -3,9 +3,8 @@
 #include "SerialiseUpdateSettings.h"
 
 #include "Common/Policy/ConfigurationSettings.pb.h"
-#include "PolicyParseException.h"
-
 #include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <google/protobuf/util/json_util.h>
 
@@ -13,14 +12,7 @@ using namespace Common::Policy;
 
 namespace
 {
-    class UpdatePolicySerialisationException : public PolicyParseException
-    {
-    public:
-        using PolicyParseException::PolicyParseException;
-    };
-
-    ProductSubscription getSubscription(
-        const PolicyProto::ConfigurationSettings_Subscription& proto_subscription)
+    ProductSubscription getSubscription(const PolicyProto::ConfigurationSettings_Subscription& proto_subscription)
     {
         return ProductSubscription(
             proto_subscription.rigidname(),
@@ -33,19 +25,21 @@ namespace
         const ProductSubscription& subscription,
         PolicyProto::ConfigurationSettings_Subscription* proto_subscription)
     {
-        assert( proto_subscription != nullptr);
+        assert(proto_subscription != nullptr);
         proto_subscription->set_rigidname(subscription.rigidName());
         proto_subscription->set_baseversion(subscription.baseVersion());
         proto_subscription->set_tag(subscription.tag());
         proto_subscription->set_fixedversion(subscription.fixedVersion());
     }
 
-}
+} // namespace
 
 UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& settingsString)
 {
     using namespace google::protobuf::util;
     using PolicyProto::ConfigurationSettings;
+
+    Common::UtilityImpl::StringUtils::enforceUTF8(settingsString);
 
     ConfigurationSettings settings;
     JsonParseOptions jsonParseOptions;
@@ -62,17 +56,15 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
 
     UpdateSettings updateSettings;
 
-    auto sUrls = settings.sophosurls();
+    auto sUrls = settings.sophoscdnurls();
     std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls));
-    updateSettings.setSophosLocationURLs(sophosURLs);
+    updateSettings.setSophosCDNURLs(sophosURLs);
 
-    Credentials credential(settings.credential().username(), settings.credential().password());
-    updateSettings.setCredentials(credential);
+    updateSettings.setSophosSusURL(settings.sophossusurl());
 
     auto updateCacheUrls = settings.updatecache();
     std::vector<std::string> updateCaches(std::begin(updateCacheUrls), std::end(updateCacheUrls));
     updateSettings.setLocalUpdateCacheHosts(updateCaches);
-
 
     Proxy proxy(
         settings.proxy().url(),
@@ -81,6 +73,9 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
             settings.proxy().credential().password(),
             settings.proxy().credential().proxytype()));
     updateSettings.setPolicyProxy(proxy);
+
+    ESMVersion esmVersion(settings.esmversion().name(), settings.esmversion().token());
+    updateSettings.setEsmVersion(esmVersion);
 
     ProductSubscription primary = getSubscription(settings.primarysubscription());
     std::vector<ProductSubscription> products;
@@ -93,6 +88,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     {
         features.emplace_back(feature);
     }
+
     updateSettings.setPrimarySubscription(primary);
     updateSettings.setProductsSubscription(products);
     updateSettings.setFeatures(features);
@@ -103,6 +99,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     updateSettings.setDeviceId(settings.deviceid());
     updateSettings.setDoForcedUpdate(settings.forceupdate());
     updateSettings.setDoForcedPausedUpdate(settings.forcepausedupdate());
+    updateSettings.setUseSdds3DeltaV2(settings.usesdds3deltav2());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -121,14 +118,14 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
 
     updateSettings.setManifestNames(manifestnames);
 
-    std::vector<std::string> optionalManifestnames(std::begin(settings.optionalmanifestnames()), std::end(settings.optionalmanifestnames()));
+    std::vector<std::string> optionalManifestnames(
+        std::begin(settings.optionalmanifestnames()), std::end(settings.optionalmanifestnames()));
 
     updateSettings.setOptionalManifestNames(optionalManifestnames);
 
     updateSettings.setUseSlowSupplements(settings.useslowsupplements());
 
     return updateSettings;
-
 }
 
 std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& updateSettings)
@@ -137,9 +134,9 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     using PolicyProto::ConfigurationSettings;
 
     PolicyProto::ConfigurationSettings settings;
-    for (const auto& url : updateSettings.getSophosLocationURLs())
+    for (const auto& url : updateSettings.getSophosCDNURLs())
     {
-        settings.add_sophosurls()->assign(url);
+        settings.add_sophoscdnurls()->assign(url);
     }
 
     for (const auto& cacheUrl : updateSettings.getLocalUpdateCacheHosts())
@@ -147,8 +144,7 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
         settings.add_updatecache()->assign(cacheUrl);
     }
 
-    settings.mutable_credential()->set_username(updateSettings.getCredentials().getUsername());
-    settings.mutable_credential()->set_password(updateSettings.getCredentials().getPassword());
+    settings.mutable_sophossusurl()->assign(updateSettings.getSophosSusURL());
 
     settings.mutable_proxy()->mutable_credential()->set_username(
         updateSettings.getPolicyProxy().getCredentials().getUsername());
@@ -165,6 +161,8 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     settings.mutable_deviceid()->assign(updateSettings.getDeviceId());
     settings.set_forceupdate(updateSettings.getDoForcedUpdate());
     settings.set_forcepausedupdate(updateSettings.getDoPausedForcedUpdate());
+    settings.set_usesdds3deltav2(updateSettings.getUseSdds3DeltaV2());
+
     const auto& primarySubscription = updateSettings.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
     for (const auto& product : updateSettings.getProductsSubscription())
@@ -175,6 +173,9 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     {
         settings.add_features(feature);
     }
+
+    settings.mutable_esmversion()->set_name(updateSettings.getEsmVersion().name());
+    settings.mutable_esmversion()->set_token(updateSettings.getEsmVersion().token());
 
     for (const auto& installarg : updateSettings.getInstallArguments())
     {

@@ -31,7 +31,10 @@ namespace Common::CurlWrapper
         return curlCode;
     }
 
-    CURL* CurlWrapper::curlEasyInit() { return curl_easy_init(); }
+    CURL* CurlWrapper::curlEasyInit()
+    {
+        return curl_easy_init();
+    }
 
     CURLcode CurlWrapper::curlEasySetOptHeaders(CURL* handle, curl_slist* headers)
     {
@@ -67,15 +70,33 @@ namespace Common::CurlWrapper
         return curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, codep);
     }
 
-    CURLcode CurlWrapper::curlEasyPerform(CURL* handle) { return curl_easy_perform(handle); }
+    CURLcode CurlWrapper::curlEasyPerform(CURL* handle)
+    {
+        return curl_easy_perform(handle);
+    }
 
-    void CurlWrapper::curlSlistFreeAll(curl_slist* list) { curl_slist_free_all(list); }
+    void CurlWrapper::curlSlistFreeAll(curl_slist* list)
+    {
+        curl_slist_free_all(list);
+    }
 
-    void CurlWrapper::curlEasyCleanup(CURL* handle) { curl_easy_cleanup(handle); }
+    void CurlWrapper::curlEasyCleanup(CURL* handle)
+    {
+        curl_easy_cleanup(handle);
+    }
 
-    void CurlWrapper::curlGlobalCleanup() { curl_global_cleanup(); }
+    void CurlWrapper::curlGlobalCleanup()
+    {
+        curl_global_cleanup();
+    }
 
-    const char* CurlWrapper::curlEasyStrError(CURLcode errornum) { return curl_easy_strerror(errornum); }
+    const char* CurlWrapper::curlEasyStrError(CURLcode errornum)
+    {
+        return curl_easy_strerror(errornum);
+    }
 
-    void CurlWrapper::curlEasyReset(CURL* handle) { curl_easy_reset(handle); }
+    void CurlWrapper::curlEasyReset(CURL* handle)
+    {
+        curl_easy_reset(handle);
+    }
 } // namespace Common::CurlWrapper

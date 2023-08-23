@@ -11,8 +11,7 @@
 
 namespace Common::ZeroMQWrapperImpl
 {
-    class SocketImpl : public virtual Common::ZeroMQWrapper::ISocketSetup,
-                       public virtual Common::ZeroMQWrapper::IHasFD
+    class SocketImpl : public virtual Common::ZeroMQWrapper::ISocketSetup, public virtual Common::ZeroMQWrapper::IHasFD
     {
         struct AppliedSettings
         {

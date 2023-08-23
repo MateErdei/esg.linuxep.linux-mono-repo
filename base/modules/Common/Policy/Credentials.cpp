@@ -1,6 +1,7 @@
 // Copyright 2018-2023 Sophos All rights reserved.
 
 #include "Credentials.h"
+
 #include "PolicyParseException.h"
 
 #include "Common/ObfuscationImpl/Obfuscate.h"
@@ -10,8 +11,7 @@
 using namespace Common::Policy;
 
 Credentials::Credentials(std::string username, std::string password) :
-    username_(std::move(username)),
-    password_(std::move(password))
+    username_(std::move(username)), password_(std::move(password))
 {
     if (!password_.empty() && username_.empty())
     {
@@ -32,4 +32,3 @@ Credentials::Credentials(std::string username, std::string password) :
         }
     }
 }
-

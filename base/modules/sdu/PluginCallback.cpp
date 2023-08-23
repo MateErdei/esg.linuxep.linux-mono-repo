@@ -1,10 +1,11 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
+
 #include "Logger.h"
 
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/PluginApi/ApiException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
 
@@ -42,7 +43,7 @@ namespace RemoteDiagnoseImpl
         LOGDEBUG("Setting status");
         m_statusInfo = std::move(statusInfo);
     }
-    
+
     std::string PluginCallback::getTelemetry()
     {
         LOGDEBUG("Received telemetry request");

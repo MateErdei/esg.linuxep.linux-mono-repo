@@ -4,16 +4,15 @@
 
 #include "ActionStructs.h"
 
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 
 #include <json.hpp>
 #include <string>
 
 #ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
+#    define TEST_PUBLIC private
 #endif
 
 namespace ResponseActionsImpl
@@ -24,8 +23,7 @@ namespace ResponseActionsImpl
         DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
         [[nodiscard]] nlohmann::json run(const std::string& actionJson);
 
-    TEST_PUBLIC:
-        bool assessSpaceInfo(const DownloadInfo& info);
+        TEST_PUBLIC : bool assessSpaceInfo(const DownloadInfo& info);
 
     private:
         bool initialChecks(const DownloadInfo& info);
@@ -38,7 +36,7 @@ namespace ResponseActionsImpl
         bool fileAlreadyExists(const Path& destPath);
         Path getSubDirsInTmpDir(const Path& filePath);
 
-        Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
+        Path findBaseDir(const Path& path); // To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
 
         /**
@@ -55,7 +53,10 @@ namespace ResponseActionsImpl
         void handleUnZipFailure(const int& unzipReturn);
         void handleMovingArchive(const Path& targetPath);
         void handleMovingSingleExtractedFile(const Path& destDir, const Path& targetPath, const Path& extractedFile);
-        void handleMovingMultipleExtractedFile(const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles);
+        void handleMovingMultipleExtractedFile(
+            const Path& destDir,
+            const Path& targetPath,
+            const std::vector<std::string>& extractedFiles);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";
@@ -67,4 +68,4 @@ namespace ResponseActionsImpl
         nlohmann::json m_response;
     };
 
-}
+} // namespace ResponseActionsImpl

@@ -3,7 +3,6 @@
 #include "FilePermissionsImpl.h"
 
 #include "Common/FileSystem/IFileNotFoundException.h"
-
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -13,14 +12,15 @@
 #include "Common/UtilityImpl/StrError.h"
 #include "Common/UtilityImpl/UniformIntDistribution.h"
 
+#include <linux/fs.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+
 #include <cassert>
 #include <cstring>
 #include <grp.h>
 #include <iostream>
-#include <linux/fs.h>
 #include <pwd.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
@@ -415,7 +415,8 @@ namespace Common::FileSystem
         if (capabilities != nullptr && cap_set_file(path.c_str(), capabilities) != 0)
         {
             std::stringstream errorMessage;
-            errorMessage << "Failed to set file capabilities (" << capabilities << ") on file " << path << " due to " << std::strerror(errno);
+            errorMessage << "Failed to set file capabilities (" << capabilities << ") on file " << path << " due to "
+                         << std::strerror(errno);
             throw FileSystem::IPermissionDeniedException(errorMessage.str());
         }
     }

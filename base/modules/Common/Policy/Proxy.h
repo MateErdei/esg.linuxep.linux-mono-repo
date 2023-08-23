@@ -14,9 +14,7 @@ namespace Common::Policy
     class Proxy
     {
     public:
-        explicit Proxy(
-            std::string url = "",
-            ProxyCredentials credentials = ProxyCredentials());
+        explicit Proxy(std::string url = "", ProxyCredentials credentials = ProxyCredentials());
 
         bool empty() const { return url_.empty() || url_ == NoProxy; }
         const ProxyCredentials& getCredentials() const { return credentials_; }
@@ -24,10 +22,7 @@ namespace Common::Policy
 
         std::string toStringPostfix() const;
 
-        bool operator==(const Proxy& rhs) const
-        {
-            return (url_ == rhs.url_ && credentials_ == rhs.credentials_);
-        }
+        bool operator==(const Proxy& rhs) const { return (url_ == rhs.url_ && credentials_ == rhs.credentials_); }
 
         bool operator!=(const Proxy& rhs) const { return !operator==(rhs); }
 
@@ -35,4 +30,4 @@ namespace Common::Policy
         std::string url_;
         ProxyCredentials credentials_;
     };
-}
+} // namespace Common::Policy

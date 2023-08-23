@@ -23,24 +23,21 @@ namespace ManagementAgent::PluginCommunication
     class PluginDetails
     {
     public:
-        PluginDetails(const Common::PluginRegistryImpl::PluginInfo& pluginInfo)
-            : policyAppIds(pluginInfo.getPolicyAppIds())
-            , actionAppIds(pluginInfo.getActionAppIds())
-            , statusAppIds(pluginInfo.getStatusAppIds())
-            , hasServiceHealth(pluginInfo.getHasServiceHealth())
-            , hasThreatServiceHealth(pluginInfo.getHasThreatServiceHealth())
-            , displayName(pluginInfo.getDisplayPluginName())
+        PluginDetails(const Common::PluginRegistryImpl::PluginInfo& pluginInfo) :
+            policyAppIds(pluginInfo.getPolicyAppIds()),
+            actionAppIds(pluginInfo.getActionAppIds()),
+            statusAppIds(pluginInfo.getStatusAppIds()),
+            hasServiceHealth(pluginInfo.getHasServiceHealth()),
+            hasThreatServiceHealth(pluginInfo.getHasThreatServiceHealth()),
+            displayName(pluginInfo.getDisplayPluginName())
         {
         }
 
         bool operator==(const PluginDetails& rhs) const
         {
-            if ((policyAppIds == rhs.policyAppIds) &&
-                (actionAppIds == rhs.actionAppIds) &&
-                (statusAppIds == rhs.statusAppIds)  &&
-                (hasServiceHealth == rhs.hasServiceHealth) &&
-                (hasThreatServiceHealth == rhs.hasThreatServiceHealth) &&
-                (displayName == rhs.displayName))
+            if ((policyAppIds == rhs.policyAppIds) && (actionAppIds == rhs.actionAppIds) &&
+                (statusAppIds == rhs.statusAppIds) && (hasServiceHealth == rhs.hasServiceHealth) &&
+                (hasThreatServiceHealth == rhs.hasThreatServiceHealth) && (displayName == rhs.displayName))
             {
                 return true;
             }
@@ -75,18 +72,25 @@ namespace ManagementAgent::PluginCommunication
          * @return Number of plugins that were given the new policy
          * @note In case of errors in delivering the policy a message will be logged but no exception is thrown.
          */
-        virtual int applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName) = 0;
+        virtual int applyNewPolicy(
+            const std::string& appId,
+            const std::string& policyXml,
+            const std::string& pluginName) = 0;
 
         /**
          * Send actions to all plugins which are interested in appID
          *
          * @param appId
          * @param actionXml
-         * @param correlationId  refers to the tag id of the command sent from Central. It will be empty if not available
+         * @param correlationId  refers to the tag id of the command sent from Central. It will be empty if not
+         * available
          * @return Number of plugins that received the action.
          * @note In case of error
          */
-        virtual int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) = 0;
+        virtual int queueAction(
+            const std::string& appId,
+            const std::string& actionXml,
+            const std::string& correlationId) = 0;
 
         /**
          * Check if a plugin is still installed
@@ -133,9 +137,7 @@ namespace ManagementAgent::PluginCommunication
          * @param pluginName
          * @param appIds
          */
-        virtual void registerAndConfigure(
-            const std::string& pluginName,
-            const PluginDetails& pluginDetails) = 0;
+        virtual void registerAndConfigure(const std::string& pluginName, const PluginDetails& pluginDetails) = 0;
 
         /**
          * Remove the plugin from memory so we no longer send actions/policies/requests to it.
@@ -183,7 +185,9 @@ namespace ManagementAgent::PluginCommunication
          * @param prevHealthMissing refers to whether the previous health status was missing
          * @return true if should contribute, false otherwise
          */
-        virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName, bool prevHealthMissing) = 0;
+        virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(
+            const std::string& pluginName,
+            bool prevHealthMissing) = 0;
 
         /**
          * An accessor to expose the shared health object. Needed so that other parts of
@@ -198,6 +202,5 @@ namespace ManagementAgent::PluginCommunication
          * @return True if within grace period
          */
         virtual bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now) = 0;
-
     };
 } // namespace ManagementAgent::PluginCommunication

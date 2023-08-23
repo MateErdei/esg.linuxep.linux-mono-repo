@@ -1,14 +1,14 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationPaths.h"
-#include "Logger.h"
 #include "Telemetry.h"
 
-#include "ResponseActions/ResponsePlugin/TelemetryConsts.h"
-#include "ResponseActions/RACommon/ResponseActionsCommon.h"
+#include "ApplicationPaths.h"
+#include "Logger.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
+#include "ResponseActions/ResponsePlugin/TelemetryConsts.h"
 
 using namespace ResponseActions::RACommon;
 using namespace Common::Telemetry;
@@ -25,7 +25,7 @@ namespace ResponsePlugin::Telemetry
         try
         {
             std::string versionIniFilepath = ResponsePlugin::getVersionIniFilePath();
-            return Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionIniFilepath,PRODUCT_VERSION_STR);
+            return Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionIniFilepath, PRODUCT_VERSION_STR);
         }
         catch (std::exception& ex)
         {
@@ -33,7 +33,6 @@ namespace ResponsePlugin::Telemetry
             return std::nullopt;
         }
     }
-
 
     void incrementTotalActions(const std::string& type)
     {
@@ -130,4 +129,4 @@ namespace ResponsePlugin::Telemetry
             throw std::logic_error("Unknown action type provided to incrementExpiredActions: " + type);
         }
     }
-}
+} // namespace ResponsePlugin::Telemetry

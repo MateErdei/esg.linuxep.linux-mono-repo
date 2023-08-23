@@ -130,9 +130,9 @@ namespace Common::PluginRegistryImpl
         void setHasThreatServiceHealth(const bool hasThreatServiceHealth);
 
         /**
-           * Used to check if the plugin supports service health
-           * @return true, if the plugin supports service health, false otherwise
-           */
+         * Used to check if the plugin supports service health
+         * @return true, if the plugin supports service health, false otherwise
+         */
         bool getHasServiceHealth() const;
 
         /**
@@ -171,9 +171,7 @@ namespace Common::PluginRegistryImpl
          *
          * @return PluginInfo parsed from the serializedPluginInfo.
          */
-        static PluginInfo deserializeFromString(
-            const std::string& serializedPluginInfo,
-            const std::string& pluginName);
+        static PluginInfo deserializeFromString(const std::string& serializedPluginInfo, const std::string& pluginName);
 
         /**
          * List the json entries from the directoryPath and load them into a vector of PluginInfo.

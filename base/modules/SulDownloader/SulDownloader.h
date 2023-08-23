@@ -20,13 +20,14 @@ namespace SulDownloader
         class DownloadReport;
     } // namespace suldownloaderdata
 
-    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool successs,
-                                                                         suldownloaderdata::IRepositoryPtr repository,
-                                                                         suldownloaderdata::TimeTracker& timeTracker,
-                                                                         const Common::Policy::UpdateSettings& updateSettings,
-                                                                         const suldownloaderdata::DownloadReport& previousDownloadReport,
-                                                                         bool forceReinstallAllProducts,
-                                                                         const bool supplementOnly);
+    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(
+        const bool successs,
+        suldownloaderdata::IRepositoryPtr repository,
+        suldownloaderdata::TimeTracker& timeTracker,
+        const Common::Policy::UpdateSettings& updateSettings,
+        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        bool forceReinstallAllProducts,
+        const bool supplementOnly);
 
     /**
      * Executes the core functionality of SULDownloader.
@@ -42,7 +43,8 @@ namespace SulDownloader
      *
      *
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
-     * @param previousConfigurationData which may contain the full previous settings for SULDownloader to check for product additions.
+     * @param previousConfigurationData which may contain the full previous settings for SULDownloader to check for
+     * product additions.
      * @param previousDownloadReport if one exists (if not it will be null or empty
      * @param supplementOnly Should SulDownloader do a supplement-only update?
      * @return DownloadReport which in case of failure will conatain description of the problem,
@@ -54,7 +56,7 @@ namespace SulDownloader
         const Common::Policy::UpdateSettings& updateSetting,
         const Common::Policy::UpdateSettings& previousUpdateSetting,
         const suldownloaderdata::DownloadReport& previousDownloadReport,
-        bool supplementOnly=false);
+        bool supplementOnly = false);
 
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
@@ -73,9 +75,9 @@ namespace SulDownloader
         const std::string& inputFilePath,
         const std::string& previousInputFilePath,
         const std::string& previousReportData,
-        bool supplementOnly=false,
-        std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{1},
-        int maxReadAttempts=10);
+        bool supplementOnly = false,
+        std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{ 1 },
+        int maxReadAttempts = 10);
 
     /**
      * Run configAndRunDownloader whilst handling files for input and output.
@@ -85,7 +87,8 @@ namespace SulDownloader
      *
      * @param inputFilePath Json file of the input settings.
      * @param outputFilePath File where the report of SulDownloader will be written to.
-     * @param supplementOnlyMarkerFilePath File, if present, will cause SulDownloader to attempt a supplement-only update
+     * @param supplementOnlyMarkerFilePath File, if present, will cause SulDownloader to attempt a supplement-only
+     * update
      * @return The exit code.
      * @throws If it cannot read or write the files safely it will throw exception.
      */
@@ -93,7 +96,7 @@ namespace SulDownloader
         const std::string& inputFilePath,
         const std::string& outputFilePath,
         const std::string& supplementOnlyMarkerFilePath,
-        std::chrono::milliseconds readFailedRetryInterval=std::chrono::seconds{1});
+        std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{ 1 });
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath);
 
@@ -110,6 +113,8 @@ namespace SulDownloader
      * @param argv As convention the strings of arguments.
      * @return
      */
-    int main_entry(int argc, char* argv[],
-                   std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{1});
+    int main_entry(
+        int argc,
+        char* argv[],
+        std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{ 1 });
 } // namespace SulDownloader

@@ -1,5 +1,6 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 #include "SystemExecutableUtils.h"
+
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <stdexcept>

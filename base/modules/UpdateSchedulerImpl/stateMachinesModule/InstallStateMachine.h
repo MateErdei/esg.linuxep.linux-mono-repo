@@ -15,11 +15,11 @@ namespace stateMachinesModule
         StateData::InstallMachineState state_;
 
     public:
-        InstallStateMachine(const StateData::InstallMachineState& state, const std::chrono::system_clock::time_point& now);
-
-        void SignalInstallResult(
-            StateData::StatusEnum resultStatus,
+        InstallStateMachine(
+            const StateData::InstallMachineState& state,
             const std::chrono::system_clock::time_point& now);
+
+        void SignalInstallResult(StateData::StatusEnum resultStatus, const std::chrono::system_clock::time_point& now);
 
         StateData::InstallMachineState CurrentState() const;
         int getOverallState() const;

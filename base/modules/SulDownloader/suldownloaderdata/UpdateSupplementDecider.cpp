@@ -5,27 +5,28 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <memory>
-
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <memory>
 #include <unistd.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-UpdateSupplementDecider::UpdateSupplementDecider(
-    UpdateSupplementDecider::WeekDayAndTimeForDelay schedule)
-    : m_schedule(schedule)
+UpdateSupplementDecider::UpdateSupplementDecider(UpdateSupplementDecider::WeekDayAndTimeForDelay schedule) :
+    m_schedule(schedule)
 {
 }
 
 time_t UpdateSupplementDecider::getLastSuccessfulProductUpdate()
 {
     // Read a file from the installation
-    std::string path = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLatestProductUpdateMarkerPath();
-    struct stat statbuf{};
+    std::string path =
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLatestProductUpdateMarkerPath();
+    struct stat statbuf
+    {
+    };
     int ret = ::stat(path.c_str(), &statbuf);
     if (ret == 0)
     {
@@ -36,7 +37,8 @@ time_t UpdateSupplementDecider::getLastSuccessfulProductUpdate()
 
 void UpdateSupplementDecider::recordSuccessfulProductUpdate()
 {
-    std::string path = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLatestProductUpdateMarkerPath();
+    std::string path =
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLatestProductUpdateMarkerPath();
     Common::FileSystem::fileSystem()->writeFile(path, "");
 }
 
@@ -73,7 +75,6 @@ bool UpdateSupplementDecider::updateProducts(time_t lastProductUpdateCheck, bool
     return lastScheduledProductUpdateTime > lastSuccessfulProductUpdate;
 }
 
-
 time_t UpdateSupplementDecider::lastScheduledProductUpdate()
 {
     time_t nowTime = getCurrentTime();
@@ -86,8 +87,8 @@ time_t UpdateSupplementDecider::lastScheduledProductUpdate()
     std::tm now = *std::localtime(&nowTime); // assume the schedule is supposed to be local time
 
     int dayDiff = now.tm_wday - m_schedule.weekDay; // How many days are we past the schedule
-    int hourDiff = now.tm_hour - m_schedule.hour; // How many hours are we past the schedule
-    int minDiff = now.tm_min - m_schedule.minute; // How many minutes are we past the schedule
+    int hourDiff = now.tm_hour - m_schedule.hour;   // How many hours are we past the schedule
+    int minDiff = now.tm_min - m_schedule.minute;   // How many minutes are we past the schedule
 
     // Total amount of seconds we are past the schedule
     time_t totalDiff = (dayDiff * SecondsInDay) + (hourDiff * SecondsInHour) + (minDiff * SecondsInMin) + now.tm_sec;

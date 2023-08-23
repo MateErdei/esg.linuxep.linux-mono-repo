@@ -40,6 +40,4 @@ namespace SulDownloader
         [[nodiscard]] static bool waitForComponentToRun(const std::string& component);
         [[nodiscard]] static bool isComponentIsRunning(const std::string& component);
     };
-}
-
-
+} // namespace SulDownloader

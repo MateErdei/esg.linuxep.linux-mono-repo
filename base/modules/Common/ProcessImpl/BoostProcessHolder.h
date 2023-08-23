@@ -79,8 +79,11 @@ namespace Common::ProcessImpl
         void armAsyncReaderForChildStdErr();
         void handleOutMessage(const boost::system::error_code& ec, std::size_t size);
         void handleErrMessage(const boost::system::error_code& ec, std::size_t size);
-        std::size_t completionCondition(const boost::system::error_code& ec, std::size_t size,std::vector<char>& buffer);
-        bool shouldBufferBeFlushed(std::size_t size,std::vector<char>& buffer);
+        std::size_t completionCondition(
+            const boost::system::error_code& ec,
+            std::size_t size,
+            std::vector<char>& buffer);
+        bool shouldBufferBeFlushed(std::size_t size, std::vector<char>& buffer);
         ProcessResult waitChildProcessToFinish();
         std::future<ProcessResult> asyncWaitChildProcessToFinish();
         void cacheResult();

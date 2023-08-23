@@ -2,14 +2,12 @@
 
 #include "UpdatePolicyTranslator.h"
 
-#include "UpdateSchedulerImpl/Logger.h"
-
-#include "Common/Policy/PolicyParseException.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Policy/PolicyParseException.h"
 #include "Common/SslImpl/Digest.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
+#include "UpdateSchedulerImpl/Logger.h"
 
 #include <algorithm>
 
@@ -48,15 +46,14 @@ namespace UpdateSchedulerImpl::configModule
             settings.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
             settings.setLogLevel(Common::Policy::UpdateSettings::LogLevel::VERBOSE);
 
-
-            updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions(), updatePolicy_->getUpdateSettings().getEsmVersion());
+            updatePolicyTelemetry_.updateSubscriptions(
+                updatePolicy_->getSubscriptions(), updatePolicy_->getUpdateSettings().getEsmVersion());
             updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
 
-            return {.configurationData=settings,
-                    .updateCacheCertificatesContent=updatePolicy_->getUpdateCertificatesContent(),
-                    .schedulerPeriod=updatePolicy_->getUpdatePeriod(),
-                    .weeklySchedule=updatePolicy_->getWeeklySchedule()
-            };
+            return { .configurationData = settings,
+                     .updateCacheCertificatesContent = updatePolicy_->getUpdateCertificatesContent(),
+                     .schedulerPeriod = updatePolicy_->getUpdatePeriod(),
+                     .weeklySchedule = updatePolicy_->getWeeklySchedule() };
         }
         catch (const Common::Policy::PolicyParseException& ex)
         {
@@ -77,10 +74,12 @@ namespace UpdateSchedulerImpl::configModule
         return updatePolicy_->revID();
     }
 
-    UpdatePolicyTranslator::UpdatePolicyTranslator() :
-            updatePolicyTelemetry_{ }
+    UpdatePolicyTranslator::UpdatePolicyTranslator() : updatePolicyTelemetry_{}
     {
-        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ updatePolicyTelemetry_.setSubscriptions(telemetry); });
+        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback(
+            "subscriptions",
+            [this](Common::Telemetry::TelemetryHelper& telemetry)
+            { updatePolicyTelemetry_.setSubscriptions(telemetry); });
     }
 
     UpdatePolicyTranslator::~UpdatePolicyTranslator()
@@ -95,7 +94,6 @@ namespace UpdateSchedulerImpl
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
         setSubscriptions(telemetryToSet);
-
     }
 
     void UpdatePolicyTelemetry::setSubscriptions(Common::Telemetry::TelemetryHelper& telemetryToSet)

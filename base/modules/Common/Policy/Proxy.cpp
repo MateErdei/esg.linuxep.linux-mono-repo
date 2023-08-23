@@ -4,7 +4,8 @@
 using namespace Common::Policy;
 
 Proxy::Proxy(std::string url, ProxyCredentials credentials) : url_(std::move(url)), credentials_(std::move(credentials))
-{}
+{
+}
 
 std::string Proxy::toStringPostfix() const
 {

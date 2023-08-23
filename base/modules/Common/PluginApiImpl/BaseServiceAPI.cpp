@@ -136,8 +136,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
                 std::ostringstream err;
                 err << ex.what() << " from getReply in BaseServiceAPI after " << attempts << " attempts and "
                     << totalWaitMs << "ms sleep over "
-                    << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
-                    << "ms duration";
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms duration";
                 LOGERROR("Timed out: " << err.str());
                 std::throw_with_nested(Common::PluginApi::ApiException(LOCATION, err.str()));
             }

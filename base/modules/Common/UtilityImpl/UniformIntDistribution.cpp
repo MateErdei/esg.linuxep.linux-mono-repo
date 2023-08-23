@@ -12,5 +12,8 @@ namespace Common::UtilityImpl
     {
     }
 
-    int UniformIntDistribution::next() { return m_uid(m_engine); }
+    int UniformIntDistribution::next()
+    {
+        return m_uid(m_engine);
+    }
 } // namespace Common::UtilityImpl

@@ -11,11 +11,10 @@ namespace OSUtilitiesImpl
     std::string SystemUtils::getEnvironmentVariable(const std::string& key) const
     {
         auto val = std::getenv(key.c_str());
-        if(val != nullptr)
+        if (val != nullptr)
         {
             return std::string(val);
         }
         return "";
     }
-}
-
+} // namespace OSUtilitiesImpl

@@ -3,7 +3,6 @@
 #include "DiagnoseRunner.h"
 
 #include "sdu/Logger.h"
-
 #include "watchdog/watchdogimpl/IWatchdogRequest.h"
 
 namespace RemoteDiagnoseImpl::runnerModule
@@ -95,5 +94,8 @@ namespace RemoteDiagnoseImpl::runnerModule
         return std::make_tuple(0, std::string());
     }
 
-    void DiagnoseRunner::abortWaitingForReport() { m_listener.abort(); }
+    void DiagnoseRunner::abortWaitingForReport()
+    {
+        m_listener.abort();
+    }
 } // namespace RemoteDiagnoseImpl::runnerModule

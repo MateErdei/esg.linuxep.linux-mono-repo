@@ -3,6 +3,7 @@
 #include "PidLockFile.h"
 
 #include "Common/UtilityImpl/StrError.h"
+
 #include <sys/file.h>
 
 #include <cstring>
@@ -21,8 +22,8 @@ namespace Common::FileSystemImpl
         if (localfd == -1)
         {
             std::stringstream errorStream;
-            errorStream << "Failed to open lock file " << m_pidfile << " because " << StrError(errno) << "("
-                        << errno << ")";
+            errorStream << "Failed to open lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno
+                        << ")";
             throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
@@ -31,8 +32,7 @@ namespace Common::FileSystemImpl
             // unable to lock the file
             pidLockUtils()->close(localfd);
             std::stringstream errorStream;
-            errorStream << "Failed to lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno
-                        << ")";
+            errorStream << "Failed to lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno << ")";
             throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
@@ -41,8 +41,8 @@ namespace Common::FileSystemImpl
         {
             pidLockUtils()->close(localfd);
             std::stringstream errorStream;
-            errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << StrError(errno) << "("
-                        << errno << ")";
+            errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << StrError(errno) << "(" << errno
+                        << ")";
             throw std::system_error(errno, std::generic_category(), errorStream.str());
         }
 
@@ -85,17 +85,35 @@ namespace Common::FileSystemImpl
         return ::open(pathname.c_str(), flags, mode);
     }
 
-    int PidLockFileUtils::flock(int fd) const { return ::flock(fd, LOCK_EX | LOCK_NB); }
+    int PidLockFileUtils::flock(int fd) const
+    {
+        return ::flock(fd, LOCK_EX | LOCK_NB);
+    }
 
-    int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }
+    int PidLockFileUtils::ftruncate(int fd, off_t length) const
+    {
+        return ::ftruncate(fd, length);
+    }
 
-    ssize_t PidLockFileUtils::write(int fd, const void* buf, size_t count) const { return ::write(fd, buf, count); }
+    ssize_t PidLockFileUtils::write(int fd, const void* buf, size_t count) const
+    {
+        return ::write(fd, buf, count);
+    }
 
-    void PidLockFileUtils::close(int fd) const { ::close(fd); }
+    void PidLockFileUtils::close(int fd) const
+    {
+        ::close(fd);
+    }
 
-    void PidLockFileUtils::unlink(const std::string& pathname) const { ::unlink(pathname.c_str()); }
+    void PidLockFileUtils::unlink(const std::string& pathname) const
+    {
+        ::unlink(pathname.c_str());
+    }
 
-    __pid_t PidLockFileUtils::getpid() const { return ::getpid(); }
+    __pid_t PidLockFileUtils::getpid() const
+    {
+        return ::getpid();
+    }
 } // namespace Common::FileSystemImpl
 
 std::unique_ptr<Common::FileSystem::ILockFileHolder> Common::FileSystem::acquireLockFile(const std::string& fullPath)

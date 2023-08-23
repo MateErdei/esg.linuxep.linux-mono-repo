@@ -54,7 +54,7 @@ namespace Common::PluginApiImpl
             std::string rootPath;
             if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
             {
-                if (payload.find("internal")!= std::string::npos)
+                if (payload.find("internal") != std::string::npos)
                 {
                     rootPath = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();
                 }
@@ -89,12 +89,12 @@ namespace Common::PluginApiImpl
                 {
                     if (tries <= maxTries)
                     {
-                        LOGDEBUG( "Failed to read MCS file " << payload << ", will retry. Exception: " << ex.what());
+                        LOGDEBUG("Failed to read MCS file " << payload << ", will retry. Exception: " << ex.what());
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
                     }
                     else
                     {
-                        LOGDEBUG( "Failed to read MCS file " << payload << ". Exception: " << ex.what());
+                        LOGDEBUG("Failed to read MCS file " << payload << ". Exception: " << ex.what());
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace Common::PluginApiImpl
         else
         {
             // Allowed list of non file name strings
-            for (auto& allowedStringData : { "TriggerUpdate","TriggerDiagnose" })
+            for (auto& allowedStringData : { "TriggerUpdate", "TriggerDiagnose" })
             {
                 if (payloadData == allowedStringData)
                 {

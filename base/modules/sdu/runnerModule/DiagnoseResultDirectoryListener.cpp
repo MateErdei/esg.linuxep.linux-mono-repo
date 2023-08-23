@@ -20,7 +20,10 @@ namespace RemoteDiagnoseImpl::runnerModule
     {
     }
 
-    std::string DiagnoseResultDirectoryListener::getPath() const { return m_directoryToWatch; }
+    std::string DiagnoseResultDirectoryListener::getPath() const
+    {
+        return m_directoryToWatch;
+    }
 
     void DiagnoseResultDirectoryListener::fileMoved(const std::string& filename)
     {
@@ -34,7 +37,10 @@ namespace RemoteDiagnoseImpl::runnerModule
         m_fileDetected.notify_all();
     }
 
-    void DiagnoseResultDirectoryListener::watcherActive(bool active) { m_active = active; }
+    void DiagnoseResultDirectoryListener::watcherActive(bool active)
+    {
+        m_active = active;
+    }
 
     std::string DiagnoseResultDirectoryListener::waitForFile(std::chrono::seconds timeoutInSeconds)
     {
@@ -53,7 +59,13 @@ namespace RemoteDiagnoseImpl::runnerModule
         m_fileDetected.notify_all();
     }
 
-    bool DiagnoseResultDirectoryListener::wasAborted() { return m_aborted; }
+    bool DiagnoseResultDirectoryListener::wasAborted()
+    {
+        return m_aborted;
+    }
 
-    bool DiagnoseResultDirectoryListener::shouldStop() { return m_fileFound || m_aborted; }
+    bool DiagnoseResultDirectoryListener::shouldStop()
+    {
+        return m_fileFound || m_aborted;
+    }
 } // namespace RemoteDiagnoseImpl::runnerModule

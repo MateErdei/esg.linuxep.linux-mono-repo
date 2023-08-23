@@ -21,9 +21,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common::ObfuscationImpl
 {
-    EVP_CIPHER_CTX* EvpCipherWrapper::EVP_CIPHER_CTX_new() const { return ::EVP_CIPHER_CTX_new(); }
+    EVP_CIPHER_CTX* EvpCipherWrapper::EVP_CIPHER_CTX_new() const
+    {
+        return ::EVP_CIPHER_CTX_new();
+    }
 
-    void EvpCipherWrapper::EVP_CIPHER_CTX_free(EVP_CIPHER_CTX* a) const { ::EVP_CIPHER_CTX_free(a); }
+    void EvpCipherWrapper::EVP_CIPHER_CTX_free(EVP_CIPHER_CTX* a) const
+    {
+        ::EVP_CIPHER_CTX_free(a);
+    }
 
     int EvpCipherWrapper::EVP_DecryptInit_ex(
         EVP_CIPHER_CTX* ctx,
@@ -86,10 +92,7 @@ namespace Common::ObfuscationImpl
         Common::Obfuscation::evpCipherWrapper()->EVP_CIPHER_CTX_free(m_ctxPtr);
     }
 
-    void EvpCipherContext::DecryptInit_ex(
-        const EVP_CIPHER* cipher,
-        const unsigned char* key,
-        const unsigned char* iv)
+    void EvpCipherContext::DecryptInit_ex(const EVP_CIPHER* cipher, const unsigned char* key, const unsigned char* iv)
     {
         if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptInit_ex(m_ctxPtr, cipher, nullptr, key, iv))
         {
@@ -113,10 +116,7 @@ namespace Common::ObfuscationImpl
         }
     }
 
-    void EvpCipherContext::EncryptInit_ex(
-        const EVP_CIPHER* cipher,
-        const unsigned char* key,
-        const unsigned char* iv)
+    void EvpCipherContext::EncryptInit_ex(const EVP_CIPHER* cipher, const unsigned char* key, const unsigned char* iv)
     {
         if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_EncryptInit_ex(m_ctxPtr, cipher, nullptr, key, iv))
         {
@@ -177,7 +177,8 @@ namespace Common::ObfuscationImpl
         ObfuscationImpl::SecureDynamicBuffer salt(encrypted.begin() + 1, encrypted.begin() + saltLength + 1);
         ObfuscationImpl::SecureDynamicBuffer cipherText(encrypted.begin() + saltLength + 1, encrypted.end());
 
-        ObfuscationImpl::SecureFixedBuffer<AES256ObfuscationImpl::KeyLength + AES256ObfuscationImpl::IVLength> keyivarray;
+        ObfuscationImpl::SecureFixedBuffer<AES256ObfuscationImpl::KeyLength + AES256ObfuscationImpl::IVLength>
+            keyivarray;
 
         const EVP_MD* digest = EVP_sha512();
         int slen = PKCS5_PBKDF2_HMAC(
@@ -233,7 +234,8 @@ namespace Common::ObfuscationImpl
         if (plaintext_len >= Cipher::maxPasswordSize)
         {
             throw Common::Obfuscation::ICipherException(
-                "SECDeobfuscation failed, Decrypted string exceeds maximum length of: " + std::to_string(Cipher::maxPasswordSize));
+                "SECDeobfuscation failed, Decrypted string exceeds maximum length of: " +
+                std::to_string(Cipher::maxPasswordSize));
         }
 
         Common::ObfuscationImpl::SecureString value(plaintextbuffer.data(), plaintextbuffer.data() + plaintext_len);
@@ -273,7 +275,8 @@ namespace Common::ObfuscationImpl
 
         ObfuscationImpl::SecureDynamicBuffer cipherText;
 
-        ObfuscationImpl::SecureFixedBuffer<AES256ObfuscationImpl::KeyLength + AES256ObfuscationImpl::IVLength> keyivarray;
+        ObfuscationImpl::SecureFixedBuffer<AES256ObfuscationImpl::KeyLength + AES256ObfuscationImpl::IVLength>
+            keyivarray;
 
         const EVP_MD* digest = EVP_sha512();
         int slen = PKCS5_PBKDF2_HMAC(
@@ -307,7 +310,8 @@ namespace Common::ObfuscationImpl
         /* Provide the message to be encrypted, and obtain the encrypted output.
          * EVP_EncryptUpdate can be called multiple times if necessary
          */
-        Common::ObfuscationImpl::SecureFixedBuffer<Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength> cipherTextBuffer;
+        Common::ObfuscationImpl::SecureFixedBuffer<Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength>
+            cipherTextBuffer;
 
         int len = -1;
         evpCipherWrapper.EncryptUpdate(
@@ -330,7 +334,8 @@ namespace Common::ObfuscationImpl
         {
             throw Common::Obfuscation::ICipherException(
                 "SECObfuscation failed, Encrypted string of size: " + std::to_string(cipherTextLen) +
-                " Exceeds maximum length of: " + std::to_string(Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength));
+                " Exceeds maximum length of: " +
+                std::to_string(Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength));
         }
 
         std::string value(cipherTextBuffer.data(), cipherTextBuffer.data() + cipherTextLen);

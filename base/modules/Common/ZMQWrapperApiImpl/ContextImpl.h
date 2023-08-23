@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
-
 #include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
 
 namespace Common::ZMQWrapperApiImpl
 {

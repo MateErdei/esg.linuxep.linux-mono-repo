@@ -13,7 +13,9 @@
 
 namespace ManagementAgent::PluginCommunication
 {
-    class IPluginServerCallback : public virtual IStatusReceiver, public virtual IEventReceiver, public virtual IThreatHealthReceiver
+    class IPluginServerCallback : public virtual IStatusReceiver,
+                                  public virtual IEventReceiver,
+                                  public virtual IThreatHealthReceiver
     {
     public:
         ~IPluginServerCallback() override = default;

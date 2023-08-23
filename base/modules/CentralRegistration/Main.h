@@ -10,8 +10,12 @@
 
 namespace CentralRegistration
 {
-    MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, const std::shared_ptr<OSUtilities::ISystemUtils>& systemUtils);
-    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args, const std::string& mcsCertPath="");
+    MCS::ConfigOptions processCommandLineOptions(
+        const std::vector<std::string>& args,
+        const std::shared_ptr<OSUtilities::ISystemUtils>& systemUtils);
+    MCS::ConfigOptions innerCentralRegistration(
+        const std::vector<std::string>& args,
+        const std::string& mcsCertPath = "");
     int main_entry(int argc, char* argv[]);
 
-} // namespace CentralRegistrationImpl
+} // namespace CentralRegistration

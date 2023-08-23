@@ -1,8 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "ActionRequiredFields.h"
 #include "ActionsUtils.h"
 
+#include "ActionRequiredFields.h"
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
@@ -82,19 +82,20 @@ namespace ResponseActionsImpl
         info.sizeBytes = checkUlongJsonValue(actionObject, "sizeBytes", fieldErrorStr);
         if (info.sizeBytes == 0)
         {
-            throw InvalidCommandFormat("sizeBytes field has been evaluated to 0. Very large values can also cause this.");
+            throw InvalidCommandFormat(
+                "sizeBytes field has been evaluated to 0. Very large values can also cause this.");
         }
         info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
 
         try
         {
-            //Required fields
+            // Required fields
             info.url = actionObject.at("url");
             info.targetPath = actionObject.at("targetPath");
             info.sha256 = actionObject.at("sha256");
             info.timeout = actionObject.at("timeout");
 
-            //Optional Fields
+            // Optional Fields
             if (actionObject.contains("decompress"))
             {
                 info.decompress = actionObject.at("decompress");
@@ -192,7 +193,10 @@ namespace ResponseActionsImpl
         }
     }
 
-    unsigned long ActionsUtils::checkUlongJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
+    unsigned long ActionsUtils::checkUlongJsonValue(
+        const nlohmann::json& actionObject,
+        const std::string& field,
+        const std::string& errorPrefix)
     {
         if (actionObject[field].is_number())
         {
@@ -212,7 +216,10 @@ namespace ResponseActionsImpl
         return actionObject.at(field).get<unsigned long>();
     }
 
-    int ActionsUtils::checkIntJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
+    int ActionsUtils::checkIntJsonValue(
+        const nlohmann::json& actionObject,
+        const std::string& field,
+        const std::string& errorPrefix)
     {
         if (actionObject[field].is_number())
         {
@@ -245,7 +252,7 @@ namespace ResponseActionsImpl
         {
             actionStr = actionTypeStrMap.at(type);
         }
-        catch(const std::out_of_range& exception)
+        catch (const std::out_of_range& exception)
         {
             LOGERROR("Action is not present in map");
         }
@@ -269,7 +276,7 @@ namespace ResponseActionsImpl
 
         std::vector<std::string> requiredKeys;
 
-        switch(type)
+        switch (type)
         {
             case ActionType::UPLOADFILE:
                 requiredKeys = uploadFileRequiredFields;

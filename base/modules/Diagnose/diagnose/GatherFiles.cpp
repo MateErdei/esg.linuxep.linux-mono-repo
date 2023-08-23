@@ -19,7 +19,7 @@ namespace
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
         static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
-                                                                     ".log", ".dat",  ".flags", ".ini", ".yaml" };
+                                                                     ".log", ".dat",  ".flags", ".ini",  ".yaml" };
         for (const auto& type : interestingExtensions)
         {
             if (Common::UtilityImpl::StringUtils::isSubstring(filename, type))
@@ -28,11 +28,11 @@ namespace
             }
         }
 
-        if(Common::UtilityImpl::StringUtils::isSubstring(filename, "current_proxy"))
+        if (Common::UtilityImpl::StringUtils::isSubstring(filename, "current_proxy"))
         {
             return true;
         }
-        else if(Common::UtilityImpl::StringUtils::isSubstring(filename, "unhealthy_flag"))
+        else if (Common::UtilityImpl::StringUtils::isSubstring(filename, "unhealthy_flag"))
         {
             return true;
         }
@@ -47,7 +47,10 @@ namespace diagnose
     {
     }
 
-    void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
+    void GatherFiles::setInstallDirectory(const Path& path)
+    {
+        m_installDirectory = path;
+    }
 
     Path GatherFiles::createRootDir(const Path& path)
     {
@@ -60,11 +63,20 @@ namespace diagnose
         return m_tempDir->dirPath();
     }
 
-    Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, BASE_FOLDER); }
+    Path GatherFiles::createBaseFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, BASE_FOLDER);
+    }
 
-    Path GatherFiles::createPluginFilesDir(const Path& path) { return createDiagnoseFolder(path, PLUGIN_FOLDER); }
+    Path GatherFiles::createPluginFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, PLUGIN_FOLDER);
+    }
 
-    Path GatherFiles::createSystemFilesDir(const Path& path) { return createDiagnoseFolder(path, SYSTEM_FOLDER); }
+    Path GatherFiles::createSystemFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, SYSTEM_FOLDER);
+    }
 
     Path GatherFiles::createDiagnoseFolder(const Path& path, const std::string& dirName)
     {
@@ -295,7 +307,7 @@ namespace diagnose
         Path mcsTmp = Common::FileSystem::join(m_installDirectory, "base/mcs/tmp");
         std::vector<std::string> tmpDirs = m_fileSystem->listDirectories(ssplTmp);
         std::vector<std::string> mcsTmpDirs = m_fileSystem->listDirectories(ssplTmp);
-        tmpDirs.insert( tmpDirs.end(), mcsTmpDirs.begin(), mcsTmpDirs.end() );
+        tmpDirs.insert(tmpDirs.end(), mcsTmpDirs.begin(), mcsTmpDirs.end());
         for (auto& sourcePath : tmpDirs)
         {
             if (!m_fileSystem->isDirectory(sourcePath))

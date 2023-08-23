@@ -11,7 +11,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-
 namespace SulDownloader::suldownloaderdata
 {
     struct ProductKey
@@ -74,7 +73,6 @@ namespace SulDownloader::suldownloaderdata
     };
 
 } // namespace SulDownloader::suldownloaderdata
-
 
 namespace std
 {

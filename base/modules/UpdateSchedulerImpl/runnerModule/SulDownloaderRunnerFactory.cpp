@@ -13,7 +13,10 @@ namespace UpdateSchedulerImpl::runnerModule
 
     /**Factory */
 
-    SulDownloaderRunnerFactory::SulDownloaderRunnerFactory() { restoreCreator(); }
+    SulDownloaderRunnerFactory::SulDownloaderRunnerFactory()
+    {
+        restoreCreator();
+    }
 
     SulDownloaderRunnerFactory& SulDownloaderRunnerFactory::instance()
     {
@@ -28,7 +31,10 @@ namespace UpdateSchedulerImpl::runnerModule
         return m_creator(schedulerTaskQueue, dirPath);
     }
 
-    void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
+    void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator)
+    {
+        m_creator = creator;
+    }
 
     void SulDownloaderRunnerFactory::restoreCreator()
     {

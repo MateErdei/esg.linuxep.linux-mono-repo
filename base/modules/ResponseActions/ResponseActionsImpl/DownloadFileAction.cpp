@@ -11,19 +11,20 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
-//For return value interpretation
+// For return value interpretation
 #include <minizip/mz_compat.h>
 
 namespace FileSystem = Common::FileSystem;
 
 namespace ResponseActionsImpl
 {
-    DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
-        m_client(std::move(client)){}
+    DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :
+        m_client(std::move(client))
+    {
+    }
 
     nlohmann::json DownloadFileAction::run(const std::string& actionJson)
     {
-
         removeTmpFiles();
 
         m_response.clear();
@@ -37,7 +38,7 @@ namespace ResponseActionsImpl
         catch (const InvalidCommandFormat& exception)
         {
             LOGWARN(exception.what());
-            ActionsUtils::setErrorInfo(m_response, 1,  "Error parsing command from Central");
+            ActionsUtils::setErrorInfo(m_response, 1, "Error parsing command from Central");
             return m_response;
         }
 
@@ -76,7 +77,7 @@ namespace ResponseActionsImpl
         {
             std::string error = "Download file action has expired";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(m_response,4,error);
+            ActionsUtils::setErrorInfo(m_response, 4, error);
             return false;
         }
 
@@ -85,7 +86,8 @@ namespace ResponseActionsImpl
         if (info.sizeBytes > maxFileSize)
         {
             std::stringstream sizeError;
-            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is too large";
+            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes
+                      << " is too large";
             LOGWARN(sizeError.str());
             ActionsUtils::setErrorInfo(m_response, 1, sizeError.str());
             return false;
@@ -114,7 +116,9 @@ namespace ResponseActionsImpl
             tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(m_raTmpDir), errCode);
             if (errCode)
             {
-                LOGERROR("Error calculating disk space for " << m_raTmpDir << ": " << errCode.value() << " message:" << errCode.message());
+                LOGERROR(
+                    "Error calculating disk space for " << m_raTmpDir << ": " << errCode.value()
+                                                        << " message:" << errCode.message());
                 ActionsUtils::setErrorInfo(m_response, 1, errCode.message());
                 return false;
             }
@@ -124,7 +128,9 @@ namespace ResponseActionsImpl
             destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath), errCode);
             if (errCode)
             {
-                LOGERROR("Error calculating disk space for " << info.targetPath << ": " << errCode.value() << " message:" << errCode.message());
+                LOGERROR(
+                    "Error calculating disk space for " << info.targetPath << ": " << errCode.value()
+                                                        << " message:" << errCode.message());
                 ActionsUtils::setErrorInfo(m_response, 1, errCode.message());
                 return false;
             }
@@ -132,7 +138,7 @@ namespace ResponseActionsImpl
         catch (const FileSystem::IFileSystemException& e)
         {
             std::stringstream exception;
-            exception << "Cant determine disk space on filesystem: " <<  e.what();
+            exception << "Cant determine disk space on filesystem: " << e.what();
             LOGERROR(exception.str());
             ActionsUtils::setErrorInfo(m_response, 1, exception.str());
             return false;
@@ -152,8 +158,8 @@ namespace ResponseActionsImpl
             (info.decompress && spaceInfoToCheck < (info.sizeBytes * 2.5)))
         {
             std::stringstream spaceError;
-            spaceError << "Not enough space to complete download action: Sophos install disk has "  << tmpSpaceInfo.available <<
-                ", destination disk has " << destSpaceInfo.available;
+            spaceError << "Not enough space to complete download action: Sophos install disk has "
+                       << tmpSpaceInfo.available << ", destination disk has " << destSpaceInfo.available;
             LOGWARN(spaceError.str());
             ActionsUtils::setErrorInfo(m_response, 1, spaceError.str(), "not_enough_space");
             return false;
@@ -163,11 +169,11 @@ namespace ResponseActionsImpl
 
     void DownloadFileAction::download(const DownloadInfo& info)
     {
-        Common::HttpRequests::RequestConfig request{
-            .url = info.url, .fileDownloadLocation = m_tmpDownloadFile, .timeout = info.timeout
-        };
+        Common::HttpRequests::RequestConfig request{ .url = info.url,
+                                                     .fileDownloadLocation = m_tmpDownloadFile,
+                                                     .timeout = info.timeout };
         LOGINFO("Beginning download to " << info.targetPath);
-        LOGDEBUG("Download URL is " <<  info.url);
+        LOGDEBUG("Download URL is " << info.url);
         Common::HttpRequests::Response httpresponse;
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
@@ -196,10 +202,8 @@ namespace ResponseActionsImpl
         m_response["httpStatus"] = httpresponse.status;
     }
 
-    void DownloadFileAction::handleHttpResponse(
-        const Common::HttpRequests::Response& httpresponse)
+    void DownloadFileAction::handleHttpResponse(const Common::HttpRequests::Response& httpresponse)
     {
-
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
@@ -219,7 +223,7 @@ namespace ResponseActionsImpl
             if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
                 m_response["result"] = 0;
-                //Log success when we have filename
+                // Log success when we have filename
             }
             else
             {
@@ -240,7 +244,7 @@ namespace ResponseActionsImpl
 
     bool DownloadFileAction::verifyFile(const DownloadInfo& info)
     {
-        //We are only downloading a single file and response actions should not run in parallel
+        // We are only downloading a single file and response actions should not run in parallel
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
         if (fileNameVec.empty())
         {
@@ -261,7 +265,7 @@ namespace ResponseActionsImpl
         LOGDEBUG("Downloaded file: " << fileNameVec.front());
         assert(fileNameVec.front() == m_tmpDownloadFile);
 
-        //Check sha256
+        // Check sha256
         std::string fileSha;
 
         try
@@ -290,7 +294,8 @@ namespace ResponseActionsImpl
         if (fileSha != info.sha256)
         {
             std::stringstream shaError;
-            shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
+            shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256
+                     << ")";
             LOGWARN(shaError.str());
             ActionsUtils::setErrorInfo(m_response, 1, shaError.str(), "access_denied");
             return false;
@@ -298,7 +303,6 @@ namespace ResponseActionsImpl
         LOGDEBUG("Successfully matched sha256 to downloaded file");
         return true;
     }
-
 
     void DownloadFileAction::decompressAndMoveFile(const DownloadInfo& info)
     {
@@ -319,7 +323,8 @@ namespace ResponseActionsImpl
                 }
                 else
                 {
-                    ret = Common::ZipUtilities::zipUtils().unzip(m_tmpDownloadFile, m_tmpExtractPath, true, info.password);
+                    ret = Common::ZipUtilities::zipUtils().unzip(
+                        m_tmpDownloadFile, m_tmpExtractPath, true, info.password);
                 }
             }
             catch (const std::runtime_error&)
@@ -414,14 +419,16 @@ namespace ResponseActionsImpl
             fileName = m_archiveFileName;
         }
 
-        if (makeDestDirectory(destDir) &&
-            !fileAlreadyExists(destDir + fileName))
+        if (makeDestDirectory(destDir) && !fileAlreadyExists(destDir + fileName))
         {
             moveFile(destDir, fileName, m_tmpDownloadFile);
         }
     }
 
-    void DownloadFileAction::handleMovingSingleExtractedFile(const Path& destDir, const Path& targetPath, const Path& extractedFile)
+    void DownloadFileAction::handleMovingSingleExtractedFile(
+        const Path& destDir,
+        const Path& targetPath,
+        const Path& extractedFile)
     {
         Path subFilePath;
         if (destDir.back() != '/')
@@ -441,9 +448,12 @@ namespace ResponseActionsImpl
         }
     }
 
-    void DownloadFileAction::handleMovingMultipleExtractedFile(const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles)
+    void DownloadFileAction::handleMovingMultipleExtractedFile(
+        const Path& destDir,
+        const Path& targetPath,
+        const std::vector<std::string>& extractedFiles)
     {
-        //Dont use filename for multiple files
+        // Dont use filename for multiple files
         if (targetPath.back() != '/')
         {
             std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
@@ -452,7 +462,7 @@ namespace ResponseActionsImpl
         }
 
         bool anyFileExists = false;
-        //We need to fail entirely if any one file already exists
+        // We need to fail entirely if any one file already exists
         for (const auto& filePath : extractedFiles)
         {
             Path subFilePath = getSubDirsInTmpDir(filePath);
@@ -460,7 +470,7 @@ namespace ResponseActionsImpl
             if (fileAlreadyExists(destDir + subFilePath))
             {
                 anyFileExists = true;
-                //A warning in the response is added in fileAlreadyExists
+                // A warning in the response is added in fileAlreadyExists
                 LOGWARN("A file in the extracted archive already existed on destination path, aborting");
                 break;
             }
@@ -573,7 +583,7 @@ namespace ResponseActionsImpl
         {
             dirName = getSubDirsInTmpDir(dirName);
 
-            if(!dirName.empty())
+            if (!dirName.empty())
             {
                 m_fileSystem->makedirs(destDir + dirName);
                 destPath = destDir + dirName + "/" + fileName;
@@ -667,7 +677,7 @@ namespace ResponseActionsImpl
     Path DownloadFileAction::getSubDirsInTmpDir(const Path& filePath)
     {
         Path subFilePath = filePath;
-        if(filePath.rfind(m_tmpExtractPath, 0) == 0)
+        if (filePath.rfind(m_tmpExtractPath, 0) == 0)
         {
             subFilePath.erase(0, m_tmpExtractPath.size() + 1);
         }
@@ -677,4 +687,4 @@ namespace ResponseActionsImpl
         }
         return subFilePath;
     }
-}
+} // namespace ResponseActionsImpl

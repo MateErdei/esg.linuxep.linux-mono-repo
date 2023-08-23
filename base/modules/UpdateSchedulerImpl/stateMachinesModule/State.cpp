@@ -12,34 +12,36 @@ State::State() :
     downloadStateMachine_{ StateData::DownloadMachineState{}, std::chrono::system_clock::now() },
     installStateMachine_{ StateData::InstallMachineState{}, std::chrono::system_clock::now() },
     eventStateMachine_{ downloadStateMachine_, installStateMachine_, StateData::EventMachineState{} },
-    forceReboot_(false), rebootSetThisUpdate_(false), isDelayedProductUpdate_(false), isFallbackUpdate_(false)
+    forceReboot_(false),
+    rebootSetThisUpdate_(false),
+    isDelayedProductUpdate_(false),
+    isFallbackUpdate_(false)
 {
-
 }
 
 int State::ExitCode()
 {
-	return lastError_.exitCode_;
+    return lastError_.exitCode_;
 }
 
-void State::SetLastSubscriptionVersions(LineVersionMap_t const &versions)
+void State::SetLastSubscriptionVersions(LineVersionMap_t const& versions)
 {
-	m_lineVersions = versions;
+    m_lineVersions = versions;
 }
 
 LineVersionMap_t State::GetLastSubscriptionVersions() const
 {
-	return m_lineVersions;
+    return m_lineVersions;
 }
 
 void State::SetError(const SEUError& error)
 {
-	lastError_ = error;
+    lastError_ = error;
 }
 
 SEUError State::GetLastError() const
 {
-	return lastError_;
+    return lastError_;
 }
 
 void State::SignalDownloadResult(StateData::DownloadResultEnum downloadResult)
@@ -73,17 +75,17 @@ StateData::EventMachineState State::GetEventState() const
 
 bool State::GetRebootRequiredSetThisUpdate()
 {
-	return rebootSetThisUpdate_;
+    return rebootSetThisUpdate_;
 }
 
 void State::SetForceRebootAfterThisUpdate(bool forceReboot)
 {
-	forceReboot_ = forceReboot;
+    forceReboot_ = forceReboot;
 }
 
 bool State::GetForceRebootAfterThisUpdate()
 {
-	return forceReboot_;
+    return forceReboot_;
 }
 
 void State::RawSetDownloadState(const StateData::DownloadMachineState& machineState)
@@ -103,39 +105,39 @@ void State::RawSetEventState(const StateData::EventMachineState& machineState)
 
 void State::SetSuiteVersion(const std::string& version)
 {
-	suiteVersion_ = version;
+    suiteVersion_ = version;
 }
 
 std::string State::GetSuiteVersion()
 {
-	return suiteVersion_;
+    return suiteVersion_;
 }
 
 void State::SetMarketingVersion(const std::string& version)
 {
-	marketingVersion_ = version;
+    marketingVersion_ = version;
 }
 
 std::string State::GetMarketingVersion()
 {
-	return marketingVersion_;
+    return marketingVersion_;
 }
 
 bool State::SetMarketingVersionFromPath(const std::string& /*rootPath*/)
 {
-	// Sorry, but this needed to be in state so that it could be properly stubbed.
+    // Sorry, but this needed to be in state so that it could be properly stubbed.
 
-	return true;
+    return true;
 }
 
 std::string State::GetProductType() const
 {
-	return productType_;
+    return productType_;
 }
 
 void State::SetProductType(const std::string& productType)
 {
-	productType_ = productType;
+    productType_ = productType;
 }
 
 bool State::IsDelayedProductUpdate() const

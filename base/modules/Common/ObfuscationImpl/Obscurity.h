@@ -67,6 +67,5 @@ namespace Common::ObfuscationImpl
          */
         SecureString Reveal(const std::string& data) const;
         std::string Conceal(const std::string& plainPassword) const;
-
     };
 } // namespace Common::ObfuscationImpl

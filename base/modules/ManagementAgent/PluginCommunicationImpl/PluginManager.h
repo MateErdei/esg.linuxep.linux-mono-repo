@@ -5,13 +5,13 @@
 #include "PluginServerCallbackHandler.h"
 
 #include "Common/PluginCommunication/IPluginProxy.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 #include "Common/ZeroMQWrapper/IProxy.h"
 #include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
 #include "ManagementAgent/HealthStatusImpl/HealthStatus.h"
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 #include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
-#include "Common/PluginRegistryImpl/PluginInfo.h"
 
 #include <map>
 #include <mutex>
@@ -28,8 +28,10 @@ namespace ManagementAgent::PluginCommunicationImpl
         explicit PluginManager(Common::ZMQWrapperApi::IContextSharedPtr context);
         ~PluginManager() override;
 
-        int applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName) override;
-        int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) override;
+        int applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName)
+            override;
+        int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId)
+            override;
         void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
         bool checkIfSinglePluginInRegistry(const std::string& pluginName) override;
         std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string& pluginName) override;
@@ -39,17 +41,14 @@ namespace ManagementAgent::PluginCommunicationImpl
         void registerPlugin(const std::string& pluginName) override;
         void registerAndConfigure(
             const std::string& pluginName,
-            const PluginCommunication::PluginDetails& pluginDetails
-           ) override;
+            const PluginCommunication::PluginDetails& pluginDetails) override;
 
         void removePlugin(const std::string& pluginName) override;
 
         std::vector<std::string> getRegisteredPluginNames() override;
 
         Common::ZMQWrapperApi::IContextSharedPtr getSocketContext();
-        void setServerCallback(
-            ServerCallbackPtr pluginCallback,
-            Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
+        void setServerCallback(ServerCallbackPtr pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
 
         void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
@@ -58,7 +57,9 @@ namespace ManagementAgent::PluginCommunicationImpl
         void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
         void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) override;
 
-        ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName, bool prevHealthMissing) override;
+        ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(
+            const std::string& pluginName,
+            bool prevHealthMissing) override;
 
         std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj() override;
 
@@ -75,6 +76,7 @@ namespace ManagementAgent::PluginCommunicationImpl
          * @return True if within grace period
          */
         bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now);
+
     private:
         Common::PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 

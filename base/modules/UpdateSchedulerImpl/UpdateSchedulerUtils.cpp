@@ -24,17 +24,19 @@ namespace
         {
             std::rethrow_if_nested(e);
         }
-        catch(const Common::Exceptions::IException& nestedException)
+        catch (const Common::Exceptions::IException& nestedException)
         {
-            UpdateSchedulerImpl::log_exception(nestedException, level+1);
+            UpdateSchedulerImpl::log_exception(nestedException, level + 1);
         }
-        catch(const std::exception& nestedException)
+        catch (const std::exception& nestedException)
         {
-            UpdateSchedulerImpl::log_exception(nestedException, level+1);
+            UpdateSchedulerImpl::log_exception(nestedException, level + 1);
         }
-        catch(...) {}
+        catch (...)
+        {
+        }
     }
-}
+} // namespace
 
 namespace UpdateSchedulerImpl
 {
@@ -52,7 +54,6 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerUtils::calculateHealth(StateData::StateMachineData stateMachineData)
     {
-
         nlohmann::json healthResponseMessage;
         healthResponseMessage["downloadState"] = 0;
         healthResponseMessage["installState"] = 0;
@@ -63,8 +64,8 @@ namespace UpdateSchedulerImpl
         auto const& installFailedTime = stateMachineData.getInstallFailedSinceTime();
         auto const& downloadFailedTime = stateMachineData.getDownloadFailedSinceTime();
 
-        if (eventStateLastTime == "0" && goodInstallTime == "0"
-            && installFailedTime == "0" && downloadFailedTime == "0" )
+        if (eventStateLastTime == "0" && goodInstallTime == "0" && installFailedTime == "0" &&
+            downloadFailedTime == "0")
         {
             // update has not run yet
             return healthResponseMessage.dump();
@@ -99,7 +100,7 @@ namespace UpdateSchedulerImpl
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
-                LOGERROR("Failed to remove file "<< path << " due to error "<< ex.what());
+                LOGERROR("Failed to remove file " << path << " due to error " << ex.what());
             }
         }
     }
@@ -115,7 +116,7 @@ namespace UpdateSchedulerImpl
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
-                LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
+                LOGERROR("Failed to read file " << path << " due to error " << ex.what());
             }
         }
         return "";
@@ -139,7 +140,8 @@ namespace UpdateSchedulerImpl
 
     std::optional<UpdateSettings> UpdateSchedulerUtils::getCurrentConfigurationData()
     {
-        Path currentConfigFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+        Path currentConfigFilePath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
 
         std::optional<UpdateSettings> currentConfigurationData;
         if (Common::FileSystem::fileSystem()->isFile(currentConfigFilePath))
@@ -151,7 +153,7 @@ namespace UpdateSchedulerImpl
         return currentConfigurationData;
     }
 
-    std::pair<UpdateSettings,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
+    std::pair<UpdateSettings, bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
     {
         bool config_updated = false;
         auto currentConfigData = getCurrentConfigurationData();
@@ -178,10 +180,9 @@ namespace UpdateSchedulerImpl
                 config_updated = true;
             }
 
-            return {currentConfigData.value(), config_updated};
-
+            return { currentConfigData.value(), config_updated };
         }
-        return {UpdateSettings(), false};
+        return { UpdateSettings(), false };
     }
 
     std::string UpdateSchedulerUtils::getDeviceId()
@@ -224,7 +225,7 @@ namespace UpdateSchedulerImpl
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
+            LOGERROR("Failed to read file " << path << " due to error " << ex.what());
         }
         return token;
     }
@@ -250,4 +251,4 @@ namespace UpdateSchedulerImpl
 
         return std::nullopt;
     }
-}
+} // namespace UpdateSchedulerImpl

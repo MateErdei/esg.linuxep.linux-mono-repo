@@ -208,9 +208,10 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
         orderedCaches.emplace_back(caches.at(entry.originalIndex));
     }
 
-    std::stable_sort(orderedCaches.begin(), orderedCaches.end(), [](const UpdateCache& a, const UpdateCache& b) {
-        return a.priority < b.priority;
-    });
+    std::stable_sort(
+        orderedCaches.begin(),
+        orderedCaches.end(),
+        [](const UpdateCache& a, const UpdateCache& b) { return a.priority < b.priority; });
     return orderedCaches;
 }
 
@@ -279,7 +280,7 @@ void ALCPolicy::extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap
         if (cdnurl.empty())
         {
             LOGWARN("CDN hostname is empty in ALC policy");
-            continue ;
+            continue;
         }
         if (validateHostname(cdnurl))
         {
@@ -297,7 +298,7 @@ void ALCPolicy::extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap
 
 bool ALCPolicy::validateHostname(const std::string& url)
 {
-    std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(url,":");
+    std::vector<std::string> parts = Common::UtilityImpl::StringUtils::splitString(url, ":");
     if (parts.size() > 2)
     {
         LOGWARN("Malformed url '" << url << "' in ALC policy");

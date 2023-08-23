@@ -21,9 +21,10 @@ namespace
             return SOPHOS_INSTALL;
         }
         // If we don't have the environment variable, see if we can work out from the executable
-        std::optional<Path> exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
-                                                                                 // $SOPHOS_INSTALL/bin/X or
-                                                                                 // $SOPHOS_INSTALL/plugins/PluginName/X
+        std::optional<Path> exe =
+            Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
+                                                                          // $SOPHOS_INSTALL/bin/X or
+                                                                          // $SOPHOS_INSTALL/plugins/PluginName/X
         if (exe.has_value())
         {
             std::string baseDirName = Common::FileSystem::dirName(exe.value());
@@ -48,7 +49,7 @@ namespace
 
 namespace Common::ApplicationConfigurationImpl
 {
-    std::string ApplicationConfiguration::getData(const std::string &key) const
+    std::string ApplicationConfiguration::getData(const std::string& key) const
     {
         return m_configurationData.at(key);
     }
@@ -57,15 +58,15 @@ namespace Common::ApplicationConfigurationImpl
     {
         m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
         m_configurationData[Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR] = Common::FileSystem::join(
-                m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL], "base/telemetry/cache");
+            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL], "base/telemetry/cache");
     }
 
-    void ApplicationConfiguration::setData(const std::string &key, const std::string &data)
+    void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
     {
         m_configurationData[key] = data;
     }
 
-    void ApplicationConfiguration::clearData(const std::string &key)
+    void ApplicationConfiguration::clearData(const std::string& key)
     {
         m_configurationData.erase(key);
     }

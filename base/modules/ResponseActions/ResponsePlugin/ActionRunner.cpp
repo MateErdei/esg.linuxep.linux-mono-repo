@@ -4,11 +4,12 @@
 
 #include "Logger.h"
 #include "Telemetry.h"
-#include <json.hpp>
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
+
+#include <json.hpp>
 
 using namespace ResponseActions::RACommon;
 using namespace ResponsePlugin::Telemetry;

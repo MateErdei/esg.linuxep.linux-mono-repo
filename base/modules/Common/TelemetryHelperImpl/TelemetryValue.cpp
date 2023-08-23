@@ -25,17 +25,35 @@ namespace Common::Telemetry
 
     TelemetryValue::TelemetryValue(const char* value) : m_value(std::string(value)) {}
 
-    void TelemetryValue::set(const long value) { m_value = value; }
+    void TelemetryValue::set(const long value)
+    {
+        m_value = value;
+    }
 
-    void TelemetryValue::set(unsigned long value) { m_value = value; }
+    void TelemetryValue::set(unsigned long value)
+    {
+        m_value = value;
+    }
 
-    void TelemetryValue::set(double value) { m_value = value; }
+    void TelemetryValue::set(double value)
+    {
+        m_value = value;
+    }
 
-    void TelemetryValue::set(const bool value) { m_value = value; }
+    void TelemetryValue::set(const bool value)
+    {
+        m_value = value;
+    }
 
-    void TelemetryValue::set(const std::string& value) { m_value = value; }
+    void TelemetryValue::set(const std::string& value)
+    {
+        m_value = value;
+    }
 
-    void TelemetryValue::set(const char* value) { m_value = std::string(value); }
+    void TelemetryValue::set(const char* value)
+    {
+        m_value = std::string(value);
+    }
 
     long TelemetryValue::getInteger() const
     {
@@ -67,7 +85,10 @@ namespace Common::Telemetry
         return std::get<std::string>(m_value);
     }
 
-    TelemetryValue::Type TelemetryValue::getType() const { return static_cast<Type>(m_value.index()); }
+    TelemetryValue::Type TelemetryValue::getType() const
+    {
+        return static_cast<Type>(m_value.index());
+    }
 
     bool TelemetryValue::operator==(const TelemetryValue& rhs) const
     {
@@ -101,7 +122,10 @@ namespace Common::Telemetry
         return m_value == rhs.m_value;
     }
 
-    bool TelemetryValue::operator!=(const TelemetryValue& rhs) const { return !(rhs == *this); }
+    bool TelemetryValue::operator!=(const TelemetryValue& rhs) const
+    {
+        return !(rhs == *this);
+    }
 
     void TelemetryValue::checkType(Type expectedType) const
     {

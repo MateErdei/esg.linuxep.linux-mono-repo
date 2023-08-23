@@ -11,13 +11,13 @@
 
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/UtilityImpl/UniformIntDistribution.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
+
 #include <sys/stat.h>
 
 #include <iostream>
@@ -50,7 +50,7 @@ namespace UpdateSchedulerImpl
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
 
         auto cronThread = std::make_unique<cronModule::CronSchedulerThread>(
-                taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
+            taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
         auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
         auto runner = std::make_unique<runnerModule::AsyncSulDownloaderRunner>(taskQueue, dirPath);
 
@@ -62,7 +62,8 @@ namespace UpdateSchedulerImpl
                 std::move(cronThread),
                 std::move(runner));
             updateScheduler.mainLoop();
-            sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
+            sharedPluginCallBack->setRunning(
+                false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
         }
         sharedPluginCallBack.reset();
         resourceManagement.reset();

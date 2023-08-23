@@ -2,6 +2,7 @@
 #include "LocalIPImpl.h"
 
 #include "Common/OSUtilities/IIPUtils.h"
+
 #include <net/if.h>
 
 #include <algorithm>
@@ -73,9 +74,8 @@ namespace
             auto interfaceIter = std::find_if(
                 interfaces.begin(),
                 interfaces.end(),
-                [&interfaceName](const Common::OSUtilities::Interface& interface) {
-                    return interface.name == interfaceName;
-                });
+                [&interfaceName](const Common::OSUtilities::Interface& interface)
+                { return interface.name == interfaceName; });
 
             if (interfaceIter == interfaces.end()) // if interfaceName not found, create new interface
             {
@@ -100,8 +100,14 @@ namespace
 
         for (const auto& interface : interfaces)
         {
-            ips.ip4collection.insert(ips.ip4collection.end(), interface.ipAddresses.ip4collection.begin(), interface.ipAddresses.ip4collection.end());
-            ips.ip6collection.insert(ips.ip6collection.end(), interface.ipAddresses.ip6collection.begin(), interface.ipAddresses.ip6collection.end());
+            ips.ip4collection.insert(
+                ips.ip4collection.end(),
+                interface.ipAddresses.ip4collection.begin(),
+                interface.ipAddresses.ip4collection.end());
+            ips.ip6collection.insert(
+                ips.ip6collection.end(),
+                interface.ipAddresses.ip6collection.begin(),
+                interface.ipAddresses.ip6collection.end());
         }
 
         return ips;
@@ -110,14 +116,26 @@ namespace
 } // namespace
 
 namespace Common::OSUtilitiesImpl
+{
+    Common::OSUtilities::IPs LocalIPImpl::getLocalIPs() const
     {
-        Common::OSUtilities::IPs LocalIPImpl::getLocalIPs() const { return ::localIPs(); }
-        std::vector<Common::OSUtilities::Interface> LocalIPImpl::getLocalInterfaces() const { return ::localInterfaces(); }
+        return ::localIPs();
+    }
+    std::vector<Common::OSUtilities::Interface> LocalIPImpl::getLocalInterfaces() const
+    {
+        return ::localInterfaces();
+    }
 
-        void replaceLocalIP(ILocalIPPtr other) { LocalIPStaticPointer().reset(other.release()); }
+    void replaceLocalIP(ILocalIPPtr other)
+    {
+        LocalIPStaticPointer().reset(other.release());
+    }
 
-        void restoreLocalIP() { LocalIPStaticPointer().reset(new Common::OSUtilitiesImpl::LocalIPImpl()); }
-    } // namespace Common::OSUtilitiesImpl
+    void restoreLocalIP()
+    {
+        LocalIPStaticPointer().reset(new Common::OSUtilitiesImpl::LocalIPImpl());
+    }
+} // namespace Common::OSUtilitiesImpl
 
 Common::OSUtilities::ILocalIP* Common::OSUtilities::localIP()
 {

@@ -23,7 +23,10 @@ namespace stateMachinesModule
         bool DiscardRecentDuplicate(int updateError, const std::chrono::system_clock::time_point& now) const;
 
     public:
-        EventStateMachine(DownloadStateMachine& downloadStateMachine, InstallStateMachine& installStateMachine, const StateData::EventMachineState& state);
+        EventStateMachine(
+            DownloadStateMachine& downloadStateMachine,
+            InstallStateMachine& installStateMachine,
+            const StateData::EventMachineState& state);
         void Reset(const StateData::EventMachineState& state);
 
         bool Discard(int updateError, const std::chrono::system_clock::time_point& now);

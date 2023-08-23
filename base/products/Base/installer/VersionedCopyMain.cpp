@@ -1,6 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "Installer/VersionedCopy/VersionedCopy.h"
+
 #include <sys/stat.h>
 int main(int argc, char* argv[])
 {

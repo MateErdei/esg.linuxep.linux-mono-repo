@@ -62,9 +62,8 @@ namespace Common::ProcessImpl
          * @param environmentName
          * @param environmentValue
          */
-        void addExecutableEnvironmentVariables(
-            const std::string& environmentName,
-            const std::string& environmentValue) override;
+        void addExecutableEnvironmentVariables(const std::string& environmentName, const std::string& environmentValue)
+            override;
 
         /**
          * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will
