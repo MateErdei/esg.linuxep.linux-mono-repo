@@ -8,10 +8,9 @@ FAILURE_BUILD_AFL=17
 FAILURE_BUILD_FUZZ=18
 FAILURE_BAD_ARGUMENT=53
 
-
+set -x
 STARTINGDIR=$(pwd)
 
-cd ${0%/*}
 FuzzTestsDir=$(pwd)
 SOURCE_DIR=$(realpath ${FuzzTestsDir}/../../../)
 SSPL_TOOLS_DIR=$(realpath ${FuzzTestsDir}/../../../../)

@@ -11,6 +11,14 @@ CMAKE_BUILD_DIR=cmake-fuzz
 CMAKE_BUILD_FULL_PATH="${PROJECT_ROOT_SOURCE}/${CMAKE_BUILD_DIR}"
 
 set -x
+
+#
+CLANG=$(which clang)
+if [[ ! -x ${CLANG} ]]
+then
+   sudo apt-get -y install clang
+fi
+
 # check assumptions:
 if [[ "LibFuzzerScripts" != "${FUZZ_TEST_DIR_NAME}" ]]; then
   echo "Not executed from LibFuzzerScripts: ${FUZZ_TEST_DIR_NAME}"; exit 1;
@@ -63,7 +71,7 @@ pushd libprotobuf-mutator
   # at this point in time their project has not release. Hence, just update
 
   #Todo remove git checkout and uncomment git pull when https://sophos.atlassian.net/browse/LINUXDAR-6728 is completed
-  #git pull
+#  git pull
   git checkout af3bb18749db3559dc4968dd85319d05168d4b5e
 
   cp ${FUZZ_TEST_DIR}/setup_protobuf.patch .
@@ -93,8 +101,6 @@ mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup bu
 pushd ${CMAKE_BUILD_FULL_PATH}
 
 ${CMAKE} .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DBUILD_FUZZ_TESTS=ON -DNO_GCOV="true"
-
-
 
 make ${TARGETS}
 for TARGET in ${TARGETS}; do
