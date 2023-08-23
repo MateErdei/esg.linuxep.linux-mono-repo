@@ -20,10 +20,6 @@
 #include <cstdint>
 #include <string>
 
-#ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
-#endif
-
 namespace unixsocket
 {
     class SafeStoreServerConnectionThread : public BaseServerConnectionThread
@@ -48,7 +44,5 @@ namespace unixsocket
         bool loggedLengthOfZero_ = false;
         unixsocket::ReadLengthAsync readLengthAsync_;
         unixsocket::ReadBufferAsync readBufferAsync_;
-    TEST_PUBLIC:
-        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     };
 } // namespace unixsocket
