@@ -441,17 +441,3 @@ Run Live Query and Return Result
     Remove File  ${response}
     Remove File  ${EXAMPLE_DATA_PATH}/temp.json
     [Return]  ${contents}
-
-Create Rsyslog Apparmor Rule
-    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd_sophos-spl
-    Create File    ${apparmor_profile}   /usr/sbin/rsyslogd {\n /opt/sophos-spl/shared/syslog_pipe rw,\n}\n
-    ${result} =   Run Process    apparmor_parser  -r  ${apparmor_profile}
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-
-Remove Rsyslog Apparmor Rule
-    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd_sophos-spl
-    Run Keyword And Ignore Error  Remove File  ${apparmor_profile}
-    ${result} =   Run Process    apparmor_parser  -R  ${apparmor_profile}
-    Log  ${result.stdout}
-    Log  ${result.stderr}
