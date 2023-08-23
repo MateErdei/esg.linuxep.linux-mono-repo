@@ -121,7 +121,7 @@ namespace
     public:
         void setBase(fs::path& path)
         {
-            base_ = path;
+            proc_ = path;
         }
     };
 }

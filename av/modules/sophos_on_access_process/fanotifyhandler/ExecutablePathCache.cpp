@@ -41,7 +41,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
     std::string ExecutablePathCache::get_executable_path_from_pid_uncached(pid_t pid, std::error_code& ec)
     {
-        fs::path target = base_;
+        fs::path target = proc_;
         target /= std::to_string(pid);
         target /= "exe";
         return fs::read_symlink(target, ec); // Empty path on errors
