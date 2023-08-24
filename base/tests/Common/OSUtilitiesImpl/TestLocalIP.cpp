@@ -17,7 +17,7 @@ using ListInputOutput = std::vector<PairResult>;
 
 class TestLocalIP: public LogOffInitializedTests{};
 
-TEST_F(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
+TEST_F(TestLocalIP, canDetermineTheHostsIPaddresses)
 {
     auto fSystem = Common::FileSystem::fileSystem();
     std::string ipconfigInfo = "/sbin/ifconfig";
@@ -61,7 +61,7 @@ TEST_F(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
     }
 }
 
-TEST_F(TestLocalIP, canMockLocalIPs) // NOLINT
+TEST_F(TestLocalIP, canMockLocalIPs)
 {
     std::unique_ptr<MockILocalIP> mocklocalIP(new StrictMock<MockILocalIP>());
     EXPECT_CALL(*mocklocalIP, getLocalIPs()).WillOnce(Return(MockILocalIP::buildIPsHelper("10.10.101.34")));
@@ -73,7 +73,7 @@ TEST_F(TestLocalIP, canMockLocalIPs) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST_F(TestLocalIP, canUsetheFakeLocalIPs) // NOLINT
+TEST_F(TestLocalIP, canUsetheFakeLocalIPs)
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "10.10.101.34", "10.10.101.35" }));

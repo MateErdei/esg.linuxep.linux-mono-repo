@@ -12,7 +12,7 @@ using namespace ::testing;
 class MockIDnsLookup : public Common::OSUtilities::IDnsLookup
 {
 public:
-    MOCK_CONST_METHOD1(lookup, Common::OSUtilities::IPs(const std::string&));
+    MOCK_METHOD(Common::OSUtilities::IPs, lookup, (const std::string&, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper), (const, override));
 };
 
 class FakeIDnsLookup : public Common::OSUtilities::IDnsLookup
@@ -30,7 +30,7 @@ public:
         }
         m_dns[serveruri] = ips;
     }
-    Common::OSUtilities::IPs lookup(const std::string& uri) const
+    Common::OSUtilities::IPs lookup(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr) const
     {
         auto found = m_dns.find(uri);
         if (found != m_dns.end())

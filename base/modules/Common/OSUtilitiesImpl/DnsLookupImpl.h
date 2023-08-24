@@ -4,16 +4,20 @@
 #include "Common/OSUtilities/IDnsLookup.h"
 
 #include <memory>
-namespace Common::OSUtilitiesImpl
+namespace Common
 {
-    class DnsLookupImpl : public Common::OSUtilities::IDnsLookup
+    namespace OSUtilitiesImpl
     {
-    public:
-        Common::OSUtilities::IPs lookup(const std::string&) const override;
-    };
+        class DnsLookupImpl : public Common::OSUtilities::IDnsLookup
+        {
+        public:
+            Common::OSUtilities::IPs lookup(const std::string&, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper) const override;
+        };
 
-    /** To be used in tests only */
-    using IDnsLookupPtr = std::unique_ptr<Common::OSUtilities::IDnsLookup>;
-    void replaceDnsLookup(IDnsLookupPtr);
-    void restoreDnsLookup();
-} // namespace Common::OSUtilitiesImpl
+        /** To be used in tests only */
+        using IDnsLookupPtr = std::unique_ptr<Common::OSUtilities::IDnsLookup>;
+        void replaceDnsLookup(IDnsLookupPtr);
+        void restoreDnsLookup();
+
+    } // namespace OSUtilitiesImpl
+} // namespace Common

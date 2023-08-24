@@ -4,6 +4,10 @@
 
 #include "Common/OSUtilities/IDnsLookup.h"
 #include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockSysCalls.h"
+
+#include <arpa/inet.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -35,8 +39,18 @@ std::string ipsToString(const std::vector<std::string>& ips)
     return os.str();
 }
 
-// TODO LINUXDAR-4888 This test has been disabled because it relies on network access which is very limited EAA machines
-TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidHosts) // NOLINT
+class TestDnsLookup: public LogOffInitializedTests
+{
+public:
+    void SetUp()
+    {
+        m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    }
+    
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
+};
+
+TEST_F(TestDnsLookup, shouldBeAbleToResolvValidHosts)
 {
     auto dns = dnsLookup();
     ListInputOutput url_ip = {
@@ -46,7 +60,16 @@ TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidHosts) // NOLINT
 
     for (const auto& map : url_ip)
     {
-        auto ips = dns->lookup(map.first);
+        sockaddr_in address{};
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = inet_addr(map.second[0].c_str());
+        addrinfo ifa{};
+        ifa.ai_addr = (struct sockaddr*)&address;
+        ifa.ai_addrlen = sizeof (struct sockaddr_in);
+        EXPECT_CALL(*m_mockSysCalls, getaddrinfo(_, _, _, _)).WillOnce(DoAll(SetArgPointee<3>(&ifa), Return(0)));
+        EXPECT_CALL(*m_mockSysCalls, freeaddrinfo(_));
+        
+        auto ips = dns->lookup(map.first, m_mockSysCalls);
         ASSERT_GT(ips.ip4collection.size(), 0);
         auto answer = ips.ip4collection.at(0).stringAddress();
         auto it = std::find(map.second.begin(), map.second.end(), answer);
@@ -55,58 +78,67 @@ TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidHosts) // NOLINT
     }
 }
 
-TEST(TestDnsLookup, invalidRequestShouldThrow) // NOLINT
+TEST_F(TestDnsLookup, invalidRequestShouldThrow)
 {
     auto dns = dnsLookup();
-    std::vector<std::string> invalid_url = { { "nonuk-filer6.eng.sophos" }, { "this.server.does.not.exists" }
-
-    };
-
-    for (const auto& noserver : invalid_url)
-    {
-        EXPECT_THROW(dns->lookup(noserver), std::runtime_error); // NOLINT
-    }
+    std::string invalid_url = "this.server.does.not.exists";
+    EXPECT_CALL(*m_mockSysCalls, getaddrinfo(invalid_url.c_str(), _, _, _)).WillOnce(Return(EAI_AGAIN));
+    EXPECT_THROW(dns->lookup(invalid_url, m_mockSysCalls), std::runtime_error);
 }
 
-//Todo LINUXDAR-6988 replace test with a unit test using mock and real robot test
-TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidIPv6) // NOLINT
+TEST_F(TestDnsLookup, shouldBeAbleToResolvValidIPv6)
 {
+    sockaddr_in address1{};
+    address1.sin_family = AF_INET;
+    address1.sin_addr.s_addr = inet_addr("142.250.187.196");
+    addrinfo ifa1{};
+    ifa1.ai_addr = (struct sockaddr*)&address1;
+    ifa1.ai_addrlen = sizeof (struct sockaddr_in);
+    sockaddr_in6 address2{};
+    address2.sin6_family = AF_INET6;
+    address2.sin6_addr = in6_addr();
+    addrinfo ifa2{};
+    ifa2.ai_addr = (struct sockaddr*)&address2;
+    ifa2.ai_addrlen = sizeof (struct sockaddr_in);
+    ifa2.ai_next = &ifa1;
+    EXPECT_CALL(*m_mockSysCalls, getaddrinfo(_, _, _, _)).WillOnce(DoAll(SetArgPointee<3>(&ifa2), Return(0)));
+    EXPECT_CALL(*m_mockSysCalls, freeaddrinfo(_));
+    
     auto dns = dnsLookup();
-    // the public url that I found that return ip6 and ip4
-    auto ips = dns->lookup("www.google.com");
+    auto ips = dns->lookup("www.google.com", m_mockSysCalls);
     ASSERT_GT(ips.ip4collection.size(), 0);
     ASSERT_GT(ips.ip6collection.size(), 0);
 }
 #endif
 
-TEST(TestDnsLookup, canMockDns) // NOLINT
+TEST_F(TestDnsLookup, canMockDns)
 {
-    std::unique_ptr<MockIDnsLookup> mockDNS(new StrictMock<MockIDnsLookup>());
-    EXPECT_CALL(*mockDNS, lookup(_)).WillOnce(Return(MockILocalIP::buildIPsHelper("10.10.101.34")));
+    std::unique_ptr<StrictMock<MockIDnsLookup>> mockDNS(new StrictMock<MockIDnsLookup>());
+    EXPECT_CALL(*mockDNS, lookup(_, _)).WillOnce(Return(MockILocalIP::buildIPsHelper("10.10.101.34")));
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(mockDNS));
 
-    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com");
+    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com", m_mockSysCalls);
     ASSERT_EQ(ips.ip4collection.size(), 1);
     EXPECT_EQ(ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
     Common::OSUtilitiesImpl::restoreDnsLookup();
 }
 
-TEST(TestDnsLookup, canUsetheFakeDns) // NOLINT
+TEST_F(TestDnsLookup, canUsetheFakeDns)
 {
     std::unique_ptr<FakeIDnsLookup> mockDNS(new StrictMock<FakeIDnsLookup>());
     mockDNS->addMap("server.com", { "10.10.101.34" });
     mockDNS->addMap("server2.com", { "10.10.101.35" });
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(mockDNS));
 
-    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com");
+    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com", m_mockSysCalls);
     ASSERT_EQ(ips.ip4collection.size(), 1);
     EXPECT_EQ(ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
 
-    ips = Common::OSUtilities::dnsLookup()->lookup("server2.com");
+    ips = Common::OSUtilities::dnsLookup()->lookup("server2.com", m_mockSysCalls);
     ASSERT_EQ(ips.ip4collection.size(), 1);
     EXPECT_EQ(ips.ip4collection.at(0).stringAddress(), "10.10.101.35");
 
-    EXPECT_THROW(Common::OSUtilities::dnsLookup()->lookup("no_server.com"), std::runtime_error); // NOLINT
+    EXPECT_THROW(Common::OSUtilities::dnsLookup()->lookup("no_server.com", m_mockSysCalls), std::runtime_error);
 
     Common::OSUtilitiesImpl::restoreDnsLookup();
 }

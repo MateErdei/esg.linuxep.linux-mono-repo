@@ -6,22 +6,33 @@
 #include "Common/OSUtilities/IIPUtils.h"
 #include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
 #include "Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "tests/Common/Helpers/MockSysCalls.h"
 #include <arpa/inet.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
 #include <tuple>
+
 using namespace Common::OSUtilities;
 
 using PairResult = std::pair<std::string, std::vector<std::string>>;
 using ListInputOutput = std::vector<PairResult>;
 
-TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
+TEST(TestIPUtils, verifyIP4CanbeconstructedByString)
 {
     auto dns = dnsLookup();
 
-    auto ips = dns->lookup("localhost");
+    auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    addrinfo ifa{};
+    ifa.ai_addr = (struct sockaddr*)&address;
+    ifa.ai_addrlen = sizeof (struct sockaddr_in);
+    EXPECT_CALL(*mockSysCalls, getaddrinfo(_, _, _, _)).WillOnce(DoAll(SetArgPointee<3>(&ifa), Return(0)));
+    EXPECT_CALL(*mockSysCalls, freeaddrinfo(_));
+    auto ips = dns->lookup("localhost", mockSysCalls);
     auto answerip = ips.ip4collection.at(0);
     ASSERT_EQ( "127.0.0.1",answerip.stringAddress()) << "ip of localhost differ. Expected: 127.0.0.1 but got: " << answerip.stringAddress();
 
@@ -29,10 +40,9 @@ TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
     EXPECT_EQ(expected.stringAddress(), answerip.stringAddress());
     EXPECT_EQ(expected.ipAddress(), answerip.ipAddress())
         << std::hex << expected.ipAddress() << " " << answerip.ipAddress() << std::dec;
-
 }
 
-TEST(TestIPUtils, IP4CannotBeConstructedByInvalidIPString) // NOLINT
+TEST(TestIPUtils, IP4CannotBeConstructedByInvalidIPString)
 {
     std::vector<std::string> invalid_ips = {
         "270.101.89.90",   // each number must be smaller than 256
@@ -40,11 +50,11 @@ TEST(TestIPUtils, IP4CannotBeConstructedByInvalidIPString) // NOLINT
     };
     for (const auto& invalid_ip : invalid_ips)
     {
-        EXPECT_THROW(IP4{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv4: " << invalid_ip; // NOLINT
+        EXPECT_THROW(IP4{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv4: " << invalid_ip;
     }
 }
 
-TEST(TestIPUtils, IP6CannotBeConstructedByInvalidIPString) // NOLINT
+TEST(TestIPUtils, IP6CannotBeConstructedByInvalidIPString)
 {
     std::vector<std::string> invalid_ips = {
         "8cc1:bec7:87c5:b668:62bf:ccaa:9f56", // there should be 8 fields
@@ -52,11 +62,11 @@ TEST(TestIPUtils, IP6CannotBeConstructedByInvalidIPString) // NOLINT
     };
     for (const auto& invalid_ip : invalid_ips)
     {
-        EXPECT_THROW(IP6{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv6: " << invalid_ip; // NOLINT
+        EXPECT_THROW(IP6{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv6: " << invalid_ip;
     }
 }
 
-TEST(TestIPUtils, IP4distance) // NOLINT
+TEST(TestIPUtils, IP4distance)
 {
     std::vector<std::tuple<std::string, std::string, int>> ip_distances = {
         { "255.0.0.0", "255.0.0.0", 0 },  // oxff oxff
@@ -79,7 +89,7 @@ TEST(TestIPUtils, IP4distance) // NOLINT
     }
 }
 
-TEST(TestIPUtils, extractServerFromHttpURL) // NOLINT
+TEST(TestIPUtils, extractServerFromHttpURL)
 {
     std::vector<std::pair<std::string, std::string>> httpurl_server = {
         { "maineng2.eng.sophos:8191", "maineng2.eng.sophos" },
@@ -129,14 +139,14 @@ public:
     }
 };
 
-TEST_F(TestSortServers, ifNoDNSIsKnownTheOrderDoesNotChange) // NOLINT
+TEST_F(TestSortServers, ifNoDNSIsKnownTheOrderDoesNotChange)
 {
     auto report = indexOfSortedURIsByIPProximity({ "url1", "url2", "url3" });
     std::vector<int> expectedValues{ 0, 1, 2 };
     ASSERT_EQ(sortedIndexes(report), expectedValues);
 }
 
-TEST_F(TestSortServers, ifOnlyOneIsKnownItBecomeTheFirst) // NOLINT
+TEST_F(TestSortServers, ifOnlyOneIsKnownItBecomeTheFirst)
 {
     setupServers({ { "url2", { "201.20.5.6" } } });
     auto report = indexOfSortedURIsByIPProximity({ "url1", "url2", "url3" });
@@ -144,7 +154,7 @@ TEST_F(TestSortServers, ifOnlyOneIsKnownItBecomeTheFirst) // NOLINT
     ASSERT_EQ(sortedIndexes(report), expectedValues);
 }
 
-TEST_F(TestSortServers, theEntriesAreSortedByIPProximity) // NOLINT
+TEST_F(TestSortServers, theEntriesAreSortedByIPProximity)
 {
     // closer to 10.10.5.6
     setupServers({ { "url1", { "10.6.5.6" } }, { "url2", { "10.10.100.6" } }, { "url3", { "10.10.5.7" } }
@@ -155,7 +165,7 @@ TEST_F(TestSortServers, theEntriesAreSortedByIPProximity) // NOLINT
     ASSERT_EQ(sortedIndexes(report), expectedValues);
 }
 
-TEST_F(TestSortServers, theEntriesConsiderAllTheInterfaces) // NOLINT
+TEST_F(TestSortServers, theEntriesConsiderAllTheInterfaces)
 {
     // closer to 192.168.10.5
     setupServers({ { "url1", { "192.168.150.5" } }, { "url2", { "192.168.10.200" } }, { "url3", { "192.1.10.5" } } });
@@ -164,7 +174,7 @@ TEST_F(TestSortServers, theEntriesConsiderAllTheInterfaces) // NOLINT
     ASSERT_EQ(sortedIndexes(report), expectedValues);
 }
 
-TEST_F(TestSortServers, theEntriesConsiderAllTheAvailableDNSEntries) // NOLINT
+TEST_F(TestSortServers, theEntriesConsiderAllTheAvailableDNSEntries)
 {
     // closer to 192.168.10.5
     setupServers({ { "url1", { "192.168.150.5", "10.1.5.6" } },

@@ -3,7 +3,7 @@
 
 #include "Common/OSUtilities/IDnsLookup.h"
 #include "Common/OSUtilities/ILocalIP.h"
-
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -13,6 +13,7 @@
 #include <netdb.h>
 #include <regex>
 #include <sstream>
+
 namespace
 {
     using Common::OSUtilities::IP4;
@@ -53,22 +54,21 @@ namespace
 
         for (const auto& uri : serversuri)
         {
-            tasks.emplace_back(std::async(
-                [uri, &dnsLookupPtr]() -> ServerURI
+            tasks.emplace_back(std::async([uri, &dnsLookupPtr]() -> ServerURI {
+                ServerURI serverURI;
+                serverURI.uri = uri;
+                try
                 {
-                    ServerURI serverURI;
-                    serverURI.uri = uri;
-                    try
-                    {
-                        auto ips = dnsLookupPtr->lookup(uri);
-                        serverURI.ips = ips;
-                    }
-                    catch (std::exception& ex)
-                    {
-                        serverURI.error = ex.what();
-                    }
-                    return serverURI;
-                }));
+                    auto sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
+                    auto ips = dnsLookupPtr->lookup(uri, sysCallWrapper);
+                    serverURI.ips = ips;
+                }
+                catch (std::exception& ex)
+                {
+                    serverURI.error = ex.what();
+                }
+                return serverURI;
+            }));
         }
         for (auto& fut : tasks)
         {
@@ -107,148 +107,146 @@ namespace
 
 } // namespace
 namespace Common::OSUtilities
-{
-    // IP4
-
-    IP4::IP4(struct sockaddr_in* ipSockAddr) : m_ip4addr(ipSockAddr->sin_addr.s_addr)
     {
-        m_address = ip2string(ipSockAddr);
-    }
+        // IP4
 
-    int IP4::distance(const Common::OSUtilities::IP4& other) const
-    {
-        Ip4addr differentBits = m_ip4addr ^ other.m_ip4addr;
-        return bitLength(differentBits);
-    }
-
-    int IP4::bitLength(const Common::OSUtilities::Ip4addr& ip4addr) const
-    {
-        uint32_t hostEquivalent = ntohl(ip4addr);
-        for (int i = 31; i >= 0; i--)
+        IP4::IP4(struct sockaddr_in* ipSockAddr) : m_ip4addr(ipSockAddr->sin_addr.s_addr)
         {
-            uint32_t mask = 1U << i;
-            if (hostEquivalent & mask)
+            m_address = ip2string(ipSockAddr);
+        }
+
+        int IP4::distance(const Common::OSUtilities::IP4& other) const
+        {
+            Ip4addr differentBits = m_ip4addr ^ other.m_ip4addr;
+            return bitLength(differentBits);
+        }
+
+        int IP4::bitLength(const Common::OSUtilities::Ip4addr& ip4addr) const
+        {
+            uint32_t hostEquivalent = ntohl(ip4addr);
+            for (int i = 31; i >= 0; i--)
             {
-                return i + 1;
-            }
-        }
-        return 0;
-    }
-
-    IP4::IP4(const std::string& stringAddress)
-    {
-        in_addr_t ip = inet_addr(stringAddress.c_str());
-        if (-1 == static_cast<int32_t>(ip))
-        {
-            std::stringstream s;
-            s << "Invalid IPv4 address: " << stringAddress;
-            throw std::runtime_error(s.str());
-        }
-        m_address = stringAddress;
-        m_ip4addr = ip;
-    }
-
-    // IP6
-    IP6::IP6(struct sockaddr_in6* ipSockAddr)
-    {
-        m_ip6addr = ::convert(ipSockAddr->sin6_addr.s6_addr);
-        m_address = ip2string(ipSockAddr);
-    }
-
-    IP6::IP6(const std::string& stringAddress)
-    {
-        unsigned char buf[sizeof(struct in6_addr)];
-        int ipConversion = inet_pton(AF_INET6, stringAddress.c_str(), buf);
-
-        if (1 != ipConversion)
-        {
-            std::stringstream s;
-            s << "Invalid IPv6 address: " << stringAddress;
-            throw std::runtime_error(s.str());
-        }
-        m_address = stringAddress;
-        m_ip6addr = ::convert(buf);
-    }
-
-    int IP6::distance(const Common::OSUtilities::IP6& other) const
-    {
-        Ip6addr differentBits;
-        for (int i = 0; i < 16; i++)
-        {
-            differentBits[i] = m_ip6addr[i] ^ other.m_ip6addr[i];
-        }
-
-        auto result = bitLength(differentBits);
-        return result;
-    }
-
-    int IP6::bitLength(const Common::OSUtilities::Ip6addr& ip6addr) const
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            const uint8_t& byte = ip6addr[i];
-            for (int j = 7; j >= 0; j--)
-            {
-                uint8_t mask = static_cast<uint8_t>(1 << j);
-                if (byte & mask)
+                uint32_t mask = 1U << i;
+                if (hostEquivalent & mask)
                 {
-                    return (16 - i) * 8 - (7 - j);
+                    return i + 1;
                 }
             }
+            return 0;
         }
-        return 0;
-    }
 
-    SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string>& servers)
-    {
-        auto localips = Common::OSUtilities::localIP()->getLocalIPs();
-
-        auto lookups = ::dnsLookup(servers);
-        int i = 0;
-        for (auto& entry : lookups)
+        IP4::IP4(const std::string& stringAddress)
         {
-            entry.originalIndex = i++;
-            if (entry.error.empty())
+            in_addr_t ip = inet_addr(stringAddress.c_str());
+            if (-1 == static_cast<int32_t>(ip))
             {
-                entry.associatedMinDistance = minDistance(localips, entry.ips);
+                std::stringstream s;
+                s << "Invalid IPv4 address: " << stringAddress;
+                throw std::runtime_error(s.str());
             }
+            m_address = stringAddress;
+            m_ip4addr = ip;
         }
 
-        std::stable_sort(
-            lookups.begin(),
-            lookups.end(),
-            [](const ServerURI& lh, const ServerURI& rh)
-            { return lh.associatedMinDistance < rh.associatedMinDistance; });
-
-        SortServersReport report;
-        report.localIps = localips;
-        report.servers = lookups;
-        return report;
-    }
-
-    std::string tryExtractServerFromHttpURL(const std::string& httpurl)
-    {
-        static std::regex pattern{ R"((https?://)?([^:/]+?)(:\d+)?(/.*)?)" };
-        // pattern.
-        std::smatch match;
-        if (std::regex_match(httpurl, match, pattern))
+        // IP6
+        IP6::IP6(struct sockaddr_in6* ipSockAddr)
         {
-            if (match.size() > 3 && match[2].matched)
+            m_ip6addr = ::convert(ipSockAddr->sin6_addr.s6_addr);
+            m_address = ip2string(ipSockAddr);
+        }
+
+        IP6::IP6(const std::string& stringAddress)
+        {
+            unsigned char buf[sizeof(struct in6_addr)];
+            int ipConversion = inet_pton(AF_INET6, stringAddress.c_str(), buf);
+
+            if (1 != ipConversion)
             {
-                return match[2];
+                std::stringstream s;
+                s << "Invalid IPv6 address: " << stringAddress;
+                throw std::runtime_error(s.str());
             }
+            m_address = stringAddress;
+            m_ip6addr = ::convert(buf);
         }
-        return httpurl;
-    }
 
-    std::vector<int> sortedIndexes(const SortServersReport& report)
-    {
-        std::vector<int> answer;
-        for (auto& serverEntry : report.servers)
+        int IP6::distance(const Common::OSUtilities::IP6& other) const
         {
-            answer.push_back(serverEntry.originalIndex);
-        }
-        return answer;
-    }
+            Ip6addr differentBits;
+            for (int i = 0; i < 16; i++)
+            {
+                differentBits[i] = m_ip6addr[i] ^ other.m_ip6addr[i];
+            }
 
-} // namespace Common::OSUtilities
+            auto result = bitLength(differentBits);
+            return result;
+        }
+
+        int IP6::bitLength(const Common::OSUtilities::Ip6addr& ip6addr) const
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                const uint8_t& byte = ip6addr[i];
+                for (int j = 7; j >= 0; j--)
+                {
+                    uint8_t mask = static_cast<uint8_t>(1 << j);
+                    if (byte & mask)
+                    {
+                        return (16 - i) * 8 - (7 - j);
+                    }
+                }
+            }
+            return 0;
+        }
+
+        SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string>& servers)
+        {
+            auto localips = Common::OSUtilities::localIP()->getLocalIPs();
+
+            auto lookups = ::dnsLookup(servers);
+            int i = 0;
+            for (auto& entry : lookups)
+            {
+                entry.originalIndex = i++;
+                if (entry.error.empty())
+                {
+                    entry.associatedMinDistance = minDistance(localips, entry.ips);
+                }
+            }
+
+            std::stable_sort(lookups.begin(), lookups.end(), [](const ServerURI& lh, const ServerURI& rh) {
+                return lh.associatedMinDistance < rh.associatedMinDistance;
+            });
+
+            SortServersReport report;
+            report.localIps = localips;
+            report.servers = lookups;
+            return report;
+        }
+
+        std::string tryExtractServerFromHttpURL(const std::string& httpurl)
+        {
+            static std::regex pattern{ R"((https?://)?([^:/]+?)(:\d+)?(/.*)?)" };
+            // pattern.
+            std::smatch match;
+            if (std::regex_match(httpurl, match, pattern))
+            {
+                if (match.size() > 3 && match[2].matched)
+                {
+                    return match[2];
+                }
+            }
+            return httpurl;
+        }
+
+        std::vector<int> sortedIndexes(const SortServersReport& report)
+        {
+            std::vector<int> answer;
+            for (auto& serverEntry : report.servers)
+            {
+                answer.push_back(serverEntry.originalIndex);
+            }
+            return answer;
+        }
+
+    } // namespace Common::OSUtilities
