@@ -694,6 +694,7 @@ Threat Detector Can Bootstrap New SUSI After A Failed Initialization
 Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
@@ -701,6 +702,10 @@ Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
     wait_for_log_contains_from_mark  ${td_mark}  SXL Lookups will be enabled
     wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 0
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 0
+
+    # Wait for AV to restart TD if it is going to
+    run keyword and ignore error  wait_for_log_contains_from_mark  ${av_mark}  UnixSocket <> ProcessControlClient connected  timeout=${5}
+    Sleep  ${1}
 
     # Send CORC policy with populated allow list to product, to trigger SafeStore rescan
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
