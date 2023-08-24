@@ -53,9 +53,23 @@ namespace plugin::manager::scanprocessmonitor
     {
         try
         {
-            unixsocket::ProcessControllerClientSocket processController(m_processControllerSocketPath, m_sleeper);
-            scan_messages::ProcessControlSerialiser processControlRequest(requestType);
-            processController.sendProcessControlRequest(processControlRequest);
+            /*
+             * We don't need to retry connecting to the ThreatDetector -
+             * If the ThreatDetector is not running, when it next starts it will load the new
+             * configuration any way.
+             */
+            unixsocket::ProcessControllerClientSocket processController
+                (m_processControllerSocketPath, m_sleeper, 1);
+            // Only try sending the event if we managed to connect to ThreatDetector
+            if (processController.isConnected())
+            {
+                scan_messages::ProcessControlSerialiser processControlRequest(requestType);
+                processController.sendProcessControlRequest(processControlRequest);
+            }
+            else
+            {
+                LOGINFO("Not sending control request to ThreatDetector as it is not running");
+            }
         }
         catch (const std::exception& e)
         {
