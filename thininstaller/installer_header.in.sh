@@ -82,7 +82,15 @@ CREATED_INSTALL_DIRECTORY=0
 function cleanup_and_exit()
 {
   code=$1
-  [[ "${code}" -eq "${EXITCODE_SUCCESS}" && -z "${OVERRIDE_INSTALLER_CLEANUP}" ]] && rm -rf "${SOPHOS_TEMP_DIRECTORY}"
+
+  if [[ "${code}" -eq "${EXITCODE_SUCCESS}" ]]
+  then
+    [[ -z "${OVERRIDE_INSTALLER_CLEANUP}" ]] && rm -rf "${SOPHOS_TEMP_DIRECTORY}"
+
+    # Start product if it is not running
+    [[ $(systemctl is-active --quiet sophos-spl) ]] || systemctl start sophos-spl 2>/dev/null
+  fi
+
   exit "${code}"
 }
 
