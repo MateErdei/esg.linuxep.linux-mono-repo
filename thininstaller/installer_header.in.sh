@@ -402,7 +402,7 @@ function check_custom_ids_are_valid()
 
 function verify_install_directory()
 {
-  if [[ ! -n "$SOPHOS_INSTALL" ]]
+  if [[ -z "$SOPHOS_INSTALL" ]]
   then
       # No custom install location so use default
       export SOPHOS_INSTALL=/opt/sophos-spl
@@ -415,6 +415,9 @@ function verify_install_directory()
       export SOPHOS_INSTALL=/opt/sophos-spl
       return
   fi
+
+  # Remove trailing /
+  SOPHOS_INSTALL="${SOPHOS_INSTALL%/}"
 
   # Sophos install must be in an ASCII path - no spaces
   local LEFT_OVER=$(echo $SOPHOS_INSTALL | tr -d '[:alnum:]_/.-')
@@ -431,10 +434,8 @@ function verify_install_directory()
   fi
 
   realPath=$(realpath -m "${SOPHOS_INSTALL}")
-  if [[ "${realPath}" != "${SOPHOS_INSTALL}" ]]
-  then
-    failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a symlink to '${realPath}'. To install under this directory, please re-run with --install-dir=${realPath}"
-  fi
+  [[ "${SOPHOS_INSTALL}" = /* ]] || failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a relative path. To install under this directory, please re-run with --install-dir=${realPath}"
+  [[ "${realPath}" != "${SOPHOS_INSTALL}" ]] && failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}'. To install under this directory, please re-run with --install-dir=${realPath}"
 
   # SOPHOS_INSTALL is custom dirname to contain sophos-spl
   export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
