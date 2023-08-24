@@ -33,6 +33,7 @@
 #include <boost/locale.hpp>
 
 // C++ standard
+#include <cassert>
 #include <csignal>
 #include <fstream>
 #include <string>
@@ -314,6 +315,9 @@ namespace sspl::sophosthreatdetectorimpl
 
     void SophosThreatDetectorMain::reloadSUSIGlobalConfiguration()
     {
+        assert(m_reloader);
+        assert(m_scannerFactory);
+
         // Read new SUSI settings into memory
         bool susiSettingsChanged = m_reloader->updateSusiConfig();
 
@@ -477,6 +481,12 @@ namespace sspl::sophosthreatdetectorimpl
 
         m_reloader = resources->createReloader(m_scannerFactory);
 
+        // process control depends on m_reloader which depends on m_scannerFactory
+        fs::path processControllerSocketPath = "/var/process_control_socket";
+        auto callbacks = std::make_shared<ThreatDetectorControlCallback>(*this);
+        auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
+        common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
+
         auto usr1Monitor = resources->createUsr1Monitor(m_reloader);
 
         auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);
@@ -488,12 +498,6 @@ namespace sspl::sophosthreatdetectorimpl
         auto metadataRescanServer =
             resources->createMetadataRescanServerSocket(Plugin::getMetadataRescanSocketPath(), 0600, m_scannerFactory);
         common::ThreadRunner metadataRescanServerSocketThread(metadataRescanServer, "metadataRescanServerSocket", true);
-
-        fs::path processControllerSocketPath = "/var/process_control_socket";
-
-        auto callbacks = std::make_shared<ThreatDetectorControlCallback>(*this);
-        auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
-        common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
 
         int returnCode = common::E_CLEAN_SUCCESS;
 

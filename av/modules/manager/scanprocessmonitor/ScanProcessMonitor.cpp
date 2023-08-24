@@ -59,7 +59,7 @@ namespace plugin::manager::scanprocessmonitor
              * configuration any way.
              */
             unixsocket::ProcessControllerClientSocket processController
-                (m_processControllerSocketPath, m_sleeper, 1);
+                (m_processControllerSocketPath, m_sleeper, 2, std::chrono::milliseconds{500});
             // Only try sending the event if we managed to connect to ThreatDetector
             if (processController.isConnected())
             {
