@@ -574,6 +574,8 @@ Sophos Threat Detector Is Ignoring Reload Request
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
 
+    ${threat_detector_mark} =  Wait For Log Contains From Mark    ${threat_detector_mark}   ProcessControlServer starting listening on socket: /var/process_control_socket
+
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     ${av_mark} =  Get Av Log Mark
 
