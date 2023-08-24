@@ -24,12 +24,6 @@ namespace{
     };
 }
 
-TEST_F(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL)
-{
-    // Throws because we can't get the path to load settings from
-    EXPECT_THROW(SusiScannerFactory factory(nullptr, nullptr, nullptr), std::exception);
-}
-
 TEST_F(TestSusiScannerFactory, testConstruction)
 {
     // SUSI initialization is now deferred, so constructor won't fail.

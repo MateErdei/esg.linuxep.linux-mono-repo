@@ -150,6 +150,9 @@ namespace threat_scanner
 
         void recordUpdateResult(SusiResult);
 
+        void loadSusiSettingsIfRequired();
+        void loadSusiSettingsIfRequiredLocked(std::lock_guard<std::mutex>& lock);
+
         SusiCallbackTable my_susi_callbacks{
             .version = SUSI_CALLBACK_TABLE_VERSION,
             .token = nullptr,

@@ -60,9 +60,6 @@ namespace threat_scanner
 
         auto res = m_susiWrapper->SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
-
-        // Can't throw - load() method catches std::exception and logs
-        m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
     }
 
     SusiGlobalHandler::~SusiGlobalHandler()
@@ -338,9 +335,25 @@ namespace threat_scanner
         return true;
     }
 
+    void SusiGlobalHandler::loadSusiSettingsIfRequired()
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
+    }
+
+    void SusiGlobalHandler::loadSusiSettingsIfRequiredLocked(std::lock_guard<std::mutex>&)
+    {
+        if (!m_susiSettings)
+        {
+            m_susiSettings =
+                std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+        }
+    }
+
     std::shared_ptr<common::ThreatDetector::SusiSettings> SusiGlobalHandler::accessSusiSettings()
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
         return m_susiSettings;
     }
 
@@ -353,6 +366,7 @@ namespace threat_scanner
     bool SusiGlobalHandler::isMachineLearningEnabled()
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
 
         // Check for override file
         auto* filesystem = Common::FileSystem::fileSystem();
@@ -379,6 +393,7 @@ namespace threat_scanner
     bool SusiGlobalHandler::isAllowListedSha256(const std::string& threatChecksum)
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
         return m_susiSettings->isAllowListedSha256(threatChecksum);
     }
 
@@ -386,12 +401,14 @@ namespace threat_scanner
     bool SusiGlobalHandler::isAllowListedPath(const std::string& threatPath)
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
         return m_susiSettings->isAllowListedPath(threatPath);
     }
 
     bool SusiGlobalHandler::isPuaApproved(const std::string& puaName)
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        loadSusiSettingsIfRequiredLocked(lock);
         return m_susiSettings->isPuaApproved(puaName);
     }
 

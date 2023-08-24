@@ -178,7 +178,7 @@ namespace threat_scanner
         // Read potentially new SUSI settings from disk (saved to disk by av plugin process)
         auto newSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
         auto oldSettings = m_globalHandler->accessSusiSettings();
-        bool changed = *oldSettings != *newSettings;
+        bool changed = !oldSettings || (*oldSettings != *newSettings);
         if (changed)
         {
             LOGDEBUG("SUSI settings changed");
