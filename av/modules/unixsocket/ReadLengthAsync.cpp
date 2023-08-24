@@ -6,6 +6,8 @@
 
 #include "common/SaferStrerror.h"
 
+#include <cassert>
+
 unixsocket::ReadLengthAsync::ReadLengthAsync(
         unixsocket::ReadLengthAsync::ISystemCallWrapperSharedPtr systemCalls,
         ssize_t maxSize)
@@ -14,7 +16,7 @@ unixsocket::ReadLengthAsync::ReadLengthAsync(
 {
 }
 
-ssize_t unixsocket::ReadLengthAsync::getLength()
+ssize_t unixsocket::ReadLengthAsync::getLength() const
 {
     assert(complete_);
     return currentLength_;

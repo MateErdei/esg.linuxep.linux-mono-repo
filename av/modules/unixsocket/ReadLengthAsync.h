@@ -10,7 +10,7 @@ namespace unixsocket
     public:
         using ISystemCallWrapperSharedPtr = Common::SystemCallWrapper::ISystemCallWrapperSharedPtr;
         explicit ReadLengthAsync(ISystemCallWrapperSharedPtr systemCalls, ssize_t maxSize);
-        ssize_t getLength();
+        [[nodiscard]] ssize_t getLength() const;
         int read(int fd);
         bool complete();
         void reset();
