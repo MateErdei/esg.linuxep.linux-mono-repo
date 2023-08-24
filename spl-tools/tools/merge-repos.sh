@@ -43,17 +43,21 @@ function merge_in_repo()
     git remote remove "$subdir"
 }
 
-function rebase()
-{
-    mono_repo_remote=$1
-    mono_repo_dir=$(python -c "print('$mono_repo_remote'.split('/')[1].split('.git')[0])")
-    cd "$MERGE_DIR/$mono_repo_dir"
-    branch_to_rebase=$2
-    branch_to_rebase_onto=$3
-    echo "Rebase $branch_to_rebase onto $branch_to_rebase_onto"
-    git checkout "$branch_to_rebase"
-    git rebase "$branch_to_rebase_onto"
-}
+# rebase does not work well in this scenario, it duplicates commits.
+# Leaving it here in case someone else wants to use it.
+#function rebase()
+#{
+#    mono_repo_remote=$1
+#    mono_repo_dir=$(python -c "print('$mono_repo_remote'.split('/')[1].split('.git')[0])")
+#    cd "$MERGE_DIR/$mono_repo_dir"
+#    branch_to_rebase=$2
+#    branch_to_rebase_onto=$3
+#    echo "Rebase $branch_to_rebase onto $branch_to_rebase_onto"
+#    echo git checkout "$branch_to_rebase"
+#    echo "pulling $branch_to_rebase"
+#    echo git pull
+#    echo git rebase "$branch_to_rebase_onto"
+#}
 
 # When set to 1 we will remove the working merge dir, default this to off in case we have changes to keep.
 FORCE_REMOVE=0
@@ -130,7 +134,18 @@ merge_in_repo "$GIT_REMOTE_MONOREPO" "git@github.com:sophos-internal/esg.linuxep
 merge_in_repo "$GIT_REMOTE_MONOREPO" "git@github.com:sophos-internal/esg.linuxep.sspl-plugin-edr-component.git" edr
 merge_in_repo "$GIT_REMOTE_MONOREPO" "git@github.com:sophos-internal/esg.linuxep.sspl-plugin-anti-virus.git" av
 merge_in_repo "$GIT_REMOTE_MONOREPO" "git@github.com:sophos-internal/esg.linuxep.sspl-plugin-event-journaler.git" eventjournaler
+merge_in_repo "$GIT_REMOTE_MONOREPO" "git@github.com:sophos-internal/esg.linuxep.sspl-tools.git" spl-tools
 
-rebase "$GIT_REMOTE_MONOREPO" "$BRANCH_MERGE" "$BRANCH_CLEAN"
+#rebase "$GIT_REMOTE_MONOREPO" "$BRANCH_MERGE" "$BRANCH_CLEAN"
+
+# Now merge the clean mono repo branch into the merge branch to update it.
+git checkout $BRANCH_MERGE
 
 echo "Merge dir: $MERGE_DIR"
+ls "$MERGE_DIR"
+echo "Mono repo merge dir: $PWD"
+
+echo "Will now try merging $BRANCH_CLEAN into $BRANCH_MERGE"
+sleep 4
+git merge $BRANCH_CLEAN
+
