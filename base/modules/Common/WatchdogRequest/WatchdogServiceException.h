@@ -3,7 +3,7 @@
 
 #include "Common/PluginApi/ApiException.h"
 
-namespace watchdog::watchdogimpl
+namespace Common::WatchdogRequest
 {
     class WatchdogServiceException : public Common::PluginApi::ApiException
     {
@@ -18,4 +18,4 @@ namespace watchdog::watchdogimpl
 
         UpdateServiceReportError() : WatchdogServiceException(ErrorReported()) {}
     };
-} // namespace watchdog::watchdogimpl
+} // namespace Common::WatchdogRequest

@@ -7,7 +7,7 @@
 #include <gmock/gmock-matchers.h>
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include "tests/watchdog/watchdogimpl/MockIWatchdogRequest.h"
+#include "tests/Common/Helpers/MockIWatchdogRequest.h"
 
 #include <future>
 #include <thread>
@@ -77,7 +77,7 @@ TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
         EXPECT_CALL(*mock, requestUpdateService).WillOnce(Invoke([]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }));
-        return std::unique_ptr<watchdog::watchdogimpl::IWatchdogRequest>(mock);
+        return std::unique_ptr<Common::WatchdogRequest::IWatchdogRequest>(mock);
     });
 
     // Create task queue.

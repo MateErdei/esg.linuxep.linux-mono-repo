@@ -2,8 +2,8 @@
 
 #include "DiagnoseRunner.h"
 
+#include "Common/WatchdogRequest/IWatchdogRequest.h"
 #include "sdu/Logger.h"
-#include "watchdog/watchdogimpl/IWatchdogRequest.h"
 
 namespace RemoteDiagnoseImpl::runnerModule
 {
@@ -84,7 +84,7 @@ namespace RemoteDiagnoseImpl::runnerModule
     {
         try
         {
-            auto request = watchdog::watchdogimpl::factory().create();
+            auto request = Common::WatchdogRequest::factory().create();
             request->requestDiagnoseService();
         }
         catch (std::exception& ex)

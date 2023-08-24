@@ -1,0 +1,14 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "WatchdogConstants",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)

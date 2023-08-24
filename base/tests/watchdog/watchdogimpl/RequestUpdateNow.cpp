@@ -1,14 +1,13 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-
-#include "watchdog/watchdogimpl/WatchdogServiceLine.h"
+#include "Common/WatchdogRequest/IWatchdogRequest.h"
 
 int main()
 {
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
-    auto request = watchdog::watchdogimpl::factory().create();
+    auto request = Common::WatchdogRequest::factory().create();
     request->requestUpdateService();
 
     return 0;

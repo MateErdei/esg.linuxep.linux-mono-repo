@@ -5,7 +5,6 @@ add_executable(TestWatchdog
         TestWatchdog.cpp
         TestWatchdogAndWdctl.cpp
         TestWatchdogServiceLine.cpp
-        MockIWatchdogRequest.h
         TestUserGroupUtils.cpp)
 target_include_directories(TestWatchdog SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(TestWatchdog BEFORE PUBLIC "${CMAKE_SOURCE_DIR}" ${NLOHMANN_JSON_INCLUDE_DIR})
@@ -24,7 +23,7 @@ SET_TARGET_PROPERTIES(TestWatchdog
 add_executable(RequestUpdateNow
         RequestUpdateNow.cpp)
 target_include_directories(RequestUpdateNow BEFORE PUBLIC "${CMAKE_SOURCE_DIR}")
-target_link_libraries(RequestUpdateNow applicationconfigurationimpl watchdogimpl)
+target_link_libraries(RequestUpdateNow applicationconfigurationimpl watchdogservice)
 
 SET_TARGET_PROPERTIES(RequestUpdateNow
         PROPERTIES

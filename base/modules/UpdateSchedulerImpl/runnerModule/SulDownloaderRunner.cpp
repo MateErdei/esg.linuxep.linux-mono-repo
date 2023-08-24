@@ -2,8 +2,8 @@
 
 #include "SulDownloaderRunner.h"
 
+#include "Common/WatchdogRequest/IWatchdogRequest.h"
 #include "UpdateSchedulerImpl/Logger.h"
-#include "watchdog/watchdogimpl/IWatchdogRequest.h"
 
 namespace UpdateSchedulerImpl::runnerModule
 {
@@ -86,7 +86,7 @@ namespace UpdateSchedulerImpl::runnerModule
     {
         try
         {
-            auto request = watchdog::watchdogimpl::factory().create();
+            auto request = Common::WatchdogRequest::factory().create();
             request->requestUpdateService();
         }
         catch (std::exception& ex)

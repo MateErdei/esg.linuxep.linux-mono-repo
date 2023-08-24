@@ -122,3 +122,11 @@ soph_cc_library(
         "//products:__subpackages__",
     ],
 )
+
+soph_cc_library(
+    name = "Factory",
+    hdrs = ["Factory.h"],
+    visibility = [
+        "//modules:__subpackages__",
+    ],
+)

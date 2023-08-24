@@ -12,11 +12,14 @@
 #include "Common/Process/IProcess.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/ConfigException.h"
-#include "Common/UtilityImpl/Factory.h"
 #include "Common/UtilityImpl/StrError.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/SystemExecutableUtils.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
+#include "Common/WatchdogRequest/WatchdogServiceException.h"
 #include "Common/ZMQWrapperApi/IContext.h"
+
+using Common::WatchdogConstants::WatchdogServiceLineName;
 
 namespace
 {
@@ -31,7 +34,7 @@ namespace
         if (exitCode != 0)
         {
             LOGWARN("Trigger reported failure. ExitCode(" << exitCode << ") Output: " << output);
-            throw watchdog::watchdogimpl::UpdateServiceReportError();
+            throw Common::WatchdogRequest::UpdateServiceReportError();
         }
         else
         {
@@ -49,7 +52,7 @@ namespace
         if (exitCode != 0)
         {
             LOGWARN("Trigger reported failure. ExitCode(" << exitCode << ") Output: " << output);
-            throw watchdog::watchdogimpl::UpdateServiceReportError();
+            throw Common::WatchdogRequest::UpdateServiceReportError();
         }
         else
         {
@@ -59,16 +62,6 @@ namespace
     class WDServiceCallBack : public Common::PluginApi::IPluginCallbackApi
     {
     public:
-        static const std::string& TriggerUpdate()
-        {
-            static const std::string trigger{ "TriggerUpdate" };
-            return trigger;
-        }
-        static const std::string& TriggerDiagnose()
-        {
-            static const std::string trigger{ "TriggerDiagnose" };
-            return trigger;
-        }
         WDServiceCallBack(std::function<std::vector<std::string>(void)> getPluginListFunc) :
             m_getListOfPluginsFunc(std::move(getPluginListFunc))
         {
@@ -88,7 +81,7 @@ namespace
          */
         void queueAction(const std::string& action) override
         {
-            if (action == TriggerUpdate())
+            if (action == Common::WatchdogConstants::Actions::TriggerUpdate())
             {
                 LOGSUPPORT("Trigger sophos-spl-update service");
 
@@ -96,7 +89,7 @@ namespace
                 LOGSUPPORT("Trigger sophos-spl-update service done");
                 return;
             }
-            if (action == TriggerDiagnose())
+            if (action == Common::WatchdogConstants::Actions::TriggerDiagnose())
             {
                 LOGSUPPORT("Trigger sophos-spl-diagnose service");
 
@@ -194,99 +187,9 @@ namespace
 
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
-
-    class WatchdogRequestImpl : public watchdog::watchdogimpl::IWatchdogRequest
-    {
-    public:
-        void requestUpdateService() override
-        {
-            return watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService();
-        }
-        void requestDiagnoseService() override
-        {
-            return watchdog::watchdogimpl::WatchdogServiceLine::requestDiagnoseService();
-        }
-    };
-
 } // namespace
 namespace watchdog::watchdogimpl
 {
-    void WatchdogServiceLine::requestUpdateService(Common::ZMQWrapperApi::IContext& context)
-    {
-        LOGINFO("Request Watchdog to trigger Update service.");
-        try
-        {
-            auto requester = context.getRequester();
-            Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                *requester, WatchdogServiceLineName(), 5000, 5000);
-            Common::PluginCommunicationImpl::PluginProxy pluginProxy(std::move(requester), WatchdogServiceLineName());
-            pluginProxy.queueAction("", WDServiceCallBack::TriggerUpdate(), "");
-            LOGINFO("Update Acknowledged.");
-        }
-        catch (Common::PluginCommunication::IPluginCommunicationException& ex)
-        {
-            std::string exceptionInfo = ex.what();
-            if (exceptionInfo == UpdateServiceReportError::ErrorReported())
-            {
-                throw UpdateServiceReportError();
-            }
-            else
-            {
-                LOGERROR(exceptionInfo);
-            }
-            throw WatchdogServiceException("Service Unavailable");
-        }
-        catch (std::exception& ex)
-        {
-            LOGERROR("Unexpected exception thrown while requesting update: " << ex.what());
-            assert(false); // not expecting other type of exception.
-            throw WatchdogServiceException(ex.what());
-        }
-    }
-
-    void WatchdogServiceLine::requestUpdateService()
-    {
-        auto context = Common::ZMQWrapperApi::createContext();
-        requestUpdateService(*context);
-    }
-    void WatchdogServiceLine::requestDiagnoseService(Common::ZMQWrapperApi::IContext& context)
-    {
-        LOGINFO("Request Watchdog to trigger Diagnose service.");
-        try
-        {
-            auto requester = context.getRequester();
-            Common::PluginApiImpl::PluginResourceManagement::setupRequester(
-                *requester, WatchdogServiceLineName(), 5000, 5000);
-            Common::PluginCommunicationImpl::PluginProxy pluginProxy(std::move(requester), WatchdogServiceLineName());
-            pluginProxy.queueAction("", WDServiceCallBack::TriggerDiagnose(), "");
-            LOGINFO("Start Diagnose Acknowledged.");
-        }
-        catch (Common::PluginCommunication::IPluginCommunicationException& ex)
-        {
-            std::string exceptionInfo = ex.what();
-            if (exceptionInfo == UpdateServiceReportError::ErrorReported())
-            {
-                throw UpdateServiceReportError();
-            }
-            else
-            {
-                LOGERROR(exceptionInfo);
-            }
-            throw WatchdogServiceException("Service Unavailable");
-        }
-        catch (std::exception& ex)
-        {
-            LOGERROR("Unexpected exception thrown while requesting diagnose: " << ex.what());
-            assert(false); // not expecting other type of exception.
-            throw WatchdogServiceException(ex.what());
-        }
-    }
-
-    void WatchdogServiceLine::requestDiagnoseService()
-    {
-        auto context = Common::ZMQWrapperApi::createContext();
-        requestDiagnoseService(*context);
-    }
     WatchdogServiceLine::WatchdogServiceLine(
         Common::ZMQWrapperApi::IContextSharedPtr context,
         std::function<std::vector<std::string>(void)> getPluginListFunc) :
@@ -321,14 +224,6 @@ namespace watchdog::watchdogimpl
             m_pluginHandler->stopAndJoin();
         }
         Common::Telemetry::TelemetryHelper::getInstance().save();
-    }
-
-    Common::UtilityImpl::Factory<IWatchdogRequest>& factory()
-    {
-        static Common::UtilityImpl::Factory<IWatchdogRequest> theFactory{ []() {
-            return std::unique_ptr<IWatchdogRequest>(new WatchdogRequestImpl());
-        } };
-        return theFactory;
     }
 
     std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName)

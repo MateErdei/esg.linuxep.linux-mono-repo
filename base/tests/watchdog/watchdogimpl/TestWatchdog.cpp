@@ -7,6 +7,7 @@
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
 
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -46,7 +47,7 @@ namespace
 
             EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
-            std::string pluginname = "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
+            std::string pluginname = "plugins/" + Common::WatchdogConstants::WatchdogServiceLineName() + ".ipc";
             Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc");
         }
         ~TestWatchdog()

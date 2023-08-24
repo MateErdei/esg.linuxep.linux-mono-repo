@@ -17,9 +17,9 @@
 #include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/TelemetryConfigImpl/Config.h"
 #include "Common/TelemetryConfigImpl/Serialiser.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Telemetry/LoggerImpl/Logger.h"
-#include "watchdog/watchdogimpl/WatchdogServiceLine.h"
 
 #include <sstream>
 #include <string>
@@ -37,7 +37,7 @@ namespace Telemetry
 
         // Add watchdog to the pluginInfo list as not in plugin registry
         Common::PluginRegistryImpl::PluginInfo watchDogPluginInfo = Common::PluginRegistryImpl::PluginInfo();
-        watchDogPluginInfo.setPluginName(watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName());
+        watchDogPluginInfo.setPluginName(Common::WatchdogConstants::WatchdogServiceLineName());
         pluginInfos.insert(pluginInfos.begin(), std::move(watchDogPluginInfo));
 
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();

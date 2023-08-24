@@ -7,7 +7,7 @@
 #include <gmock/gmock-matchers.h>
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include "tests/watchdog/watchdogimpl/MockIWatchdogRequest.h"
+#include "tests/Common/Helpers/MockIWatchdogRequest.h"
 
 #include <future>
 #include <thread>

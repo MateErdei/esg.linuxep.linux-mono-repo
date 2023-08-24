@@ -22,6 +22,7 @@ soph_cc_library(
         "//modules/Common/Logging",
         "//modules/Common/PluginApi",
         "//modules/Common/UtilityImpl:TimeUtils",
+        "//modules/Common/WatchdogRequest",
         "@com_google_googletest//:gtest",
     ],
 )

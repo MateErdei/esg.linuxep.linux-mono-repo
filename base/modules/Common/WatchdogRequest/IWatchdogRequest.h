@@ -1,10 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include "Common/PluginApi/ApiException.h"
 #include "Common/UtilityImpl/Factory.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
-namespace watchdog::watchdogimpl
+namespace Common::WatchdogRequest
 {
     class IWatchdogRequest
     {
@@ -15,4 +15,4 @@ namespace watchdog::watchdogimpl
     };
 
     Common::UtilityImpl::Factory<IWatchdogRequest>& factory();
-} // namespace watchdog::watchdogimpl
+} // namespace Common::WatchdogRequest

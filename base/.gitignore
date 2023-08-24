@@ -53,6 +53,7 @@ testUtils/*-VBoxSVC-*.log
 /testUtils/SupportFiles/FakeManagement/ActionUtils.py
 /testUtils/vagrant
 /tap_venv/
+/tapvenv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/esg.linuxep.everest-base.iml
