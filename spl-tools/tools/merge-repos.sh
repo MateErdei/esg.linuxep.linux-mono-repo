@@ -65,9 +65,22 @@ FORCE_REMOVE=0
 # When set to 1 the merge dir will not be removed, the script will try and merge in changes from the other repos
 UPDATE=0
 
+function print_help()
+{
+    echo "This script merges Base, AV, EDR, event journaler and spl-tools into a clean branch in the linux mono repo and can update your merge branch."
+    echo "> no args = running this for first time will create a dir in /home/$USER, check out all repos and merge them."
+    echo "> no args = running this again will warn that you need to manually remove the merge dir if you haven't already."
+    echo "> --force-remove = This will delete all the component repos and the mono repo merge dir."
+    echo "> --update = This is probably what you want, assuming this script has run successfully once it will update the mono repo clean branch and merge that back into the the merge branch."
+}
+
 # Deal with arguments
 while [[ $# -ge 1 ]]; do
     case $1 in
+     --help)
+        print_help
+        exit 0
+        ;;
     --force-remove)
         FORCE_REMOVE=1
         ;;
