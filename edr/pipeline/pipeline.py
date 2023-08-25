@@ -70,7 +70,6 @@ def robot_task(machine: tap.Machine, robot_args: str):
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
-        machine.output_artifact('/opt/test/results', 'results')
 
 
 def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
