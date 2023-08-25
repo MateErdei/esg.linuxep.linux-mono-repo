@@ -5,6 +5,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FileSystemLibs.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/rsyslogUtils.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
@@ -62,6 +63,8 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  Run Non-UTF8 Query
 
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
+    [Tags]  rsyslog
+    require_rsyslog
     Directory Should Exist    /etc/rsyslog.d
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds

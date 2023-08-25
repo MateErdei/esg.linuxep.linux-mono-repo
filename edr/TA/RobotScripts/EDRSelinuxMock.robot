@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/MockSystemExecutables.py
+Library         ../Libs/rsyslogUtils.py
 Library         ../Libs/UserUtils.py
 Library         ../Libs/FileSystemLibs.py
 
@@ -14,7 +15,7 @@ Test Teardown  Test Teardown
 
 Suite Teardown  Uninstall All
 
-Default Tags    TAP_TESTS
+Force Tags    TAP_TESTS
 
 *** Variables ***
 ${BACKUP_SUFFIX}  .back
@@ -22,6 +23,8 @@ ${BACKUP_SUFFIX}  .back
 *** Test Cases ***
 
 EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Installed
+    [Tags]  rsyslog
+    require_rsyslog
     Create Fake System Executable  getenforce
     Create Fake System Executable  semanage
     Create Fake System Executable  restorecon
@@ -38,7 +41,7 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     ${result} =   Run Process    ls    /etc/apparmor.d/  stderr=STDOUT
     Log  ${result.stdout}
 
-    ${installer_output} =  Install EDR Directly from SDDS
+    ${installer_output} =  Install EDR Directly from SDDS  debug=-x
     Log    ${installer_output}
     File Should Exist  /tmp/mockedExecutable
     ${logFile} =  Get File  /tmp/mockedExecutable
@@ -47,6 +50,8 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Should Contain  ${logFile}  restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe
 
 EDR Does Not Set Selinux Context When Selinux Is Not Detected
+    [Tags]  rsyslog
+    require_rsyslog
     Obscure System Executable  getenforce
 
     ${installer_output} =  Install EDR Directly from SDDS
@@ -54,6 +59,8 @@ EDR Does Not Set Selinux Context When Selinux Is Not Detected
     Should Not Contain  ${installer_output}   semanage
 
 EDR Installer Logs Warning When Semanage Is Missing
+    [Tags]  rsyslog
+    require_rsyslog
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Obscure System Executable  semanage
@@ -63,6 +70,8 @@ EDR Installer Logs Warning When Semanage Is Missing
     Should Contain  ${installer_output}  WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events
 
 EDR Installer Logs Warning When Semanage Fails
+    [Tags]  rsyslog
+    require_rsyslog
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Create Fake System Executable  semanage  mock_file=${EXAMPLE_DATA_PATH}/FailingMockedExecutable.sh
@@ -76,6 +85,8 @@ EDR Installer Logs Warning When Semanage Fails
 
 No Stdout Or Stderr Comes From Which When Called
     [Teardown]  Fix Mocked Which Teardown
+    [Tags]  rsyslog
+    require_rsyslog
     Create Fake System Executable  which  mock_file=${EXAMPLE_DATA_PATH}/MockedExecutableStdoutAndStderr.sh  which_basename=which${BACKUP_SUFFIX}
     ${installer_output} =  Install EDR Directly from SDDS
     Should Not Contain  ${installer_output}  this is mocked stdout from which

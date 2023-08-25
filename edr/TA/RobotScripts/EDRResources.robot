@@ -165,7 +165,7 @@ Install Base For Component Tests
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
 
 Install EDR Directly from SDDS
-    [Arguments]  ${interval}=5
+    [Arguments]  ${interval}=5  ${debug}=
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
@@ -176,7 +176,7 @@ Install EDR Directly from SDDS
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    ${result} =   Run Process  bash  -x  ${EDR_SDDS}/install.sh   timeout=120s    stderr=STDOUT
+    ${result} =   Run Process  bash ${debug} ${EDR_SDDS}/install.sh   shell=${True}  timeout=120s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\noutput: \n${result.stdout}"
     [Return]  ${result.stdout}
 
