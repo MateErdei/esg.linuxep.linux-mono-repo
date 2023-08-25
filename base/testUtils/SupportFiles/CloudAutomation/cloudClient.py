@@ -47,6 +47,7 @@ raw_request_url = SophosHTTPSClient.raw_request_url
 request_url = SophosHTTPSClient.request_url
 json_loads = SophosHTTPSClient.json_loads
 
+
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -58,6 +59,7 @@ def get_ip():
     finally:
         s.close()
     return IP
+
 
 def host(hostname=None):
     if hostname is None or hostname == "HOSTNAME":
@@ -128,7 +130,6 @@ class CloudClient(object):
             self.get_bearer_token()
             self.get_tenant_id()
 
-
     def get_bearer_token(self):
         client_id = self.options.client_id
         client_secret = self.options.client_secret
@@ -158,7 +159,6 @@ class CloudClient(object):
             raise Exception("Unexpected token type {token_type}".format(token_type=json_response['token_type']))
         self.default_headers['Authorization'] = 'Bearer ' + json_response['access_token']
 
-
     def get_tenant_id(self):
         api_host = self.api_hosts.get(self.options.region, self.options.region)
         request = urllib.request.Request(api_host + '/whoami/v1', headers=self.default_headers)
@@ -169,11 +169,9 @@ class CloudClient(object):
         self.default_headers['X-Tenant-ID'] = json_response['id']
         self.api_host = json_response['apiHosts']['dataRegion']
 
-
     def isConfiguredWithUpdateCache(self):
         # In Central Utils; CENTRAL_CONFIG->ucmr uses the email below
         return self.options.email == "trunk@savlinux.xmas.testqa.com"
-
 
     def loadExistingCredentials(self):
         email = self.options.email
@@ -353,7 +351,6 @@ class CloudClient(object):
         except:
             raise KeyError("month_string_to_int was not provided with a valid month_string")
 
-
     def getCloudTime(self):
         login_request = urllib.request.Request(self.host + '/login')
         login_response = raw_request_url(login_request)
@@ -500,7 +497,6 @@ class CloudClient(object):
 
                 for ipaddr in ipaddresses:
                     if ipaddr == ip:
-
                         serverId = server['id']
                         return serverId
 
@@ -646,7 +642,8 @@ class CloudClient(object):
             print("hostname %s not found" % self.options.hostname, file=sys.stderr)
             return 1
 
-        assert server['hostname'] == hostname, f"Received hostname {server['hostname']} does not match expected hostname {hostname}"
+        assert server[
+                   'hostname'] == hostname, f"Received hostname {server['hostname']} does not match expected hostname {hostname}"
 
         serverInfo = server['os']
         actualOsName = serverInfo['name']
@@ -916,7 +913,6 @@ class CloudClient(object):
         policyname = "av" + hostname
         return self.getServerPolicyByName(policyname, category=category)
 
-
     def deleteUpdatingPolicyForHostname(self, hostname=None):
         hostname = host(hostname)
         endpointid = self.getServerId(hostname)
@@ -926,9 +922,8 @@ class CloudClient(object):
         policyname = "av" + hostname
         policy = self.getServerPolicyByName(policyname, category="updating")
 
-        if(policy):
+        if (policy):
             self.deletePolicy(policy)
-
 
     def ensureServerPolicy(self, hostname=None, category="threat_protection"):
         """
@@ -1808,7 +1803,6 @@ class CloudClient(object):
                 return platform['url']
         assert False, "Failed to find thin-installer URL"
 
-
     def setFlag(self, flag, value):
         url = self.host + "/api/customer/flags"
 
@@ -2037,7 +2031,7 @@ class CloudClient(object):
         response = self.retry_request_url(request)
         return json_loads(response)
 
-    #ruby uuid representation swaps nibbles in the java uuid
+    # ruby uuid representation swaps nibbles in the java uuid
     def get_java_id_from_endpoint_id(self, endpoint_id):
         java_id = ""
         for part in endpoint_id.split("-"):
@@ -2045,12 +2039,12 @@ class CloudClient(object):
             java_id += "-"
         return java_id[:-1]
 
-    def run_live_query(self, query_name, query_string,  hostname=None ):
+    def run_live_query(self, query_name, query_string, hostname=None):
         if hostname is None:
             hostname = self.options.hostname
 
         logger.info("running query_name:{}, query:{}, hostname:{}".format(query_name, query_string, hostname))
-        
+
         server = self.getServerByName(hostname, get_most_recently_active=True)
         if server is None:
             return
@@ -2058,14 +2052,17 @@ class CloudClient(object):
         if self.api_host is None:
             url = self.upe_api + '/v1/live-query/executions'
             query_json = {"name": query_name, "template": query_string}
-            data = json.dumps({"endpointIds": [self.get_java_id_from_endpoint_id(server['id'])], "adHocQuery": query_json}, separators=(',', ': ')).encode('UTF-8')
+            data = json.dumps(
+                {"endpointIds": [self.get_java_id_from_endpoint_id(server['id'])], "adHocQuery": query_json},
+                separators=(',', ': ')).encode('UTF-8')
             request = urllib.request.Request(url, data=data, headers=self.default_headers)
             request.get_method = lambda: "POST"
             response_obj = self.retry_request_url(request)
         else:
             url = self.api_host + '/live-discover/v1/queries/runs'
             query_json = {'name': query_name, 'template': query_string}
-            data = json.dumps({'matchEndpoints': {'all':False, 'filters': [{'ids': [server['id']]}]}, 'adHocQuery': query_json}).encode('UTF-8')
+            data = json.dumps({'matchEndpoints': {'all': False, 'filters': [{'ids': [server['id']]}]},
+                               'adHocQuery': query_json}).encode('UTF-8')
             request = urllib.request.Request(url, data=data, headers=self.default_headers)
             request.get_method = lambda: "POST"
             response_obj = request_url(request)
@@ -2126,16 +2123,15 @@ class CloudClient(object):
                 response = request_url(request)
             results = json.loads(response)
             if "items" in results:
-                items = results["items"] 
+                items = results["items"]
                 if items and len(items) > 0:
-                    return items 
+                    return items
             time.sleep(0.2)
         return None
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
         pending_query_response = self.run_live_query(query_name, query_string, hostname)
         return self.wait_for_live_query_response(pending_query_response)
-
 
     def get_all_saved_queries(self):
         url = self.api_host + '/live-discover/v1/queries?pageSize=250'
@@ -2152,7 +2148,8 @@ class CloudClient(object):
         if server is None:
             return
         url = self.api_host + '/live-discover/v1/queries/runs'
-        data = json.dumps({"savedQuery": {"queryId": query_id}, "matchEndpoints": {"filters": [{"hostnameContains": hostname}]}}).encode('UTF-8')
+        data = json.dumps({"savedQuery": {"queryId": query_id},
+                           "matchEndpoints": {"filters": [{"hostnameContains": hostname}]}}).encode('UTF-8')
         request = urllib.request.Request(url, data=data, headers=self.default_headers)
         request.get_method = lambda: "POST"
         response_obj = request_url(request)
@@ -2176,6 +2173,45 @@ class CloudClient(object):
         request.get_method = lambda: "POST"
         response_obj = self.retry_request_url(request)
         return response_obj
+
+    def get_policy_id_by_type(self, policy_type):
+        logger.info(f"Looking for policy of type {policy_type}")
+
+        # Getting all policies
+        url = self.api_host + '/endpoint/v1/policies'
+        request = urllib.request.Request(url, headers=self.default_headers)
+        response = request_url(request)
+        response = json_loads(response)
+        response_items = response["items"]
+
+        # Finding desired policy
+        policy_id = None
+        for response_item in response_items:
+            if response_item["type"] == policy_type:
+                policy_id = response_item["id"]
+                logger.info(f"Found policy of type {policy_type}, id is {policy_id}")
+                break
+
+        if policy_id is None:
+            logger.info(f"Did not find any policy of type: {policy_type}")
+
+        return policy_id
+
+    def patch_policy_by_id(self, policy_id, body):
+        url = self.api_host + f'/endpoint/v1/policies/{policy_id}/settings'
+        data = json.dumps(body).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.get_method = lambda: "PATCH"
+        response_obj = request_url(request)
+        return json.loads(response_obj)
+
+    def patch_policy_by_type(self, policy_type, body):
+        url = self.api_host + f'/endpoint/v1/policies/{policy_type}/base/settings'
+        data = json.dumps(body).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.get_method = lambda: "PATCH"
+        response_obj = request_url(request)
+        return json.loads(response_obj)
 
 
 def deleteServerFromCloud(options, args):
@@ -2276,7 +2312,7 @@ def cloneBaseServerPolicy(options, args):
 
 
 def genericMethod(options, args):
-    command = args[0].replace(" ","")
+    command = args[0].replace(" ", "")
     args = args[1:]
     options.wait = float(options.wait)
     client = CloudClient(options)
@@ -2302,7 +2338,6 @@ def genericMethod(options, args):
 
 
 def downloadFile(url, path, certificate):
-
     conn = http.client.HTTPSConnection(
         url,
         cert_file=certificate
@@ -2316,7 +2351,7 @@ def downloadFile(url, path, certificate):
 def processArguments(options, args):
     options.hostname = host(options.hostname)
     if len(args) > 0:
-        command = args[0].replace(" ","")
+        command = args[0].replace(" ", "")
     else:
         logger.error("No command given")
         return 1
@@ -2396,6 +2431,7 @@ def add_options():
     parser.add_option("--ignore-errors", default=False, action="store_true", dest="ignore_errors",
                       help="Always exit with 0 or 1")
     return parser
+
 
 def process(args):
     logging.getLogger().setLevel(logging.DEBUG)
