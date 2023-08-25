@@ -2178,6 +2178,7 @@ class CloudClient(object):
         logger.info(f"Looking for policy of type {policy_type}")
 
         # Getting all policies
+        assert self.api_host is not None
         url = self.api_host + '/endpoint/v1/policies'
         request = urllib.request.Request(url, headers=self.default_headers)
         response = request_url(request)
@@ -2198,6 +2199,7 @@ class CloudClient(object):
         return policy_id
 
     def patch_policy_by_id(self, policy_id, body):
+        assert self.api_host is not None
         url = self.api_host + f'/endpoint/v1/policies/{policy_id}/settings'
         data = json.dumps(body).encode('UTF-8')
         request = urllib.request.Request(url, data=data, headers=self.default_headers)
@@ -2206,6 +2208,7 @@ class CloudClient(object):
         return json.loads(response_obj)
 
     def patch_policy_by_type(self, policy_type, body):
+        assert self.api_host is not None
         url = self.api_host + f'/endpoint/v1/policies/{policy_type}/base/settings'
         data = json.dumps(body).encode('UTF-8')
         request = urllib.request.Request(url, data=data, headers=self.default_headers)
