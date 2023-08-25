@@ -25,11 +25,14 @@ namespace
 #endif
 } // namespace
 
+namespace
+{
 #ifdef COVERAGE_DEF
-#    define DEFAULT_KILL_TIME 10
+    constexpr int DEFAULT_KILL_TIME = 10;
 #else
-#    define DEFAULT_KILL_TIME 2
+    constexpr int DEFAULT_KILL_TIME = 2;
 #endif
+} // namespace
 
 std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
 {
