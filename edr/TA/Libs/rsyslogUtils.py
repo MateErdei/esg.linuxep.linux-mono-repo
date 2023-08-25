@@ -16,11 +16,10 @@ def require_rsyslog():
     :return:
     """
     output = subprocess.check_output(["systemctl", "list-unit-files"])
-    if b"rsyslog" in output:
-        return
-
     output = output.decode('UTF-8')
-
+    logger.debug(f"list-unit-files: {output}")
+    if "rsyslog" in output:
+        return
     logger.info(f"rsyslog not in: {output}")
 
     output = subprocess.run(['rpm', '-qa'], stdout=subprocess.PIPE).stdout
