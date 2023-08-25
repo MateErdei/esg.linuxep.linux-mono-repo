@@ -499,6 +499,8 @@ namespace sspl::sophosthreatdetectorimpl
             resources->createMetadataRescanServerSocket(Plugin::getMetadataRescanSocketPath(), 0600, m_scannerFactory);
         common::ThreadRunner metadataRescanServerSocketThread(metadataRescanServer, "metadataRescanServerSocket", true);
 
+        m_scannerFactory->loadSusiSettingsIfRequired();
+
         int returnCode = common::E_CLEAN_SUCCESS;
 
         constexpr int SIGTERM_MONITOR = 0;

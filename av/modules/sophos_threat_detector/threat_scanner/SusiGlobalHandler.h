@@ -114,6 +114,8 @@ namespace threat_scanner
 
         bool isPuaApproved(const std::string& puaName) final;
 
+        void loadSusiSettingsIfRequired() override;
+
     TEST_PUBLIC:
         static bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size);
         static bool IsAllowlistedPath(void* token, const char* filePath);
@@ -150,7 +152,6 @@ namespace threat_scanner
 
         void recordUpdateResult(SusiResult);
 
-        void loadSusiSettingsIfRequired();
         void loadSusiSettingsIfRequiredLocked(std::lock_guard<std::mutex>& lock);
 
         SusiCallbackTable my_susi_callbacks{

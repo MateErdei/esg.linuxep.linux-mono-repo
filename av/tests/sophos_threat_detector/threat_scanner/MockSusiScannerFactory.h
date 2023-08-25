@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
+#include "tests/common/MockScanner.h"
 
 #include <gmock/gmock.h>
 
@@ -10,7 +10,7 @@ using namespace ::testing;
 
 namespace
 {
-    class MockSusiScannerFactory : public threat_scanner::IThreatScannerFactory
+    class MockSusiScannerFactory : public MockScannerFactory
     {
         public:
             MockSusiScannerFactory()
@@ -19,14 +19,6 @@ namespace
                 ON_CALL(*this, reload).WillByDefault(Return(true));
                 ON_CALL(*this, susiIsInitialized).WillByDefault(Return(false));
             };
-
-            MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanimages, bool detectPUAs), (override));
-            MOCK_METHOD(bool, update, (), (override));
-            MOCK_METHOD(bool, reload, (), (override));
-            MOCK_METHOD(void, shutdown, (), (override));
-            MOCK_METHOD(bool, susiIsInitialized, (), (override));
-            MOCK_METHOD(bool, updateSusiConfig, ());
-            MOCK_METHOD(bool, detectPUAsEnabled, ());
     };
 
 }

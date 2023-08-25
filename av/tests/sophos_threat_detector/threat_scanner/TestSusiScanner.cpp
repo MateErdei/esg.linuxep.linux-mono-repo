@@ -41,6 +41,7 @@ namespace
         MOCK_METHOD(bool, isAllowListedSha256, (const std::string& threatCheckSum), (override));
         MOCK_METHOD(bool, isAllowListedPath, (const std::string& threatPath), (override));
         MOCK_METHOD(bool, isPuaApproved, (const std::string& puaName), (override));
+        MOCK_METHOD(void, loadSusiSettingsIfRequired, (), (override));
     };
 
     class TestSusiScanner : public MemoryAppenderUsingTests

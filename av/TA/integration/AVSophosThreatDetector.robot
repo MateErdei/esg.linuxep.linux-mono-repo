@@ -528,7 +528,6 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
 
 Sophos Threat Detector Is Shutdown On LiveProtection Change
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     Force SUSI to be initialized
 
@@ -539,23 +538,32 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
     Send CORC Policy To Base From Content  ${policyContent}
 
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Get Av Log Mark
+
     Start AV Plugin Process
-    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be enabled  ${threat_detector_mark}
-    Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed   ${threat_detector_mark}
+    wait_for_log_contains_from_mark  ${av_mark}  Restarting sophos_threat_detector as the configuration has changed
+    ${threat_detector_mark}=  Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed   ${threat_detector_mark}
+    wait_for_log_contains_from_mark  ${threat_detector_mark}  Logger av configured for level:
 
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
     Check avscanner can detect eicar
     Wait For SUSI Debug Log Contains After Mark    "enableLookup" : true  ${susi_debug_mark}
 
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    Check Sophos Threat Detector Has Different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    ${av_mark} =  Get Av Log Mark
 
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
     Send CORC Policy To Base From Content  ${policyContent}
 
-    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be disabled  ${threat_detector_mark2}
-    Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed  ${threat_detector_mark2}
+    wait_for_log_contains_from_mark  ${av_mark}  Restarting sophos_threat_detector as the configuration has changed
+    ${threat_detector_mark}=  Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed   ${threat_detector_mark}
+    wait_for_log_contains_from_mark  ${threat_detector_mark}  Logger av configured for level:
     Check avscanner can detect eicar
     Wait For SUSI Debug Log Contains After Mark    "enableLookup" : false  ${susi_debug_mark}
 
@@ -701,12 +709,10 @@ Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
-    wait_for_log_contains_from_mark  ${td_mark}  SXL Lookups will be enabled
-    wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 0
-    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 0
+    wait_for_log_contains_from_mark  ${td_mark}  MetadataRescanServer starting listening on socket
 
     # Wait for AV to restart TD if it is going to
-    run keyword and ignore error  wait_for_log_contains_from_mark  ${av_mark}  UnixSocket <> ProcessControlClient connected  timeout=${5}
+    wait_for_possible_log_contains_from_mark  ${av_mark}  UnixSocket <> ProcessControlClient connected  timeout=${5}
     Sleep  ${1}
 
     # Send CORC policy with populated allow list to product, to trigger SafeStore rescan

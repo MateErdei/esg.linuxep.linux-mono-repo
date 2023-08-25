@@ -106,10 +106,12 @@ target_link_libraries(threatReporterServerExecutable  PUBLIC
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules)
 
 add_executable(threatDetectorServerExecutable
-        ../unixsocket/ThreatDetectorTestExecutable/threatDetectorServer.cpp)
+        ThreatDetectorTestExecutable/threatDetectorServer.cpp
+        ../common/FakeThreatScannerFactory.h
+)
 target_link_libraries(threatDetectorServerExecutable  PUBLIC
         unixsocket ${STD_FILESYSTEM_IF_REQUIRED})
-target_include_directories(threatDetectorServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(threatDetectorServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR})
 
 add_executable(threatDetectorClientExecutable
         ThreatDetectorTestExecutable/threatDetectorClient.cpp

@@ -1,7 +1,8 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+
+#include "../common/FakeThreatScannerFactory.h"
 
 #include "datatypes/Print.h"
 #include <string>
@@ -27,40 +28,11 @@ namespace
             return scan_messages::MetadataRescanResponse::clean;
         }
     };
-    class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
+    class FakeScannerFactory : public FakeThreatScannerFactory
     {
         threat_scanner::IThreatScannerPtr createScanner(bool, bool, bool) override
         {
             return std::make_unique<FakeScanner>();
-        }
-
-        bool update() override
-        {
-            return true;
-        }
-
-        bool reload() override
-        {
-            return true;
-        }
-
-        void shutdown() override
-        {
-        }
-
-        bool susiIsInitialized() override
-        {
-            return true;
-        }
-
-        bool updateSusiConfig() override
-        {
-            return false;
-        }
-
-        bool detectPUAsEnabled() override
-        {
-            return true;
         }
     };
 }

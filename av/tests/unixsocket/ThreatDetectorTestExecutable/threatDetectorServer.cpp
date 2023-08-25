@@ -9,13 +9,13 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
+#include <unixsocket/SocketUtils.h>
+
+#include "tests/common/FakeThreatScannerFactory.h"
+
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
-
-#include <unixsocket/SocketUtils.h>
 
 #include <fstream>
 #include <string>
@@ -44,40 +44,11 @@ namespace
             return scan_messages::MetadataRescanResponse::clean;
         }
     };
-    class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
+    class FakeScannerFactory : public FakeThreatScannerFactory
     {
         threat_scanner::IThreatScannerPtr createScanner(bool, bool, bool) override
         {
             return std::make_unique<FakeScanner>();
-        }
-
-        bool update() override
-        {
-            return true;
-        }
-
-        bool reload() override
-        {
-            return true;
-        }
-
-        void shutdown() override
-        {
-        }
-
-        bool susiIsInitialized() override
-        {
-            return true;
-        }
-
-        bool updateSusiConfig() override
-        {
-            return false;
-        }
-
-        bool detectPUAsEnabled() override
-        {
-            return true;
         }
     };
 }

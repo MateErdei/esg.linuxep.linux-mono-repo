@@ -29,4 +29,5 @@ public:
     MOCK_METHOD(bool, susiIsInitialized, ());
     MOCK_METHOD(bool, updateSusiConfig, ());
     MOCK_METHOD(bool, detectPUAsEnabled, ());
+    MOCK_METHOD(void, loadSusiSettingsIfRequired, (), (override));
 };

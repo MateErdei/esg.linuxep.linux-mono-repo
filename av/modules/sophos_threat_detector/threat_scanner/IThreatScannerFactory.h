@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -22,6 +18,7 @@ namespace threat_scanner
         virtual bool susiIsInitialized() = 0;
         virtual bool updateSusiConfig() = 0;
         virtual bool detectPUAsEnabled() = 0;
+        virtual void loadSusiSettingsIfRequired() = 0;
     };
     using IThreatScannerFactorySharedPtr = std::shared_ptr<IThreatScannerFactory>;
 }

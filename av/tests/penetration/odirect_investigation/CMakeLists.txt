@@ -11,7 +11,7 @@ SET_TARGET_PROPERTIES( odirect_client
 add_executable(odirect_server
         odirect_server.cpp)
 target_link_libraries(odirect_server  PUBLIC unixsocket)
-target_include_directories(odirect_server PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(odirect_server PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR})
 SET_TARGET_PROPERTIES( odirect_server
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BUILD_RPATH}"
