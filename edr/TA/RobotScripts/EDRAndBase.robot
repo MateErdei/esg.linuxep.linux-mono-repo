@@ -62,6 +62,7 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  Run Non-UTF8 Query
 
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
+    Directory Should Exist    /etc/rsyslog.d
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
