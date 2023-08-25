@@ -27,7 +27,7 @@ namespace
 
 namespace
 {
-#ifdef COVERAGE_DEF
+#ifdef _BullseyeCoverage
     constexpr int DEFAULT_KILL_TIME = 10;
 #else
     constexpr int DEFAULT_KILL_TIME = 2;

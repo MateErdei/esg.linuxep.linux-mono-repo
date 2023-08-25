@@ -278,10 +278,8 @@ function build()
         exit 0
     fi
 
-    COVERAGE_DEF=""
     if [[ ${BULLSEYE} == 1 ]]
     then
-        COVERAGE_DEF="-DCOVERAGE_DEF=1"
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bullseye"
@@ -311,7 +309,6 @@ function build()
           -DPythonCoverage="${PythonCoverage}" \
           -DSTRACE_SUPPORT="$STRACE_SUPPORT" \
           -DDISABLE_SANITIZER="$DISABLE_SANITIZER" \
-          $COVERAGE_DEF \
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"
 
