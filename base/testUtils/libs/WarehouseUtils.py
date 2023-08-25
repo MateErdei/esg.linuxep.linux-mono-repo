@@ -110,10 +110,6 @@ class WarehouseUtils(object):
             packages = os.listdir(warehouse_package_path)
         except EnvironmentError:
             logger.error(f"Can't list warehouse_root: {warehouse_package_path}")
-            log = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "GatherReleaseWarehouses.log")
-            if os.path.isfile(log):
-                contents = str(open(log).read())
-                logger.error(f"GatherReleaseWarehouses.log: {contents}")
             raise
         for package in packages:
             if package.startswith(product_name):
