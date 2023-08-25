@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/MockSystemExecutables.py
 Library         ../Libs/UserUtils.py
 Library         ../Libs/FileSystemLibs.py
 
@@ -24,24 +25,18 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Create Fake System Executable  getenforce
     Create Fake System Executable  semanage
     Create Fake System Executable  restorecon
-    ${result} =   Run Process    which    getenforce
+    ${result} =   Run Process    which    getenforce  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    which    semanage
+    ${result} =   Run Process    which    semanage  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    which    restorecon
+    ${result} =   Run Process    which    restorecon  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    systemctl  status  rsyslog
+    ${result} =   Run Process    systemctl  status  rsyslog  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    systemctl  is-active  rsyslog
+    ${result} =   Run Process    systemctl  is-active  rsyslog  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    ls    /etc/apparmor.d/
+    ${result} =   Run Process    ls    /etc/apparmor.d/  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
 
     ${installer_output} =  Install EDR Directly from SDDS
     Log    ${installer_output}
@@ -97,24 +92,8 @@ Fix Mocked Which Teardown
 Test Teardown
     Common Teardown
     Uninstall All
-    Restore System Executable  getenforce
-    Restore System Executable  semanage
-    Restore System Executable  restorecon
+    MockSystemExecutables.Restore System Executables
     Remove File  /tmp/mockedExecutable
-
-
-Backup System Executable
-    [Arguments]  ${path}
-    Move File  ${path}  ${path}${BACKUP_SUFFIX}
-
-Restore System Executable
-    [Arguments]  ${executable_name}
-    ${executable_path} =  Get Path To Executable  ${executable_name}
-    ${fileExists} =  Does File Exist  ${executable_path}${BACKUP_SUFFIX}
-    Run Keyword If    ${fileExists} is True
-    ...  Move File  ${executable_path}${BACKUP_SUFFIX}  ${executable_path}
-    ...  ELSE IF  "${executable_path}" != ""
-    ...  Remove File  ${executable_path}
 
 Get Path To Executable
     [Arguments]  ${executable_name}
@@ -124,18 +103,15 @@ Get Path To Executable
 Obscure System Executable
     [Arguments]  ${executable_name}
     ${executable_path} =  Get Path To Executable  ${executable_name}
-    Run Keyword If   "${executable_path}" != ""
-    ...  Backup System Executable  ${executable_path}
+    MockSystemExecutables.Backup System Executable  ${executable_path}  ${BACKUP_SUFFIX}
 
 Create Fake System Executable
     [Arguments]  ${executable_name}  ${mock_file}=${EXAMPLE_DATA_PATH}/MockedExecutable.sh  ${which_basename}=which
-    ${executable_path} =  Get Path To Executable  ${executable_name}
-    Run Keyword If   "${executable_path}" != ""
-    ...  Backup System Executable  ${executable_path}
-    ${executable_path} =  Set Variable If  "${executable_path}" == ""
+    ${original_executable_path} =  Get Path To Executable  ${executable_name}
+    ${executable_path} =  Set Variable If  "${original_executable_path}" == ""
     ...  /usr/bin/${executable_name}
-    ...  ${executable_path}
-    log to console  copying ${mock_file} to ${executable_path}
+    ...  ${original_executable_path}
+    MockSystemExecutables.Backup System Executable  ${original_executable_path}  ${BACKUP_SUFFIX}  ${executable_path}
     Copy File  ${mock_file}  ${executable_path}
     ${x} =  Run Process  chmod  +x  ${executable_path}
     Should Be Equal As Integers  ${x.rc}  0
