@@ -108,6 +108,7 @@ def upload_file_to_client_bucket(url, file_to_download):
 
             if not res.ok:
                 logging.error(f"Failed to upload file to client bucket: {res.text}")
+                continue
 
             logging.info("Successfully uploaded file to client bucket")
             break
