@@ -7,6 +7,7 @@
 import subprocess
 
 from robot.api import logger
+import robot.libraries.BuiltIn
 
 
 def require_rsyslog():
@@ -34,4 +35,5 @@ def require_rsyslog():
     except EnvironmentError:
         logger.info("Can't run dpkg")
 
-    raise AssertionError("rsyslog not available: not listed in systemctl list-unit-files")
+    robot.libraries.BuiltIn.BuiltIn().run_keyword("Skip",
+                                                  "rsyslog not available: not listed in systemctl list-unit-files")
