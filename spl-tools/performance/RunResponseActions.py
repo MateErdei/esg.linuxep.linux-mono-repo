@@ -99,14 +99,21 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
 
 
 def upload_file_to_client_bucket(url, file_to_download):
-    try:
-        res = requests.put(url, data=open(file_to_download, "rb"), timeout=60)
+    num_retries = 5
+    timeout = 60
+    logging.debug(f"Trying to upload file to client bucket in {num_retries} amount of tries with {timeout} second timeouts each")
+    for i in range(num_retries):
+        try:
+            res = requests.put(url, data=open(file_to_download, "rb"), timeout=timeout)
 
-        if not res.ok:
-            logging.error(f"Failed to upload file to client bucket: {res.text}")
-    except requests.exceptions.Timeout as e:
-        logging.error("Timeout reached when trying to upload file to client bucket")
-        logging.error(f"Error message: {e}")
+            if not res.ok:
+                logging.error(f"Failed to upload file to client bucket: {res.text}")
+
+            logging.info("Successfully uploaded file to client bucket")
+            break
+        except requests.exceptions.Timeout as e:
+            logging.error("Timeout reached when trying to upload file to client bucket")
+            logging.error(f"Error message: {e}")
 
 
 def create_file_for_ra(filepath):
