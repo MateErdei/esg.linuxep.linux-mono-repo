@@ -11,9 +11,9 @@ DEFAULT_CLOUD_SUBSCRIPTION = '<subscription Id="Base" RigidName="ServerProtectio
 CLOUD_SUBSCRIPTION_WITH_PAUSED = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>'
 
 def _get_delayed_update_time() -> str:
-    dayno = datetime.datetime.now().weekday() + 1
-    daystr = calendar.day_name[dayno]
-    return f'<delay_updating Day="{daystr}" Time="12:00:00"/>'
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    tmrw_str = calendar.day_name[tomorrow.weekday()]
+    return f'<delay_updating Day="{tmrw_str}" Time="12:00:00"/>'
 
 def get_version_from_policy(policy_file):
     policy = xml.dom.minidom.parse(policy_file)
