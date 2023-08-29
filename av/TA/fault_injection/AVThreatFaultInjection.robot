@@ -172,6 +172,7 @@ Send Threat Name That Is Valid JSON In Threat Detected Object To AV with SafeSto
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Many Threat Detected Objects To AV with SafeStore Enabled
+    [Timeout]  30 minutes
     Enable SafeStore
     ${av_mark} =  Get AV Log Mark
     ${number_to_send} =  Set Variable  ${1000}
