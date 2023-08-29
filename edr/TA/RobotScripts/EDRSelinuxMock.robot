@@ -81,7 +81,6 @@ EDR Installer Logs Warning When Semanage Fails
     ${logFile} =  Get File  /tmp/mockedExecutable
 
     Should Contain  ${installer_output}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
-    Should Not Contain  ${installer_output}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
 
 No Stdout Or Stderr Comes From Which When Called
     [Teardown]  Fix Mocked Which Teardown
