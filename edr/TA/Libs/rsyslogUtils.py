@@ -26,12 +26,16 @@ def require_rsyslog():
     try:
         output = subprocess.run(['rpm', '-qa'], stdout=subprocess.PIPE).stdout
         logger.info(f"rpm -qa: {output}")
+        output = subprocess.run(['yum', 'search', 'syslog'], stdout=subprocess.PIPE).stdout
+        logger.info(f"yum search syslog: {output}")
     except EnvironmentError:
         logger.info("Can't run rpm")
 
     try:
         output = subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE).stdout
         logger.info(f"dpkg -l: {output}")
+        output = subprocess.run(['apt', 'search', 'syslog'], stdout=subprocess.PIPE).stdout
+        logger.info(f"apt search syslog: {output}")
     except EnvironmentError:
         logger.info("Can't run dpkg")
 
