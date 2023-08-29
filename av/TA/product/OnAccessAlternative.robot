@@ -273,7 +273,8 @@ On Access Applies Config Changes When The Mounts Change
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
 
     wait for on access log contains after mark  On-access enabled: true  mark=${mark}
-    wait for on access log contains after mark  On-access scan network: false  mark=${mark}
+    # Update the mark - since we are only interested in mount points after we have configured network: false
+    ${mark} =  wait for on access log contains after mark  On-access scan network: false  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
     check_on_access_log_contains_after_mark  Mount point /testmnt/nfsshare has been excluded from scanning  mark=${mark}
@@ -291,7 +292,7 @@ On Access Applies Config Changes When The Mounts Change
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
 
     wait for on access log contains after mark  On-access enabled: true  mark=${mark}
-    wait for on access log contains after mark  On-access scan network: true  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  On-access scan network: true  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
     check_on_access_log_contains_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
