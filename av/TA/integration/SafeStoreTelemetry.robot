@@ -247,6 +247,9 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Wait For Log Contains From Mark    ${safeStoreMark}    Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
+    ## Ensure all fallout from previous policy changes has completed before we apply a new policy
+    Sleep  ${5}
+
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
     Wait For Log Contains From Mark    ${avMark}    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
