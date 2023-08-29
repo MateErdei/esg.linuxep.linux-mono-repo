@@ -22,10 +22,16 @@ def require_rsyslog():
         return
     logger.info(f"rsyslog not in: {output}")
 
-    output = subprocess.run(['rpm', '-qa'], stdout=subprocess.PIPE).stdout
-    logger.info(f"rpm -qa: {output}")
+    try:
+        output = subprocess.run(['rpm', '-qa'], stdout=subprocess.PIPE).stdout
+        logger.info(f"rpm -qa: {output}")
+    except EnvironmentError:
+        logger.info("Can't run rpm")
 
-    output = subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE).stdout
-    logger.info(f"dpkg -l: {output}")
+    try:
+        output = subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE).stdout
+        logger.info(f"dpkg -l: {output}")
+    except EnvironmentError:
+        logger.info("Can't run dpkg")
 
     raise AssertionError("rsyslog not available: not listed in systemctl list-unit-files")
