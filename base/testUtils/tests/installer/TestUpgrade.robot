@@ -126,6 +126,8 @@ Simple Upgrade Test with a Breaking Update for plugin
     Check All Product Logs Do Not Contain Critical
 
 Simple Downgrade Test
+    [Tags]  INSTALLER  TAP_TESTS  EXCLUDE_ON_COVERAGE
+
     Require Fresh Install
     ${distribution} =   Get Folder With Installer
     Create File  ${SOPHOS_INSTALL}/bin/blah

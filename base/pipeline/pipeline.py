@@ -177,7 +177,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
         try:
             machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                         timeout=3600,
-                        environment={'COVFILE': COVFILE_TAPTESTS})
+                        environment={'COVFILE': COVFILE_TAPTESTS, 'COVERAGE': 'True'})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 

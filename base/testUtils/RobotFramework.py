@@ -9,6 +9,8 @@ def main():
     tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]}
     if os.environ.get('DEBUG'):
         tags['exclude'].append('BREAKS_DEBUG')
+    if os.environ.get('COVERAGE'):
+        tags['exclude'].append('EXCLUDE_ON_COVERAGE')
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
