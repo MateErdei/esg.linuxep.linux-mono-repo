@@ -2,6 +2,7 @@
 
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/TestClient.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include "Common/Exceptions/IException.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -171,6 +172,8 @@ static void printUsageAndExit(const std::string& name)
     exit(EXIT_FAILURE);
 }
 
+static std::string::size_type GL_length = 0;
+
 static int inner_main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -288,6 +291,7 @@ static int inner_main(int argc, char* argv[])
             threatDetected.scanType = scanType;
 
             std::string dataAsString = threatDetected.serialise(false);
+            GL_length = dataAsString.size();
             if (sendFD)
             {
                 if (fd == 0)
@@ -306,6 +310,14 @@ static int inner_main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+static void logLength()
+{
+    if (GL_length > 0)
+    {
+        LOGFATAL("Attempting to send buffer of length " << GL_length);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     Common::Logging::ConsoleLoggingSetup logging;
@@ -313,14 +325,22 @@ int main(int argc, char* argv[])
     {
         return inner_main(argc, argv);
     }
+    catch (const unixsocket::UnixSocketException& ex)
+    {
+        LOGFATAL("Caught UnixSocketException at top-level: " << ex.what_with_location());
+        logLength();
+        return 40;
+    }
     catch (const Common::Exceptions::IException& ex)
     {
         LOGFATAL("Caught IException at top-level: " << ex.what_with_location());
+        logLength();
         return 30;
     }
     catch (const std::exception& ex)
     {
         LOGFATAL("Caught std::exception at top-level: " << ex.what());
+        logLength();
         return 10;
     }
     catch (...)

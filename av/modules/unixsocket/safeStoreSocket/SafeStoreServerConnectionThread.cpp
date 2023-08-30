@@ -241,9 +241,14 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
     {
         threatDetectedOptional = parseDetection(readBufferAsync_.getBuffer(), length);
     }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGERROR("Aborting " << m_threadName << ": failed to parse detection: " << ex.what_with_location());
+        return false;
+    }
     catch (const std::exception& e)
     {
-        LOGERROR("Aborting " << m_threadName << ": failed to parse detection");
+        LOGERROR("Aborting " << m_threadName << ": failed to parse detection: " << e.what());
         return false;
     }
 
