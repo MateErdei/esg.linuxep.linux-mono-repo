@@ -2,16 +2,16 @@
 
 #include "Main.h"
 
-#include "IAsyncDiagnoseRunner.h"
-#include "Logger.h"
 #include "PluginAdapter.h"
 #include "PluginCallback.h"
-#include "TaskQueue.h"
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
+#include "logger/Logger.h"
 #include "runnerModule/AsyncDiagnoseRunner.h"
+#include "runnerModule/IAsyncDiagnoseRunner.h"
+#include "taskQueue/TaskQueue.h"
 
 #include <sys/stat.h>
 

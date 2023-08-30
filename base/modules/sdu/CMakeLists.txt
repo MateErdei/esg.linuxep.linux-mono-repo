@@ -7,12 +7,12 @@ add_library(remotediagnoseimpl SHARED
         PluginAdapter.h
         PluginUtils.cpp
         PluginUtils.h
-        TaskQueue.cpp
-        TaskQueue.h
-        ITaskQueue.h
-        Logger.cpp
-        Logger.h
-        IAsyncDiagnoseRunner.h
+        taskQueue/TaskQueue.cpp
+        taskQueue/TaskQueue.h
+        taskQueue/ITaskQueue.h
+        logger/Logger.cpp
+        logger/Logger.h
+        runnerModule/IAsyncDiagnoseRunner.h
         runnerModule/AsyncDiagnoseRunner.cpp
         runnerModule/AsyncDiagnoseRunner.h
         runnerModule/DiagnoseResultDirectoryListener.h

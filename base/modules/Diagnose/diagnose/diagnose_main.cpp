@@ -9,6 +9,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleFileLoggingSetup.h"
 
 #include <sys/stat.h>

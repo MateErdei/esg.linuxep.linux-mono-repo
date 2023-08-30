@@ -5,8 +5,7 @@
 #include "DiagnoseResultDirectoryListener.h"
 
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
-#include "Common/Process/IProcess.h"
-#include "sdu/ITaskQueue.h"
+#include "sdu/taskQueue/ITaskQueue.h"
 
 namespace RemoteDiagnoseImpl::runnerModule
 {

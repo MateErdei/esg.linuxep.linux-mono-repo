@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "ITaskQueue.h"
-
 #include "Common/PluginApi/IPluginCallbackApi.h"
+#include "taskQueue/ITaskQueue.h"
 
 #include <atomic>
 #include <memory>

@@ -1,0 +1,18 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "diagnoseTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/FileSystem",
+        "//modules/Common/Logging",
+        "//modules/Common/ProcessImpl",
+        "//modules/Diagnose/diagnose",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

@@ -1,8 +1,9 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include "sdu/IAsyncDiagnoseRunner.h"
-#include "sdu/ITaskQueue.h"
+#include "IAsyncDiagnoseRunner.h"
+
+#include "sdu/taskQueue/ITaskQueue.h"
 
 #include <functional>
 #include <memory>

@@ -1,7 +1,7 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/ITempDir.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #pragma once
 

@@ -2,15 +2,13 @@
 
 #include "PluginUtils.h"
 
-#include "Logger.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/HttpRequests/IHttpRequester.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/XmlUtilities/AttributesMap.h"
+#include "logger/Logger.h"
 
 namespace RemoteDiagnoseImpl
 {

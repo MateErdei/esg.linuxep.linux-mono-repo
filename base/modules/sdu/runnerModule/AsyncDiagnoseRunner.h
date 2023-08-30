@@ -2,9 +2,9 @@
 #pragma once
 
 #include "DiagnoseRunner.h"
+#include "IAsyncDiagnoseRunner.h"
 
-#include "sdu/IAsyncDiagnoseRunner.h"
-#include "sdu/ITaskQueue.h"
+#include "sdu/taskQueue/ITaskQueue.h"
 
 #include <future>
 #include <memory>

@@ -2,12 +2,14 @@
 
 #include "PluginAdapter.h"
 
-#include "Logger.h"
 #include "PluginUtils.h"
 
 #include "Common/Exceptions/NestedException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/PluginApi/ApiException.h"
+#include "logger/Logger.h"
+
+#include <thread>
 
 namespace RemoteDiagnoseImpl
 {

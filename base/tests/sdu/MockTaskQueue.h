@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "sdu/ITaskQueue.h"
+#include "sdu/taskQueue/ITaskQueue.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

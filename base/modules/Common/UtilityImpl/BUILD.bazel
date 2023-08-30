@@ -83,6 +83,18 @@ soph_cc_library(
 )
 
 soph_cc_library(
+    name = "SystemExecutableUtils",
+    srcs = ["SystemExecutableUtils.cpp"],
+    hdrs = ["SystemExecutableUtils.h"],
+    visibility = [
+        "//modules:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/FileSystem",
+    ],
+)
+
+soph_cc_library(
     name = "Uuid",
     srcs = ["Uuid.cpp"],
     hdrs = ["Uuid.h"],

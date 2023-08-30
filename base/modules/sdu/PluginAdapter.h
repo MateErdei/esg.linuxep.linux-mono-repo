@@ -2,13 +2,11 @@
 
 #pragma once
 
-#include "IAsyncDiagnoseRunner.h"
-#include "ITaskQueue.h"
 #include "PluginCallback.h"
 
-#include "Common/DirectoryWatcher/IiNotifyWrapper.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
-#include "Common/Threads/AbstractThread.h"
+#include "runnerModule/IAsyncDiagnoseRunner.h"
+#include "taskQueue/ITaskQueue.h"
 
 #include <functional>
 #include <future>

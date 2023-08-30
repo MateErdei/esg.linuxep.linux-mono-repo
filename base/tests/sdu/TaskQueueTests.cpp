@@ -1,7 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "sdu/TaskQueue.h"
-#include "sdu/ITaskQueue.h"
+#include "sdu/taskQueue/ITaskQueue.h"
+#include "sdu/taskQueue/TaskQueue.h"
 
 #include <gtest/gtest.h>
 
@@ -12,7 +12,7 @@
 TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 {
     RemoteDiagnoseImpl::TaskQueue queue;
-    const RemoteDiagnoseImpl::Task taskIn{RemoteDiagnoseImpl::Task::TaskType::ACTION,"Action_1"};
+    const RemoteDiagnoseImpl::Task taskIn{ RemoteDiagnoseImpl::Task::TaskType::ACTION, "Action_1" };
     queue.push(taskIn);
     RemoteDiagnoseImpl::Task taskOut = queue.pop();
     EXPECT_EQ(taskOut.taskType, taskIn.taskType);
@@ -22,9 +22,10 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     RemoteDiagnoseImpl::TaskQueue queue;
-    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { {RemoteDiagnoseImpl::Task::TaskType::ACTION, ""},
-                                                            {RemoteDiagnoseImpl::Task::TaskType::STOP,   ""},
-            {RemoteDiagnoseImpl::Task::TaskType::DIAGNOSE_TIMED_OUT,                                     ""}};
+    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { { RemoteDiagnoseImpl::Task::TaskType::ACTION, "" },
+                                                            { RemoteDiagnoseImpl::Task::TaskType::STOP, "" },
+                                                            { RemoteDiagnoseImpl::Task::TaskType::DIAGNOSE_TIMED_OUT,
+                                                              "" } };
 
     for (auto task : tasksIn)
     {
@@ -45,12 +46,11 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
     EXPECT_EQ(tasksOut[1].Content, tasksIn[1].Content);
 }
 
-
 TEST(TaskQueueTests, ActionTaskIsNotPoppedOffWhenDiagnoseIsProcessing) // NOLINT
 {
     RemoteDiagnoseImpl::TaskQueue queue;
-    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { {RemoteDiagnoseImpl::Task::TaskType::ACTION,""},
-                                                            {RemoteDiagnoseImpl::Task::TaskType::STOP,""}};
+    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { { RemoteDiagnoseImpl::Task::TaskType::ACTION, "" },
+                                                            { RemoteDiagnoseImpl::Task::TaskType::STOP, "" } };
 
     for (auto task : tasksIn)
     {
@@ -78,14 +78,16 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     RemoteDiagnoseImpl::Task taskOut;
     std::atomic<bool> done(false);
 
-    std::thread popThread([&] {
-        taskOut = queue.pop();
-        done = true;
-    });
+    std::thread popThread(
+        [&]
+        {
+            taskOut = queue.pop();
+            done = true;
+        });
 
     EXPECT_FALSE(done);
 
-    const RemoteDiagnoseImpl::Task taskIn{RemoteDiagnoseImpl::Task::TaskType::ACTION,""};
+    const RemoteDiagnoseImpl::Task taskIn{ RemoteDiagnoseImpl::Task::TaskType::ACTION, "" };
     queue.push(taskIn);
 
     for (int i = 0; i < 200; i++)
@@ -108,8 +110,8 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
 {
     RemoteDiagnoseImpl::TaskQueue queue;
-    const RemoteDiagnoseImpl::Task priorityTask{RemoteDiagnoseImpl::Task::TaskType::STOP,""};
-    const RemoteDiagnoseImpl::Task normalTask{RemoteDiagnoseImpl::Task::TaskType::ACTION,""};
+    const RemoteDiagnoseImpl::Task priorityTask{ RemoteDiagnoseImpl::Task::TaskType::STOP, "" };
+    const RemoteDiagnoseImpl::Task normalTask{ RemoteDiagnoseImpl::Task::TaskType::ACTION, "" };
 
     queue.push(normalTask);
     queue.pushPriority(priorityTask);

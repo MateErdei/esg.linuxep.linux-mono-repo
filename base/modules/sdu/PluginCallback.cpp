@@ -2,10 +2,9 @@
 
 #include "PluginCallback.h"
 
-#include "Logger.h"
-
 #include "Common/PluginApi/ApiException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "logger/Logger.h"
 
 #include <utility>
 

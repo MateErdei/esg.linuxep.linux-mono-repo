@@ -1,5 +1,5 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
-#include "Main.h"
+#include "sdu/Main.h"
 
 #include "Common/UtilityImpl/Main.h"
 

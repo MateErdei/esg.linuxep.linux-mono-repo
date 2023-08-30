@@ -2,8 +2,9 @@
 
 #include "DiagnoseRunner.h"
 
+#include "Common/Process/IProcess.h"
 #include "Common/WatchdogRequest/IWatchdogRequest.h"
-#include "sdu/Logger.h"
+#include "sdu/logger/Logger.h"
 
 namespace RemoteDiagnoseImpl::runnerModule
 {
