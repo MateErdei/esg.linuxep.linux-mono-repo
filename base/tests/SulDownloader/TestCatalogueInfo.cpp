@@ -10,6 +10,7 @@
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+using Common::DownloadReport::ProductInfo;
 
 class TestCatalogueInfo : public ::testing::Test
 {
@@ -60,9 +61,8 @@ public:
     std::vector<suldownloaderdata::ProductMetadata> m_warehouseProductsMetadata;
     suldownloaderdata::CatalogueInfo m_catalogueInfo;
 
-    suldownloaderdata::ProductInfo getProductInfo(ProdId prodId)
+    ProductInfo getProductInfo(ProdId prodId)
     {
-        using suldownloaderdata::ProductInfo;
         switch (prodId)
         {
             case ProdId::SIMPLE_COMPONENT:
@@ -78,9 +78,9 @@ public:
         }
     }
 
-    std::vector<suldownloaderdata::ProductInfo> getProductInfos(const std::vector<ProdId>& indices)
+    std::vector<ProductInfo> getProductInfos(const std::vector<ProdId>& indices)
     {
-        std::vector<suldownloaderdata::ProductInfo> products;
+        std::vector<ProductInfo> products;
         for (auto& indice : indices)
         {
             products.emplace_back(getProductInfo(indice));
@@ -105,7 +105,7 @@ public:
         }
         return downloadedProducts;
     }
-    std::vector<suldownloaderdata::ProductInfo> simulateAlgorithmOfGettingProductInfo(
+    std::vector<ProductInfo> simulateAlgorithmOfGettingProductInfo(
         const std::vector<ProdId>& indices)
     {
         std::vector<suldownloaderdata::DownloadedProduct> downloaded = simulateDownloadedProducts(indices);

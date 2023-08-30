@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -6,15 +7,24 @@ soph_cc_library(
         "*.cpp",
         "*.h",
     ]),
-    hdrs = glob(["*.h"]),
+    hdrs = [
+        "ConfigurationDataUtil.h",
+        "DownloadReports.h",
+        "InstalledFeatures.h",
+    ],
     implementation_deps = [
+        "//modules/Common/Logging",
         "//modules/Common/ApplicationConfiguration",
         "//modules/Common/FileSystem",
+        "//modules/Common/UtilityImpl:StringUtils",
         "//modules/Common/UtilityImpl:ProjectNames",
         "//thirdparty/nlohmann-json",
     ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/Policy",
     ],
 )

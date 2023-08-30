@@ -5,6 +5,8 @@
 #include "IRepository.h"
 #include "ProductMetadata.h"
 
+#include "Common/DownloadReport/ProductInfo.h"
+
 #include <unordered_map>
 
 namespace SulDownloader::suldownloaderdata
@@ -12,7 +14,7 @@ namespace SulDownloader::suldownloaderdata
     class CatalogueInfo
     {
     public:
-        static std::vector<suldownloaderdata::ProductInfo> calculatedListProducts(
+        static std::vector<Common::DownloadReport::ProductInfo> calculatedListProducts(
             const std::vector<suldownloaderdata::DownloadedProduct>&,
             const suldownloaderdata::CatalogueInfo&);
         void addInfo(const std::string& line, const std::string& version, const std::string& productName);

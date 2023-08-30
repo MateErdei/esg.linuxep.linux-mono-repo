@@ -1,7 +1,6 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
-
+#include "Common/UpdateUtilities/ConfigurationDataUtil.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
@@ -9,7 +8,7 @@
 #include <gtest/gtest.h>
 
 using namespace Common::Policy;
-using namespace SulDownloader::suldownloaderdata;
+using namespace Common::UpdateUtilities;
 
 static Common::Policy::UpdateSettings getValidUpdateSettings()
 {
@@ -24,7 +23,7 @@ static Common::Policy::UpdateSettings getValidUpdateSettings()
 class TestConfigurationDataUtils : public MemoryAppenderUsingTests
 {
 public:
-    TestConfigurationDataUtils() : MemoryAppenderUsingTests("suldownloaderdata"){}
+    TestConfigurationDataUtils() : MemoryAppenderUsingTests("UpdateUtilities"){}
     void SetUp() override
     {
         auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Common/DownloadReport/DownloadReport.h"
 #include "suldownloaderdata/IRepository.h"
 
 #include "SulDownloader/suldownloaderdata/TimeTracker.h"
@@ -14,18 +15,12 @@ namespace SulDownloader
 {
     void writeInstalledFeatures(const std::vector<std::string>& features);
 
-    namespace suldownloaderdata
-    {
-        class ConfigurationData;
-        class DownloadReport;
-    } // namespace suldownloaderdata
-
-    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(
+    Common::DownloadReport::DownloadReport processRepositoryAndGenerateReport(
         const bool successs,
         suldownloaderdata::IRepositoryPtr repository,
         suldownloaderdata::TimeTracker& timeTracker,
         const Common::Policy::UpdateSettings& updateSettings,
-        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        const Common::DownloadReport::DownloadReport& previousDownloadReport,
         bool forceReinstallAllProducts,
         const bool supplementOnly);
 
@@ -52,10 +47,10 @@ namespace SulDownloader
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
-    suldownloaderdata::DownloadReport runSULDownloader(
+    Common::DownloadReport::DownloadReport runSULDownloader(
         const Common::Policy::UpdateSettings& updateSetting,
         const Common::Policy::UpdateSettings& previousUpdateSetting,
-        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        const Common::DownloadReport::DownloadReport& previousDownloadReport,
         bool supplementOnly = false);
 
     /**

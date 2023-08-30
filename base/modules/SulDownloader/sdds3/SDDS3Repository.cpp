@@ -21,6 +21,7 @@
 
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
+using namespace Common::DownloadReport;
 
 class applicationPathManager;
 

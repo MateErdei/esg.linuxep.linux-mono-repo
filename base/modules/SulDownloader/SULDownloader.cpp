@@ -5,6 +5,8 @@
 #include "ProductUninstaller.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/DownloadReport/DownloadReport.h"
+#include "Common/DownloadReport/DownloadReportParseException.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -12,20 +14,21 @@
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Policy/PolicyParseException.h"
 #include "Common/Policy/UpdateSettings.h"
+#include "Common/UpdateUtilities/ConfigurationDataUtil.h"
+#include "Common/UpdateUtilities/DownloadReports.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "SulDownloader/sdds3/SDDS3Utils.h"
 #include "SulDownloader/sdds3/Sdds3RepositoryFactory.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 #include "SulDownloader/suldownloaderdata/TimeTracker.h"
 #include "common/Logger.h"
 #include "common/SulDownloaderUtils.h"
+#include "suldownloaderdata/DownloadReportBuilder.h"
 
 #include <sys/stat.h>
 
@@ -56,6 +59,8 @@ namespace
 namespace SulDownloader
 {
     using namespace Common::UtilityImpl;
+    using namespace Common::DownloadReport;
+    using SulDownloader::suldownloaderdata::TimeTracker;
 
     void writeInstalledFeatures(const std::vector<std::string>& features)
     {
@@ -109,7 +114,7 @@ namespace SulDownloader
         return false;
     }
 
-    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(
+    DownloadReport processRepositoryAndGenerateReport(
         const bool success,
         IRepositoryPtr repository,
         TimeTracker& timeTracker,
@@ -123,11 +128,11 @@ namespace SulDownloader
             DownloadReport report;
             if (repository == nullptr)
             {
-                report.setStatus(suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
+                report.setStatus(RepositoryStatus::DOWNLOADFAILED);
             }
             else
             {
-                report = DownloadReport::Report(*repository, timeTracker);
+                report = DownloadReportBuilder::Report(*repository, timeTracker);
                 if (report.getProducts().empty() && report.getRepositoryComponents().empty())
                 {
                     // Populate report products warehouse components from previous report, so that any issues from
@@ -315,13 +320,13 @@ namespace SulDownloader
         if (hasError(products))
         {
             LOGWARN("Verification of the downloaded products failed.");
-            return DownloadReport::Report(
+            return DownloadReportBuilder::Report(
                 sourceURL,
                 products,
                 {},
                 repository->listInstalledSubscriptions(),
                 &timeTracker,
-                DownloadReport::VerifyState::VerifyFailed,
+                DownloadReportBuilder::VerifyState::VerifyFailed,
                 false);
         }
 
@@ -526,13 +531,13 @@ namespace SulDownloader
 
         LOGDEBUG("Triggering purge");
         repository->purge();
-        return DownloadReport::Report(
+        return DownloadReportBuilder::Report(
             sourceURL,
             products,
             repository->listInstalledProducts(),
             repository->listInstalledSubscriptions(),
             &timeTracker,
-            DownloadReport::VerifyState::VerifyCorrect,
+            DownloadReportBuilder::VerifyState::VerifyCorrect,
             supplementOnly,
             setForceInstallForAllProducts);
     }
@@ -564,7 +569,7 @@ namespace SulDownloader
     std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(
         const UpdateSettings& updateSettings,
         const bool supplementOnly,
-        const suldownloaderdata::DownloadReport& previousDownloadReport,
+        const DownloadReport& previousDownloadReport,
         const bool forceReinstallAllProducts)
     {
         ConnectionSelector connectionSelector;
@@ -655,7 +660,7 @@ namespace SulDownloader
     {
         // Mark which products need to be forced to re/install.
         bool forceReinstallAllProducts =
-            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+            Common::UpdateUtilities::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
                 updateSettings, previousUpdateSettings, false);
         assert(updateSettings.isVerified());
 
@@ -723,7 +728,7 @@ namespace SulDownloader
         int maxReadAttempts)
     {
         bool readSuccessful = false;
-        auto report = DownloadReport::Report("SulDownloader failed.");
+        auto report = DownloadReportBuilder::Report("SulDownloader failed.");
         auto* fileSystem = Common::FileSystem::fileSystem();
         try
         {
@@ -784,7 +789,7 @@ namespace SulDownloader
             // If there is no previous download report, or if the download report fails to be read correctly
             // assume default download and install behaviour. i.e. install if file set has changed.
             // If overriding is required then add code to set configurationData.setForceReinstallAllProducts(true)
-            DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+            DownloadReport previousDownloadReport = DownloadReportBuilder::Report("Not assigned");
 
             try
             {
@@ -793,7 +798,7 @@ namespace SulDownloader
                     previousDownloadReport = DownloadReport::toReport(previousReportData);
                 }
             }
-            catch (const SulDownloaderException& ex)
+            catch (const Common::DownloadReport::DownloadReportParseException& ex)
             {
                 LOGWARN("Failed to load previous report data");
                 LOGSUPPORT(ex.what());
@@ -830,7 +835,7 @@ namespace SulDownloader
     std::string getPreviousDownloadReportData(const std::string& outputParentPath)
     {
         // Filter file list to make sure all the files are report files based on file name
-        auto previousReportFiles = DownloadReport::listOfAllPreviousReports(outputParentPath);
+        auto previousReportFiles = Common::UpdateUtilities::listOfAllPreviousReports(outputParentPath);
 
         std::string previousDownloadReport;
 

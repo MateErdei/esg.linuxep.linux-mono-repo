@@ -37,7 +37,7 @@ namespace SulDownloader
         std::string getSourceURL() const override;
         std::vector<suldownloaderdata::SubscriptionInfo> listInstalledSubscriptions() const override;
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
-        std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
+        std::vector<Common::DownloadReport::ProductInfo> listInstalledProducts() const override;
         void purge() const override;
         bool synchronize(
             const Common::Policy::UpdateSettings& configurationData,

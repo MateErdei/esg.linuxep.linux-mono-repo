@@ -25,13 +25,13 @@ namespace SulDownloader
     ::testing::AssertionResult productInfoIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const suldownloaderdata::ProductInfo& expected,
-        const suldownloaderdata::ProductInfo& resulted);
+        const Common::DownloadReport::ProductInfo& expected,
+        const Common::DownloadReport::ProductInfo& resulted);
     ::testing::AssertionResult listProductInfoIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const std::vector<suldownloaderdata::ProductInfo>& expected,
-        const std::vector<suldownloaderdata::ProductInfo>& resulted);
+        const std::vector<Common::DownloadReport::ProductInfo>& expected,
+        const std::vector<Common::DownloadReport::ProductInfo>& resulted);
     std::vector<suldownloaderdata::SubscriptionInfo> subscriptionsFromProduct(
         const std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>& products);
 } // namespace SulDownloader

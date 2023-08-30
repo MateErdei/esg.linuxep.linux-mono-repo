@@ -62,6 +62,8 @@ add_library(suldownloaderimpl_static STATIC
         $<TARGET_OBJECTS:ProxyUtilsLibobject>
         $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:curlwrapperobject>
+        $<TARGET_OBJECTS:downloadreportobject>
+        $<TARGET_OBJECTS:updateutilitiesobject>
         )
 target_link_libraries(suldownloaderimpl_static PRIVATE
         ${LOG4CPLUS_LIBRARY}
@@ -78,6 +80,8 @@ target_link_libraries(suldownloaderimpl PUBLIC
         HttpRequestsImpl
         curlwrapper
         sophlib_sdds3
+        downloadreport
+        updateutilities
         )
 
 SET_TARGET_PROPERTIES( suldownloaderimpl

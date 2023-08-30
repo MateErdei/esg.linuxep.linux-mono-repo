@@ -19,8 +19,8 @@
 #include <gtest/gtest.h>
 
 using namespace Common::Policy;
-using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+using Common::DownloadReport::RepositoryStatus;
 
 class Sdds3RepositoryTest : public MemoryAppenderUsingTests
 {

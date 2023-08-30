@@ -2,18 +2,22 @@
 
 #pragma once
 
-#include "IRepository.h"
-#include "RepositoryError.h"
+#include "ProductInfo.h"
+#include "RepositoryStatus.h"
 
 #include <ctime>
 #include <string>
+#include <string_view>
 #include <vector>
 
+class DownloadReportTestBuilder;
 namespace SulDownloader::suldownloaderdata
 {
-    class DownloadedProduct;
-    class TimeTracker;
+    class DownloadReportBuilder;
+}
 
+namespace Common::DownloadReport
+{
     struct ProductReport
     {
         std::string name;
@@ -64,35 +68,14 @@ namespace SulDownloader::suldownloaderdata
     class DownloadReport
     {
     public:
-        DownloadReport(){};
-
-        friend class DownloadReportTestBuilder;
+        friend class ::DownloadReportTestBuilder;
+        friend class SulDownloader::suldownloaderdata::DownloadReportBuilder;
 
         enum class VerifyState
         {
             VerifyFailed,
             VerifyCorrect
         };
-        static std::vector<ProductReport> combineProductsAndSubscriptions(
-            const std::vector<suldownloaderdata::DownloadedProduct>&,
-            const std::vector<suldownloaderdata::SubscriptionInfo>&,
-            const RepositoryStatus& repositoryStatus);
-
-        static DownloadReport Report(const IRepository&, const TimeTracker& timeTracker);
-
-        static DownloadReport Report(
-            const std::string& sourceURL,
-            const std::vector<suldownloaderdata::DownloadedProduct>& products,
-            const std::vector<suldownloaderdata::ProductInfo>& components,
-            const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
-            TimeTracker* timeTracker,
-            VerifyState verify,
-            bool supplementOnly = false,
-            bool baseDowngrade = false);
-
-        static DownloadReport Report(const std::string& errorDescription);
-
-        static std::vector<std::string> listOfAllPreviousReports(const std::string& outputParentPath);
 
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport& report);
 
@@ -153,12 +136,8 @@ namespace SulDownloader::suldownloaderdata
         }
 
     private:
-        void setError(const RepositoryError& error);
-        void setTimings(const TimeTracker&);
         void setProducts(const std::vector<ProductReport>& products);
         void setRepositoryComponents(const std::vector<ProductInfo>& repositoryComponents);
-        static const std::vector<ProductInfo> updateRepositoryComponentInstalledVersion(
-            const std::vector<ProductInfo>& repositoryComponents);
 
         RepositoryStatus m_status = RepositoryStatus::UNSPECIFIED;
         std::string m_description;
@@ -175,4 +154,4 @@ namespace SulDownloader::suldownloaderdata
         bool m_supplementOnly = false;
         bool m_baseDowngrade = false;
     };
-} // namespace SulDownloader::suldownloaderdata
+} // namespace Common::DownloadReport

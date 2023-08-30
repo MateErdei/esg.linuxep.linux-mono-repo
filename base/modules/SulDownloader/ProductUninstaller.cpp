@@ -8,6 +8,7 @@
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
 #include "common/Logger.h"
+#include "suldownloaderdata/RepositoryError.h"
 
 #include <algorithm>
 #include <map>
@@ -155,7 +156,7 @@ namespace SulDownloader
             if (!errorMessage.str().empty())
             {
                 suldownloaderdata::RepositoryError error;
-                error.status = suldownloaderdata::RepositoryStatus::UNINSTALLFAILED;
+                error.status = Common::DownloadReport::RepositoryStatus::UNINSTALLFAILED;
                 error.Description = errorMessage.str();
                 uninstallProduct.second.setError(error);
                 LOGERROR(errorMessage.str());

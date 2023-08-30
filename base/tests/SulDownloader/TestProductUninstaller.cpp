@@ -2,13 +2,11 @@
 
 #include "MockSdds3Repository.h"
 
-#include "SulDownloader/ProductUninstaller.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
-
+#include "SulDownloader/ProductUninstaller.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
@@ -17,7 +15,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace SulDownloader;
+using Common::DownloadReport::RepositoryStatus;
 
 class ProductUninstallerTest : public LogInitializedTests
 {
@@ -221,7 +219,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
     EXPECT_TRUE(actualProductList[0].getError().Description.find("ProcessThrow") != std::string::npos);
-    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
+    EXPECT_EQ(actualProductList[0].getError().status, RepositoryStatus::UNINSTALLFAILED);
     EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 
@@ -249,7 +247,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
     EXPECT_TRUE(
         actualProductList[0].getError().Description.find("Process did not complete successfully") != std::string::npos);
-    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
+    EXPECT_EQ(actualProductList[0].getError().status, RepositoryStatus::UNINSTALLFAILED);
     EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 

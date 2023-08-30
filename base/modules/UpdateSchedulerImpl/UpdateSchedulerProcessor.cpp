@@ -13,9 +13,10 @@
 #include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"
+#include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UpdateUtilities/ConfigurationDataUtil.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
 #include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
 #include "configModule/DownloadReportsAnalyser.h"
@@ -371,9 +372,9 @@ namespace UpdateSchedulerImpl
             auto previousConfigurationData = UpdateSchedulerUtils::getPreviousConfigurationData();
 
             if (previousConfigurationData.has_value() &&
-                (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                (Common::UpdateUtilities::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
                      updateSettings.configurationData, previousConfigurationData.value()) ||
-                 SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceUpdate(
+                 Common::UpdateUtilities::ConfigurationDataUtil::checkIfShouldForceUpdate(
                      updateSettings.configurationData, previousConfigurationData.value())))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
@@ -842,8 +843,7 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::writeConfigurationData(const Common::Policy::UpdateSettings& updateSettings)
     {
         std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-        std::string serializedUpdateSettings =
-            SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(updateSettings);
+        std::string serializedUpdateSettings = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
         LOGDEBUG("Writing to update_config.json:");
         LOGDEBUG(serializedUpdateSettings);
         Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedUpdateSettings, tempPath);

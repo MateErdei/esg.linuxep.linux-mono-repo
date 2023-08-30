@@ -49,6 +49,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcentralregistrationi
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurlwrapper.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libdirectorywatcherimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libdownloadreport.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libeventreceiverimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libfilesystemimpl.so.0
@@ -99,6 +100,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryschedulerlo
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libthreads.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libThreatHealthReceiverImpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libupdateschedulerimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libupdateutilities.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libutilityimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libwatchdogservice.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libxmlutilities.so.0

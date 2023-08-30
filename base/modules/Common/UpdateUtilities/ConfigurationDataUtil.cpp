@@ -9,7 +9,7 @@
 
 using namespace Common::Policy;
 
-namespace SulDownloader::suldownloaderdata
+namespace Common::UpdateUtilities
 {
     bool ConfigurationDataUtil::checkIfShouldForceUpdate(
         const UpdateSettings& updateSettings,
@@ -155,4 +155,4 @@ namespace SulDownloader::suldownloaderdata
         LOGDEBUG("No difference between new update config and previous update config.");
         return false;
     }
-} // namespace SulDownloader::suldownloaderdata
+} // namespace Common::UpdateUtilities

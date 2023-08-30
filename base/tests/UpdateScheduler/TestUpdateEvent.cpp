@@ -5,17 +5,17 @@
 
 #include "UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h"
 #include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
+#include "tests/Common/UtilityImpl/MockFormattedTime.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include "tests/Common/UtilityImpl/MockFormattedTime.h"
 
 using namespace UpdateSchedulerImpl::configModule;
-using namespace SulDownloader;
-using namespace SulDownloader::suldownloaderdata;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
+using Common::DownloadReport::DownloadReport;
 
 UpdateEvent getEvent(const DownloadReportsAnalyser::DownloadReport& report)
 {

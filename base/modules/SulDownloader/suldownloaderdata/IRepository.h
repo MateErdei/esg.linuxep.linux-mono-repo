@@ -2,34 +2,16 @@
 
 #pragma once
 #include "ProductMetadata.h"
+#include "RepositoryError.h"
 
+#include "Common/DownloadReport/ProductInfo.h"
 #include "Common/Policy/UpdateSettings.h"
 
 #include <memory>
 
 namespace SulDownloader::suldownloaderdata
 {
-    class ConnectionSetup;
     class DownloadedProduct;
-    class ProductSelection;
-    struct RepositoryError;
-    struct ProductInfo
-    {
-        std::string m_rigidName;
-        std::string m_productName;
-        std::string m_version;
-        std::string m_installedVersion;
-
-        [[nodiscard]] bool operator==(const ProductInfo& other) const
-        {
-            // clang-format off
-            return m_rigidName == other.m_rigidName &&
-                   m_productName == other.m_productName &&
-                   m_version == other.m_version &&
-                   m_installedVersion == other.m_installedVersion;
-            // clang-format on
-        }
-    };
 
     struct SubscriptionInfo
     {
@@ -70,7 +52,7 @@ namespace SulDownloader::suldownloaderdata
         [[nodiscard]] virtual std::string getProductDistributionPath(
             const suldownloaderdata::DownloadedProduct&) const = 0;
 
-        [[nodiscard]] virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
+        [[nodiscard]] virtual std::vector<Common::DownloadReport::ProductInfo> listInstalledProducts() const = 0;
 
         virtual void purge() const = 0;
     };

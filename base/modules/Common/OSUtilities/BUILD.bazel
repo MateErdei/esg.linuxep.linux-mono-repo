@@ -26,4 +26,7 @@ soph_cc_library(
     visibility = [
         "//modules/Common/OSUtilitiesImpl:__pkg__",
     ],
+    deps = [
+        "//modules/Common/SystemCallWrapper",
+    ],
 )

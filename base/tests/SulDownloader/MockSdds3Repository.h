@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include "gmock/gmock.h"
-
+#include "Common/DownloadReport/ProductInfo.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/ISdds3Repository.h"
 #include "SulDownloader/suldownloaderdata/RepositoryError.h"
+
+#include <gmock/gmock.h>
 
 using namespace ::testing;
 using namespace SulDownloader;
@@ -26,7 +27,7 @@ public:
     MOCK_CONST_METHOD0(getSourceURL, std::string(void));
 
     MOCK_CONST_METHOD1(getProductDistributionPath, std::string(const suldownloaderdata::DownloadedProduct&));
-    MOCK_CONST_METHOD0(listInstalledProducts, std::vector<suldownloaderdata::ProductInfo>(void));
+    MOCK_CONST_METHOD0(listInstalledProducts, std::vector<Common::DownloadReport::ProductInfo>(void));
     MOCK_CONST_METHOD0(
         listInstalledSubscriptions,
         std::vector<suldownloaderdata::SubscriptionInfo>(void));

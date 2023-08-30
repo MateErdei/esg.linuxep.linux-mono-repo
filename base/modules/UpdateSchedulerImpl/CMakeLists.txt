@@ -86,6 +86,8 @@ target_link_libraries(updateschedulerimpl PUBLIC
         protobufutil
         procutilimpl
         policy
+        downloadreport
+        updateutilities
         )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl

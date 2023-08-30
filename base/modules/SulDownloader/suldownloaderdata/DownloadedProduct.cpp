@@ -18,6 +18,7 @@
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+using Common::DownloadReport::RepositoryStatus;
 
 DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation) :
     m_state(State::Initialized),

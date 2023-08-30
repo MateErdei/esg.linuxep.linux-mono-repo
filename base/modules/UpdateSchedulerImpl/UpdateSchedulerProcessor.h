@@ -6,15 +6,16 @@
 #    define TEST_PUBLIC private
 #endif
 
+#include "SchedulerPluginCallback.h"
+
 #include "Common/PersistentValue/PersistentValue.h"
-#include "Common/PluginApiImpl/BaseServiceAPI.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "UpdateScheduler/IAsyncSulDownloaderRunner.h"
 #include "UpdateScheduler/ICronSchedulerThread.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
-#include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
-#include "UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h"
+#include "configModule/UpdatePolicyTranslator.h"
 
 namespace UpdateSchedulerImpl
 {

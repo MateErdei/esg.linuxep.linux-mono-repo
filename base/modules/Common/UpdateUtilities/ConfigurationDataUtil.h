@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Common/Policy/UpdateSettings.h"
 
-namespace SulDownloader::suldownloaderdata
+namespace Common::UpdateUtilities
 {
     class ConfigurationDataUtil
     {
@@ -33,4 +29,4 @@ namespace SulDownloader::suldownloaderdata
             const Common::Policy::UpdateSettings& previousConfigurationData,
             bool onlyCompareSubscriptionsAndFeatures = true);
     };
-} // namespace SulDownloader::suldownloaderdata
+} // namespace Common::UpdateUtilities

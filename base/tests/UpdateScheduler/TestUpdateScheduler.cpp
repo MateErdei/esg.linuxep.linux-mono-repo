@@ -6,11 +6,9 @@
 #include "MockAsyncDownloaderRunner.h"
 #include "MockCronSchedulerThread.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/FileSystemImpl/PidLockFile.h"
-#include "UpdateSchedulerImpl/UpdateSchedulerProcessor.cpp"
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "UpdateSchedulerImpl/UpdateSchedulerProcessor.h"
 #include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
@@ -18,6 +16,9 @@
 #include "tests/Common/Helpers/MockApiBaseServices.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/UtilityImpl/MockFormattedTime.h"
+
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;
 using namespace ::testing;

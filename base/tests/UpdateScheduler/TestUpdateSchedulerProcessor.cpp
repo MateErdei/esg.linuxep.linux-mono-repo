@@ -2,15 +2,15 @@
 
 #include "MockAsyncDownloaderRunner.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/FileSystemImpl/PidLockFile.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/UniformIntDistribution.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
 #include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
 #include "UpdateSchedulerImpl/UpdateSchedulerProcessor.h"
-#include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
 #include "UpdateSchedulerImpl/UpdateSchedulerTelemetryConsts.h"
+#include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
 #include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"

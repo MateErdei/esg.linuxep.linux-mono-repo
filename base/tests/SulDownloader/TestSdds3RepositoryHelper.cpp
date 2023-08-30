@@ -1,4 +1,4 @@
-// Copyright 2018-2023, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "TestSdds3RepositoryHelper.h"
 
@@ -17,8 +17,8 @@ namespace SulDownloader
     ::testing::AssertionResult productInfoIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const suldownloaderdata::ProductInfo& expected,
-        const suldownloaderdata::ProductInfo& resulted)
+        const Common::DownloadReport::ProductInfo& expected,
+        const Common::DownloadReport::ProductInfo& resulted)
     {
         std::stringstream s;
         s << m_expr << " and " << n_expr << " failed: ";
@@ -45,8 +45,8 @@ namespace SulDownloader
     ::testing::AssertionResult listProductInfoIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const std::vector<suldownloaderdata::ProductInfo>& expected,
-        const std::vector<suldownloaderdata::ProductInfo>& resulted)
+        const std::vector<Common::DownloadReport::ProductInfo>& expected,
+        const std::vector<Common::DownloadReport::ProductInfo>& resulted)
     {
         std::stringstream s;
         s << m_expr << " and " << n_expr << " failed: ";

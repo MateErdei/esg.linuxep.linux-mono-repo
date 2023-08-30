@@ -12,9 +12,8 @@ add_executable(SulDownloaderTests
         MockSignatureVerifierWrapper.h
         MockSusRequester.h
         SulDownloaderSdds3Tests.cpp
-        TestDownloadReport.cpp
+        TestDownloadReportBuilder.cpp
         TestConnectionSelector.cpp
-        TestConfigurationDataUtils.cpp
         MockVersig.h
         VersigTests.cpp
         TestProductUninstaller.cpp

@@ -4,7 +4,7 @@
 #include "UpdateEvent.h"
 #include "UpdateStatus.h"
 
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "Common/DownloadReport/DownloadReport.h"
 
 #include <string>
 #include <vector>
@@ -32,7 +32,7 @@ namespace UpdateSchedulerImpl::configModule
     class DownloadReportsAnalyser
     {
     public:
-        using DownloadReport = SulDownloader::suldownloaderdata::DownloadReport;
+        using DownloadReport = Common::DownloadReport::DownloadReport;
         using DownloadReportVector = std::vector<DownloadReport>;
         using DownloadReportVectorSizeType = DownloadReportVector::size_type;
         using DownloadReportVectorDifferenceType = DownloadReportVector::difference_type;
@@ -70,7 +70,7 @@ namespace UpdateSchedulerImpl::configModule
         struct FileAndDownloadReport
         {
             std::string filepath;
-            SulDownloader::suldownloaderdata::DownloadReport report;
+            Common::DownloadReport::DownloadReport report;
             std::string sortKey;
         };
         using FileAndDownloadReportVector = std::vector<FileAndDownloadReport>;

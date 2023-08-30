@@ -3,8 +3,9 @@
 #include "MockSdds3Repository.h"
 #include "TestSdds3RepositoryHelper.h"
 
+#include "Common/DownloadReport/DownloadReport.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "SulDownloader/suldownloaderdata/DownloadReportBuilder.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/TimeTracker.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
@@ -14,8 +15,8 @@
 
 using namespace Common::UtilityImpl;
 
-using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+using namespace Common::DownloadReport;
 
 class DownloadReportTest : public LogOffInitializedTests
 {
@@ -110,7 +111,7 @@ public:
         valueToFind = "syncTime\": \"" + report.getSyncTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-        valueToFind = "status\": \"" + SulDownloader::suldownloaderdata::toString(report.getStatus());
+        valueToFind = "status\": \"" + Common::DownloadReport::toString(report.getStatus());
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "sulError\": \"" + report.getSulError();
@@ -168,7 +169,7 @@ public:
         valueToFind = "syncTime\": \"" + report.getSyncTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-        valueToFind = "status\": \"" + SulDownloader::suldownloaderdata::toString(report.getStatus());
+        valueToFind = "status\": \"" + Common::DownloadReport::toString(report.getStatus());
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "sulError\": \"" + report.getSulError();
@@ -187,7 +188,7 @@ public:
     {
         suldownloaderdata::RepositoryError wErr;
         wErr.Description = "Error P1";
-        wErr.status = suldownloaderdata::RepositoryStatus::UNINSTALLFAILED;
+        wErr.status = RepositoryStatus::UNINSTALLFAILED;
         std::vector<suldownloaderdata::DownloadedProduct> downloadedProducts;
         auto metadata = createTestProductMetaData();
         metadata.setLine("P1");
@@ -196,7 +197,7 @@ public:
         downloadedProducts[0].setProductIsBeingUninstalled(true);
 
         wErr.Description = "Error P2";
-        wErr.status = suldownloaderdata::RepositoryStatus::INSTALLFAILED;
+        wErr.status = RepositoryStatus::INSTALLFAILED;
 
         metadata.setLine("P2");
         downloadedProducts.push_back(createTestDownloadedProduct(metadata));
@@ -219,7 +220,7 @@ public:
 
 TEST_F(DownloadReportTest, fromReportWithReportCreatedFromErrorDescriptionShouldNotThrow)
 {
-    auto report = DownloadReport::Report("Test Failed example");
+    auto report = DownloadReportBuilder::Report("Test Failed example");
 
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
@@ -242,7 +243,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(mockSdds3Repository, timeTracker);
+    auto report = DownloadReportBuilder::Report(mockSdds3Repository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
     checkReportValue(report, metadata);
@@ -276,7 +277,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(mockSdds3Repository, timeTracker);
+    auto report = DownloadReportBuilder::Report(mockSdds3Repository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
     checkReportValue(report, metadata);
@@ -311,7 +312,7 @@ TEST_F(
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(mockSdds3Repository, timeTracker);
+    auto report = DownloadReportBuilder::Report(mockSdds3Repository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::PACKAGESOURCEMISSING);
     checkReportValue(report, metadata);
@@ -328,7 +329,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
     error.Description = errorString;
     error.status = RepositoryStatus::UNSPECIFIED;
 
-    auto report = DownloadReport::Report(errorString);
+    auto report = DownloadReportBuilder::Report(errorString);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::UNSPECIFIED);
     EXPECT_EQ(report.getProducts().size(), 0);
@@ -353,13 +354,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sourceurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect,
+        DownloadReportBuilder::VerifyState::VerifyCorrect,
         false);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
@@ -391,7 +392,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(mockSdds3Repository, timeTracker);
+    auto report = DownloadReportBuilder::Report(mockSdds3Repository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
     checkReportValue(report, metadata);
@@ -429,7 +430,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(mockSdds3Repository, timeTracker);
+    auto report = DownloadReportBuilder::Report(mockSdds3Repository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
     checkReportValue(report, metadata);
@@ -461,13 +462,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sourceurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect,
+        DownloadReportBuilder::VerifyState::VerifyCorrect,
         false);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
@@ -510,13 +511,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sourceurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -538,13 +539,13 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 
     std::vector<DownloadedProduct> products;
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sourceurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
 
@@ -598,13 +599,13 @@ TEST_F(
                                                downloadedProduct.getProductMetadata().getVersion(),
                                                downloadedProduct.getProductMetadata().getVersion() });
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sophosurl",
         products,
         warehouseComponents,
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
 
@@ -662,13 +663,13 @@ TEST_F(
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sophosurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
@@ -723,13 +724,13 @@ TEST_F(
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(
+    auto report = DownloadReportBuilder::Report(
         "sophosurl",
         products,
         {},
         subscriptionsFromProduct(products),
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
@@ -779,9 +780,9 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     "syncTime": "20180821 121220"
 })sophos" };
     DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
-    const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents = report.getRepositoryComponents();
+    const std::vector<ProductInfo>& warehouseComponents = report.getRepositoryComponents();
     EXPECT_EQ(warehouseComponents.size(), 2);
-    std::vector<suldownloaderdata::ProductInfo> expected = { { "rn1", "p1", "v1", "v1" }, { "rn2", "p2", "v2", "v2" } };
+    std::vector<ProductInfo> expected = { { "rn1", "p1", "v1", "v1" }, { "rn2", "p2", "v2", "v2" } };
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, warehouseComponents);
     std::string reSerialize = DownloadReport::fromReport(report);
     DownloadReport reportAgain = DownloadReport::toReport(reSerialize);
@@ -794,8 +795,8 @@ TEST_F(
 {
     auto [downloadedProducts, subscriptions] = componentSuiteSubscriptionReferencingTwoProducts();
 
-    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
+    auto reportProducts = DownloadReportBuilder::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, RepositoryStatus::SUCCESS);
 
     // given that there is an uninstallation, the uninstalled products will also be reported.
     ASSERT_EQ(reportProducts.size(), 2);
@@ -820,8 +821,8 @@ TEST_F(
     subscriptions[0].rigidName = "P1";
     subscriptions[0].subProducts.clear();
 
-    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
+    auto reportProducts = DownloadReportBuilder::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, RepositoryStatus::SUCCESS);
 
     ASSERT_EQ(reportProducts.size(), 1);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");
@@ -846,8 +847,8 @@ TEST_F(
     subscriptions.push_back(subscriptionInfo);
 
     // the subscriptions have 2 entries matching the downloaded entries. Both will be reported in the combined report
-    auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
+    auto reportProducts = DownloadReportBuilder::combineProductsAndSubscriptions(
+        downloadedProducts, subscriptions, RepositoryStatus::SUCCESS);
 
     ASSERT_EQ(reportProducts.size(), 2);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");
@@ -944,13 +945,13 @@ TEST_F(DownloadReportTest, FromReportToReportGivesBackExpectedResults)
                                                                 { "subscription line2", "subscription version2" } } } };
 
     // baseDowngrade is not serialised/deserialised, and hence set to false
-    const auto downloadReport = DownloadReport::Report(
+    const auto downloadReport = DownloadReportBuilder::Report(
         "source url",
         downloadedProducts,
         components,
         subscriptionsToALCStatus,
         &timeTracker,
-        DownloadReport::VerifyState::VerifyCorrect,
+        DownloadReportBuilder::VerifyState::VerifyCorrect,
         true,
         false);
 
@@ -966,7 +967,7 @@ TEST_F(DownloadReportTest, ProcessedReportIsNotSerialised)
 {
     TimeTracker timeTracker;
     auto downloadReport =
-        DownloadReport::Report("source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReportBuilder::Report("source url", {}, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_TRUE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
 
@@ -978,11 +979,11 @@ TEST_F(DownloadReportTest, BaseDowngradeIsNotSerialised)
 {
     TimeTracker timeTracker;
 
-    const auto downloadReport = DownloadReport::Report(
-        "source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect, false, false);
+    const auto downloadReport = DownloadReportBuilder::Report(
+        "source url", {}, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect, false, false);
     EXPECT_TRUE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
 
-    const auto downloadReport2 = DownloadReport::Report(
-        "source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect, false, true);
+    const auto downloadReport2 = DownloadReportBuilder::Report(
+        "source url", {}, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect, false, true);
     EXPECT_FALSE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport2);
 }

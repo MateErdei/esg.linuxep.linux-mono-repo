@@ -1,16 +1,20 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DownloadReportsAnalyser.h"
 
+#include "UpdateStatus.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/UpdateUtilities/DownloadReports.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "UpdateSchedulerImpl/Logger.h"
-#include "UpdateSchedulerImpl/configModule/UpdateStatus.h"
 
 #include <algorithm>
 #include <cassert>
 
 using namespace Common::UtilityImpl;
+using namespace Common::DownloadReport;
+
 namespace
 {
     using MessageInsert = UpdateSchedulerImpl::configModule::MessageInsert;
@@ -30,9 +34,7 @@ namespace
         MULTIPLEPACKAGEMISSING = 113
     };
 
-    void buildMessagesInsertFromDownloadReport(
-        std::vector<MessageInsert>* messages,
-        const SulDownloader::suldownloaderdata::DownloadReport& report)
+    void buildMessagesInsertFromDownloadReport(std::vector<MessageInsert>* messages, const DownloadReport& report)
     {
         for (const auto& product : report.getProducts())
         {
@@ -48,9 +50,7 @@ namespace
         }
     }
 
-    void buildMessagesFromReport(
-        std::vector<MessageInsert>* messages,
-        const SulDownloader::suldownloaderdata::DownloadReport& report)
+    void buildMessagesFromReport(std::vector<MessageInsert>* messages, const DownloadReport& report)
     {
         buildMessagesInsertFromDownloadReport(messages, report);
         // if no specific error associated with a product is present, report the general error.
@@ -60,7 +60,7 @@ namespace
         }
     }
 
-    void handlePackageSourceMissing(UpdateEvent* event, const SulDownloader::suldownloaderdata::DownloadReport& report)
+    void handlePackageSourceMissing(UpdateEvent* event, const DownloadReport& report)
     {
         std::vector<std::string> splittedEntries =
             Common::UtilityImpl::StringUtils::splitString(report.getDescription(), ";");
@@ -84,32 +84,32 @@ namespace
         }
     }
 
-    UpdateEvent extractEventFromSingleReport(const SulDownloader::suldownloaderdata::DownloadReport& report)
+    UpdateEvent extractEventFromSingleReport(const DownloadReport& report)
     {
         UpdateEvent event;
         switch (report.getStatus())
         {
-            case SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS:
+            case RepositoryStatus::SUCCESS:
                 event.MessageNumber = EventMessageNumber::SUCCESS;
                 break;
-            case SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR:
+            case RepositoryStatus::CONNECTIONERROR:
                 event.MessageNumber = EventMessageNumber::CONNECTIONERROR;
                 // no package name, just the error details
                 event.Messages.emplace_back("", report.getDescription());
                 break;
-            case SulDownloader::suldownloaderdata::RepositoryStatus::DOWNLOADFAILED:
+            case RepositoryStatus::DOWNLOADFAILED:
                 event.MessageNumber = EventMessageNumber::DOWNLOADFAILED;
                 buildMessagesFromReport(&event.Messages, report);
                 break;
-            case SulDownloader::suldownloaderdata::RepositoryStatus::INSTALLFAILED:
+            case RepositoryStatus::INSTALLFAILED:
                 event.MessageNumber = EventMessageNumber::INSTALLFAILED;
                 buildMessagesFromReport(&event.Messages, report);
                 break;
-            case SulDownloader::suldownloaderdata::RepositoryStatus::UNSPECIFIED:
+            case RepositoryStatus::UNSPECIFIED:
                 event.MessageNumber = EventMessageNumber::INSTALLCAUGHTERROR;
                 event.Messages.emplace_back("", report.getDescription());
                 break;
-            case SulDownloader::suldownloaderdata::RepositoryStatus::PACKAGESOURCEMISSING:
+            case RepositoryStatus::PACKAGESOURCEMISSING:
                 handlePackageSourceMissing(&event, report);
                 break;
             default:
@@ -123,8 +123,8 @@ namespace
         {
             switch (product.productStatus)
             {
-                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded:
-                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled:
+                case ProductReport::ProductStatus::Upgraded:
+                case ProductReport::ProductStatus::Uninstalled:
                     event.IsRelevantToSend = true;
                     break;
                 default:
@@ -137,9 +137,7 @@ namespace
         return event;
     }
 
-    UpdateStatus extractStatusFromSingleReport(
-        const SulDownloader::suldownloaderdata::DownloadReport& report,
-        const UpdateEvent& event)
+    UpdateStatus extractStatusFromSingleReport(const DownloadReport& report, const UpdateEvent& event)
     {
         UpdateStatus status;
         status.LastBootTime = TimeUtils::getBootTime();
@@ -150,7 +148,7 @@ namespace
 
         for (const auto& product : report.getProducts())
         {
-            if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+            if (product.productStatus != ProductReport::ProductStatus::Uninstalled)
             {
                 status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
@@ -191,10 +189,9 @@ namespace UpdateSchedulerImpl::configModule
             return ReportCollectionResult();
         }
 
-        const SulDownloader::suldownloaderdata::DownloadReport& lastReport =
-            reportCollection.at(reportCollection.size() - 1);
+        const DownloadReport& lastReport = reportCollection.at(reportCollection.size() - 1);
         ReportCollectionResult collectionResult;
-        if (lastReport.getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS)
+        if (lastReport.getStatus() == RepositoryStatus::SUCCESS)
         {
             collectionResult = handleSuccessReports(reportCollection);
         }
@@ -225,7 +222,7 @@ namespace UpdateSchedulerImpl::configModule
 
     DownloadReportsAnalyser::FileAndDownloadReportVector DownloadReportsAnalyser::readSortedReports()
     {
-        auto listOfReportFiles = DownloadReport::listOfAllPreviousReports(
+        auto listOfReportFiles = Common::UpdateUtilities::listOfAllPreviousReports(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
         std::vector<FileAndDownloadReport> reportCollection;
@@ -239,8 +236,7 @@ namespace UpdateSchedulerImpl::configModule
             try
             {
                 std::string content = Common::FileSystem::fileSystem()->readFile(filepath);
-                SulDownloader::suldownloaderdata::DownloadReport fileReport =
-                    SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
+                DownloadReport fileReport = DownloadReport::toReport(content);
 
                 // check to see if report has been processed
                 if (Common::FileSystem::fileSystem()->isFile(
@@ -276,7 +272,7 @@ namespace UpdateSchedulerImpl::configModule
         }
 
         std::vector<std::string> sortedFilePaths;
-        std::vector<SulDownloader::suldownloaderdata::DownloadReport> downloaderReports;
+        std::vector<DownloadReport> downloaderReports;
 
         for (auto& reportEntry : reportCollection)
         {
@@ -314,7 +310,7 @@ namespace UpdateSchedulerImpl::configModule
         int indexOfLastUpgrade = lastUpgrade(reportCollection); // must be signed as might be -1
         ReportCollectionResult collectionResult;
 
-        const SulDownloader::suldownloaderdata::DownloadReport& lastReport = reportCollection.at(lastIndex);
+        const DownloadReport& lastReport = reportCollection.at(lastIndex);
 
         collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
 
@@ -369,8 +365,8 @@ namespace UpdateSchedulerImpl::configModule
         assert(lastIndex > 0);
         DownloadReportVectorSizeType previousIndex = lastIndex - 1;
         // if previous one was an error, send event, otherwise do not send.
-        collectionResult.SchedulerEvent.IsRelevantToSend |= reportCollection.at(previousIndex).getStatus() !=
-                                                            SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
+        collectionResult.SchedulerEvent.IsRelevantToSend |=
+            reportCollection.at(previousIndex).getStatus() != RepositoryStatus::SUCCESS;
 
         // Run through the report collection, and check if there is an old un-processed report containing
         // an Upgrade or uninstalled state., if there is set IsRelevantToSend to true to force sending an
@@ -384,9 +380,8 @@ namespace UpdateSchedulerImpl::configModule
 
             for (const auto& product : report.getProducts())
             {
-                if (product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded ||
-                    product.productStatus ==
-                        SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+                if (product.productStatus == ProductReport::ProductStatus::Upgraded ||
+                    product.productStatus == ProductReport::ProductStatus::Uninstalled)
                 {
                     collectionResult.SchedulerEvent.IsRelevantToSend = true;
                 }
@@ -483,11 +478,11 @@ namespace UpdateSchedulerImpl::configModule
 
     bool DownloadReportsAnalyser::hasUpgrade(const DownloadReport& report)
     {
-        if (report.getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS)
+        if (report.getStatus() == RepositoryStatus::SUCCESS)
         {
             for (const auto& product : report.getProducts())
             {
-                if (product.productStatus == SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded)
+                if (product.productStatus == ProductReport::ProductStatus::Upgraded)
                 {
                     return true;
                 }
@@ -500,9 +495,7 @@ namespace UpdateSchedulerImpl::configModule
         const DownloadReportVector& reports)
     {
         auto rind = std::find_if(
-            reports.rbegin(),
-            reports.rend(),
-            [](const SulDownloader::suldownloaderdata::DownloadReport& report) { return hasUpgrade(report); });
+            reports.rbegin(), reports.rend(), [](const DownloadReport& report) { return hasUpgrade(report); });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
 
@@ -512,8 +505,7 @@ namespace UpdateSchedulerImpl::configModule
         auto rind = std::find_if(
             reports.rbegin(),
             reports.rend(),
-            [](const DownloadReport& report)
-            { return report.getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS; });
+            [](const DownloadReport& report) { return report.getStatus() == RepositoryStatus::SUCCESS; });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
 

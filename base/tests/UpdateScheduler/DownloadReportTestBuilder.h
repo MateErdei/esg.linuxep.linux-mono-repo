@@ -1,13 +1,11 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "Common/DownloadReport/DownloadReport.h"
+#include "Common/DownloadReport/ProductInfo.h"
+#include "Common/DownloadReport/RepositoryStatus.h"
 
 #include <string>
 
-using SulDownloader::suldownloaderdata::RepositoryStatus;
-
-namespace SulDownloader::suldownloaderdata
-{
     static const std::string StartTimeTest{ "20180812 10:00:00" };
     static const std::string FinishTimeTest{ "20180812 11:00:00" };
     static const std::string PreviousStartTime{ "20180811 10:00:00" };
@@ -26,45 +24,45 @@ namespace SulDownloader::suldownloaderdata
             Later
         };
 
-        static SulDownloader::suldownloaderdata::ProductReport upgradedBaseProduct()
+        static Common::DownloadReport::ProductReport upgradedBaseProduct()
         {
-            SulDownloader::suldownloaderdata::ProductReport report;
+            Common::DownloadReport::ProductReport report;
             report.name = "BaseName";
             report.rigidName = "BaseRigidName";
             report.downloadedVersion = "0.5.0";
             report.installedVersion = "0.5.0";
             report.errorDescription.clear();
-            report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
+            report.productStatus = Common::DownloadReport::ProductReport::ProductStatus::Upgraded;
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::ProductReport upgradedPlugin()
+        static Common::DownloadReport::ProductReport upgradedPlugin()
         {
-            SulDownloader::suldownloaderdata::ProductReport report;
+            Common::DownloadReport::ProductReport report;
             report.name = "PluginName";
             report.rigidName = "PluginRigidName";
             report.downloadedVersion = "0.5.0";
             report.installedVersion = "0.5.0";
             report.errorDescription.clear();
-            report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
+            report.productStatus = Common::DownloadReport::ProductReport::ProductStatus::Upgraded;
             return report;
         }
 
-        static std::vector<SulDownloader::suldownloaderdata::ProductReport> goodProducts()
+        static std::vector<Common::DownloadReport::ProductReport> goodProducts()
         {
-            std::vector<SulDownloader::suldownloaderdata::ProductReport> products;
+            std::vector<Common::DownloadReport::ProductReport> products;
             products.push_back(upgradedBaseProduct());
             products.push_back(upgradedPlugin());
             return products;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport goodReport(
+        static Common::DownloadReport::DownloadReport goodReport(
             UseTime useTime = UseTime::Later,
             bool upgraded = true,
             const std::string& sourceURL = "")
         {
-            SulDownloader::suldownloaderdata::DownloadReport report;
-            report.m_status = RepositoryStatus::SUCCESS;
+            Common::DownloadReport::DownloadReport report;
+            report.m_status = Common::DownloadReport::RepositoryStatus::SUCCESS;
             if (sourceURL.empty())
             {
                 report.m_urlSource = SophosURL;
@@ -97,12 +95,12 @@ namespace SulDownloader::suldownloaderdata
             {
                 for (auto& product : report.m_productReport)
                 {
-                    product.productStatus = ProductReport::ProductStatus::UpToDate;
+                    product.productStatus = Common::DownloadReport::ProductReport::ProductStatus::UpToDate;
                 }
             }
 
-            ProductReport baseMetadata = report.m_productReport[0];
-            ProductInfo productInfo;
+            Common::DownloadReport::ProductReport baseMetadata = report.m_productReport[0];
+            Common::DownloadReport::ProductInfo productInfo;
             productInfo.m_productName = baseMetadata.name;
             productInfo.m_version = baseMetadata.downloadedVersion;
             productInfo.m_installedVersion = baseMetadata.installedVersion;
@@ -112,11 +110,11 @@ namespace SulDownloader::suldownloaderdata
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport goodReportWithSubscriptions()
+        static Common::DownloadReport::DownloadReport goodReportWithSubscriptions()
         {
             auto report = goodReport();
-            std::vector<ProductReport> products;
-            ProductReport compSuite;
+            std::vector<Common::DownloadReport::ProductReport> products;
+            Common::DownloadReport::ProductReport compSuite;
             compSuite.rigidName = "ComponentSuite";
             compSuite.downloadedVersion = "v1";
             compSuite.installedVersion="0.5.0";
@@ -125,11 +123,11 @@ namespace SulDownloader::suldownloaderdata
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport goodReportWithBaseRigidNameSubscriptions()
+        static Common::DownloadReport::DownloadReport goodReportWithBaseRigidNameSubscriptions()
         {
             auto report = goodReport();
-            std::vector<ProductReport> products;
-            ProductReport compSuite;
+            std::vector<Common::DownloadReport::ProductReport> products;
+            Common::DownloadReport::ProductReport compSuite;
             compSuite.rigidName = "BaseRigidName";
             compSuite.downloadedVersion = "v1";
             compSuite.installedVersion="0.5.0";
@@ -141,15 +139,15 @@ namespace SulDownloader::suldownloaderdata
         static std::string goodReportString(UseTime useTime)
         {
             auto report = goodReport(useTime);
-            return SulDownloader::suldownloaderdata::DownloadReport::fromReport(report);
+            return Common::DownloadReport::DownloadReport::fromReport(report);
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport badReport(
+        static Common::DownloadReport::DownloadReport badReport(
             UseTime useTime,
-            RepositoryStatus status,
+            Common::DownloadReport::RepositoryStatus status,
             std::string errorDescription)
         {
-            SulDownloader::suldownloaderdata::DownloadReport report;
+            Common::DownloadReport::DownloadReport report;
             report.m_status = status;
             report.m_description = std::move(errorDescription);
             report.m_urlSource = SophosURL;
@@ -166,88 +164,87 @@ namespace SulDownloader::suldownloaderdata
             }
             report.m_sync_time = report.m_finishedTime;
 
-            if (status != RepositoryStatus::CONNECTIONERROR)
+            if (status != Common::DownloadReport::RepositoryStatus::CONNECTIONERROR)
             {
                 report.m_productReport = goodProducts();
                 for (auto& product : report.m_productReport)
                 {
                     product.productStatus =
-                        SulDownloader::suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
+                        Common::DownloadReport::ProductReport::ProductStatus::SyncFailed;
                 }
             }
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport getPluginFailedToInstallReport(UseTime useTime)
+        static Common::DownloadReport::DownloadReport getPluginFailedToInstallReport(UseTime useTime)
         {
-            auto report = badReport(useTime, RepositoryStatus::INSTALLFAILED, "");
-            report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
-            report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
+            auto report = badReport(useTime, Common::DownloadReport::RepositoryStatus::INSTALLFAILED, "");
+            report.m_productReport[0].productStatus = Common::DownloadReport::ProductReport::ProductStatus::Upgraded;
+            report.m_productReport[1].productStatus = Common::DownloadReport::ProductReport::ProductStatus::SyncFailed;
             report.m_productReport[1].errorDescription = "Plugin failed to install";
             return report;
         }
 
         static std::string getPluginFailedToInstallReportString(UseTime useTime)
         {
-            SulDownloader::suldownloaderdata::DownloadReport report = getPluginFailedToInstallReport(useTime);
-            return SulDownloader::suldownloaderdata::DownloadReport::fromReport(report);
+            Common::DownloadReport::DownloadReport report = getPluginFailedToInstallReport(useTime);
+            return Common::DownloadReport::DownloadReport::fromReport(report);
         }
 
-        static void setReportNoUpgrade(SulDownloader::suldownloaderdata::DownloadReport* report)
+        static void setReportNoUpgrade(Common::DownloadReport::DownloadReport* report)
         {
             for (auto& product : report->m_productReport)
             {
-                product.productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
+                product.productStatus = Common::DownloadReport::ProductReport::ProductStatus::UpToDate;
             }
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport installFailedTwoProducts()
+        static Common::DownloadReport::DownloadReport installFailedTwoProducts()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::INSTALLFAILED, "");
-            report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
-            report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::INSTALLFAILED, "");
+            report.m_productReport[0].productStatus = Common::DownloadReport::ProductReport::ProductStatus::SyncFailed;
+            report.m_productReport[1].productStatus = Common::DownloadReport::ProductReport::ProductStatus::SyncFailed;
             report.m_productReport[0].errorDescription = "Base failed to install";
             report.m_productReport[1].errorDescription = "Plugin failed to install";
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport installCaughtError()
+        static Common::DownloadReport::DownloadReport installCaughtError()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::UNSPECIFIED, "Error associated to install");
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::UNSPECIFIED, "Error associated to install");
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport downloadFailedError()
+        static Common::DownloadReport::DownloadReport downloadFailedError()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::DOWNLOADFAILED, "https://my.update.site/");
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::DOWNLOADFAILED, "https://my.update.site/");
             // When we get a download failure, we can't tell which product had the failure.
             // To match this the unit test also doesn't put errorDescription in the product reports.
-            report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
-            report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
+            report.m_productReport[0].productStatus = Common::DownloadReport::ProductReport::ProductStatus::UpToDate;
+            report.m_productReport[1].productStatus = Common::DownloadReport::ProductReport::ProductStatus::UpToDate;
             report.m_productReport[0].errorDescription = "";
             report.m_productReport[1].errorDescription = "";
 
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport baseProductMissing()
+        static Common::DownloadReport::DownloadReport baseProductMissing()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::PACKAGESOURCEMISSING, "BaseName");
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::PACKAGESOURCEMISSING, "BaseName");
 
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport bothProductsMissing()
+        static Common::DownloadReport::DownloadReport bothProductsMissing()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::PACKAGESOURCEMISSING, "BaseName;PluginName");
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::PACKAGESOURCEMISSING, "BaseName;PluginName");
 
             return report;
         }
 
-        static SulDownloader::suldownloaderdata::DownloadReport connectionError()
+        static Common::DownloadReport::DownloadReport connectionError()
         {
-            auto report = badReport(UseTime::Later, RepositoryStatus::CONNECTIONERROR, "Failed to synchronize");
+            auto report = badReport(UseTime::Later, Common::DownloadReport::RepositoryStatus::CONNECTIONERROR, "Failed to synchronize");
             return report;
         }
     };
-} // namespace SulDownloader::suldownloaderdata

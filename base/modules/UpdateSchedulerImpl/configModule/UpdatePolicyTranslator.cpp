@@ -6,7 +6,6 @@
 #include "Common/Policy/PolicyParseException.h"
 #include "Common/SslImpl/Digest.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 #include "UpdateSchedulerImpl/Logger.h"
 
 #include <algorithm>
@@ -24,11 +23,6 @@ namespace UpdateSchedulerImpl::configModule
         try
         {
             return _translatePolicy(policyXml);
-        }
-        catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
-        {
-            LOGERROR("Failed to parse policy: " << ex.what());
-            std::throw_with_nested(std::runtime_error(error));
         }
         catch (std::invalid_argument& ex)
         {

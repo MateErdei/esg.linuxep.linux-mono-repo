@@ -1,12 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "CatalogueInfo.h"
 
 #include "DownloadedProduct.h"
 #include "ProductMetadata.h"
+
+using Common::DownloadReport::ProductInfo;
+
 namespace SulDownloader::suldownloaderdata
 {
     void CatalogueInfo::addInfo(const std::string& line, const std::string& version, const std::string& productName)
@@ -24,7 +23,7 @@ namespace SulDownloader::suldownloaderdata
         return found->second;
     }
 
-    std::vector<suldownloaderdata::ProductInfo> CatalogueInfo::calculatedListProducts(
+    std::vector<ProductInfo> CatalogueInfo::calculatedListProducts(
         const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
         const suldownloaderdata::CatalogueInfo& catalogueInfo)
     {
@@ -35,7 +34,7 @@ namespace SulDownloader::suldownloaderdata
             productsMetadata.push_back(downloadedProduct.getProductMetadata());
         }
         SubProducts subProducts = ProductMetadata::combineSubProducts(productsMetadata);
-        std::vector<suldownloaderdata::ProductInfo> productsInfo;
+        std::vector<ProductInfo> productsInfo;
         for (auto& subProduct : subProducts)
         {
             std::string productName = catalogueInfo.productName(subProduct.m_line, subProduct.m_version);

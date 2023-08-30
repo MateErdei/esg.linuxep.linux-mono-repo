@@ -4,15 +4,17 @@
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h"
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+
+using namespace UpdateSchedulerImpl;
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
-using namespace SulDownloader;
-using namespace SulDownloader::suldownloaderdata;
+using Common::DownloadReport::DownloadReport;
+using Common::DownloadReport::RepositoryStatus;
 
 class TestDownloadReportAnalyser : public ::testing::Test
 {
@@ -782,10 +784,10 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     "urlSource": "Sophos",
     "syncTime": "20180821 121220"
 })sophos" };
-    suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
-    suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
+    DownloadReport report1 = DownloadReport::toReport(firstReport);
+    DownloadReport report2 = DownloadReport::toReport(lastReport);
 
-    std::vector<suldownloaderdata::DownloadReport> reports{ report1, report2 };
+    std::vector<DownloadReport> reports{ report1, report2 };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent;
@@ -829,10 +831,10 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
                 {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Linux Protection ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" },
                 { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos"
     };
-    suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
-    suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
+    DownloadReport report1 = DownloadReport::toReport(firstReport);
+    DownloadReport report2 = DownloadReport::toReport(lastReport);
 
-    std::vector<suldownloaderdata::DownloadReport> reports{ report1, report2 };
+    std::vector<DownloadReport> reports{ report1, report2 };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent;

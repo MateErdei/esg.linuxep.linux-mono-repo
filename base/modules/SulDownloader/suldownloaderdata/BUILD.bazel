@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -18,7 +18,6 @@ soph_cc_library(
         "//modules/Common/UtilityImpl:StrError",
         "//modules/Common/UtilityImpl:StringUtils",
         "//modules/Common/UtilityImpl:TimeUtils",
-        ":DownloadReport",
         "@com_google_protobuf//:protobuf",
     ],
     visibility = [
@@ -26,16 +25,7 @@ soph_cc_library(
         "//tests/SulDownloader:__pkg__",
     ],
     deps = [
+        "//modules/Common/DownloadReport",
         "//modules/Common/Policy",
     ],
-)
-
-cc_proto_library(
-    name = "DownloadReport",
-    deps = [":DownloadReport_proto"],
-)
-
-proto_library(
-    name = "DownloadReport_proto",
-    srcs = ["DownloadReport.proto"],
 )

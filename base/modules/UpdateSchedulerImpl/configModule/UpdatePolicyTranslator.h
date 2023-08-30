@@ -6,7 +6,6 @@
 #include "Common/Policy/ESMVersion.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/Threads/LockableData.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "UpdateScheduler/IMapHostCacheId.h"
 
 #include <chrono>
