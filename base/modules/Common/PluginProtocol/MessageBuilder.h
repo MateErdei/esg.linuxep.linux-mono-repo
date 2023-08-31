@@ -4,8 +4,8 @@
 
 #include "DataMessage.h"
 
-#include "Common/PluginApi/IPluginCallbackApi.h"
 #include "Common/PluginApi/StatusInfo.h"
+
 namespace Common::PluginProtocol
 {
     class MessageBuilder

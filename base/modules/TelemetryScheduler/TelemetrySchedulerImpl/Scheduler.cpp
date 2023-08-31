@@ -2,7 +2,6 @@
 
 #include "Scheduler.h"
 
-#include "NoPolicyAvailableException.h"
 #include "PluginCallback.h"
 #include "SchedulerProcessor.h"
 #include "SchedulerTask.h"
@@ -12,8 +11,8 @@
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
+#include "Common/PluginApi/NoPolicyAvailableException.h"
 #include "Common/TaskQueue/ITaskQueue.h"
-#include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
 

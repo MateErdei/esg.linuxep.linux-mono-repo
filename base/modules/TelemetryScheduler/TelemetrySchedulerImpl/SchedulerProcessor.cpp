@@ -6,7 +6,7 @@
 #include "SchedulerStatusSerialiser.h"
 #include "SchedulerTask.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Exceptions/NestedException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"

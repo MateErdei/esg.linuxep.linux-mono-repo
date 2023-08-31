@@ -7,6 +7,11 @@
 #include "Common/FileSystem/IFileTooLargeException.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Telemetry/TelemetryImpl/BaseTelemetryReporter.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -16,11 +21,6 @@
 #include <regex>
 #include <utility>
 #include <vector>
-
-#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
 
 using ::testing::Return;
 using ::testing::StrictMock;
@@ -312,7 +312,6 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithTypeError)
 {
-    testing::internal::CaptureStderr();
     auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(

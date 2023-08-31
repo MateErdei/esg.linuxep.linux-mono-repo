@@ -2,8 +2,6 @@
 
 #include "PluginTelemetryReporter.h"
 
-#include "TelemetryProcessor.h"
-
 #include "Telemetry/LoggerImpl/Logger.h"
 
 namespace Telemetry

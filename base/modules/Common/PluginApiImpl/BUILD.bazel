@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -12,15 +13,15 @@ soph_cc_library(
         "//modules/Common/FileSystem",
         "//modules/Common/Logging",
         "//modules/Common/PluginCommunication",
-        "//modules/Common/UtilityImpl:ProjectNames",
         "//modules/Common/TelemetryHelperImpl",
+        "//modules/Common/UtilityImpl:ProjectNames",
     ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/PluginApi",
+        "//modules/Common/PluginApi:PluginApi_interface",
         "//modules/Common/PluginProtocol",
         "//modules/Common/ZMQWrapperApi",
     ],

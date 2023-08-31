@@ -1,0 +1,41 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "TelemetrySchedulerImpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "ITaskQueue.h",
+        "Scheduler.h",
+        "SchedulerProcessor.h",
+        "SchedulerStatus.h",
+        "SchedulerStatusSerialiser.h",
+        "SleepyThread.h",
+        "TaskQueue.h",
+    ],
+    implementation_deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/OSUtilitiesImpl",
+        "//modules/Common/Policy",
+        "//modules/Common/TaskQueue",
+        "//modules/Common/TelemetryHelperImpl",
+        "//modules/Common/UtilityImpl:TimeUtils",
+        "//modules/Common/ZeroMQWrapper",
+        "//modules/TelemetryScheduler/LoggerImpl",
+        "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//products/Base/TelemetryScheduler:__pkg__",
+        "//tests/TelemetryScheduler:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/PluginApi",
+        "//modules/Common/Process",
+        "//modules/Common/TelemetryConfigImpl",
+        "//modules/Common/Threads",
+    ],
+)

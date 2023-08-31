@@ -1,5 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "IIPUtils.h"
+#include "Common/OSUtilities/IIPUtils.h"
 
 #include "Common/OSUtilities/IDnsLookup.h"
 #include "Common/OSUtilities/ILocalIP.h"

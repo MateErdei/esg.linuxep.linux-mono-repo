@@ -4,7 +4,7 @@
 
 #include "TelemetryProcessor.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 #include "Common/UtilityImpl/FileUtils.h"

@@ -12,7 +12,6 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/Logging/FileLoggingSetup.h"
-#include "Common/PluginCommunication/IPluginProxy.h"
 #include "Common/PluginCommunicationImpl/PluginProxy.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/TelemetryConfigImpl/Config.h"

@@ -2,12 +2,13 @@
 
 #include "TelemetryUtils.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Telemetry/LoggerImpl/Logger.h"
 
 #include <json.hpp>
+
 namespace Telemetry
 {
     std::string TelemetryUtils::getCloudPlatform()

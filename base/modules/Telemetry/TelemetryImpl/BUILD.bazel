@@ -1,0 +1,48 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "TelemetryImpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "BaseTelemetryReporter.h",
+        "ISystemTelemetryCollector.h",
+        "ITelemetryProvider.h",
+        "PluginTelemetryReporter.h",
+        "SystemTelemetryCollectorImpl.h",
+        "SystemTelemetryReporter.h",
+        "Telemetry.h",
+        "TelemetryProcessor.h",
+        "TelemetryUtils.h",
+    ],
+    implementation_deps = [
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/CurlWrapper",
+        "//modules/Common/HttpRequestsImpl",
+        "//modules/Common/PluginCommunicationImpl",
+        "//modules/Common/PluginRegistryImpl",
+        "//modules/Common/Process",
+        "//modules/Common/ProxyUtils",
+        "//modules/Common/UtilityImpl:FileUtils",
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/WatchdogConstants",
+        "//modules/Common/XmlUtilities",
+        "//modules/Common/ZMQWrapperApi",
+        "//modules/Telemetry/LoggerImpl",
+    ],
+    visibility = [
+        "//products/Base/Telemetry:__pkg__",
+        "//tests/Telemetry:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/FileSystem",
+        "//modules/Common/TelemetryConfigImpl",
+        "//modules/Common/TelemetryHelperImpl",
+        "//modules/Common/UtilityImpl:TimeUtils",
+        "//thirdparty/nlohmann-json",
+    ],
+)

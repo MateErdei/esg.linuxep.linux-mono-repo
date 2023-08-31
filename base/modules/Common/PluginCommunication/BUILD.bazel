@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -12,7 +13,7 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/PluginApi",
+        "//modules/Common/PluginApi:PluginProtocolShared",
         "//modules/Common/PluginProtocol",
     ],
 )

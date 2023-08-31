@@ -4,7 +4,9 @@
 
 #include "ITelemetryProvider.h"
 
-#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include "Common/PluginCommunication/IPluginProxy.h"
+
+#include <memory>
 
 namespace Telemetry
 {

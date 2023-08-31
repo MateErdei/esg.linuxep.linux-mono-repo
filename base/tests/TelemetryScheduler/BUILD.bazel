@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TelemetrySchedulerTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystem",
+        "//modules/Common/ProcessImpl",
+        "//modules/TelemetryScheduler/TelemetrySchedulerImpl",
+        "//tests/Common/ApplicationConfiguration",
+        "//tests/Common/Helpers",
+        "//tests/Common/UtilityImpl:TestStringGenerator",
+        "//thirdparty/nlohmann-json",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

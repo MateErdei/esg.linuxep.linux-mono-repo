@@ -1,0 +1,19 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TelemetryTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/ApplicationConfiguration",
+        "//modules/Common/Logging",
+        "//modules/Common/PluginCommunication",
+        "//modules/Common/ProcessImpl",
+        "//modules/Telemetry/TelemetryImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

@@ -2,7 +2,7 @@ add_library(osutilitiesimpl SHARED
         ../OSUtilities/IIPUtils.h
         ../OSUtilities/ILocalIP.h
         ../OSUtilities/IDnsLookup.h
-        ../OSUtilities/IIPUtils.cpp
+        IIPUtils.cpp
         ../OSUtilities/IPlatformUtils.h
         ../OSUtilities/IPlatformUtilsException.h
         ../OSUtilities/ISystemUtils.h

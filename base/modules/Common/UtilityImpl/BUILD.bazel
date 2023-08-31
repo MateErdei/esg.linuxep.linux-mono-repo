@@ -142,3 +142,16 @@ soph_cc_library(
         "//modules:__subpackages__",
     ],
 )
+
+soph_cc_library(
+    name = "FileUtils",
+    srcs = ["FileUtils.cpp"],
+    hdrs = ["FileUtils.h"],
+    implementation_deps = [
+        "//modules/Common/FileSystem",
+        "@boost//:property_tree",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+    ],
+)
