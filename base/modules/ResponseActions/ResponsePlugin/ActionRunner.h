@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 #include "IActionRunner.h"
+#include "TaskQueue.h"
 
 #include "Common/Process/IProcess.h"
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
@@ -20,7 +21,8 @@ namespace ResponsePlugin
     class ActionRunner : public IActionRunner
     {
     public:
-        void runAction(
+      explicit ActionRunner(std::shared_ptr<TaskQueue> task);
+      void runAction(
             const std::string& action,
             const std::string& correlationId,
             const std::string& type,
@@ -32,6 +34,7 @@ namespace ResponsePlugin
         [[maybe_unused]] bool kill(const std::string& msg);
         void awaitPostAction();
 
+        std::shared_ptr<TaskQueue> m_task;
         std::atomic<bool> m_isRunning = false;
         Common::Process::IProcessPtr m_process;
         std::string m_executablePath;

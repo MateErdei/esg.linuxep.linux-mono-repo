@@ -44,7 +44,7 @@ RA Plugin runs actions in order
     Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json    id2
 
     Wait Until Keyword Succeeds
-    ...  80 secs
+    ...  20 secs
     ...  10 secs
     ...  Check Log Contains In Order   ${RESPONSE_ACTIONS_LOG_PATH}
         ...  Received new Action

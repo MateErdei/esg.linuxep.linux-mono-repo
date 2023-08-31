@@ -13,9 +13,7 @@ namespace ResponsePlugin
     {
         enum class TaskType
         {
-            ACTION,
-            STOP
-        };
+            ACTION, STOP, CHECK_QUEUE };
         TaskType m_taskType;
         std::string m_content;
         std::string m_appId = "";

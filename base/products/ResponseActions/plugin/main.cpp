@@ -33,7 +33,7 @@ int main()
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
-    auto runner = std::make_unique<ResponsePlugin::ActionRunner>();
+    auto runner = std::make_unique<ResponsePlugin::ActionRunner>(queueTask);
 
     try
     {

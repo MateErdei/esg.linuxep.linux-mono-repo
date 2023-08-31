@@ -17,7 +17,9 @@ using namespace Common::Process;
 
 namespace ResponsePlugin
 {
-    void sendFailedResponse(ResponseResult result, const std::string& requestType, const std::string& correlationId)
+ActionRunner::ActionRunner(std::shared_ptr<ResponsePlugin::TaskQueue> task)
+    : m_task(std::move(task)) {}
+void sendFailedResponse(ResponseResult result, const std::string& requestType, const std::string& correlationId)
     {
         LOGINFO("Response Actions plugin sending failed response to Central on behalf of Action Runner process");
         nlohmann::json response;
@@ -115,7 +117,9 @@ namespace ResponsePlugin
                 }
                 LOGINFO("Finished action: " << correlationId);
                 m_isRunning = false;
-            });
+          m_task->push(ResponsePlugin::Task{
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE, ""});
+        });
     }
 
     void ActionRunner::killAction()

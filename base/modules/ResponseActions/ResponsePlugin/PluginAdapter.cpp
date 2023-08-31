@@ -45,23 +45,20 @@ namespace ResponsePlugin
                             m_runner->killAction();
                         }
                         return;
-                    case Task::TaskType::ACTION:
-                        if (!m_runner->getIsRunning() && m_actionQueue.empty())
-                        {
-                            // if queue is empty and no action is running, run new action straight away
-                            processAction(task.m_content, task.m_correlationId);
+                    case Task::TaskType::CHECK_QUEUE:
+                        if (!m_runner->getIsRunning() &&
+                            !m_actionQueue.empty()) {
+                            processAction(m_actionQueue[0].m_content,
+                                          m_actionQueue[0].m_correlationId);
+                            m_actionQueue.pop_front();
                         }
-                        else
-                        {
-                            // put new action on back of queue
-                            m_actionQueue.emplace_back(task);
-                            if (!m_runner->getIsRunning())
-                            {
-                                // if there is no action running now run next action on queue now instead of waiting 60
-                                // seconds
-                                processAction(m_actionQueue[0].m_content, m_actionQueue[0].m_correlationId);
-                                m_actionQueue.pop_front();
-                            }
+                        break;
+                    case Task::TaskType::ACTION:
+                        m_actionQueue.emplace_back(task);
+                        if (!m_runner->getIsRunning()) {
+                            processAction(m_actionQueue[0].m_content,
+                                          m_actionQueue[0].m_correlationId);
+                            m_actionQueue.pop_front();
                         }
                         break;
                 }

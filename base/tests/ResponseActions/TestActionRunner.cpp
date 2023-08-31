@@ -43,13 +43,16 @@ TEST_F(TestActionRunner, Success)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 34);
     EXPECT_TRUE(waitForLog("Trigger process at: /opt/sophos-spl/plugins/responseactions/bin/sophos_actions for action: "
                            "correlationid with timeout: 34"));
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Action correlationid has succeeded"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
@@ -82,7 +85,8 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", UPLOAD_FOLDER_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
@@ -90,6 +94,8 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
     EXPECT_TRUE(waitForLog("Action runner reached time out of 100 secs, correlation ID: correlationid"));
     EXPECT_TRUE(
         waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
@@ -123,7 +129,8 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", UPLOAD_FILE_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
@@ -132,6 +139,8 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
     EXPECT_TRUE(waitForLog("Action runner reached time out of 100 secs, correlation ID: correlationid"));
     EXPECT_TRUE(
         waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 TEST_F(TestActionRunner, ProcessRunning_RespondsToSIGTERM)
@@ -151,7 +160,8 @@ TEST_F(TestActionRunner, ProcessRunning_RespondsToSIGTERM)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", DOWNLOAD_FILE_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
@@ -187,7 +197,8 @@ TEST_F(TestActionRunner, ProcessRunning_RequiresSIGKILL)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
@@ -195,6 +206,8 @@ TEST_F(TestActionRunner, ProcessRunning_RequiresSIGKILL)
     EXPECT_TRUE(waitForLog("Action Runner had to be killed after it carried on running unexpectedly"));
     EXPECT_TRUE(
         waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 TEST_F(TestActionRunner, runActionHandlesMissingBinaryWithInternalErrorResultCode)
@@ -218,10 +231,13 @@ TEST_F(TestActionRunner, runActionHandlesMissingBinaryWithInternalErrorResultCod
     ON_CALL(mock, getResponseActionRunnerPath()).WillByDefault(Return("./this/is/not/a/binary"));
     Common::ApplicationConfiguration::replaceApplicationPathManager(std::move(mockAppManager));
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
     actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 10);
     EXPECT_TRUE(
         waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 TEST_F(TestActionRunner, runActionHandlesNonExecutableBinaryWithInternalErrorResultCode)
@@ -254,11 +270,14 @@ TEST_F(TestActionRunner, runActionHandlesNonExecutableBinaryWithInternalErrorRes
             return mockProcess;
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
     actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 10);
     EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 13"));
     EXPECT_TRUE(
         waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+    EXPECT_EQ(queueTask->pop().m_taskType,
+              ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
 
 class TestActionRunnerParameterized : public ::testing::TestWithParam<std::pair<std::string, std::string>>
@@ -297,7 +316,8 @@ TEST_P(TestActionRunnerParameterized, SendFailedResponseAssignsCorrectTypes)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     std::stringstream expected;
     expected << R"({"result":3,"type":")" << responseType << R"("})";
@@ -441,7 +461,8 @@ TEST_P(TestSuccessTelemetry, Success_Telemetry_Increments_Action)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", requestType, 1);
     while (actionRunner.getIsRunning())
@@ -490,7 +511,8 @@ TEST_P(TestFailureTelemetry, Failed_Telemetry_Increments_Action)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", requestType, 1);
     while (actionRunner.getIsRunning())
@@ -560,7 +582,8 @@ TEST_P(TestTimeoutTelemetry, Timeout_Telemetry_Increments_Action)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", requestType, 1);
     while (actionRunner.getIsRunning())
@@ -610,7 +633,8 @@ TEST_P(TestTimeoutTelemetry, Hang_Telemetry_Increments_Action)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", requestType, 1);
     while (actionRunner.getIsRunning())
@@ -666,7 +690,8 @@ TEST_P(TestExpiredTelemetry, Expired_Telemetry_Increments_Action)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    ActionRunner actionRunner;
+    auto queueTask = std::make_shared<TaskQueue>();
+    ActionRunner actionRunner(queueTask);
 
     actionRunner.runAction("action", "correlationid", requestType, 1);
     while (actionRunner.getIsRunning())
