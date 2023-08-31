@@ -169,7 +169,6 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
     hostname = socket.gethostname()
     base_build_date, base_product_version = get_build_date_and_version("/opt/sophos-spl/base/VERSION.ini")
     edr_build_date, edr_product_version = get_build_date_and_version("/opt/sophos-spl/plugins/edr/VERSION.ini")
-    # mtr_build_date, mtr_product_version = get_build_date_and_version("/opt/sophos-spl/plugins/mtr/VERSION.ini")
 
     duration = end_time - start_time
 
@@ -189,10 +188,6 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
     if edr_product_version and edr_build_date:
         result["edr_product_version"] = edr_product_version
         result["edr_build_date"] = edr_build_date
-
-    # if mtr_product_version and mtr_build_date:
-    #     result["mtr_product_version"] = mtr_product_version
-    #     result["mtr_build_date"] = mtr_build_date
 
     if dry_run:
         logging.info(result)
