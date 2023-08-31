@@ -116,7 +116,8 @@ git config --global rerere.enabled true
 
 # Note - To make this smoother you can cache your ssh key passphrase using ssh-agent and adding your private key
 # Start ssh-agent:
-if ps -p $SSH_AGENT_PID &> /dev/null
+
+if [[ -n $SSH_AGENT_PID ]]
 then
    echo "ssh-agent is already running"
    # Do something knowing the pid exists, i.e. the process with $PID is running
@@ -125,7 +126,6 @@ else
 
     if [ -f ./path_to_git_ssh_key ]
     then
-        #tr -d '\n' < yourfile.txt
         sshkey=$(cat ./path_to_git_ssh_key)
     else
         read -p 'git ssh key path (e.g. "/home/user/.ssh/id_my_key"): ' sshkey
@@ -136,7 +136,7 @@ else
     [ -f "$sshkey" ] || exit 1
     ssh-add "$sshkey"
 fi
-
+echo "SSH_AGENT_PID = $SSH_AGENT_PID"
 
 mkdir -p "$MERGE_DIR"
 
