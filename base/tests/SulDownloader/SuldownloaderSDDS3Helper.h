@@ -51,7 +51,7 @@ struct Sdds3SimplifiedDownloadReport {
   bool shouldContainSyncTime;
   std::vector<ProductInfo> WarehouseComponents;
 };
-
+namespace {
 class TestSulDownloaderSdds3Base {
 public:
   static std::vector<std::string> defaultOverrideSettings() {
@@ -563,3 +563,5 @@ protected:
   std::unique_ptr<MockSdds3Repository> mockSdds3Repo_;
   Tests::ScopedReplaceFileSystem m_replacer;
 };
+
+} // namespace
