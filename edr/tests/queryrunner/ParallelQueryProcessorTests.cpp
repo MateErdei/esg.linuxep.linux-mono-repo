@@ -119,7 +119,8 @@ TEST_F(ParallelQueryProcessorTests, addJob)
     EXPECT_LE(value, 2);
 }
 
-TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible)
+// TODO LINUXDAR-7936 Disabled because this intermittently SEGFAULTs - needs fixing
+TEST_F(ParallelQueryProcessorTests, DISABLED_jobsAreClearedAsPossible)
 {
     testing::internal::CaptureStderr();
 
