@@ -8,6 +8,8 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/DownloadReport/DownloadReport.h"
+#include "Common/DownloadReport/RepositoryStatus.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystemImpl/PidLockFile.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -20,7 +22,7 @@
 #include "SulDownloader/sdds3/ISusRequester.h"
 #include "SulDownloader/sdds3/SDDS3Repository.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "SulDownloader/suldownloaderdata/DownloadReportBuilder.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 #include "SulDownloader/suldownloaderdata/TimeTracker.h"
 #include "SulDownloader/suldownloaderdata/VersigImpl.h"
@@ -35,6 +37,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 using namespace Common::Policy;
+using namespace Common::DownloadReport;
 using namespace SulDownloader::suldownloaderdata;
 using DownloadedProductVector = std::vector<DownloadedProduct>;
 using ProductReportVector = std::vector<ProductReport>;
@@ -161,9 +164,9 @@ public:
     return products;
   }
 
-  std::vector<suldownloaderdata::ProductInfo>
+  std::vector<ProductInfo>
   productsInfo(const DownloadedProductVector &products) {
-    std::vector<suldownloaderdata::ProductInfo> info;
+    std::vector<ProductInfo> info;
     for (auto &product : products) {
       ProductInfo pInfo;
       ProductMetadata metadata = product.getProductMetadata();
