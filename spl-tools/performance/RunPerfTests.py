@@ -18,7 +18,7 @@ from artifactory import ArtifactoryPath
 
 from PerformanceResources import *
 from RunResponseActions import *
-from Annotations import annotate_graphs, add_annotation, delete_annotations
+from Annotations import annotate_graphs, add_annotation, delete_annotations, patch_onaccess_performance_test_annotation
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
@@ -102,11 +102,11 @@ def get_test_inputs_from_base():
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "cloudClient.py")):
         logging.error(f"cloudClient.py does not exist: {os.listdir(SCRIPT_DIR)}")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py")):
         logging.error(f"SophosHTTPSClient.py does not exist: {os.listdir(SCRIPT_DIR)}")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     os.environ["CLOUD_CLIENT_SCRIPT"] = os.path.join(SCRIPT_DIR, "cloudClient.py")
 
@@ -119,11 +119,11 @@ def get_test_inputs_from_event_journaler():
 
     if not os.path.exists(event_pub_sub_tool_path):
         logging.error(f"EventPubSub does not exist: {os.listdir(SCRIPT_DIR)}")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     if not os.path.exists(journal_reader_tool_path):
         logging.error(f"JournalReader does not exist: {os.listdir(SCRIPT_DIR)}")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     os.chmod(event_pub_sub_tool_path, os.stat(event_pub_sub_tool_path).st_mode | stat.S_IEXEC)
     os.chmod(journal_reader_tool_path, os.stat(journal_reader_tool_path).st_mode | stat.S_IEXEC)
@@ -196,7 +196,7 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
         if r.status_code not in [200, 201]:
             logging.error(f"Failed to store test result: {str(result)}")
             logging.error(f"Status code: {r.status_code}, text: {r.text}")
-            exit(1)
+            exit(Jenkins_Job_Return_Code.FAILURE)
         else:
             logging.info(f"Stored result for: {event_name}")
             logging.info(f"Content: {result}")
@@ -220,7 +220,7 @@ def run_gcc_perf_test():
     add_annotation(tag="gcc-build", start_time=int(start_time * 1000), end_time=int(end_time * 1000), text="Building GCC")
 
     if result.returncode != 0:
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
 
 def enable_perf_dump():
@@ -493,10 +493,10 @@ def run_local_live_query_perf_test():
 
     if failed_queries == len(queries_to_run):
         logging.error("Running all local live queries failed")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
     elif failed_queries > 0:
         logging.warning("Running some local live queries failed")
-        exit(2)
+        exit(Jenkins_Job_Return_Code.UNSTABLE)
 
 
 def run_local_live_query_detections_perf_test():
@@ -548,19 +548,76 @@ def run_local_live_query_detections_perf_test():
 
     if failed_queries == len(queries_to_run):
         logging.error("Running all local live detection queries failed")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
     elif failed_queries > 0:
         logging.warning("Running some local live detection queries failed")
-        exit(2)
+        exit(Jenkins_Job_Return_Code.UNSTABLE)
+
+
+def run_on_access_performance_test(client_id, client_secret, client_region, on_write_toggle, on_read_toggle):
+    """
+    Test to measure how much On-Access affects performance of system. RunOnAccessTest.py changes On-Access settings in
+    Central every 8 hours (starting from midnight).
+    00:00 - 08:00, On-Read is on but On-Write is off
+    08:00 - 16:00, On-read is off but On-Write is on
+    16:00 - 00:00, On-read is on and On-Write is on
+    Reason for changing On-Access settings via Central API and not just changing local ALC policy is that a different
+    test could then override the change. Changing settings via Central makes them persist
+    """
+
+    logging.info(f"Running on access test, on_write setting: {on_write_toggle}, on_read setting: {on_read_toggle}")
+    on_access_test_script = os.path.join(SCRIPT_DIR, "RunOnAccessTest.py")
+    command = ['python3', on_access_test_script,
+               '-i', client_id,
+               '-p', client_secret,
+               '-r', client_region]
+
+    if on_write_toggle:
+        command.append('--on-access-write')
+    else:
+        command.append('--no-on-access-write')
+
+    if on_read_toggle:
+        command.append('--on-access-read')
+    else:
+        command.append('--no-on-access-read')
+
+    get_test_inputs_from_base() # Getting cloudCLient.py and SophosHTTPSClient.py
+    process_result = subprocess.run(command, timeout=60, stdout=subprocess.PIPE, encoding="utf-8")
+    if process_result.returncode != Jenkins_Job_Return_Code.SUCCESS:
+        logging.error(f"Running On Access test and trying to change settings through central failed. "
+                      f"return code: {process_result.returncode}, "
+                      f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+        exit(process_result.returncode)
+    else:
+        # Not trivial to work with annotations as the test has three states that each last 8 hours
+        # Current solution is to add an annotation when on-write or on-read get turned on but not specify an end time
+        # Once on-read or on-write get turned off, the annotation is patched to contain the end time
+        current_time = get_current_unix_epoch_in_seconds()
+        current_time_milliseconds = int(current_time * 1000)
+        if on_write_toggle:
+            on_write_ret = add_annotation(tag="on-access-write", start_time=current_time_milliseconds, end_time=None,
+                                          text="On-Access On-Write setting toggle")
+        else:
+            on_write_ret = patch_onaccess_performance_test_annotation(tag="on-access-write", end_time=current_time_milliseconds)
+
+        if on_read_toggle:
+            on_read_ret = add_annotation(tag="on-access-read", start_time=current_time_milliseconds, end_time=None,
+                                         text="On-Access On-Read setting toggle")
+        else:
+            on_read_ret = patch_onaccess_performance_test_annotation(tag="on-access-read", end_time=current_time_milliseconds)
+
+        if on_write_ret != 0 or on_read_ret != 0:
+            exit(Jenkins_Job_Return_Code.FAILURE)
 
 
 def run_central_live_query_perf_test(client_id, email, password, region):
     if client_id is None and email is None:
         logging.error("Please enter API client ID or email, use -h for help.")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
     if not password:
         logging.error("Please enter password, use -h for help.")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     get_test_inputs_from_base()
     wait_for_plugin_to_be_installed('edr')
@@ -609,10 +666,10 @@ def run_central_live_query_perf_test(client_id, email, password, region):
 
     if failed_queries == len(queries_to_run):
         logging.error("Running all central live queries failed")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
     elif failed_queries > 0:
         logging.warning("Running some central live queries failed")
-        exit(2)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
 
 def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
@@ -644,7 +701,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
 
     if not result:
         logging.error("No result from RunLocalLiveTerminal.py")
-        exit(1)
+        exit(Jenkins_Job_Return_Code.FAILURE)
 
     # Have to handle the two variety of tests here:
     # 1) Test plan wants a session to remain open for 5 mins to check for resource usage during that time
@@ -704,7 +761,7 @@ def run_event_journaler_ingestion_test():
 
         if not result:
             logging.error("No result from RunEventJournalerIngestionTest.py")
-            exit(1)
+            exit(Jenkins_Job_Return_Code.FAILURE)
 
         logging.info(result)
         event_name = f"event-journaler-ingestion_{test_args['name']}"
@@ -716,7 +773,7 @@ def run_safestore_database_content_test():
     start_time = get_current_unix_epoch_in_seconds()
 
     get_safestore_tool()
-    return_code = 0
+    return_code = Jenkins_Job_Return_Code.SUCCESS
     quarantined_files = 0
     unquarantined_files = 0
     twenty_four_hours = 24 * 60 * 60
@@ -745,9 +802,9 @@ def run_safestore_database_content_test():
                 unquarantined_files += 1
 
     if unquarantined_files == len(safestore_db_content):
-        return_code = 1
+        return_code = Jenkins_Job_Return_Code.FAILURE
     elif 0 < unquarantined_files:
-        return_code = 2
+        return_code = Jenkins_Job_Return_Code.UNSTABLE
 
     custom_data = {"quarantined_files": quarantined_files, "unquarantined_files": unquarantined_files}
 
@@ -764,7 +821,7 @@ def run_safestore_restoration_test():
     td_mark = log_utils.get_sophos_threat_detector_log_mark()
     av_mark = log_utils.get_av_log_mark()
 
-    return_code, restored_files, unrestored_files = 0, 0, 0
+    return_code, restored_files, unrestored_files = Jenkins_Job_Return_Code.SUCCESS, 0, 0
     corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
     tmp_corc_policy_path = "/tmp/CORC_policy.xml"
     modified_policy_path = "/tmp/whitelist_CORC_policy.xml"
@@ -812,13 +869,13 @@ def run_safestore_restoration_test():
 
         if unrestored_files == len(expected_malware):
             logging.error("No threats were restored from SafeStore database")
-            return_code = 1
+            return_code = Jenkins_Job_Return_Code.FAILURE
         elif 0 < unrestored_files:
-            return_code = 2
+            return_code = Jenkins_Job_Return_Code.UNSTABLE
 
     except Exception as e:
         logging.error(f"Failed to restore SafeStore database: {str(e)}")
-        return_code = 1
+        return_code = Jenkins_Job_Return_Code.FAILURE
 
     finally:
         if os.path.exists(tmp_corc_policy_path):
@@ -836,7 +893,7 @@ def run_safestore_restoration_test():
 
 
 def run_response_actions_download_files_test(region, env, tenant_id):
-    return_code = 0
+    return_code = Jenkins_Job_Return_Code.SUCCESS
     failed_file_downloads = 0
 
     start_time = get_current_unix_epoch_in_seconds()
@@ -879,15 +936,15 @@ def run_response_actions_download_files_test(region, env, tenant_id):
 
     if failed_file_downloads == 10:
         logging.error(f"Failed to download all response actions files")
-        return_code = 1
+        return_code = Jenkins_Job_Return_Code.FAILURE
     elif 0 < failed_file_downloads:
         logging.warning(f"Failed to download response actions files {failed_file_downloads} times")
-        return_code = 2
+        return_code = Jenkins_Job_Return_Code.UNSTABLE
     exit(return_code)
 
 
 def run_response_actions_upload_files_test(region, env, tenant_id):
-    return_code = 0
+    return_code = Jenkins_Job_Return_Code.SUCCESS
     failed_file_uploads = 0
 
     start_time = get_current_unix_epoch_in_seconds()
@@ -912,15 +969,15 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
 
     if failed_file_uploads == 10:
         logging.error(f"Failed to upload all response actions files")
-        return_code = 1
+        return_code = Jenkins_Job_Return_Code.FAILURE
     elif 0 < failed_file_uploads:
         logging.warning(f"Failed to upload response actions files {failed_file_uploads} times")
-        return_code = 2
+        return_code = Jenkins_Job_Return_Code.UNSTABLE
     exit(return_code)
 
 
 def run_response_actions_list_files_test(region, env, tenant_id):
-    return_code = 0
+    return_code = Jenkins_Job_Return_Code.SUCCESS
     matching_dir_content = 0
     expected_dir_content = set(f for f in os.listdir("/home/pair") if not f.startswith("."))
 
@@ -945,11 +1002,11 @@ def run_response_actions_list_files_test(region, env, tenant_id):
 
     if matching_dir_content == 0:
         logging.error(f"Command output did not match expected directory content: {expected_dir_content}")
-        return_code = 1
+        return_code = Jenkins_Job_Return_Code.FAILURE
     elif matching_dir_content < 10:
         logging.warning(
             f"Command output did not match expected directory content {matching_dir_content} times: {expected_dir_content}")
-        return_code = 2
+        return_code = Jenkins_Job_Return_Code.UNSTABLE
     exit(return_code)
 
 
@@ -966,6 +1023,7 @@ def add_options():
                                  'event-journaler-ingestion',
                                  'av-onaccess-slow',
                                  'av-onaccess',
+                                 'onaccess-performance',
                                  'safestore-confirm-detections',
                                  'safestore-restore-database',
                                  'ra-file-download',
@@ -998,6 +1056,16 @@ def add_options():
                         help="Maximum number of files to create for the av-onaccess test")
     parser.add_argument('-M', '--max-file-count-slow', type=int, default=1000, action='store',
                         help="Maximum number of files to create for the av-onaccess-slow test")
+
+    parser.add_argument('--on-access-read', action='store_true',
+                        help="Toggle On-Access On-Read on for onaccess-performance test")
+    parser.add_argument('--no-on-access-read', dest='on-access-read', action='store_false',
+                        help="Toggle On-Access On-Read off for onaccess-performance test")
+
+    parser.add_argument('--on-access-write', action='store_true',
+                        help="Toggle On-Access On-Write on for onaccess-performance test")
+    parser.add_argument('--no-on-access-write', dest='on-access-write', action='store_false',
+                        help="Toggle On-Access On-Write off for onaccess-performance test")
 
     return parser
 
@@ -1032,6 +1100,9 @@ def main():
         run_onaccess_test(args.max_file_count)
     elif args.suite == 'av-onaccess-slow':
         run_slow_scan_onaccess_test(args.max_file_count_slow)
+    elif args.suite == 'onaccess-performance':
+        run_on_access_performance_test(args.client_id, args.password, args.central_env, args.on_access_write,
+                                       args.on_access_read)
     elif args.suite == 'safestore-confirm-detections':
         run_safestore_database_content_test()
     elif args.suite == 'safestore-restore-database':

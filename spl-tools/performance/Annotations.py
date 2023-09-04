@@ -23,6 +23,7 @@ COMPONENT_NAMES_TO_FORMAT = {
     "ServerProtectionLinux-Plugin-AV": "AV"
 }
 
+API_HOST = "https://sspl-alex-1.eng.sophos:3000"
 
 def get_grafana_auth():
     with open("/root/performance/grafana_token") as f:
@@ -40,7 +41,7 @@ def add_annotation(tag, start_time, text, end_time=None):
     hostname = socket.gethostname()
 
     headers = get_grafana_auth()
-    r = requests.get(f"https://sspl-alex-1.eng.sophos:3000/api/annotations?tags={hostname}&tags={tag}", headers=headers,
+    r = requests.get(f"{API_HOST}/api/annotations?tags={hostname}&tags={tag}", headers=headers,
                      verify=False)
     for i in r.json():
         # prevent duplicate annotations being created
@@ -56,7 +57,7 @@ def add_annotation(tag, start_time, text, end_time=None):
         "text": text
     }
 
-    r = requests.post('https://sspl-alex-1.eng.sophos:3000/api/annotations',
+    r = requests.post(f'{API_HOST}/api/annotations',
                       headers=headers,
                       json=annotation_json,
                       verify=False)
@@ -149,6 +150,47 @@ def add_osquery_restart_annotations():
     return annotation_failures
 
 
+def patch_onaccess_performance_test_annotation(tag, end_time):
+    hostname = socket.gethostname()
+    headers = get_grafana_auth()
+    r = requests.get(f"{API_HOST}/api/annotations?tags={hostname}&tags={tag}", headers=headers,
+                     verify=False)
+
+    # Can get multiple annotations back and only one of them should have the same start/end time
+    # If multiple annotations are found with same start/end time then something has gone wrong in RunPerfTests.py
+    # Or maybe the correct jenkins job did not run
+    annotation_id = None
+    for i in r.json():
+        if (i["time"] - i["timeEnd"]) == 0:
+            if annotation_id is not None:
+                logging.error("There are multiple annotations with the same start time and end time."
+                              "This should not be the case, there should only be one annotation (relating to"
+                              "on-access-read/on-access-write tag respectively) with the same start and end time")
+                return 1
+            else:
+                annotation_id = i["id"]
+                # Don't break out of loop to make sure that this annotation is the only one with the same start/end time
+
+    if annotation_id is None:
+        logging.warning(f"Found no annotations with tag: {tag} with same start and end times")
+        return 0
+
+    patch_json = {
+        "timeEnd": end_time
+    }
+
+    r = requests.patch(f"{API_HOST}/api/annotations/{annotation_id}", json=patch_json,
+                       headers=headers, verify=False)
+
+    if r.status_code != 200:
+        logging.error(f"Failed to patch timeEnd value for annotation with id: {annotation_id}, tag: {tag}."
+                      f"timeEnd: {end_time}"
+                      f"response json: {r.json()}")
+        return 1
+
+    return 0
+
+
 def annotate_graphs():
     annotation_failures = 0
     annotation_failures += add_product_update_annotations() + add_scheduled_scan_annotations() + add_osquery_restart_annotations()
@@ -160,11 +202,14 @@ def annotate_graphs():
 def delete_annotations(dry_run):
     headers = get_grafana_auth()
 
-    two_weeks_ago = datetime.datetime.now() - datetime.timedelta(weeks=4)
-    time_to_delete = int(two_weeks_ago.timestamp() * 1000)
+    time_now = datetime.datetime.now()
+    two_weeks_ago = time_now - datetime.timedelta(weeks=4)
+    one_year_ago = time_now - datetime.timedelta()
+    time_to_delete_two_weeks_ago = int(two_weeks_ago.timestamp() * 1000)
+    time_to_delete_one_year_ago = int(one_year_ago.timestamp() * 1000)
 
     r = requests.get(
-        f"https://sspl-alex-1.eng.sophos:3000/api/annotations?to={time_to_delete}&tags={socket.gethostname()}&limit=10000",
+        f"{API_HOST}/api/annotations?from={time_to_delete_one_year_ago}&to={time_to_delete_two_weeks_ago}&tags={socket.gethostname()}&limit=10000",
         headers=headers,
         verify=False
     )
@@ -175,7 +220,7 @@ def delete_annotations(dry_run):
         return
 
     for i in r.json():
-        res = requests.delete(f'https://sspl-alex-1.eng.sophos:3000/api/annotations/{i["id"]}', headers=headers,
+        res = requests.delete(f'{API_HOST}/api/annotations/{i["id"]}', headers=headers,
                               verify=False)
         if res.status_code not in [200, 201]:
             logging.error(f"Failed to delete annotation: {r.text}")

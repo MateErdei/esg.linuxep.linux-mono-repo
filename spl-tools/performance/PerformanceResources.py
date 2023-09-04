@@ -3,11 +3,18 @@ import os
 import shutil
 import subprocess
 import time
+from enum import IntEnum
 
 import LogUtils
 
 SOPHOS_INSTALL = "/opt/sophos-spl"
 AV_POLICY_BKP = "/tmp/SAV-2_policy_bkp.xml"
+
+
+class Jenkins_Job_Return_Code(IntEnum):
+    SUCCESS = 0
+    FAILURE = 1
+    UNSTABLE = 2
 
 
 def get_current_unix_epoch_in_seconds():
