@@ -50,8 +50,7 @@ def readVersionIniFile(BASE=None):
     if not os.path.isfile(autoVersionFile):
         BASE = get_base_path(scriptPath, BASE)
 
-        if os.path.isfile(os.path.join(BASE, "CIJenkinsfile")):  # Check we have a correct directory
-            autoVersionFile = get_valid_auto_version_path(BASE)
+        autoVersionFile = get_valid_auto_version_path(BASE)
 
     if autoVersionFile is not None and os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
