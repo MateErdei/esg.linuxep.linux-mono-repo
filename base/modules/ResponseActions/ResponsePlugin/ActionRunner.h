@@ -21,11 +21,11 @@ namespace ResponsePlugin
     class ActionRunner : public IActionRunner
     {
     public:
-      explicit ActionRunner(std::shared_ptr<TaskQueue> task);
-      void runAction(const std::string &action,
+        explicit ActionRunner(std::shared_ptr<TaskQueue> task);
+        void runAction(const std::string &action,
                      const std::string &correlationId, const std::string &type,
                      int timeout) override;
-      void killAction() override;
+        void killAction() override;
         bool getIsRunning() override;
 
     private:

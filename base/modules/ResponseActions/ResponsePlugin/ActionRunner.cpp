@@ -119,8 +119,8 @@ namespace ResponsePlugin
                 }
                 LOGINFO("Finished action: " << correlationId);
                 m_isRunning = false;
-          m_task->push(ResponsePlugin::Task{
-              ResponsePlugin::Task::TaskType::CHECK_QUEUE, ""});
+                m_task->push(ResponsePlugin::Task{
+                  ResponsePlugin::Task::TaskType::CHECK_QUEUE, ""});
         });
     }
 
