@@ -5,11 +5,11 @@ soph_cc_library(
     name = "PluginApi",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/PluginApiImpl",
+        "//base/modules/Common/PluginApiImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":PluginApi_interface",
@@ -28,14 +28,14 @@ soph_cc_library(
     ),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/Logging",
+        "//base/modules/Common/Logging",
     ],
     visibility = [
-        "//modules/Common/PluginApiImpl:__pkg__",
+        "//base/modules/Common/PluginApiImpl:__pkg__",
     ],
     deps = [
         ":PluginProtocolShared",
-        "//modules/Common/Exceptions",
+        "//base/modules/Common/Exceptions",
     ],
 )
 
@@ -49,10 +49,10 @@ soph_cc_library(
         "StatusInfo.h",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/Exceptions",
+        "//base/modules/Common/Exceptions",
     ],
 )

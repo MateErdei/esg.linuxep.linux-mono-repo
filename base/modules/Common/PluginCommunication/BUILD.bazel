@@ -9,11 +9,11 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/PluginApi:PluginProtocolShared",
-        "//modules/Common/PluginProtocol",
+        "//base/modules/Common/PluginApi:PluginProtocolShared",
+        "//base/modules/Common/PluginProtocol",
     ],
 )

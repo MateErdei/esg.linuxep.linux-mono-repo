@@ -1,5 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "ZeroMQWrapperImplTests",
@@ -22,12 +22,12 @@ spl_independent_cc_tests(
         "ReqRepTestImplementations.h",
     ],
     deps = [
-        "//modules/Common/Process",
-        "//modules/Common/Threads",
-        "//modules/Common/ZMQWrapperApi",
-        "//modules/Common/ZMQWrapperApiImpl",
-        "//modules/Common/ZeroMQWrapperImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/Threads",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZMQWrapperApiImpl",
+        "//base/modules/Common/ZeroMQWrapperImpl",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
         "@zmq",
     ],
@@ -41,9 +41,9 @@ cc_binary(
         "ReqRepTool.cpp",
     ],
     deps = [
-        "//modules/Common/ZMQWrapperApi",
-        "//modules/Common/ZeroMQWrapperImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZeroMQWrapperImpl",
+        "//base/tests/Common/Helpers",
         "@zmq",
     ],
 )

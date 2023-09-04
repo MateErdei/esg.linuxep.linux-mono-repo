@@ -4,11 +4,11 @@ soph_cc_library(
     name = "ProcessMonitoring",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/ProcessMonitoringImpl",
+        "//base/modules/Common/ProcessMonitoringImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":ProcessMonitoring_interface",
@@ -24,10 +24,10 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/ProcessMonitoringImpl:__pkg__",
+        "//base/modules/Common/ProcessMonitoringImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/Threads",
-        "//modules/Common/ZeroMQWrapper",
+        "//base/modules/Common/Threads",
+        "//base/modules/Common/ZeroMQWrapper",
     ],
 )

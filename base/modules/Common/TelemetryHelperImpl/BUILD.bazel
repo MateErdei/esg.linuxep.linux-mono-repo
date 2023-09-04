@@ -8,17 +8,17 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//thirdparty/nlohmann-json",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/thirdparty/nlohmann-json",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystem",
+        "//base/modules/Common/FileSystem",
     ],
 )

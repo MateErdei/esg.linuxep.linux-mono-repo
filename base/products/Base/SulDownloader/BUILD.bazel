@@ -7,7 +7,7 @@ soph_cc_binary(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/UtilityImpl:Main",
-        "//modules/SulDownloader",
+        "//base/modules/Common/UtilityImpl:Main",
+        "//base/modules/SulDownloader",
     ],
 )

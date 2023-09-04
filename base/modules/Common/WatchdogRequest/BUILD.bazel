@@ -5,11 +5,11 @@ soph_cc_library(
     name = "WatchdogRequest",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/WatchdogRequestImpl",
+        "//base/modules/Common/WatchdogRequestImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":WatchdogRequest_interface",
@@ -28,11 +28,11 @@ soph_cc_library(
         "WatchdogServiceException.h",
     ],
     visibility = [
-        "//modules/Common/WatchdogRequestImpl:__pkg__",
+        "//base/modules/Common/WatchdogRequestImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/PluginApi",
-        "//modules/Common/UtilityImpl:Factory",
-        "//modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/UtilityImpl:Factory",
+        "//base/modules/Common/ZMQWrapperApi",
     ],
 )

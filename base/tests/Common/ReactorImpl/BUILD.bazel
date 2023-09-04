@@ -1,5 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 HELPER_SOURCES = [
     "ReactorImplTestsPath.cpp",
@@ -31,13 +31,13 @@ spl_independent_cc_tests(
     ],
     per_test_srcs = HELPER_SOURCES,
     deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/Process",
-        "//modules/Common/ReactorImpl",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//modules/Common/ZMQWrapperApi",
-        "//modules/Common/ZeroMQWrapperImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/ReactorImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZeroMQWrapperImpl",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
         "@zmq",
     ],
@@ -53,7 +53,7 @@ cc_binary(
         "TestListener.h",
     ],
     deps = [
-        "//modules/Common/ReactorImpl",
-        "//modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ReactorImpl",
+        "//base/modules/Common/ZMQWrapperApi",
     ],
 )

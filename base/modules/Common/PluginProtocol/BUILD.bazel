@@ -11,16 +11,16 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     implementation_deps = [
         ":PluginAPIMessage",
-        "//modules/Common/Logging",
+        "//base/modules/Common/Logging",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/PluginApi:PluginProtocolShared",
-        "//modules/Common/Reactor",
-        "//modules/Common/ZeroMQWrapper",
+        "//base/modules/Common/PluginApi:PluginProtocolShared",
+        "//base/modules/Common/Reactor",
+        "//base/modules/Common/ZeroMQWrapper",
     ],
 )
 

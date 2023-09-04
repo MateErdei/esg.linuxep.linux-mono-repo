@@ -3,5 +3,5 @@ load("//tools/config:soph_rules.bzl", "soph_cc_binary")
 soph_cc_binary(
     name = "PickYourPoison",
     srcs = ["PickYourPoison.cpp"],
-    visibility = ["//tests:__subpackages__"],
+    visibility = ["//base/tests:__subpackages__"],
 )

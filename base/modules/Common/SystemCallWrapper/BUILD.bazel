@@ -9,8 +9,8 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         "@libcap//:libcap_shared",

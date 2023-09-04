@@ -95,7 +95,7 @@ namespace
         {
             // Find executable
 #ifdef SPL_BAZEL
-            std::string exe = "tests/Common/ZeroMQWrapperImpl";
+            std::string exe = "base/tests/Common/ZeroMQWrapperImpl";
 #else
             std::string exe = CMAKE_CURRENT_BINARY_DIR;
 #endif

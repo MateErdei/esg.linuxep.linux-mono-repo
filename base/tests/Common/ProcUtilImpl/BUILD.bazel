@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "ProcUtilImplTests",
@@ -7,9 +7,9 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/ProcUtilImpl",
-        "//modules/Common/Process",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/ProcUtilImpl",
+        "//base/modules/Common/Process",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

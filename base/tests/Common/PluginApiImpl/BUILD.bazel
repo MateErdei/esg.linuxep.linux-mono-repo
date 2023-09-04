@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "PluginApiImplTests",
@@ -11,14 +11,14 @@ spl_independent_cc_tests(
     ),
     per_test_srcs = ["TestCompare.cpp"],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/PluginApiImpl",
-        "//modules/Common/PluginProtocol",
-        "//modules/Common/TelemetryHelperImpl",
-        "//modules/Common/ZMQWrapperApi",
-        "//tests/Common/ApplicationConfiguration",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/PluginApiImpl",
+        "//base/modules/Common/PluginProtocol",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/tests/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -5,11 +5,11 @@ soph_cc_library(
     name = "FileSystem",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/FileSystemImpl",
+        "//base/modules/Common/FileSystemImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":FileSystem_interface",
@@ -25,11 +25,11 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/FileSystemImpl:__pkg__",
+        "//base/modules/Common/FileSystemImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/Exceptions",
-        "//modules/Common/SslImpl",
+        "//base/modules/Common/Exceptions",
+        "//base/modules/Common/SslImpl",
         "@libcap//:libcap_shared",
     ],
 )

@@ -9,15 +9,15 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/sdu/logger",
+        "//base/modules/sdu/logger",
     ],
     visibility = [
-        "//modules/sdu:__subpackages__",
+        "//base/modules/sdu:__subpackages__",
     ],
     deps = [
-        "//modules/Common/DirectoryWatcher",
-        "//modules/Common/Process",
-        "//modules/Common/WatchdogRequest",
-        "//modules/sdu/taskQueue",
+        "//base/modules/Common/DirectoryWatcher",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/WatchdogRequest",
+        "//base/modules/sdu/taskQueue",
     ],
 )

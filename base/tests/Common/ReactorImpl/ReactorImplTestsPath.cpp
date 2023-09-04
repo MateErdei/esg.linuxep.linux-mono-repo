@@ -16,7 +16,7 @@ void setProgramPath(std::string programPath_)
 std::string ReactorImplTestsPath()
 {
 #ifdef SPL_BAZEL
-    return "tests/Common/ReactorImpl";
+    return "base/tests/Common/ReactorImpl";
 #else
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fullPath;

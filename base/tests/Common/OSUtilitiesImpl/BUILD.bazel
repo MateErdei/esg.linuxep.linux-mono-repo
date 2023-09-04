@@ -1,14 +1,14 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "OSUtilitiesImpl",
     hdrs = glob(["*.h"]),
     visibility = [
-        "//tests:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/OSUtilities",
+        "//base/modules/Common/OSUtilities",
     ],
 )
 
@@ -19,10 +19,10 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/OSUtilitiesImpl",
-        "//modules/Common/ProcessImpl",
-        "//modules/Common/XmlUtilities",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/OSUtilitiesImpl",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/Common/XmlUtilities",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

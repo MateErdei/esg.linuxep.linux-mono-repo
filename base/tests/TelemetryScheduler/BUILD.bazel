@@ -1,5 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "TelemetrySchedulerTests",
@@ -8,14 +8,14 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/ApplicationConfigurationImpl",
-        "//modules/Common/FileSystem",
-        "//modules/Common/ProcessImpl",
-        "//modules/TelemetryScheduler/TelemetrySchedulerImpl",
-        "//tests/Common/ApplicationConfiguration",
-        "//tests/Common/Helpers",
-        "//tests/Common/UtilityImpl:TestStringGenerator",
-        "//thirdparty/nlohmann-json",
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/TelemetryScheduler/TelemetrySchedulerImpl",
+        "//base/tests/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/UtilityImpl:TestStringGenerator",
+        "//base/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
     ],
 )

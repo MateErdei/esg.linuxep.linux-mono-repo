@@ -11,29 +11,29 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     implementation_deps = [
         "//common/sophlib/hostname",
-        "//modules/Common/FileSystem",
-        "//modules/Common/Logging",
-        "//modules/Common/OSUtilities",
-        "//modules/Common/ProtobufUtil",
-        "//modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/OSUtilities",
+        "//base/modules/Common/ProtobufUtil",
+        "//base/modules/Common/UtilityImpl:StringUtils",
         ":ConfigurationSettings",
         "@com_google_protobuf//:protobuf",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/ObfuscationImpl",
-        "//modules/Common/XmlUtilities",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/ObfuscationImpl",
+        "//base/modules/Common/XmlUtilities",
     ],
 )
 
 cc_proto_library(
     name = "ConfigurationSettings",
     visibility = [
-        "//tests:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [":ConfigurationSettings_proto"],
 )

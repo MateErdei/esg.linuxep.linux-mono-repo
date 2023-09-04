@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "SecurityUtilsTests",
@@ -7,10 +7,10 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/FileSystemImpl",
-        "//modules/Common/Logging",
-        "//modules/Common/SecurityUtils",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/SecurityUtils",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "XmlUtilitiesTests",
@@ -7,9 +7,9 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     deps = [
-        "//modules/Common/Exceptions",
-        "//modules/Common/Logging",
-        "//modules/Common/XmlUtilities",
+        "//base/modules/Common/Exceptions",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/XmlUtilities",
         "@com_google_googletest//:gtest_main",
     ],
 )

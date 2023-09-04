@@ -8,18 +8,18 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/FileSystem",
-        "//modules/Common/Process",
-        "//modules/Common/UtilityImpl:ProjectNames",
-        "//modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/UtilityImpl:ProjectNames",
+        "//base/modules/Common/UtilityImpl:StringUtils",
     ],
     visibility = [
-        "//modules/SulDownloader:__subpackages__",
-        "//tests/SulDownloader:__pkg__",
+        "//base/modules/SulDownloader:__subpackages__",
+        "//base/tests/SulDownloader:__pkg__",
     ],
     deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/Policy",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/Policy",
     ],
 )

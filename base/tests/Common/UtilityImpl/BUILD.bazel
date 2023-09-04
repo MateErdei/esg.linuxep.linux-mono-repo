@@ -1,5 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -8,7 +8,7 @@ soph_cc_library(
         "TestStringGenerator.h",
     ],
     visibility = [
-        "//tests:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
 )
 
@@ -18,8 +18,8 @@ spl_independent_cc_tests(
         "TestTimeUtils.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:RegexUtilities",
-        "//modules/Common/UtilityImpl:TimeUtils",
+        "//base/modules/Common/UtilityImpl:RegexUtilities",
+        "//base/modules/Common/UtilityImpl:TimeUtils",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -30,7 +30,7 @@ spl_independent_cc_tests(
         "TestOrderedSet.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:OrderedSet",
+        "//base/modules/Common/UtilityImpl:OrderedSet",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -41,9 +41,9 @@ spl_independent_cc_tests(
         "TestStringUtils.cpp",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -54,7 +54,7 @@ spl_independent_cc_tests(
         "TestUniformIntDistribution.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:UniformIntDistribution",
+        "//base/modules/Common/UtilityImpl:UniformIntDistribution",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -65,7 +65,7 @@ spl_independent_cc_tests(
         "TestUuid.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:Uuid",
+        "//base/modules/Common/UtilityImpl:Uuid",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -76,7 +76,7 @@ spl_independent_cc_tests(
         "TestVectorAsSet.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:VectorAsSet",
+        "//base/modules/Common/UtilityImpl:VectorAsSet",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -87,7 +87,7 @@ spl_independent_cc_tests(
         "TestWaitForUtils.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:WaitForUtils",
+        "//base/modules/Common/UtilityImpl:WaitForUtils",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -9,9 +9,9 @@ soph_cc_library(
     ]),
     hdrs = ["Logger.h"],
     visibility = [
-        "//modules/TelemetryScheduler:__subpackages__",
+        "//base/modules/TelemetryScheduler:__subpackages__",
     ],
     deps = [
-        "//modules/Common/Logging",
+        "//base/modules/Common/Logging",
     ],
 )

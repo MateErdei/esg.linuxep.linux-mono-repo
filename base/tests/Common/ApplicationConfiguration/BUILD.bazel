@@ -7,6 +7,6 @@ soph_cc_library(
         "*.h",
     ]),
     visibility = [
-        "//tests:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
 )

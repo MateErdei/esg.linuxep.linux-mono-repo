@@ -5,11 +5,11 @@ soph_cc_library(
     name = "Obfuscation",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/ObfuscationImpl",
+        "//base/modules/Common/ObfuscationImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":Obfuscation_interface",
@@ -25,10 +25,10 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/ObfuscationImpl:__pkg__",
+        "//base/modules/Common/ObfuscationImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/Exceptions",
+        "//base/modules/Common/Exceptions",
         "@openssl_linux//:openssl",
     ],
 )

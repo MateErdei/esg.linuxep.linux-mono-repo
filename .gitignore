@@ -1,0 +1,34 @@
+# CLion
+/.idea/
+/.clwb/.idea/blazeInfo.xml
+/.clwb/.idea/runConfigurations.xml
+*.iml
+# Bazel projects can't be opened without these
+!/.clwb/.blaze/modules/*.iml
+
+# Auto-generated
+/pipeline/__pycache__/
+
+# Import location for sophlib
+/common/sophlib/
+
+# bazel-tools from ESG monorepo
+/.bazelignore
+/.bazelrc
+/.bazelversion
+/.clang-format
+/.clang-tidy
+/.gitattributes
+/.pre-commit-config.yaml
+/.windows.bazelrc
+/BUILD.bazel
+/platform_mappings
+/pyproject.toml
+/tools/
+/WORKSPACE
+
+# Bazel auto-generated
+/bazel-bin
+/bazel-esg.linuxep.linux-mono-repo
+/bazel-out
+/bazel-testlogs

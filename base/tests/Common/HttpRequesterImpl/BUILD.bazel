@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
 spl_independent_cc_tests(
@@ -11,8 +11,8 @@ spl_independent_cc_tests(
         exclude = ["HttpRequesterLiveNetworkTests.cpp"],
     ),
     deps = [
-        "//modules/Common/HttpRequestsImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/HttpRequestsImpl",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -21,8 +21,8 @@ soph_cc_binary(
     name = "HttpRequesterLiveNetworkTests",
     srcs = ["HttpRequesterLiveNetworkTests.cpp"],
     deps = [
-        "//modules/Common/HttpRequestsImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/HttpRequestsImpl",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

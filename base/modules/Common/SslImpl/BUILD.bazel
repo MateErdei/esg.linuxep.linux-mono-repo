@@ -12,7 +12,7 @@ soph_cc_library(
         "@openssl_linux//:openssl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
 )

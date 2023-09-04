@@ -4,11 +4,11 @@ soph_cc_library(
     name = "OSUtilities",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/OSUtilitiesImpl",
+        "//base/modules/Common/OSUtilitiesImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":OSUtilities_interface",
@@ -24,9 +24,9 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/OSUtilitiesImpl:__pkg__",
+        "//base/modules/Common/OSUtilitiesImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/SystemCallWrapper",
+        "//base/modules/Common/SystemCallWrapper",
     ],
 )

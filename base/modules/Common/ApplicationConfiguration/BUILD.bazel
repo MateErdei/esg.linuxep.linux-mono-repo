@@ -5,11 +5,11 @@ soph_cc_library(
     name = "ApplicationConfiguration",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/ApplicationConfigurationImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":ApplicationConfiguration_interface",
@@ -25,6 +25,6 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/ApplicationConfigurationImpl:__pkg__",
+        "//base/modules/Common/ApplicationConfigurationImpl:__pkg__",
     ],
 )

@@ -9,13 +9,13 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/FileSystem",
+        "//base/modules/Common/FileSystem",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration:ApplicationConfiguration_interface",
+        "//base/modules/Common/ApplicationConfiguration:ApplicationConfiguration_interface",
     ],
 )

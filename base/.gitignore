@@ -53,7 +53,6 @@ testUtils/*-VBoxSVC-*.log
 /testUtils/SupportFiles/FakeManagement/ActionUtils.py
 /testUtils/vagrant
 /tap_venv/
-/tapvenv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/esg.linuxep.everest-base.iml
@@ -61,27 +60,3 @@ testUtils/*-VBoxSVC-*.log
 /robot
 /vagrant
 /log.html
-
-# Import location for sophlib
-/common/
-
-# bazel-tools from ESG monorepo
-/.bazelignore
-/.bazelrc
-/.bazelversion
-/.clang-format
-/.clang-tidy
-/.gitattributes
-/.pre-commit-config.yaml
-/.windows.bazelrc
-/BUILD.bazel
-/platform_mappings
-/pyproject.toml
-/tools/
-/WORKSPACE
-
-# Bazel auto-generated
-/bazel-bin
-/bazel-esg.linuxep.everest-base
-/bazel-out
-/bazel-testlogs

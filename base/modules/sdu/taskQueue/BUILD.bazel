@@ -12,6 +12,6 @@ soph_cc_library(
         "TaskQueue.h",
     ],
     visibility = [
-        "//modules/sdu:__subpackages__",
+        "//base/modules/sdu:__subpackages__",
     ],
 )

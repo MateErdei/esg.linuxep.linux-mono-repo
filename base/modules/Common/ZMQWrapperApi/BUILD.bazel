@@ -4,11 +4,11 @@ soph_cc_library(
     name = "ZMQWrapperApi",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//base/modules/Common/ZMQWrapperApiImpl",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
         ":ZMQWrapperApi_interface",
@@ -24,9 +24,9 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules/Common/ZMQWrapperApiImpl:__pkg__",
+        "//base/modules/Common/ZMQWrapperApiImpl:__pkg__",
     ],
     deps = [
-        "//modules/Common/ZeroMQWrapper",
+        "//base/modules/Common/ZeroMQWrapper",
     ],
 )

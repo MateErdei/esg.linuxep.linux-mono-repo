@@ -8,12 +8,12 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/PluginCommunication",
-        "//modules/Common/UtilityImpl:VectorAsSet",
-        "//modules/Common/ZeroMQWrapper",
+        "//base/modules/Common/PluginCommunication",
+        "//base/modules/Common/UtilityImpl:VectorAsSet",
+        "//base/modules/Common/ZeroMQWrapper",
     ],
 )

@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "ZMQWrapperApiImplTests",
@@ -6,9 +6,9 @@ spl_independent_cc_tests(
         "*.cpp",
     ]),
     deps = [
-        "//modules/Common/Exceptions",
-        "//modules/Common/Logging",
-        "//modules/Common/ZMQWrapperApiImpl",
+        "//base/modules/Common/Exceptions",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ZMQWrapperApiImpl",
         "@com_google_googletest//:gtest_main",
     ],
 )

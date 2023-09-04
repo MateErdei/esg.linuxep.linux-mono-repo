@@ -8,12 +8,12 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/Logging",
-        "//modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:StringUtils",
         "@expat",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
 )

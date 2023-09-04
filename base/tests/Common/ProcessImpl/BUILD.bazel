@@ -1,4 +1,4 @@
-load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "ProcessImplTests",
@@ -7,14 +7,14 @@ spl_independent_cc_tests(
         "*.h",
     ]),
     data = [
-        "//tests/manualTools:PickYourPoison",
+        "//base/tests/manualTools:PickYourPoison",
     ],
     defines = [
-        "OutDir=\\\"tests/Common/ProcessImpl\\\"",
+        "OutDir=\\\"base/tests/Common/ProcessImpl\\\"",
     ],
     deps = [
-        "//modules/Common/ProcessImpl",
-        "//tests/Common/Helpers",
+        "//base/modules/Common/ProcessImpl",
+        "//base/tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

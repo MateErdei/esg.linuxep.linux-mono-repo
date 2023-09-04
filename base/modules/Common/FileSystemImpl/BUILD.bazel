@@ -9,16 +9,16 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/UtilityImpl:ProjectNames",
-        "//modules/Common/UtilityImpl:StrError",
-        "//modules/Common/UtilityImpl:UniformIntDistribution",
+        "//base/modules/Common/UtilityImpl:ProjectNames",
+        "//base/modules/Common/UtilityImpl:StrError",
+        "//base/modules/Common/UtilityImpl:UniformIntDistribution",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/FileSystem:FileSystem_interface",
-        "//modules/Common/SystemCallWrapper",
+        "//base/modules/Common/FileSystem:FileSystem_interface",
+        "//base/modules/Common/SystemCallWrapper",
     ],
 )

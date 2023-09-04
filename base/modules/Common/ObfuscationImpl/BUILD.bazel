@@ -8,14 +8,14 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//modules/Common/Logging",
+        "//base/modules/Common/Logging",
     ],
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/Obfuscation:Obfuscation_interface",
+        "//base/modules/Common/Obfuscation:Obfuscation_interface",
         "@openssl_linux//:openssl",
     ],
 )
