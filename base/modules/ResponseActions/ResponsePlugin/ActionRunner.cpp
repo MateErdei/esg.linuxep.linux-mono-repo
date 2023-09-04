@@ -19,8 +19,9 @@ namespace ResponsePlugin
 {
 ActionRunner::ActionRunner(std::shared_ptr<ResponsePlugin::TaskQueue> task)
     : m_task(std::move(task)) {}
-void sendFailedResponse(ResponseResult result, const std::string& requestType, const std::string& correlationId)
-    {
+
+void sendFailedResponse(ResponseResult result, const std::string &requestType,
+                        const std::string &correlationId) {
         LOGINFO("Response Actions plugin sending failed response to Central on behalf of Action Runner process");
         nlohmann::json response;
         if (requestType == RUN_COMMAND_REQUEST_TYPE)
