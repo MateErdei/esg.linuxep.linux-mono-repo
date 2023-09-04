@@ -31,12 +31,14 @@ add_executable(parsealcpolicytests
         )
 target_link_libraries(parsealcpolicytests PRIVATE
         ${LOG4CPLUS_LIBRARY}
+        ${Protobuf_LIBRARIES}
         xmlutilities
         utilityimpl
         osutilitiesimpl
         telemetryhelperimpl
         suldownloaderdata
         policy
+        downloadreport
         )
 
 SET_TARGET_PROPERTIES( parsealcpolicytests
@@ -94,9 +96,11 @@ add_executable(suldownloaderreporttests
         )
 
 target_link_libraries(suldownloaderreporttests PRIVATE
+        ${Protobuf_LIBRARIES}
         logging
         policy
         suldownloaderdata
+        downloadreport
         )
 
 SET_TARGET_PROPERTIES( suldownloaderreporttests

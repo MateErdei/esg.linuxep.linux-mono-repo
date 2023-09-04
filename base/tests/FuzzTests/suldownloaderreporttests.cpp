@@ -2,7 +2,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
-#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "Common/DownloadReport/DownloadReport.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include <chrono>
@@ -47,7 +47,7 @@ int main()
 
     try
     {
-        (void)SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
+        (void)Common::DownloadReport::DownloadReport::toReport(content);
     }
     catch (SulDownloader::suldownloaderdata::SulDownloaderException&)
     {
