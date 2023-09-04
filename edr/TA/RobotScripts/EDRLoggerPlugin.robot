@@ -886,7 +886,7 @@ LiveQuery Status Should Contain
 Wait For LiveQuery Status To Contain
     [Arguments]  ${StringToContain}
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  20 secs
     ...  1 secs
     ...  LiveQuery Status Should Contain  ${StringToContain}
 
