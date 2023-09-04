@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(McsRouterPluginCommunicationImplTests
         McsRouterPluginCommunicationImplTests.cpp
-        MockPluginManager.h
+        ../MockPluginManager/MockPluginManager.h
         MockTaskQueue.h
         PolicyTaskTests.cpp
         TaskDirectoryListenerTests.cpp

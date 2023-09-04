@@ -1,19 +1,16 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Common/ZMQWrapperApi/IContext.h"
-
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
 #include "ManagementAgent/PluginCommunicationImpl/PluginManager.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
 #include "UpdateSchedulerImpl/SchedulerPluginCallback.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -22,7 +19,10 @@
 #include "tests/Common/Helpers/TempDir.h"
 #include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 #include "tests/Common/TaskQueueImpl/FakeQueue.h"
-#include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <future>
 #include <thread>

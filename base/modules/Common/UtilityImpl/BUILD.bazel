@@ -4,6 +4,19 @@ load("//tools/config:expand_template.bzl", "expand_template")
 load("//common:common_substitutions.bzl", "COMMON_SUBSTITUTIONS")
 
 soph_cc_library(
+    name = "ConfigException",
+    srcs = ["ConfigException.cpp"],
+    hdrs = ["ConfigException.h"],
+    visibility = [
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/Common/Exceptions",
+    ],
+)
+
+soph_cc_library(
     name = "RegexUtilities",
     srcs = ["RegexUtilities.cpp"],
     hdrs = ["RegexUtilities.h"],

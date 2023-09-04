@@ -1,7 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
+#include "ManagementAgent/HealthStatusCommon/PluginHealthStatus.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
-#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 
 #include <json.hpp>
 

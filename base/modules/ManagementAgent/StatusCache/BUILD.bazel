@@ -1,0 +1,9 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "StatusCache",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/ManagementAgent/StatusCacheImpl:__pkg__",
+    ],
+)

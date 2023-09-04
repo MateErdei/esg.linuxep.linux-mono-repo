@@ -2,7 +2,7 @@
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "ManagementAgent/HealthStatusImpl/SerialiseFunctions.cpp"
+#include "ManagementAgent/HealthStatusImpl/SerialiseFunctions.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 

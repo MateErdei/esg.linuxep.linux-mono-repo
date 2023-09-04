@@ -1,0 +1,19 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "PolicyReceiverImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/TaskQueue",
+        "//base/modules/ManagementAgent/McsRouterPluginCommunicationImpl",
+        "//base/modules/ManagementAgent/PluginCommunicationImpl",
+        "//base/modules/ManagementAgent/PolicyReceiverImpl",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/TaskQueueImpl",
+        "//base/tests/ManagementAgent/MockPluginManager",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

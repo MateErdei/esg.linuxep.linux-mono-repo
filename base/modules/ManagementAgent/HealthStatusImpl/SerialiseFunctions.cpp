@@ -5,7 +5,7 @@
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
+#include "ManagementAgent/HealthStatusCommon/PluginHealthStatus.h"
 
 #include <json.hpp>
 

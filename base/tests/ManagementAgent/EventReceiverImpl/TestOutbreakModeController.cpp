@@ -433,7 +433,6 @@ TEST_F(TestOutbreakModeController, loads_uuid_not_string)
 TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
 {
     auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
-    auto* mockFilePermissions = new MockFilePermissions();
     EXPECT_CALL(*mockFileSystem, readFile(_,_)).WillOnce(Return(""));
 
     auto now = OutbreakModeController::clock_t::now();
@@ -447,11 +446,13 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
                                      HasSubstr("base/mcs/event/CORE_event-"),
                                      HasSubstr("sophos.core.outbreak"), _, _)).WillOnce(Return());
 
+    auto mockFilePermissions = std::make_unique<MockFilePermissions>();
+#ifndef SPL_BAZEL
     EXPECT_CALL(*mockFilePermissions, chown(expectedStatusFile_,"root","sophos-spl-group")).WillOnce(Return());
+#endif
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions(std::move(mockFilePermissions));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());

@@ -8,7 +8,7 @@
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/TaskQueueImpl/FakeQueue.h"
-#include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
 
 class PolicyReceiverImplTests : public ::testing::Test
 {
@@ -35,8 +35,8 @@ TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThr
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) // NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
-    
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -53,13 +53,13 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
     EXPECT_NE(task.get(), nullptr);
-
 }
 
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -83,5 +83,4 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLI
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy(appId, policyFileName, testPlugin)).WillOnce(Return(1));
 
     task->run();
-
 }

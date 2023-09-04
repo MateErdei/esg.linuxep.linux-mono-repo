@@ -1,0 +1,16 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "StatusCacheImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/ManagementAgent/StatusCacheImpl",
+        "//base/tests/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

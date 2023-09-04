@@ -1,0 +1,19 @@
+# TODO LINUXDAR-6783: This needs update scheduler to be converted.
+
+#load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+#
+#spl_independent_cc_tests(
+#    name = "ManagementAgentImplTests",
+#    srcs = glob([
+#        "*.cpp",
+#    ]),
+#    deps = [
+#        "//base/modules/Common/FileSystemImpl",
+#        "//base/modules/Common/TaskQueueImpl",
+#        "//base/modules/Common/UtilityImpl:StringUtils",
+#        "//base/modules/Common/ZMQWrapperApi",
+#        "//base/modules/ManagementAgent/ManagementAgentImpl",
+#        "//base/tests/Common/ApplicationConfiguration",
+#        "//base/tests/ManagementAgent/MockPluginManager",
+#    ],
+#)

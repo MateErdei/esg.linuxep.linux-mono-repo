@@ -1,0 +1,12 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "EventReceiver",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/ManagementAgent/EventReceiver:__pkg__",
+        "//base/modules/ManagementAgent/EventReceiverImpl:__pkg__",
+        "//base/modules/ManagementAgent/PluginCommunication:__pkg__",
+        "//base/modules/ManagementAgent/PluginCommunicationImpl:__pkg__",
+    ],
+)

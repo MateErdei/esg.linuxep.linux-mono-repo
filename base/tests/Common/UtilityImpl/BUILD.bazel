@@ -12,6 +12,16 @@ soph_cc_library(
     ],
 )
 
+soph_cc_library(
+    name = "MockFormattedTime",
+    hdrs = [
+        "MockFormattedTime.h",
+    ],
+    visibility = [
+        "//base/tests:__subpackages__",
+    ],
+)
+
 spl_independent_cc_tests(
     name = "TimeUtilsTests",
     srcs = [

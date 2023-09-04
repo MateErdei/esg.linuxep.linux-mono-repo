@@ -16,7 +16,6 @@
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
-#include "ManagementAgent/PluginCommunication/PluginHealthStatus.h"
 
 #include <sys/stat.h>
 

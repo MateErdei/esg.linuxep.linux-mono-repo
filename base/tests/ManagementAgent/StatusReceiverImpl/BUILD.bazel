@@ -1,0 +1,19 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "StatusReceiverImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/ManagementAgent/PolicyReceiverImpl",
+        "//base/modules/ManagementAgent/StatusCacheImpl",
+        "//base/modules/ManagementAgent/StatusReceiverImpl",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/TaskQueueImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

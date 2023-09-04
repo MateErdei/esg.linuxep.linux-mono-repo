@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ManagementAgent/PluginCommunication/IEventReceiver.h"
+#include "ManagementAgent/EventReceiver/IEventReceiver.h"
 #include "ManagementAgent/PluginCommunication/IPluginServerCallback.h"
 #include "ManagementAgent/PluginCommunication/IPolicyReceiver.h"
 #include "ManagementAgent/PluginCommunication/IStatusReceiver.h"

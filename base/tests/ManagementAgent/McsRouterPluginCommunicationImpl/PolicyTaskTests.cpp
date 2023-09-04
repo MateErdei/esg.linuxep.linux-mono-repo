@@ -1,15 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "MockPluginManager.h"
-
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
 
 class PolicyTaskTests : public ::testing::Test
 {

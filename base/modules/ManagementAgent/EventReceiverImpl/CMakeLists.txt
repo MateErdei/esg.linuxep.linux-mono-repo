@@ -1,6 +1,6 @@
 add_library(eventreceiverimpl SHARED
         EventReceiverImpl.cpp EventReceiverImpl.h
-        ../PluginCommunication/IEventReceiver.h
+        ../EventReceiver/IEventReceiver.h
         EventTask.cpp
         EventTask.h
         EventUtils.cpp

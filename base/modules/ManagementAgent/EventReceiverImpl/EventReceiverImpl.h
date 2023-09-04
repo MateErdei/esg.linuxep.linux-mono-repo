@@ -5,7 +5,7 @@
 #include "IOutbreakModeController.h"
 
 #include "Common/TaskQueue/ITaskQueue.h"
-#include "ManagementAgent/PluginCommunication/IEventReceiver.h"
+#include "ManagementAgent/EventReceiver/IEventReceiver.h"
 
 namespace ManagementAgent::EventReceiverImpl
 {

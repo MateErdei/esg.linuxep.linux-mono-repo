@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "IEventReceiver.h"
 #include "IPluginServerCallback.h"
 #include "IPolicyReceiver.h"
 #include "IStatusReceiver.h"
-#include "PluginHealthStatus.h"
 
 #include "Common/PluginCommunication/IPluginProxy.h"
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "ManagementAgent/EventReceiver/IEventReceiver.h"
+#include "ManagementAgent/HealthStatusCommon/PluginHealthStatus.h"
 
 #include <chrono>
 #include <memory>

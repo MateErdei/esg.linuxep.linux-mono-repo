@@ -1,7 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "MockPluginManager.h"
-
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -10,12 +8,14 @@
 #include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/TempDir.h"
 #include "tests/Common/Helpers/TestExecutionSynchronizer.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <future>
 
@@ -54,6 +54,7 @@ public:
         m_tempDir.reset(nullptr);
         m_taskQueueProcessor.reset(nullptr);
         m_taskQueue.reset();
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
 
     std::vector<std::string> m_directoriesToWatch;
@@ -86,12 +87,8 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     m_tempDir->createFile(policyFileTmp1, "Hello");
     m_tempDir->createFile(actionFileTmp1, "Hello");
 
-    MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
-    Common::ApplicationConfiguration::replaceApplicationPathManager(
-        std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
-
-    EXPECT_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillOnce(Return(m_tempDir->absPath(m_policyFilePath)));
-    EXPECT_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillOnce(Return(m_tempDir->absPath(actionFile1)));
+    auto mockApplicationPathManager = std::make_unique<StrictMock<MockedApplicationPathManager>>();
+    Common::ApplicationConfiguration::replaceApplicationPathManager(std::move(mockApplicationPathManager));
 
     Tests::TestExecutionSynchronizer sync(2);
     auto notifySync= [&sync](std::string, std::string, std::string=""){sync.notify(); return 1;};
@@ -165,12 +162,8 @@ TEST_F( // NOLINT
     m_tempDir->createFile(actionFileTmp2, "Hello");
     m_tempDir->createFile(actionFileTmp3, "Hello");
 
-    MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
-    Common::ApplicationConfiguration::replaceApplicationPathManager(
-        std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
-
-    EXPECT_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_policyFilePath)));
-    EXPECT_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_actionFilePath)));
+    auto mockApplicationPathManager = std::make_unique<StrictMock<MockedApplicationPathManager>>();
+    Common::ApplicationConfiguration::replaceApplicationPathManager(std::move(mockApplicationPathManager));
 
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", policyFileName1, _)).WillOnce(Return(1));
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", policyFileName2, _)).WillOnce(Return(1));

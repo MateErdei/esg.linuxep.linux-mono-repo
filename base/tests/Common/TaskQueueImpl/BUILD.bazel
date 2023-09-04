@@ -1,4 +1,16 @@
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "TaskQueueImpl",
+    hdrs = ["FakeQueue.h"],
+    visibility = [
+        "//base/tests:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/Common/TaskQueueImpl",
+    ],
+)
 
 spl_independent_cc_tests(
     name = "TaskQueueTests",

@@ -1,0 +1,13 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "sophos_managementagent",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//base/modules/Common/UtilityImpl:Main",
+        "//base/modules/ManagementAgent/ManagementAgentImpl",
+    ],
+)

@@ -1,0 +1,10 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "HealthStatusCommon",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/ManagementAgent/HealthStatusImpl:__pkg__",
+        "//base/modules/ManagementAgent/PluginCommunicationImpl:__pkg__",
+    ],
+)

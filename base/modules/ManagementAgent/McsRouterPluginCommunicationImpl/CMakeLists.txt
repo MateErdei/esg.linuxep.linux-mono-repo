@@ -6,7 +6,7 @@ add_library(mcsrouterplugincommunicationimpl SHARED
         PolicyTask.h
         ActionTask.h
         ActionTask.cpp
-        ../PluginCommunication/PluginHealthStatus.h)
+        ../HealthStatusCommon/PluginHealthStatus.h)
 target_include_directories(mcsrouterplugincommunicationimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(mcsrouterplugincommunicationimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl managementagentloggerimpl taskqueueimpl directorywatcherimpl managementagentutilityimpl)
 

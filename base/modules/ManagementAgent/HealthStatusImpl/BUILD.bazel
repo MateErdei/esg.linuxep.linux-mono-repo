@@ -1,0 +1,24 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "HealthStatusImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+    ],
+    visibility = [
+        "//base/modules/ManagementAgent/HealthTask:__pkg__",
+        "//base/modules/ManagementAgent/PluginCommunication:__pkg__",
+        "//base/modules/ManagementAgent/ThreatHealthReceiverImpl:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/TaskQueue",
+        "//base/modules/ManagementAgent/HealthStatusCommon",
+        "//base/modules/ManagementAgent/LoggerImpl",
+        "//base/thirdparty/nlohmann-json",
+    ],
+)

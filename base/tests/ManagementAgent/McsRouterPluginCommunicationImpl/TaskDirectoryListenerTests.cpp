@@ -1,6 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "MockPluginManager.h"
 #include "MockTaskQueue.h"
 
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
@@ -10,9 +9,11 @@
 #include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include "tests/Common/Helpers/MockFileSystem.h"
 
 class TaskDirectoryListenerTests : public ::testing::Test
 {

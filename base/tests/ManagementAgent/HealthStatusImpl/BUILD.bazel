@@ -1,0 +1,18 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "HealthStatusImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/XmlUtilities",
+        "//base/modules/ManagementAgent/HealthTask",
+        "//base/tests/Common/Helpers",
+        "//base/tests/ManagementAgent/MockPluginManager",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

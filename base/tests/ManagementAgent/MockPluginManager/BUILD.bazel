@@ -1,0 +1,14 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "MockPluginManager",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/tests/ManagementAgent:__subpackages__",
+        "//base/tests/ManagementAgentImpl:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/ManagementAgent/PluginCommunicationImpl",
+        "@com_google_googletest//:gtest",
+    ],
+)

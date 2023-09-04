@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "IEventReceiver.h"
 #include "IStatusReceiver.h"
 #include "IThreatHealthReceiver.h"
 
 #include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginProtocol/DataMessage.h"
+#include "ManagementAgent/EventReceiver/IEventReceiver.h"
 
 #include <string>
 

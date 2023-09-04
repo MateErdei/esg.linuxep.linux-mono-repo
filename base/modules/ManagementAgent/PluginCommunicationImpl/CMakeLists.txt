@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 add_library(plugincommunicationimpl SHARED
-        ../PluginCommunication/IEventReceiver.h
+        ../EventReceiver/IEventReceiver.h
         ../PluginCommunication/IPluginServerCallback.h
         ../PluginCommunication/IStatusReceiver.h
         ../PluginCommunication/IPluginManager.h
-        ../PluginCommunication/PluginHealthStatus.h
+        ../HealthStatusCommon/PluginHealthStatus.h
         ISettablePluginServerCallback.h
         PluginServerCallbackHandler.h
         PluginServerCallbackHandler.cpp

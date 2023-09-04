@@ -9,4 +9,7 @@ soph_cc_library(
     visibility = [
         "//base/tests:__subpackages__",
     ],
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+    ],
 )

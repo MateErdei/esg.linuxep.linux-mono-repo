@@ -1,0 +1,16 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "ThreatHealthReceiverImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/TaskQueue",
+        "//base/modules/ManagementAgent/StatusReceiverImpl",
+        "//base/modules/ManagementAgent/ThreatHealthReceiverImpl",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/TaskQueueImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

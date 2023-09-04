@@ -2,7 +2,7 @@ include(GoogleTest)
 add_executable(DirectoryWatcherImplTests
         TestDirectoryWatcherImpl.cpp TestRealiNotifyDirectoryWatcher.cpp
         DummyDirectoryWatcherListener.h
-        ../../ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h
+        ../../ManagementAgent/MockPluginManager/MockPluginManager.h
         )
 target_include_directories(DirectoryWatcherImplTests SYSTEM BEFORE PUBLIC
         ${GMOCK_INCLUDE}

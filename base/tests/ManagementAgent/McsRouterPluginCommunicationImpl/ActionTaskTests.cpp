@@ -1,15 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "MockPluginManager.h"
-
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include "tests/Common/Helpers/FakeTimeUtils.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
-#include "tests/Common/Helpers/FakeTimeUtils.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 std::time_t t_20190501T13h{ 1556712000 };
 std::time_t t_20200610T12h{ 1591790400 };

@@ -2,20 +2,22 @@
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
 #include "ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h"
 #include "ManagementAgent/StatusReceiverImpl/StatusTask.h"
-#include <gmock/gmock-matchers.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/TaskQueueImpl/FakeQueue.h"
-#include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"
+#include "tests/ManagementAgent/MockPluginManager/MockPluginManager.h"
+
+#include <gmock/gmock-matchers.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+// #include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"
 
 #include <utility>
 

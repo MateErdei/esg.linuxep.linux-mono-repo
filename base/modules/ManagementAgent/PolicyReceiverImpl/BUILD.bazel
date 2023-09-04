@@ -1,0 +1,19 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "PolicyReceiverImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/ManagementAgent/ManagementAgentImpl:__pkg__",
+        "//base/tests/ManagementAgent/PolicyReceiverImpl:__pkg__",
+        "//base/tests/ManagementAgent/StatusReceiverImpl:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/TaskQueue",
+        "//base/modules/ManagementAgent/McsRouterPluginCommunicationImpl",
+        "//base/modules/ManagementAgent/PluginCommunicationImpl",
+        "//base/modules/ManagementAgent/UtilityImpl",
+    ],
+)

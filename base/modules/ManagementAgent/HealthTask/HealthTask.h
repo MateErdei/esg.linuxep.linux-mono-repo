@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "HealthStatus.h"
-
 #include "Common/TaskQueue/ITask.h"
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 

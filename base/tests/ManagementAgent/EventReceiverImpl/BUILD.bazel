@@ -1,0 +1,18 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "EventReceiverImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/ManagementAgent/EventReceiverImpl",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/TaskQueueImpl",
+        "//base/tests/Common/UtilityImpl:MockFormattedTime",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
