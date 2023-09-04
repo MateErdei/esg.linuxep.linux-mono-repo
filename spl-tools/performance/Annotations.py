@@ -203,8 +203,8 @@ def delete_annotations(dry_run):
     headers = get_grafana_auth()
 
     time_now = datetime.datetime.now()
-    two_weeks_ago = time_now - datetime.timedelta(weeks=4)
-    one_year_ago = time_now - datetime.timedelta()
+    two_weeks_ago = time_now - datetime.timedelta(weeks=2)
+    one_year_ago = time_now - datetime.timedelta(weeks=52)
     time_to_delete_two_weeks_ago = int(two_weeks_ago.timestamp() * 1000)
     time_to_delete_one_year_ago = int(one_year_ago.timestamp() * 1000)
 
