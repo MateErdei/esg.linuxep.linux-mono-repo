@@ -8,5 +8,4 @@ persist-xdrPeriodTimestamp
 xdr_intermediary
 osqueryd.INFO
 osquery.conf.d/sophos-scheduled-query-pack
-log/osqueryd.ERROR
-log/osqueryd.WARNING
+log/osqueryd
