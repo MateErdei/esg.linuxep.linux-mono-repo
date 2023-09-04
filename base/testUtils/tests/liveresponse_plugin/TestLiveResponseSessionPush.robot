@@ -107,6 +107,7 @@ Multiple Liveresponse Sessions Work Concurrently
     Log  ${files}
 
     ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
+    Should Be Equal As Integers  ${count}  ${10}
 
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
@@ -118,28 +119,6 @@ Multiple Liveresponse Sessions Work Concurrently
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id8}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id9}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id10}
-
-Liveresponse Session Can Be Kept Alive For More Than 20 Seconds
-    [Tags]  MANUAL
-    # TODO: LINUXDAR-7715: Remove tag once this test has been fixed
-    Check Connected To Fake Cloud
-    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
-
-    ${correlation_id} =  Get Correlation Id
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
-
-    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
-    wait for match message   sophos-live-terminal   ${correlation_id}
-
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
-    Sleep    21s
-
-    ${files} =  List Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Log  ${files}
-
-    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Should Be Equal As Integers  ${count}  ${1}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id}
 
 Closing a LiveResponse Session Does Not Affect The Outcome Of Another Session
     Check Connected To Fake Cloud
