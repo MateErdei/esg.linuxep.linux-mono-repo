@@ -159,7 +159,7 @@ do
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
-            $TAP fetch event_journaler.build.release
+            $TAP fetch linux_mono_repo.plugins.ej_release
             NO_BUILD=1
             ;;
         *)
@@ -410,8 +410,12 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
-    cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
-    cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
+
+    if (( BUILD_SDDS3 == 1 ))
+    then
+      cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
+      cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
+    fi
     mkdir -p  output/manualTools/
     cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
     cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"
@@ -445,5 +449,8 @@ function build()
 
 build 2>&1 | tee -a $LOG
 EXIT=$?
-cp $LOG $OUTPUT/ || true
+if [[ -d $OUTPUT ]]
+then
+  cp $LOG $OUTPUT/ || true
+fi
 exit $EXIT
