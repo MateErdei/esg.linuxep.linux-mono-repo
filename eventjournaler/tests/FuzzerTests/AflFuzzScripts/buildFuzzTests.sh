@@ -15,7 +15,7 @@ cd ${0%/*}
 FuzzTestsDir=$(pwd)
 SOURCE_DIR=$(realpath ${FuzzTestsDir}/../../../)
 SSPL_TOOLS_DIR=$(realpath ${FuzzTestsDir}/../../../../)
-FuzzTestCaseRelDir="tests/FuzzerTests/AflFuzzScripts/data"
+FuzzTestCaseRelDir="tests/eventjournaler/FuzzerTests/AflFuzzScripts/data"
 
 PROJECT=sspl-plugin-event-journaler
 
@@ -102,7 +102,7 @@ pushd ${CMAKE_BUILD_FULL_PATH}
 popd
 
 MachineFuzzTestCase="${SSPL_TOOLS_DIR}/${FuzzTestCaseRelDir}"
-MachineExecPath="${CMAKE_BUILD_FULL_PATH}/tests/FuzzerTests/AflFuzzScripts"
+MachineExecPath="${CMAKE_BUILD_FULL_PATH}/eventjournaler/tests/FuzzerTests/AflFuzzScripts"
 #LIBS_MACHINE="${CMAKE_BUILD_FULL_PATH}/libs"
 
 
@@ -111,7 +111,7 @@ VagrantExecPath=$(echo ${MachineExecPath} | sed s_${SSPL_TOOLS_DIR}_/vagrant_)
 #LIBS_VAGRANT=$(echo ${LIBS_MACHINE} | sed s_${SSPL_TOOLS_DIR}_/vagrant_)
 
 
-pushd ${CMAKE_BUILD_FULL_PATH}/tests/FuzzerTests/AflFuzzScripts
+pushd ${CMAKE_BUILD_FULL_PATH}/eventjournaler/tests/FuzzerTests/AflFuzzScripts
 
 for target in ${TARGETS}; do
 
