@@ -203,6 +203,22 @@ Thin Installer Help Takes Precedent Over Version Option And Prints Correct Outpu
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
 
+Thin Installer Short Help Option Prints Correct Output
+	Run Default Thininstaller With Args 0 -h
+	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+
+Thin Installer Short Help Option Prints Correct Output And Other Arguments Are Ignored
+	Run Default Thininstaller With Args 0 --force
+	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+
+Thin Installer Short Help Option Prints Correct Output And Preceding Arguments Are Ignored
+	Run Default Thininstaller With Args 0 -h --other
+	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+
+Thin Installer Short Help Option Takes Precedent Over Version Option And Prints Correct Output
+	Run Default Thininstaller With Args 0 --version -h
+    Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+
 Thin Installer Fails With Unexpected Argument
     Run Default Thininstaller With Args  23  --ThisIsUnexpected
     Check Thininstaller Log Contains  Error: Unexpected argument given: --ThisIsUnexpected --- aborting install. Please see '--help' output for list of valid arguments
