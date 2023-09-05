@@ -204,19 +204,19 @@ Thin Installer Help Takes Precedent Over Version Option And Prints Correct Outpu
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
 
 Thin Installer Short Help Option Prints Correct Output
-	Run Default Thininstaller With Args  0  -h
-	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+    Run Default Thininstaller With Args  0  -h
+    Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
 
 Thin Installer Short Help Option Prints Correct Output And Other Arguments Are Ignored
-	Run Default Thininstaller With Args  0  -h  --other
-	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+    Run Default Thininstaller With Args  0  -h  --other
+    Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
 
 Thin Installer Short Help Option Prints Correct Output And Preceding Arguments Are Ignored
-	Run Default Thininstaller With Args  0  -h  --other
-	Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
+    Run Default Thininstaller With Args  0  -h  --other
+    Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
 
 Thin Installer Short Help Option Takes Precedent Over Version Option And Prints Correct Output
-	Run Default Thininstaller With Args  0  --version  -h
+    Run Default Thininstaller With Args  0  --version  -h
     Check Thininstaller Log Contains Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
 
