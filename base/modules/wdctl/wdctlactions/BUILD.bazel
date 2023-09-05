@@ -1,0 +1,26 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "wdctlactions",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:ProjectNames",
+        "//base/modules/Common/WatchdogConstants",
+    ],
+    visibility = [
+        "//base/modules/wdctl:__subpackages__",
+        "//base/tests/wdctl:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZeroMQWrapper",
+        "//base/modules/wdctl/wdctlarguments",
+    ],
+)

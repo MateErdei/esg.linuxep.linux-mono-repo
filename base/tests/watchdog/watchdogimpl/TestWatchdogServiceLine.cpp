@@ -1,28 +1,28 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "tests/Common/Helpers/MockIWatchdogRequest.h"
 #include "ProcessReplacement.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/PluginCommunicationImpl/PluginProxy.h"
-#include "Common/ProcessImpl/ProcessImpl.h"
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
-#include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
-#include "tests/Common/Helpers/MockProcess.h"
-#include "tests/Common/Helpers/TempDir.h"
-#include "watchdog/watchdogimpl/WatchdogServiceLine.h"
 #include "Common/WatchdogConstants/WatchdogConstants.h"
 #include "Common/WatchdogRequest/IWatchdogRequest.h"
 #include "Common/WatchdogRequest/WatchdogServiceException.h"
 #include "Common/WatchdogRequestImpl/WatchdogRequestImpl.h"
 #include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockIWatchdogRequest.h"
+#include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/Helpers/TempDir.h"
+#include "watchdog/watchdogimpl/WatchdogServiceLine.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <utility>
 

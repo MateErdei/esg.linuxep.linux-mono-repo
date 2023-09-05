@@ -9,7 +9,6 @@ soph_cc_library(
     hdrs = ["ConfigException.h"],
     visibility = [
         "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
     ],
     deps = [
         "//base/modules/Common/Exceptions",

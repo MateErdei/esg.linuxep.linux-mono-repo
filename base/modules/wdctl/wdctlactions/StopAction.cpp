@@ -6,10 +6,10 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <thread>
 
@@ -73,11 +73,11 @@ StopAction::IsRunningStatus StopAction::checkIsRunning()
     {
         return StopAction::IsRunningStatus::Undefined;
     }
-    if (response.at(0) == watchdog::watchdogimpl::watchdogReturnsNotRunning)
+    if (response.at(0) == Common::WatchdogConstants::Response::watchdogReturnsNotRunning)
     {
         return StopAction::IsRunningStatus::IsNotRunning;
     }
-    if (response.at(0) == watchdog::watchdogimpl::watchdogReturnsOk)
+    if (response.at(0) == Common::WatchdogConstants::Response::watchdogReturnsOk)
     {
         return StopAction::IsRunningStatus::IsRunning;
     }

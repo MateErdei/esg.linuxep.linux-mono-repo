@@ -1,16 +1,16 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginRegistryImpl/PluginRegistryException.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "watchdog/watchdogimpl/Watchdog.h"
 #include "watchdog/watchdogimpl/watchdog_main.h"
-#include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {

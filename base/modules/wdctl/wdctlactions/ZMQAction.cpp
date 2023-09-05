@@ -4,10 +4,10 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "watchdog/watchdogimpl/Watchdog.h"
 
 namespace
 {
@@ -70,7 +70,7 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
 
 bool wdctl::wdctlactions::ZMQAction::isSuccessful(const Common::ZeroMQWrapper::IReadable::data_t& response)
 {
-    return (response.size() == 1 && response.at(0) == watchdog::watchdogimpl::watchdogReturnsOk);
+    return (response.size() == 1 && response.at(0) == Common::WatchdogConstants::Response::watchdogReturnsOk);
 }
 
 bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(
@@ -79,7 +79,9 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(
     if (response.size() == 1)
     {
         std::string responseString = response.at(0);
-        return (responseString == watchdog::watchdogimpl::watchdogReturnsOk || responseString == watchdogNotRunning);
+        return (
+            responseString == Common::WatchdogConstants::Response::watchdogReturnsOk ||
+            responseString == watchdogNotRunning);
     }
     else
     {

@@ -16,6 +16,7 @@
 #include "Common/Threads/NotifyPipe.h"
 #include "Common/UtilityImpl/ConfigException.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/WatchdogConstants/WatchdogConstants.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
@@ -147,7 +148,7 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
 
     if (status == PluginStatus::Disabled)
     {
-        return watchdogReturnsOk;
+        return Common::WatchdogConstants::Response::watchdogReturnsOk;
     }
     return PLUGINNOTFOUND;
 }
@@ -198,11 +199,11 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
             processProxy.setEnabled(true);
         };
         applyToProcessProxy(pluginName, infoUpdater);
-        return watchdogReturnsOk;
+        return Common::WatchdogConstants::Response::watchdogReturnsOk;
     }
 
     ProcessMonitor::applyToProcessProxy(pluginName, enablePlugin);
-    return watchdogReturnsOk;
+    return Common::WatchdogConstants::Response::watchdogReturnsOk;
 }
 
 std::string Watchdog::removePlugin(const std::string& pluginName)
@@ -218,7 +219,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
         return PLUGINNOTFOUND;
     }
 
-    return watchdogReturnsOk;
+    return Common::WatchdogConstants::Response::watchdogReturnsOk;
 }
 
 std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t request)
@@ -271,9 +272,9 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
     switch (status)
     {
         case PluginStatus::NotRunning:
-            return watchdogReturnsNotRunning;
+            return Common::WatchdogConstants::Response::watchdogReturnsNotRunning;
         case PluginStatus::Running:
-            return watchdogReturnsOk;
+            return Common::WatchdogConstants::Response::watchdogReturnsOk;
         case PluginStatus::NotFound:
         default:
             return PLUGINNOTFOUND;

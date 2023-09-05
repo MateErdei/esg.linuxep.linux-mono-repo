@@ -1,15 +1,13 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "WatchdogServiceLine.h"
 
-#include "IProcessException.h"
 #include "Logger.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "Common/PluginCommunication/IPluginCommunicationException.h"
-#include "Common/PluginCommunicationImpl/PluginProxy.h"
 #include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/ConfigException.h"
 #include "Common/UtilityImpl/StrError.h"

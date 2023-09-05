@@ -2,14 +2,13 @@
 
 #include "UserGroupUtils.h"
 
-#include "IProcess.h"
-#include "IProcessException.h"
-
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <sys/stat.h>

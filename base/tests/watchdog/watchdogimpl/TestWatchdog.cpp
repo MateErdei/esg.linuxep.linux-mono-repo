@@ -2,13 +2,12 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/WatchdogConstants/WatchdogConstants.h"
-
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
@@ -16,9 +15,10 @@
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "watchdog/watchdogimpl/Watchdog.h"
 
-#include <json.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <json.hpp>
 
 namespace
 {
@@ -154,7 +154,7 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin)
     watchdog.callHandleSocketRequest();
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
-    EXPECT_EQ(result.at(0), watchdog::watchdogimpl::watchdogReturnsOk);
+    EXPECT_EQ(result.at(0), Common::WatchdogConstants::Response::watchdogReturnsOk);
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile)

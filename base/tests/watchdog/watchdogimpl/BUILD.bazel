@@ -1,0 +1,31 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+spl_independent_cc_tests(
+    name = "WatchdogTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = [
+            "RequestUpdateNow.cpp",
+        ],
+    ),
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/PluginCommunicationImpl",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/WatchdogConstants",
+        "//base/modules/Common/WatchdogRequest",
+        "//base/modules/Common/WatchdogRequestImpl",
+        "//base/modules/watchdog/watchdogimpl",
+        "//base/modules/wdctl/wdctlimpl",
+        "//base/tests/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

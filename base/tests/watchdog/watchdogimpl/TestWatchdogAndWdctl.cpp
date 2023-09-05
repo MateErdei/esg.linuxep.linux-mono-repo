@@ -1,22 +1,24 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #ifndef ARTISANBUILD
-#include "gtest/gtest.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include <gmock/gmock.h>
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "wdctl/wdctlimpl/wdctl_bootstrap.h"
-#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
-#include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/TempDir.h"
-#include "watchdog/watchdogimpl/Watchdog.h"
-#include <mutex>
-#include <thread>
-#include <grp.h>
-#include <pwd.h>
-#include <unistd.h>
+#    include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#    include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#    include "Common/UtilityImpl/StringUtils.h"
+#    include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#    include "tests/Common/Helpers/LogInitializedTests.h"
+#    include "tests/Common/Helpers/MockFilePermissions.h"
+#    include "tests/Common/Helpers/TempDir.h"
+#    include "watchdog/watchdogimpl/Watchdog.h"
+#    include "wdctl/wdctlimpl/wdctl_bootstrap.h"
+
+#    include <gmock/gmock.h>
+#    include <gtest/gtest.h>
+
+#    include <grp.h>
+#    include <mutex>
+#    include <pwd.h>
+#    include <thread>
+#    include <unistd.h>
 
 namespace
 {

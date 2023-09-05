@@ -20,6 +20,12 @@ namespace Common::WatchdogConstants
         }
     } // namespace Actions
 
+    namespace Response
+    {
+        static const std::string watchdogReturnsOk = "OK";
+        static const std::string watchdogReturnsNotRunning = "Not Running";
+    } // namespace Response
+
     inline std::string WatchdogServiceLineName()
     {
         return "watchdogservice";
