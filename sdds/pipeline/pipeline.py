@@ -84,14 +84,18 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
 
     previous_dogfood_branch = parameters.previous_dogfood_branch
     current_shipping_branch = parameters.current_shipping_branch
+    thininstaller_branch =  parameters.thininstaller_branch
+
     if not previous_dogfood_branch:
-        previous_dogfood_branch = "release--2023-28"
+        previous_dogfood_branch = "release--2023-31"
     if not current_shipping_branch:
         current_shipping_branch = "release--2023.2"
+    if not thininstaller_branch:
+        thininstaller_branch = "develop"
 
     previous_dogfood_branch = previous_dogfood_branch.replace("/", "--")
     current_shipping_branch = current_shipping_branch.replace("/", "--")
-    thininstaller_branch = parameters.thininstaller_branch.replace("/", "--")
+    thininstaller_branch = thininstaller_branch.replace("/", "--")
 
     test_inputs = dict(
         test_scripts=build / "test-scripts",
