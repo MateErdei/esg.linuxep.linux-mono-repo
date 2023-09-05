@@ -53,52 +53,52 @@ def get_test_machines(test_inputs, parameters):
 
     test_environments = {}
 
-    if parameters.run_amazon_2 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_amazon_2 != "false":
         test_environments['amazonlinux2'] = 'amzlinux2_x64_server_en_us'
 
-    if parameters.run_amazon_2023 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_amazon_2023 != "false":
         test_environments['amazonlinux2023'] = 'amzlinux2023_x64_server_en_us'
 
     if parameters.run_centos_7 != "false":
         test_environments['centos79'] = 'centos7_x64_aws_server_en_us'
 
-    if parameters.run_centos_stream_8 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_centos_stream_8 != "false":
         test_environments['centos8stream'] = 'centos8stream_x64_aws_server_en_us'
 
-    if parameters.run_centos_stream_9 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_centos_stream_9 != "false":
         test_environments['centos9stream'] = 'centos9stream_x64_aws_server_en_us'
 
     if parameters.run_debian_10 != "false":
         test_environments['debian10'] = 'debian10_x64_aws_server_en_us'
 
-    if parameters.run_debian_11 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_debian_11 != "false":
         test_environments['debian11'] = 'debian11_x64_aws_server_en_us'
 
-    if parameters.run_oracle_7 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_oracle_7 != "false":
         test_environments['oracle7'] = 'oracle79_x64_aws_server_en_us'
 
-    if parameters.run_oracle_8 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_oracle_8 != "false":
         test_environments['oracle8'] = 'oracle87_x64_aws_server_en_us'
 
-    if parameters.run_rhel_7 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_rhel_7 != "false":
         test_environments['rhel7'] = 'rhel79_x64_aws_server_en_us'
 
-    if parameters.run_rhel_8 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_rhel_8 != "false":
         test_environments['rhel8'] = 'rhel87_x64_aws_server_en_us'
 
-    if parameters.run_rhel_9 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_rhel_9 != "false":
         test_environments['rhel9'] = 'rhel91_x64_aws_server_en_us'
 
     if parameters.run_sles_12 != "false":
         test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
 
-    if parameters.run_sles_15 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_sles_15 != "false":
         test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
 
-    if parameters.run_ubuntu_18_04 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_ubuntu_18_04 != "false":
         test_environments['ubuntu1804'] = 'ubuntu1804_x64_aws_server_en_us'
 
-    if parameters.run_ubuntu_20_04 != "false" and parameters.run_all_tests == "run_all":
+    if parameters.run_ubuntu_20_04 != "false":
         test_environments['ubuntu2004'] = 'ubuntu2004_x64_aws_server_en_us'
 
     # TODO: LINUXDAR-7306 set CIJenkins to default=true once python3.10 issues are resolved

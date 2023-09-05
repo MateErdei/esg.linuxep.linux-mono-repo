@@ -1,9 +1,6 @@
 @Library("tap-pipe")
 
 def params = [
-    choice(name: 'run_all_tests',
-        ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ 'release'/^*$/) ? ["run_all"] : ["run_subset", "run_all"]),
-        description: 'Branch tag to match against for build, overriding branch name. All tags build on develop.'),
  choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
  choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base'], defaultValue: 'all'),
  booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Test Automation in TAP'),
