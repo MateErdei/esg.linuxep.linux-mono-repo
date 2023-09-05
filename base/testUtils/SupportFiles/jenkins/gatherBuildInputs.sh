@@ -8,7 +8,7 @@ then
 fi
 $PYTHONCOMMAND -m venv /tmp/venv-for-ci
 source /tmp/venv-for-ci/bin/activate
-  $WORKSPACE/testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
-  export BUILD_JWT=$(cat $WORKSPACE/testUtils/SupportFiles/jenkins/jwt_token.txt)
-  $PYTHONCOMMAND -m build_scripts.artisan_fetch $WORKSPACE/build/release-package.xml
+  $WORKSPACE/base/testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
+  export BUILD_JWT=$(cat $WORKSPACE/base/testUtils/SupportFiles/jenkins/jwt_token.txt)
+  $PYTHONCOMMAND -m build_scripts.artisan_fetch $WORKSPACE/base/build/release-package.xml
 deactivate
