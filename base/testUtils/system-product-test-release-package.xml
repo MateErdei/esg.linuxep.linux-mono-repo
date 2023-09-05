@@ -6,12 +6,9 @@
             <development-version branch="develop"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="sspl-base-sdds3"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage,base-coverage" artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="sspl-base-0-6-0"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="base-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
-            <include mode="base-coverage" artifact-path="sspl-base-coverage/SDDS3-PACKAGE" dest-dir="sspl-base-sdds3"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/covfile" dest-dir="coverage"/>
         </build-asset>

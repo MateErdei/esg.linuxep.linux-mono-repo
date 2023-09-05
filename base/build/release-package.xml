@@ -100,12 +100,6 @@
             <workingdir>.</workingdir>
         </command>
 
-        <!-- 060 version Build-->
-        <command mode="060">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --060 --no-unittest --release</args>
-            <workingdir>.</workingdir>
-        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>

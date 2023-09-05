@@ -70,11 +70,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
                                                      mode=NINE_NINE_NINE_MODE,
                                                      release_package=base.PACKAGE_PATH)
 
-                base_060_build = stage.artisan_build(name=f"base_{ZERO_SIX_ZERO_MODE}",
-                                                     component=base_component,
-                                                     image=BUILD_TEMPLATE,
-                                                     mode=ZERO_SIX_ZERO_MODE,
-                                                     release_package=base.PACKAGE_PATH)
         elif mode == COVERAGE_MODE:
             base_coverage_build = stage.artisan_build(name=f"base_{COVERAGE_MODE}",
                                                       component=base_component,

@@ -104,13 +104,3 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
 install(FILES datafeed-config-scheduled_query.json
         DESTINATION ${BASE_DIST_PREFIX}/files/base/etc/)
 
-if (DEFINED ENV{O_SIX_O})
-    install(FILES ../../faker_lib.so.2.23.999
-            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
-
-    install(FILES ../../fake_lib.so.1.66.999
-            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
-
-    install(FILES ../../also_a_fake_lib.so.5.86.999
-            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
-endif()

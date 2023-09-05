@@ -10,7 +10,8 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../GeneralUtilsResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
-
+Suite Setup     create 060 install set
+Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
 Default Tags  INSTALLER  TAP_TESTS
 
@@ -198,7 +199,7 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
 
 VersionCopy File in the Wrong Location Is Removed
     [Tags]  INSTALLER
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
+    run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     #fake the file being copied to the wrong location
     Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
@@ -222,14 +223,14 @@ VersionCopy File in the Wrong Location Is Removed
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
+    run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Check Files Before Upgrade
     run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
     Check Files After Upgrade
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     [Tags]  INSTALLER
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
+    run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Install Response Actions Directly
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-responseactions/manifest.dat  /tmp/RA-manifest.dat
@@ -253,7 +254,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 Version Copy Versions All Changed Files When Upgrading
     [Tags]  INSTALLER
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-0-6-0/install.sh    ${0}
+    run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
@@ -301,6 +302,26 @@ Verify SPL Is Not Restarted When SulDownloader Env Var Is Set
     Check Watchdog Not Running
 
 *** Keywords ***
+create 060 install set
+    ${result} =   Get Folder With Installer
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${result}/VERSION.ini
+    Copy Directory  ${result}  /opt/tmp/0-6-0
+    Replace Version  ${BaseDevVersion}   0.6.0  /opt/tmp/0-6-0
+    ${result} =  Run Process  chmod  +x  /opt/tmp/0-6-0/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+    remove File    /opt/tmp/0-6-0/manifest.dat
+    remove File    /opt/tmp/0-6-0/SDDS-Import.xml
+    Create File    /opt/tmp/0-6-0/files/base/lib64/also_a_fake_lib.so.5.86.999
+    Create File    /opt/tmp/0-6-0/files/base/lib64/fake_lib.so.1.66.999
+    Create File    /opt/tmp/0-6-0/files/base/lib64/faker_lib.so.2.23.999
+    Set Environment Variable    PRODUCT_NAME   SPL-Base-Component
+    Set Environment Variable    FEATURE_LIST    CORE
+    Set Environment Variable    VERSION_OVERRIDE  0.6.0
+    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py /opt/tmp/0-6-0  shell=true
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Strings   ${result.rc}  0
+    log file  /opt/tmp/0-6-0/manifest.dat
 
 Restart And Remove MCS And Watchdog Logs
     Run Shell Process  systemctl stop sophos-spl    OnError=failed to restart sophos-spl
