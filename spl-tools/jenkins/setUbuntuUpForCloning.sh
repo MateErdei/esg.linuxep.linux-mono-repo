@@ -10,5 +10,5 @@ then
 	echo "Didn't get IP address for ${VM_NAME}" >2
 	exit 1
 fi
-jenkins/runScriptOnRemoteMachine.sh deleteDifferentMachineId.sh root@${VSPHERE_IP}
+spl-tools/jenkins/runScriptOnRemoteMachine.sh deleteDifferentMachineId.sh root@${VSPHERE_IP}
 sleep 120
