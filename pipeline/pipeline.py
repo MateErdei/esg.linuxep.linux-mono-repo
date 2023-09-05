@@ -129,11 +129,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
                                                        mode=NINE_NINE_NINE_MODE,
                                                        release_package=PACKAGE_PATH_EJ)
 
-                    ej_060_build = stage.artisan_build(name=f"ej_{ZERO_SIX_ZERO_MODE}",
-                                                       component=ej_component,
-                                                       image=BUILD_TEMPLATE,
-                                                       mode=ZERO_SIX_ZERO_MODE,
-                                                       release_package=PACKAGE_PATH_EJ)
             # AV
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                 av_build = stage.artisan_build(name=f"av_{RELEASE_MODE}",
@@ -152,12 +147,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
                                                        component=av_component,
                                                        image=BUILD_TEMPLATE,
                                                        mode=NINE_NINE_NINE_MODE,
-                                                       release_package=PACKAGE_PATH_AV)
-
-                    av_060_build = stage.artisan_build(name=f"av_{ZERO_SIX_ZERO_MODE}",
-                                                       component=av_component,
-                                                       image=BUILD_TEMPLATE,
-                                                       mode=ZERO_SIX_ZERO_MODE,
                                                        release_package=PACKAGE_PATH_AV)
         elif mode == COVERAGE_MODE:
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
