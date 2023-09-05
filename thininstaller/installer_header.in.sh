@@ -11,30 +11,37 @@ INSTALL_FILE=$0
 # Display help
 escaped_args=$(echo $args | sed s/--/x--/g)
 
+version_flag_set=false
 for arg in $escaped_args
 do
   if [[ "$arg" == "x--help" ]] || [[ "x$arg" == "x-h" ]]
   then
-      echo "${PRODUCT_NAME} Installer, help:"
-      echo "Note: Please refer to https://docs.sophos.com/central/customer/help/en-us/index.html?contextId=protect-devices-server-CLI-Linux for advanced options"
-      echo "Usage: [options]"
-      echo "Valid options are:"
-      echo -e "--help [-h]\t\t\tDisplay this summary"
-      echo -e "--version [-v]\t\t\tDisplay version of installer"
-      echo -e "--force\t\t\t\tForce re-install"
-      echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
-      echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
-      echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
-      echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
-      exit 0
+    echo "${PRODUCT_NAME} Installer, help:"
+    echo "Note: Please refer to https://docs.sophos.com/central/customer/help/en-us/index.html?contextId=protect-devices-server-CLI-Linux for advanced options"
+    echo "Usage: [options]"
+    echo "Valid options are:"
+    echo -e "--help [-h]\t\t\tDisplay this summary"
+    echo -e "--version [-v]\t\t\tDisplay version of installer"
+    echo -e "--force\t\t\t\tForce re-install"
+    echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
+    echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
+    echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
+    echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
+    exit 0
   fi
 
   if [[ "$arg" == "x--version" ]] || [[ "x$arg" == "x-v" ]]
   then
-      echo "${PRODUCT_NAME} Installer, version: $VERSION"
-      exit 0
+      version_flag_set=true
   fi
 done
+
+if $version_flag_set
+then
+  echo "${PRODUCT_NAME} Installer, version: $VERSION"
+  exit 0
+fi
+
 
 EXITCODE_SUCCESS=0
 EXITCODE_NOT_LINUX=1
