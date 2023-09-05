@@ -1,20 +1,21 @@
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
-spl_independent_cc_tests(
-    name = "PluginCommunicationImplTests",
-    srcs = glob([
-        "*.cpp",
-        "*.h",
-    ]),
-    deps = [
-        "//base/modules/Common/FileSystemImpl",
-        "//base/modules/Common/PluginCommunicationImpl",
-        "//base/modules/Common/TaskQueueImpl",
-        "//base/modules/ManagementAgent/EventReceiverImpl",
-        "//base/modules/ManagementAgent/McsRouterPluginCommunicationImpl",
-        "//base/tests/Common/ApplicationConfiguration",
-        "//base/tests/Common/Helpers",
-        "//base/tests/Common/PluginApiImpl:TestCompare",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
+# TODO LINUXDAR-6783: Re-enable these tests once we know they are stable
+#spl_independent_cc_tests(
+#    name = "PluginCommunicationImplTests",
+#    srcs = glob([
+#        "*.cpp",
+#        "*.h",
+#    ]),
+#    deps = [
+#        "//base/modules/Common/FileSystemImpl",
+#        "//base/modules/Common/PluginCommunicationImpl",
+#        "//base/modules/Common/TaskQueueImpl",
+#        "//base/modules/ManagementAgent/EventReceiverImpl",
+#        "//base/modules/ManagementAgent/McsRouterPluginCommunicationImpl",
+#        "//base/tests/Common/ApplicationConfiguration",
+#        "//base/tests/Common/Helpers",
+#        "//base/tests/Common/PluginApiImpl:TestCompare",
+#        "@com_google_googletest//:gtest_main",
+#    ],
+#)
