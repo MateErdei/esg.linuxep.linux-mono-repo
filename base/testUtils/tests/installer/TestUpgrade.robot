@@ -10,7 +10,7 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../GeneralUtilsResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
-Suite Setup     create 060 install set
+Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
 Default Tags  INSTALLER  TAP_TESTS
@@ -302,7 +302,7 @@ Verify SPL Is Not Restarted When SulDownloader Env Var Is Set
     Check Watchdog Not Running
 
 *** Keywords ***
-create 060 install set
+Create 060 Install Set
     ${result} =   Get Folder With Installer
     ${BaseDevVersion} =     Get Version Number From Ini File   ${result}/VERSION.ini
     Copy Directory  ${result}  /opt/tmp/0-6-0
@@ -321,7 +321,6 @@ create 060 install set
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Strings   ${result.rc}  0
-    log file  /opt/tmp/0-6-0/manifest.dat
 
 Restart And Remove MCS And Watchdog Logs
     Run Shell Process  systemctl stop sophos-spl    OnError=failed to restart sophos-spl
