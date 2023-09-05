@@ -141,7 +141,7 @@ namespace Common::PluginApiImpl
 
                     return m_messageBuilder.replyAckMessage(request);
                 case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
-                    LOGDEBUG("Received new Action");
+                    LOGDEBUG("Received new Action: " << request.m_correlationId);
 
                     m_pluginCallback->queueActionWithCorrelation(
                         GetContentFromPayload(
