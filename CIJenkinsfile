@@ -1,4 +1,33 @@
 @Library("tap-pipe")
 
-def params = []
+def params = [
+    choice(name: 'run_all_tests',
+        ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ 'release'/^*$/) ? ["run_all"] : ["run_subset", "run_all"]),
+        description: 'Branch tag to match against for build, overriding branch name. All tags build on develop.'),
+ choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
+ choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base'], defaultValue: 'all'),
+ booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Test Automation in TAP'),
+
+ booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
+ booleanParam(name: 'run_amazon_2023', defaultValue: true, description: 'Run TAP on Amazon Linux 2023'),
+ booleanParam(name: 'run_centos_7', defaultValue: true, description: 'Run TAP on CentOS 7'),
+ booleanParam(name: 'run_centos_stream_8', defaultValue: true, description: 'Run TAP on CentOS 8 Stream'),
+ booleanParam(name: 'run_centos_stream_9', defaultValue: true, description: 'Run TAP on CentOS 9 Stream'),
+ booleanParam(name: 'run_debian_10', defaultValue: true, description: 'Run TAP on Debian 10'),
+ booleanParam(name: 'run_debian_11', defaultValue: true, description: 'Run TAP on Debian 11'),
+ booleanParam(name: 'run_oracle_7', defaultValue: true, description: 'Run TAP on Oracle Linux 7'),
+ booleanParam(name: 'run_oracle_8', defaultValue: true, description: 'Run TAP on Oracle Linux 8'),
+ booleanParam(name: 'run_rhel_7', defaultValue: true, description: 'Run TAP on RHEL 7'),
+ booleanParam(name: 'run_rhel_8', defaultValue: true, description: 'Run TAP on RHEL 8'),
+ booleanParam(name: 'run_rhel_9', defaultValue: true, description: 'Run TAP on RHEL 9'),
+ booleanParam(name: 'run_sles_12', defaultValue: true, description: 'Run TAP on SLES 12'),
+ booleanParam(name: 'run_sles_15', defaultValue: true, description: 'Run TAP on SLES 15'),
+ booleanParam(name: 'run_ubuntu_18_04', defaultValue: true, description: 'Run TAP on Ubuntu 18.04'),
+ booleanParam(name: 'run_ubuntu_20_04', defaultValue: true, description: 'Run TAP on Ubuntu 20.04'),
+ booleanParam(name: 'run_ubuntu_22_04', defaultValue: false, description: 'Run TAP on Ubuntu 22.04'),
+
+ string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
+ string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
+]
+
 CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true' }
