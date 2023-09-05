@@ -1,0 +1,22 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "VersionedCopy",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = ["VersionedCopy.h"],
+    implementation_deps = [
+        "//base/modules/Common/Exceptions",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+    ],
+    visibility = [
+        "//base/products/Base/installer:__pkg__",
+        "//base/tests/Installer/VersionedCopy:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/FileSystem",
+    ],
+)

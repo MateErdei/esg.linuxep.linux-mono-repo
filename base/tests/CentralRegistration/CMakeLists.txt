@@ -3,6 +3,7 @@ include(GoogleTest)
 add_executable(centralregistrationtests
         TestCentralRegistration.cpp
         TestCentralRegistrationMain.cpp
+        MockAgentAdapter.h
         )
 target_include_directories(centralregistrationtests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
 target_link_libraries(centralregistrationtests ${GTEST_MAIN_LIBRARY} filesystemimpl testhelpers centralregistrationimpl mcsimpl)

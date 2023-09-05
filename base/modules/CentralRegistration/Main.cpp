@@ -7,7 +7,7 @@
 #include "MessageRelayExtractor.h"
 #include "MessageRelaySorter.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"

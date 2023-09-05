@@ -6,7 +6,6 @@
 #include "MCSHttpClient.h"
 
 #include <chrono>
-#include <json.hpp>
 #include <map>
 #include <string>
 

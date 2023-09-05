@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "CentralRegistration/MessageRelaySorter.h"
 #include "Common/OSUtilitiesImpl/LocalIPImpl.h"
 

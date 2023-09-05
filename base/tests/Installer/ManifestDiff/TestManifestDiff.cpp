@@ -2,13 +2,13 @@
 
 #include "ExampleManifests.h"
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Installer/ManifestDiff/Manifest.h"
 #include "Installer/ManifestDiff/ManifestDiff.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {

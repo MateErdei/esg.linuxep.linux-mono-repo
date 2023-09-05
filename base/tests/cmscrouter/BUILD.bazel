@@ -1,0 +1,17 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "cmcsrouterTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//base/modules/Common/XmlUtilities",
+        "//base/modules/cmcsrouter",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/OSUtilitiesImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

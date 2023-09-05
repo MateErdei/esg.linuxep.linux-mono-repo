@@ -26,6 +26,15 @@ soph_cc_library(
 )
 
 soph_cc_library(
+    name = "iostr_utils",
+    hdrs = ["iostr_utils.h"],
+    visibility = [
+        "//base/modules:__subpackages__",
+        "//base/tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
     name = "TimeUtils",
     srcs = ["TimeUtils.cpp"],
     hdrs = ["TimeUtils.h"],
