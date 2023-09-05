@@ -448,7 +448,10 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
 
     auto mockFilePermissions = std::make_unique<MockFilePermissions>();
 #ifndef SPL_BAZEL
-    EXPECT_CALL(*mockFilePermissions, chown(expectedStatusFile_,"root","sophos-spl-group")).WillOnce(Return());
+    if (::getuid() == 0)
+    {
+        EXPECT_CALL(*mockFilePermissions, chown(expectedStatusFile_, "root", "sophos-spl-group")).WillOnce(Return());
+    }
 #endif
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
