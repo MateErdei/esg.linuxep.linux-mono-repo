@@ -71,6 +71,10 @@
 <!--            <args>./build.sh &#45;&#45;clean &#45;&#45;060 &#45;&#45;no-unittest &#45;&#45;release</args>-->
 <!--            <workingdir>.</workingdir>-->
 <!--        </command>-->
+
+        <logs name="test_logs" source-dir="bazel-testlogs">
+            <include glob="**"/>
+        </logs>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
