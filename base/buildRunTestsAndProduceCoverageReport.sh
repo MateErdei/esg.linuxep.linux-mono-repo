@@ -5,24 +5,26 @@ function failure() {
     exit 1
 }
 # assumes this is executed from everest-base/
-BASE=$(pwd)
+
+BASE=$(pwd)/base
+cd ${BASE}
 
 echo 'remove previous coverage results'
-rm -rf modules/.coverage*
-rm -rf tests/mcsrouter/.coverage*
+rm -rf ${BASE}/modules/.coverage*
+rm -rf ${BASE}/tests/mcsrouter/.coverage*
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
-git checkout build/release-package.xml
+git checkout ${BASE}/build/release-package.xml
 export PATH=$PATH:/usr/local/bin/
 ./tap_fetch.sh
 ./build.sh --release --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
-pushd tests/mcsrouter
+pushd ${BASE}/tests/mcsrouter
 python3 -m coverage combine || echo 'ignore error'
 [[ -f .coverage ]] && mv .coverage  ../../testUtils/.coverage
 popd
 
-pushd testUtils
+pushd ${BASE}/testUtils
 echo 'run system tests'
 TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -e THIN_INSTALLER -i UPDATE_CACHE -e OSTIA"
 USER=$(whoami)
