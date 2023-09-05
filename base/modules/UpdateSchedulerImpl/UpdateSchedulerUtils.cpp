@@ -2,14 +2,12 @@
 
 #include "UpdateSchedulerUtils.h"
 
-#include "Logger.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
+#include "common/Logger.h"
 
 #include <json.hpp>
 
@@ -239,10 +237,6 @@ namespace UpdateSchedulerImpl
             auto configurationData = SerialiseUpdateSettings::fromJsonSettings(configSettings);
 
             return configurationData;
-        }
-        catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
-        {
-            LOGWARN("Failed to load configuration settings from : " << filePath);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {

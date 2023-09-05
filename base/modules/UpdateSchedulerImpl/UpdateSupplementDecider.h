@@ -6,7 +6,7 @@
 
 #include <ctime>
 
-namespace SulDownloader::suldownloaderdata
+namespace UpdateSchedulerImpl
 {
     class UpdateSupplementDecider
     {
@@ -43,4 +43,4 @@ namespace SulDownloader::suldownloaderdata
     private:
         WeekDayAndTimeForDelay m_schedule;
     };
-} // namespace SulDownloader::suldownloaderdata
+} // namespace UpdateSchedulerImpl

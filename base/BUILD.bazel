@@ -1,0 +1,12 @@
+load("//tools/config:expand_template.bzl", "expand_template")
+
+# TODO LINUXDAR-7877: This should use auto-versioning
+expand_template(
+    name = "AutoVersion_h",
+    out = "AutoVersion.h",
+    substitutions = {"@AUTOVERSION@": "1.2.5.9999"},
+    template = "//common:AutoVersion.h.in",
+    visibility = [
+        "//base/modules:__subpackages__",
+    ],
+)

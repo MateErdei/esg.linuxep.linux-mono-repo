@@ -1,12 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "ConfigurationDataBase.h"
-
-#include "Common/Policy/PolicyParseException.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Policy/PolicyParseException.h"
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
-
+#include "tests/Common/Helpers/ConfigurationDataBase.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 

@@ -1,16 +1,20 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "UpdateSchedulerBootstrap.h"
 
-#include "Logger.h"
 #include "SchedulerPluginCallback.h"
 #include "UpdateSchedulerProcessor.h"
 #include "UpdateSchedulerUtils.h"
 
+#include "common/Logger.h"
 #include "cronModule/CronSchedulerThread.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
 
 // Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
+#ifdef SPL_BAZEL
+#    include "base/AutoVersion.h"
+#else
+#    include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"

@@ -1,11 +1,9 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "ConfigurationDataBase.h"
+#include "UpdateSchedulerImpl/UpdateSupplementDecider.h"
+#include "tests/Common/Helpers/ConfigurationDataBase.h"
 
-#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
-
-using namespace SulDownloader;
-using namespace SulDownloader::suldownloaderdata;
+using UpdateSchedulerImpl::UpdateSupplementDecider;
 
 namespace
 {

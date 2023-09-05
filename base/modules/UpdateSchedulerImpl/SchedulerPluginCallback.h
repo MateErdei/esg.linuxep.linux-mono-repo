@@ -3,7 +3,7 @@
 #pragma once
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
+#include "common/StateMachineData.h"
 
 #include <atomic>
 #include <condition_variable>

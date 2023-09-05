@@ -3,7 +3,7 @@
 #include "SulDownloaderRunner.h"
 
 #include "Common/WatchdogRequest/IWatchdogRequest.h"
-#include "UpdateSchedulerImpl/Logger.h"
+#include "UpdateSchedulerImpl/common/Logger.h"
 
 namespace UpdateSchedulerImpl::runnerModule
 {

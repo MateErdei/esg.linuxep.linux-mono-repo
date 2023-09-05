@@ -1,7 +1,8 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
-#include <gtest/gtest.h>
 #include "tests/Common/Helpers/LogInitializedTests.h"
+
+#include <gtest/gtest.h>
 
 class ConfigurationDataBase : public LogOffInitializedTests
 {

@@ -1,0 +1,34 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+soph_cc_library(
+    name = "common",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/UpdateSchedulerImpl:__subpackages__",
+        "//base/tests/UpdateScheduler:__pkg__",
+    ],
+    deps = [
+        ":StateMachineData",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ProtobufUtil",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "@com_google_protobuf//:protobuf",
+    ],
+)
+
+cc_proto_library(
+    name = "StateMachineData",
+    deps = [":StateMachineData_proto"],
+)
+
+proto_library(
+    name = "StateMachineData_proto",
+    srcs = ["StateMachineData.proto"],
+)

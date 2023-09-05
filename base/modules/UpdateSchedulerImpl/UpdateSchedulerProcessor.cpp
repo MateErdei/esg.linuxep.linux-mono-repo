@@ -2,8 +2,8 @@
 
 #include "UpdateSchedulerProcessor.h"
 
-#include "Logger.h"
 #include "UpdateSchedulerUtils.h"
+#include "UpdateSupplementDecider.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -17,8 +17,8 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UpdateUtilities/ConfigurationDataUtil.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
-#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 #include "UpdateScheduler/SchedulerTaskQueue.h"
+#include "common/Logger.h"
 #include "configModule/DownloadReportsAnalyser.h"
 #include "configModule/UpdateActionParser.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
@@ -590,7 +590,7 @@ namespace UpdateSchedulerImpl
 
         // Check if we should do a supplement-only update or not
         time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
-        SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(weeklySchedule_);
+        UpdateSupplementDecider decider(weeklySchedule_);
         updateProducts = decider.updateProducts(lastProductUpdateCheck, UpdateNow);
 
         if (!updateProducts)
@@ -799,7 +799,7 @@ namespace UpdateSchedulerImpl
             if (!reportAndFiles.reportCollectionResult.SchedulerStatus.LastUpdateWasSupplementOnly)
             {
                 // Record we did a product update
-                SulDownloader::suldownloaderdata::UpdateSupplementDecider::recordSuccessfulProductUpdate();
+                UpdateSupplementDecider::recordSuccessfulProductUpdate();
             }
 
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;

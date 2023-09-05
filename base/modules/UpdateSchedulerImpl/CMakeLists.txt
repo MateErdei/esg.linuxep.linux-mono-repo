@@ -1,8 +1,6 @@
-include(stateMachinesModule/proto/CMakeLists.txt)
+add_subdirectory(common)
 
 add_library(updateschedulerimpl SHARED
-        ${STATE_MACHINE_DATA_PROTO_SRC}
-        ${STATE_MACHINE_DATA_PROTO_H}
         configModule/UpdatePolicyTranslator.cpp
         configModule/UpdatePolicyTranslator.h
         configModule/UpdateActionParser.cpp
@@ -33,8 +31,8 @@ add_library(updateschedulerimpl SHARED
         ../UpdateScheduler/ICronSchedulerThread.h
         SchedulerPluginCallback.h
         SchedulerPluginCallback.cpp
-        Logger.h
-        Logger.cpp
+        common/Logger.h
+        common/Logger.cpp
         UpdateSchedulerProcessor.h
         UpdateSchedulerProcessor.cpp
         UpdateSchedulerBootstrap.h
@@ -53,24 +51,27 @@ add_library(updateschedulerimpl SHARED
         stateMachinesModule/SEUErrors.h
         stateMachinesModule/Logger.h
         stateMachinesModule/Logger.cpp
-        stateMachinesModule/StateMachineException.h
-        stateMachinesModule/StateMachineException.cpp
-        stateMachinesModule/StateMachineData.h
-        stateMachinesModule/StateMachineData.cpp
+        common/StateMachineException.h
+        common/StateMachineException.cpp
+        common/StateMachineData.h
+        common/StateMachineData.cpp
         stateMachinesModule/StateMachineProcessor.cpp
         stateMachinesModule/StateMachineProcessor.h
         UpdateSchedulerUtils.cpp
         UpdateSchedulerUtils.h
-        ../Common/UpdateUtilities/InstalledFeatures.h
-        ../Common/UpdateUtilities/InstalledFeatures.cpp
+        UpdateSupplementDecider.cpp
+        UpdateSupplementDecider.h
         )
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC
         ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR}
         ${AUTOVERSION_INCLUDE}
+        ${CMAKE_BINARY_DIR}/modules
+        ${PROTOBUF_INCLUDE_DIR}
         )
 
 target_link_libraries(updateschedulerimpl PUBLIC
+        StateMachineDataProto
         filesystemimpl
         flagutilsobject
         utilityimpl

@@ -3,9 +3,8 @@
 #pragma once
 
 #include "StateData.h"
-#include "StateMachineData.h"
 
-#include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
+#include "UpdateSchedulerImpl/common/StateMachineData.h"
 
 namespace UpdateSchedulerImpl::stateMachinesModule
 {

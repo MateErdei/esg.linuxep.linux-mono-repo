@@ -3,11 +3,11 @@
 #include "StateMachineData.h"
 
 #include "Logger.h"
-#include "StateMachineData.pb.h"
 #include "StateMachineException.h"
 
 #include "Common/ProtobufUtil/MessageUtility.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "UpdateSchedulerImpl/common/StateMachineData.pb.h"
 
 #include <google/protobuf/util/json_util.h>
 

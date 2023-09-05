@@ -1,0 +1,18 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "runnerModule",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//base/modules/UpdateSchedulerImpl:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/DirectoryWatcher",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/WatchdogRequest",
+        "//base/modules/UpdateScheduler",
+        "//base/modules/UpdateSchedulerImpl/common",
+    ],
+)

@@ -3,11 +3,11 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "UpdateScheduler/IAsyncSulDownloaderRunner.h"
-#include "UpdateSchedulerImpl/Logger.h"
-#include <gmock/gmock-matchers.h>
+#include "tests/Common/Helpers/MockIWatchdogRequest.h"
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include "tests/Common/Helpers/MockIWatchdogRequest.h"
+
+#include <gmock/gmock-matchers.h>
 
 #include <future>
 #include <thread>
@@ -74,7 +74,7 @@ TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
 
     IWatchdogRequestReplacement replacement([]() {
         MockIWatchdogRequest* mock = new StrictMock<MockIWatchdogRequest>();
-        EXPECT_CALL(*mock, requestUpdateService).WillOnce(Invoke([]() {
+        EXPECT_CALL(*mock, requestUpdateService()).WillOnce(Invoke([]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }));
         return std::unique_ptr<Common::WatchdogRequest::IWatchdogRequest>(mock);

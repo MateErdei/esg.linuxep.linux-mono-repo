@@ -1,0 +1,32 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+HELPER_SOURCES = [
+    "TimeStamp.cpp",
+]
+
+spl_independent_cc_tests(
+    name = "UpdateSchedulerTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = HELPER_SOURCES,
+    ),
+    per_test_srcs = HELPER_SOURCES,
+    deps = [
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/UpdateSchedulerImpl",
+        "//base/modules/UpdateSchedulerImpl/common",
+        "//base/modules/UpdateSchedulerImpl/configModule",
+        "//base/modules/UpdateSchedulerImpl/stateMachinesModule",
+        "//base/tests/Common/FileSystemImpl",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/OSUtilitiesImpl",
+        "//base/tests/Common/UtilityImpl:MockFormattedTime",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

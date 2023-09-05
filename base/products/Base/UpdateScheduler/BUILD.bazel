@@ -1,0 +1,14 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "UpdateScheduler",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//base/modules/Common/UtilityImpl:Main",
+        "//base/modules/UpdateSchedulerImpl",
+    ],
+)

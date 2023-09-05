@@ -2,12 +2,12 @@
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
-#include "UpdateSchedulerImpl/Logger.h"
 #include "UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h"
-#include <gmock/gmock-matchers.h>
+#include "tests/Common/Helpers/MockIWatchdogRequest.h"
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include "tests/Common/Helpers/MockIWatchdogRequest.h"
+
+#include <gmock/gmock-matchers.h>
 
 #include <future>
 #include <thread>

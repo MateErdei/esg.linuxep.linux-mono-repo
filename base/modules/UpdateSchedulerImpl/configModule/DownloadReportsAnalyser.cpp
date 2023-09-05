@@ -7,7 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/UpdateUtilities/DownloadReports.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "UpdateSchedulerImpl/Logger.h"
+#include "UpdateSchedulerImpl/common/Logger.h"
 
 #include <algorithm>
 #include <cassert>
@@ -19,7 +19,7 @@ namespace
 {
     using MessageInsert = UpdateSchedulerImpl::configModule::MessageInsert;
     using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
-    using EventMessageNumber = UpdateSchedulerImpl::configModule::EventMessageNumber;
+    using EventMessageNumber = UpdateSchedulerImpl::EventMessageNumber;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
 
     void buildMessagesInsertFromDownloadReport(std::vector<MessageInsert>* messages, const DownloadReport& report)

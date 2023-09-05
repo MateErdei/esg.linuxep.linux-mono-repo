@@ -4,7 +4,7 @@
 
 #include "Common/Exceptions/IException.h"
 #include "Common/Policy/UpdateSettings.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
+#include "common/StateMachineData.h"
 
 #include <optional>
 #include <string>

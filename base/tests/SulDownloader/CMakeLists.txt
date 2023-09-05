@@ -17,10 +17,9 @@ add_executable(SulDownloaderTests
         MockVersig.h
         VersigTests.cpp
         TestProductUninstaller.cpp
-        ConfigurationDataBase.h
+        ../Common/Helpers/ConfigurationDataBase.h
         TestProductMetadata.cpp
         TestCatalogueInfo.cpp
-        TestUpdateSupplementDecider.cpp
         TestSdds3Repository.cpp
         Sdds3ReplaceAndRestore.h
         Sdds3ReplaceAndRestore.cpp

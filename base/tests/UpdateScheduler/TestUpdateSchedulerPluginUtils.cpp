@@ -1,13 +1,13 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "UpdateSchedulerImpl/UpdateSchedulerUtils.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
-
+#include "UpdateSchedulerImpl/common/StateMachineData.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
+
 #include <json.hpp>
 
 class UpdateSchedulerUtils: public LogOffInitializedTests{};

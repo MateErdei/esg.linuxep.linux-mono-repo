@@ -11,8 +11,7 @@
 #include <memory>
 #include <unistd.h>
 
-using namespace SulDownloader;
-using namespace SulDownloader::suldownloaderdata;
+using namespace UpdateSchedulerImpl;
 
 UpdateSupplementDecider::UpdateSupplementDecider(UpdateSupplementDecider::WeekDayAndTimeForDelay schedule) :
     m_schedule(schedule)

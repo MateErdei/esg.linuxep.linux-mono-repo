@@ -3,19 +3,17 @@ load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
-    name = "TestStringGenerator",
-    hdrs = [
-        "TestStringGenerator.h",
-    ],
+    name = "MockFormattedTime",
+    hdrs = ["MockFormattedTime.h"],
     visibility = [
         "//base/tests:__subpackages__",
     ],
 )
 
 soph_cc_library(
-    name = "MockFormattedTime",
+    name = "TestStringGenerator",
     hdrs = [
-        "MockFormattedTime.h",
+        "TestStringGenerator.h",
     ],
     visibility = [
         "//base/tests:__subpackages__",

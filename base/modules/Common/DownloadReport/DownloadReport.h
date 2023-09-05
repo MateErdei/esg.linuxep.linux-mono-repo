@@ -71,12 +71,6 @@ namespace Common::DownloadReport
         friend class ::DownloadReportTestBuilder;
         friend class SulDownloader::suldownloaderdata::DownloadReportBuilder;
 
-        enum class VerifyState
-        {
-            VerifyFailed,
-            VerifyCorrect
-        };
-
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport& report);
 
         static std::string fromReport(const DownloadReport& report);
@@ -115,7 +109,6 @@ namespace Common::DownloadReport
         [[nodiscard]] bool isSuccesfulProductUpdateCheck() const;
 
         [[nodiscard]] bool wasBaseDowngraded() const { return m_baseDowngrade; }
-        static std::string getInstalledVersion(const std::string& rigidName);
 
         [[nodiscard]] bool operator==(const DownloadReport& other) const
         {

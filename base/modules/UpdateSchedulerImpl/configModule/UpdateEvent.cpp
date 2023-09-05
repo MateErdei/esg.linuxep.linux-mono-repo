@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "UpdateEvent.h"
 
 #include "PropertyTreeHelper.h"
@@ -30,7 +26,7 @@ namespace
      */
     void insertMessageContent(const UpdateEvent& event, pt::ptree& addInfoNode)
     {
-        using EventMessageNumber = UpdateSchedulerImpl::configModule::EventMessageNumber;
+        using EventMessageNumber = UpdateSchedulerImpl::EventMessageNumber;
 
         if (event.Messages.empty())
         {

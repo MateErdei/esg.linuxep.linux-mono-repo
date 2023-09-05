@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
+#include "UpdateSchedulerImpl/common/StateMachineData.h"
 
 #include <string>
 #include <vector>

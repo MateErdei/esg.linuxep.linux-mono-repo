@@ -6,8 +6,8 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h"
+#include "UpdateSchedulerImpl/common/StateMachineData.h"
+#include "UpdateSchedulerImpl/common/StateMachineException.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 

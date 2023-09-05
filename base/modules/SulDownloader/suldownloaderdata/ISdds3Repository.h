@@ -4,6 +4,8 @@
 #include "ConnectionSetup.h"
 #include "IRepository.h"
 
+#include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
+
 #include <bits/unique_ptr.h>
 
 #include <set>

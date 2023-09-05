@@ -1,12 +1,11 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "ConfigurationDataBase.h"
-
 #include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
-
+#include "tests/Common/Helpers/ConfigurationDataBase.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
+
 #include <gtest/gtest.h>
 
 using namespace SulDownloader;

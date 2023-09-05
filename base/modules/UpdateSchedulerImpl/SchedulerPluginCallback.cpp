@@ -2,14 +2,14 @@
 
 #include "SchedulerPluginCallback.h"
 
-#include "Logger.h"
 #include "UpdateSchedulerProcessor.h"
 #include "UpdateSchedulerTelemetryConsts.h"
 #include "UpdateSchedulerUtils.h"
 
 #include "Common/PluginApi/ApiException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h"
+#include "common/Logger.h"
+#include "stateMachinesModule/StateMachineProcessor.h"
 
 #include <json.hpp>
 #include <unistd.h>

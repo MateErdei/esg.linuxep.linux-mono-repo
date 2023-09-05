@@ -6,14 +6,14 @@
 #include "InstallStateMachine.h"
 #include "Logger.h"
 #include "StateData.h"
-#include "StateMachineData.h"
-#include "StateMachineException.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "UpdateSchedulerImpl/configModule/UpdateEvent.h"
+#include "UpdateSchedulerImpl/common/EventMessageNumber.h"
+#include "UpdateSchedulerImpl/common/StateMachineData.h"
+#include "UpdateSchedulerImpl/common/StateMachineException.h"
 
 namespace UpdateSchedulerImpl::stateMachinesModule
 {
@@ -192,26 +192,26 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         ::stateMachinesModule::DownloadStateMachine downloadStateMachine(m_downloadMachineState, currentTime);
         ::stateMachinesModule::InstallStateMachine installStateMachine(m_installMachineState, currentTime);
 
-        if (updateResult == configModule::EventMessageNumber::SUCCESS)
+        if (updateResult == EventMessageNumber::SUCCESS)
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::good, currentTime);
             installStateMachine.SignalInstallResult(::StateData::StatusEnum::good, currentTime);
         }
         else if (
-            (updateResult == configModule::EventMessageNumber::DOWNLOADFAILED) ||
-            (updateResult == configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING) ||
-            (updateResult == configModule::EventMessageNumber::SINGLEPACKAGEMISSING))
+            (updateResult == EventMessageNumber::DOWNLOADFAILED) ||
+            (updateResult == EventMessageNumber::MULTIPLEPACKAGEMISSING) ||
+            (updateResult == EventMessageNumber::SINGLEPACKAGEMISSING))
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::bad, currentTime);
         }
         else if (
-            (updateResult == configModule::EventMessageNumber::INSTALLCAUGHTERROR) ||
-            (updateResult == configModule::EventMessageNumber::INSTALLFAILED))
+            (updateResult == EventMessageNumber::INSTALLCAUGHTERROR) ||
+            (updateResult == EventMessageNumber::INSTALLFAILED))
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::good, currentTime);
             installStateMachine.SignalInstallResult(::StateData::StatusEnum::bad, currentTime);
         }
-        else if (updateResult == configModule::EventMessageNumber::CONNECTIONERROR)
+        else if (updateResult == EventMessageNumber::CONNECTIONERROR)
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::noNetwork, currentTime);
         }

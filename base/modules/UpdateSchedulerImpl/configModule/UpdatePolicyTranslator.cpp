@@ -6,7 +6,7 @@
 #include "Common/Policy/PolicyParseException.h"
 #include "Common/SslImpl/Digest.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "UpdateSchedulerImpl/Logger.h"
+#include "UpdateSchedulerImpl/common/Logger.h"
 
 #include <algorithm>
 
