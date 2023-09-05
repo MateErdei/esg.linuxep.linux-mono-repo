@@ -32,10 +32,10 @@
         </command>
 
         <!-- Release build -->
-        <command mode="bazel_release">
-            <program>bazel</program>
-            <args>test //...</args>
-        </command>
+<!--        <command mode="bazel_release">-->
+<!--            <program>bazel</program>-->
+<!--            <args>test //...</args>-->
+<!--        </command>-->
 
 <!--        &lt;!&ndash; Debug build &ndash;&gt;-->
 <!--        <command mode="debug">-->
@@ -71,13 +71,13 @@
 <!--            <args>./build.sh &#45;&#45;clean &#45;&#45;060 &#45;&#45;no-unittest &#45;&#45;release</args>-->
 <!--            <workingdir>.</workingdir>-->
 <!--        </command>-->
+    </buildcommands>
+    <publish>
+        <workingdir>.</workingdir>
 
         <logs name="test_logs" source-dir="bazel-testlogs">
             <include glob="**"/>
         </logs>
-    </buildcommands>
-    <publish>
-        <workingdir>.</workingdir>
 
         <logs name="test_logs" source-dir="bazel-testlogs">
             <include glob="**"/>
