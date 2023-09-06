@@ -24,7 +24,7 @@ Resource    SulDownloaderResources.robot
 Resource  ../GeneralUtilsResources.robot
 
 Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags  LOAD9
 
 *** Variables ***
 ${sdds3_server_output}                      /tmp/sdds3_server.log

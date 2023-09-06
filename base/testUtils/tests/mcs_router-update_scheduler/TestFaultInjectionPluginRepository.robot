@@ -20,7 +20,7 @@ Test Setup     Install And Wait System Stable
 Test Teardown  Local Test Teardown
 
 Default Tags  FAKE_CLOUD  MCS_ROUTER  MANAGEMENT_AGENT  TELEMETRY  WATCHDOG  FAULTINJECTION
-Force Tags  LOAD3
+Force Tags  LOAD9
 
 *** Variables ***
 ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml

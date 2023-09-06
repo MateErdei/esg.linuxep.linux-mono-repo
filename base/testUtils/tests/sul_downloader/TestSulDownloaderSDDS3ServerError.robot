@@ -26,7 +26,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
 Resource  ../GeneralUtilsResources.robot
 
-Force Tags    LOAD6    SULDOWNLOADER
+Force Tags    LOAD9    SULDOWNLOADER
 
 *** Variables ***
 ${sdds3_server_output}                      /tmp/sdds3_server.log
