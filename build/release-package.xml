@@ -32,10 +32,10 @@
         </command>
 
         <!-- Release build -->
-<!--        <command mode="bazel_release">-->
-<!--            <program>bazel</program>-->
-<!--            <args>test //...</args>-->
-<!--        </command>-->
+        <command mode="bazel_release">
+            <program>bazel</program>
+            <args>test //...</args>
+        </command>
 
 <!--        &lt;!&ndash; Debug build &ndash;&gt;-->
 <!--        <command mode="debug">-->
@@ -74,10 +74,6 @@
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
-
-<!--        <logs name="test_logs" source-dir="bazel-testlogs">-->
-<!--            <include glob="**"/>-->
-<!--        </logs>-->
 
         <logs name="test_logs" source-dir="bazel-testlogs">
             <include glob="**"/>
