@@ -18,9 +18,7 @@ TIMEOUT_FOR_ALL_TESTS = 100*60*3  # seconds
 
 def connect_to_aws():
     return boto.ec2.connect_to_region(
-        "eu-west-1",
-        aws_access_key_id="AKIAWR523TF7XZPL2C7H",
-        aws_secret_access_key="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"
+        "eu-west-1"
     )
 
 
