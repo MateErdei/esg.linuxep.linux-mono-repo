@@ -27,7 +27,15 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-na
 string(STRIP "${libatomic_path}" libatomic_path )
 
 
+configure_file(${CMAKE_SOURCE_DIR}/commonCompatibilityFunctions.in.sh ${CMAKE_SOURCE_DIR}/commonCompatibilityFunctions.sh @ONLY)
+execute_process(
+        COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/commonCompatibilityFunctions.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE COMMON_SPL_COMPATIBILITY_FUNCTIONS
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 configure_file(${CMAKE_SOURCE_DIR}/installer_header.in.sh ${CMAKE_SOURCE_DIR}/installer_header.sh @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/SPLCompatibilityChecks.in.sh ${CMAKE_SOURCE_DIR}/SPLCompatibilityChecks.sh @ONLY)
 
 if(NOT DEFINED REDIST)
     set( REDIST /build/redist )
@@ -156,5 +164,10 @@ add_custom_target(
         COMMAND cp ${CMAKE_SOURCE_DIR}/certs/mcs_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/
         COMMAND ldconfig -n ${libs_dir}/
+)
+
+add_custom_target(
+        copyCompatibilityScript
+        COMMAND cp -a ${CMAKE_SOURCE_DIR}/SPLCompatibilityChecks.sh ${OUTPUT}/
 )
 

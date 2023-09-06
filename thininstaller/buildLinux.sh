@@ -2,6 +2,7 @@
 PRODUCT=sspl-thininstaller
 
 FAILED_TO_COPY_INSTALLED=16
+FAILED_TO_COPY_COMPATIBILITY_SCRIPT=17
 FAILURE_INPUT_NOT_AVAILABLE=50
 
 source /etc/profile
@@ -157,7 +158,10 @@ function build()
     PYTHON=python3
     [[ -x $(which $PYTHON) ]] || PYTHON=python
 
-    rm -rf $BASE/output
+    output=$BASE/output
+    rm -rf "${output}"
+    mkdir -p "${output}"
+
     rm -rf $BASE/installer
     mkdir -p ${BASE}/build
 
@@ -169,7 +173,6 @@ function build()
     export CPLUS_INCLUDE_PATH=${GCC_PATH}/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
     export CPATH=${GCC_PATH}/include/:${CPATH}
     installer_dir=$BASE/installer
-    output=$BASE/output
     pushd ${BASE}/build
     chmod +x "$INPUT/cmake/bin/cmake"
     which g++
@@ -178,12 +181,12 @@ function build()
     make || exitFailure 15 "Failed to build thininstaller"
     make install || exitFailure 15 "Failed to build thininstaller"
     make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
+    make copyCompatibilityScript || exitFailure $FAILED_TO_COPY_COMPATIBILITY_SCRIPT "Failed to copy SPL compatibility script"
     popd
 
     echo "Bundled libs:"
     ls -l installer/lib64
 
-    mkdir -p output
     tar cf partial_installer.tar installer/*
     rm -f partial_installer.tar.gz
     gzip partial_installer.tar

@@ -16,4 +16,6 @@ installer_header_versioned.sh
 /ps_rootca.crt
 /rootca.crt
 /sspl-thininstaller-build/AutoVersioningHeaders/AutoVersion.*
+/commonCompatibilityFunctions.sh
+/SPLCompatibilityChecks.sh
 
