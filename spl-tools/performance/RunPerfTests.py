@@ -18,7 +18,7 @@ from artifactory import ArtifactoryPath
 
 from PerformanceResources import *
 from RunResponseActions import *
-from Annotations import annotate_graphs, add_annotation, delete_annotations, patch_onaccess_performance_test_annotation
+from Annotations import annotate_graphs, add_annotation, delete_annotations, patch_onaccess_performance_test_annotation, add_onaccess_performance_test_annotation
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
@@ -596,14 +596,14 @@ def run_on_access_performance_test(client_id, client_secret, client_region, on_w
         current_time = get_current_unix_epoch_in_seconds()
         current_time_milliseconds = int(current_time * 1000)
         if on_write_toggle:
-            on_write_ret = add_annotation(tag="on-access-write", start_time=current_time_milliseconds, end_time=None,
-                                          text="On-Access On-Write setting toggle")
+            on_write_ret = add_onaccess_performance_test_annotation(tag="on-access-write", start_time=current_time_milliseconds,
+                                                                    end_time=None, text="On-Access On-Write setting toggle")
         else:
             on_write_ret = patch_onaccess_performance_test_annotation(tag="on-access-write", end_time=current_time_milliseconds)
 
         if on_read_toggle:
-            on_read_ret = add_annotation(tag="on-access-read", start_time=current_time_milliseconds, end_time=None,
-                                         text="On-Access On-Read setting toggle")
+            on_read_ret = add_onaccess_performance_test_annotation(tag="on-access-read", start_time=current_time_milliseconds,
+                                                                   end_time=None, text="On-Access On-Read setting toggle")
         else:
             on_read_ret = patch_onaccess_performance_test_annotation(tag="on-access-read", end_time=current_time_milliseconds)
 
