@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 
 import waitForTestRunCompletion
 import reprocess
@@ -121,6 +122,7 @@ def main(argv):
             raise
         except Exception as ex:
             print("Got exception but carrying on", str(ex))
+            traceback.print_exc()
 
         if time.time() - start > 20*60:
             delay = 30
