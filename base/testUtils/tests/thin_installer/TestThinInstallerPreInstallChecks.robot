@@ -132,14 +132,32 @@ Thin Installer Detects Sweep And uninstalls SAV
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working Version Option With Other Arguments
     Run Default Thininstaller With Args   0     --version  --other
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working Version Option Where Preceding Arguments Are Ignored
     Run Default Thininstaller With Args   0     --other  --version
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Has Working short Version Option
+    Run Default Thininstaller With Args   0     -v
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Has Working short Version Option With Other Arguments
+    Run Default Thininstaller With Args   0     -v  --other
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Has Working short Version Option Where Preceding Arguments Are Ignored
+    Run Default Thininstaller With Args   0     --other  -v
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Check Installer Does Not Contain Todos Or Fixmes
     [Tags]   THIN_INSTALLER
@@ -189,36 +207,44 @@ Thin Installer Help Prints Correct Output
     Check Thininstaller Log Contains   --group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified
     Check Thininstaller Log Contains   --group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'
     Check Thininstaller Log Contains   --uninstall-sav\t\tUninstall Sophos Anti-Virus if installed
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Prints Correct Output And Other Arguments Are Ignored
     Run Default Thininstaller With Args  0  --help  --other
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Prints Correct Output And Preceding Arguments Are Ignored
     Run Default Thininstaller With Args  0  --other  --help
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Takes Precedent Over Version Option And Prints Correct Output
     Run Default Thininstaller With Args  0  --version  --help
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output
     Run Default Thininstaller With Args  0  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output And Other Arguments Are Ignored
     Run Default Thininstaller With Args  0  -h  --other
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output And Preceding Arguments Are Ignored
     Run Default Thininstaller With Args  0  --other  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Takes Precedent Over Version Option And Prints Correct Output
     Run Default Thininstaller With Args  0  --version  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Fails With Unexpected Argument
     Run Default Thininstaller With Args  23  --ThisIsUnexpected
