@@ -150,18 +150,20 @@ def add_osquery_restart_annotations():
     return annotation_failures
 
 
-def patch_onaccess_performance_test_annotation(tag, end_time):
+
+def check_duplicate_annotation_does_not_exist_and_get_id(tag):
     hostname = socket.gethostname()
     headers = get_grafana_auth()
     r = requests.get(f"{API_HOST}/api/annotations?tags={hostname}&tags={tag}", headers=headers,
                      verify=False)
 
-    # Can get multiple annotations back and only one of them should have the same start/end time
-    # If multiple annotations are found with same start/end time then something has gone wrong in RunPerfTests.py
-    # Or maybe the correct jenkins job did not run
+    # Need to make sure that if on-read or on-write was "turned on" twice, another annotation is not added
+    # E.g. "On-Write On, On-Read Off" then "On-Write on, On-Read On" tests are ran one after the other, don't want to
+    # add two annotations for On-Write On but just one
+
     annotation_id = None
     for i in r.json():
-        if (i["time"] - i["timeEnd"]) == 0:
+        if i["time"] == i["timeEnd"]:
             if annotation_id is not None:
                 logging.error("There are multiple annotations with the same start time and end time."
                               "This should not be the case, there should only be one annotation (relating to"
@@ -171,14 +173,31 @@ def patch_onaccess_performance_test_annotation(tag, end_time):
                 annotation_id = i["id"]
                 # Don't break out of loop to make sure that this annotation is the only one with the same start/end time
 
+    return annotation_id
+
+
+def add_onaccess_performance_test_annotation(tag, start_time, text, end_time=None):
+    annotation_id = check_duplicate_annotation_does_not_exist_and_get_id(tag)
+    if annotation_id is None:
+        # Aka on-access setting was turned off previously and now turned on
+        logging.debug(f"Adding new annotation for on-access setting with tag: {tag}")
+        add_annotation(tag=tag, start_time=start_time, text=text, end_time=end_time)
+    else:
+        # Annotation was turned on "twice"
+        logging.debug("'Second' time on-access setting would be turned on, not adding a new annotation")
+
+
+def patch_onaccess_performance_test_annotation(tag, end_time):
+    annotation_id = check_duplicate_annotation_does_not_exist_and_get_id(tag)
     if annotation_id is None:
         logging.warning(f"Found no annotations with tag: {tag} with same start and end times")
-        return 0
+        return 2
 
     patch_json = {
         "timeEnd": end_time
     }
 
+    headers = get_grafana_auth()
     r = requests.patch(f"{API_HOST}/api/annotations/{annotation_id}", json=patch_json,
                        headers=headers, verify=False)
 
@@ -189,6 +208,7 @@ def patch_onaccess_performance_test_annotation(tag, end_time):
         return 1
 
     return 0
+
 
 
 def annotate_graphs():
