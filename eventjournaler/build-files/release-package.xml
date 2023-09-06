@@ -4,14 +4,15 @@
     </versioning>
 
     <inputs>
-        <workingdir>.</workingdir>
-        <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
+        <workingdir>eventjournaler</workingdir>
+
+        <build-asset project="linuxep" repo="linux-mono-repo">
             <development-version branch="develop"/>
-            <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
-            <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds" />
+            <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management" />
         </build-asset>
+
         <build-asset project="winep" repo="sed">
             <release-version branch="release--SED_2023.31_libs" build-id="20230728143107-0c6e1139a06e2bd7140098191196a279c6e33e95-iaDLhP"/>
             <development-version branch="develop"/>
