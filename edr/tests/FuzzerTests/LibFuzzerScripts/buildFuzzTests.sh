@@ -104,7 +104,7 @@ ${CMAKE} .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_
 
 make ${TARGETS}
 for TARGET in ${TARGETS}; do
-ScriptDir=${CMAKE_BUILD_FULL_PATH}/edr/tests/FuzzerTests/${FUZZ_TEST_DIR_NAME}
+ScriptDir=${CMAKE_BUILD_FULL_PATH}/tests/FuzzerTests/${FUZZ_TEST_DIR_NAME}
 ScriptName=runFuzzer${TARGET}.sh
 ScriptPath=${ScriptDir}/${ScriptName}
 EXTRA_ARGS=""
