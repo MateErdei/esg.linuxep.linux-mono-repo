@@ -6,11 +6,15 @@
     <inputs>
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
-        <build-asset project="linuxep" repo="linux-mono-repo">
+
+        <build-asset project="linuxep" repo="linux-mono-repo" mode="independent">
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/linux_x64_rel/installer" dest-dir="input/base-sdds"/>
         </build-asset>
+
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="input" mode="release,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/linux_x64_rel/installer" dest-dir="input/base-sdds" mode="release,coverage,debug,analysis"/>
 
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2.2" build-id="20230517150224-b8f6ceae5bd9fa1b35d6ada337b6ac0361d51602-eA6afi"/>

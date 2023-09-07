@@ -233,18 +233,21 @@ do
             shift
             BUILD_DIR=$1
             ;;
-        --get-input|--get-input-new)
+        --independent-build)
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
-            export TAP_PARAMETER_MODE=release
-            $TAP fetch linux_mono_repo.plugins.av_release
+#            release-package has workingdir of av, so if we are in av directory already inputs end up in av/av/input
+            cd ${BASE}/..
+            python3 -m build_scripts.artisan_fetch -m independent "av/build-files/release-package.xml"
+            cd ${BASE}
+            install_package libcap-dev
             ;;
         --setup)
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
             $TAP fetch linux_mono_repo.plugins.av_release
-            # Needed for sys/capability.h
+#            # Needed for sys/capability.h
             install_package libcap-dev
             NO_BUILD=1
             ;;
