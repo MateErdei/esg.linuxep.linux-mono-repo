@@ -56,11 +56,6 @@ add_custom_target(
         COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(
-        dist_sdds3
-        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
-)
-
 install(FILES  ${third_party_libs}
         DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 

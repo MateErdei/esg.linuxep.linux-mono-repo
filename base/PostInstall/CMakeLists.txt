@@ -60,28 +60,6 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS manifests\")
         message(FATAL_ERROR \"Failed to generate SDDS manifests: ${STATUS}\")
     endif()")
 
-if (DEFINED ENV{SDDS3})
-if (NOT EXISTS ${INPUT}/sdds3/sdds3-builder)
-    message(FATAL_ERROR "Could not find SDDS3 Builder: ${INPUT}/sdds3/sdds3-builder")
-endif()
-INSTALL(CODE "MESSAGE(STATUS \"Generating base SDDS3 manifests\")
-    execute_process(
-        COMMAND rm -rf ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE
-        COMMAND ${CMAKE_SOURCE_DIR}/PostInstall/RunSdds3Builder.sh ${INPUT}/sdds3/sdds3-builder ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${DIST}/${BASE_DIST_PREFIX}/SDDS-Import.xml
-        RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate SDDS3 manifests: ${STATUS}\")
-    endif()")
-
-INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS3 manifests\")
-    execute_process(
-        COMMAND rm -rf ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE
-        COMMAND ${CMAKE_SOURCE_DIR}/PostInstall/RunSdds3Builder.sh ${INPUT}/sdds3/sdds3-builder ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE ${DIST}/${RA_DIST_PREFIX}/SDDS-Import.xml
-        RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate SDDS3 manifests: ${STATUS}\")
-    endif()")
-endif()
 
 # Generate the output dir to be published
 INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
@@ -90,14 +68,6 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
     execute_process(COMMAND cp -a ${DIST}/${BASE_DIST_PREFIX} ${OUTPUT}/SDDS-COMPONENT)
     execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS-COMPONENT)
     execute_process(COMMAND cp -a ${DIST}/${RA_DIST_PREFIX} ${OUTPUT}/RA-SDDS-COMPONENT)
-if (DEFINED ENV{SDDS3})
-    execute_process(COMMAND rm -rf ${OUTPUT}/SDDS3-PACKAGE)
-    execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${OUTPUT}/SDDS3-PACKAGE)
-    execute_process(COMMAND cp -a ${DIST}/${BASE_DIST_PREFIX}/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE/)
-    execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS3-PACKAGE)
-    execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE ${OUTPUT}/RA-SDDS3-PACKAGE)
-    execute_process(COMMAND cp -a ${DIST}/${RA_DIST_PREFIX}/SDDS-Import.xml ${OUTPUT}/RA-SDDS3-PACKAGE/)
-endif()
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi.tar.gz ${OUTPUT}/pluginapi.tar.gz)
     execute_process(COMMAND tar -zcvf ${OUTPUT}/SystemProductTestOutput.tar.gz -C ${CMAKE_BINARY_DIR} SystemProductTestOutput/)
     execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols/base ]] && cp -a ${CMAKE_BINARY_DIR}/symbols/base ${OUTPUT}/base-symbols && echo copied base symbols to output \")

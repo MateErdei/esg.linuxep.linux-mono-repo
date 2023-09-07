@@ -118,33 +118,6 @@ def get_full_installer():
     raise Exception("get_full_installer - Failed to find installer at: " + str(paths_tried))
 
 
-def get_sdds3_base():
-    OUTPUT = os.environ.get("OUTPUT")
-    BASE_DIST = os.environ.get("SDDS3_BASE_DIST")
-
-    logger.debug("Getting installer SDDS3_BASE_DIST: {}, OUTPUT: {}".format(BASE_DIST, OUTPUT))
-
-    paths_tried = []
-
-    local_build = f"/vagrant/{BASE_REPO_NAME}/output/SDDS3-PACKAGE"
-    if os.path.isdir(local_build):
-        for (base, dirs, files) in os.walk(local_build):
-            for f in files:
-                if f.startswith("SPL-Base-Component_"):
-                    if f.endswith(".zip"):
-                        return os.path.join(local_build, f)
-        paths_tried.append(local_build)
-    if BASE_DIST is not None:
-        for (base, dirs, files) in os.walk(BASE_DIST):
-            for f in files:
-                if f.startswith("SPL-Base-Component_"):
-                    if f.endswith(".zip"):
-                        return os.path.join(BASE_DIST, f)
-        paths_tried.append(BASE_DIST)
-
-    raise Exception("get_sdds3_base - Failed to find installer at: " + str(paths_tried))
-
-
 def get_folder_with_installer():
     return os.path.dirname(get_full_installer())
 
@@ -168,33 +141,6 @@ def get_plugin_sdds(plugin_name, environment_variable_name, candidates=None):
             return plugin_sdds
 
     raise Exception(f"Failed to find plugin {plugin_name} sdds. Attempted: " + ' '.join(fullpath_candidates) + " " + env_path)
-
-
-def get_exampleplugin_sdds():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("exampleplugin")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
-    return get_plugin_sdds("Example Plugin", "EXAMPLEPLUGIN_SDDS", candidates)
-
-
-
-def get_sspl_mdr_plugin_sdds():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-mdr-component")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
-    return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS", candidates)
-
-def get_sspl_mdr_plugin_060_sdds():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-mdr-control-plugin-060")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
-    return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS_060", candidates)
 
 def get_sspl_live_response_plugin_sdds():
     candidates = []
@@ -282,46 +228,8 @@ def setup_av_install():
 
     return full_av_sdds
 
-
-def _copy_suite_entry_to(root_target_directory, mdr_entry):
-    directory_name = mdr_entry.rigid_name
-    src_directory = mdr_entry.sdds
-    _, src_name = os.path.split(src_directory)
-
-    target_directory = os.path.join(root_target_directory, directory_name)
-
-    logger.info("Copying sdds:{} to target_directory: {}".format(src_directory, root_target_directory))
-    logger.info("Copying sdds:{} to target_directory: {}".format(src_directory, target_directory))
-
-    if os.path.exists(target_directory):
-        shutil.rmtree(target_directory)
-    try:
-        shutil.copytree(src_directory, target_directory)
-    except Exception as ex:
-
-        logger.info(str(ex))
-        list_entries = ','.join(os.listdir(root_target_directory))
-        logger.info("Entries in the target directory: {}".format(list_entries))
-
-
-
 def get_xml_node_text(node):
     return "".join(t.nodeValue for t in node.childNodes if t.nodeType == t.TEXT_NODE)
-
-
-def check_sdds_import_matches_rigid_name(expected_rigidname, source_directory):
-    sddsimportpath = os.path.join(source_directory, "SDDS-Import.xml")
-    data = open(sddsimportpath).read()
-    dom = xml.dom.minidom.parseString(data)
-    try:
-        rigidnames = dom.getElementsByTagName("RigidName")
-        assert len(rigidnames) == 1
-        actual_rigidname = get_xml_node_text(rigidnames[0])
-        if expected_rigidname != actual_rigidname:
-            raise AssertionError("Rigidname wrong. Expected {} but actual is: {}".format(expected_rigidname, actual_rigidname))
-    finally:
-        dom.unlink()
-
 
 def run_full_installer_expecting_code(expected_code, *args):
     installer = get_full_installer()
@@ -426,8 +334,6 @@ def remove_user(delete_user_cmd, user):
             output, retCode = run_proc_with_safe_output(["kill", str(process["pid"])])
             if retCode != 0:
                 logger.info(output)
-
-
 
 
 def get_delete_group_cmd():
@@ -609,23 +515,6 @@ def _remove_files_recursively(directory_path):
                 pass
         if os.path.isdir(full_path):
             _remove_files_recursively(full_path)
-
-
-def require_fresh_startup():
-    installdir = get_sophos_install()
-    logger.info("Stop SSPL Service")
-    out, _ = run_proc_with_safe_output(['systemctl', 'stop', 'sophos-spl'])
-    if out:
-        logger.info(out)
-    mcs_dir = os.path.join(installdir, 'base/mcs')
-    logger.info("Clean up mcs files")
-    for folder in ['event', 'policy', 'status', 'action']:
-        mcs_dir_path = os.path.join(mcs_dir, folder)
-        if os.path.exists(mcs_dir_path):
-            _remove_files_recursively(mcs_dir_path)
-    logs_dir = os.path.join(installdir, 'logs')
-    _remove_files_recursively(logs_dir)
-    start_system_watchdog()
 
 
 def get_machine_id_generate_by_python():
@@ -867,20 +756,6 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
             raise AssertionError
         n += 1
 
-def component_suite_version_ini_file_contains_proper_format(file):
-    """
-    DBOS_VERSION = 1.0.0
-    """
-
-    dbos_pattern = "^SOPHOSMTR_VERSION = ([0-9]*\.)*[0-9]*\n\Z"
-
-    lines = []
-    with open(file) as f:
-        lines = f.readlines()
-
-    if not re.match(dbos_pattern,lines[0]):
-        logger.info("Incorrect format in: {}".format(file))
-        raise AssertionError
 
 def SSPL_is_installed():
     installdir = get_sophos_install()

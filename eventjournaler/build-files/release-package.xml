@@ -21,7 +21,6 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
             <development-version branch="develop"/>
-            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
@@ -43,11 +42,6 @@
             <args>./build.sh --clean --name eventjournaler</args>
             <workingdir>.</workingdir>
         </command>
-        <command mode="999">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler --999 --no-unit-test</args>
-            <workingdir>.</workingdir>
-        </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name eventjournaler --bullseye</args>
@@ -63,7 +57,6 @@
         <workingdir>.</workingdir>
         <!--   Release outputs   -->
         <release-asset artifact-path="eventjournaler/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="eventjournaler/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
 
         <!--   non-release outputs   -->
         <build-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release"/>
@@ -73,11 +66,6 @@
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
             <include glob="./build.log"/>
         </build-asset>
-
-        <!--   999 outputs   -->
-        <release-asset artifact-path="eventjournaler-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-        <release-asset artifact-path="eventjournaler-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
-
 
         <!--   Coverage outputs   -->
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>

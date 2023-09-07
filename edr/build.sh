@@ -47,7 +47,6 @@ COV_HTML_BASE=sspl-plugin-edr-unittest
 VALGRIND=0
 AFL=0
 TAP=${TAP:-tap}
-BUILD_SDDS3=1
 VAGRANT=0
 
 while [[ $# -ge 1 ]]
@@ -58,7 +57,6 @@ do
             CMAKE_BUILD_TYPE=Debug
             NO_UNPACK=1
             CLEAN=0
-            BUILD_SDDS3=0
             ;;
         --build-type)
             shift
@@ -152,9 +150,6 @@ do
             ;;
         --afl)
             AFL=1
-            ;;
-        --999)
-            export VERSION_OVERRIDE=9.99.9.999
             ;;
         --setup)
             rm -rf input "${REDIST}"
@@ -279,8 +274,6 @@ function build()
         untar_input protobuf
         untar_input capnproto
 
-        chmod +x ${REDIST}/sdds3/*
-
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
@@ -388,10 +381,6 @@ function build()
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist_sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    if (( BUILD_SDDS3 == 1 ))
-    then
-        make dist_sdds3 CXX=$CXX CC=$CC || exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    fi
     cd ..
 
     rm -rf output
@@ -403,11 +392,6 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
-    if (( BUILD_SDDS3 == 1 ))
-    then
-        cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
-        cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
-    fi
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
     cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     cp -a build64/schema output/schema || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy schema to output"

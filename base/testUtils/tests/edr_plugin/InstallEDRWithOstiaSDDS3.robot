@@ -48,15 +48,15 @@ Install all plugins 999 then downgrade to all plugins develop
     Wait for first update
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 99.9.9.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
 
     Create File  ${SOPHOS_INSTALL}/plugins/liveresponse/log/sessions.log
@@ -133,13 +133,13 @@ Upgrade VUT to 999
     LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
     LogUtils.Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Base-component version: 99.9.9
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Base-component version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-AV version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
-    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 99.99.99
 
     check_watchdog_log_does_not_contain    wdctl <> stop edr
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
@@ -153,18 +153,18 @@ Upgrade VUT to 999
 
     wait_for_log_contains_from_mark  ${sul_mark}  Successfully stopped product    120
 
-    wait_for_log_contains_from_mark  ${sul_mark}  Installing product: ServerProtectionLinux-Base-component version: 99.9.9    120
+    wait_for_log_contains_from_mark  ${sul_mark}  Installing product: ServerProtectionLinux-Base-component version: 99.99.99    120
     wait_for_log_contains_from_mark  ${sul_mark}  Product installed: ServerProtectionLinux-Base-component    180
 
     # When waiting for install messages, the order here may not be the actual order, although we are waiting 120 seconds
     # each time, this should take a lot less time overall, max time should be around 120 seconds total for all installing send messages
     # to appear.
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99             120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9                        120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9                         120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9             120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999     120
-    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9.999        120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EDR version: 99.99.99                        120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-AV version: 99.99.99                         120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 99.99.99             120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 99.99.99     120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.99.99        120
 
     wait_for_log_contains_from_mark  ${sul_mark}  Successfully started product    120
 
@@ -202,19 +202,19 @@ Upgrade VUT to 999
     Check Edr Log Does Not Contain  already in query map
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
-    Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
+    Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.99.99
     ${ra_version_contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
-    Should contain   ${ra_version_contents}   PRODUCT_VERSION = 99.9.9
+    Should contain   ${ra_version_contents}   PRODUCT_VERSION = 99.99.99
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 99.99.99
     ${av_version_contents} =  Get File   ${AV_DIR}/VERSION.ini
-    Should contain   ${av_version_contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${av_version_contents}   PRODUCT_VERSION = 99.99.99
     ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 999.999.999
+    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 99.99.99
 
     # Ensure components were restarted during update.
     Check Log Contains In Order
@@ -374,4 +374,4 @@ Wait for first update
 
 Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+    Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 99.99.99

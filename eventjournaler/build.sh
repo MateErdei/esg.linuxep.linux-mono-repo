@@ -47,7 +47,6 @@ COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
 VALGRIND=0
 TAP=${TAP:-tap}
 NO_BUILD=0
-BUILD_SDDS3=1
 
 while [[ $# -ge 1 ]]
 do
@@ -57,13 +56,6 @@ do
             CMAKE_BUILD_TYPE=Debug
             NO_UNPACK=1
             CLEAN=0
-            BUILD_SDDS3=0
-            ;;
-        --no-sdds3)
-            BUILD_SDDS3=0
-            ;;
-        --sdds3)
-            BUILD_SDDS3=1
             ;;
         --build-type)
             shift
@@ -148,9 +140,6 @@ do
             ;;
         --valgrind)
             VALGRIND=1
-            ;;
-        --999)
-            export VERSION_OVERRIDE=9.99.9.999
             ;;
         --060)
             export VERSION_OVERRIDE=0.6.0.999
@@ -299,7 +288,6 @@ function build()
         fi
         untar_input JournalLib
         untar_input capnproto
-        chmod +x ${REDIST}/sdds3/*
     else
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
@@ -395,10 +383,6 @@ function build()
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist_sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    if (( BUILD_SDDS3 == 1 ))
-    then
-        make dist_sdds3 CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    fi
     cd ..
 
     rm -rf output
@@ -411,11 +395,6 @@ function build()
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
 
-    if (( BUILD_SDDS3 == 1 ))
-    then
-      cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
-      cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
-    fi
     mkdir -p  output/manualTools/
     cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
     cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"

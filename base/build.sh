@@ -51,7 +51,6 @@ export ENABLE_STRIP=1
 VALGRIND=0
 VAGRANT=0
 UNIT_TESTS=1
-export SDDS3=1
 
 # Deal with arguments
 while [[ $# -ge 1 ]]
@@ -62,7 +61,6 @@ do
             UNIT_TESTS=1
             CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
             export ENABLE_STRIP=0
-            unset SDDS3
             ;;
         --clean)
             CLEAN=1
@@ -77,9 +75,6 @@ do
         --debug)
             CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
             export ENABLE_STRIP=0
-            ;;
-        --999)
-            export VERSION_OVERRIDE=99.9.9.999
             ;;
         --release|--no-debug)
             CMAKE_BUILD_TYPE=$RELEASE_BUILD_TYPE
@@ -152,12 +147,6 @@ EOF
             pip install --upgrade tap keyrings.alt
             exit 0
             ;;
-        --skip-sdds3|--no-sdds3)
-          unset SDDS3
-          ;;
-        --sdds3)
-          export SDDS3=1
-          ;;
         --vagrant)
           VAGRANT=1
           ;;

@@ -56,7 +56,6 @@ LOCAL_GCC=0
 LOCAL_CMAKE=0
 DUMP_LAST_TEST_ON_FAILURE=0
 RUN_CPPCHECK=0
-BUILD_SDDS3=1
 TAP=${TAP:-tap}
 [[ -n "$REDIST" ]] || REDIST=$BASE/redist
 VAGRANT=0
@@ -87,7 +86,6 @@ do
             VALGRIND=0
             CMAKE_BUILD_TYPE=RelWithDebInfo
             DUMP_LAST_TEST_ON_FAILURE=1
-            BUILD_SDDS3=1
             export ENABLE_STRIP=1
             ;;
         --build-type)
@@ -108,13 +106,6 @@ do
             #NPROC=4
             CLEAN=0
             UNITTEST=1
-            BUILD_SDDS3=0
-            ;;
-        --no-sdds3)
-            BUILD_SDDS3=0
-            ;;
-        --sdds3)
-            BUILD_SDDS3=1
             ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
@@ -164,7 +155,6 @@ do
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0
             LOCAL_CMAKE=0
-            BUILD_SDDS3=0
             BUILD_DIR=${BUILD_DIR:-build64-fuzz}
             ;;
         --plugin-api-tar)
@@ -215,13 +205,11 @@ do
             UNITTEST=1
             BULLSEYE_UPLOAD=0
             COV_HTML_BASE=${COV_HTML_BASE%-dev}
-            SDDS3=0
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
             BULLSEYE_UPLOAD=0
             UNITTEST=1
-            SDDS3=0
             ;;
         --cpp-check)
             RUN_CPPCHECK=1
@@ -275,9 +263,6 @@ EOF
             pip install --upgrade wheel build_scripts
             pip install --upgrade tap keyrings.alt
             NO_BUILD=1
-            ;;
-         --999)
-            export VERSION_OVERRIDE=9.99.9.999
             ;;
         -v|--vagrant)
             VAGRANT=1
@@ -447,8 +432,6 @@ function build()
     fi
     chmod 700 $INPUT/capnproto/bin/* || exitFailure "Unable to chmod capnproto"
 
-    [[ -e ${REDIST}/sdds3 ]] || ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
-
     if (( RUN_CPPCHECK == 1 ))
     then
       cppcheck_build || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
@@ -563,10 +546,6 @@ function build()
     fi
     make -j${NPROC} install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist_sdds2 CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    if (( BUILD_SDDS3 == 1 ))
-    then
-        make dist_sdds3 CXX=$CXX CC=$CC || exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
-    fi
     make sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create sdds component $PRODUCT"
     cd ${BASE}
 
@@ -577,18 +556,12 @@ function build()
 
     local INSTALLSET=${BUILD_DIR}/installset
     local SDDS=${BUILD_DIR}/sdds
-    local SDDS3=${BUILD_DIR}/SDDS3-PACKAGE
 
     if [[ -d $SDDS ]]
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
         cp -rL "$SDDS" ${OUTPUT}/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-        if (( BUILD_SDDS3 == 1 ))
-        then
-            cp -rL "$SDDS3" ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
-            cp -rL $SDDS/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
-        fi
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi

@@ -347,15 +347,15 @@ Install all plugins static-999 then downgrade to all plugins static
     Override LogConf File as Global Level  DEBUG
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 99.9.9.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
     Check Current Release With AV Installed Correctly
 
@@ -463,15 +463,15 @@ Install all plugins static then upgrade to all plugins static-999
 
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 99.9.9.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
     Wait Until Keyword Succeeds
     ...  30 secs
