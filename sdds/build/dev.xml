@@ -19,43 +19,35 @@
       <build-asset project="linuxep" repo="linux-mono-repo" mode="dev,999">
           <development-version branch="develop"/>
           <!-- Base -->
-          <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="dev"/>
-          <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
-          <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="999"/>
-          <include artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="999"/>
+          <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="dev,999"/>
+          <include artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="redist/responseactions/latest/x64" mode="dev,999"/>
           <include artifact-path="sspl-base/system_test" dest-dir="."/>
           <!-- EDR -->
-          <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="dev"/>
-          <include artifact-path="edr-999/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="999"/>
+          <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64" mode="dev,999"/>
           <!-- Event Journaler -->
-          <include artifact-path="eventjournaler/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="dev"/>
-          <include artifact-path="eventjournaler-999/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="999"/>
+          <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/event-journaler/latest/x64" mode="dev,999"/>
           <!-- AV -->
-          <include artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="dev"/>
-          <include artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="999"/>
+          <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/av/latest/x64" mode="dev,999"/>
       </build-asset>
 
       <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
         <development-version branch="develop"/>
-          <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev"/>
-          <include artifact-path="SDDS3-PACKAGE-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
+          <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections/latest/x64" mode="dev,999"/>
       </build-asset>
       
       <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="dev,999">
         <development-version branch="develop"/>
-          <include artifact-path="sspl-plugin-heartbeat/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="dev"/>
-          <include artifact-path="sspl-plugin-heartbeat-999/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="999"/>
+          <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/heartbeat/latest/x64" mode="dev,999"/>
       </build-asset>
 
       <build-asset project="winep" repo="liveterminal" mode="dev,999">
         <development-version branch="develop"/>
-          <include artifact-path="liveterminal/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64" mode="dev"/>
-          <include artifact-path="liveterminal-999/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64" mode="999"/>
+          <include artifact-path="liveterminal/sdds" dest-dir="redist/liveresponse/latest/x64" mode="dev,999"/>
       </build-asset>
 
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
-            <release-version branch="release--content--version_5_4_1" build-id="20230403180428-ab95da6c34b0062810f22b8ff9db8981a2a35ddd-lOgiz3"/>
+            <release-version branch="release--content--version_5_5_3" build-id="20230825105748-dfad2a8362d61166ae5afc6dcd04f540438d42ea-Sdfm6q"/>
             <include artifact-path="sspl-rdrules-scit" dest-dir="inputs/supplements/RuntimeDetectionRules"/>
         </build-asset>
       <build-asset project="em" repo="esg" >

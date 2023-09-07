@@ -468,11 +468,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     Mark Known Upgrade Errors
     Mark Known Downgrade Errors
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    mark_expected_error_in_log  ${PLUGINS_DIR}/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     # TODO LINUXDAR-2972 - expected till bugfix is in released version
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
