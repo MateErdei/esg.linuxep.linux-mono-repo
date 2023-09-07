@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- ******************************************************** -->
+<!-- WARNING: This file gets overwritten by the build system  -->
+<!-- ******************************************************** -->
+
+
+<Include>
+<?define CompanyName="Sophos Limited" ?>
+<?define Copyright="Copyright 1989-2023 Sophos Limited. All rights reserved." ?>
+<?define ChangelistNum="LocalBuild" ?>
+<?define BuildRefNum="20190101000000-LocalBuild" ?>
+<?define ComponentVersion="1.1.10" ?>
+<?define ComponentAutoBuildNum="9999" ?>
+<?define ComponentAutoVersion="1.1.10.9999" ?>
+<?define ComponentMarketingVersion="1.1.10" ?>
+</Include>
