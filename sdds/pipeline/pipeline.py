@@ -89,7 +89,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
     if not previous_dogfood_branch:
         previous_dogfood_branch = "release--2023-31"
     if not current_shipping_branch:
-        current_shipping_branch = "release--2023.2"
+        current_shipping_branch = "release--2023.3"
     if not thininstaller_branch:
         thininstaller_branch = "develop"
 

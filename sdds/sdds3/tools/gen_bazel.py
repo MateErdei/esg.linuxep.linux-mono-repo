@@ -35,7 +35,7 @@ import yaml
 
 from retry import retry
 from common import  set_inputs_mode, is_static_suite_instance
-from common import hash_file
+from common import hash_file,change_version_to_999
 from auto_versioning import _generate_static_suite_flags, _expand_static_suites, _import_static_suite_flags
 
 ARTIFACTORY_URL = f'https://{os.environ["TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL"]}/artifactory' \
@@ -380,13 +380,16 @@ copy_prebuilt_sdds3_package(
 """, file=rulefh, flush=True)
 
 
-def emit_package_rule(rulefh, component, compdef, package_folder='package'):
+def emit_package_rule(rulefh, component, compdef, package_folder='package', mode='dev'):
     if 'fileset' not in compdef:
         raise SyntaxError(f'{component}: Missing "fileset" in components.yaml')
     if 'prebuilt' in compdef:
         emit_copy_prebuilt_package_rule(rulefh, component, compdef, compdef['prebuilt'], package_folder)
         return
 
+    dist = os.path.join(BASE, compdef['fileset'])
+    if mode == '999':
+        change_version_to_999(dist)
     # if static flags create copy of component to insert in flags
     if 'static_suite_flags' in compdef:
         sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')
@@ -394,10 +397,9 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package'):
             xml = ET.fromstring(f.read())
 
         sdds_import_filelist = xml.find('Component/FileList')
-        old_location = os.path.join(BASE, compdef['fileset'])
-        new_location = old_location+"static"
+        new_location = dist+"static"
         shutil.rmtree(new_location,True)
-        shutil.copytree(old_location,new_location)
+        shutil.copytree(dist,new_location)
         compdef['fileset'] = compdef['fileset']+'static'
         _import_static_suite_flags(compdef, sdds_import_filelist, new_location)
         with open(os.path.join(new_location,'SDDS-Import.xml'), 'wb') as f:
@@ -464,7 +466,7 @@ def emit_package_rules(rulefh, suites, common_component_data, mode):
                     continue
                 for component in view['subcomponents']:
                     compdef = common_component_data[component]
-                    emit_package_rule(rulefh, component, compdef)
+                    emit_package_rule(rulefh, component, compdef,'package', mode)
 
 
 def add_subcomponents(suitemeta, sdds_imports, packages, common_component_data):
