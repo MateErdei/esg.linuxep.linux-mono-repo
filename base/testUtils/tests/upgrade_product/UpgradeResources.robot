@@ -22,7 +22,8 @@ Resource    ../mcs_router/McsRouterResources.robot
 
 *** Variables ***
 ${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
-${sdds3_server_output}                          /tmp/sdds3_server.log
+${sdds3_server_log}                             /tmp/sdds3_server.log
+${sdds3_server_output}                          /tmp/sdds3_server_stdout.log
 ${tmpLaunchDarkly}                              /tmp/launchdarkly
 ${staticflagfile}                               linuxep.json
 
@@ -134,6 +135,7 @@ Stop Local SDDS3 Server
     ${result} =  Terminate Process  ${GL_handle}  True
     Set Suite Variable    $GL_handle    ${EMPTY}
     Dump Teardown Log    ${sdds3_server_output}
+    Dump Teardown Log    ${sdds3_server_log}
     Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
 

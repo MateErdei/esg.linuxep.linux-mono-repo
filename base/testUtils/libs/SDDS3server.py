@@ -534,7 +534,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             'suites': arbitrary_data_array,
             'release-groups': ['0'],
         }).encode('utf-8')
-        self.log_message(f"Responding to SUS POST request with large JSON payload")
+        self.log_message(f"Responding to SUS POST request with large JSON payload: size={len(response)}")
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', str(len(response)))

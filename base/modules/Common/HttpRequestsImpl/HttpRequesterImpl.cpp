@@ -405,6 +405,7 @@ namespace Common::HttpRequestsImpl
                 }
                 else if (bodyBuffer.tooBig_)
                 {
+                    LOGERROR("HTTP Response too big");
                     response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
                     response.error = "Response too big";
                 }
@@ -423,6 +424,7 @@ namespace Common::HttpRequestsImpl
         }
 
         // Store the body to be returned in the response, this will be empty if the user opted to download to a file
+        assert(!bodyBuffer.tooBig_);
         response.body = bodyBuffer.buffer_;
 
         // Store any headers that were sent in the response

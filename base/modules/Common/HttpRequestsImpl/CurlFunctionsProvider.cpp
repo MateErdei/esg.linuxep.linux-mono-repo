@@ -15,6 +15,7 @@ size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb
     if (buffer->tooBig_ || (buffer->maxSize_ > 0 && totalSizeBytes + buffer->buffer_.size() > buffer->maxSize_))
     {
         // too much data
+        LOGERROR("HTTP response too big, ignoring further data");
         buffer->tooBig_ = true;
         return CURL_WRITEFUNC_ERROR;
     }
