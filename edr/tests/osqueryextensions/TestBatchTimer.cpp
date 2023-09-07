@@ -9,28 +9,54 @@
 
 #include <gtest/gtest.h>
 
-class TestBatchTimer : public LogOffInitializedTests
+namespace
 {
-protected:
-    void SetUp() override
+    class TestBatchTimer : public LogOffInitializedTests
     {
-        m_timer = std::make_unique<BatchTimer>();
-    }
+    protected:
+        void SetUp() override
+        {
+            m_timer = std::make_unique<BatchTimer>();
+        }
 
-    void TearDown() override
+        void TearDown() override
+        {
+        }
+
+        void timerCallback()
+        {
+            m_callbackTime = std::chrono::steady_clock::now();
+        }
+
+        static constexpr uint32_t MAX_TIME_MILLISECONDS = 5;
+
+        std::unique_ptr<BatchTimer> m_timer;
+        std::chrono::time_point<std::chrono::steady_clock> m_callbackTime;
+    };
+
+    class TestBatchTimerWithLogs : public LogInitializedTests
     {
-    }
+    protected:
+        void SetUp() override
+        {
+            m_timer = std::make_unique<BatchTimer>();
+        }
 
-    void timerCallback()
-    {
-        m_callbackTime = std::chrono::steady_clock::now();
-    }
+        void TearDown() override
+        {
+        }
 
-    static constexpr uint32_t MAX_TIME_MILLISECONDS = 5;
+        void timerCallback()
+        {
+            m_callbackTime = std::chrono::steady_clock::now();
+        }
 
-    std::unique_ptr<BatchTimer> m_timer;
-    std::chrono::time_point<std::chrono::steady_clock> m_callbackTime;
-};
+        static constexpr uint32_t MAX_TIME_MILLISECONDS = 5;
+
+        std::unique_ptr<BatchTimer> m_timer;
+        std::chrono::time_point<std::chrono::steady_clock> m_callbackTime;
+    };
+}
 
 TEST_F(TestBatchTimer, CallbackRunOnTimeout)
 {
@@ -61,9 +87,9 @@ TEST_F(TestBatchTimer, CallbackRunOnTimeout)
     FAIL() << "Timeout duration always less than expected";
 }
 
-TEST_F(TestBatchTimer, CallbackNotRunIfCancelled)
+TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfCancelled)
 {
-    for (auto i=1; i<20; ++i)
+    for (auto i=1; i<40; ++i)
     {
         auto delay = 3 * i;
 
@@ -85,7 +111,7 @@ TEST_F(TestBatchTimer, CallbackNotRunIfCancelled)
     EXPECT_EQ(0, m_callbackTime.time_since_epoch().count());
 }
 
-TEST_F(TestBatchTimer, CallbackNotRunIfDestroyed)
+TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfDestroyed)
 {
     for (auto i=1; i<40; ++i)
     {
