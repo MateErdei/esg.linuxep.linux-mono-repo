@@ -155,7 +155,7 @@ do
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
-            $TAP fetch edr_plugin.build.release
+            $TAP fetch linux_mono_repo.plugins.edr_release
             NO_BUILD=1
             ;;
         --vagrant|--rsync)
