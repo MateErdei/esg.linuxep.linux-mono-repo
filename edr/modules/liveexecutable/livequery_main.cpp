@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "livequery_main.h"
 
 #include <modules/livequery/config.h>
@@ -20,10 +17,11 @@ namespace livequery{
     {
         if (argc != 4)
         {
-            std::cerr << "Expecting  three parameters got " << (argc - 1) << std::endl;
+            std::cerr << "Expecting three parameters got " << (argc - 1) << std::endl;
             return 1;
         }
         Common::Logging::PluginLoggingSetup loggerSetup(PLUGIN_NAME, "livequery");
+
         std::string correlationid = argv[1];
         std::string query = argv[2];
         std::string socket = argv[3];

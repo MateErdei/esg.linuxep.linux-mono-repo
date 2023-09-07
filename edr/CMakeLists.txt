@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(sspl_edr_plugin)
 set(CMAKE_CXX_STANDARD 17)
 
+set(AUTOVERSION_INCLUDE ${CMAKE_SOURCE_DIR}/products/distribution/include)
+
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 if (BUILD_FUZZ_TESTS )
     set(SANITISE_FLAGS   "")

@@ -1,14 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2019-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "IQueryProcessor.h"
 #include "Logger.h"
 #include "ResponseDispatcher.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
+#include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
 
 /**
  * Given the queryJson it will:
@@ -59,6 +58,7 @@ int livequery::processQuery(
     const std::string& queryJson,
     const std::string& correlationId)
 {
+    LOGINFO("LiveQuery " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
     ScopedFeedbackProvider scopedFeedbackProvider { dispatcher };
     std::unordered_map<std::string, Common::Telemetry::TelemetryValue> requestMap;
     try
