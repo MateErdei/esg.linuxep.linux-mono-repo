@@ -15,7 +15,7 @@ cd ${0%/*}
 FuzzTestsDir=$(pwd)
 SOURCE_DIR=$(realpath ${FuzzTestsDir}/../../../)
 SSPL_TOOLS_DIR=$(realpath ${FuzzTestsDir}/../../../../)
-FuzzTestCaseRelDir="tests/eventjournaler/FuzzerTests/AflFuzzScripts/data"
+FuzzTestCaseRelDir="eventjournaler/tests/FuzzerTests/AflFuzzScripts/data"
 
 PROJECT=sspl-plugin-event-journaler
 
