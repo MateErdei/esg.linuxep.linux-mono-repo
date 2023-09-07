@@ -8,6 +8,7 @@
 
 # Auto-generated
 /pipeline/__pycache__/
+/.buildcfg.bazelrc
 
 # Import location for sophlib
 /common/sophlib/

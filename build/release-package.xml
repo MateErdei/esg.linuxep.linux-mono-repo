@@ -24,10 +24,15 @@
         <trusted-asset artifact-path="org.python/linux/3.11.1/cpython-3.11.1 20230116-x86_64-unknown-linux-gnu-install_only" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
+        <!-- Configure the build (reset, and set up cache parameters from the environment) -->
+        <command>
+            <program>python</program>
+            <args>tools/launch_py3.py tools/src/dump_environment/buildcfg.py --reset</args>
+        </command>
 
         <!-- Common build steps -->
         <command>
-            <program>/bin/bash</program>
+            <program>bash</program>
             <args>./fixup_bazel_tools.sh</args>
         </command>
 
