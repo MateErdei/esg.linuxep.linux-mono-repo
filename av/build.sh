@@ -237,7 +237,7 @@ do
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
-            $TAP fetch av_plugin.build.normal_build
+            $TAP fetch linux_mono_repo.plugins.av_release
             ;;
         --setup)
             rm -rf input "${REDIST}"
