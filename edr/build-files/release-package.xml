@@ -6,11 +6,14 @@
     <inputs>
         <workingdir>edr</workingdir>
 
-        <build-asset project="linuxep" repo="linux-mono-repo">
+        <build-asset project="linuxep" repo="linux-mono-repo" mode="independent">
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds" />
         </build-asset>
+
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
 
         <build-asset project="winep" repo="sed">
             <release-version branch="release--SED_2023.31_libs" build-id="20230728143107-0c6e1139a06e2bd7140098191196a279c6e33e95-iaDLhP"/>
