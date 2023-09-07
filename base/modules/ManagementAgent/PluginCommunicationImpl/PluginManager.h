@@ -75,7 +75,7 @@ namespace ManagementAgent::PluginCommunicationImpl
          * @param now
          * @return True if within grace period
          */
-        bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now);
+        bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now) override;
 
     private:
         Common::PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);

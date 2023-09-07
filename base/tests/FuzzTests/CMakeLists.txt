@@ -25,8 +25,8 @@ add_executable(parsealcpolicytests
         parsealcpolicytests.cpp
         ${ALCParseDir}/UpdatePolicyTranslator.cpp
         ${ALCParseDir}/UpdatePolicyTranslator.h
-        ${ALCParseDir}/../Logger.cpp
-        ${ALCParseDir}/../Logger.h
+        ${ALCParseDir}/../common/Logger.cpp
+        ${ALCParseDir}/../common/Logger.h
         $<TARGET_OBJECTS:utilityimplobject>
         )
 target_link_libraries(parsealcpolicytests PRIVATE
@@ -106,7 +106,7 @@ target_link_libraries(suldownloaderreporttests PRIVATE
 SET_TARGET_PROPERTIES( suldownloaderreporttests
         PROPERTIES
         BUILD_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
         )
 
 target_include_directories(suldownloaderreporttests PUBLIC
