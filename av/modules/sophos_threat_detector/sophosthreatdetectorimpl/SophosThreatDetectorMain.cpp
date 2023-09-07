@@ -19,10 +19,8 @@
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/UnixSocketException.h"
 
-#ifdef USE_SUSI
-#else
-#include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
-#endif
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
 
 // SPL Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -675,6 +673,7 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::sophos_threat_detector_main()
     {
+        LOGINFO("Sophos Threat Detectors " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << "started");
         auto resources = std::make_shared<ThreatDetectorResources>();
         return outer_main(std::move(resources));
     }

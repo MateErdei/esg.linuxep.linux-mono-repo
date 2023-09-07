@@ -36,7 +36,13 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         ${ZLIB_LIBRARY}
         )
 
-target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH}, ${ZLIB_INPUT})
+target_include_directories(sophosthreatdetectorimpl PUBLIC
+        ${pluginapiinclude}
+        ${CMAKE_SOURCE_DIR}/modules
+        ${CMAKE_SOURCE_DIR}/products/distribution/include
+        ${BOOSTPATH}
+        ${ZLIB_INPUT}
+)
 
 install(TARGETS sophosthreatdetectorimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
