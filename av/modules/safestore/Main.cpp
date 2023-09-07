@@ -6,6 +6,7 @@
 #include "SafeStoreResources.h"
 #include "SafeStoreServiceCallback.h"
 
+// Component
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
@@ -19,6 +20,10 @@
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
+// Product
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -30,7 +35,7 @@ namespace safestore
 {
     int Main::run()
     {
-        LOGDEBUG("SafeStore starting");
+        LOGDEBUG("SafeStore " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " starting");
         auto instance = Main();
 
         try

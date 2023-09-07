@@ -22,6 +22,8 @@ add_library(safestoreimpl SHARED
 
 add_dependencies(safestoreimpl copy_libs)
 
+target_include_directories(safestoreimpl PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)
+
 target_link_libraries(safestoreimpl PUBLIC
         safestorelib
         ${log4cpluslib}
