@@ -609,6 +609,8 @@ def run_on_access_performance_test(client_id, client_secret, client_region, on_w
 
         if on_write_ret != 0 or on_read_ret != 0:
             exit(Jenkins_Job_Return_Code.FAILURE)
+        else:
+            exit(Jenkins_Job_Return_Code.SUCCESS)
 
 
 def run_central_live_query_perf_test(client_id, email, password, region):

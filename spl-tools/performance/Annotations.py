@@ -181,10 +181,11 @@ def add_onaccess_performance_test_annotation(tag, start_time, text, end_time=Non
     if annotation_id is None:
         # Aka on-access setting was turned off previously and now turned on
         logging.debug(f"Adding new annotation for on-access setting with tag: {tag}")
-        add_annotation(tag=tag, start_time=start_time, text=text, end_time=end_time)
+        return add_annotation(tag=tag, start_time=start_time, text=text, end_time=end_time)
     else:
         # Annotation was turned on "twice"
         logging.debug("'Second' time on-access setting would be turned on, not adding a new annotation")
+        return 0
 
 
 def patch_onaccess_performance_test_annotation(tag, end_time):
