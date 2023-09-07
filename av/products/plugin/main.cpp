@@ -1,21 +1,23 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "../common/config.h"
 
-#include "modules/datatypes/sophos_filesystem.h"
-
-#include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/ErrorCodes.h>
-#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#include "datatypes/sophos_filesystem.h"
 
 #include <pluginimpl/Logger.h>
 #include <pluginimpl/PluginAdapter.h>
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/ErrorCodes.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApi/IPluginResourceManagement.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 
 static const char* PluginName = PLUGIN_NAME; // NOLINT
 
@@ -32,6 +34,7 @@ int main()
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
+    LOGINFO("AV Plugin " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
