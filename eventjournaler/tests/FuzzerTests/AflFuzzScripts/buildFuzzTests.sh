@@ -111,7 +111,7 @@ VagrantExecPath=$(echo ${MachineExecPath} | sed s_${SSPL_TOOLS_DIR}_/vagrant_)
 #LIBS_VAGRANT=$(echo ${LIBS_MACHINE} | sed s_${SSPL_TOOLS_DIR}_/vagrant_)
 
 
-pushd ${CMAKE_BUILD_FULL_PATH}/eventjournaler/tests/FuzzerTests/AflFuzzScripts
+pushd ${CMAKE_BUILD_FULL_PATH}/tests/FuzzerTests/AflFuzzScripts
 
 for target in ${TARGETS}; do
 
