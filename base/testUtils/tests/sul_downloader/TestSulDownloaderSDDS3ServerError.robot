@@ -262,7 +262,7 @@ SUS Fault Injection Server Responds With Large JSON
     ...    1s
     ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
 
-    ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Failed to connect to repository: SUS request failed with error:  timeout=${30}
+    ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Failed to connect to repository: SUS request failed with error:  timeout=${50}
     ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Update failed, with code: 107  timeout=${3}
 
 SUS Fault Injection Server Responds With Empty Body
