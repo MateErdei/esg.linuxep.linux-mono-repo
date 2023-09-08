@@ -7,13 +7,13 @@ function failure() {
 # assumes this is executed from everest-base/
 
 BASE=$(pwd)/base
-cd ${BASE}
+pushd ${BASE}
 
 echo 'remove previous coverage results'
-rm -rf ${BASE}/modules/.coverage*
-rm -rf ${BASE}/tests/mcsrouter/.coverage*
+rm -rf modules/.coverage*
+rm -rf tests/mcsrouter/.coverage*
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
-git checkout ${BASE}/build/release-package.xml
+git checkout build/release-package.xml
 export PATH=$PATH:/usr/local/bin/
 ./tap_fetch.sh
 ./build.sh --release --python-coverage
@@ -42,10 +42,7 @@ python3 "$BASE/testUtils/replacePythonCoveragePaths.py" -c "$BASE/testUtils/.cov
 
 # create the xml report that is used by jenkins
 python3 -m coverage combine || echo 'ignore error'
-python3 -m coverage xml -i  --omit="*dist-packages*,*python3.7*,*site-packages*,*build64*,*tests"
-
-tree
-
+python3 -m coverage xml -i  --omit="*dist-packages*,*python3.7*,*site-packages*,*build64*,*tests"  -o "${BASE}/testUtils/coverage.xml"
 # publish the report to filer 6
 if [[ ${USER} == "jenkins" ]]; then
   TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
