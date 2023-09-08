@@ -24,6 +24,9 @@ export BASE
 OUTPUT=$BASE/output
 export OUTPUT
 
+echo "A"
+ls -lR ${BASE}/products/distribution/include
+
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
@@ -276,6 +279,9 @@ EOF
     esac
     shift
 done
+
+echo "B"
+ls -lR ${BASE}/products/distribution/include
 
 export REDIST
 [[ -n "$BUILD_DIR" ]] || BUILD_DIR=build64-${CMAKE_BUILD_TYPE}
