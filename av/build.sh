@@ -24,12 +24,6 @@ export BASE
 OUTPUT=$BASE/output
 export OUTPUT
 
-echo "A"
-ls -l ${BASE}
-ls -l ${BASE}/products
-ls -l ${BASE}/products/distribution
-ls -lR ${BASE}/products/distribution/include
-
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
@@ -244,7 +238,8 @@ do
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
 #            release-package has workingdir of av, so if we are in av directory already inputs end up in av/av/input
             cd ${BASE}/..
-            python3 -m build_scripts.artisan_fetch -m independent "av/build-files/release-package.xml"
+            export TAP_PARAMETER_MODE=independent
+            "$TAP" fetch linux_mono_repo.plugins.av_${TAP_PARAMETER_MODE}
             cd ${BASE}
             install_package libcap-dev
             ;;
@@ -252,7 +247,9 @@ do
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
-            $TAP fetch linux_mono_repo.plugins.av_release
+            cd ${BASE}/..
+            "$TAP" fetch linux_mono_repo.plugins.av_release
+            cd ${BASE}
 #            # Needed for sys/capability.h
             install_package libcap-dev
             NO_BUILD=1
@@ -283,8 +280,7 @@ EOF
     shift
 done
 
-echo "B"
-ls -lR ${BASE}/products/distribution/include
+[[ -d ${BASE}/products/distribution/include ]] || exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "Run --setup to ensure AutoHeaders are created"
 
 export REDIST
 [[ -n "$BUILD_DIR" ]] || BUILD_DIR=build64-${CMAKE_BUILD_TYPE}

@@ -4,6 +4,7 @@ import time
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
 
+INDEPENDENT_MODE = 'independent'
 RELEASE_MODE = 'release'
 ANALYSIS_MODE = 'analysis'
 COVERAGE_MODE = 'coverage'

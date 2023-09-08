@@ -7,7 +7,8 @@ from pipeline import base
 from pipeline.av import run_av_tests, run_av_coverage_tests
 from pipeline.base import run_base_tests, run_base_coverage_tests
 
-from pipeline.common import get_package_version, RELEASE_MODE, ANALYSIS_MODE, NINE_NINE_NINE_MODE, \
+from pipeline.common import get_package_version, \
+    INDEPENDENT_MODE, RELEASE_MODE, ANALYSIS_MODE, NINE_NINE_NINE_MODE, \
     ZERO_SIX_ZERO_MODE, COVERAGE_MODE
 from pipeline.edr import run_edr_tests, run_edr_coverage_tests
 from pipeline.eventjournaler import run_ej_tests, run_ej_coverage_tests
@@ -65,6 +66,7 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
 
     # Base always builds
     base_component = tap.Component(name="sspl_base", base_version=get_package_version(base.PACKAGE_PATH))
+
     with stage.parallel('base'):
         base_build_bazel = bazel_pipeline(stage, context, parameters)
 
@@ -107,7 +109,14 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     ej_component = tap.Component(name='sspl-event-journaler-plugin', base_version=get_package_version(PACKAGE_PATH_EJ))
     av_component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_package_version(PACKAGE_PATH_AV))
     with stage.parallel('plugins'):
-        if mode == RELEASE_MODE:
+        if mode == INDEPENDENT_MODE:
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
+                av_build = stage.artisan_build(name=f"av_{mode}",
+                                               component=av_component,
+                                               image=BUILD_TEMPLATE,
+                                               mode=mode,
+                                               release_package=PACKAGE_PATH_AV)
+        elif mode == RELEASE_MODE:
             # EDR
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                 edr_build = stage.artisan_build(name=f"edr_{RELEASE_MODE}",
