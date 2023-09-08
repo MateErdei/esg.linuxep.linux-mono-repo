@@ -749,6 +749,16 @@ namespace Plugin
             PluginUtils::clearAllJRLMarkers();
         }
         m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(policyAttributesMap);
+
+        if (std::find(m_queryPacksInPolicy.begin(), m_queryPacksInPolicy.end(), "MTR") != m_queryPacksInPolicy.end())
+        {
+            m_loggerExtensionPtr->setMTRLicense(true);
+        }
+        else
+        {
+            m_loggerExtensionPtr->setMTRLicense(false);
+        }
+
         //sets osqueryRestartNeeded to true if enabled query packs have changed
         osqueryRestartNeeded = PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached()) || osqueryRestartNeeded;
 

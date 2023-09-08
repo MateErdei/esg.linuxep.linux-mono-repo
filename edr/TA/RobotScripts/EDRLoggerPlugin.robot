@@ -87,6 +87,10 @@ EDR Plugin Tags All Queries Correctly
     ...  300 secs
     ...  5 secs
     ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    ${files} =  List Files In Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed/
+    ${content} =  Get File     ${SOPHOS_INSTALL}/base/mcs/datafeed/${files}[0]
+    Should Contain  ${content}   "licence":"MTR
+
 
 EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     [Setup]  Install EDR Directly from SDDS With Fixed Value Queries

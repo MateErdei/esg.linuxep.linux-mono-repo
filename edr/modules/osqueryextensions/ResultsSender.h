@@ -38,6 +38,7 @@ public:
     bool getDataLimitReached();
     unsigned long long int getDataLimit();
     void setDataPeriod(unsigned int periodSeconds);
+    void setMtrLicense(bool hasMTRLicense);
     Json::Value PrepareBatchResults() override;
     void SaveBatchResults(const Json::Value& results) override;
 
@@ -54,6 +55,7 @@ protected:
 
 private:
     bool m_firstEntry = true;
+    bool m_mtrLicense = false;
     std::string m_intermediaryPath;
     std::string m_datafeedPath;
     std::string m_osqueryXDRConfigFilePath;

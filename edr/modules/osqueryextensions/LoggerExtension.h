@@ -27,6 +27,7 @@ public:
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) final;
     void setDataLimit(unsigned long long int limitBytes);
+    void setMTRLicense(bool hasMTRLicense);
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
     bool getDataLimitReached();

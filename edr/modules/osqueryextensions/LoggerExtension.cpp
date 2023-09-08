@@ -130,6 +130,11 @@ void LoggerExtension::setDataLimit(unsigned long long int limitBytes)
     m_resultsSender.setDataLimit(limitBytes);
 }
 
+void LoggerExtension::setMTRLicense(bool hasMTRLicense)
+{
+    m_resultsSender.setMtrLicense(hasMTRLicense);
+}
+
 void LoggerExtension::setDataPeriod(unsigned int periodSeconds)
 {
     m_resultsSender.setDataPeriod(periodSeconds);

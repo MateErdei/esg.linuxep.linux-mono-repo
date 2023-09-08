@@ -89,7 +89,13 @@ std::optional<std::string> ResultsSender::PrepareSingleResult(const std::string&
         LOGERROR("Invalid JSON log message. " << e.what());
         return std::nullopt;
     }
-
+    if (m_mtrLicense)
+    {
+        if (logLine.isMember("decorations"))
+        {
+            logLine["decorations"]["licence"] = "MTR";
+        }
+    }
     std::stringstream ss;
     Json::StreamWriterBuilder writerBuilder;
     writerBuilder["indentation"] = "";
@@ -282,6 +288,11 @@ void ResultsSender::loadScheduledQueryTags()
 void ResultsSender::setDataLimit(unsigned long long int limitbytes)
 {
     m_dataLimit = limitbytes;
+}
+
+void ResultsSender::setMtrLicense(bool hasMTRLicense)
+{
+    m_mtrLicense = hasMTRLicense;
 }
 
 void ResultsSender::setDataPeriod(unsigned int periodSeconds)
