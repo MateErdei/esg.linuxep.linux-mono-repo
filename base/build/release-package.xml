@@ -46,8 +46,7 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/2023.31"
-                             build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
+            <release-version branch="release/SPRINT-2023.37" build-id="20230831140213-af97a782aef02e11f317f420f5dca5de2bb5d20b-0Egr1t"/>
             <development-version branch="develop"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl"/>
         </build-asset>
