@@ -509,7 +509,8 @@ function build()
             -DCMAKE_C_COMPILER=$CC \
             ${EXTRA_CMAKE_OPTIONS} \
         ${BASE} || exitFailure 14 "Failed to configure $PRODUCT"
-    make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" \
+    ls -lR ${BASE}/products/distribution/include
+    make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" VERBOSE=1 \
         || exitFailure 15 "Failed to build $PRODUCT"
 
     if (( BULLSEYE == 1 ))
