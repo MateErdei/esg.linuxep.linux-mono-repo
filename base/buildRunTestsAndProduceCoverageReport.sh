@@ -43,6 +43,9 @@ python3 "$BASE/testUtils/replacePythonCoveragePaths.py" -c "$BASE/testUtils/.cov
 # create the xml report that is used by jenkins
 python3 -m coverage combine || echo 'ignore error'
 python3 -m coverage xml -i  --omit="*dist-packages*,*python3.7*,*site-packages*,*build64*,*tests"
+
+tree
+
 # publish the report to filer 6
 if [[ ${USER} == "jenkins" ]]; then
   TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
