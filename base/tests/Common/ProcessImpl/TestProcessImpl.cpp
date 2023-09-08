@@ -32,7 +32,7 @@ namespace
     class ProcessImplLog : public LogInitializedTests
     {};
 
-    TEST_F(ProcessImplLog, ProcessShouldTrapSIGTERMAndGetKilledInASpecifiedAmountOfTime) // NOLINT
+    TEST_F(ProcessImplLog, ProcessShouldTrapSIGTERMAndGetKilledInASpecifiedAmountOfTime)
     {
         int secondsBeforeSIGKILL = 2;
         auto process = createProcess();
@@ -42,13 +42,14 @@ namespace
         sleep(1); // Need to wait a bit to let child process start
         process->kill(secondsBeforeSIGKILL);
         auto end_time = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
         // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence
         // "elapsed_time.count() >= secondsBeforeSIGKILL"
         // "elapsed_time.count() <= (secondsBeforeSIGKILL + 1)" makes sure process stops in correct amount of time
         // 1.01 - 1-second from sleep and 0.01 to allow for some leeway
-        ASSERT_TRUE(elapsed_time.count() <= (secondsBeforeSIGKILL + 1.01) && elapsed_time.count() >= secondsBeforeSIGKILL);
+        // "1000 *" as elapsed_time is in milliseconds
+        ASSERT_TRUE(elapsed_time.count() <= 1000 * (secondsBeforeSIGKILL + 1.01) && elapsed_time.count() >= 1000 * secondsBeforeSIGKILL);
     }
 
     // cppcheck-suppress syntaxError
