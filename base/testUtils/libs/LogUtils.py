@@ -469,6 +469,9 @@ class LogUtils(object):
     def check_thininstaller_log_contains_in_order(self, *args):
         log_contains_in_order(self.thin_install_log, "Thin installer", args)
 
+    def mark_expected_error_in_thininstaller_log(self, error_message):
+        self.mark_expected_error_in_log(self.thin_install_log, error_message)
+
     # Register Central Log Utils
     def get_register_central_log(self):
         return self.register_log

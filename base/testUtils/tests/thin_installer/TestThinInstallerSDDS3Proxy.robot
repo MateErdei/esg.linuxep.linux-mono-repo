@@ -130,6 +130,9 @@ SDDS3 Thin Installer Digest Proxy
     Check Proxy Log Contains  "CONNECT localhost:8080 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
     Check MCS Config Contains  proxy=http://username:password@localhost:10000  MCS Config does not have proxy present
 
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to the SUS server either directly or via Message Relays
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to either the .com or .net CDN server directly or via the configured Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
 
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
@@ -159,6 +162,9 @@ SDDS3 Thin Installer Environment Proxy
     Check Proxy Log Contains  "CONNECT localhost:8080 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
     Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
 
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to the SUS server either directly or via Message Relays
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to either the .com or .net CDN server directly or via the configured Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed

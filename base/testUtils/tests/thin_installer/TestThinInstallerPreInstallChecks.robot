@@ -77,7 +77,7 @@ Thin Installer fails to install on system without enough memory
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
-    Check Thininstaller Log Contains    Not enough space in / to install Sophos Protection for Linux. You need at least 2048mB to install Sophos Protection for Linux
+    Check Thininstaller Log Contains    ERROR: Not enough space in / to install SPL. You need at least 2048mB to install SPL
 
 Thin Installer Tells Us It Is Governed By A License
     Run Default Thininstaller    3
@@ -171,7 +171,7 @@ Thin Installer Fails When System Has Glibc Less Than Build Machine
     ${buildGlibcVersion} =  Get Glibc Version From Thin Installer
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${LowGlibcVersion}
     Run Thininstaller With Non Standard Path  21  ${PATH}  https://localhost:1233
-    Check Thininstaller Log Contains    Failed to install on unsupported system. Detected GLIBC version 1.0 < required ${buildGlibcVersion}
+    Check Thininstaller Log Contains    ERROR: Can not install on unsupported system. Detected GLIBC version 1.0 < required ${buildGlibcVersion}
 
 Thin Installer Fails When No Path In Systemd File
     # Install to default location and break it
@@ -194,6 +194,7 @@ Thin Installer Fails When No Path In Systemd File
     Run Default Thininstaller  20
 
     Check Thininstaller Log Contains  An existing installation of Sophos Protection for Linux was found but could not find the installed path.
+    mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
