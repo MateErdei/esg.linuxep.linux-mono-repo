@@ -25,6 +25,9 @@ OUTPUT=$BASE/output
 export OUTPUT
 
 echo "A"
+ls -l ${BASE}
+ls -l ${BASE}/products
+ls -l ${BASE}/products/distribution
 ls -lR ${BASE}/products/distribution/include
 
 LOG=$BASE/log/build.log
