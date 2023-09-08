@@ -151,7 +151,9 @@ namespace Common::ProcessImpl
         if (ec)
         {
             // end of file ( pipe closed) is a normal thing to happen, no error at all.
-            if (ec.value() != boost::asio::error::eof)
+            // When a process receives a SIGKILL, SIGABRT or SIGUSR1 the error code won't be eof as the pipe was not
+            // closed normally (SIGTERM results in eof). But ec.value() will be operation_aborted and this is not an error
+            if (ec.value() != boost::asio::error::eof && ec.value() != boost::asio::error::operation_aborted)
             {
                 LOGWARN("Message Output failed with error: " << ec.message());
             }
@@ -216,7 +218,9 @@ namespace Common::ProcessImpl
         if (ec)
         {
             // end of file ( pipe closed) is a normal thing to happen, no error at all.
-            if (ec.value() != boost::asio::error::eof)
+            // When a process receives a SIGKILL, SIGABRT or SIGUSR1 the error code won't be eof as the pipe was not
+            // closed normally (SIGTERM results in eof). But ec.value() will be operation_aborted and this is not an error
+            if (ec.value() != boost::asio::error::eof && ec.value() != boost::asio::error::operation_aborted)
             {
                 LOGWARN("Message Output failed with error: " << ec.message());
             }
@@ -281,7 +285,7 @@ namespace Common::ProcessImpl
         try
         {
             LOGDEBUG("Process main loop: Check output");
-            // there is one possible case where the ioService may hang forever ( for example, if the child receives
+            // there is one possible case where the ioService may hang forever for example, if the child receives
             // a sigkill. This is because the pipe will not be closed.
             // for this case, the io run in its thread, and after the recognition of the service stop
             // the pipe is explicitly closed.
@@ -293,7 +297,10 @@ namespace Common::ProcessImpl
             try
             {
                 // give some extra time to the ioservice to capture any remaining data
-                if (ioservice.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
+                // In the case of a SIGKILL, SIGABRT or SIGUSR1, the wait_for will wait the maximum amount seconds
+                // But we shouldn't/don't need to wait for any amount, jut need to go ahead and close the pipes
+                // ec.value() will be ECHILD in those cases so check for that
+                if (ec.value() == ECHILD || ioservice.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
                 {
                     asyncPipeErr.close();
                     asyncPipeOut.close();
