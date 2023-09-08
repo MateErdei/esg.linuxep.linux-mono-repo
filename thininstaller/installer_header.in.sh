@@ -72,6 +72,9 @@ EXITCODE_GROUP_NAME_EXCEEDS_MAX_SIZE=25
 EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=26
 EXITCODE_BAD_PRODUCT_SELECTED=27
 EXITCODE_INVALID_CUSTOM_ID_GIVEN=28
+EXITCODE_NO_SYSTEMD=29
+EXITCODE_MISSING_PACKAGE=31
+EXITCODE_INVALID_CA_PATHS=32
 EXITCODE_REGISTRATION_FAILED=51
 EXITCODE_AUTHENTICATION_FAILED=52
 EXITCODE_ALC_POLICY_TRANSLATION_FAILED=53
@@ -82,8 +85,7 @@ MAX_GROUP_NAME_SIZE=1024
 VALID_PRODUCTS=("antivirus" "mdr" "xdr")
 REQUEST_NO_PRODUCTS="none"
 
-BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
-system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
+@COMMON_SPL_COMPATIBILITY_FUNCTIONS@
 
 # Ensure override is unset so that it can only be set when explicitly passed in by the user with --allow-override-mcs-ca
 unset ALLOW_OVERRIDE_MCS_CA
@@ -145,17 +147,6 @@ function failure()
     cleanup_and_exit ${code}
 }
 
-function build_version_less_than_system_version()
-{
-    lowest_version=$(printf '%s\n' ${BUILD_LIBC_VERSION} ${system_libc_version} | sort -V | head -n 1) || failure ${EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION}  "Couldn't determine libc version"
-    test "${lowest_version}" != ${BUILD_LIBC_VERSION}
-}
-
-if build_version_less_than_system_version
-then
-    failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
-fi
-
 function handle_installer_errorcodes()
 {
     errcode=$1
@@ -198,101 +189,6 @@ function handle_register_errorcodes()
     else
       failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to register with Central (Error code = ${errcode})"
     fi
-}
-function check_free_storage()
-{
-    local space="$1"
-
-    local install_path="${SOPHOS_INSTALL%/*}"
-
-    # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [[ -z "$install_path" ]]
-    then
-        install_path="/"
-    fi
-
-    if ! echo "$install_path" | grep -q ^/
-    then
-        failure ${EXITCODE_BAD_INSTALL_PATH} "Please specify an absolute path, starting with /"
-    fi
-
-    # Loop through directory path from right to left, finding the first part of the path that exists.
-    # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
-    while [[ ! -d "${install_path}" ]]
-    do
-        install_path="${install_path%/*}"
-
-        # Make sure that the install_path string is not empty.
-        if [[ -z "$install_path" ]]
-        then
-            install_path="/"
-        fi
-    done
-
-    local free=$(df -kP "${install_path}" | sed -e "1d" | awk '{print $4}')
-    local mountpoint=$(df -kP "${install_path}" | sed -e "1d" | awk '{print $6}')
-
-    local free_mb
-    free_mb=$(( free / 1024 ))
-
-    if [[ ${free_mb} -gt ${space} ]]
-    then
-        return 0
-    fi
-    failure ${EXITCODE_NOT_ENOUGH_SPACE} "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You need at least ${space}mB to install ${PRODUCT_NAME}"
-}
-
-function check_install_path_has_correct_permissions()
-{
-    # loop through given install path from right to left to find the first directory that exists.
-    local install_path="${SOPHOS_INSTALL%/*}"
-
-    # Make sure that the install_path string is not empty, in the case of "/foo"
-    if [[ -z "$install_path" ]]
-    then
-        install_path="/"
-    fi
-
-    while [ ! -d "${install_path}" ]
-    do
-        install_path="${install_path%/*}"
-
-        # Make sure that the install_path string is not empty.
-        if [[ -z "$install_path" ]]
-        then
-            install_path="/"
-        fi
-    done
-
-    # continue looping through all the existing directories ensuring that the current permissions will allow sophos-spl to execute
-
-    while [[ "${install_path}" != "/" ]]
-    do
-        permissions=$(stat -c '%A' "${install_path}")
-        if [[ ${permissions: -1} != "x" ]]
-        then
-            failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
-        fi
-
-        install_path="${install_path%/*}"
-
-        if [[ -z "$install_path" ]]
-        then
-            install_path="/"
-        fi
-     done
-}
-
-function check_total_mem()
-{
-    local neededMemKiloBytes=$1
-    local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-
-    if [ ${totalMemKiloBytes} -gt ${neededMemKiloBytes} ]
-    then
-        return 0
-    fi
-    failure ${EXITCODE_NOT_ENOUGH_MEM} "This machine does not meet product requirements (total RAM: ${totalMemKiloBytes}kB). The product requires at least 930000kB of RAM"
 }
 
 function check_SAV_installed()
@@ -419,70 +315,34 @@ function check_custom_ids_are_valid()
     done
 }
 
-function verify_install_directory()
+function pre_install_checks()
 {
-  if [[ -z "$SOPHOS_INSTALL" ]]
-  then
-      # No custom install location so use default
-      export SOPHOS_INSTALL=/opt/sophos-spl
-      return
-  fi
+  echo -e "\nPerforming pre-installation checks to verify whether SPL can be installed on this machine"
 
-  if [[ "$SOPHOS_INSTALL" == "/opt/sophos-spl" ]]
-  then
-      # Special case if SOPHOS_INSTALL is set to the default, then we just use it and don't append
-      export SOPHOS_INSTALL=/opt/sophos-spl
-      return
-  fi
+  # Check running as root
+  [[ $(id -u) -ne 0 ]] && failure ${EXITCODE_NOT_ROOT} "Please run this installer as root"
 
-  # Remove trailing /
-  SOPHOS_INSTALL="${SOPHOS_INSTALL%/}"
+  # Run common SPL compatibility checks
+  verify_system_requirements
 
-  # Sophos install must be in an ASCII path - no spaces
-  local LEFT_OVER=$(echo $SOPHOS_INSTALL | tr -d '[:alnum:]_/.-')
+  # Get baked in Central URL and any configured Message Relays/Update Caches
+  CENTRAL_URL=$(sed -n -e "/^URL=/ s/.*\= *//p" "${INSTALL_FILE}")
+  IFS=';' read -ra message_relay_array <<<"$(sed -n -e "/^MESSAGE_RELAYS=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
+  for message_relay in "${message_relay_array[@]}"; do
+    MESSAGE_RELAYS+=("${message_relay%%,*}")
+  done
 
-  if [[ -n "$LEFT_OVER" ]]
-  then
-      local SPACES=$(echo $SOPHOS_INSTALL | sed -e's/[^ ]//g')
-      if [[ -n "$SPACES" ]]
-      then
-          failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it contains spaces."
-      else
-          failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it contains non-alphanumeric characters: $LEFT_OVER"
-      fi
-  fi
+  IFS=';' read -ra update_cache_array <<<"$(sed -n -e "/^UPDATE_CACHES=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
+  for update_cache in "${update_cache_array[@]}"; do
+    UPDATE_CACHES+=("${update_cache%%,*}")
+  done
 
-  realPath=$(realpath -m "${SOPHOS_INSTALL}")
-  [[ "${SOPHOS_INSTALL}" = /* ]] || failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}' because it is a relative path. To install under this directory, please re-run with --install-dir=${realPath}"
-  [[ "${realPath}" != "${SOPHOS_INSTALL}" ]] && failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to '${SOPHOS_INSTALL}'. To install under this directory, please re-run with --install-dir=${realPath}"
-
-  # SOPHOS_INSTALL is custom dirname to contain sophos-spl
-  export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
-
-  echo "Installing to ${SOPHOS_INSTALL}"
+  # Verify network connections made during installation to Central, SUS and CDN servers
+  verify_network_connections "${MESSAGE_RELAYS[*]}" "${UPDATE_CACHES[*]}"
+  echo
 }
 
-# Check that the OS is Linux
-uname -a | grep -i Linux >/dev/null
-if [[ $? -eq 1 ]]
-then
-    failure ${EXITCODE_NOT_LINUX} "This installer only runs on Linux"
-fi
-
-# Check running as root
-if [[ $(id -u) -ne 0 ]]
-then
-    failure ${EXITCODE_NOT_ROOT} "Please run this installer as root"
-fi
-
-# Check machine architecture (only support 64 bit)
-MACHINE_TYPE=`uname -m`
-if [[ ${MACHINE_TYPE} = "x86_64" ]]
-then
-    BIN="installer/bin"
-else
-    failure ${EXITCODE_NOT_64_BIT} "This product can only be installed on a 64bit system"
-fi
+pre_install_checks
 
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
@@ -737,15 +597,6 @@ then
     # sspl not installed
     failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder." "Dont remove install directory"
 fi
-
-# Check there is enough disk space
-check_free_storage 2048
-
-# Check that the install path has valid permission on the existing directories
-check_install_path_has_correct_permissions
-
-# Check there is enough RAM (930000kB)
-check_total_mem 930000
 
 tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "ERROR: Failed to delete packed thin installer: $?"
