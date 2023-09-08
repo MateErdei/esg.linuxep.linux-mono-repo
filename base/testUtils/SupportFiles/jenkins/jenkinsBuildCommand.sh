@@ -150,7 +150,7 @@ fi
 SUDOE="sudo -E "
 [[ $(id -u) == 0 ]] && SUDOE=
 
-ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot -x robot.xml --loglevel TRACE "
+ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot -x ${WORKSPACE}/base/testUtils/robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
 HasFailure=false
 
