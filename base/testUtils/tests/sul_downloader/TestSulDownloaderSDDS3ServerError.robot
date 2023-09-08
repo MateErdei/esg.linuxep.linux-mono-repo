@@ -28,9 +28,6 @@ Resource  ../GeneralUtilsResources.robot
 
 Force Tags    LOAD9    SULDOWNLOADER
 
-*** Variables ***
-${sdds3_server_output}                      /tmp/sdds3_server.log
-
 *** Test Cases ***
 Sul Downloader Report error correctly when it cannot connect to sdds3
     Start Local Cloud Server

@@ -27,7 +27,7 @@ Default Tags  SULDOWNLOADER
 Force Tags  LOAD9
 
 *** Variables ***
-${sdds3_server_output}                      /tmp/sdds3_server.log
+${sdds3_server_output}                      ${sdds3_server_log}
 
 *** Test Cases ***
 Sul Downloader Requests Fixed Version When Fixed Version In Policy

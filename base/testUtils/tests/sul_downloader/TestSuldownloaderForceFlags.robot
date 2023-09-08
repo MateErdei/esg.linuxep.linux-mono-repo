@@ -17,9 +17,6 @@ Resource    SulDownloaderResources.robot
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD6
 
-*** Variables ***
-${sdds3_server_output}                      /tmp/sdds3_server.log
-
 *** Test Cases ***
 Sul Downloader Installs does Force reinstall
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json

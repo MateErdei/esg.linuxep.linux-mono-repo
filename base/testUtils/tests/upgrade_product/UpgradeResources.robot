@@ -23,7 +23,7 @@ Resource    ../mcs_router/McsRouterResources.robot
 *** Variables ***
 ${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
 ${sdds3_server_log}                             /tmp/sdds3_server.log
-${sdds3_server_output}                          /tmp/sdds3_server_stdout.log
+${sdds3_server_std_output}                      /tmp/sdds3_server_stdout.log
 ${tmpLaunchDarkly}                              /tmp/launchdarkly
 ${staticflagfile}                               linuxep.json
 
@@ -106,7 +106,7 @@ Start Local SDDS3 Server
     ...  python3  ${LIBS_DIRECTORY}/SDDS3server.py
     ...  --launchdarkly  ${launchdarklyPath}
     ...  --sdds3  ${sdds3repoPath}
-    ...  stdout=${sdds3_server_output}
+    ...  stdout=${sdds3_server_std_output}
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
     Wait Until Keyword Succeeds
@@ -134,7 +134,7 @@ Stop Local SDDS3 Server
     Run Keyword and Ignore Error  Run Keyword If Test Failed  Debug Local SDDS3 Server
     ${result} =  Terminate Process  ${GL_handle}  True
     Set Suite Variable    $GL_handle    ${EMPTY}
-    Dump Teardown Log    ${sdds3_server_output}
+    Dump Teardown Log    ${sdds3_server_std_output}
     Dump Teardown Log    ${sdds3_server_log}
     Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True

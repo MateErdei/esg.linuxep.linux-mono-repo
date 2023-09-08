@@ -29,11 +29,11 @@ Default Tags  SULDOWNLOADER
 Force Tags  LOAD6
 
 *** Variables ***
-${sdds3_server_output}                      /tmp/sdds3_server.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${tmpPolicy}                                /tmp/tmpALC.xml
 ${staticflagfile}                           linuxep.json
+
 *** Test Cases ***
 Valid ESM Entry Is Requested By Suldownloader
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
@@ -65,7 +65,7 @@ Valid ESM Entry Is Requested By Suldownloader
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
+    ...   File Should Contain    ${sdds3_server_log}     fixed_version_token f4d41a16-b751-4195-a7b2-1f109d49469d
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
@@ -92,7 +92,7 @@ we install flags correctly for static suites
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     fixed_version_token
+    ...   File Should Contain    ${sdds3_server_log}     fixed_version_token
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
