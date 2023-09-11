@@ -10,8 +10,7 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
-Force Tags  LOAD3
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION  TAP_TESTS  TESTRUN2
 
 *** Test Case ***
 # Note that our local cloud server does not support fragmented policy.
@@ -31,7 +30,6 @@ Default Command Poll Interval Changed By MCS Policy
     Check Temp Policy Folder Doesnt Contain Policies
 
 Default Policies Written to File
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
@@ -227,14 +225,14 @@ MCS Resets Token If Empty Token Is Sent In MCS Policy And Remains Empty On Resta
     Check MCS Policy Config Does Not Contain  PolicyRegToken
 
 Test MCS Receives LiveQuery Policy
-        Register With Local Cloud Server
-        Check Correct MCS Password And ID For Local Cloud Saved
-        Create File  ${SOPHOS_INSTALL}/base/pluginRegistry/LiveQueryPlugin.json  {"policyAppIds": ["LiveQuery"]}
-        Start MCSRouter
-        Wait Until Keyword Succeeds
-        ...  10s
-        ...  1s
-        ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery_policy.xml
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Create File  ${SOPHOS_INSTALL}/base/pluginRegistry/LiveQueryPlugin.json  {"policyAppIds": ["LiveQuery"]}
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery_policy.xml
 
 
 

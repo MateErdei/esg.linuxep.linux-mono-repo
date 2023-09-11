@@ -15,8 +15,7 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
 Test Teardown    Test Teardown
 
-Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_PARALLEL1
-Force Tags  LOAD3
+Force Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_PARALLEL1
 
 *** Test Case ***
 

@@ -9,8 +9,7 @@ Resource  ../GeneralTeardownResource.robot
 
 Test Teardown  Push Server Test Teardown
 
-Default Tags  FAKE_CLOUD
-Force Tags  LOAD3
+Force Tags  FAKE_CLOUD  TAP_TESTS  TESTRUN2
 
 *** Test Case ***
 MCSPushServer Can Be Used To Send Push Server Message
@@ -63,9 +62,3 @@ MCS Fake Server Redirects To MCS Push Server
     Check MCS Push Message Sent    Single Message
     # 2 times, one for the 'verify cloud server redirect' and the other via_cloud_server
     Check Cloud Server Log Contains   Push redirect requested    2
-
-
-
-
-
-*** Keywords ***

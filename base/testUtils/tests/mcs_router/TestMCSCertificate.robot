@@ -8,8 +8,7 @@ Test Teardown  Run Keywords
 ...            Stop Local Cloud Server  AND
 ...            MCSRouter Default Test Teardown
 
-Default Tags   MCS_ROUTER
-Force Tags  LOAD3
+Force Tags   MCS_ROUTER  TAP_TESTS  TESTRUN2
 
 *** Keywords ***
 Setup

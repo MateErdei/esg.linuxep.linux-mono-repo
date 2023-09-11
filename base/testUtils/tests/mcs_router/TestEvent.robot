@@ -12,12 +12,11 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
-Force Tags  LOAD3
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TAP_PARALLEL6
 
 *** Test Case ***
 Update Succeeded Event Sent On Change
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
+    [Tags]  SMOKE
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
@@ -128,7 +127,6 @@ SAV Event Sent With Non Ascii Character
     Log File  ${SOPHOS_INSTALL}/base/mcs/action/SAV_action_FakeTime.xml
 
 Verify Large Event XML Gets Rejected
-
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
@@ -140,7 +138,6 @@ Verify Large Event XML Gets Rejected
     ...  Check MCSRouter Log Contains  Refusing to parse, size of status exceeds size limit
 
 Verify Event XML Containing Script Tag Gets Rejected
-
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

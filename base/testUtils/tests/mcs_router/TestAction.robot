@@ -12,8 +12,8 @@ Suite Teardown  Run Keywords
 ...             Stop Local Cloud Server  AND
 ...             Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
-Force Tags  LOAD2
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
+
 *** Variables ***
 ${FileSystemWatcherLog}  /tmp/fsw.log
 *** Test Case ***
@@ -30,7 +30,6 @@ Update Now Received And Action File Written
     Check Temp Folder Doesnt Contain Atomic Files
 
 Actions are removed when mcsrouter shutdown
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL3
     Override LogConf File as Global Level  DEBUG
     Register With Fake Cloud
     Check Cloud Server Log For Command Poll
@@ -117,7 +116,6 @@ Action Applied After Policies
          ...  _ALC_action_jura.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_jura.xml
 
 *** Keywords ***
-
 Check Cloud Server Log For Command Poll
     [Arguments]    ${occurrence}=1
     Wait Until Keyword Succeeds

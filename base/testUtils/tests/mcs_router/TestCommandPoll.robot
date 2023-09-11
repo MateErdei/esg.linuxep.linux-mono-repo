@@ -14,13 +14,10 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
-Force Tags  LOAD2
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
 
 *** Test Case ***
 Command Poll Sent
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

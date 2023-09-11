@@ -10,12 +10,11 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
-Force Tags  LOAD1
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
 
 *** Test Case ***
 MCS Status Sent When Message Relay Changed
-    [Tags]  MCS  FAKE_CLOUD  MESSAGE_RELAY  MCS_ROUTER  SMOKE
+    [Tags]   MESSAGE_RELAY  SMOKE
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
@@ -83,7 +82,6 @@ Verify Status XML Containing Script Tag Gets Rejected
     ...  5 secs
     ...  Check MCSRouter Log Contains  Refusing to parse Script Element
 
-
 ALC Status Not Sent When Status Message Is In The Cache And Cached Timestamp Is Less Than Seven Days Old
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -129,7 +127,6 @@ ALC Status Is Sent When Status Message Is In The Cache And Cached Timestamp Is G
     ...  1 min
     ...  5 secs
     ...  Check Cloud Server Log Contains Pattern   .*Some ALC Status Message.*   2
-
 
 ALC Status Not Sent When Status Message Is In The Cache And MCS Router Restarted
     Register With Local Cloud Server

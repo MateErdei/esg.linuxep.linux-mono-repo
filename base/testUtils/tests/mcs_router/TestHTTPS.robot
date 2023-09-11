@@ -7,8 +7,7 @@ Resource  McsRouterResources.robot
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
-Force Tags  LOAD3
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
 
 Test Setup    Run Keyword and Ignore Error   Remove File   	${SOPHOS_INSTALL}/base/etc/mcs.config
 
