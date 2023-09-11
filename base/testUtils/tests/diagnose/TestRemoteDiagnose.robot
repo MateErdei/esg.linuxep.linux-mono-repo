@@ -5,12 +5,9 @@ Library     ../../libs/DiagnoseUtils.py
 Library     ../../libs/HttpsServer.py
 Library     ../../libs/TelemetryUtils.py
 
-
-
 Library     Process
 Library     OperatingSystem
 Library     Collections
-
 
 Resource    DiagnoseResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
@@ -116,4 +113,3 @@ Test Remote Diagnose can process SDU action with malformed URL
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Processing action    140
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Cannot process url will not send up diagnose file Error: Malformed url missing protocol    30
     wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2
-    
