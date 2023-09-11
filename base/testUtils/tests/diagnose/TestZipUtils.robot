@@ -14,6 +14,7 @@ Suite Teardown  Run Keywords
 ...             Ensure Uninstalled  AND
 ...             Cleanup Certificates
 
+Default Tags    TAP_TESTS
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
 
@@ -27,8 +28,8 @@ Test Zip And Unzip Directory
     ${result}=    Run Process  ls -l ${TAR_FILE_DIRECTORY}/test.txt  shell=True
     Log  ${result.stdout}
 
-    ${zipTool} =  Set Variable  SystemProductTestOutput/zipTool
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${zipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/zipTool
+    ${unzipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/unzipTool
     ${zipFile} =  Set Variable  /tmp/test.zip
 
     Remove File  ${zipFile}
@@ -59,8 +60,8 @@ Test Zip And Unzip Directory with trailing slash
     ${result}=    Run Process  ls -l ${TAR_FILE_DIRECTORY}/test.txt  shell=True
     Log  ${result.stdout}
 
-    ${zipTool} =  Set Variable  SystemProductTestOutput/zipTool
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${zipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/zipTool
+    ${unzipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/unzipTool
     ${zipFile} =  Set Variable  /tmp/test.zip
 
     Remove File  ${zipFile}
@@ -86,8 +87,8 @@ Test Zip And Unzip Directory With Password
     Create Directory   ${TAR_FILE_DIRECTORY}
     Create File   ${TAR_FILE_DIRECTORY}/test.txt   this is a test file
 
-    ${zipTool} =  Set Variable  SystemProductTestOutput/zipTool
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${zipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/zipTool
+    ${unzipTool} =  Set Variable   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/unzipTool
     ${zipFile} =  Set Variable  /tmp/test.zip
     ${password} =  Set Variable  password
 
