@@ -28,6 +28,7 @@ def params = [
 
  string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
  string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
+ string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';

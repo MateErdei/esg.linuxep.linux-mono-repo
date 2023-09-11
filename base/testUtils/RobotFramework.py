@@ -1,5 +1,5 @@
 # Copyright 2020-2023 Sophos Limited. All rights reserved.
-
+import argparse
 import json
 import robot
 import sys
@@ -8,7 +8,18 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main():
-    tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--include', nargs='+', help='keywords to include')
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    args = parser.parse_args()
+
+    tags = {'include': [], 'exclude': []}
+    if args.include is not None:
+        tags['include'] = args.include
+
+    if args.exclude is not None:
+        tags['exclude'] = args.exclude
+
     if os.environ.get('DEBUG'):
         tags['exclude'].append('BREAKS_DEBUG')
     if os.environ.get('COVERAGE'):

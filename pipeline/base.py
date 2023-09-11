@@ -65,13 +65,26 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     return test_inputs
 
 
-def robot_task(machine: tap.Machine, branch_name: str, robot_args: str):
+def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tags: str):
+
+    default_include_tags = ["TAP_TESTS"]
+    default_exclude_tags = ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]
+
     machine_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
+    print(f"include_tags: {include_tags}")
     try:
         install_requirements(machine)
-        machine.run(*robot_args.split(), 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+
+        include = default_include_tags
+        if include_tags:
+            include = include_tags.split(",")
+
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--include', *include,
+                        '--exclude', *default_exclude_tags,
+                        timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -206,4 +219,5 @@ def run_base_tests(stage, context, base_build, base_build_bazel, mode, parameter
                        func=robot_task,
                        machine=machine,
                        branch_name=context.branch,
-                       robot_args=robot_args_for_platform)
+                       robot_args=robot_args_for_platform,
+                       include_tags=parameters.include_tags)
