@@ -11,10 +11,11 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Resource    ManagementAgentResources.robot
 
-Default Tags    MANAGEMENT_AGENT
+Force Tags    MANAGEMENT_AGENT    TAP_PARALLEL6
+
 *** Test Cases ***
 Verify Management Agent Can Receive Plugin Status
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_PARALLEL6
+    [Tags]  SMOKE
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -34,7 +35,6 @@ Verify Management Agent Can Receive Plugin Status
 
 
 Verify Management Agent Can Receive Plugin Status When Plugin Already Started
-
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -52,9 +52,7 @@ Verify Management Agent Can Receive Plugin Status When Plugin Already Started
     Stop Management Agent
 
 
-
 Verify Management Agent Can Receive Plugin Status When Management Agent is Restarted
-
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -86,7 +84,6 @@ Verify Management Agent Can Receive Plugin Status When Management Agent is Resta
 
 
 Verify Management Agent Can Process Plugin Status When Management Agent is Restarted After Status Changed
-
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -122,7 +119,6 @@ Verify Management Agent Can Process Plugin Status When Management Agent is Resta
 
 
 Verify Management Agent Writes To Status Cache
-
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -159,7 +155,6 @@ Verify Management Agent Writes To Status Cache
 
 
 Verify Management Agent Only Updates Status And Status Cache When Status Content Changes
-
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -207,8 +202,8 @@ Verify Management Agent Only Updates Status And Status Cache When Status Content
     Should Be True   """${statusCacheTimeOrig}""" != """${statusCacheTimeActual}"""
     Should Be True   """${statusTimeOrig}""" != """${statusTimeActual}"""
 
-Verify Management Agent Loads Status Cache On Startup
 
+Verify Management Agent Loads Status Cache On Startup
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -253,10 +248,3 @@ Verify Management Agent Loads Status Cache On Startup
 
     Should Be True   """${statusCacheTimeOrig}""" != """${statusCacheTimeActual}"""
     Should Be True   """${statusTimeOrig}""" != """${statusTimeActual}"""
-
-
-
-
-
-
-
