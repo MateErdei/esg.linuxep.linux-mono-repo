@@ -2,18 +2,19 @@
 #include "json.hpp"
 
 #include <CentralRegistration/Main.h>
-#include <cmcsrouter/Config.h>
-#include <cmcsrouter/ConfigOptions.h>
-#include <cmcsrouter/MCSApiCalls.h>
-
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/CurlWrapper/ICurlWrapper.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/Policy/ALCPolicy.h>
 #include <Common/Policy/SerialiseUpdateSettings.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
-#include <log4cplus/logger.h>
+#include <cmcsrouter/Config.h>
+#include <cmcsrouter/ConfigOptions.h>
+#include <cmcsrouter/MCSApiCalls.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/initializer.h>
+#include <log4cplus/logger.h>
 
 #include <algorithm>
 #include <cassert>
@@ -22,7 +23,6 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-
 #include <string>
 #include <unistd.h>
 #include <utility>

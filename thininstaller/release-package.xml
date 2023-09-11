@@ -5,9 +5,9 @@
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
-        <build-asset project="linuxep" repo="everest-base">
+        <build-asset project="linuxep" repo="linux-mono-repo">
             <development-version branch="develop"/>
-            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
+            <release-version branch="release/2023-37" build-id="20230911081417-bfdaf96215c9391ea2eb1457fb96c32a7fef9368-T0vw8Y"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
         </build-asset>
