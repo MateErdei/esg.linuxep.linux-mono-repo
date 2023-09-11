@@ -9,7 +9,7 @@ Resource    ../management_agent/ManagementAgentResources.robot
 
 *** Test Case ***
 Verify Event Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
+    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
