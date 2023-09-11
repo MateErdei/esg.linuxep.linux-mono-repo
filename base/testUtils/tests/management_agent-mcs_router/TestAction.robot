@@ -11,9 +11,10 @@ Resource    ../mcs_router/McsRouterResources.robot
 
 Test Teardown     Test Action Teardown
 
+Force Tags    TAP_TESTS  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TESTRUN2
+
 *** Test Case ***
 Verify Scan Now Action Sent Through MCS Router And Management Agent Will Be Processed By Plugin
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
@@ -39,7 +40,6 @@ Verify Scan Now Action Sent Through MCS Router And Management Agent Will Be Proc
 
 
 Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent Will Be Processed By Plugin
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
@@ -66,7 +66,6 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
     Check Temp Folder Doesnt Contain Atomic Files
 
 Verify Management Agent Handles CORE Health Reset Action When Received
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
