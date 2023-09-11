@@ -16,12 +16,10 @@ Test Teardown    Run Keywords
 ...              MCSRouter Test Teardown  AND
 ...			     Stop System Watchdog
 
-Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
-Force Tags  LOAD3
+Force Tags  TAP_PARALLEL1  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
 
 *** Test Case ***
 Successful Registration In C
-    [Tags]  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_PARALLEL1
     ${result} =  Run Process  /opt/sophos-spl/base/bin/centralregistration  ThisIsARegToken  https://localhost:4443/mcs
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -30,7 +28,6 @@ Successful Registration In C
     Should Contain  ${result.stderr}  Product successfully registered
 
 Successful Registration In C With Group
-    [Tags]  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_PARALLEL4
     ${result} =  Run Process  /opt/sophos-spl/base/bin/centralregistration  ThisIsARegToken  https://localhost:4443/mcs  --central-group\=ctestgroup
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -38,7 +35,6 @@ Successful Registration In C With Group
     Should Contain  ${result.stderr}  Product successfully registered
 
 Message Relay Prioritisation
-    [Tags]  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_PARALLEL4
     ${result} =  Run Process  /opt/sophos-spl/base/bin/centralregistration
         ...  ThisIsARegToken
         ...  https://localhost:4443/mcs
