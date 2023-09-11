@@ -96,6 +96,26 @@ Diagnose Tool Gathers Logs When Run From Systemctl
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 
+Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught Exception
+    [Tags]  SMOKE  TAP_PARALLEL3
+    # Create 6M Log File
+    Create Log File Of Specific Size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  6291456
+
+    Run Process   touch   /tmp/5mbarea
+    Run Process   truncate   -s   5M   /tmp/5mbarea
+    Run Process   mke2fs   -t   ext4   -F   /tmp/5mbarea
+    Run Process   mkdir   /tmp/up
+    Run Process   mount   /tmp/5mbarea   /tmp/up
+
+    ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  /tmp/up
+    Log    ${result.stderr}
+    Log    ${result.stdout}
+
+    Should Be Equal As Integers    ${result.rc}  3
+
+    Should Not Contain   ${result.stderr}    	Uncaught std::exception
+    Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
+
 Diagnose Tool Gathers LR Logs When Run From Installation
     [Tags]   LIVE_RESPONSE
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
@@ -305,26 +325,6 @@ Diagnose Tool Does Not Gather JournalCtl Data Older Than 10 Days
     Should Be Equal As Strings   ${result.rc}  0
 
     Check Journalclt Files Do Not Have Old Entries   ${UNPACK_DIRECTORY}/${folder}/SystemFiles    days=11
-
-Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught Exception
-    [Tags]  SMOKE  TAP_PARALLEL3
-    # Create 6M Log File
-    Create Log File Of Specific Size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  6291456
-
-    Run Process   touch   /tmp/5mbarea
-    Run Process   truncate   -s   5M   /tmp/5mbarea
-    Run Process   mke2fs   -t   ext4   -F   /tmp/5mbarea
-    Run Process   mkdir   /tmp/up
-    Run Process   mount   /tmp/5mbarea   /tmp/up
-
-    ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  /tmp/up
-    Log    ${result.stderr}
-    Log    ${result.stdout}
-
-    Should Be Equal As Integers    ${result.rc}  3
-
-    Should Not Contain   ${result.stderr}    	Uncaught std::exception
-    Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
 
 Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exception
     [Tags]    TAP_PARALLEL3
