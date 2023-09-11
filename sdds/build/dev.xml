@@ -19,9 +19,9 @@
       <build-asset project="linuxep" repo="linux-mono-repo" mode="dev,999">
           <development-version branch="develop"/>
           <!-- Base -->
-          <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/base/latest/x64" mode="dev,999"/>
+          <include artifact-path="base/linux_x64_rel/installer" dest-dir="redist/base/latest/x64" mode="dev,999"/>
           <include artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="redist/responseactions/latest/x64" mode="dev,999"/>
-          <include artifact-path="sspl-base/system_test" dest-dir="."/>
+          <include artifact-path="base/linux_x64_rel/system_test" dest-dir="."/>
           <!-- EDR -->
           <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64" mode="dev,999"/>
           <!-- Event Journaler -->
