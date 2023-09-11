@@ -9,9 +9,11 @@ Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 
+Force Tags    TAP_PARALLEL4    WDCTL
+
 *** Test Cases ***
 Test wdctl times out if watchdog not running
-    [Tags]    WDCTL  WATCHDOG
+    [Tags]    WATCHDOG
     Require Fresh Install
     Stop Watchdog
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl  start  foobar  timeout=1min
@@ -19,7 +21,6 @@ Test wdctl times out if watchdog not running
     Should Not Be Equal As Integers    ${result.rc}    ${0}   "wdctl didn't report any error for timeout"
 
 Test that wdctl can restart a plugin when the plugin configuration is updated while running
-    [Tags]    WDCTL  TAP_PARALLEL4
     Require Fresh Install
     ${old_content} =  Get File  ${SOPHOS_INSTALL}/base/pluginRegistry/tscheduler.json
     ${new_content} =  Replace String  ${old_content}  base/bin/tscheduler  base/bin/newTscheduler
@@ -38,7 +39,6 @@ Test that wdctl can restart a plugin when the plugin configuration is updated wh
     Check Watchdog Log Contains  Plugin info changed while plugin running so stopping plugin
 
 Test that wdctl can reload a plugin configuration when started
-    [Tags]    WDCTL  TAP_PARALLEL4
     Require Fresh Install
     ${old_content} =  Get File  ${SOPHOS_INSTALL}/base/pluginRegistry/tscheduler.json
     ${new_content} =  Replace String  ${old_content}  base/bin/tscheduler  base/bin/newTscheduler
