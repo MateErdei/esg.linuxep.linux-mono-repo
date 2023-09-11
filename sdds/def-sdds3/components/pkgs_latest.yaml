@@ -7,30 +7,30 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2023.3/20230821120742-f5dc9d19dfea4e353c210bc345ca06750a719136-oRoIUa/edr/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/sspl-plugin-anti-virus/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023.3/20230821153456-ec273aaeacc6095b0a0ee283087cc2e3f195e25b-ETLxWH/sspl-plugin-anti-virus/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/sspl-plugin-anti-virus/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023.3/20230821125954-b9e154ba99a545142aea3860ea14ea67e4517c00-M0uhuK/sspl-base/SDDS-COMPONENT/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/base/linux_x64_rel/installer/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023.3/20230821120438-1a22fdf610edefb2bd43880dbf89e11d4b6a6a09-UedFwK/eventjournaler/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/eventjournaler/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
-  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--2023.3-linux/20230821132325-22aebeda590d1438cf7589e77cdf3f35d8ec0ae8-z0vsoE/liveterminal/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--2023-37-linux/20230911120709-fee8cfd174292aeb2f239792a31a4fa42228654a-waERWZ/liveterminal/sdds/
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--version_5_6_0/20230824192513-07bdd38e0caadec9b21d07204bd79e2f96aa73dd-UjRYTz/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-37/20230908135207-6d613e97d2073887aa4d57476f6b45ce8193a3dc-MNKVru/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023.3/20230821125954-b9e154ba99a545142aea3860ea14ea67e4517c00-M0uhuK/sspl-base/RA-SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/sspl-base/RA-SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-responseactions
   mountpoint: ServerProtectionLinux-Plugin-responseactions
