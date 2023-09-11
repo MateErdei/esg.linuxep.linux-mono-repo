@@ -16,7 +16,7 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Resource    ManagementAgentResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Force Tags     MANAGEMENT_AGENT
+Force Tags     MANAGEMENT_AGENT    TAP_PARALLEL5
 
 *** Test Cases ***
 Verify Management Agent Creates New Event File When Plugin Raises A New Event
@@ -70,7 +70,7 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
     ...  Management Agent Log Contains Error N Times  ${errorMessage}  2
 
 Verify Management Agent Goes Into Outbreak Mode And Out After Clear Action
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_PARALLEL5
+    [Tags]  SMOKE
     # make sure no previous event xml file exists.
     Remove Event Xml Files
 
@@ -96,9 +96,7 @@ Verify Management Agent Goes Into Outbreak Mode And Out After Clear Action
     ...  Check Event File     ${eventContent}
 
 
-
 *** Keywords ***
-
 Plugin Event Test Teardown
     run teardown functions
     General Test Teardown
