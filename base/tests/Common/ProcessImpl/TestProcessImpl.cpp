@@ -32,6 +32,7 @@ namespace
     class ProcessImplLog : public LogInitializedTests
     {};
 
+    // cppcheck-suppress syntaxError
     TEST_F(ProcessImplLog, ProcessShouldTrapSIGTERMAndGetKilledInASpecifiedAmountOfTime)
     {
         int secondsBeforeSIGKILL = 2;
@@ -52,7 +53,6 @@ namespace
         ASSERT_TRUE(elapsed_time.count() <= 1000 * (secondsBeforeSIGKILL + 1.01) && elapsed_time.count() >= 1000 * secondsBeforeSIGKILL);
     }
 
-    // cppcheck-suppress syntaxError
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
     {
         auto process = createProcess();
