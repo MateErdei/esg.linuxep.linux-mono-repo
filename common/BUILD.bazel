@@ -1,3 +1,38 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("@rules_python//python:defs.bzl", "py_binary")
+load(":system_library.bzl", "system_library")
+
 exports_files([
     "AutoVersion.h.in",
+    "test_versions_match.py",
 ])
+
+# This will change with the migration to ESG monorepo when directory structure is changed
+package_group(
+    name = "spl_packages",
+    packages = ["//..."],
+)
+
+py_binary(
+    name = "strip",
+    srcs = ["strip.py"],
+    visibility = [":spl_packages"],
+)
+
+py_binary(
+    name = "create_version_ini",
+    srcs = ["create_version_ini.py"],
+    visibility = [":spl_packages"],
+)
+
+py_binary(
+    name = "generate_spv_template",
+    srcs = ["generate_spv_template.py"],
+    visibility = [":spl_packages"],
+)
+
+system_library(
+    name = "libcap",
+    src = "@libcap//:libcap_shared",
+    visibility = [":spl_packages"],
+)

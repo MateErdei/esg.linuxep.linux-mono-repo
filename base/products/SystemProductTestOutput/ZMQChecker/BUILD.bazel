@@ -1,0 +1,17 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "zmqchecker",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+    deps = [
+        "//base/modules/Common/Reactor",
+        "//base/modules/Common/ReactorImpl",
+        "//base/modules/Common/UtilityImpl:Main",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZeroMQWrapperImpl",
+    ],
+)

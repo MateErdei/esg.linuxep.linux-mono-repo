@@ -421,7 +421,7 @@ namespace Common::ZipUtilities
             }
         }
 
-        chdir(destPath.c_str());
+        std::ignore = chdir(destPath.c_str());
         if (passwordProtected)
         {
             ret = extractAll(uf, passwordStr.c_str());

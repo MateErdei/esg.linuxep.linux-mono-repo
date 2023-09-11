@@ -1,0 +1,7 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+exports_files([
+    "bin/openssl",
+    "lib64/libcrypto.so.3",
+    "lib64/libssl.so.3",
+])

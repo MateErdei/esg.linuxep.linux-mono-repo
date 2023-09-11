@@ -1,7 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//common:common_substitutions.bzl", "COMMON_SUBSTITUTIONS")
+load("//common:common_substitutions.bzl", "USER_AND_GROUP_SUBSTITUTIONS")
 
 soph_cc_library(
     name = "ConfigException",
@@ -47,7 +47,7 @@ soph_cc_library(
 expand_template(
     name = "ProjectNames_expand_template",
     out = "ProjectNames.cpp",
-    substitutions = COMMON_SUBSTITUTIONS,
+    substitutions = USER_AND_GROUP_SUBSTITUTIONS,
     template = "ProjectNames.cpp.in",
 )
 
@@ -151,9 +151,7 @@ soph_cc_library(
 soph_cc_library(
     name = "Main",
     hdrs = ["Main.h"],
-    visibility = [
-        "//base/products:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(

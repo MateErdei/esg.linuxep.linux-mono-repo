@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
 soph_cc_binary(
@@ -6,6 +7,9 @@ soph_cc_binary(
         "*.cpp",
         "*.h",
     ]),
+    visibility = [
+        "//base/products/Base/installer:__pkg__",
+    ],
     deps = [
         "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/watchdog/watchdogimpl",

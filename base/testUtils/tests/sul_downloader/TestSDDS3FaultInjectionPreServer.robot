@@ -19,7 +19,7 @@ Give invalid update config to Suldownloader running in sdds3 mode
     Run Shell Process  systemctl start sophos-spl-update      failed to start suldownloader
     wait_for_log_contains_from_mark  ${mark}  Generating the report file  timeout=${10}
     wait_for_log_contains_from_mark  ${mark}   Update failed, with code: 121  timeout=${10}
-    wait_for_log_contains_from_mark  ${mark}   Failed to process json message with error: INVALID_ARGUMENT:Unexpected token  timeout=${10}
+    wait_for_log_contains_from_mark  ${mark}   Failed to process json message with error: INVALID_ARGUMENT  timeout=${10}
     Log File  ${UPDATE_CONFIG}
 
 

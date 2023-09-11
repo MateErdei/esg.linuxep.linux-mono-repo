@@ -4,7 +4,7 @@ add_library(flagutilsobject OBJECT
         Logger.cpp
         Logger.h)
 
-target_include_directories(flagutilsobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(flagutilsobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 include_directories(flagutilsobject BEFORE ${NLOHMANN_JSON_INCLUDE_DIR})
 

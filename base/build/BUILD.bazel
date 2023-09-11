@@ -1,0 +1,7 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+exports_files([
+    "dev-telemetry-config.json",
+    "prod-telemetry-config.json",
+    "sseclient.patch",
+])

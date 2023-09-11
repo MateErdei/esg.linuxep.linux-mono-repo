@@ -83,7 +83,7 @@ add_executable(machineid
 
 
 target_link_libraries(manifestdiff PUBLIC manifestdifflib)
-target_link_libraries(machineid PUBLIC osutilitiesimpl)
+target_link_libraries(machineid PUBLIC machineidlib)
 
 SET_TARGET_PROPERTIES( manifestdiff
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")

@@ -1,0 +1,14 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+exports_files([
+    "cleanupinstall.sh",
+    "VERSION.ini.in",
+    "checkAndRunExtraUpgrade.sh",
+    "datafeed-config-scheduled_query.json",
+    "addSymbols.sh",
+    "fileInfo.py",
+    "readVersion.py",
+    "generateManifestDat.py",
+    "generateSDDSImport.py",
+    "generateSDDSImportAndManifestDat.py",
+])

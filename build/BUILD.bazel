@@ -1,0 +1,6 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+exports_files([
+    "release-package.xml",
+    "SOURCE_CODE_BRANCH",
+])

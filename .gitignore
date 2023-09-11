@@ -3,6 +3,7 @@
 /.clwb/.idea/blazeInfo.xml
 /.clwb/.idea/runConfigurations.xml
 /.clwb/.idea/git_toolbox_prj.xml
+/.clwb/.idea/workspace.xml
 *.iml
 # Bazel projects can't be opened without these
 !/.clwb/.blaze/modules/*.iml
@@ -12,9 +13,22 @@
 /robot
 /vagrant
 /.buildcfg.bazelrc
+/.output/
+/.profile/*
+!/.profile/README.md
+/log.html
+/build/SOURCE_CODE_BRANCH
+/.bazel_symlinks_spl_python/
 
-# Import location for sophlib
+# Import locations
 /common/sophlib/
+/imports/internal/sdds3_utils/
+/imports/internal/versig/*
+!/imports/internal/versig/BUILD.bazel
+/imports/thirdparty/libxcrypt/*
+!/imports/thirdparty/libxcrypt/BUILD.bazel
+/imports/thirdparty/openssl/*
+!/imports/thirdparty/openssl/BUILD.bazel
 
 # bazel-tools from ESG monorepo
 /.bazelignore

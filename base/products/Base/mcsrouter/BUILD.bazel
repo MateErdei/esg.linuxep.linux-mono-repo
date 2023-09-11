@@ -1,0 +1,20 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//common:common_substitutions.bzl", "PYTHON_SUBSTITUTIONS", "USER_AND_GROUP_SUBSTITUTIONS")
+load("@rules_python//python:defs.bzl", "py_binary")
+
+package(default_visibility = ["//base/products/Base/installer:__pkg__"])
+
+expand_template(
+    name = "mcsrouter_sh",
+    out = "mcsrouter.sh",
+    substitutions = PYTHON_SUBSTITUTIONS,
+    template = "mcsrouter.in.sh",
+)
+
+expand_template(
+    name = "registry_json",
+    out = "mcsrouter.json",
+    substitutions = USER_AND_GROUP_SUBSTITUTIONS,
+    template = "mcsrouter.json.in",
+)

@@ -7,11 +7,11 @@
  * duplicated for both HTTP and HTTPS. The test server runs both an HTTP and HTTPS server.
  */
 
-#include "tests/Common/Helpers/LogInitializedTests.h"
-#include "Common/FileSystem/IFileSystem.h"
-
 #include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+
 #include <gtest/gtest.h>
 
 namespace
@@ -360,7 +360,7 @@ TEST_P(HttpRequesterLiveNetworkTestsParam, putWithFileUpload)
     std::string testUrlResource = "putWithFileUpload";
 
     m_filesToRemove.emplace_back("/tmp/testPutFile");
-    system("bash -c 'echo test > /tmp/testPutFile'");
+    std::ignore = system("bash -c 'echo test > /tmp/testPutFile'");
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
         std::make_shared<Common::CurlWrapper::CurlWrapper>();
     Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);

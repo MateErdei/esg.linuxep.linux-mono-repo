@@ -1,0 +1,13 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//common:common_substitutions.bzl", "PYTHON_SUBSTITUTIONS")
+
+expand_template(
+    name = "registerCentral_sh",
+    out = "registerCentral.sh",
+    substitutions = PYTHON_SUBSTITUTIONS,
+    template = "registerCentral.in.sh",
+    visibility = [
+        "//base/products/Base/installer:__pkg__",
+    ],
+)

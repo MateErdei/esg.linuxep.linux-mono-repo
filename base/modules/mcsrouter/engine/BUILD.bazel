@@ -1,0 +1,8 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+exports_files([
+    "mcs_rootca.crt",
+    "extra_mcs_rootca.crt",
+    "nova_mcs_rootca.crt",
+    "qa_mcs_rootca.crt",
+])

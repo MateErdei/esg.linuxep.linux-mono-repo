@@ -24,6 +24,7 @@ spl_independent_cc_tests(
 cc_binary(
     name = "unzipTool",
     srcs = ["unzipTool.cpp"],
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
     deps = [
         "//base/modules/Common/Logging",
         "//base/modules/Common/ZipUtilities",
@@ -33,6 +34,7 @@ cc_binary(
 cc_binary(
     name = "zipTool",
     srcs = ["zipTool.cpp"],
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
     deps = [
         "//base/modules/Common/Logging",
         "//base/modules/Common/ZipUtilities",

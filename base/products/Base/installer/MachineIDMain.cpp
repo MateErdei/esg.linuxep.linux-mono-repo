@@ -1,10 +1,10 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/UtilityImpl/Main.h"
+#include "Installer/MachineId/MachineId.h"
 
 static int machineid_main(int argc, char* argv[])
 {
-    return Common::OSUtilitiesImpl::mainEntry(argc, argv);
+    return Installer::MachineId::mainEntry(argc, argv);
 }
 
 MAIN(machineid_main(argc, argv))

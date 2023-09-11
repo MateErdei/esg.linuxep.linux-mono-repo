@@ -1,12 +1,40 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_build_asset_pkg")
 load("//tools/config:expand_template.bzl", "expand_template")
+load(":version_info.bzl", "BASE_BASE_VERSION")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
-# TODO LINUXDAR-7877: This should use auto-versioning
+pkg_tar(
+    name = "testUtils",
+    srcs = glob(["testUtils/**"]),
+    strip_prefix = "/base",
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+)
+
 expand_template(
     name = "AutoVersion_h",
     out = "AutoVersion.h",
-    substitutions = {"@AUTOVERSION@": "1.2.5.9999"},
+    substitutions = {"@VERSION@": BASE_BASE_VERSION},
     template = "//common:AutoVersion.h.in",
     visibility = [
         "//base/modules:__subpackages__",
     ],
+)
+
+soph_build_asset(
+    name = "installer",
+    asset = "//base/products/Base/installer:installer_sdds2",
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset(
+    name = "installer_symbols",
+    asset = "//base/products/Base/installer:installer_symbols",
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset_pkg(
+    name = "system_test",
+    srcs = ["//base/products/SystemProductTestOutput"],
+    visibility = ["//products:__pkg__"],
 )

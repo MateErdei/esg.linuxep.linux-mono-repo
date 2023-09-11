@@ -14,7 +14,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../thin_installer/ThinInstallerResources.robot
-Default Tags  INSTALLER  TAP_TESTS
+Force Tags  INSTALLER  TAP_TESTS
 
 *** Test Cases ***
 
@@ -46,7 +46,8 @@ Verify that the full installer works correctly
 ## WARNING:
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
-    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS  BREAKS_DEBUG
+    # TODO LINUXDAR-7870: Remove coverage exclusion
+    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS  BREAKS_DEBUG  EXCLUDE_ON_COVERAGE
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
     Check Expected Base Processes Are Running
@@ -314,6 +315,8 @@ Installer Copies MCS Config Files Into place When Passed In As Args
     Should Be Equal As Strings  ${policy_contents}  "MCSID=policy\nMCSToken=policy"
 
 All Installed Libs Are Built With A Consistent GCC Version
+    # TODO LINUXDAR-7892: Remove test
+    [Tags]  EXCLUDE_BAZEL
     Run Full Installer
     check_libs_for_consistent_gcc_version  ${SOPHOS_INSTALL}/base/lib64/
 

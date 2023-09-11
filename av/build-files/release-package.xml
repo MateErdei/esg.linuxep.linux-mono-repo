@@ -6,14 +6,9 @@
     <inputs>
         <workingdir>.</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
-        <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
-            -->
-        <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
-        </build-asset>
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="input" />
+        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="input/base-sdds"/>
+
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2.2" build-id="20230517150224-b8f6ceae5bd9fa1b35d6ada337b6ac0361d51602-eA6afi"/>
             <development-version branch="develop"/>

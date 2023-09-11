@@ -4,9 +4,10 @@
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <development-version branch="develop"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
+            <!-- Base -->
+            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/installer" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
+            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="base-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>

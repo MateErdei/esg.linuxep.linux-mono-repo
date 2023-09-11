@@ -1,0 +1,19 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:sophos_stage_files.bzl", "soph_export_assets")
+
+soph_export_assets(
+    name = "export_assets",
+    output_folder = ".output",
+    release_package = "//build:release-package.xml",
+    deps = [
+        "//base:installer",
+        "//base:system_test",
+    ] + select({
+        "//tools/config:linux_x64_rel": [
+            "//base:installer_symbols",
+        ],
+        "//tools/config:linux_x64_dbg": [
+        ],
+    }),
+)

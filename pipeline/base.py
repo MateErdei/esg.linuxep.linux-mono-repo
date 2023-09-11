@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 import os
 import requests
 
@@ -23,14 +24,14 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
 
-def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
+def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, base_build_bazel: ArtisanInput, mode: str):
     test_inputs = None
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
+            base_sdds=base_build_bazel / "base/linux_x64_rel/installer",
             ra_sdds=base_build / 'sspl-base/RA-SDDS-COMPONENT',
-            system_test=base_build / 'sspl-base/system_test',
+            system_test=base_build_bazel / 'base/linux_x64_rel/system_test',
             openssl=base_build / 'sspl-base' / 'openssl',
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
@@ -39,9 +40,9 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     if mode == 'debug':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / 'sspl-base-debug/SDDS-COMPONENT',
+            base_sdds=base_build_bazel / 'base/linux_x64_dbg/installer',
             ra_sdds=base_build / 'sspl-base-debug/RA-SDDS-COMPONENT',
-            system_test=base_build / 'sspl-base-debug/system_test',
+            system_test=base_build_bazel / 'base/linux_x64_dbg/system_test',
             openssl=base_build / 'sspl-base-debug' / 'openssl',
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
@@ -70,7 +71,7 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str):
     print(f"robot_args: {robot_args}")
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        machine.run(*robot_args.split(), 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -182,7 +183,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
 
 def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters):
-    base_test_inputs = get_base_test_inputs(context, base_coverage_build, mode)
+    base_test_inputs = get_base_test_inputs(context, base_coverage_build, base_coverage_build, mode)
     robot_args = get_robot_args(parameters)
     with stage.parallel('base_coverage'):
         # if mode == COVERAGE_MODE:
@@ -193,14 +194,16 @@ def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameter
                    robot_args=robot_args)
 
 
-def run_base_tests(stage, context, base_build, mode, parameters):
-    base_test_inputs = get_base_test_inputs(context, base_build, mode)
+def run_base_tests(stage, context, base_build, base_build_bazel, mode, parameters):
+    base_test_inputs = get_base_test_inputs(context, base_build, base_build_bazel, mode)
     base_test_machines = get_test_machines(base_test_inputs, parameters)
     robot_args = get_robot_args(parameters)
+
     with stage.parallel('base_integration'):
         for template_name, machine in base_test_machines:
+            robot_args_for_platform = " ".join(robot_args.split(" ") + ["BAZEL=1", f"PLATFORM={template_name.upper()}"])
             stage.task(task_name=template_name,
                        func=robot_task,
                        machine=machine,
                        branch_name=context.branch,
-                       robot_args=robot_args)
+                       robot_args=robot_args_for_platform)

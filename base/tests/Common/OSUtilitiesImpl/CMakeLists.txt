@@ -1,7 +1,6 @@
 include(GoogleTest)
 add_executable(TestOSUtilities
         TestMacInfo.cpp
-        TestSXLMachineID.cpp
         TestDnsLookup.cpp
         TestIPUtils.cpp
         TestLocalIP.cpp

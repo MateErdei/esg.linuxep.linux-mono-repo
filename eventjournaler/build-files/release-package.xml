@@ -9,12 +9,12 @@
         <build-asset project="linuxep" repo="linux-mono-repo" mode="independent">
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds" />
+            <include artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" />
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management" />
         </build-asset>
 
         <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
-        <intermediate artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
+        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
         <intermediate artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management" mode="release,release-classic,coverage,debug,analysis"/>
 
         <build-asset project="winep" repo="sed">

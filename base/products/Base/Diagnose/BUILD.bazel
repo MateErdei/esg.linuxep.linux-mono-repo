@@ -1,12 +1,19 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
+exports_files([
+    "DiagnosePaths.conf",
+])
+
 soph_cc_binary(
     name = "sophos_diagnose",
     srcs = glob([
         "*.cpp",
         "*.h",
     ]),
+    visibility = [
+        "//base/products/Base/installer:__pkg__",
+    ],
     deps = [
         "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/Diagnose/diagnose",

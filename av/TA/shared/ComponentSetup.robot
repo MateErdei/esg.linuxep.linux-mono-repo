@@ -43,7 +43,6 @@ Mock Base Installation
     Create Directory   ${SOPHOS_INSTALL}/base/mcs/action
     Create Directory   ${SOPHOS_INSTALL}/base/mcs/policy
     Create Directory   ${SOPHOS_INSTALL}/base/telemetry/cache
-    Copy File  ${BASE_SDDS}/files/base/lib64/libcrypto.so.3  ${SOPHOS_INSTALL}/base/lib64/
     Create Directory   ${SOPHOS_INSTALL}/tmp
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins

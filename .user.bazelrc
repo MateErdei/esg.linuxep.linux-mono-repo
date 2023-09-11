@@ -10,3 +10,5 @@ build --experimental_cc_implementation_deps
 # Add global include search paths
 # 'base' is needed for tests/ include paths to work currently
 build --define SOPH_ASSET_SOURCE_ROOT=base/modules;base
+
+build --stamp --workspace_status_command=./common/bazel_stamp_vars.sh

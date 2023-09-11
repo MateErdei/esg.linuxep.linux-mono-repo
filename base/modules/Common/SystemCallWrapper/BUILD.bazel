@@ -13,6 +13,6 @@ soph_cc_library(
         "//base/tests:__subpackages__",
     ],
     deps = [
-        "@libcap//:libcap_shared",
+        "//common:libcap",
     ],
 )

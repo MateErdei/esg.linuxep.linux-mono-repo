@@ -7,6 +7,9 @@ soph_cc_binary(
         "*.cpp",
         "*.h",
     ]),
+    visibility = [
+        "//base/products/Base/installer:__pkg__",
+    ],
     deps = [
         "//base/modules/CentralRegistration",
         "//base/modules/Common/UtilityImpl:Main",

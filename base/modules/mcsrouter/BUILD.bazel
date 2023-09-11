@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("@rules_python//python:defs.bzl", "py_library")
+load("//tools/config:zip.bzl", "zip_asset")
+load("@pip_deps_spl//:requirements.bzl", "requirement")
+
+py_library(
+    name = "mcsrouter",
+    srcs = glob(["mcsrouter/**/*.py"]),
+    visibility = ["//base/tests/mcsrouter:__pkg__"],
+    deps = [
+        requirement("pycryptodome"),
+        requirement("requests"),
+        requirement("sseclient"),
+        requirement("urllib3"),
+        requirement("watchdog"),
+    ],
+)
+
+zip_asset(
+    name = "mcsrouter_zip",
+    srcs = glob(["mcsrouter/**/*.py"]),
+    strip_prefix = "/base/modules/mcsrouter",
+    visibility = ["//base/products/Base/installer:__pkg__"],
+)

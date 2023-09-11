@@ -1,3 +1,3 @@
-
+add_subdirectory(MachineId)
 add_subdirectory(ManifestDiff)
 add_subdirectory(VersionedCopy)

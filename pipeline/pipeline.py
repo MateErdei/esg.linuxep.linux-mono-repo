@@ -1,3 +1,6 @@
+# Copyright 2022-2023 Sophos Limited. All rights reserved.
+import os.path
+
 import tap.v1 as tap
 
 from pipeline import base
@@ -25,6 +28,25 @@ BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
 
 
+def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
+
+    with stage.parallel("bazel"):
+        base_build = stage.artisan_build(name="linux_x64_rel",
+                                         component=component,
+                                         image=BUILD_TEMPLATE_BAZEL,
+                                         mode="all_lfast,all_lx64r",
+                                         release_package=PACKAGE_PATH)
+
+        stage.artisan_build(name="linux_x64_dbg",
+                            component=component,
+                            image=BUILD_TEMPLATE_BAZEL,
+                            mode="all_lx64d",
+                            release_package=PACKAGE_PATH)
+
+    return base_build
+
+
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     assert (os.path.exists(base.PACKAGE_PATH))
@@ -44,18 +66,14 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     # Base always builds
     base_component = tap.Component(name="sspl_base", base_version=get_package_version(base.PACKAGE_PATH))
     with stage.parallel('base'):
+        base_build_bazel = bazel_pipeline(stage, context, parameters)
+
         if mode == RELEASE_MODE:
             base_build = stage.artisan_build(name=f"base_{RELEASE_MODE}",
                                              component=base_component,
                                              image=BUILD_TEMPLATE,
                                              mode=RELEASE_MODE,
                                              release_package=base.PACKAGE_PATH)
-
-            stage.artisan_build(name=f"bazel",
-                                component=base_component,
-                                image=BUILD_TEMPLATE_BAZEL,
-                                mode="bazel_release",
-                                release_package=PACKAGE_PATH)
 
             if running_in_ci:
                 base_analysis_build = stage.artisan_build(name=f"base_{ANALYSIS_MODE}",
@@ -175,7 +193,7 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                    run_base_tests(stage, context, base_build, mode, parameters)
+                    run_base_tests(stage, context, base_build, base_build_bazel, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)

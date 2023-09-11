@@ -1,3 +1,5 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
+
 import json
 import robot
 import sys
@@ -11,6 +13,11 @@ def main():
         tags['exclude'].append('BREAKS_DEBUG')
     if os.environ.get('COVERAGE'):
         tags['exclude'].append('EXCLUDE_ON_COVERAGE')
+    if os.environ.get("BAZEL"):
+        tags["exclude"].append("EXCLUDE_BAZEL")
+    if os.environ.get("PLATFORM"):
+        platform = os.environ["PLATFORM"]
+        tags["exclude"].append(f"EXCLUDE_{platform}")
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {

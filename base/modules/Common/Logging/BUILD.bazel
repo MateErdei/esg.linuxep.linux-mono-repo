@@ -14,10 +14,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StringUtils",
         "@boost//:property_tree",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/FileSystem",
         "@log4cplus",

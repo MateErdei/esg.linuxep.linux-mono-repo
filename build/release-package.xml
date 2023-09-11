@@ -4,13 +4,18 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="versig">
             <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
-            <include artifact-path="output" dest-dir="/build/input/"/>
+            <include artifact-path="output" dest-dir="imports/internal/versig"/>
         </build-asset>
         <build-asset project="thirdparty" repo="libxcrypt">
             <release-version branch="release/version_4_4_28" build-id="20220325112559-16cdaea644b21a42436fbffb79ab4aa5aa9a1b6e-tFdACT"/>
-            <include artifact-path="libxcrypt" dest-dir="/build/input" />
+            <include artifact-path="libxcrypt" dest-dir="imports/thirdparty/libxcrypt" />
         </build-asset>
-        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+        <build-asset project="thirdparty" repo="all">
+            <release-version branch="release/2023.31"
+                             build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
+            <development-version branch="develop"/>
+            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="imports/thirdparty/openssl"/>
+        </build-asset>
 
         <build-asset project="em" repo="esg">
             <development-version branch="develop"/>
@@ -18,16 +23,14 @@
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
             <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
         </build-asset>
-
-        <trusted-asset artifact-path="esg/python_dependencies/20230228/linux_spl" dest-dir="/build/input/pypi"/>
-        <trusted-asset artifact-path="org.python/linux/3.11.1/cpython-3.11.1 20230116-x86_64-unknown-linux-gnu-install_only" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->
         <command>
-            <program>python</program>
-            <args>tools/launch_py3.py tools/src/dump_environment/buildcfg.py --reset</args>
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/buildcfg.py --reset</args>
         </command>
 
         <!-- Common build steps -->
@@ -35,19 +38,128 @@
             <program>bash</program>
             <args>./fixup_bazel_tools.sh</args>
         </command>
-
-        <!-- Release build -->
-        <command mode="bazel_release">
-            <program>bazel</program>
-            <args>test //...</args>
+        <!--
+        We want to include the commit hash in VERSION.ini, but using that would lead to rebuilds on a different commit
+        even if a component didn't change. So, we write it to a file in a fixed location outside the workspace, and read
+        that only if the autoversion has changed (i.e. some file changed or cache got cleared).
+        So the hash more-or-less corresponds to the last commit that changed that component, rather the exact build hash
+        -->
+        <command>
+            <program>bash</program>
+            <args>-c 'mkdir -p /build &amp;&amp; git rev-parse HEAD > /build/COMMIT_HASH'</args>
+        </command>
+        <command>
+            <program>bash</program>
+            <args>-c 'echo "$SOURCE_CODE_BRANCH" > build/SOURCE_CODE_BRANCH'</args>
         </command>
 
-<!--        &lt;!&ndash; Debug build &ndash;&gt;-->
-<!--        <command mode="debug">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;debug</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <!-- FAST: lfast -->
+        <command mode="all_lfast">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                test
+                <!-- TODO LINUXDAR-7977: enable -->
+<!--                &#45;&#45;config=black-->
+                --profile=.profile/fast_lfast.gz
+                --target_pattern_file=build/fast_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lfast">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                build
+                --profile=.profile/linuxep_spl_lfast_build.gz
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lfast">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                test
+                --profile=.profile/linuxep_spl_lfast_test.gz
+                --build_tests_only
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+            </args>
+        </command>
+
+        <!-- linux_x64_rel: lx64r -->
+        <command mode="all_lx64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                build
+                --config=linux_x64_rel
+                --profile=.profile/linuxep_spl_lx64r_build.gz
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lx64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                test
+                --config=linux_x64_rel
+                --profile=.profile/linuxep_spl_lx64r_test.gz
+                --build_tests_only
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+            </args>
+        </command>
+        <command mode="all_lx64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                test
+                --config=linux_x64_rel
+                --profile=.profile/linuxep_spl_lx64r_mcsrouter_test.gz
+                --symlink_prefix=.bazel_symlinks_spl_python/
+                --
+                //base/tests/mcsrouter:mcsrouter_tests
+            </args>
+        </command>
+        <command mode="all_lx64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lx64r
+                --exports=build/linuxep_spl_exports.txt
+                --config=linux_x64_rel
+            </args>
+        </command>
+
+        <!-- linux_x64_dbg: lx64d -->
+        <command mode="all_lx64d">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                build
+                --config=linux_x64_dbg
+                --profile=.profile/linuxep_spl_lx64d_build.gz
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lx64d">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                test
+                --config=linux_x64_dbg
+                --profile=.profile/linuxep_spl_lx64d_test.gz
+                --build_tests_only
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+            </args>
+        </command>
+        <command mode="all_lx64d">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lx64d
+                --exports=build/linuxep_spl_exports.txt
+                --config=linux_x64_dbg
+            </args>
+        </command>
 
 <!--        &lt;!&ndash; Coverage build &ndash;&gt;-->
 <!--        <command mode="coverage">-->
@@ -83,89 +195,84 @@
         <logs name="test_logs" source-dir="bazel-testlogs">
             <include glob="**"/>
         </logs>
+        <logs name="mcsrouter_test_logs" source-dir=".bazel_symlinks_spl_python/testlogs" mode="all_lx64r">
+            <include glob="**"/>
+        </logs>
 
-        <!-- Release -->
-        <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT"
-                       mode="release"/>
-        <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
-        <release-asset artifact-path="sspl-base/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="release"/>
-        <release-asset artifact-path="sspl-base/base-symbols" source-dir="output/base-symbols" mode="release"/>
-        <release-asset artifact-path="sspl-base/ra-symbols" source-dir="output/ra-symbols" mode="release"/>
+        <!-- linux_x64_rel: lx64r -->
+        <build-asset artifact-path="base/linux_x64_rel/installer" source-dir=".output/base/linux_x64_rel/installer" mode="all_lx64r"/>
+        <build-asset artifact-path="base/linux_x64_rel/installer_symbols" source-dir=".output/base/linux_x64_rel/installer_symbols" mode="all_lx64r"/>
+        <build-asset artifact-path="base/linux_x64_rel/system_test" source-dir=".output/base/linux_x64_rel/system_test" mode="all_lx64r"/>
+<!--        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT"-->
+<!--                       mode="release"/>-->
+<!--        <release-asset artifact-path="sspl-base/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="release"/>-->
+<!--        <release-asset artifact-path="sspl-base/ra-symbols" source-dir="output/ra-symbols" mode="release"/>-->
 
-        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
-        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/cmcsrouterapi" source-dir="output" mode="release">
-            <include glob="cmcsrouterapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
+<!--        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>-->
+<!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
+<!--            <include glob="pluginapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/cmcsrouterapi" source-dir="output" mode="release">-->
+<!--            <include glob="cmcsrouterapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">-->
+<!--            <include glob="mcs.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>-->
 
         <!-- coverage(bullseye) -->
-        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
+<!--        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">-->
+<!--            <include glob="pluginapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">-->
+<!--            <include glob="mcs.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">-->
+<!--            <include glob="SystemProductTestOutput.tar.gz"/>-->
+<!--            <include glob="symbols"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>-->
 
-        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
+<!--        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">-->
+<!--            <include glob="./*.cov"/>-->
+<!--        </build-asset>-->
 
         <!-- Analysis -->
-        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
-        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
+<!--        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>-->
+<!--        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>-->
 
         <!-- 999 -->
-        <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-        <release-asset artifact-path="sspl-base-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
-        <release-asset artifact-path="sspl-base-999/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="999"/>
-        <release-asset artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="999"/>
+<!--        <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>-->
+<!--        <release-asset artifact-path="sspl-base-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>-->
+<!--        <release-asset artifact-path="sspl-base-999/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="999"/>-->
+<!--        <release-asset artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="999"/>-->
         <!-- 060 -->
-        <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
-        <release-asset artifact-path="sspl-base-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060"/>
+<!--        <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>-->
+<!--        <release-asset artifact-path="sspl-base-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060"/>-->
 
-        <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
-        <!-- debug -->
-        <build-asset artifact-path="sspl-base-debug/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
+        <!-- linux_x64_dbg: lx64d -->
+        <build-asset artifact-path="base/linux_x64_dbg/installer" source-dir=".output/base/linux_x64_dbg/installer" mode="all_lx64d"/>
+        <build-asset artifact-path="base/linux_x64_dbg/system_test" source-dir=".output/base/linux_x64_dbg/system_test" mode="all_lx64d"/>
+<!--        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>-->
+<!--        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>-->
 
-        <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/cmcsrouterapi" source-dir="output" mode="debug">
-            <include glob="cmcsrouterapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/mcs" source-dir="output" mode="debug">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/system_test" source-dir="output" mode="debug">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
+<!--        <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>-->
+<!--        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">-->
+<!--            <include glob="pluginapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-debug/cmcsrouterapi" source-dir="output" mode="debug">-->
+<!--            <include glob="cmcsrouterapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-debug/mcs" source-dir="output" mode="debug">-->
+<!--            <include glob="mcs.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-debug/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>-->
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

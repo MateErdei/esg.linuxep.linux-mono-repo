@@ -30,6 +30,6 @@ soph_cc_library(
     deps = [
         "//base/modules/Common/Exceptions",
         "//base/modules/Common/SslImpl",
-        "@libcap//:libcap_shared",
+        "//common:libcap",
     ],
 )
