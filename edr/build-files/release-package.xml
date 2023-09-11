@@ -22,7 +22,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
+            <release-version branch="release/SPRINT-2023.37-linux" build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>
             <development-version branch="develop"/>
             <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="/build/redist/livequery"/>
             <include artifact-path="common/livequery/include" dest-dir="/build/redist/livequery/common/livequery"/>

@@ -25,8 +25,8 @@
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.31-linux"
-                             build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
+            <release-version branch="release/SPRINT-2023.37-linux"
+                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="/build/redist/sophlib/lib64"/>
