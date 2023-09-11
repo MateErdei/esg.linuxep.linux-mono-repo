@@ -5,18 +5,18 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Resource  ../mcs_router/McsRouterResources.robot
 Resource    ManagementAgentResources.robot
 
-Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS
+Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS  TAP_PARALLEL5
 
 *** Test Cases ***
 Verify Management Agent Can Check Good Plugin Health Status
-    [Tags]  SMOKE  TAP_PARALLEL5
+    [Tags]  SMOKE
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -48,7 +48,6 @@ Verify Management Agent Can Check Good Plugin Health Status
 
 
 Verify Management Agent Can Receive Service Health Information
-    [Tags]  TAP_PARALLEL5
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -87,7 +86,7 @@ Verify Management Agent Can Receive Service Health Information
 
 
 Verify Management Agent Can Check Bad Plugin Health Status
-    [Tags]  SMOKE  TAP_PARALLEL5
+    [Tags]  SMOKE
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -136,7 +135,6 @@ Verify Management Agent does not check health when suldownloader is running
 
 
 Verify Management Agent Does Not Report Health Of Removed Plugins
-    [Tags]  TAP_PARALLEL5
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
