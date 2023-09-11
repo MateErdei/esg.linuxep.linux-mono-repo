@@ -10,9 +10,12 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Resource    ManagementAgentResources.robot
 Test Teardown   MA Fake Plugin Teardown
+
+Force Tags    TAP_PARALLEL1
+
 *** Test Cases ***
 Verify Management Agent Sets Plugin Policy When Moved Into Policy Folder
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
+    [Tags]    MANAGEMENT_AGENT  SMOKE
     # Test will invoke applyNewPolicy when file is moved into place
 
     # make sure no previous policy xml file exists.
@@ -101,7 +104,7 @@ Verify Management Agent Send Plugin Policy When Requested By Plugin
 
 
 Verify Management Agent Sets Plugin Policy When Moved Into Internal Policy Folder
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
+    [Tags]    MANAGEMENT_AGENT  SMOKE
     # Test will invoke applyNewPolicy when file is moved into place
 
     # make sure no previous policy xml file exists.
