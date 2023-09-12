@@ -450,6 +450,7 @@ def install_system_ca_certs(certificate_paths):
 def cleanup_system_ca_certs():
     support_files_path = PathManager.get_support_file_path()
     script = os.path.join(support_files_path, "CleanupInstalledSystemCerts.sh")
+    os.chmod(script, 0o755)
     logger.info(support_files_path)
     logger.info(script)
     command = [script]
