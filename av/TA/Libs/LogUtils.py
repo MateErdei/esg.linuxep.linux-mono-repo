@@ -446,8 +446,9 @@ File Log Contains
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
 
     def mark_expected_error_in_log(self, log_location, error_message):
-        self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
-        _mark_expected_errors_in_log(log_location, error_message)
+        if os.path.exists(log_location):
+            self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
+            _mark_expected_errors_in_log(log_location, error_message)
 
     def dump_thininstaller_log(self):
         self.dump_log(self.thin_install_log)
