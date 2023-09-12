@@ -87,7 +87,15 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
 
 def get_epoch_time_from_log_line(log_line):
     time_string = log_line.split("[")[1].split("]")[0].strip()
-    return int(datetime.datetime.strptime(time_string, '%Y-%m-%dT%H:%M:%S.%f').timestamp() * 1000)  # in milliseconds
+    datetime_obj = datetime.datetime.strptime(time_string, '%Y-%m-%dT%H:%M:%S.%f')
+
+    # Datetime object would have tzinfo (timezone info) be set to None and when we try to get timestamp() it tries to be
+    # "smart" and assume the time it holds is in localtime (bst, which is UTC+1). timestamp() tries to return a UTC time
+    # and so the timestamp we get ends up being 1 hour behind. Just need to make the datetime object be aware of what
+    # the timezone of the time it holds actually is. Then timestamp doesn't do unnecessary transformations
+    datetime_obj = datetime_obj.replace(tzinfo=datetime.timezone.utc)
+
+    return int(datetime_obj.timestamp() * 1000)  # in milliseconds
 
 def get_chunks_from_log(log_path, start_text, end_text):
     log_chunks = []
