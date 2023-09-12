@@ -23,7 +23,7 @@ Suite Teardown  Run Keywords
 Test Teardown   Teardown
 
 Test Setup   Setup Fake Cloud
-Default Tags  DIAGNOSE TAP_TESTS
+Default Tags  DIAGNOSE    TAP_TESTS
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
