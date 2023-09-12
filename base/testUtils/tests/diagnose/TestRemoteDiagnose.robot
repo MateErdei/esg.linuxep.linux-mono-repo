@@ -41,20 +41,12 @@ Test Remote Diagnose can process SDU action
         ...  1 secs
         ...  Check Expected Base Processes Are Running
 
+    ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
+    ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Simulate SDU Action Now
-    Wait Until Keyword Succeeds
-        ...  140 secs
-        ...  1 secs
-        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
-
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  5 secs
-        ...  Check Log Contains   Diagnose finished    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
-    Wait Until Keyword Succeeds
-        ...  40 secs
-        ...  5 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+    wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Processing action    140
+    wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Diagnose finished    30
+    wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2
 
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
@@ -62,18 +54,14 @@ Test Remote Diagnose can handle two SDU actions
     [Timeout]  7 minutes
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  sdu
+    ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  sdu
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains  Entering the main loop  ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log  SDU Log
+    wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Entering the main loop    10
 
+    ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Simulate SDU Action Now  action_suffix=1
     Simulate SDU Action Now  action_suffix=2
-    Wait Until Keyword Succeeds
-    ...  320 secs
-    ...  5 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose  Diagnose finished   2
+    wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2    320
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
 
@@ -121,14 +109,11 @@ Test Remote Diagnose can process SDU action with malformed URL
         ...  Check Expected Base Processes Are Running
 
     ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
+    ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
     Simulate SDU Action Now  action_xml_file_name=${input_action_xml_file_name}
 
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Processing action    140
-
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Cannot process url will not send up diagnose file Error: Malformed url missing protocol    30
-
-    Wait Until Keyword Succeeds
-        ...  40 secs
-        ...  5 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+    wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2
+    
