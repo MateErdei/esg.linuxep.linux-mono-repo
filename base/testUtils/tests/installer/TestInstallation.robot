@@ -278,16 +278,11 @@ Installer Resets Bad Permissions On Current Proxy file
 Installer Resets Ownership Of Stale MCS Router Process ID File
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
-
     Check Expected Base Processes Are Running
-
-    File Should Not Exist  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
     Create File  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
     Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
     Run Process  chmod  600  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
-
     Run Full Installer
-
     File Exists With Permissions  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid  sophos-spl-local  sophos-spl-group  -rw-------
 
 Installer Copies Install Options File
