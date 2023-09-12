@@ -30,4 +30,7 @@ def params = [
  string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
 ]
 
-CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true' }
+CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';
+             failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/b9db2dd8-a82c-4acc-92a5-3eda2c9fbf01@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/2684033c102047ef9bddc0537e5e2233/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
+             failureWebhookBranchRegex = '^develop$' }
+
