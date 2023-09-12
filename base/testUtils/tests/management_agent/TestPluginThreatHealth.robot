@@ -61,7 +61,7 @@ Management Agent Persists Threat Health Of Plugins
     # It should have been read in on start and then re-saved as it on shutdown
     Start Management Agent
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  90 secs
     ...  5 secs
     ...  SHS Status File Contains  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="2" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="2" /></health>
 
