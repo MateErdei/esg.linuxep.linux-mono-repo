@@ -7,7 +7,7 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/sspl-plugin-anti-virus/SDDS-COMPONENT/
+  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-37/20230911104406-46a5b46398f17e6c43cc45a320684c73452d9290-dgN3dL/edr/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
