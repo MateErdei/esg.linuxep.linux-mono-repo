@@ -65,32 +65,42 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     return test_inputs
 
 
-def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tags: str):
+def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tags: str, machine_name: str):
 
     default_include_tags = ["TAP_TESTS"]
     default_exclude_tags = ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]
+    default_robot_args = " ".join(["BAZEL=1", f"PLATFORM={machine_name.upper()}"])
 
-    machine_name = machine.template
+    machine_name2 = machine.template
+    print(f"machine_name2: {machine_name2}")
+    print(f"machine_name: {machine_name}")
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
     print(f"include_tags: {include_tags}")
     try:
         install_requirements(machine)
 
-        include = default_include_tags
         if include_tags:
             include = include_tags.split(",")
-
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', *include,
                         '--exclude', *default_exclude_tags,
                         timeout=3600)
+        elif robot_args:
+            final_robot_args = " ".join([robot_args, default_robot_args])
+            machine.run(*final_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        else:
+            machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--include', *default_include_tags,
+                        '--exclude', *default_exclude_tags,
+                        timeout=3600)
+
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
-                    branch_name + "/base" + get_suffix(branch_name) + "_" + machine_name + "-log.html")
+                    branch_name + "/base" + get_suffix(branch_name) + "_" + machine_name2 + "-log.html")
 
 
 def install_requirements(machine: tap.Machine):
@@ -213,11 +223,21 @@ def run_base_tests(stage, context, base_build, base_build_bazel, mode, parameter
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('base_integration'):
-        for template_name, machine in base_test_machines:
-            robot_args_for_platform = " ".join(robot_args.split(" ") + ["BAZEL=1", f"PLATFORM={template_name.upper()}"])
-            stage.task(task_name=template_name,
-                       func=robot_task,
-                       machine=machine,
-                       branch_name=context.branch,
-                       robot_args=robot_args_for_platform,
-                       include_tags=parameters.include_tags)
+        if robot_args:
+            for template_name, machine in base_test_machines:
+                stage.task(task_name=template_name,
+                           func=robot_task,
+                           machine=machine,
+                           branch_name=context.branch,
+                           robot_args=robot_args,
+                           include_tags="",
+                           machine_name=template_name)
+        else:
+            for template_name, machine in base_test_machines:
+                stage.task(task_name=template_name,
+                           func=robot_task,
+                           machine=machine,
+                           branch_name=context.branch,
+                           robot_args="",
+                           include_tags=parameters.include_tags,
+                           machine_name=template_name)
