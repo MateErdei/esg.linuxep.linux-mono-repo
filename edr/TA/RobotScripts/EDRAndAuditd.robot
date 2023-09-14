@@ -18,9 +18,8 @@ Default Tags    TAP_TESTS
 
 *** Test Cases ***
 EDR By Default Will Configure Audit Option
-    # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
-    Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
+    Pass Execution If  ${is_suse}  LINUXDAR-7106 - test broken on SLES12 - wont be fixed
     Ensure AuditD Running
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -53,9 +52,8 @@ EDR By Default Will Configure Audit Option
 
 
 EDR Does Not Disable Auditd After Install With Do Not Disable Flag
-    # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
-    Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
+    Pass Execution If  ${is_suse}  LINUXDAR-7106 - test broken on SLES12 - wont be fixed
     Ensure AuditD Running
     Install Base For Component Tests
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  --do-not-disable-auditd
@@ -69,9 +67,8 @@ EDR Does Not Disable Auditd After Install With Do Not Disable Flag
 
 
 EDR Does Disable Auditd After Manual Change To Config
-    # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
-    Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
+    Pass Execution If  ${is_suse}  LINUXDAR-7106 - test broken on SLES12 - wont be fixed
     Ensure AuditD Running
     Install Base For Component Tests
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  --do-not-disable-auditd
