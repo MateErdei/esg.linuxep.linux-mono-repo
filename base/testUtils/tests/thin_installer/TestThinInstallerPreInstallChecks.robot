@@ -361,3 +361,57 @@ Thin Installer With Duplicate Group Name In Custom UID Args Fails
 Thin Installer With Duplicate ID In Custom GID Args Fails
     Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:100
     Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-ipc:100 --- aborting install
+
+Thin Installer With Invalid Message Relays Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,
+    Check Thininstaller Log Contains   Error: message relays passed with trailing comma --- aborting install
+
+Thin Installer With Invalid Update Cache Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,
+    Check Thininstaller Log Contains   Error: update caches passed with trailing comma --- aborting install
+
+Thin Installer With Empty Message Relays Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=
+    Check Thininstaller Log Contains     Error: message relays not passed with '--message_relays=' argument --- aborting install
+
+Thin Installer With Empty Update Caches Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=
+    Check Thininstaller Log Contains     Error: update caches not passed with '--update_caches=' argument --- aborting install
+
+Thin Installer With Blank Message Relay Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,\ ,localhost:2000
+    Check Thininstaller Log Contains     Error: message relay cannot be whitespace
+
+Thin Installer With Blank Update Cache Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,\ ,localhost:2000
+    Check Thininstaller Log Contains     Error: update cache cannot be whitespace
+
+Thin Installer With Invalid Message Relays Address Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:
+    Check Thininstaller Log Contains     Error: Requested message relay address not valid: localhost: --- aborting install
+
+    Run Default Thininstaller With Args  ${32}  --message_relays=localhost1000
+    Check Thininstaller Log Contains     Error: Requested message relay address not valid: localhost1000 --- aborting install
+
+Thin Installer With Invalid Update Caches Address Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:
+    Check Thininstaller Log Contains     Error: Requested update cache address not valid: localhost: --- aborting install
+
+    Run Default Thininstaller With Args  ${32}  --update_caches=localhost1000
+    Check Thininstaller Log Contains     Error: Requested update cache address not valid: localhost1000 --- aborting install
+
+Thin Installer With Non Ascii Message Relays Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=ローカルホスト:1000
+    Check Thininstaller Log Contains     Error: Requested message relay address not valid: ローカルホスト:1000 --- aborting install
+
+Thin Installer With Non Ascii Update Caches Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=ローカルホスト:1000
+    Check Thininstaller Log Contains     Error: Requested update cache address not valid: ローカルホスト:1000 --- aborting install
+
+Thin Installer With Duplicate Message Relays Argument Fails
+    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,localhost:1000
+    Check Thininstaller Log Contains     Error: Duplicate message relay given: localhost:1000 --- aborting install.
+
+Thin Installer With Duplicate Update Caches Argument Fails
+    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,localhost:1000
+    Check Thininstaller Log Contains     Error: Duplicate update cache given: localhost:1000 --- aborting install.

@@ -175,3 +175,114 @@ SDDS3 Thin Installer Environment Proxy
 
     check_suldownloader_log_should_not_contain  Connecting to update source directly
 
+SDDS3 Thin Installer Respects Message Relay Override Set to None
+    [Teardown]  Teardown With Temporary Directory Clean And Stopping Message Relays
+    start_message_relay
+    Should Not Exist    ${SOPHOS_INSTALL}
+    stop_local_cloud_server
+    start_local_cloud_server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
+    Install Local SSL Server Cert To System
+
+    # Add Message Relays to Thin Installer
+    create_default_credentials_file    message_relays=localhost:20000,2,4
+    build_default_creds_thininstaller_from_sections
+    run_default_thininstaller_with_args    ${0}    --message_relays=none    force_certs_dir=${SDDS3_DEVCERTS}
+
+    check_thininstaller_log_contains    Message relay manually set to none, installation will not be performed via a message relay
+    check_thininstaller_log_contains    Checking we can connect to Sophos Central (at https://localhost:4443/mcs)\nDEBUG: Set CURLOPT_NOPROXY to *\nDEBUG: Successfully got [No error] from Sophos Central
+    check_thininstaller_log_does_not_contain    Message Relays: localhost:20000,2,4
+
+    check_thininstaller_log_does_not_contain  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
+    check_thininstaller_log_does_not_contain  INFO - Product successfully registered via proxy: localhost:20000
+
+    Should Exist    ${SOPHOS_INSTALL}
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Be Equal As Integers  ${result.rc}  0  Management Agent not running after installation
+    Check MCS Router Running
+
+    # Check the message relays made their way through to the MCS Router
+    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+
+    check_mcsrouter_log_contains    Successfully directly connected to localhost:4443
+
+    # Also to prove MCS is working correctly check that we get an ALC policy
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseVUTPolicy}
+
+    check_suldownloader_log_should_not_contain    Trying to update via proxy localhost:20000 to https://localhost:8080
+    check_suldownloader_log_contains    Connecting to update source directly
+
+    check_thininstaller_log_does_not_contain    ERROR
+    Check Root Directory Permissions Are Not Changed
+
+SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overriden By Argument
+    [Teardown]  Teardown With Temporary Directory Clean And Stopping Message Relays
+    start_message_relay
+    Should Not Exist    ${SOPHOS_INSTALL}
+    stop_local_cloud_server
+    start_local_cloud_server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
+
+    # Create Dummy Host
+    #there will be no proxy on port 10000
+    ${dist1} =  Set Variable  127.0.0.1
+
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  ${dist1} dummyhost1
+
+    Install Local SSL Server Cert To System
+
+    # Add Message Relays to Thin Installer
+    create_default_credentials_file    message_relays=dummyhost1:10000,1,2
+    build_default_creds_thininstaller_from_sections
+    run_default_thininstaller_with_args    ${0}    --message_relays=localhost:20000    force_certs_dir=${SDDS3_DEVCERTS}
+
+    # Check current proxy file is written with correct content and permissions.
+    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
+
+    # Check the MCS Capabilities check is performed with the Message Relays in the right order
+    check_thininstaller_log_contains    Message Relays: localhost:20000,0,overridden-message-relay
+    # Thininstaller orders only by priority, localhost is only one with low priority
+    Log File  /etc/hosts
+    check_thininstaller_log_contains_in_order
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
+    ...  INFO - Product successfully registered via proxy: localhost:20000
+    ...  DEBUG - Performing request: https://localhost:4443/mcs/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint\nDEBUG - cURL Info:   Trying 127.0.0.1:20000...\n\nDEBUG - cURL Info: Connected to localhost (127.0.0.1) port 20000 (#0)
+
+    check_suldownloader_log_should_not_contain    Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:10000)
+
+    Should Exist    ${SOPHOS_INSTALL}
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Be Equal As Integers  ${result.rc}  0  Management Agent not running after installation
+    Check MCS Router Running
+
+    # Check the message relays made their way through to the MCS Router
+    ${root_config_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/mcs.config
+    ${policy_config_contents} =  Get File  ${MCS_CONFIG}
+    Should Contain  ${root_config_contents}  MCSToken=ThisIsARegToken
+    Should Contain  ${root_config_contents}  CAFILE=${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Should Contain  ${root_config_contents}  MCSURL=https://localhost:4443/mcs
+    Should Contain  ${root_config_contents}  customerToken=ThisIsACustomerToken
+    Should Contain  ${root_config_contents}  mcsConnectedProxy=localhost:20000
+    File Should Exist    ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+
+    check_mcsrouter_log_contains    Successfully connected to localhost:4443 via localhost:20000
+    check_mcsrouter_log_does_not_contain    Successfully directly connected to localhost:4443
+
+    # Also to prove MCS is working correctly check that we get an ALC policy
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseVUTPolicy}
+
+    check_suldownloader_log_contains    Trying to update via proxy localhost:20000 to https://localhost:8080
+    check_suldownloader_log_should_not_contain    Connecting to update source directly
+
+    check_thininstaller_log_does_not_contain    ERROR
+    Check Root Directory Permissions Are Not Changed
+
