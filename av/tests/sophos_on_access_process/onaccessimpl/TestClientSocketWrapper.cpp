@@ -1,5 +1,7 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "common/RecordingMockSocket.h"
 #include "../SoapMemoryAppenderUsingTests.h"
 
@@ -170,6 +172,27 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
 
     auto gotResponse = csw.scan(request);
     auto errMsg = gotResponse.getErrorMsg();
+    EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
+}
+
+TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButNoResponseReceived)
+{
+    auto request = emptyRequest();
+    request->setPath("/foo/bar");
+
+    MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
+
+    EXPECT_CALL(socket, connect).WillRepeatedly(Return(0));
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
+
+    EXPECT_CALL(socket, sendRequest(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(socket, receiveResponse(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(socket, socketFd()).WillRepeatedly(Return(9));
+
+    auto gotResponse = csw.scan(request);
+    auto errMsg = gotResponse.getErrorMsg();
+    // number in msg should correspond to "MAX_SCAN_RETRIES"
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 

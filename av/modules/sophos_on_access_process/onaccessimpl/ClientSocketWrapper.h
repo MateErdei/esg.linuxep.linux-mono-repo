@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "ClientSocketException.h"
 
 #include "avscanner/avscannerimpl/IClientSocketWrapper.h"
@@ -29,8 +33,10 @@ namespace sophos_on_access_process::onaccessimpl
 
         scan_messages::ScanResponse scan(scan_messages::ClientScanRequestPtr request) override;
 
-    private:
+    TEST_PUBLIC:
         scan_messages::ScanResponse attemptScan(scan_messages::ClientScanRequestPtr request);
+
+    private:
         void connect();
         void waitForResponse();
         void checkIfScanAborted();

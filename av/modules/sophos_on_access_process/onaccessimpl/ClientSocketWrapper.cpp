@@ -79,7 +79,7 @@ namespace sophos_on_access_process::onaccessimpl
                     LOGWARN(e.what() << " - retrying after sleep");
                 }
                 interruptableSleep();
-                if (!m_socket.connect())
+                if (m_socket.connect() != 0) // return value of 0 means connection successful
                 {
                     if (!retryErrorLogged)
                     {

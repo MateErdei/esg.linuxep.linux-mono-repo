@@ -617,32 +617,6 @@ On Access Process Reconnects To Threat Detector
     wait for on access log contains after mark  On-close event for ${filepath}  mark=${oa_mark2}
     check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${oa_mark2}
 
-On Access Scan Times Out When Unable To Connect To Threat Detector On Access Running
-    Configure on access log to trace level
-
-    wait_for_on_access_enabled_by_status_file
-
-    ${mark} =  get_on_access_log_mark
-
-    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
-    Create File  ${filepath}  clean
-    Register Cleanup  Remove File  ${filepath}
-
-    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
-    wait for on access log contains after mark  picked up scan request for ${filepath}  timeout=${10}   mark=${mark}
-
-    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-
-    # Create another file after stopping TD so that we have something else to fail to scan
-    ${filepath2} =  Set Variable  /tmp_test/clean_file_writer/clean2.txt
-    Create File  ${filepath2}  clean
-    Register Cleanup  Remove File  ${filepath2}
-
-    # We want to hit the window between the scan request being made and the response from TD
-    # But there's no reliable way to hit that - so we have to wait for the other timeout - 20 seconds of connecting + 60 seconds of retrying
-    # "On Access Times Out When Unable To Connect To Threat Detector While Starting Up"
-    # covers the case where TD isn't running when soapd wants to connect to it.
-    wait for on access log contains after mark  Failed to scan file:  timeout=${120}   mark=${mark}
 
 On Access Times Out When Unable To Connect To Threat Detector While Starting Up
     Terminate On Access
