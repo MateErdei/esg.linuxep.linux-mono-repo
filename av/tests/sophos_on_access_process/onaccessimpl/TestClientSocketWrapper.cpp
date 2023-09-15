@@ -196,6 +196,36 @@ TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButNoResponseReceiv
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 
+TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButErrorThrownWhenReceivingResponse)
+{
+    auto request = emptyRequest();
+    request->setPath("/foo/bar");
+
+    MockIScanningClientSocket socket{};
+    Common::Threads::NotifyPipe notifyPipe{};
+
+    EXPECT_CALL(socket, connect).WillOnce(Return(0));
+    ClientSocketWrapper csw{ socket, notifyPipe, oneMillisecond };
+
+    EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
+    EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
+    EXPECT_CALL(socket, socketFd()).WillOnce(Return(9));
+
+    try
+    {
+        auto gotResponse = csw.attemptScan(request);
+        FAIL() << "attemptScan() did not throw an error";
+    }
+    catch (const ClientSocketException& e)
+    {
+        EXPECT_STREQ(e.what(), "Failed to receive scan response");
+    }
+    catch (const std::exception& e)
+    {
+        FAIL() << "incorrect error thrown: " << e.what();
+    }
+}
+
 TEST_F(TestOnAccessClientSocketWrapper, ScanReconnectLimit)
 {
     auto request = emptyRequest();
