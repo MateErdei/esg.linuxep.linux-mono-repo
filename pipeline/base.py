@@ -71,8 +71,8 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
     default_exclude_tags = ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]
     default_robot_args = " ".join(["BAZEL=1", f"PLATFORM={machine_name.upper()}"])
 
-    machine_name2 = machine.template
-    print(f"machine_name2: {machine_name2}")
+    machine_full_name = machine.template
+    print(f"machine_full_name: {machine_full_name}")
     print(f"machine_name: {machine_name}")
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
@@ -100,7 +100,7 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
-                    branch_name + "/base" + get_suffix(branch_name) + "_" + machine_name2 + "-log.html")
+                    branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "-log.html")
 
 
 def install_requirements(machine: tap.Machine):
