@@ -183,12 +183,20 @@ TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButNoResponseReceiv
     MockIScanningClientSocket socket {};
     Common::Threads::NotifyPipe notifyPipe {};
 
-    EXPECT_CALL(socket, connect).WillRepeatedly(Return(0));
+    EXPECT_CALL(socket, connect).WillOnce(Return(0));
     ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 
-    EXPECT_CALL(socket, sendRequest(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(socket, receiveResponse(_)).WillRepeatedly(Return(false));
-    EXPECT_CALL(socket, socketFd()).WillRepeatedly(Return(9));
+    {
+        InSequence seq;
+
+        for (int i = 0; i < MAX_SCAN_RETRIES; i++)
+        {
+            EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
+            EXPECT_CALL(socket, socketFd()).WillOnce(Return(9));
+            EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
+            EXPECT_CALL(socket, connect).WillOnce(Return(0));
+        }
+    }
 
     auto gotResponse = csw.scan(request);
     auto errMsg = gotResponse.getErrorMsg();
