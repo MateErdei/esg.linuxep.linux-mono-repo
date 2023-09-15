@@ -266,11 +266,11 @@ class FuzzerSupport( object):
                  "fuzzRunparsealcpolicytests.sh",
                  "fuzzRunsuldownloaderconfigtestsInVagrant.sh",
                  "fuzzRunsuldownloaderconfigtests.sh",
-                 "fuzzRunsuldownloaderreporttestsInVagrant.sh",
-                 "fuzzRunsuldownloaderreporttests.sh",
+                 "fuzzRundownloadreporttestsInVagrant.sh",
+                 "fuzzRundownloadreporttests.sh",
                  "parsealcpolicytests",
                  "suldownloaderconfigtests",
-                 "suldownloaderreporttests"]
+                 "downloadreporttests"]
         expected_fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("alc path does not exist: {}".format(expected_fuzzer_path))

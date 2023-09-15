@@ -91,28 +91,24 @@ SET_TARGET_PROPERTIES( suldownloaderconfigtests
 target_include_directories(suldownloaderconfigtests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR}   ${CMAKE_CURRENT_BINARY_DIR})
 
 
-add_executable(suldownloaderreporttests
-        suldownloaderreporttests.cpp
+add_executable(downloadreporttests
+        downloadreporttests.cpp
         )
 
-target_link_libraries(suldownloaderreporttests PRIVATE
+target_link_libraries(downloadreporttests PRIVATE
         ${Protobuf_LIBRARIES}
         logging
         policy
-        suldownloaderdata
         downloadreport
         )
 
-SET_TARGET_PROPERTIES( suldownloaderreporttests
+SET_TARGET_PROPERTIES( downloadreporttests
         PROPERTIES
         BUILD_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
         )
 
-target_include_directories(suldownloaderreporttests PUBLIC
-        ${CMAKE_SOURCE_DIR}/modules
-        ${CMAKE_SOURCE_DIR}/modules/Common
-        ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata
+target_include_directories(downloadreporttests PUBLIC
         ${LOG4CPLUS_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR})
 

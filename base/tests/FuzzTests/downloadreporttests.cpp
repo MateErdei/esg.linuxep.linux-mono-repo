@@ -1,9 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "Common/FileSystem/IFileSystem.h"
+#include "Common/DownloadReport/DownloadReport.h"
+#include "Common/DownloadReport/DownloadReportParseException.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
-#include "Common/DownloadReport/DownloadReport.h"
-#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include <chrono>
 #include <fstream>
@@ -33,7 +32,7 @@ struct DevNullRedirect
 
 int main()
 {
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{Common::Logging::LOGOFFFORTEST()};
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{ Common::Logging::LOGOFFFORTEST() };
     std::array<uint8_t, 9000> buffer;
     ssize_t read_bytes = ::read(STDIN_FILENO, buffer.data(), buffer.size());
     // failure to read is not to be considered in the parser. Just skip.
@@ -49,7 +48,7 @@ int main()
     {
         (void)Common::DownloadReport::DownloadReport::toReport(content);
     }
-    catch (SulDownloader::suldownloaderdata::SulDownloaderException&)
+    catch (Common::DownloadReport::DownloadReportParseException&)
     {
         return 2;
     }

@@ -30,6 +30,6 @@ Test Suldownloader Config
     ${result}=  Run ALF Fuzzer By Name  suldownloaderconfigtests
     Should Be Equal As Strings   ${result}  0
 
-Test Suldownloader Report
-    ${result}=  Run ALF Fuzzer By Name  suldownloaderreporttests
+Test DownloadReport
+    ${result}=  Run ALF Fuzzer By Name  downloadreporttests
     Should Be Equal As Strings   ${result}  0

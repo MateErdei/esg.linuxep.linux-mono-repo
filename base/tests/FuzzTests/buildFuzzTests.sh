@@ -99,7 +99,7 @@ if [[ ! -f ${AFL_PATH}/afl-gcc ]]; then
   exitFailure  ${FAILURE_BUILD_AFL}  "afl-gcc not in the expected path"
 fi
 
-TARGETS="loggerconfigtests parsealcpolicytests suldownloaderconfigtests suldownloaderreporttests"
+TARGETS="loggerconfigtests parsealcpolicytests suldownloaderconfigtests downloadreporttests"
 
 # build the executables to fuzz
 mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup build directory"
