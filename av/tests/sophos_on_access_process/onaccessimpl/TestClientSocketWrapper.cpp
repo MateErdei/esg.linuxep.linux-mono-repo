@@ -192,7 +192,7 @@ TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButNoResponseReceiv
         for (int i = 0; i < MAX_SCAN_RETRIES; i++)
         {
             EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
-            EXPECT_CALL(socket, socketFd()).WillOnce(Return(9));
+            EXPECT_CALL(socket, socketFd()).WillOnce(Return(EBADF));
             EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
             EXPECT_CALL(socket, connect).WillOnce(Return(0));
         }
