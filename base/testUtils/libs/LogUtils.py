@@ -114,28 +114,39 @@ class LogUtils(object):
         self.__m_log_handlers = {}
 
     # Common Log Utils
-    def get_log_line(self, string_to_contain, path_to_log):
+    def get_log_contents_from_path_to_log(self, path_to_log):
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {path_to_log} does not exist")
 
         with open(path_to_log, "r") as log:
             contents = log.readlines()
 
+        return contents
+
+    def get_log_line(self, string_to_contain, log_mark_or_path_to_log):
+        if isinstance(log_mark_or_path_to_log, LogHandler.LogMark):
+            path_to_log = log_mark_or_path_to_log.get_path()
+            contents_bytes = self.get_log_after_mark(path_to_log, log_mark_or_path_to_log)
+            contents_string = contents_bytes.decode("utf-8")
+            contents = contents_string.split('\n')
+        else:
+            contents = self.get_log_contents_from_path_to_log(log_mark_or_path_to_log)
+
         for line in contents:
             if string_to_contain in line:
                 return line
 
-        raise AssertionError(f"Log at \"{path_to_log}\" does not contain: {string_to_contain}")
+        raise AssertionError(f"Could not find: {string_to_contain} in log given")
 
-    def get_timestamp_of_log_line(self, string_to_contain, path_to_log):
-        line = self.get_log_line(string_to_contain, path_to_log)
+    def get_timestamp_of_log_line(self, string_to_contain, log_mark_or_path_to_log):
+        line = self.get_log_line(string_to_contain, log_mark_or_path_to_log)
         timestamp = line.split("[")[1].split("]")[0]
 
         return dateutil.parser.isoparse(timestamp)
 
-    def get_time_difference_between_two_log_lines(self, string_to_contain1, string_to_contain2, path_to_log):
-        timestamp1 = self.get_timestamp_of_log_line(string_to_contain1, path_to_log)
-        timestamp2 = self.get_timestamp_of_log_line(string_to_contain2, path_to_log)
+    def get_time_difference_between_two_log_lines(self, string_to_contain1, string_to_contain2, log_mark_or_path_to_log):
+        timestamp1 = self.get_timestamp_of_log_line(string_to_contain1, log_mark_or_path_to_log)
+        timestamp2 = self.get_timestamp_of_log_line(string_to_contain2, log_mark_or_path_to_log)
 
         difference = timestamp2 - timestamp1
 
