@@ -23,8 +23,9 @@ static log4cplus::Logger& getSendThreatDetectedEventLogger()
     return STATIC_LOGGER;
 }
 
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x) // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)   // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)  // NOLINT
+#define LOGINFO(x)  LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)   // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSendThreatDetectedEventLogger(), x)  // NOLINT
 
 using namespace common::CentralEnums;
 
@@ -292,6 +293,7 @@ static int inner_main(int argc, char* argv[])
 
             std::string dataAsString = threatDetected.serialise(false);
             GL_length = dataAsString.size();
+            LOGDEBUG("Attempting to send buffer of length " << GL_length);
             if (sendFD)
             {
                 if (fd == 0)
