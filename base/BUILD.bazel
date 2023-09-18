@@ -1,5 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
-load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_build_asset_pkg", "soph_release_asset")
+load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_build_asset_pkg")
 load("//tools/config:expand_template.bzl", "expand_template")
 load(":version_info.bzl", "BASE_BASE_VERSION")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
@@ -21,13 +21,9 @@ expand_template(
     ],
 )
 
-soph_release_asset(
+soph_build_asset(
     name = "installer",
     asset = "//base/products/Base/installer:installer_sdds2",
-    asset_type = select({
-        "//tools/config:linux_x64_rel": "release",
-        "//tools/config:linux_x64_dbg": "build",
-    }),
     visibility = ["//products:__pkg__"],
 )
 
