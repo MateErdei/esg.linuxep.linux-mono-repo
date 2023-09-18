@@ -120,6 +120,7 @@ void ThreatReporterServerConnectionThread::inner_run()
         // clang-format on
     };
     bool loggedLengthOfZero = false;
+    auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
     while (true)
     {
@@ -186,7 +187,6 @@ void ThreatReporterServerConnectionThread::inner_run()
                 loggedLengthOfZero = false;
             }
 
-            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             ssize_t bytes_read = unixsocket::readFully(sysCalls,
                                                        socket_fd,
                                                        reinterpret_cast<char*>(proto_buffer.begin()),

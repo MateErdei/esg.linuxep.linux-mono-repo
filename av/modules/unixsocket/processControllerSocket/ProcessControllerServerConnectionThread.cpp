@@ -8,6 +8,11 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
+#include <poll.h>
+#include <unistd.h>
+
 #include <capnp/serialize.h>
 #include <common/SaferStrerror.h>
 #include <scan_messages/ProcessControlDeserialiser.h>
@@ -15,9 +20,6 @@
 #include <cassert>
 #include <stdexcept>
 #include <utility>
-
-#include <poll.h>
-#include <unistd.h>
 
 using namespace unixsocket;
 
@@ -103,6 +105,7 @@ void ProcessControllerServerConnectionThread::inner_run()
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
     bool loggedLengthOfZero = false;
+    auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
     while (true)
     {
@@ -171,7 +174,11 @@ void ProcessControllerServerConnectionThread::inner_run()
                 proto_buffer = kj::heapArray<capnp::word>(buffer_size);
             }
 
-            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+            ssize_t bytes_read = unixsocket::readFully(sysCalls,
+                                                       socket_fd,
+                                                       reinterpret_cast<char*>(proto_buffer.begin()),
+                                                       length,
+                                                       readTimeout_);
             if (bytes_read < 0)
             {
                 LOGERROR(m_threadName << " aborting socket connection: " << errno);

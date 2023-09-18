@@ -17,6 +17,10 @@
 #include <cstdint>
 #include <string>
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace unixsocket
 {
     class ProcessControllerServerConnectionThread : public BaseServerConnectionThread
@@ -32,6 +36,8 @@ namespace unixsocket
 
         void run() override;
 
+    TEST_PUBLIC:
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     private:
         void inner_run();
 
