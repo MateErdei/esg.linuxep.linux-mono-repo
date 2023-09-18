@@ -3,6 +3,8 @@
 #include "unixsocket/BaseClient.h"
 #include "unixsocket/SocketUtils.h"
 
+#include "Common/Exceptions/IException.h"
+
 #include <iostream>
 #include <cassert>
 #include <sstream>
@@ -30,12 +32,13 @@ namespace
                 {
                     std::stringstream errMsg;
                     errMsg << "Failed to write to to socket [" << errno << "]";
-                    throw std::runtime_error(errMsg.str());
+                    throw Common::Exceptions::IException(LOCATION, errMsg.str());
                 }
             }
-            catch (unixsocket::environmentInterruption& e)
+            catch (const unixsocket::environmentInterruption& e)
             {
-                std::cerr << "Failed to write to socket. Exception caught: " << e.what();
+                std::cerr << "Failed to write to socket. Exception caught: " << e.what()
+                          << " at " << e.where_ << '\n';
             }
         }
 
@@ -48,13 +51,16 @@ namespace
                 if (unixsocket::send_fd(m_socket_fd.get(), fd) < 0)
                 {
                     std::stringstream errMsg;
-                    errMsg << "Failed to write file descriptor to Threat Reporter socket fd: " << std::to_string(fd) << std::endl;
-                    throw std::runtime_error(errMsg.str());
+                    errMsg << "Failed to write file descriptor to Threat Reporter socket fd="
+                           << std::to_string(fd)
+                           << " errno=" << errno;
+                    throw Common::Exceptions::IException(LOCATION, errMsg.str());
                 }
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what();
+                std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what()
+                        << " at " << e.where_ << '\n';
             }
         }
 
