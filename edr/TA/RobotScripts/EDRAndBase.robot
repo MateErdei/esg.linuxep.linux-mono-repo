@@ -4,7 +4,7 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FileSystemLibs.py
-Library         ../Libs/LogUtils.py
+Library         ../../../base/testUtils/libs/LogUtils.py
 Library         ../Libs/rsyslogUtils.py
 
 Resource        EDRResources.robot
@@ -109,10 +109,7 @@ EDR Restarts If File Descriptor Limit Hit
     Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${240}
 
     # LINUXDAR-8109 - Until fixed it is possible that we lose a couple of actions while EDR is restarting
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  EDR Plugin Log Contains X Times  Received new Action   95
+    Wait For Log Contains N Times From Mark   ${mark}   Received new Action   ${95}
 
 
 EDR Plugin Can Have Logging Level Changed Individually

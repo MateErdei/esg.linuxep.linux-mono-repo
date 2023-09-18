@@ -15,6 +15,8 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable      SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
+    Set Global Variable  ${MCS_DIR}                 ${SOPHOS_INSTALL}/base/mcs
+    Set Global Variable  ${BASE_LOGS_DIR}           ${SOPHOS_INSTALL}/logs/base
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
     Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
