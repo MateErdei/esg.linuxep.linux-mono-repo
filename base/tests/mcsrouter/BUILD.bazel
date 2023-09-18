@@ -1,13 +1,6 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 
-load("@rules_python//python:defs.bzl", "py_library")
-load("@python_spl//:defs.bzl", "py_test")
-
-# These unit tests are defined using py_test for SPL's Python, rather than the Python that we use for builds.
-# This results in a configuration transition when building/running these. They work fine when built/tested on their own,
-# but if built/tested with targets of a different configuration, e.g. with e.g. `bazel test //...`, it will complete
-# but Bazel will not be able to provide the bazel-bin and bazel-testlogs symlinks.
-# Hence they are run in a separate build/test command in TAP, and they work fine when running them manually.
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 py_library(
     name = "helpers",
@@ -17,7 +10,6 @@ py_library(
         "TestUtils.py",
     ],
     imports = ["."],
-    tags = ["manual"],
 )
 
 [
@@ -25,7 +17,6 @@ py_library(
         name = test[:-3],
         srcs = [test],
         main = test,
-        tags = ["manual"],
         deps = [
             ":helpers",
             "//base/modules/mcsrouter",
@@ -33,9 +24,3 @@ py_library(
     )
     for test in glob(["*.py"])
 ]
-
-test_suite(
-    name = "mcsrouter_tests",
-    tags = ["manual"],
-    tests = [":" + test[:-3] for test in glob(["*.py"])],
-)

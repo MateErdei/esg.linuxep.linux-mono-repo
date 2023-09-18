@@ -3,7 +3,6 @@
 /.clwb/.idea/blazeInfo.xml
 /.clwb/.idea/runConfigurations.xml
 /.clwb/.idea/git_toolbox_prj.xml
-/.clwb/.idea/workspace.xml
 *.iml
 # Bazel projects can't be opened without these
 !/.clwb/.blaze/modules/*.iml
@@ -18,7 +17,6 @@
 !/.profile/README.md
 /log.html
 /build/SOURCE_CODE_BRANCH
-/.bazel_symlinks_spl_python/
 
 # Import locations
 /common/sophlib/

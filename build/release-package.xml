@@ -112,18 +112,6 @@
         <command mode="all_lx64r">
             <program>./build/python.sh</program>
             <args>
-                tools/src/bazel/run.py
-                test
-                --config=linux_x64_rel
-                --profile=.profile/linuxep_spl_lx64r_mcsrouter_test.gz
-                --symlink_prefix=.bazel_symlinks_spl_python/
-                --
-                //base/tests/mcsrouter:mcsrouter_tests
-            </args>
-        </command>
-        <command mode="all_lx64r">
-            <program>./build/python.sh</program>
-            <args>
                 tools/src/export_artifacts/export_targets.py
                 --mode=all_lx64r
                 --exports=build/linuxep_spl_exports.txt
@@ -195,9 +183,6 @@
         <workingdir>.</workingdir>
 
         <logs name="test_logs" source-dir="bazel-testlogs">
-            <include glob="**"/>
-        </logs>
-        <logs name="mcsrouter_test_logs" source-dir=".bazel_symlinks_spl_python/testlogs" mode="all_lx64r">
             <include glob="**"/>
         </logs>
 
