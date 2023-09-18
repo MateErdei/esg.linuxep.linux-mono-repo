@@ -279,11 +279,18 @@ Installer Resets Ownership Of Stale MCS Router Process ID File
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
     Check Expected Base Processes Are Running
-    Create File  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
-    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
+    ${mcs_router_pid_file} =    Set Variable    ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
+    Wait Until Created    ${mcs_router_pid_file}
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${mcs_router_pid_file}
+    Run Process  chmod  600  ${mcs_router_pid_file}
+
+    # Make sure our chmod and chown worked to break the permissions.
+    File Exists With Permissions  ${mcs_router_pid_file}  sophos-spl-user  sophos-spl-group  -rw-------
     Run Full Installer
-    File Exists With Permissions  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid  sophos-spl-local  sophos-spl-group  -rw-------
+    Wait Until Created    ${mcs_router_pid_file}
+
+    # PID file should be fixed up to have right permissions
+    File Exists With Permissions  ${mcs_router_pid_file}  sophos-spl-local  sophos-spl-group  -rw-------
 
 Installer Copies Install Options File
     Ensure Uninstalled
