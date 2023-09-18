@@ -1,0 +1,9 @@
+{
+  "type": "sophos.mgt.action.RunCommands",
+  "commands": [
+    "trap '' SIGTERM; sleep 5000"
+  ],
+  "ignoreError": false,
+  "timeout": 2,
+  "expiration": 144444000000004
+}

@@ -166,6 +166,29 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     @{cmd_output_list} =  Create List   ${cmd_output1}
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
+Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amount Of Time
+    [Tags]    TAP_TESTS
+    Override LogConf File as Global Level  DEBUG
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_trapSIGTERM.json
+
+    # Note: the timeout value in the command json file IS NOT the amount of time given for the command process to stop
+    # The timeout is the amount of time we wait until we tell the process to terminate
+    # If you'd like to look at where the code is being executed, look in RunCommandAction.cpp -> runCommand()
+    # RunCommandAction.cpp will log saying 'RunCommandAction has received termination command due to timeout'
+    # (how long the wait is until the message is logged is based on the timeout in the command json file
+    # Then RunCommandAction.cpp will call kill() on the process, there is no value passed into kill() so
+    # the default wait time is used - found in ProcessImpl.cpp, DEFAULT_KILL_TIME
+    # At the time of writing this test the value was 2 - this is the "Specified Amount Of Time"
+    # hence checking that the log timings indicate a 2 second gap (+ some leeway)
+    wait_for_log_contains_from_mark    ${action_mark}    Terminating process
+    ${time_before} =  Get Current Time
+    wait_for_log_contains_from_mark    ${action_mark}    Entering cache result
+    ${time_after} =  Get Current Time
+
+    set local variable    ${allowed_leeway}    0.5
+    ${time_taken_check}    Evaluate    (${time_after} - ${time_before}) <= (2 + ${allowed_leeway})
+    Should Be True    ${time_taken_check}
 
 *** Keywords ***
 

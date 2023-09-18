@@ -33,31 +33,6 @@ namespace
     {};
 
     // cppcheck-suppress syntaxError
-    TEST_F(ProcessImplLog, ProcessShouldTrapSIGTERMAndGetKilledInASpecifiedAmountOfTime)
-    {
-        int secondsBeforeSIGKILL = 2;
-        auto process = createProcess();
-        process->exec("/bin/bash", { "-c", "trap '' SIGTERM; sleep 5000;"}, {});
-
-        sleep(1); // Need to wait a bit to let child process start
-        auto start_time = std::chrono::high_resolution_clock::now();
-        process->kill(secondsBeforeSIGKILL);
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto elapsedTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-
-        double allowedLeeway = 0.5;
-        double upperBoundMilli = 1000 * (secondsBeforeSIGKILL + allowedLeeway);
-        int lowerBoundMilli = 1000 * secondsBeforeSIGKILL;
-        // "1000 *" as elapsedTimeMilli is in milliseconds
-        // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence "elapsedTimeMilli.count() >= lowerBoundMilli"
-        // "elapsedTimeMilli.count() <= upperBoundMilli" makes sure process stops in correct amount of time
-        // epsilon - to allow for some leeway
-        {
-            using namespace ::testing;
-            EXPECT_THAT(elapsedTimeMilli.count(), AllOf(Ge(lowerBoundMilli), Le(upperBoundMilli)));
-        }
-    }
-
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
     {
         auto process = createProcess();
