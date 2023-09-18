@@ -39,18 +39,22 @@ namespace
         auto process = createProcess();
         process->exec("/bin/bash", { "-c", "trap '' SIGTERM; sleep 5000;"}, {});
 
-        auto start_time = std::chrono::high_resolution_clock::now();
         sleep(1); // Need to wait a bit to let child process start
+        auto start_time = std::chrono::high_resolution_clock::now();
         process->kill(secondsBeforeSIGKILL);
         auto end_time = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        auto elapsedTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-        // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence
-        // "elapsed_time.count() >= secondsBeforeSIGKILL"
-        // "elapsed_time.count() <= (secondsBeforeSIGKILL + 1)" makes sure process stops in correct amount of time
-        // 1.01 - 1-second from sleep and 0.01 to allow for some leeway
-        // "1000 *" as elapsed_time is in milliseconds
-        ASSERT_TRUE(elapsed_time.count() <= 1000 * (secondsBeforeSIGKILL + 1.01) && elapsed_time.count() >= 1000 * secondsBeforeSIGKILL);
+        std::cout << "Amount of time taken (in milliseconds) for process to be killed: " << elapsedTimeMilli.count() << std::endl;
+        double epsilon = 0.5;
+        int upperBoundMilli = 1000 * (secondsBeforeSIGKILL + epsilon);
+        int lowerBoundMilli = 1000 * secondsBeforeSIGKILL;
+        std::cout << "Upper bound: " << upperBoundMilli << ", lower bound: " << lowerBoundMilli << std::endl;
+        // "1000 *" as elapsedTimeMilli is in milliseconds
+        // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence "elapsedTimeMilli.count() >= lowerBoundMilli"
+        // "elapsedTimeMilli.count() <= upperBoundMilli" makes sure process stops in correct amount of time
+        // epsilon - to allow for some leeway
+        ASSERT_TRUE(elapsedTimeMilli.count() <= upperBoundMilli && elapsedTimeMilli.count() >= lowerBoundMilli);
     }
 
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
