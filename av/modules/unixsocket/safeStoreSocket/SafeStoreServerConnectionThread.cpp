@@ -235,11 +235,11 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
 
     assert(readBufferAsync_.complete());
     LOGDEBUG(m_threadName << " read capn of " << length);
-    std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
+    scan_messages::ThreatDetected threatDetected;
 
     try
     {
-        threatDetectedOptional = parseDetection(readBufferAsync_.getBuffer(), length);
+        threatDetected = parseDetection(readBufferAsync_.getBuffer(), length);
     }
     catch (const Common::Exceptions::IException& ex)
     {
@@ -251,8 +251,6 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
         LOGERROR("Aborting " << m_threadName << ": failed to parse detection: " << e.what());
         return false;
     }
-
-    scan_messages::ThreatDetected threatDetected = std::move(threatDetectedOptional.value());
 
     // read fd
     datatypes::AutoFd file_fd(unixsocket::recv_fd(socketFd));
