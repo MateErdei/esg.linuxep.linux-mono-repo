@@ -2,18 +2,20 @@
 
 #include "SafeStoreRescanServerConnectionThread.h"
 
+#include "common/SaferStrerror.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
-#include "common/SaferStrerror.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 #include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <cassert>
 #include <stdexcept>
 #include <utility>
-
-#include <sys/socket.h>
-#include <unistd.h>
 
 using namespace unixsocket;
 
@@ -64,6 +66,7 @@ void SafeStoreRescanServerConnectionThread::inner_run()
         { .fd = exitFD, .events = POLLIN, .revents = 0 },
         { .fd = socket_fd, .events = POLLIN, .revents = 0 }
     };
+    auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
     while (true)
     {
@@ -98,7 +101,7 @@ void SafeStoreRescanServerConnectionThread::inner_run()
             assert((fds[1].revents & POLLIN) != 0);
 
             // read length
-            int32_t length = unixsocket::readLength(socket_fd);
+            auto length = unixsocket::readLength(socket_fd);
             if (length == unixsocket::SU_EOF)
             {
                 LOGDEBUG(m_threadName << " closed: EOF");
@@ -120,7 +123,11 @@ void SafeStoreRescanServerConnectionThread::inner_run()
             }
 
             char buffer[bufferSize];
-            auto charsRead = ::read(socket_fd.get(), buffer, bufferSize);
+            auto charsRead = unixsocket::readFully(sysCalls,
+                                                       socket_fd.get(),
+                                                       buffer,
+                                                       bufferSize,
+                                                       readTimeout_);
             if (charsRead < 0)
             {
                 LOGERROR("Aborting " << m_threadName << errno);

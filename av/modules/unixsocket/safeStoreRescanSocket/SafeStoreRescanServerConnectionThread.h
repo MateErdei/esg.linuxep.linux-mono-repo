@@ -13,6 +13,10 @@
 #include <cstdint>
 #include <string>
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace unixsocket
 {
     class SafeStoreRescanServerConnectionThread : public BaseServerConnectionThread
@@ -25,6 +29,8 @@ namespace unixsocket
             std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager);
         void run() override;
 
+    TEST_PUBLIC:
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     private:
         void inner_run();
 
