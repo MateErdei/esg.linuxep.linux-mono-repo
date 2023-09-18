@@ -233,11 +233,12 @@ def run_base_tests(stage, context, base_build, base_build_bazel, mode, parameter
                            include_tags="",
                            machine_name=template_name)
         else:
+            include_tags = parameters.include_tags or ""
             for template_name, machine in base_test_machines:
                 stage.task(task_name=template_name,
                            func=robot_task,
                            machine=machine,
                            branch_name=context.branch,
                            robot_args="",
-                           include_tags=parameters.include_tags,
+                           include_tags=include_tags,
                            machine_name=template_name)
