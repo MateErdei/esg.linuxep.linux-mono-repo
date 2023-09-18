@@ -62,6 +62,9 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     mode = parameters.mode or RELEASE_MODE
     print(f"MODE = {mode}")
 
+    if parameters.include_tags is None:
+        parameters.include_tags = ""
+
     build_selection = parameters.build_selection or BUILD_SELECTION_ALL
 
     # Base always builds
