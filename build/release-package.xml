@@ -202,7 +202,7 @@
         </logs>
 
         <!-- linux_x64_rel: lx64r -->
-        <build-asset artifact-path="base/linux_x64_rel/installer" source-zip=".output/base/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <release-asset artifact-path="base/linux_x64_rel/installer" source-zip=".output/base/linux_x64_rel/installer.zip" mode="all_lx64r"/>
         <build-asset artifact-path="base/linux_x64_rel/installer_symbols" source-zip=".output/base/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
 <!--        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT"-->
