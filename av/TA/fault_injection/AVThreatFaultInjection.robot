@@ -74,11 +74,11 @@ Send A Valid Threat Detected Object To AV with SafeStore Disabled
 Send Empty Threat Name Threat Detected Object To AV with SafeStore Disabled
     Disable SafeStore
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
+    ${expected_error} =  Set Variable  Aborting ThreatReporterServerConnectionThread: Failed to parse detection: Empty threat name
+    Mark Expected Error In AV Log  ${expected_error}
     ${av_mark} =  Get AV Log Mark
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=
-    ${expected_error} =  Set Variable  Aborting ThreatReporterServerConnectionThread: Failed to parse detection: Empty threat name
     Wait For Log Contains From Mark  ${av_mark}   ${expected_error}   timeout=60
-    Mark Expected Error In AV Log  ${expected_error}
 
 Send Long Threat Name Threat Detected Object To AV with SafeStore Disabled
     Disable SafeStore
@@ -136,11 +136,11 @@ Send A Valid Threat Detected Object To AV with SafeStore Enabled
 Send Empty Threat Name Threat Detected Object To AV with SafeStore Enabled
     Enable SafeStore
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
+    ${expected_error} =  Set Variable  Aborting ThreatReporterServerConnectionThread: Failed to parse detection: Empty threat name
+    Mark Expected Error In AV Log  ${expected_error}
     ${av_mark} =  Get AV Log Mark
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=
-    ${expected_error} =  Set Variable  Aborting ThreatReporterServerConnectionThread: Failed to parse detection: Empty threat name
     Wait For Log Contains From Mark  ${av_mark}   ${expected_error}   timeout=60
-    Mark Expected Error In AV Log  ${expected_error}
 
 Send Long Threat Name Threat Detected Object To AV with SafeStore Enabled
     Enable SafeStore
