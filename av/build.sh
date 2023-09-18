@@ -233,7 +233,7 @@ do
             shift
             BUILD_DIR=$1
             ;;
-        --independent-build)
+        --independent-build|--independent)
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
 #            release-package has workingdir of av, so if we are in av directory already inputs end up in av/av/input
