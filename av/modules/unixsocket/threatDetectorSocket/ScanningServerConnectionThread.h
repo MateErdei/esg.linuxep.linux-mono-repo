@@ -2,10 +2,6 @@
 
 #pragma once
 
-#ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
-#endif
-
 #define AUTO_FD_IMPLICIT_INT
 
 #include "datatypes/AutoFd.h"
@@ -21,6 +17,10 @@
 
 #include <cstdint>
 #include <string>
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 namespace unixsocket
 {
@@ -45,6 +45,8 @@ namespace unixsocket
             std::string& errMsg,
             scan_messages::ScanResponse& result,
             datatypes::AutoFd& socket_fd);
+
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
 
     private:
         void inner_run();

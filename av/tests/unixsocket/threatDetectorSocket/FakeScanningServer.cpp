@@ -100,7 +100,9 @@ bool TestServerConnectionThread::handleEvent(datatypes::AutoFd& socket_fd, ssize
     scan_messages::ScanResponse result;
     ssize_t bytes_read;
     std::string errMsg;
-    if (!readCapnProtoMsg(m_sysCalls, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
+    if (!readCapnProtoMsg(
+            m_sysCalls, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg,
+            std::chrono::milliseconds{10}))
     {
         result.setErrorMsg(errMsg);
         sendResponse(socket_fd, result);

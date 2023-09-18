@@ -206,7 +206,8 @@ namespace unixsocket
                         socket_fd,
                         bytes_read,
                         loggedLengthOfZero,
-                        errMsg))
+                        errMsg,
+                        readTimeout_))
                 {
                     sendResponse(socket_fd, scan_messages::MetadataRescanResponse::failed);
                     LOGERROR(m_threadName << ": " << errMsg);

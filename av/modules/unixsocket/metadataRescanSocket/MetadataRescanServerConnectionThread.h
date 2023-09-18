@@ -18,6 +18,10 @@
 #include <cstdint>
 #include <string>
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace unixsocket
 {
     class MetadataRescanServerConnectionThread : public BaseServerConnectionThread
@@ -32,6 +36,8 @@ namespace unixsocket
             int maxIterations = -1);
         void run() override;
 
+    TEST_PUBLIC:
+        std::chrono::milliseconds readTimeout_ = std::chrono::seconds{1};
     private:
         void inner_run();
         bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::MetadataRescanResponse& response);

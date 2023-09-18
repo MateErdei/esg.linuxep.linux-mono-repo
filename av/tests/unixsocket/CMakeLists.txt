@@ -4,6 +4,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestSocketUtils.cpp
             TestReadBufferAsync.cpp
             TestReadLengthAsync.cpp
+            TestReadFully.cpp
             PROJECTS unixsocket
             INC_DIRS ${testhelpersinclude}
             )

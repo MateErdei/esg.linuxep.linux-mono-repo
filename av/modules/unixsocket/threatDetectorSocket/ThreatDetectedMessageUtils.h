@@ -8,6 +8,8 @@
 
 #include <capnp/message.h>
 
+#include <chrono>
+
 namespace unixsocket
 {
     bool isReceivedFdFile(
@@ -26,5 +28,6 @@ namespace unixsocket
         datatypes::AutoFd& socket_fd,
         ssize_t& bytes_read,
         bool& loggedLengthOfZero,
-        std::string& errMsg);
+        std::string& errMsg,
+        std::chrono::milliseconds readTimeout);
 }

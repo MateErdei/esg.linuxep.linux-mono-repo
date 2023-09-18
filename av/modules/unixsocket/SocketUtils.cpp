@@ -187,16 +187,17 @@ bool unixsocket::writeLengthAndBufferAndFd(int socket_fd, const std::string& buf
     return (send_fd(socket_fd, fd) > 0);
 }
 
-
-ssize_t unixsocket::readFully(int socket_fd, char* buf, ssize_t bytes, std::chrono::milliseconds timeout)
+ssize_t unixsocket::readFully(
+    const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr& syscalls,
+    int socket_fd, char* buf, ssize_t bytes, std::chrono::milliseconds timeout)
 {
     using clock = std::chrono::steady_clock;
     auto start = clock::now();
     ssize_t totalRead = 0;
-    while (totalRead != bytes)
+    while (totalRead < bytes)
     {
         auto remaining = bytes - totalRead;
-        auto amount = ::read(socket_fd, buf + totalRead, remaining);
+        auto amount = syscalls->read(socket_fd, buf + totalRead, remaining);
         if (amount < 0)
         {
             return amount;

@@ -3,6 +3,7 @@
 #include "ThreatDetectedMessageUtils.h"
 
 #include "common/SaferStrerror.h"
+#include "unixsocket/SocketUtils.h"
 
 #include <sstream>
 
@@ -60,7 +61,9 @@ bool unixsocket::readCapnProtoMsg(
     datatypes::AutoFd& socket_fd,
     ssize_t& bytes_read,
     bool& loggedLengthOfZero,
-    std::string& errMsg)
+    std::string& errMsg,
+    std::chrono::milliseconds readTimeout
+    )
 {
     if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
     {
@@ -69,7 +72,11 @@ bool unixsocket::readCapnProtoMsg(
         loggedLengthOfZero = false;
     }
 
-    bytes_read = sysCallWrapper->read(socket_fd.get(), proto_buffer.begin(), length);
+    bytes_read = unixsocket::readFully(sysCallWrapper,
+                                       socket_fd.get(),
+                                       reinterpret_cast<char*>(proto_buffer.begin()),
+                                       length,
+                                       readTimeout);
     if (bytes_read < 0)
     {
         std::stringstream errSS;

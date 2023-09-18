@@ -10,6 +10,8 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -184,7 +186,9 @@ void ThreatReporterServerConnectionThread::inner_run()
                 loggedLengthOfZero = false;
             }
 
-            ssize_t bytes_read = unixsocket::readFully(socket_fd,
+            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
+            ssize_t bytes_read = unixsocket::readFully(sysCalls,
+                                                       socket_fd,
                                                        reinterpret_cast<char*>(proto_buffer.begin()),
                                                        length,
                                                        readTimeout_);

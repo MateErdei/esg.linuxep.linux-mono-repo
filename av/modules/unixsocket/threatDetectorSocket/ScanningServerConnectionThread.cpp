@@ -272,7 +272,16 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             ScanResponse result;
             ssize_t bytes_read;
             std::string errMsg;
-            if (!readCapnProtoMsg(sysCalls_, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
+            if (!readCapnProtoMsg(
+                    sysCalls_,
+                    length,
+                    buffer_size,
+                    proto_buffer,
+                    socket_fd,
+                    bytes_read,
+                    loggedLengthOfZero,
+                    errMsg,
+                    readTimeout_))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);

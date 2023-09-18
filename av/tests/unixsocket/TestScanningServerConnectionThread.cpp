@@ -1,5 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "UnixSocketMemoryAppenderUsingTests.h"
 #include "ScanResponse.capnp.h"
 
@@ -359,6 +361,7 @@ TEST_F(TestScanningServerConnectionThread, max_length)
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
     ScanningServerConnectionThread connectionThread(serverFd, scannerFactory, sysCalls_);
+    connectionThread.readTimeout_ = std::chrono::milliseconds{1};
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     // length is limited to ~16MB
