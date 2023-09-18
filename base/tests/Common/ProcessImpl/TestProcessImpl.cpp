@@ -45,8 +45,8 @@ namespace
         auto end_time = std::chrono::high_resolution_clock::now();
         auto elapsedTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-        double epsilon = 0.5;
-        int upperBoundMilli = 1000 * (secondsBeforeSIGKILL + epsilon);
+        double allowedLeeway = 0.5;
+        double upperBoundMilli = 1000 * (secondsBeforeSIGKILL + allowedLeeway);
         int lowerBoundMilli = 1000 * secondsBeforeSIGKILL;
         // "1000 *" as elapsedTimeMilli is in milliseconds
         // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence "elapsedTimeMilli.count() >= lowerBoundMilli"
