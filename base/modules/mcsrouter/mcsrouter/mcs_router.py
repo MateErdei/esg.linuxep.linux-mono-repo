@@ -21,6 +21,7 @@ from . import sophos_https
 from .mcsclient import mcs_exception, config_exception
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
+from .utils import signal_handler
 
 LOGGER = logging.getLogger(__name__ if __name__ !=
                            "__main___" else "mcsrouter")
@@ -288,10 +289,12 @@ class MCSRouter:
         LOGGER.warning("Exiting mcsrouter")
         return ret
 
+
 def main():
     """
     main
     """
+    signal_handler.setup_signal_handler()
     install_dir = os.environ.get("INST_DIR", None)
     if install_dir is None:
         # Go one directory up from the script's location

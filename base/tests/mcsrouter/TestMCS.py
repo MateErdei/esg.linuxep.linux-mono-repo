@@ -25,7 +25,8 @@ import mcsrouter.mcs_push_client
 ORIGINAL_MCS_CONNECTION = mcsrouter.mcsclient.mcs_connection.MCSConnection
 FLAG_FILE = "/tmp/flags-mcs.json"
 import mcsrouter.utils.config
-from TestUtils import assert_message_in_logs
+from mcsrouter.utils import signal_handler
+
 
 class EscapeException(Exception):
     pass
@@ -119,6 +120,7 @@ class TestMCS(unittest.TestCase):
     @mock.patch('os.listdir', return_value=["dummyplugin.json"])
     def createMCS(self, config=None, *mockarg):
         global INSTALL_DIR
+        signal_handler.setup_signal_handler()
         if config is None:
             return mcsrouter.mcs.MCS(INSTALL_DIR)
         return mcsrouter.mcs.MCS(INSTALL_DIR, config)

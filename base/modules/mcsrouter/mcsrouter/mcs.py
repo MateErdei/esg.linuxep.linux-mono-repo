@@ -723,10 +723,6 @@ class MCS:
         def should_we_migrate() -> bool:
             return self.__m_app_proxy_adapter.get_migrate_action() is not None
 
-
-        # setup signal handler before connecting
-        signal_handler.setup_signal_handler()
-
         # setup a directory watcher for events and statuses
         directory_watcher = self._get_directory_watcher()
         notify_pipe_file_descriptor = directory_watcher.notify_pipe_file_descriptor
