@@ -167,7 +167,7 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amount Of Time
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_TESTS    EXCLUDE_ON_COVERAGE
     Override LogConf File as Global Level  DEBUG
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_trapSIGTERM.json
@@ -181,13 +181,12 @@ Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amo
     # the default wait time is used - found in ProcessImpl.cpp, DEFAULT_KILL_TIME
     # At the time of writing this test the value was 2 - this is the "Specified Amount Of Time"
     # hence checking that the log timings indicate a 2 second gap (+ some leeway)
-    wait_for_log_contains_from_mark    ${action_mark}    Terminating process
-    ${time_before} =  Get Current Time
+    # The reason this test is excluded on coverage is because the DEFAULT_KILL_TIME changes
     wait_for_log_contains_from_mark    ${action_mark}    Entering cache result
-    ${time_after} =  Get Current Time
+    ${time_taken} =    get_time_difference_between_two_log_lines    Terminating process    Entering cache result    ${ACTIONS_RUNNER_LOG_PATH}
 
     set local variable    ${allowed_leeway}    0.5
-    ${time_taken_check}    Evaluate    (${time_after} - ${time_before}) <= (2 + ${allowed_leeway})
+    ${time_taken_check}    Evaluate    ${time_taken} <= (2 + ${allowed_leeway})
     Should Be True    ${time_taken_check}
 
 *** Keywords ***
