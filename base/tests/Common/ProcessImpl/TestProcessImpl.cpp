@@ -45,16 +45,17 @@ namespace
         auto end_time = std::chrono::high_resolution_clock::now();
         auto elapsedTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-        std::cout << "Amount of time taken (in milliseconds) for process to be killed: " << elapsedTimeMilli.count() << std::endl;
         double epsilon = 0.5;
         int upperBoundMilli = 1000 * (secondsBeforeSIGKILL + epsilon);
         int lowerBoundMilli = 1000 * secondsBeforeSIGKILL;
-        std::cout << "Upper bound: " << upperBoundMilli << ", lower bound: " << lowerBoundMilli << std::endl;
         // "1000 *" as elapsedTimeMilli is in milliseconds
         // Need to make sure that process did not stop on SIGTERM but SIGKILL, hence "elapsedTimeMilli.count() >= lowerBoundMilli"
         // "elapsedTimeMilli.count() <= upperBoundMilli" makes sure process stops in correct amount of time
         // epsilon - to allow for some leeway
-        ASSERT_TRUE(elapsedTimeMilli.count() <= upperBoundMilli && elapsedTimeMilli.count() >= lowerBoundMilli);
+        {
+            using namespace ::testing;
+            EXPECT_THAT(elapsedTimeMilli.count(), AllOf(Ge(lowerBoundMilli), Le(upperBoundMilli)));
+        }
     }
 
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
