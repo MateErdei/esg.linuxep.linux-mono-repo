@@ -1216,7 +1216,7 @@ namespace
     {
         std::string filePath = "/path/doesnt/exist/moveFile.txt";
         std::string filePathMoved = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
-        std::string expectedErr = "Could not move " + filePath + "(doesnt exist) to " + filePathMoved + "(exists): No such file or directory(2)";
+        std::string expectedErr = "Could not move " + filePath + "(doesn't exist) to " + filePathMoved + "(exists): No such file or directory(2)";
 
         ASSERT_FALSE(m_fileSystem->isFile(filePath));
         try
@@ -1236,7 +1236,7 @@ namespace
         m_fileSystem->writeFile(filePath, "text");
         std::string filePathMoved = "/path/doesnt/exist/moveFile.txt";
 
-        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesnt exist): No such file or directory(2)";
+        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesn't exist): No such file or directory(2)";
 
         ASSERT_TRUE(m_fileSystem->isFile(filePath));
         try
@@ -1254,7 +1254,7 @@ namespace
     {
         std::string filePath = "/path/doesnt/exist/moveFile.txt";
         std::string filePathMoved = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
-        std::string expectedErr = "Could not move " + filePath + "(doesnt exist) to " + filePathMoved + "(exists): No such file or directory(2)";
+        std::string expectedErr = "Could not move " + filePath + "(doesn't exist) to " + filePathMoved + "(exists): No such file or directory(2)";
 
         ASSERT_FALSE(m_fileSystem->isFile(filePath));
         try
@@ -1274,7 +1274,7 @@ namespace
         m_fileSystem->writeFile(filePath, "text");
         std::string filePathMoved = "/path/doesnt/exist/moveFile.txt";
 
-        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesnt exist): No such file or directory(2)";
+        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesn't exist): No such file or directory(2)";
 
         ASSERT_TRUE(m_fileSystem->isFile(filePath));
         try

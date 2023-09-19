@@ -258,17 +258,10 @@ namespace Common::FileSystem
 
     void FileSystemImpl::throwFileSystemException(const int err, const Path& source, const Path& dest) const
     {
-        std::string srcExists = exists(source) ? "exists" : "doesnt exist";
+        std::string srcExists = exists(source) ? "exists" : "doesn't exist";
 
-        std::string destExists;
-        if (dest.back() == '/')
-        {
-            destExists = exists(dest) ? "exists" : "doesnt exist";
-        }
-        else
-        {
-            destExists = exists(dirName(dest)) ? "exists" : "doesnt exist";
-        }
+        auto destPath  = dest.back() == '/' ? dest : dirName(dest);
+        std::string destExists = exists(destPath) ? "exists" : "doesn't exist";
 
         std::stringstream errorStream;
         errorStream << "Could not move " << source << "(" << srcExists << ")" <<
