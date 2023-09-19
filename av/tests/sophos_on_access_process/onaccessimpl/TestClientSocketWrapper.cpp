@@ -217,7 +217,7 @@ TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButErrorThrownWhenR
 
     EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
     EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
-    EXPECT_CALL(socket, socketFd()).WillOnce(Return(9));
+    EXPECT_CALL(socket, socketFd()).WillOnce(Return(EBADF));
 
     try
     {
