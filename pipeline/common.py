@@ -10,6 +10,7 @@ ANALYSIS_MODE = 'analysis'
 COVERAGE_MODE = 'coverage'
 NINE_NINE_NINE_MODE = '999'
 ZERO_SIX_ZERO_MODE = '060'
+ROBOT_TEST_TIMEOUT = 5400
 
 COVERAGE_TEMPLATE = "centos7_x64_aws_server_en_us"
 

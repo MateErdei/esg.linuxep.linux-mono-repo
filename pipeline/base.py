@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args
+    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT
 
 PACKAGE_PATH = "./base/build/release-package.xml"
 INPUTS_DIR = '/opt/test/inputs'
@@ -85,15 +85,15 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
             machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', *include,
                         '--exclude', *default_exclude_tags,
-                        timeout=3600)
+                        timeout=ROBOT_TEST_TIMEOUT)
         elif robot_args:
             final_robot_args = " ".join([robot_args, default_robot_args])
-            machine.run(*final_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+            machine.run(*final_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
         else:
             machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', *default_include_tags,
                         '--exclude', *default_exclude_tags,
-                        timeout=3600)
+                        timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -175,7 +175,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
         # run tap-tests
         try:
             machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                        timeout=3600,
+                        timeout=ROBOT_TEST_TIMEOUT,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')

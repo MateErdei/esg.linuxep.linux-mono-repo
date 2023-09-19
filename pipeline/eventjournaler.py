@@ -5,7 +5,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import ANALYSIS_MODE, unified_artifact, get_test_machines, COVERAGE_MODE, pip_install, \
-    get_robot_args, COVERAGE_TEMPLATE
+    get_robot_args, COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 # For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
@@ -54,7 +54,7 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -91,7 +91,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # run component pytest and tap-tests
         try:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
+            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')

@@ -6,7 +6,8 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input, TaskOutput
 
-# TAP Pipeline API : https://docs.sophos-ops.com/pipeline.html
+from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, ROBOT_TEST_TIMEOUT
+
 
 INPUTS_DIR = '/opt/test/inputs'
 LOGS_DIR = '/opt/test/logs'
@@ -151,11 +152,11 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
                         '--include', *include,
                         '--exclude', *robot_exclusion_tags,
                         environment=environment,
-                        timeout=5400)
+                        timeout=ROBOT_TEST_TIMEOUT)
         elif robot_args:
             machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                         '--exclude', *robot_exclusion_tags,
-                        environment=environment, timeout=5400)
+                        environment=environment, timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
