@@ -19,29 +19,20 @@ soph_cc_library(
     name = "RegexUtilities",
     srcs = ["RegexUtilities.cpp"],
     hdrs = ["RegexUtilities.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "iostr_utils",
     hdrs = ["iostr_utils.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "TimeUtils",
     srcs = ["TimeUtils.cpp"],
     hdrs = ["TimeUtils.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 expand_template(
@@ -55,49 +46,34 @@ soph_cc_library(
     name = "ProjectNames",
     srcs = ["ProjectNames.cpp"],
     hdrs = ["ProjectNames.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "StrError",
     srcs = ["StrError.cpp"],
     hdrs = ["StrError.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "UniformIntDistribution",
     srcs = ["UniformIntDistribution.cpp"],
     hdrs = ["UniformIntDistribution.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "OrderedSet",
     hdrs = ["OrderedSet.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "StringUtils",
     srcs = ["StringUtils.cpp"],
     hdrs = ["StringUtils.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/FileSystem",
     ],
@@ -122,30 +98,21 @@ soph_cc_library(
     implementation_deps = [
         "//base/modules/Common/SslImpl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "VectorAsSet",
     srcs = ["VectorAsSet.cpp"],
     hdrs = ["VectorAsSet.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
     name = "WaitForUtils",
     srcs = ["WaitForUtils.cpp"],
     hdrs = ["WaitForUtils.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(

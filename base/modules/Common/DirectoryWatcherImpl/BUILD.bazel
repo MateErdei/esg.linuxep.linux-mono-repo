@@ -13,10 +13,7 @@ soph_cc_library(
         "//base/modules/Common/ZeroMQWrapper",
         "//base/modules/Common/ZeroMQWrapperImpl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/DirectoryWatcher:DirectoryWatcher_interface",
         "//base/modules/Common/Threads",

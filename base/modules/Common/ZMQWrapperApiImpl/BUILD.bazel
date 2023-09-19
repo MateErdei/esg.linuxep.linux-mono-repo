@@ -11,10 +11,7 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "@zmq",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/Reactor",
         "//base/modules/Common/ZMQWrapperApi:ZMQWrapperApi_interface",

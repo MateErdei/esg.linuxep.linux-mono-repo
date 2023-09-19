@@ -7,10 +7,7 @@ soph_cc_library(
         # Doesn't propagate headers but still links it in the end
         "//base/modules/Common/PluginApiImpl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         ":PluginApi_interface",
     ],
@@ -48,10 +45,7 @@ soph_cc_library(
         "ApiException.h",
         "StatusInfo.h",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/Exceptions",
     ],

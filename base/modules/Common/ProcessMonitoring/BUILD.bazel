@@ -6,10 +6,7 @@ soph_cc_library(
         # Doesn't propagate headers but still links it in the end
         "//base/modules/Common/ProcessMonitoringImpl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         ":ProcessMonitoring_interface",
     ],

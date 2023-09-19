@@ -20,9 +20,7 @@ soph_cc_library(
     hdrs = [
         "MockPidLockFileUtils.h",
     ],
-    visibility = [
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/FileSystem",
     ],

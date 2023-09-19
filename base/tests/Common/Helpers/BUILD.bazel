@@ -9,12 +9,10 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//base/modules/Common/UtilityImpl:StrError",
         "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/UtilityImpl:StrError",
     ],
-    visibility = [
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/CurlWrapper",

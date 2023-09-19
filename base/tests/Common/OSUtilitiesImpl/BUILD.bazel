@@ -4,9 +4,7 @@ load("//tools/config:soph_rules.bzl", "soph_cc_library")
 soph_cc_library(
     name = "OSUtilitiesImpl",
     hdrs = glob(["*.h"]),
-    visibility = [
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/OSUtilities",
     ],

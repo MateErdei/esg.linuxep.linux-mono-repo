@@ -12,10 +12,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/Logging",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/CurlWrapper",
         "//base/modules/Common/HttpRequests",

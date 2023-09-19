@@ -21,10 +21,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "@com_google_protobuf//:protobuf",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 cc_proto_library(

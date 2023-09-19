@@ -16,10 +16,7 @@ soph_cc_library(
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:ProjectNames",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/PluginApi:PluginApi_interface",
         "//base/modules/Common/PluginProtocol",

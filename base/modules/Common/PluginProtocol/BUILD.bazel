@@ -13,10 +13,7 @@ soph_cc_library(
         ":PluginAPIMessage",
         "//base/modules/Common/Logging",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/PluginApi:PluginProtocolShared",
         "//base/modules/Common/Reactor",

@@ -7,8 +7,5 @@ soph_cc_library(
         "*.cpp",
         "*.h",
     ]),
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )

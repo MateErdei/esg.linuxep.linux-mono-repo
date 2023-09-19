@@ -11,8 +11,5 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "//base/thirdparty/nlohmann-json",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )

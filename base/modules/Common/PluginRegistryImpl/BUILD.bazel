@@ -17,10 +17,7 @@ soph_cc_library(
         "@com_google_protobuf//:protobuf",
         "//base/modules/Common/FileSystem",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/Exceptions",
         "//base/modules/Common/ProcessImpl",

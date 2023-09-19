@@ -19,10 +19,7 @@ soph_cc_library(
         ":ConfigurationSettings",
         "@com_google_protobuf//:protobuf",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/ObfuscationImpl",

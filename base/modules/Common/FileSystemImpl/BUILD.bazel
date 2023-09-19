@@ -13,10 +13,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StrError",
         "//base/modules/Common/UtilityImpl:UniformIntDistribution",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/FileSystem:FileSystem_interface",
         "//base/modules/Common/SystemCallWrapper",

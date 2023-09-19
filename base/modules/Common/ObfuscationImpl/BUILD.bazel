@@ -10,10 +10,7 @@ soph_cc_library(
     implementation_deps = [
         "//base/modules/Common/Logging",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/Obfuscation:Obfuscation_interface",
         "@openssl_linux//:openssl",

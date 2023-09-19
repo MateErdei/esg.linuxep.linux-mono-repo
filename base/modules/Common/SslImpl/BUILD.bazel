@@ -11,8 +11,5 @@ soph_cc_library(
     implementation_deps = [
         "@openssl_linux//:openssl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )

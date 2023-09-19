@@ -15,10 +15,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/thirdparty/nlohmann-json",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/HttpRequests",
     ],
