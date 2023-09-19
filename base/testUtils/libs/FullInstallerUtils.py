@@ -231,10 +231,10 @@ def setup_av_install():
 def get_xml_node_text(node):
     return "".join(t.nodeValue for t in node.childNodes if t.nodeType == t.TEXT_NODE)
 
-def run_full_installer_expecting_code(expected_code, *args, **kwargs):
+def run_full_installer_expecting_code(expected_code, *args):
     installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
-    return run_full_installer_from_location_expecting_code(installer, expected_code, *args, **kwargs)
+    return run_full_installer_from_location_expecting_code(installer, expected_code, *args)
 
 def run_full_installer_with_truncated_path( *args):
     # Robot passes in strings.
@@ -252,10 +252,10 @@ def run_full_installer_with_truncated_path( *args):
 
     return output
 
-def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args, log_level="DEBUG"):
+def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args):
     # Robot passes in strings.
     expected_code = int(expected_code)
-    arg_list = ["bash", install_script_location, "--log-level", log_level]
+    arg_list = ["bash", install_script_location]
     arg_list += list(args)
     logger.debug(f"Env Variables: {os.environ}")
     logger.info(f"Run installer: {arg_list}")
@@ -309,8 +309,9 @@ def get_glibc_version_from_full_installer():
     raise AssertionError("Installer: {}\nDid not contain line matching: {}".format(installer, regex_pattern))
 
 
-def run_full_installer(*args, **kwargs):
-     run_full_installer_expecting_code(0, *args, **kwargs)
+
+def run_full_installer(*args):
+     run_full_installer_expecting_code(0, *args)
 
 SOPHOS_USER="sophos-spl-user"
 SOPHOS_GROUP="sophos-spl-group"

@@ -33,6 +33,7 @@ Test Watchdog Reconfigures User and Group IDs
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
     ...    --allow-override-mcs-ca
+    ...    --log-level  DEBUG
 
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
@@ -102,6 +103,7 @@ Test Watchdog Can Reconfigure a Singular User ID
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
     ...    --allow-override-mcs-ca
+    ...    --log-level  DEBUG
 
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
@@ -151,6 +153,7 @@ Test Watchdog Can Reconfigure a Singular Group ID
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
     ...    --allow-override-mcs-ca
+    ...    --log-level  DEBUG
 
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
