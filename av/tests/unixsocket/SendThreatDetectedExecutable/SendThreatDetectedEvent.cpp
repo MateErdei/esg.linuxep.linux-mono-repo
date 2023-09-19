@@ -236,7 +236,14 @@ static int inner_main(int argc, char* argv[])
                 break;
             case 'i':
                 threatID = optarg;
-                LOGINFO("Threat ID: " << threatID);
+                if (threatID.size() > 128)
+                {
+                    LOGINFO("Long Threat ID LEN=" << threatID.size() << " startswith: " << threatID.substr(0,128));
+                }
+                else
+                {
+                    LOGINFO("Threat ID: " << threatID);
+                }
                 break;
             case 'f':
                 filePath = optarg;
@@ -302,7 +309,7 @@ static int inner_main(int argc, char* argv[])
         }
         catch (const Common::Exceptions::IException& ex)
         {
-            LOGDEBUG("Message is bad: " << ex.what_with_location());
+            LOGDEBUG("Message is bad: " << ex.what_with_location().substr(0, 512));
             GL_bad_message = true;
         }
 
