@@ -178,7 +178,7 @@ Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amo
     FOR    ${iteration}    IN RANGE    0    ${num_iterations}
         ${time_taken} =    Simulate Response Action And Return Time Taken To Kill Process
         ${time_taken_check} =   Evaluate    ${time_taken} <= (2 + ${allowed_leeway})
-        IF    ${time_taken_check} <= 2
+        IF    ${time_taken_check} is ${TRUE}
             ${iterations_passed} =    Evaluate    ${iterations_passed} + 1
         END
     END
