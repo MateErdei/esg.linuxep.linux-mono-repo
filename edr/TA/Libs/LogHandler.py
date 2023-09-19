@@ -106,10 +106,13 @@ class LogMark:
 
     def generate_reversed_lines(self):
         contents = self.get_contents()
-        lines = contents.splitlines(keepends=True)
-        lines.reverse()
-        for line in lines:
-            yield line
+        if contents is None:
+            return []
+        else:
+            lines = contents.splitlines(keepends=True)
+            lines.reverse()
+            for line in lines:
+                yield line
 
     def assert_is_good(self, log_path: str):
         assert self.get_path() == log_path, "mark is for wrong file"
