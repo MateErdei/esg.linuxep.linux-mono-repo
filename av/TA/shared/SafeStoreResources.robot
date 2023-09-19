@@ -77,6 +77,7 @@ Wait Until SafeStore Started Successfully
     ## Lines logged for every start
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=5
 
 
 Wait Until SafeStore not running
