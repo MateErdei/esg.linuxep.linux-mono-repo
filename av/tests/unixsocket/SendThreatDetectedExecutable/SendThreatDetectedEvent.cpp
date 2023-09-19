@@ -174,6 +174,8 @@ static void printUsageAndExit(const std::string& name)
 }
 
 static std::string::size_type GL_length = 0;
+static bool GL_bad_message = false;
+static long GL_iteration = 0;
 
 static int inner_main(int argc, char* argv[])
 {
@@ -183,7 +185,7 @@ static int inner_main(int argc, char* argv[])
     }
     std::string socketPath = "event.sock";
     std::string sha;
-    std::string filePath;
+    std::string filePath = "/etc/hosts";
     std::string threatType;
     std::string threatName;
     std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
@@ -293,6 +295,16 @@ static int inner_main(int argc, char* argv[])
         threatDetected.userID = userId;
         threatDetected.scanType = scanType;
 
+        try
+        {
+            threatDetected.validate();
+        }
+        catch (const Common::Exceptions::IException& ex)
+        {
+            LOGDEBUG("Message is bad: " << ex.what_with_location());
+            GL_bad_message = true;
+        }
+
         dataAsString = threatDetected.serialise(false);
         GL_length = dataAsString.size();
         LOGDEBUG("Attempting to send buffer of length " << GL_length);
@@ -302,11 +314,13 @@ static int inner_main(int argc, char* argv[])
     {
         if (fd == 0)
         {
+            LOGDEBUG("Opening " << filePath);
             fd = open(filePath.c_str(), O_PATH);
+            assert(fd >= 0);
         }
     }
 
-    for (auto i=0; i<repeatCount; i++)
+    for (GL_iteration=0; GL_iteration<repeatCount; GL_iteration++)
     {
         TestClient client(socketPath);
 
@@ -314,8 +328,9 @@ static int inner_main(int argc, char* argv[])
         {
             client.sendRequestAndFD(dataAsString, fd);
         }
-        else if (sendMessage && !sendFD)
+        else if (sendMessage)
         {
+            assert(!sendFD);
             client.sendRequest(dataAsString);
         }
         else if (sendFD)
@@ -325,6 +340,7 @@ static int inner_main(int argc, char* argv[])
         }
         else
         {
+            LOGINFO("Not sending message or FD");
             return 1;
         }
     }
@@ -347,27 +363,50 @@ int main(int argc, char* argv[])
     {
         return inner_main(argc, argv);
     }
+    catch (const SendFDException& ex)
+    {
+        if (ex.error_ == EPIPE and GL_bad_message)
+        {
+            LOGINFO("Ignoring SendFDException caught at top-level: " << ex.what_with_location()
+                                                                     << " on iteration " << GL_iteration);
+            return 0;
+        }
+        LOGFATAL("Caught SendFDException at top-level: " << ex.what_with_location()
+                                                         << " on iteration " << GL_iteration);
+        return 60;
+    }
+    catch (const TestClientException& ex)
+    {
+        LOGFATAL("Caught TestClientException at top-level: " << ex.what_with_location()
+                                                             << " on iteration " << GL_iteration);
+        logLength();
+        return 50;
+    }
     catch (const unixsocket::UnixSocketException& ex)
     {
-        LOGFATAL("Caught UnixSocketException at top-level: " << ex.what_with_location());
+        LOGFATAL("Caught UnixSocketException at top-level: " << ex.what_with_location()
+                                                             << " on iteration " << GL_iteration);
         logLength();
         return 40;
     }
     catch (const Common::Exceptions::IException& ex)
     {
-        LOGFATAL("Caught IException at top-level: " << ex.what_with_location());
+        LOGFATAL("Caught IException at top-level: " << ex.what_with_location()
+                                                    << " on iteration " << GL_iteration);
         logLength();
         return 30;
     }
     catch (const std::exception& ex)
     {
-        LOGFATAL("Caught std::exception at top-level: " << ex.what());
+        LOGFATAL("Caught std::exception at top-level: " << ex.what()
+                                                        << " on iteration " << GL_iteration);
         logLength();
         return 10;
     }
     catch (...)
     {
-        LOGFATAL("Caught ... at top-level");
+        LOGFATAL("Caught ... at top-level"
+                 << " on iteration " << GL_iteration);
         return 20;
     }
 }

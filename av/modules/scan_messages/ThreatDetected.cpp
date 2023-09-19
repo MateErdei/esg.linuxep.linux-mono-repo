@@ -6,6 +6,7 @@
 
 #include "datatypes/AutoFd.h"
 
+#include "Common/Exceptions/IException.h"
 #include "Common/UtilityImpl/Uuid.h"
 
 #include <capnp/message.h>
@@ -74,19 +75,19 @@ void ThreatDetected::validate() const
 {
     if (filePath.empty())
     {
-        throw std::runtime_error("Empty path");
+        throw Common::Exceptions::IException(LOCATION, "Empty path");
     }
     if (threatName.empty())
     {
-        throw std::runtime_error("Empty threat name");
+        throw Common::Exceptions::IException(LOCATION, "Empty threat name");
     }
     if (!Common::UtilityImpl::Uuid::IsValid(threatId))
     {
-        throw std::runtime_error("Invalid threat ID: " + threatId);
+        throw Common::Exceptions::IException(LOCATION, "Invalid threat ID: " + threatId);
     }
     if (!correlationId.empty() && !Common::UtilityImpl::Uuid::IsValid(correlationId))
     {
-        throw std::runtime_error("Invalid correlation ID: " + correlationId);
+        throw Common::Exceptions::IException(LOCATION, "Invalid correlation ID: " + correlationId);
     }
 }
 

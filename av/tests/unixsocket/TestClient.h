@@ -11,6 +11,22 @@
 
 namespace
 {
+    class TestClientException : public Common::Exceptions::IException
+    {
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+
+    class SendFDException : public TestClientException
+    {
+    public:
+        int error_;
+        SendFDException(const char* file, const unsigned long line, const std::string& what, int error) :
+            TestClientException(file, line, what),error_(error)
+        {
+        }
+    };
+
     class TestClient : public unixsocket::BaseClient
     {
     public:
@@ -45,19 +61,21 @@ namespace
         void sendFD(int fd)
         {
             assert(m_socket_fd.valid());
+            assert(fd >= 0);
             try
             {
-
                 if (unixsocket::send_fd(m_socket_fd.get(), fd) < 0)
                 {
+                    int error = errno;
                     std::stringstream errMsg;
                     errMsg << "Failed to write file descriptor to Threat Reporter socket fd="
                            << std::to_string(fd)
-                           << " errno=" << errno;
-                    throw Common::Exceptions::IException(LOCATION, errMsg.str());
+                           << " errno=" << error
+                           << " strerror=" << strerror(error);
+                    throw SendFDException(LOCATION, errMsg.str(), error);
                 }
             }
-            catch (unixsocket::environmentInterruption& e)
+            catch (const unixsocket::environmentInterruption& e)
             {
                 std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what()
                         << " at " << e.where_ << '\n';
