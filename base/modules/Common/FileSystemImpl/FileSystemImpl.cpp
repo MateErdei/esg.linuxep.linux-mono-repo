@@ -6,6 +6,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystem/IMoveFileException.h"
 #include "Common/FileSystem/IPermissionDeniedException.h"
 #include "Common/SslImpl/Digest.h"
 #include "Common/UtilityImpl/StrError.h"
@@ -234,7 +235,7 @@ namespace Common::FileSystem
         }
         else if (ret != 0)
         {
-            throwFileSystemException(ret, sourcePath, destPath);
+            throwMoveFileException(ret, sourcePath, destPath);
         }
     }
 
@@ -243,7 +244,7 @@ namespace Common::FileSystem
         int ret = moveFileImpl(sourcePath.c_str(), destPath.c_str());
         if (ret != 0)
         {
-            throwFileSystemException(ret, sourcePath, destPath);
+            throwMoveFileException(ret, sourcePath, destPath);
         }
     }
 
@@ -256,7 +257,7 @@ namespace Common::FileSystem
         return 0;
     }
 
-    void FileSystemImpl::throwFileSystemException(const int err, const Path& source, const Path& dest) const
+    void FileSystemImpl::throwMoveFileException(const int err, const Path& source, const Path& dest) const
     {
         std::string srcExists = exists(source) ? "exists" : "doesn't exist";
 
@@ -268,7 +269,7 @@ namespace Common::FileSystem
                                     " to " << dest << "(" << destExists << ")"  <<
                                       ": " << StrError(err) << "(" << err << ")";
 
-        throw IFileSystemException(errorStream.str());
+        throw IMoveFileException(errorStream.str());
     }
 
     std::string FileSystemImpl::readFile(const Path& path) const
