@@ -16,10 +16,11 @@ Ensure Uninstalled
     Uninstall SSPL
 
 Require Fresh Install
+    [Arguments]    &{kwargs}
     Ensure Uninstalled
     Should Not Exist   ${SOPHOS_INSTALL}
     Kill Sophos Processes
-    Run Full Installer
+    Run Full Installer    &{kwargs}
     Should Exist   ${SOPHOS_INSTALL}
     Verify Sophos Users And Sophos Groups Are Created
     Should Exist   ${SOPHOS_INSTALL}/var/ipc

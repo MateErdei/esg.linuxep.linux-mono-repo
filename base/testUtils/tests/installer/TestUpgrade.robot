@@ -1,9 +1,9 @@
 *** Settings ***
 Library    DateTime
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ../libs/FullInstallerUtils.py
+Library    ../libs/LogUtils.py
+Library    ../libs/UpdateSchedulerHelper.py
 
 Resource  InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -13,7 +13,7 @@ Resource  ../upgrade_product/UpgradeResources.robot
 Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
-Default Tags  INSTALLER  TAP_TESTS
+Force Tags    INSTALLER    TAP_TESTS
 
 *** Variables ***
 ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
@@ -91,7 +91,7 @@ Simple Upgrade Test with a Breaking Update
     Check All Product Logs Do Not Contain Critical
 
 Simple Upgrade Test with a Breaking Update for plugin
-    [Tags]    INSTALLER     RA_PLUGIN
+    [Tags]    RA_PLUGIN
     Require Fresh Install
     Install Response Actions Directly
 
@@ -127,7 +127,7 @@ Simple Upgrade Test with a Breaking Update for plugin
     Check All Product Logs Do Not Contain Critical
 
 Simple Downgrade Test
-    [Tags]  INSTALLER  TAP_TESTS  EXCLUDE_ON_COVERAGE
+    [Tags]    EXCLUDE_ON_COVERAGE
 
     Require Fresh Install
     ${distribution} =   Get Folder With Installer
@@ -145,11 +145,7 @@ Simple Downgrade Test
     Copy Directory  ${distribution}  /opt/tmp/version2
     Replace Version  ${BaseDevVersion}   0.1.1  /opt/tmp/version2
 
-    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
-    Should Be Equal As Integers    ${result.rc}    0
-
-    ${result} =  Run Process  /opt/tmp/version2/install.sh
-    Should Be Equal As Integers    ${result.rc}    0
+    Run Full Installer From Location Expecting Code    /opt/tmp/version2/install.sh    0
 
     ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
@@ -166,7 +162,7 @@ Simple Downgrade Test
 Check Local Logger Config Settings Are Processed and Persist After Upgrade
     ${expected_local_file_contents} =  Set Variable  [global]\nVERBOSITY = DEBUG\n
 
-    Require Fresh Install
+    Require Fresh Install    log_level=INFO
     Check Expected Base Processes Are Running
 
     Wait Until Keyword Succeeds
@@ -198,7 +194,6 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
     Should Be Equal As Strings  ${expected_local_file_contents}  ${actual_local_file_contents}
 
 VersionCopy File in the Wrong Location Is Removed
-    [Tags]  INSTALLER
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     #fake the file being copied to the wrong location
@@ -215,21 +210,19 @@ VersionCopy File in the Wrong Location Is Removed
 
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
 
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
+    Run Full Installer
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
-    [Tags]      INSTALLER
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Check Files Before Upgrade
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
+    Run Full Installer
     Check Files After Upgrade
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
-    [Tags]  INSTALLER
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Install Response Actions Directly
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
@@ -238,7 +231,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Move File  /tmp/RA-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
+    Run Full Installer
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -253,7 +246,6 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 
 Version Copy Versions All Changed Files When Upgrading
-    [Tags]  INSTALLER
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -261,7 +253,7 @@ Version Copy Versions All Changed Files When Upgrading
     ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
 
-    run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
+    Run Full Installer
 
     ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
