@@ -85,12 +85,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size)
 }
 #else
 
-static int writeSampleFile(std::string filename)
+static int writeSampleFile(const std::string& filename)
 {
     scan_messages::ThreatDetected threatDetected = createThreatDetectedWithRealFd({});
     std::string request_str = threatDetected.serialise();
 
-    int size = request_str.size();
+    auto size = request_str.size();
 
     auto bytes = unixsocket::splitInto7Bits(size);
     auto lengthBytes = unixsocket::addTopBitAndPutInBuffer(bytes);
@@ -104,7 +104,7 @@ static int writeSampleFile(std::string filename)
     return EXIT_SUCCESS;
 }
 
-static int processFile(std::string filename)
+static int processFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();

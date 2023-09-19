@@ -91,6 +91,18 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
     target_link_libraries(UpdateCompleteClient  PUBLIC
             unixsocket)
 
+
+    add_executable(FakeThreatReporterServer
+            ThreatReporterTestExecutable/FakeThreatReporterServer.cpp)
+    target_link_libraries(FakeThreatReporterServer  PUBLIC
+            unixsocket)
+    target_include_directories(FakeThreatReporterServer PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+
+    SET_TARGET_PROPERTIES(FakeThreatReporterServer
+            PROPERTIES
+            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs")
+
     add_subdirectory(SendThreatDetectedExecutable)
 endif (NOT DEFINED ENV{USE_LIBFUZZER})
 

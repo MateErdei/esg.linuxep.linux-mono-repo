@@ -187,6 +187,7 @@ static int inner_main(int argc, char* argv[])
     std::string threatType;
     std::string threatName;
     std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
+    int repeatCount = 1;
     /**
      * 0 is used as a marker from tests to open the file ourselves
      */
@@ -198,6 +199,7 @@ static int inner_main(int argc, char* argv[])
     scan_messages::E_SCAN_TYPE scanType = scan_messages::E_SCAN_TYPE_SCHEDULED;
 
     const auto short_opts = "p:u:t:i:s:f:d:r:a:b:mn";
+    constexpr int REPEAT_VALUE = 1000;
     const option long_opts[] = { { "socketpath", required_argument, nullptr, 'p' },
                                  { "threattype", required_argument, nullptr, 'u' },
                                  { "threatname", required_argument, nullptr, 't' },
@@ -210,6 +212,7 @@ static int inner_main(int argc, char* argv[])
                                  { "scantype", required_argument, nullptr, 'b' },
                                  { "nosendmessage", no_argument, nullptr, 'm' },
                                  { "nosendfd", no_argument, nullptr, 'n' },
+                                 { "repeat", required_argument, nullptr, REPEAT_VALUE},
                                  { nullptr, no_argument, nullptr, 0 } };
     int opt = 0;
     while ((opt = getopt_long(argc, argv, short_opts, long_opts, nullptr)) != -1)
@@ -262,6 +265,9 @@ static int inner_main(int argc, char* argv[])
                 scanType = stringToScanType(optarg);
                 LOGINFO("Scan Type: " << userId);
                 break;
+            case REPEAT_VALUE:
+                repeatCount = std::stoi(optarg);
+                break;
             default:
                 printUsageAndExit(argv[0]);
         }
@@ -270,42 +276,56 @@ static int inner_main(int argc, char* argv[])
     if (socketPath.empty())
     {
         printUsageAndExit(argv[0]);
+        return 2;
     }
-    else
+
+    std::string dataAsString;
+    if (sendMessage)
+    {
+        scan_messages::ThreatDetected threatDetected;
+        threatDetected.filePath = filePath;
+        threatDetected.sha256 = sha;
+        threatDetected.threatType = threatType;
+        threatDetected.threatName = threatName;
+        threatDetected.threatId = threatID;
+        threatDetected.correlationId = threatID;
+        threatDetected.reportSource = reportSource;
+        threatDetected.userID = userId;
+        threatDetected.scanType = scanType;
+
+        dataAsString = threatDetected.serialise(false);
+        GL_length = dataAsString.size();
+        LOGDEBUG("Attempting to send buffer of length " << GL_length);
+    }
+
+    if (sendFD)
+    {
+        if (fd == 0)
+        {
+            fd = open(filePath.c_str(), O_PATH);
+        }
+    }
+
+    for (auto i=0; i<repeatCount; i++)
     {
         TestClient client(socketPath);
-        if (!sendMessage && sendFD)
-        {
-            client.sendFD(open(filePath.c_str(), O_PATH));
-        }
-        else if (sendMessage)
-        {
-            scan_messages::ThreatDetected threatDetected;
-            threatDetected.filePath = filePath;
-            threatDetected.sha256 = sha;
-            threatDetected.threatType = threatType;
-            threatDetected.threatName = threatName;
-            threatDetected.threatId = threatID;
-            threatDetected.correlationId = threatID;
-            threatDetected.reportSource = reportSource;
-            threatDetected.userID = userId;
-            threatDetected.scanType = scanType;
 
-            std::string dataAsString = threatDetected.serialise(false);
-            GL_length = dataAsString.size();
-            LOGDEBUG("Attempting to send buffer of length " << GL_length);
-            if (sendFD)
-            {
-                if (fd == 0)
-                {
-                    fd = open(filePath.c_str(), O_PATH);
-                }
-                client.sendRequestAndFD(dataAsString, fd);
-            }
-            else
-            {
-                client.sendRequest(dataAsString);
-            }
+        if (sendMessage && sendFD)
+        {
+            client.sendRequestAndFD(dataAsString, fd);
+        }
+        else if (sendMessage && !sendFD)
+        {
+            client.sendRequest(dataAsString);
+        }
+        else if (sendFD)
+        {
+            assert(!sendMessage);
+            client.sendFD(fd);
+        }
+        else
+        {
+            return 1;
         }
     }
 
