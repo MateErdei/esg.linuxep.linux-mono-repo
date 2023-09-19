@@ -234,10 +234,7 @@ namespace Common::FileSystem
         }
         else if (ret != 0)
         {
-            std::stringstream errorStream;
-            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret
-                        << ")";
-            throw IFileSystemException(errorStream.str());
+            throwFileSystemException(ret, sourcePath, destPath);
         }
     }
 
@@ -246,10 +243,7 @@ namespace Common::FileSystem
         int ret = moveFileImpl(sourcePath.c_str(), destPath.c_str());
         if (ret != 0)
         {
-            std::stringstream errorStream;
-            errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret
-                        << ")";
-            throw IFileSystemException(errorStream.str());
+            throwFileSystemException(ret, sourcePath, destPath);
         }
     }
 
@@ -260,6 +254,28 @@ namespace Common::FileSystem
             return errno;
         }
         return 0;
+    }
+
+    void FileSystemImpl::throwFileSystemException(const int err, const Path& source, const Path& dest) const
+    {
+        std::string srcExists = exists(source) ? "exists" : "doesnt exist";
+
+        std::string destExists;
+        if (dest.back() == '/')
+        {
+            destExists = exists(dest) ? "exists" : "doesnt exist";
+        }
+        else
+        {
+            destExists = exists(dirName(dest)) ? "exists" : "doesnt exist";
+        }
+
+        std::stringstream errorStream;
+        errorStream << "Could not move " << source << "(" << srcExists << ")" <<
+                                    " to " << dest << "(" << destExists << ")"  <<
+                                      ": " << StrError(err) << "(" << err << ")";
+
+        throw IFileSystemException(errorStream.str());
     }
 
     std::string FileSystemImpl::readFile(const Path& path) const
@@ -435,12 +451,19 @@ namespace Common::FileSystem
             int error = errno;
             std::string errdesc = StrError(error);
 
-            throw IFileSystemException("Error, Failed to create file: '" + path + "', " + errdesc);
+            throw IFileSystemException("Error, Failed to open file for write: '" + path + "', " + errdesc);
         }
 
         outFileStream << content;
-
         outFileStream.close();
+
+        if (!outFileStream.good())
+        {
+            int error = errno;
+            std::string errdesc = StrError(error);
+
+            throw IFileSystemException("Error, Failed to close file after write: '" + path + "', " + errdesc);
+        }
     }
 
     void FileSystemImpl::writeFileAtomically(

@@ -1212,6 +1212,82 @@ namespace
         EXPECT_THROW(mockFileSystem.moveFileTryCopy(sourceDir, destDir), IFileSystemException);
     }
 
+    TEST_F(FileSystemImplTest, moveFileThrowsSourceDoesntExist)
+    {
+        std::string filePath = "/path/doesnt/exist/moveFile.txt";
+        std::string filePathMoved = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
+        std::string expectedErr = "Could not move " + filePath + "(doesnt exist) to " + filePathMoved + "(exists): No such file or directory(2)";
+
+        ASSERT_FALSE(m_fileSystem->isFile(filePath));
+        try
+        {
+          m_fileSystem->moveFile(filePath, filePathMoved);
+          FAIL() << "didnt throw when source file path didnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+          EXPECT_EQ(ex.what(), expectedErr);
+        }
+    }
+
+    TEST_F(FileSystemImplTest, moveFileThrowsDestDirDoesntExist)
+    {
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
+        m_fileSystem->writeFile(filePath, "text");
+        std::string filePathMoved = "/path/doesnt/exist/moveFile.txt";
+
+        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesnt exist): No such file or directory(2)";
+
+        ASSERT_TRUE(m_fileSystem->isFile(filePath));
+        try
+        {
+          m_fileSystem->moveFile(filePath, filePathMoved);
+          FAIL() << "didnt throw when destination file path didnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+          EXPECT_EQ(ex.what(), expectedErr);
+        }
+    }
+
+    TEST_F(FileSystemImplTest, moveFileTryCopyThrowsSourceDoesntExist)
+    {
+        std::string filePath = "/path/doesnt/exist/moveFile.txt";
+        std::string filePathMoved = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
+        std::string expectedErr = "Could not move " + filePath + "(doesnt exist) to " + filePathMoved + "(exists): No such file or directory(2)";
+
+        ASSERT_FALSE(m_fileSystem->isFile(filePath));
+        try
+        {
+          m_fileSystem->moveFileTryCopy(filePath, filePathMoved);
+          FAIL() << "didnt throw when source file path didnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+          EXPECT_EQ(ex.what(), expectedErr);
+        }
+    }
+
+    TEST_F(FileSystemImplTest, moveFileTryCopyThrowsDestDirDoesntExist)
+    {
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
+        m_fileSystem->writeFile(filePath, "text");
+        std::string filePathMoved = "/path/doesnt/exist/moveFile.txt";
+
+        std::string expectedErr = "Could not move " + filePath + "(exists) to " + filePathMoved + "(doesnt exist): No such file or directory(2)";
+
+        ASSERT_TRUE(m_fileSystem->isFile(filePath));
+        try
+        {
+          m_fileSystem->moveFileTryCopy(filePath, filePathMoved);
+          FAIL() << "didnt throw when destination file path didnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+          EXPECT_EQ(ex.what(), expectedErr);
+        }
+    }
+
     class mockFileSystemForRecursiveDelete : public FileSystemImpl
     {
     public:

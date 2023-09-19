@@ -116,6 +116,7 @@ namespace Common::FileSystem
 
     private:
         void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;
+        void throwFileSystemException(const int err, const Path& source, const Path& dest) const;
     };
 
     std::unique_ptr<IFileSystem>& fileSystemStaticPointer();
