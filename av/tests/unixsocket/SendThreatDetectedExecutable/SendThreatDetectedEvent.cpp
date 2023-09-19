@@ -24,6 +24,7 @@ static log4cplus::Logger& getSendThreatDetectedEventLogger()
 }
 
 #define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)  // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSendThreatDetectedEventLogger(), x)  // NOLINT
 #define LOGINFO(x)  LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)   // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSendThreatDetectedEventLogger(), x)  // NOLINT
 
@@ -316,7 +317,11 @@ static int inner_main(int argc, char* argv[])
         {
             LOGDEBUG("Opening " << filePath);
             fd = open(filePath.c_str(), O_PATH);
-            assert(fd >= 0);
+            if (fd < 0)
+            {
+                LOGERROR("Unable to open " << filePath << " errno=" << errno);
+                return 2;
+            }
         }
     }
 
