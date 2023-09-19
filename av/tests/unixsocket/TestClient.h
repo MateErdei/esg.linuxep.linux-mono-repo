@@ -1,5 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "common/SaferStrerror.h"
 #include "unixsocket/BaseClient.h"
 #include "unixsocket/SocketUtils.h"
 
@@ -71,7 +72,7 @@ namespace
                     errMsg << "Failed to write file descriptor to Threat Reporter socket fd="
                            << std::to_string(fd)
                            << " errno=" << error
-                           << " strerror=" << strerror(error);
+                           << " error str=" << common::safer_strerror(error);
                     throw SendFDException(LOCATION, errMsg.str(), error);
                 }
             }
