@@ -9,6 +9,9 @@ def get_base_version(args):
 
 
 def run(args):
+    # TODO needed until LINUXDAR-8020 is done, by which point this file will be removed
+    os.environ["PATH"] = ":".join([os.environ.get("PATH", ""), "/opt/tapvenv/bin"])
+
     if os.path.isfile(args.bazel_stamp_vars):
         with open(args.bazel_stamp_vars) as f:
             lines = f.read().split("\n")
