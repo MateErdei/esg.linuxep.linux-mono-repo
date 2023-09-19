@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.system.id="Blaze" type="BLAZE_CPP_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python">
+      <configuration sdkName="Python 3.9" />
+    </facet>
+  </component>
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/../../..">
+      <sourceFolder url="file://$MODULE_DIR$/../../.." isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../.." />
+      <excludeFolder url="file://$MODULE_DIR$/../../../.git" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../.output" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../bazel-bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../bazel-esg.linuxep.sspl-warehouse" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../bazel-genfiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../bazel-out" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../bazel-testlogs" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../imports/thirdparty/openssl/redirect" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../tapvenv" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../tools/local_repositories/rules_dotnet" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../tools/local_repositories/sxl" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../tools/thirdparty/ci_bootstrap" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../tools/thirdparty/stubs" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Python 3.9 interpreter library" level="application" />
+  </component>
+</module>

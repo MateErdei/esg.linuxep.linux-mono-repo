@@ -1,12 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# ------------------------------------------------------------------------------
-# Copyright 2020-2021 Sophos Limited. All rights reserved.
-#
-# Sophos is a registered trademark of Sophos Limited and Sophos Group. All
-# other product and company names mentioned are trademarks or registered
-# trademarks of their respective owners.
-# ------------------------------------------------------------------------------
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 """Generate bazel rules to create SDDS3 packages and suites from YAML defs"""
 
 # pylint: disable=C0302     # too many lines (>1000)
@@ -825,7 +818,7 @@ def sync_sdds3_supplement(supplement, syncdir):
         sys.executable, '-u', f'{TOOLS}/sync_sdds3_supplement.py',
         '--mirror', syncdir,
         '--supplement', f'{SDDS3_URL}/supplement/sdds3.{supplement}.dat',
-        '--builder', f'{ROOT}/redist/sdds3/sdds3-builder',
+        '--builder', f'{ROOT}/imports/internal/sdds3_utils/sdds3-builder',
     ]
     say(f"Running {args}")
     subprocess.run(args, check=True)
@@ -834,7 +827,7 @@ def sync_sdds3_supplement(supplement, syncdir):
 
 def load_sdds3_supplement(supplement):
     args = [
-        os.path.join(ROOT, "redist", "sdds3", "sdds3-builder"),
+        os.path.join(ROOT, "imports", "internal", "sdds3_utils", "sdds3-builder"),
         '--unpack-signed-file',
         supplement
     ]

@@ -1,23 +1,22 @@
-/.idea/
 /inputs/
 /redist/
 /output/
 
+# IDE
+/.idea/
+/.vscode/
+/.clwb/.idea/blazeInfo.xml
+/.clwb/.idea/runConfigurations.xml
+
 # SystemProductTestOutput
 /SystemProductTestOutput.tar.gz
+/TA/SupportFiles/
+/TA/libs/
 
 # Auto-generated
 *.pyc
-.vscode/
-/build/dev.xml.new.xml
-/build/dev.xml.orig.xml
 /sdds3/BUILD
 /sdds3/.output/
-/TA/log.html
-/TA/output.xml
-/TA/report.html
-/TA/SupportFiles/
-/TA/libs/
 /linuxep_suites/suite_data/ServerProtectionLinux-Base/*
 /linuxep_suites/suite_data/ServerProtectionLinux-Plugin-AV/*
 /linuxep_suites/suite_data/ServerProtectionLinux-Plugin-EDR/*
@@ -27,10 +26,14 @@
 !/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-EDR/spv_template.xml
 !/linuxep_suites/suite_data/ServerProtectionLinux-Plugin-MDR/spv_template.xml
 /log.html
+/TA/log.html
+/TA/output.xml
+/TA/report.html
 /tap
 /vagrant
 
 # Monorepo bazeltools
+/.bazelignore
 /.bazelrc
 /.bazelversion
 /.clang-format
@@ -39,9 +42,11 @@
 /.pre-commit-config.yaml
 /.windows.bazelrc
 /BUILD.bazel
+/WORKSPACE
+/common/
+/imports/
 /platform_mappings
 /pyproject.toml
-/WORKSPACE
 /tools/
 
 # Bazel auto-generated
