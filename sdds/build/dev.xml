@@ -61,16 +61,17 @@
             <include artifact-path="sspl-flags/scit-supplement" dest-dir="inputs/supplements/sspl-flags" mode="dev,999,prod"/>
         </build-asset>
 
-
-        <!-- sdds3 only-->
         <build-asset project="em" repo="esg">
-            <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
-            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
-            <!-- Temp change to test new versions -->
-<!--            <development-version branch="develop"/>-->
-            <include artifact-path="bazel-tools" dest-dir="." />
-            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="redist/sdds3"/>
+            <release-version branch="release/SPRINT-2023.37-linux"
+                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>
+            <development-version branch="develop"/>
+            <include artifact-path="bazel-tools" dest-dir="."/>
+            <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
+            <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
+            <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
         </build-asset>
+
         <!-- gcc -->
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
@@ -93,7 +94,7 @@
     </command>
     <command mode="dev,999,prod">
         <program>/bin/bash</program>
-        <args>sdds3/setup.sh</args>
+        <args>./fixup_bazel_tools.sh</args>
         <workingdir>.</workingdir>
     </command>
     <command mode="dev,999,prod">

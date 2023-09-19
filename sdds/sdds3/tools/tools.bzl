@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Sophos Limited. All Rights Reserved.
+# Copyright 2021-2023 Sophos Limited. All rights reserved.
 """Tools to build SDDS3 suites/packages/supplements"""
 
 ####################################################################################
@@ -49,12 +49,12 @@ build_sdds3_package = rule(
             cfg = "host",
         ),
         "_make_sdds3_package": attr.label(
-            default = "//redist/sdds3:make_sdds3_package",
+            default = "//imports/internal/sdds3_utils:make_sdds3_package",
             executable = True,
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//redist/sdds3:sdds3_builder_exe",
+            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),
@@ -100,7 +100,7 @@ def _copy_prebuilt_sdds3_supplement_impl(ctx):
     ctx.actions.symlink(target_file = prebuilt_supplement, output = outfile)
 
     return [
-        DefaultInfo(files = depset(outputs))
+        DefaultInfo(files = depset(outputs)),
     ]
 
 copy_prebuilt_sdds3_supplement = rule(
@@ -134,7 +134,7 @@ def _build_sdds3_suite_impl(ctx):
     packages = depset(transitive = [f.files for f in ctx.attr.packages])
     args.add_all(packages, before_each = "--package")
 
-    sdds_imports =  depset(transitive = [i.files for i  in ctx.attr.sdds_imports])
+    sdds_imports = depset(transitive = [i.files for i in ctx.attr.sdds_imports])
     args.add_all(sdds_imports, before_each = "--import")
     _allowed_integrity_duplicates = None
     inputs = depset(direct = [metadata], transitive = [packages, sdds_imports])
@@ -179,7 +179,7 @@ build_sdds3_suite = rule(
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//redist/sdds3:sdds3_builder_exe",
+            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),
@@ -201,14 +201,14 @@ def _build_sdds3_supplement_impl(ctx):
     packages = depset(transitive = [f.files for f in ctx.attr.packages])
     args.add_all(packages, before_each = "--package")
 
-    sdds_imports =  depset(transitive = [i.files for i  in ctx.attr.sdds_imports])
+    sdds_imports = depset(transitive = [i.files for i in ctx.attr.sdds_imports])
     args.add_all(sdds_imports, before_each = "--import")
 
     args.add_all(ctx.attr.release_tags, before_each = "--tag")
 
     ctx.actions.run(
         mnemonic = "BuildSdds3Supplement",
-        inputs =  depset(transitive = [packages, sdds_imports]),
+        inputs = depset(transitive = [packages, sdds_imports]),
         outputs = outputs,
         arguments = [args],
         executable = ctx.executable._env,
@@ -246,7 +246,7 @@ build_sdds3_supplement = rule(
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//redist/sdds3:sdds3_builder_exe",
+            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),

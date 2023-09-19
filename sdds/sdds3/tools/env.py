@@ -1,4 +1,4 @@
-# Copyright 2019-2021 Sophos Limited. All rights reserved.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 """
 Wrapper script to allow SDDS3 tools to invoke digest_sign from bazel.
 Takes care of setting environment variables that need to be defined before
@@ -16,8 +16,8 @@ def _set_environment():
     # Set the path so the tool can be found. The path varies between the CI
     # environment and local dev machines.
 
-    # needed for linux?
-    os.environ["PATH"] += r":/home/pair/gitrepos/sspl-tools/tap_venv/bin"
+    # Needed for dev machines
+    os.environ["PATH"] += r":/opt/tapvenv/bin"
 
     # If the environment file isn't there (for example, because the user is
     # running bazel commands directly), just silently continue.
