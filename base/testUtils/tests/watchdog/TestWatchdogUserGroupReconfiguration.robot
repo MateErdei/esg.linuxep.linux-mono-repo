@@ -97,6 +97,7 @@ Test Watchdog Reconfigures User and Group IDs
     Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular User ID
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Run Full Installer
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
@@ -120,6 +121,8 @@ Test Watchdog Can Reconfigure a Singular User ID
 
     # Perform the ID changes requests by writing requested IDs json file and restarting the product
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}    {"users":{"sophos-spl-user":1996}}
+    # waiting for updatescheduler to finish reporting update success to central otherwise watchdog might need to kill it when the restart is done
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Restart Product
     Wait For Base Processes To Be Running
 
@@ -143,6 +146,7 @@ Test Watchdog Can Reconfigure a Singular User ID
     Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular Group ID
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Run Full Installer
     ...    --mcs-url    https://localhost:4443/mcs
     ...    --mcs-token    ThisIsARegToken
@@ -166,6 +170,8 @@ Test Watchdog Can Reconfigure a Singular Group ID
 
     # Perform the ID changes requests by writing requested IDs json file and restarting the product
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   {"groups":{"sophos-spl-group":1996}}
+    # waiting for updatescheduler to finish reporting update success to central otherwise watchdog might need to kill it when the restart is done
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
     Restart Product
     Wait For Base Processes To Be Running
 
