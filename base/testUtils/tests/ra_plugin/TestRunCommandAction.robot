@@ -206,7 +206,7 @@ Simulate Response Action And Return Time Taken To Kill Process
         ...    Child process is still running, killing process
         ...    Entering cache result
         ...    ${action_mark}
-    RETURN    ${time_taken}
+    [Return]    ${time_taken}
 
 RA Command Direct Suite setup
     Run Full Installer
