@@ -9,6 +9,6 @@ namespace Common::FileSystem
     class IFileNotFoundException : public IFileSystemException
     {
     public:
-        explicit IFileNotFoundException(const std::string& what) : IFileSystemException(what) {}
+        using IFileSystemException::IFileSystemException;
     };
 } // namespace Common::FileSystem

@@ -9,6 +9,6 @@ namespace Common::FileSystem
     class IMoveFileException : public IFileSystemException
     {
     public:
-        explicit IMoveFileException(const std::string& what) : IFileSystemException(what) {}
+        using IFileSystemException::IFileSystemException;
     };
-} // namespace Common::FileSystem
+}

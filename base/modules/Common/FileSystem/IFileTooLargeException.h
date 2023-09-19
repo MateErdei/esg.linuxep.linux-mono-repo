@@ -9,6 +9,6 @@ namespace Common::FileSystem
     class IFileTooLargeException : public IFileSystemException
     {
     public:
-        explicit IFileTooLargeException(const std::string& what) : IFileSystemException(what) {}
+        using IFileSystemException::IFileSystemException;
     };
-} // namespace Common::FileSystem
+}

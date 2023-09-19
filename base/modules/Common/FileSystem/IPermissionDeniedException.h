@@ -9,6 +9,6 @@ namespace Common::FileSystem
     class IPermissionDeniedException : public IFileSystemException
     {
     public:
-        explicit IPermissionDeniedException(const std::string& what) : IFileSystemException(what) {}
+        using IFileSystemException::IFileSystemException;
     };
 } // namespace Common::FileSystem
