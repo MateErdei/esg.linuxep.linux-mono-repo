@@ -73,54 +73,56 @@ ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direc
 *** Test Case ***
 Thin Installer fails to install on system without enough memory
     Run Default Thininstaller With Fake Memory Amount    234
-    Check Thininstaller Log Contains    This machine does not meet product requirements (total RAM: 234kB). The product requires at least 930000kB of RAM
+    Check Thininstaller Log Contains    SPL installation will fail as this machine does not meet product requirements (total RAM: 234kB). The product requires at least 930000kB of RAM
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
-    Check Thininstaller Log Contains    ERROR: Not enough space in / to install SPL. You need at least 2048mB to install SPL
+    Check Thininstaller Log Contains    SPL installation will fail as there is not enough space in / to install SPL. You need at least 2048MiB to install SPL
 
 Thin Installer Tells Us It Is Governed By A License
-    Run Default Thininstaller    3
+    Run Default Thininstaller    ${33}
     Check Thininstaller Log Contains    This software is governed by the terms and conditions of a licence agreement with Sophos Limited
 
 Thin Installer Does Not Tell Us About Which Sweep
-    Run Default Thininstaller    3
+    Run Default Thininstaller    ${33}
     Check Thininstaller Log Does Not Contain    which: no sweep in
 
 Thin Installer Detects Sweep And Cancels Installation If SAV can not be uninstalled
     ## Fake SAV installation has no uninstall script so can't be uninstalled
     [Tags]  SAV  THIN_INSTALLER
+    [Setup]    Setup Thininstaller Test
     [Teardown]  SAV Teardown
     Create Fake Savscan In Tmp
     Create Fake Sweep Symlink    /usr/bin
-    Run Default Thininstaller    8
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink   /usr/bin
 
     Create Fake Sweep Symlink    /usr/local/bin/
-    Run Default Thininstaller    8
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /usr/local/bin/
 
     Create Fake Sweep Symlink    /bin
-    Run Default Thininstaller    8
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /bin
 
     ${path} =  Get System Path
     Create Fake Sweep Symlink   /tmp
-    run thininstaller with non standard path    8  /tmp:/bin:${path}
+    run thininstaller with non standard path    ${8}  /tmp:/bin:${path}
     Check Thininstaller Log Contains     Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /tmp
 
 Thin Installer Detects Sweep And uninstalls SAV
     [Tags]  SAV  THIN_INSTALLER
+    [Setup]    Setup Thininstaller Test
     [Teardown]  SAV Teardown
     Create Fake Savscan In Tmp
     Create Fake SAV Uninstaller in Tmp
     Create Fake Sweep Symlink    /usr/bin
     ## Installer fails trying to talk to fakeCloud
-    Run Default Thininstaller    3  thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
+    Run Default Thininstaller    ${18}  thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
     Check Thininstaller Log Contains    Found an existing installation of Sophos Anti-Virus in /tmp/i/am/fake/.
     Check Thininstaller Log Contains    This product cannot be run alongside Sophos Anti-Virus.
     Check Thininstaller Log Contains    Sophos Anti-Virus will be uninstalled:
@@ -130,32 +132,32 @@ Thin Installer Detects Sweep And uninstalls SAV
     Directory Should Not Exist  /tmp/i/am/fake
 
 Thin Installer Has Working Version Option
-    Run Default Thininstaller With Args   0     --version
+    Run Default Thininstaller With Args   ${0}     --version
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working Version Option With Other Arguments
-    Run Default Thininstaller With Args   0     --version  --other
+    Run Default Thininstaller With Args   ${0}     --version  --other
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working Version Option Where Preceding Arguments Are Ignored
-    Run Default Thininstaller With Args   0     --other  --version
+    Run Default Thininstaller With Args   ${0}     --other  --version
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working short Version Option
-    Run Default Thininstaller With Args   0     -v
+    Run Default Thininstaller With Args   ${0}     -v
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working short Version Option With Other Arguments
-    Run Default Thininstaller With Args   0     -v  --other
+    Run Default Thininstaller With Args   ${0}     -v  --other
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Has Working short Version Option Where Preceding Arguments Are Ignored
-    Run Default Thininstaller With Args   0     --other  -v
+    Run Default Thininstaller With Args   ${0}     --other  -v
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
@@ -170,10 +172,11 @@ Thin Installer Fails When System Has Glibc Less Than Build Machine
     ${LowGlibcVersion} =  Set Variable  1.0
     ${buildGlibcVersion} =  Get Glibc Version From Thin Installer
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${LowGlibcVersion}
-    Run Thininstaller With Non Standard Path  21  ${PATH}  https://localhost:1233
-    Check Thininstaller Log Contains    ERROR: Can not install on unsupported system. Detected GLIBC version 1.0 < required ${buildGlibcVersion}
+    Run Thininstaller With Non Standard Path  ${21}  ${PATH}  https://localhost:1233
+    Check Thininstaller Log Contains    SPL installation will fail, can not install on unsupported system. Detected GLIBC version 1.0 < required ${buildGlibcVersion}
 
 Thin Installer Fails When No Path In Systemd File
+    [Setup]    Setup Thininstaller Test
     # Install to default location and break it
     Create Initial Installation
 
@@ -182,7 +185,7 @@ Thin Installer Fails When No Path In Systemd File
     Log File  ${serviceDir}/sophos-spl.service
 
     ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  ${serviceDir}/sophos-spl.service
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
     Log File  ${serviceDir}/sophos-spl.service
 
@@ -191,7 +194,7 @@ Thin Installer Fails When No Path In Systemd File
     Log File  ${serviceDir}/sophos-spl.service
 
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  20
+    Run Default Thininstaller  ${20}
 
     Check Thininstaller Log Contains  An existing installation of Sophos Protection for Linux was found but could not find the installed path.
     mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays
@@ -199,7 +202,7 @@ Thin Installer Fails When No Path In Systemd File
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Help Prints Correct Output
-    Run Default Thininstaller With Args  0  --help
+    Run Default Thininstaller With Args  ${0}  --help
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Contains   Usage: [options]
     Check Thininstaller Log Contains   --help [-h]\t\t\tDisplay this summary
@@ -211,44 +214,44 @@ Thin Installer Help Prints Correct Output
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Prints Correct Output And Other Arguments Are Ignored
-    Run Default Thininstaller With Args  0  --help  --other
+    Run Default Thininstaller With Args  ${0}  --help  --other
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Prints Correct Output And Preceding Arguments Are Ignored
-    Run Default Thininstaller With Args  0  --other  --help
+    Run Default Thininstaller With Args  ${0}  --other  --help
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Takes Precedent Over Version Option And Prints Correct Output
-    Run Default Thininstaller With Args  0  --version  --help
+    Run Default Thininstaller With Args  ${0}  --version  --help
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output
-    Run Default Thininstaller With Args  0  -h
+    Run Default Thininstaller With Args  ${0}  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output And Other Arguments Are Ignored
-    Run Default Thininstaller With Args  0  -h  --other
+    Run Default Thininstaller With Args  ${0}  -h  --other
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Prints Correct Output And Preceding Arguments Are Ignored
-    Run Default Thininstaller With Args  0  --other  -h
+    Run Default Thininstaller With Args  ${0}  --other  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Short Help Option Takes Precedent Over Version Option And Prints Correct Output
-    Run Default Thininstaller With Args  0  --version  -h
+    Run Default Thininstaller With Args  ${0}  --version  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Fails With Unexpected Argument
-    Run Default Thininstaller With Args  23  --ThisIsUnexpected
+    Run Default Thininstaller With Args  ${23}  --ThisIsUnexpected
     Check Thininstaller Log Contains  Error: Unexpected argument given: --ThisIsUnexpected --- aborting install. Please see '--help' output for list of valid arguments
     Remove Thininstaller Log
 
@@ -259,107 +262,106 @@ Thin Installer Fails With Invalid Group Names
     Run ThinInstaller With Bad Group Name And Check It Fails  te'st
     Run ThinInstaller With Bad Group Name And Check It Fails  te"st
 
-    Run Default Thininstaller With Args  24  --group=
+    Run Default Thininstaller With Args  ${24}  --group=
     Check Thininstaller Log Contains  Error: Group name not passed with '--group=' argument --- aborting install
     Remove Thininstaller Log
 
 Thin Installer Fails With Oversized Group Name
     ${max_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1024  shell=True
-    Run Default Thininstaller With Args  3  --group=${max_sized_group_name.stdout}
+    Run Default Thininstaller With Args  ${33}  --group=${max_sized_group_name.stdout}
 
     ${over_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1025  shell=True
-    Run Default Thininstaller With Args  25  --group=${over_sized_group_name.stdout}
+    Run Default Thininstaller With Args  ${25}  --group=${over_sized_group_name.stdout}
     Check Thininstaller Log Contains  Error: Group name exceeds max size of: 1024 --- aborting install
     Remove Thininstaller Log
 
 Thin Installer Fails With Duplicate Arguments
-    Run Default Thininstaller With Args  26  --duplicate  --duplicate
+    Run Default Thininstaller With Args  ${26}  --duplicate  --duplicate
     Check Thininstaller Log Contains  Error: Duplicate argument given: --duplicate --- aborting install
     Remove Thininstaller Log
 
-
 Thin Installer With Invalid Product Arguments Fails
-    Run Default Thininstaller With Args  27  --products=unsupported_product
+    Run Default Thininstaller With Args  ${27}  --products=unsupported_product
     Check Thininstaller Log Contains   Error: Invalid product selected: unsupported_product --- aborting install
 
 Thin Installer With Subset Of Product Args Args Fails
-    Run Default Thininstaller With Args  27  --products=ntivir
+    Run Default Thininstaller With Args  ${27}  --products=ntivir
     Check Thininstaller Log Contains   Error: Invalid product selected: ntivir --- aborting install
 
 Thin Installer With No Product Arguments Fails
-    Run Default Thininstaller With Args  27  --products=
+    Run Default Thininstaller With Args  ${27}  --products=
     Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
 
 Thin Installer With Only Commas As Product Arguments Fails
-    Run Default Thininstaller With Args  27  --products=,
+    Run Default Thininstaller With Args  ${27}  --products=,
     Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
 
 Thin Installer With Spaces In Product Args Fails
-    Run Default Thininstaller With Args  27  --products=mdr,\ ,antivirus
+    Run Default Thininstaller With Args  ${27}  --products=mdr,\ ,antivirus
     Check Thininstaller Log Contains   Error: Product cannot be whitespace
 
 Thin Installer With Duplicate Product Args Args Fails
-    Run Default Thininstaller With Args  27  --products=mdr,antivirus,mdr
+    Run Default Thininstaller With Args  ${27}  --products=mdr,antivirus,mdr
     Check Thininstaller Log Contains   Error: Duplicate product given: mdr --- aborting install
 
 Thin Installer With Trailing Comma In Product Args Fails
-    Run Default Thininstaller With Args  27  --products=antivirus,
+    Run Default Thininstaller With Args  ${27}  --products=antivirus,
     Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
 
 Thin Installer With Trailing Comma in Custom UID Arg Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,
     Check Thininstaller Log Contains  Error: Requested group/user ids to configure passed with trailing comma --- aborting install
 
 Thin Installer With Empty Custom UID Arg Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=
     Check Thininstaller Log Contains  Error: Requested group/user ids to configure not passed with argument --- aborting install
 
 Thin Installer With Invalid Custom UID Arg Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=localuser:100
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=localuser:100
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: localuser:100 --- aborting install
 
 Thin Installer With Custom UID Arg That Is Not An Integer Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-updatescheduler:uid
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=sophos-spl-updatescheduler:uid
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-updatescheduler:uid --- aborting install
 
 Thin Installer With Customer UID Arg That Does Not Match Expected Syntax Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-user=101
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=sophos-spl-user=101
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-user=101 --- aborting install
 
 Thin Installer With Duplicate Username In Custom UID Args Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-local:101
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-local:101
     Check Thininstaller Log Contains  Error: Duplicate user name given: sophos-spl-local:101 --- aborting install
 
 Thin Installer With Duplicate ID In Custom UID Args Fails
-    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:100
+    Run Default Thininstaller With Args  ${28}  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:100
     Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-updatescheduler:100 --- aborting install
 
 Thin Installer With Trailing Comma in Custom GID Arg Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:101,
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:101,
     Check Thininstaller Log Contains  Error: Requested group/user ids to configure passed with trailing comma --- aborting install
 
 Thin Installer With Empty Custom GID Arg Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=
     Check Thininstaller Log Contains  Error: Requested group/user ids to configure not passed with argument --- aborting install
 
 Thin Installer With Invalid Custom GID Arg Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=localgroup:100
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=localgroup:100
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: localgroup:100 --- aborting install
 
 Thin Installer With Custom GID Arg That Is Not An Integer Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:gid
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=sophos-spl-group:gid
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-group:gid --- aborting install
 
 Thin Installer With Customer GID Arg That Does Not Match Expected Syntax Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group=100
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=sophos-spl-group=100
     Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-group=100 --- aborting install
 
 Thin Installer With Duplicate Group Name In Custom UID Args Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-group:101
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-group:101
     Check Thininstaller Log Contains  Error: Duplicate user name given: sophos-spl-group:101 --- aborting install
 
 Thin Installer With Duplicate ID In Custom GID Args Fails
-    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:100
+    Run Default Thininstaller With Args  ${28}  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:100
     Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-ipc:100 --- aborting install
 
 Thin Installer With Invalid Message Relays Argument Fails

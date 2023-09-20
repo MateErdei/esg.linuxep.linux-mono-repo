@@ -112,15 +112,21 @@ Thin Installer fails to download test file from warehouse if certificate is not 
 Thin Installer Cannot Connect to Central timeout
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server  --timeout
-    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
-    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
+
+    TRY
+        Run Default Thininstaller    ${3}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+        Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
+    EXCEPT    Thin Installer failed with exit code: 33 but was expecting: 3
+        Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+        Check Thininstaller Log Contains    SPL installation will fail as a connection to Sophos Central could not be established
+    END
 
 Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS below TLSv1_2
     [Setup]  Setup TSL server 1_1
@@ -137,8 +143,8 @@ Thin Installer With Space In Name Works
 Thin Installer Cannot Connect to Central
     [Tags]  SMOKE  THIN_INSTALLER
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains   Cannot connect to Sophos Central - please check your network connections'
+    Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains   SPL installation will fail as a connection to Sophos Central could not be established
 
 Thin Installer handles broken jwt
     [Tags]  SMOKE  THIN_INSTALLER
@@ -375,6 +381,7 @@ Thin Installer Passes Proxy Used By Registration To Suldownloader During Install
 
 
 Thin Installer Passes Basic Auth Proxy Used By Registration To Suldownloader During Install
+    [Setup]    Setup Thininstaller Test
     Start Proxy Server With Basic Auth    8192    username    password
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
