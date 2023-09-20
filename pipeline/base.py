@@ -86,9 +86,8 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
         install_requirements(machine)
 
         if include_tag:
-            include = include_tag.split(",")
             machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                        '--include', *include,
+                        '--include', include_tag,
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
         else:

@@ -1,3 +1,4 @@
+import argparse
 import json
 import robot
 import sys
@@ -6,7 +7,18 @@ import os
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 def main():
-    tags = {'include': [], 'exclude': ["TESTFAILURE"]}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--include', nargs='+', help='keywords to include')
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    args = parser.parse_args()
+
+    tags = {'include': [], 'exclude': []}
+    if args.include is not None:
+        tags['include'] = args.include
+
+    if args.exclude is not None:
+        tags['exclude'] = args.exclude
+
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {

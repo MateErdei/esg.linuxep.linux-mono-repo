@@ -126,14 +126,36 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, robot_args: str):
+def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str):
+    default_exclude_tags = ["TESTFAILURE"]
+
+    machine_full_name = machine.template
+    print(f"test scripts: {machine.inputs.test_scripts}")
+    print(f"robot_args: {robot_args}")
+    print(f"include_tag: {include_tag}")
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
+
+        if include_tag:
+            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--include', *include_tag,
+                        '--exclude', *default_exclude_tags,
+                        timeout=ROBOT_TEST_TIMEOUT)
+        else:
+            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
+
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+
+        if include_tag:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html")
+        elif robot_args:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html")
+
 
 
 def pytest_task(machine: tap.Machine):
@@ -163,14 +185,57 @@ def run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
 
 
 def run_edr_tests(stage, context, edr_build, mode, parameters):
+    #exclude tags are in robot_task
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+
+    test_inputs = get_inputs(context, edr_build, mode)
+    test_machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('edr_test'):
-        test_inputs = get_inputs(context, edr_build, mode)
-        with stage.parallel('integration'):
-            for template_name, machine in get_test_machines(test_inputs, parameters):
-                stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
+        if robot_args:
+            with stage.parallel('integration'):
+                for template_name, machine in test_machines:
+                    print("machine", robot_args, template_name, machine)
+                    stage.task(task_name=template_name,
+                               func=robot_task,
+                               machine=machine,
+                               branch_name=context.branch,
+                               robot_args=robot_args,
+                               include_tag="")
 
-        with stage.parallel('component'):
-            for template_name, machine in get_test_machines(test_inputs, parameters):
-                stage.task(task_name=template_name, func=pytest_task, machine=machine)
+            with stage.parallel('component'):
+                for template_name, machine in test_machines:
+                    print("machine", robot_args, template_name, machine)
+                    stage.task(task_name=template_name,
+                               func=robot_task,
+                               machine=machine,
+                               branch_name=context.branch,
+                               robot_args=robot_args,
+                               include_tag="")
+        else:
+            includedtags = parameters.include_tags or default_include_tags
+
+            with stage.parallel('integration'):
+                for include in includedtags.split(","):
+                    with stage.parallel(include):
+                        for template_name, machine in test_machines:
+                            print("machine", include, template_name, machine)
+                            stage.task(task_name=template_name,
+                                       func=robot_task,
+                                       machine=machine,
+                                       branch_name=context.branch,
+                                       robot_args="",
+                                       include_tag=include)
+
+            with stage.parallel('component'):
+                for include in includedtags.split(","):
+                    with stage.parallel(include):
+                        for template_name, machine in test_machines:
+                            print("machine", include, template_name, machine)
+                            stage.task(task_name=template_name,
+                                       func=robot_task,
+                                       machine=machine,
+                                       branch_name=context.branch,
+                                       robot_args="",
+                                       include_tag=include)
