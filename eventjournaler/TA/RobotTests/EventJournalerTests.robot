@@ -7,7 +7,7 @@ Test Setup  Setup
 Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL4
 
 *** Test Cases ***
 

@@ -13,7 +13,7 @@ Suite Teardown  Uninstall Base
 Test Setup     Setup
 Test Teardown  Test Teardown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 Check Health Telemetry Is Written
