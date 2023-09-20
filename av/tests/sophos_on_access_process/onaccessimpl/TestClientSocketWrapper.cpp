@@ -33,6 +33,8 @@ namespace
     };
 
     const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
+    const struct timespec& hundredMicroseconds = { 0, 100000 }; // 0.1ms
+    const struct timespec& tenMicroseconds = { 0, 10000 }; // 0.01ms
 }
 
 TEST_F(TestOnAccessClientSocketWrapper, Construction)
@@ -155,7 +157,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
+    ClientSocketWrapper csw {socket, notifyPipe, hundredMicroseconds};
 
     {
         InSequence seq;
@@ -175,7 +177,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 
-TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButNoResponseReceived)
+TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButNoResponseReceived)
 {
     auto request = emptyRequest();
     request->setPath("/foo/bar");
@@ -184,7 +186,7 @@ TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButNoRespo
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).WillOnce(Return(0));
-    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
+    ClientSocketWrapper csw {socket, notifyPipe, hundredMicroseconds};
 
     {
         InSequence seq;
@@ -192,7 +194,7 @@ TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButNoRespo
         for (int i = 0; i < MAX_SCAN_RETRIES; i++)
         {
             EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
-            EXPECT_CALL(socket, socketFd()).WillOnce(Return(EBADF));
+            EXPECT_CALL(socket, socketFd()).Times(1);
             EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
             EXPECT_CALL(socket, connect).WillOnce(Return(0));
         }
@@ -204,7 +206,7 @@ TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButNoRespo
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 
-TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButErrorThrownWhenReceivingResponse)
+TEST_F(TestOnAccessClientSocketWrapper, SendRequestSuccessfulButErrorThrownWhenReceivingResponse)
 {
     auto request = emptyRequest();
     request->setPath("/foo/bar");
@@ -213,11 +215,11 @@ TEST_F(TestOnAccessClientSocketWrapper, DISABLED_SendRequestSuccessfulButErrorTh
     Common::Threads::NotifyPipe notifyPipe{};
 
     EXPECT_CALL(socket, connect).WillOnce(Return(0));
-    ClientSocketWrapper csw{ socket, notifyPipe, oneMillisecond };
+    ClientSocketWrapper csw{ socket, notifyPipe, hundredMicroseconds };
 
     EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(true));
     EXPECT_CALL(socket, receiveResponse(_)).WillOnce(Return(false));
-    EXPECT_CALL(socket, socketFd()).WillOnce(Return(EBADF));
+    EXPECT_CALL(socket, socketFd()).Times(1);
 
     try
     {
@@ -244,7 +246,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanReconnectLimit)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
+    ClientSocketWrapper csw {socket, notifyPipe, tenMicroseconds};
 
     {
         InSequence seq;
