@@ -73,26 +73,28 @@ namespace Common::ProcessImpl
     struct sophos_exe : boost::process::extend::handler
     {
     private:
+        std::string username_;
         uid_t m_uid;
         gid_t m_gid;
         std::vector<int> m_fds{};
 
     public:
-        sophos_exe(uid_t uid, gid_t gid, std::vector<int> fds) : m_uid(uid), m_gid(gid), m_fds(fds) {}
+        sophos_exe(uid_t uid, gid_t gid, std::vector<int> fds) : m_uid(uid), m_gid(gid), m_fds(std::move(fds))
+        {
+            username_ = Common::FileSystem::filePermissions()->getUserName(m_uid);
+        }
 
         template<typename Sequence>
         void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
         {
             // Must set groups first whilst still root
-            std::string userName = Common::FileSystem::filePermissions()->getUserName(m_uid);
-
-            if (::getuid() == 0) // if running as root.
+            if (::getuid() == 0 && m_uid != 0) // if running as root.
             {
-                if (::initgroups(userName.c_str(), m_gid) != 0)
+                if (::initgroups(username_.c_str(), m_gid) != 0)
                 {
                     exec.set_error(
                         boost::process::detail::get_last_error(),
-                        "initgroups failed for: " + userName + " with errno " + std::to_string(errno));
+                        "initgroups failed for: " + username_ + " with errno " + std::to_string(errno));
                     return;
                 }
             }
