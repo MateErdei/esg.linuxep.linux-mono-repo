@@ -1,11 +1,7 @@
 # CLion
 /.idea/
-/.clwb/.idea/blazeInfo.xml
-/.clwb/.idea/runConfigurations.xml
-/.clwb/.idea/git_toolbox_prj.xml
+/.clwb/
 *.iml
-# Bazel projects can't be opened without these
-!/.clwb/.blaze/modules/*.iml
 
 # Auto-generated
 /pipeline/__pycache__/
