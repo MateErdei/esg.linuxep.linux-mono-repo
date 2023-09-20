@@ -15,7 +15,7 @@ Test Teardown  Test Teardown
 
 Suite Teardown  Uninstall All
 
-Force Tags    TAP_TESTS
+Force Tags    TAP_PARALLEL5
 
 *** Variables ***
 ${BACKUP_SUFFIX}  .back

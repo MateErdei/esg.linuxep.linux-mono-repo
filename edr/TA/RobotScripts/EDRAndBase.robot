@@ -16,7 +16,7 @@ Suite Teardown  Uninstall And Revert Setup
 Test Setup      No Operation
 Test Teardown   EDR And Base Teardown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL2
 
 *** Test Cases ***
 LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter

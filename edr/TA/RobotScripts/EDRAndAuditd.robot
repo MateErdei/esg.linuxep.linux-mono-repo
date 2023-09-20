@@ -14,7 +14,7 @@ Suite Teardown   Suite Teardown For EDR and Auditd
 Test Setup      No Operation
 Test Teardown   Test Teardown For EDR And Auditd
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL4
 
 *** Test Cases ***
 EDR By Default Will Configure Audit Option

@@ -14,7 +14,7 @@ Test Teardown   Run Keywords
 ...             EDR And Base Teardown  AND
 ...             Uninstall EDR
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL6
 
 *** Test Cases ***
 EDR plugins handles invalid value for events max in plugin conf
