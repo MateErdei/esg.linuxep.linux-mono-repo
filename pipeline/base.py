@@ -72,42 +72,41 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tags: str, machine_name: str):
+def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
 
     default_include_tags = ["TAP_TESTS"]
     default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ"]
     default_robot_args = " ".join(["BAZEL=1", f"PLATFORM={machine_name.upper()}"])
 
     machine_full_name = machine.template
-    print(f"machine_full_name: {machine_full_name}")
-    print(f"machine_name: {machine_name}")
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
-    print(f"include_tags: {include_tags}")
+    print(f"include_tag: {include_tag}")
     try:
         install_requirements(machine)
 
-        if include_tags:
-            include = include_tags.split(",")
+        if include_tag:
+            include = include_tag.split(",")
             machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', *include,
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
-        elif robot_args:
+        else:
             final_robot_args = " ".join([robot_args, default_robot_args])
             machine.run(*final_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
-        else:
-            machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                        '--include', *default_include_tags,
-                        '--exclude', *default_exclude_tags,
-                        timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
-                    branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "-log.html")
+
+        if include_tag:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html")
+        elif robot_args:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html")
+
 
 
 def install_requirements(machine: tap.Machine):
@@ -226,6 +225,9 @@ def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameter
 
 
 def run_base_tests(stage, context, base_build, mode, parameters):
+    #exclude tags are in robot_task
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+
     base_test_inputs = get_base_test_inputs(context, base_build, mode)
     base_test_machines = get_test_machines(base_test_inputs, parameters)
     robot_args = get_robot_args(parameters)
@@ -233,20 +235,25 @@ def run_base_tests(stage, context, base_build, mode, parameters):
     with stage.parallel('base_integration'):
         if robot_args:
             for template_name, machine in base_test_machines:
+                print("machine", robot_args, template_name, machine)
                 stage.task(task_name=template_name,
                            func=robot_task,
                            machine=machine,
                            branch_name=context.branch,
                            robot_args=robot_args,
-                           include_tags="",
+                           include_tag="",
                            machine_name=template_name)
         else:
-            include_tags = parameters.include_tags or ""
-            for template_name, machine in base_test_machines:
-                stage.task(task_name=template_name,
-                           func=robot_task,
-                           machine=machine,
-                           branch_name=context.branch,
-                           robot_args="",
-                           include_tags=include_tags,
-                           machine_name=template_name)
+            includedtags = parameters.include_tags or default_include_tags
+
+            for include in includedtags.split(","):
+                with stage.parallel(include):
+                    for template_name, machine in base_test_machines:
+                        print("machine", include, template_name, machine)
+                        stage.task(task_name=template_name,
+                                   func=robot_task,
+                                   machine=machine,
+                                   branch_name=context.branch,
+                                   robot_args="",
+                                   include_tag=include,
+                                   machine_name=template_name)
