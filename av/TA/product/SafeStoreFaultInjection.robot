@@ -215,8 +215,6 @@ Send very long SHA To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Evaluate  "a" * 50000
     ${mark} =  get_safestore_log_mark
-
-    #wait_for_safestore_log_contains_after_mark  SafeStore started    mark=${mark}
     ${result} =  Send TDO To socket  sha=${long_string}
     wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${mark}
 
