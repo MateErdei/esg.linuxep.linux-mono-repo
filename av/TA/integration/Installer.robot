@@ -312,7 +312,7 @@ Update before Init then Restart Threat Detector
     # check the state of our scan (it *should* work, eventually)
     Process Should Be Running   ${cls_handle}
     ${cls_mark} =  Mark Log Size   ${LOG_FILE}
-    Wait For Log Contains From Mark  ${cls_mark}  Scanning
+    Wait For Log Contains From Mark  ${cls_mark}  Scanning  timeout=30
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
