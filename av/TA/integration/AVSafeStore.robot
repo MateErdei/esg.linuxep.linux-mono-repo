@@ -56,7 +56,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
 
     ${filesInSafeStoreDb1} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb1.stdout}
@@ -99,7 +99,6 @@ SafeStore Recovers From Corrupt Database
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
@@ -125,7 +124,6 @@ SafeStore Recovers From Corrupt Database With Lock Dir
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
 
     # Internal error due to the lock dir being put into place
@@ -153,7 +151,6 @@ SafeStore Recovers From Database With Erroneous Lock Dir
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
 
     # Internal error due to the lock dir being put into place
@@ -173,7 +170,8 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
+
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
@@ -235,7 +233,7 @@ SafeStore Quarantines Archive
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
 
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/test.tar successfully
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
@@ -314,7 +312,7 @@ SafeStore does not quarantine on a Corrupt Database
     # Rescan the file without creating it again
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
-    Wait For Log Contains From Mark  ${safestore_mark}  Finalising file
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
     File Should Not Exist  ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
@@ -537,7 +535,7 @@ SafeStore Does Not Restore Quarantined Files When Uninstalled
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
     wait_for_log_contains_from_mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
@@ -1377,7 +1375,7 @@ SafeStore Restores Archive Containing Password Protected File
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
 
-    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/test.tar successfully
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
