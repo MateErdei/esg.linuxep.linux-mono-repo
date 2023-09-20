@@ -18,7 +18,7 @@ Suite Teardown  VQA Suite TearDown
 Test Setup      VQA Test Setup
 Test Teardown   VQA Test TearDown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL2
 
 *** Test Cases ***
 

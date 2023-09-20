@@ -20,7 +20,7 @@ Suite Teardown  AVSophosThreatDetector Suite TearDown
 Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${CLEAN_STRING}     not an eicar

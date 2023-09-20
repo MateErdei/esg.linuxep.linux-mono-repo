@@ -15,7 +15,7 @@ Suite Teardown  Uninstall All
 Test Setup      AV Health Test Setup
 Test Teardown   AV Health Test Teardown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL1
 
 *** Variables ***
 &{SERVICE_HEALTH_STATUSES}

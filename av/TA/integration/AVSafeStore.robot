@@ -24,7 +24,7 @@ Library         Collections
 Test Setup      SafeStore Test Setup
 Test Teardown   SafeStore Test TearDown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${CLEAN_STRING}                      not an eicar

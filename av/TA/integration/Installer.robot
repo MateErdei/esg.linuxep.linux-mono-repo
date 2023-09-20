@@ -28,7 +28,7 @@ Suite Teardown  Installer Suite TearDown
 Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL2
 
 *** Variables ***
 

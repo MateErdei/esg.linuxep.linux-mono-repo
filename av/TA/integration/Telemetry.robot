@@ -24,7 +24,7 @@ Suite Teardown  Telemetry Suite Teardown
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL2
 
 *** Keywords ***
 Telemetry Suite Setup

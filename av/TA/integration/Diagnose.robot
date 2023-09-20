@@ -21,7 +21,7 @@ Suite Teardown   Uninstall All
 Test Setup      Diagnose Test Setup
 Test Teardown   Diagnose Test TearDown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL2
 
 *** Keywords ***
 

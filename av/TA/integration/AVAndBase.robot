@@ -25,7 +25,7 @@ Suite Teardown  AVAndBase Suite Teardown
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
-Default Tags    TAP_TESTS
+Default Tags    TAP_PARALLEL4
 
 *** Keywords ***
 AVAndBase Suite Setup
