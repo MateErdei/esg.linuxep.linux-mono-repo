@@ -11,7 +11,7 @@ Suite Teardown  Require Uninstalled
 Test Setup  RA Telemetry Test Setup
 Test Teardown  RA Telemetry Test Teardown
 
-Force Tags  LOAD7  RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+Force Tags  LOAD7  RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL4
 
 *** Variables ***
 #Telemetry Fields
@@ -43,6 +43,7 @@ RA Plugin Reports Telemetry Correctly
 
 #Run Command Action
 Telemetry Reported For Run Command Action Expired
+    [Tags]    TAP_PARALLEL1
     ${id} =  Set Variable  id1
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -61,11 +62,12 @@ Telemetry Reported For Run Command Action Expired
 
 
 Telemetry Reported For Run Command Action Timeout Exceeded
+    [Tags]    TAP_PARALLEL2
     ${id} =  Set Variable  id2
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -79,11 +81,12 @@ Telemetry Reported For Run Command Action Timeout Exceeded
 
 
 Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
+    [Tags]    TAP_PARALLEL3
     ${id} =  Set Variable  id3
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_failure.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
@@ -97,11 +100,12 @@ Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
 
 #Upload File Action
 Telemetry Reported For Upload File Action Expired
+    [Tags]    TAP_PARALLEL4
     ${id} =  Set Variable  id4
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_expired.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -115,11 +119,12 @@ Telemetry Reported For Upload File Action Expired
 
 
 Telemetry Reported For Upload File Action Timeout Exceeded
+    [Tags]    TAP_PARALLEL5
     ${id} =  Set Variable  id5
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_timeout.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -133,11 +138,12 @@ Telemetry Reported For Upload File Action Timeout Exceeded
 
 
 Telemetry Reported For Upload File Action Failure Not Timeout Or Expiry
+    [Tags]    TAP_PARALLEL6
     ${id} =  Set Variable  id6
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action   ${SUPPORT_FILES}/CentralXml/UploadFileAction_failure.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
@@ -158,7 +164,7 @@ Telemetry Reported For Upload Folder Action Expired
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action   ${SUPPORT_FILES}/CentralXml/UploadFolderAction_expired.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -180,7 +186,7 @@ Telemetry Reported For Upload Folder Action Timeout Exceeded
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_timeout.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -198,7 +204,7 @@ Telemetry Reported For Upload Folder Action Failure Not Timeout Or Expiry
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_failure.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
@@ -216,7 +222,7 @@ Telemetry Reported For Download File Action Expired
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_expired.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -234,7 +240,7 @@ Telemetry Reported For Download File Action Timeout Exceeded
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_timeout.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
@@ -252,7 +258,7 @@ Telemetry Reported For Download File Action Failure Not Timeout Or Expiry
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_failure.json    ${id}
-    Wait Until Created    ${RESPONSE_JSON}
+    Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 

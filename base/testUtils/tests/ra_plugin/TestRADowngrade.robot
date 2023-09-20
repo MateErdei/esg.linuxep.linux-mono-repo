@@ -10,7 +10,7 @@ Suite Teardown  Require Uninstalled
 Test Setup    Install Response Actions Directly
 
 Force Tags  LOAD7
-Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL5
 
 *** Test Cases ***
 

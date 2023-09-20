@@ -20,7 +20,7 @@ Force Tags  LOAD2
 
 *** Test Case ***
 Command Poll Sent
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
+    [Tags]  SMOKE  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

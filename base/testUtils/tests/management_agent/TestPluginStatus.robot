@@ -14,7 +14,7 @@ Resource    ManagementAgentResources.robot
 Default Tags    MANAGEMENT_AGENT
 *** Test Cases ***
 Verify Management Agent Can Receive Plugin Status
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_PARALLEL6
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 

@@ -106,7 +106,7 @@ Run Telemetry And Expect Field Missing
 
 *** Test Cases ***
 Telemetry Executable Generates System Base and Watchdog Telemetry
-    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
+    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
     [Documentation]    Telemetry Executable Generates Telemetry
 
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
@@ -488,7 +488,7 @@ Test Outbreak Mode Telemetry
 
 
 Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
-    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
+    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
     [Documentation]    Telemetry Executable Generates Telemetry
 
     Cleanup Telemetry Server
@@ -520,7 +520,7 @@ Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
 
 
 Telemetry Executable Moves ESM to Top Level When ESM Enabled
-    [Tags]  SMOKE  TELEMETRY  TAP_TESTS
+    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
 
     ${esmname} =  Set Variable   LTS 2023.1.1
     ${esmtoken} =    Set Variable    f4d41a16-b751-4195-a7b2-1f109d49469d

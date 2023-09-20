@@ -23,7 +23,7 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog  AND
 ...              Restore Version Ini
 
-Force Tags    MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER    TAP_TESTS
+Force Tags    MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER    TAP_PARALLEL3
 *** Variables ***
 ${metadataFilePath}   ${SOPHOS_INSTALL}/base/etc/sophosspl/instance-metadata.json
 *** Test Case ***

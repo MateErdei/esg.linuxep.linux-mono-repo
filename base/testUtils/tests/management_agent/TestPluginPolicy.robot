@@ -12,7 +12,7 @@ Resource    ManagementAgentResources.robot
 Test Teardown   MA Fake Plugin Teardown
 *** Test Cases ***
 Verify Management Agent Sets Plugin Policy When Moved Into Policy Folder
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_TESTS
+    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
     # Test will invoke applyNewPolicy when file is moved into place
 
     # make sure no previous policy xml file exists.
@@ -101,7 +101,7 @@ Verify Management Agent Send Plugin Policy When Requested By Plugin
 
 
 Verify Management Agent Sets Plugin Policy When Moved Into Internal Policy Folder
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_TESTS
+    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
     # Test will invoke applyNewPolicy when file is moved into place
 
     # make sure no previous policy xml file exists.

@@ -15,7 +15,7 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog   AND
 ...              Override LogConf File as Global Level  INFO
 
-Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
+Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER  TAP_PARALLEL1
 Force Tags  LOAD3
 
 *** Test Case ***

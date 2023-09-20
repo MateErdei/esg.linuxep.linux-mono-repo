@@ -13,7 +13,8 @@ ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/res
 ${ACTIONS_RUNNER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
 ${TESTDIR}     /home/vagrant/testdir
 
-${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
+${RESPONSE_JSON_PATH}        ${MCS_DIR}/response/
+${RESPONSE_JSON}        ${RESPONSE_JSON_PATH}CORE_id1_response.json
 
 *** Keywords ***
 Install Response Actions Directly

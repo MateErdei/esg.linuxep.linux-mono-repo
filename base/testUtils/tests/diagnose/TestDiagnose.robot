@@ -25,7 +25,7 @@ Force Tags  DIAGNOSE
 *** Test Cases ***
 
 Diagnose Tool Gathers Logs When Run From Installation
-    [Tags]  TAP_TESTS    SMOKE
+    [Tags]  TAP_PARALLEL4    SMOKE
     Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
     create file    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/installed_features.json
@@ -169,7 +169,7 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers Response actions Logs When Run From Installation
-    [Tags]  RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+    [Tags]  RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL4
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
@@ -202,27 +202,27 @@ Diagnose Tool Gathers Response actions Logs When Run From Installation
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Help Text
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  --help
     Should Be Equal   ${result.stderr}   Expected Usage: ./sophos_diagnose <path_to_output_directory>
     Should Be Equal As Integers   ${result.rc}  0
 
 Diagnose Tool Bad Input Fails
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  asdasdasdasdasd
     Should Be Equal As Integers    ${result.rc}  3
     Should Contain   ${result.stderr}   Cause: No such file or directory
     Should Not Exist  ${UNPACK_DIRECTORY}
 
 Diagnose Tool More Than Expected Input Fails
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  asdasdasdasdasd    dddddd
     Should Be Equal As Integers    ${result.rc}  1
     Should Be Equal   ${result.stderr}    	Expecting only one parameter got 2
     Should Not Exist  ${UNPACK_DIRECTORY}
 
 Diagnose Tool No Input Creates Output Locally
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  0
@@ -230,7 +230,7 @@ Diagnose Tool No Input Creates Output Locally
     Remove File  sspl-diagnose_*.tar.gz
 
 Diagnose Tool Run Twice Creates Two Tar Files
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Create Directory  ${TAR_FILE_DIRECTORY}
 
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
@@ -257,7 +257,7 @@ Diagnose Tool Run Twice Creates Two Tar Files
 
 
 Diagnose Tool Deletes Temp Directory if tar fails
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Create Directory  ${TAR_FILE_DIRECTORY}
     Create Directory  ${TAR_FILE_DIRECTORY}/bin
     Create Symlink  /bin/false  ${TAR_FILE_DIRECTORY}/bin/tar
@@ -275,7 +275,7 @@ Diagnose Tool Deletes Temp Directory if tar fails
 
 
 Diagnose Tool Sets Correct Directory Permissions
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Create Directory  ${TAR_FILE_DIRECTORY}
     Run Process  chmod  700  ${TAR_FILE_DIRECTORY}
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
@@ -288,7 +288,7 @@ Diagnose Tool Sets Correct Directory Permissions
     Should Contain  ${result}   Correct Permissions
 
 Diagnose Tool Does Not Gather JournalCtl Data Older Than 10 Days
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Create Directory  ${TAR_FILE_DIRECTORY}
     Run Process  chmod  700  ${TAR_FILE_DIRECTORY}
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
@@ -307,7 +307,7 @@ Diagnose Tool Does Not Gather JournalCtl Data Older Than 10 Days
     Check Journalclt Files Do Not Have Old Entries   ${UNPACK_DIRECTORY}/${folder}/SystemFiles    days=11
 
 Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught Exception
-    [Tags]  SMOKE  TAP_TESTS
+    [Tags]  SMOKE  TAP_PARALLEL3
     # Create 6M Log File
     Create Log File Of Specific Size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  6291456
 
@@ -327,7 +327,7 @@ Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught 
     Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
 
 Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exception
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Run Process   touch   /tmp/5mbarea
     Run Process   truncate   -s   5M   /tmp/5mbarea
     Run Process   mke2fs   -t   ext4   -F   /tmp/5mbarea
@@ -343,7 +343,7 @@ Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exce
 
 
 Diagnose Tool Overwrite Handles Files Of Same Name In Different Directories
-    [Tags]    TAP_TESTS
+    [Tags]    TAP_PARALLEL3
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Mimic Base Component Files  ${SOPHOS_INSTALL}

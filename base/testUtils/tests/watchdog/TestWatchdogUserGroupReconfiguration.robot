@@ -20,7 +20,7 @@ Suite Setup    Suite Setup
 Test Setup       Watchdog User Group Test Setup
 Test Teardown       Watchdog User Group Test Teardown
 
-Default Tags    TAP_TESTS  EXCLUDE_ON_COVERAGE
+Default Tags    TAP_PARALLEL2  EXCLUDE_ON_COVERAGE
 
 *** Test Cases ***
 Watchdog Actual User And Group Config Has Correct Ids After Installation

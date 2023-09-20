@@ -11,7 +11,7 @@ Suite Setup    Require Fresh Install
 Suite Teardown    Require Uninstalled
 Test Teardown  Upgrade Test Teardown
 
-Default Tags  INSTALLER  TAP_TESTS RA_PLUGIN
+Default Tags  INSTALLER  TAP_PARALLEL2  RA_PLUGIN
 *** Test Cases ***
 Test TestCheckAndRunUpgrade with huge version.ini
     Require Fresh Install

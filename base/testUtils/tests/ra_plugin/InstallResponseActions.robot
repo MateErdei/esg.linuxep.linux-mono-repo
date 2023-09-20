@@ -10,7 +10,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  Ra Teardown
 
-Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL5
 
 
 *** Test Cases ***

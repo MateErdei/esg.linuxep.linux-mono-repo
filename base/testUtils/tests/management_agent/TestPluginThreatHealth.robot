@@ -10,7 +10,7 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Resource    ManagementAgentResources.robot
 
-Default Tags    MANAGEMENT_AGENT  TAP_TESTS
+Default Tags    MANAGEMENT_AGENT  TAP_PARALLEL6
 
 *** Test Cases ***
 Management Agent Can Receive Plugin Threat Health And It Updates

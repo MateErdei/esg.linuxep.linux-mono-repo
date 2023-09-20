@@ -8,7 +8,7 @@ Resource  ../GeneralTeardownResource.robot
 Suite Setup      Local Suite Setup
 Suite Teardown   Local Suite Teardown
 
-Default Tags  TAP_TESTS
+Default Tags  TAP_PARALLEL2
 
 *** Keywords ***
 Local Suite Setup

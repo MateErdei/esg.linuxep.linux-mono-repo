@@ -14,7 +14,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../thin_installer/ThinInstallerResources.robot
-Force Tags  INSTALLER  TAP_TESTS
+Force Tags  INSTALLER  TAP_PARALLEL2
 
 *** Test Cases ***
 
@@ -47,7 +47,7 @@ Verify that the full installer works correctly
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
     # TODO LINUXDAR-7870: Remove coverage exclusion
-    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS  BREAKS_DEBUG  EXCLUDE_ON_COVERAGE
+    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_PARALLEL2  BREAKS_DEBUG  EXCLUDE_ON_COVERAGE
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
     Check Expected Base Processes Are Running

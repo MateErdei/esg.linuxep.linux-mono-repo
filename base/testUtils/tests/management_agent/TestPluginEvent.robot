@@ -70,7 +70,7 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
     ...  Management Agent Log Contains Error N Times  ${errorMessage}  2
 
 Verify Management Agent Goes Into Outbreak Mode And Out After Clear Action
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_PARALLEL5
     # make sure no previous event xml file exists.
     Remove Event Xml Files
 

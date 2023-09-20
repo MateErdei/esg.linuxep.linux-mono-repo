@@ -176,7 +176,7 @@ Malformed MCS Policy Missing RevID is Rejected By The Endpoint
         ...  Check MCSRouter Log Contains   MCS policy did not contain revID
 
 MCS policy without Pushserver Updates MCS Policy Config Correctly
-    [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
+    [Tags]  FAKE_CLOUD  MCS  MCS_ROUTER  TAP_PARALLEL1
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 

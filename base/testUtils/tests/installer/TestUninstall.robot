@@ -98,7 +98,7 @@ Test Edr Plugin downgrades properly with plugin conf
 
 
 Test Uninstall Script Gives Return Code Zero
-    [Tags]  UNINSTALL  TAP_TESTS  SMOKE
+    [Tags]  UNINSTALL  TAP_PARALLEL5  SMOKE
     Require Fresh Install
     Check Expected Base Processes Are Running
 

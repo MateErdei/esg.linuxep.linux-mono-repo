@@ -1,5 +1,5 @@
 *** Settings ***
-Default Tags  INSTALLER    TAP_TESTS    CUSTOM_INSTALL_PATH
+Default Tags  INSTALLER    TAP_PARALLEL5    CUSTOM_INSTALL_PATH
 
 Library    Collections
 Library    OperatingSystem
@@ -31,7 +31,7 @@ Verify Installation to Custom Location Sets Environment Correctly
     Should Contain    ${contents}    Environment="SOPHOS_INSTALL=${CUSTOM_INSTALL_DIRECTORY}"
 
 Verify that the full installer works correctly in a custom location
-    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS  BREAKS_DEBUG
+    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_PARALLEL5  BREAKS_DEBUG
     Require Fresh Install to Custom Location
     Check Expected Base Processes Are Running in Custom Location
 
