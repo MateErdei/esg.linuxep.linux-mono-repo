@@ -71,6 +71,7 @@ EXITCODE_NO_SYSTEMD=29
 EXITCODE_MISSING_PACKAGE=30
 EXITCODE_INVALID_CA_PATHS=31
 EXITCODE_INVALID_MR_UC_GIVEN=32
+EXITCODE_COMPATIBILITY_CHECKS_FAILED=33
 EXITCODE_REGISTRATION_FAILED=51
 EXITCODE_AUTHENTICATION_FAILED=52
 EXITCODE_ALC_POLICY_TRANSLATION_FAILED=53
@@ -287,7 +288,7 @@ function validate_MR_and_UC_addresses() {
     [[ -n "${ADDRESS_ARRAY}" && "${ADDRESS_ARRAY}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s not passed with '--${server_type/ /_}s=' argument --- aborting install"
     for address in "${ADDRESS_ARRAY[@]}"; do
         [[ -n "${address}" && "${address}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type} cannot be whitespace"
-        [[ "${address}" =~ ^[\x00-\x7f]*:[0-9]+$ ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: Requested ${server_type} address not valid: ${address} --- aborting install"
+        [[ "${address}" =~ ^[a-zA-Z0-9._-]+:[0-9]+$ ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: Requested ${server_type} address not valid: ${address} --- aborting install"
         [[ "${valid_addresses[*]}" =~ (^| )"${address}"($| ) ]] && failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: Duplicate ${server_type} given: ${address} --- aborting install."
         valid_addresses+=("${address}")
     done
@@ -341,6 +342,14 @@ function pre_install_checks() {
 
     # Verify network connections made during installation to Central, SUS and CDN servers
     verify_network_connections "${MESSAGE_RELAYS[*]}" "${UPDATE_CACHES[*]}"
+
+    if [[ -n "${COMPATIBILITY_ERROR_FOUND}" ]]; then
+        failure ${EXITCODE_COMPATIBILITY_CHECKS_FAILED} "SPL cannot be installed on this system, the pre-installation checks found some critical issues. Please review the logs and address the issues before attempting to reinstall"
+    elif [[ -n "${COMPATIBILITY_WARNING_FOUND}" ]]; then
+        echo "SPL can be installed on this system, however, the pre-installation checks found some non-critical issues. Please review and address these"
+    else
+        echo "SPL can be installed on this system based on the pre-installation checks"
+    fi
     echo
 }
 
@@ -420,6 +429,7 @@ done
 
 pre_install_checks
 verify_install_directory
+echo "Installing to ${SOPHOS_INSTALL}"
 
 # Check if SAV is installed.
 ## We check everything on $PATH, and always /usr/local/bin and /usr/bin
@@ -434,22 +444,16 @@ check_SAV_installed '/usr/bin/sweep'
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
 
-# If TMPDIR has not been set then default it to /tmp
-if [ -z "$TMPDIR" ]; then
-    TMPDIR=/tmp
-    export TMPDIR
-fi
-
 # Create Sophos temp directory (unless overridden with an existing dir)
-if [ -z "$SOPHOS_TEMP_DIRECTORY" ]; then
+if [ -z "${SOPHOS_TEMP_DIRECTORY}" ]; then
     SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp folder in /tmp"
 fi
 
-mkdir -p "$SOPHOS_TEMP_DIRECTORY"
+mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
 
 # Check that the tmp directory we're using allows execution
-echo "exit 0" >"$SOPHOS_TEMP_DIRECTORY/exectest" && chmod +x "$SOPHOS_TEMP_DIRECTORY/exectest"
-$SOPHOS_TEMP_DIRECTORY/exectest || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within $TMPDIR directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
+$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
 # Get line numbers for the each of the sections
 MIDDLEBIT=$(awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}")
