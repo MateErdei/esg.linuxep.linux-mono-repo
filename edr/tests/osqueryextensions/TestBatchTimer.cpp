@@ -126,7 +126,6 @@ TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfDestroyed)
 
     for (auto i=1; i<50; ++i)
     {
-        PRINT("Loop with i=" << i);
         auto delay = 3 * i;
 
         m_timer->Configure([this]{ timerCallback(); }, std::chrono::milliseconds(delay));
@@ -141,6 +140,7 @@ TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfDestroyed)
         }
         m_timer = std::make_unique<BatchTimer>();
         resetCallbackTime();
+        PRINT("Failed with i=" << i);
     }
     EXPECT_EQ(0, m_callbackTime.time_since_epoch().count());
 }

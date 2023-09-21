@@ -2,6 +2,10 @@
 
 #include "BatchTimer.h"
 
+#include "Logger.h"
+
+#include <future>
+
 BatchTimer::BatchTimer()
     : m_cancelled(false)
 {
@@ -45,20 +49,28 @@ void BatchTimer::Configure(std::function<void()> callback, std::chrono::millisec
 
 void BatchTimer::run()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    if (!m_cv.wait_for(lock, m_maxBatchTime, [this]{ return m_cancelled; }))
+    try
     {
-        if (m_callback)
+        std::unique_lock<std::mutex> lock(m_mutex);
+        if (!m_cv.wait_for(lock, m_maxBatchTime, [this] { return m_cancelled; }))
         {
-            try
+            if (m_callback)
             {
-                m_callback();
-            }
-            catch (const std::exception& ex)
-            {
-                m_callbackError = ex.what();
+                try
+                {
+                    m_callback();
+                }
+                catch (const std::exception& ex)
+                {
+                    m_callbackError = ex.what();
+                }
             }
         }
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("BatchTimer threw exception: " << ex.what());
+        throw;
     }
 }
 
