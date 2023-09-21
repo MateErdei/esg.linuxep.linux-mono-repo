@@ -137,8 +137,8 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
         install_requirements(machine)
 
         if include_tag:
-            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                        '--include', *include_tag,
+            machine.run(*robot_args.split(), 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--include', include_tag,
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
         else:
@@ -148,13 +148,6 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
-
-        if include_tag:
-            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html")
-        elif robot_args:
-            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html")
 
 
 
