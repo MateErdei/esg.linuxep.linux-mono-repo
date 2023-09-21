@@ -18,7 +18,7 @@ Test Setup      Run Keywords
 
 Test Teardown   EDR And Base Teardown
 
-Default Tags    TAP_PARALLEL2
+Default Tags    TAP_PARALLEL4
 
 *** Test Cases ***
 Edr Plugin reports health correctly

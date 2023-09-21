@@ -9,7 +9,7 @@ Library    ../Libs/InstallerUtils.py
 
 Resource    EDRResources.robot
 
-Default Tags    TAP_PARALLEL6
+Default Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 EDR Installer Directories And Files
