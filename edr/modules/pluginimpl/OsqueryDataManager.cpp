@@ -269,48 +269,57 @@ void OsqueryDataManager::dataCheckThreadMonitorFunc(
     std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState,
     OsqueryDataManager::timepoint_t timeNow)
 {
-    osqueryDataRetentionCheckState->running = true;
-    Common::UtilityImpl::FormattedTime formattedTime;
-    unsigned long currentepochTime = 0;
     try
     {
-        currentepochTime = std::stoll(formattedTime.currentEpochTimeInSeconds());
-    }
-    catch (const std::invalid_argument& ex)
-    {
-        LOGDEBUG("Failed to convert current epoch time, invalid argument error: " << ex.what());
-    }
-    catch (const std::out_of_range& ex)
-    {
-        LOGDEBUG("Failed to convert current epoch time, out of range error: " << ex.what());
-    }
-
-    while(osqueryDataRetentionCheckState->numberOfRetries > 0 && osqueryDataRetentionCheckState->enabled)
-    {
-        LOGDEBUG("Number of reconfigure Data Retention tries left: " << osqueryDataRetentionCheckState->numberOfRetries);
-        OsqueryDataManager osqueryDataManager;
+        osqueryDataRetentionCheckState->running = true;
+        Common::UtilityImpl::FormattedTime formattedTime;
+        unsigned long currentepochTime = 0;
         try
         {
-            LOGDEBUG("Running Reconfigure osquery data retention times");
-            osqueryDataManager.reconfigureDataRetentionParameters(
-                currentepochTime, osqueryDataManager.getOldestAllowedTimeForCurrentEventedData());
-            osqueryDataRetentionCheckState->numberOfRetries = 5;
-            LOGDEBUG("Completed Running Reconfigure osquery");
-            break;
+            currentepochTime = std::stoll(formattedTime.currentEpochTimeInSeconds());
         }
-        catch (const std::runtime_error&)
+        catch (const std::invalid_argument& ex)
         {
-            osqueryDataManager.reconfigureDataRetentionParameters(currentepochTime, osqueryDataManager.MAX_EVENTED_DATA_RETENTION_TIME);
-            osqueryDataRetentionCheckState->numberOfRetries--;
-
-            // Sleep for 10 seconds but also check if we should stop running due to shutdown.
-            Common::UtilityImpl::waitFor(10,
-                                         0.5,
-                                         [&osqueryDataRetentionCheckState](){return !osqueryDataRetentionCheckState->enabled;});
+            LOGDEBUG("Failed to convert current epoch time, invalid argument error: " << ex.what());
         }
+        catch (const std::out_of_range& ex)
+        {
+            LOGDEBUG("Failed to convert current epoch time, out of range error: " << ex.what());
+        }
+
+        while (osqueryDataRetentionCheckState->numberOfRetries > 0 && osqueryDataRetentionCheckState->enabled)
+        {
+            LOGDEBUG(
+                "Number of reconfigure Data Retention tries left: " << osqueryDataRetentionCheckState->numberOfRetries);
+            OsqueryDataManager osqueryDataManager;
+            try
+            {
+                LOGDEBUG("Running Reconfigure osquery data retention times");
+                osqueryDataManager.reconfigureDataRetentionParameters(
+                    currentepochTime, osqueryDataManager.getOldestAllowedTimeForCurrentEventedData());
+                osqueryDataRetentionCheckState->numberOfRetries = 5;
+                LOGDEBUG("Completed Running Reconfigure osquery");
+                break;
+            }
+            catch (const std::runtime_error&)
+            {
+                osqueryDataManager.reconfigureDataRetentionParameters(
+                    currentepochTime, osqueryDataManager.MAX_EVENTED_DATA_RETENTION_TIME);
+                osqueryDataRetentionCheckState->numberOfRetries--;
+
+                // Sleep for 10 seconds but also check if we should stop running due to shutdown.
+                Common::UtilityImpl::waitFor(
+                    10, 0.5, [&osqueryDataRetentionCheckState]() { return !osqueryDataRetentionCheckState->enabled; });
+            }
+        }
+        osqueryDataRetentionCheckState->lastOSQueryDataCheck = timeNow;
+        osqueryDataRetentionCheckState->running = false;
     }
-    osqueryDataRetentionCheckState->lastOSQueryDataCheck = timeNow;
-    osqueryDataRetentionCheckState->running = false;
+    catch (const std::exception& ex)
+    {
+        LOGERROR("dataCheckThreadMonitorFunc failed with " << ex.what());
+        throw;
+    }
 }
 
 void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState)
@@ -323,10 +332,10 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
         osqueryDataRetentionCheckState->firstRun = false;
         m_dataCheckThreadMonitor = std::async(
             std::launch::async,
-            [osqueryDataRetentionCheckState, timeNow]
-            {
-                dataCheckThreadMonitorFunc(osqueryDataRetentionCheckState, timeNow);
-            });
+            dataCheckThreadMonitorFunc,
+            std::move(osqueryDataRetentionCheckState),
+            timeNow
+            );
     }
 }
 
