@@ -70,28 +70,34 @@ On Access Excludes Binaries Within AV Plugin Directory When Scanning In Custom L
     Copy File    ${result.stdout}    ${CUSTOM_AV_PLUGIN_PATH}
     register_cleanup  Remove File  ${CUSTOM_AV_PLUGIN_PATH}/bash
 
-    ${oa_mark} =    mark_log_size    ${CUSTOM_ON_ACCESS_LOG_PATH}
+    ${oa_mark1} =    mark_log_size    ${CUSTOM_ON_ACCESS_LOG_PATH}
     ${result} =    Run Process    ${CUSTOM_AV_PLUGIN_PATH}/bash    ${TEST_SCRIPTS_PATH}/manual/slowCreateEicar.sh
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
     FOR  ${eicarPath}  IN  @{tmpEicarFiles}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process    ${oa_mark}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process   ${oa_mark}
-        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    detected "${eicarPath}" is infected with EICAR-AV-Test    ${oa_mark}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process    ${oa_mark1}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process   ${oa_mark1}
+        check_log_does_not_contain_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    detected "${eicarPath}" is infected with EICAR-AV-Test    ${oa_mark1}
         Remove File    ${eicarPath}
     END
 
-    ${oa_mark} =    mark_log_size    ${CUSTOM_ON_ACCESS_LOG_PATH}
+    ${oa_mark2} =    mark_log_size    ${CUSTOM_ON_ACCESS_LOG_PATH}
     ${result} =    Run Process    /bin/bash    ${TEST_SCRIPTS_PATH}/manual/createEicar.sh
     Should Be Equal As Integers  ${result.rc}  ${0}
 
     FOR  ${eicarPath}  IN  @{tmpEicarFiles}
-        check_log_contains_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-open event for ${eicarPath} from Process    ${oa_mark}
-        check_log_contains_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    On-close event for ${eicarPath} from Process    ${oa_mark}
-        wait_for_log_contains_after_mark    ${CUSTOM_ON_ACCESS_LOG_PATH}    detected "${eicarPath}" is infected with EICAR-AV-Test    ${oa_mark}
+        Wait For Log Contains From Mark    ${oa_mark2}   On-open event for ${eicarPath} from Process
+        Wait For Log Contains From Mark    ${oa_mark2}   On-close event for ${eicarPath} from Process
+        Wait For Log Contains From Mark    ${oa_mark2}   detected "${eicarPath}" is infected with EICAR-AV-Test
         register_cleanup    Remove File    ${eicarPath}
+    END
+
+    # Re-check the excluded items haven't appeared - we have definitely scanned other files since
+    FOR  ${eicarPath}  IN  @{tmpEicarFiles}
+        check_log_does_not_contain_after_mark  ${CUSTOM_ON_ACCESS_LOG_PATH}  On-open event for ${eicarPath} from Process ${CUSTOM_AV_PLUGIN_PATH}/bash    ${oa_mark1}
+        check_log_does_not_contain_after_mark  ${CUSTOM_ON_ACCESS_LOG_PATH}  On-close event for ${eicarPath} from Process ${CUSTOM_AV_PLUGIN_PATH}/bash   ${oa_mark1}
     END
 
 
