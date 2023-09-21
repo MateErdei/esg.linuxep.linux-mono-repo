@@ -409,6 +409,8 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Enable XDR
 
     Stop EDR
+    # Previous run of EDR may have generated an item in the folder
+    Clear Datafeed Folder
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
     Start EDR
 
