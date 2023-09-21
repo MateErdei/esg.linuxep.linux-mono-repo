@@ -268,7 +268,7 @@ Check Osquery Running
 
 Check Osquery Not Running
     ${result} =    Run Process  pgrep  -a  osqueryd
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nstderr: ${result.stderr}\nAt least one of the two instances of osqueryd are still running (check pid)"
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v comms | grep -v primarywarehouse | grep -v comms | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True

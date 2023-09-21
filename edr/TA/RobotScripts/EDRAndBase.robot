@@ -430,6 +430,7 @@ EDR Plugin Stops Without Errors
     ...  30 secs
     ...  1 secs
     ...  Check Osquery Running
+    Sleep    ${1}    Sleep to allow EDR to settle before stopping it
 
     Stop EDR  ${30}
     Wait Until Keyword Succeeds
