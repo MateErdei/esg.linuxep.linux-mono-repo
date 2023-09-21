@@ -374,27 +374,30 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     ${oldScheduleEpochTimestamp} =  Set Variable  3472328296227742266
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
+
+    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Start EDR
 
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
+    Wait For Log Contains From Mark    ${mark}
+    ...  Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
+    ...  timeout=${60}
 
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Run Keywords
-    ...  EDR Plugin Log Contains   Schedule Epoch time: ${oldScheduleEpochTimestamp} is in the future, resetting to current time  AND
-    ...  EDR Plugin Log Contains   Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended. Starting new schedule_epoch:
+    Wait For Log Contains From Mark    ${mark}
+        ...  Schedule Epoch time: ${oldScheduleEpochTimestamp} is in the future, resetting to current time
+        ...  timeout=${15}
+
+    Wait For Log Contains From Mark    ${mark}
+        ...  Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended. Starting new schedule_epoch:
+        ...  timeout=${15}
 
     ${scheduleEpoch} =  ScheduleEpoch Should Be Recent
     Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
-    EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
+    Check Log Contains After Mark    ${EDR_LOG_PATH}    Starting new schedule_epoch: ${scheduleEpoch}    ${mark}
+
+    Wait For Log Contains From Mark    ${mark}
+    ...  Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
+    ...  timeout=${60}
+
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
 
 Check XDR Results Contain Correct ScheduleEpoch Timestamp
