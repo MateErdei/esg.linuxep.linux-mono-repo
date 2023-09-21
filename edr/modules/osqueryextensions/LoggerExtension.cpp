@@ -6,6 +6,8 @@
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <LoggerPlugin/SophosLoggerPlugin.h>
+
+#include <cassert>
 #include <functional>
 #include <utility>
 
