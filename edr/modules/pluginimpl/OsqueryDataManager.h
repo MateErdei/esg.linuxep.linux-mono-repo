@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -42,6 +38,11 @@ public:
 private:
     std::optional<OsquerySDK::QueryData> runQuery(const std::string& query);
     bool connectToOsquery();
+
+    using clock_t = std::chrono::steady_clock;
+    using timepoint_t = std::chrono::time_point<clock_t>;
+
+    static void dataCheckThreadMonitorFunc(std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState, timepoint_t timeNow);
 
     std::future<void> m_dataCheckThreadMonitor;
     static const int QUERY_SUCCESS = 0;
