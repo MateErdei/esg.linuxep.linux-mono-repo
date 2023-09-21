@@ -151,6 +151,13 @@ do
         --afl)
             AFL=1
             ;;
+        --independent)
+            rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            export TAP_PARAMETER_MODE=independent
+            $TAP fetch linux_mono_repo.plugins.edr_independent
+            NO_BUILD=1
+            ;;
         --setup)
             rm -rf input "${REDIST}"
             [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate

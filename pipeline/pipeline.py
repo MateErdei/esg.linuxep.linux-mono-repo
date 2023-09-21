@@ -119,6 +119,12 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
                                                image=BUILD_TEMPLATE,
                                                mode=mode,
                                                release_package=PACKAGE_PATH_AV)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
+                edr_build = stage.artisan_build(name=f"edr_{mode}",
+                                                component=edr_component,
+                                                image=BUILD_TEMPLATE,
+                                                mode=mode,
+                                                release_package=PACKAGE_PATH_EDR)
         elif mode == RELEASE_MODE:
             # EDR
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
