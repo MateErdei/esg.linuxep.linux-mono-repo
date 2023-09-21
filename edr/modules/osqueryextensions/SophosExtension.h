@@ -1,30 +1,39 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 #include "IServiceExtension.h"
 
+#include "Common/Threads/LockableData.h"
+
 #include <OsquerySDK/OsquerySDK.h>
 #include <boost/thread.hpp>
 
-class SophosExtension   :   public IServiceExtension
+class SophosExtension : public IServiceExtension
 {
 public:
-    ~SophosExtension();
+    ~SophosExtension() override;
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     // cppcheck-suppress virtualCallInConstructor
-    void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) override;
+    void Stop(long timeoutSeconds) final;
     int GetExitCode() override;
 private:
-    void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
+    void Run(const std::shared_ptr<std::atomic_bool>& extensionFinished);
 
     bool m_stopped = { true };
-    bool m_stopping = { false };
+    Common::Threads::LockableData<bool> stopping_{false};
     std::unique_ptr<boost::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
 
+    [[nodiscard]] bool stopping()
+    {
+        auto locked = stopping_.lock();
+        return *locked;
+    }
+
+    void stopping(bool value)
+    {
+        auto locked = stopping_.lock();
+        *locked = value;
+    }
 };

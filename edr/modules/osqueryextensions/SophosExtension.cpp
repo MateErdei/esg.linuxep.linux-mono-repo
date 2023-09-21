@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SophosExtension.h"
 #include "Logger.h"
@@ -18,7 +14,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 SophosExtension::~SophosExtension()
 {
     // cppcheck-suppress virtualCallInConstructor
-    Stop();
+    Stop(SVC_EXT_STOP_TIMEOUT);
 }
 
 void SophosExtension::Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished)
@@ -51,10 +47,10 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
 void SophosExtension::Stop(long timeoutSeconds)
 {
-    if (!m_stopped && !m_stopping)
+    if (!m_stopped && !stopping())
     {
         LOGINFO("Stopping SophosExtension");
-        m_stopping = true;
+        stopping(true);
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
@@ -62,22 +58,22 @@ void SophosExtension::Stop(long timeoutSeconds)
             m_runnerThread.reset();
         }
         m_stopped = true;
-        m_stopping = false;
+        stopping(false);
         LOGINFO("SophosExtension::Stopped");
     }
 }
 
-void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
+void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFinished)
 {
     LOGINFO("SophosExtension running");
 
     // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
-    if (!m_stopping)
+    if (!stopping())
     {
         m_extension->Wait();
     }
 
-    if (!m_stopped && !m_stopping)
+    if (!m_stopped && !stopping())
     {
         const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
