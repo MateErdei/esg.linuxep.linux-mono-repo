@@ -1,11 +1,14 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Helpers/LogInitializedTests.h>
-#include <modules/osqueryextensions/BatchTimer.h>
+#include "modules/osqueryextensions/BatchTimer.h"
+
+#include "Common/Exceptions/Print.h"
 
 #include <chrono>
 #include <memory>
 #include <thread>
+
+#include "Common/Helpers/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 
@@ -49,6 +52,11 @@ namespace
         void timerCallback()
         {
             m_callbackTime = std::chrono::steady_clock::now();
+        }
+
+        void resetCallbackTime()
+        {
+            m_callbackTime = decltype(m_callbackTime){};
         }
 
         static constexpr uint32_t MAX_TIME_MILLISECONDS = 5;
@@ -106,6 +114,8 @@ TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfCancelled)
             return;
         }
         // failure - retry with longer interval
+        m_timer = std::make_unique<BatchTimer>();
+        resetCallbackTime();
     }
 
     EXPECT_EQ(0, m_callbackTime.time_since_epoch().count());
@@ -113,8 +123,10 @@ TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfCancelled)
 
 TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfDestroyed)
 {
-    for (auto i=1; i<40; ++i)
+
+    for (auto i=1; i<50; ++i)
     {
+        PRINT("Loop with i=" << i);
         auto delay = 3 * i;
 
         m_timer->Configure([this]{ timerCallback(); }, std::chrono::milliseconds(delay));
@@ -128,6 +140,7 @@ TEST_F(TestBatchTimerWithLogs, CallbackNotRunIfDestroyed)
             return;
         }
         m_timer = std::make_unique<BatchTimer>();
+        resetCallbackTime();
     }
     EXPECT_EQ(0, m_callbackTime.time_since_epoch().count());
 }
