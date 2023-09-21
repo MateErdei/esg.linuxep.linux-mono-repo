@@ -30,7 +30,7 @@ Update Now Received And Action File Written
     Check Temp Folder Doesnt Contain Atomic Files
 
 Actions are removed when mcsrouter shutdown
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
+    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL3
     Override LogConf File as Global Level  DEBUG
     Register With Fake Cloud
     Check Cloud Server Log For Command Poll

@@ -48,7 +48,7 @@ Verify Management Agent Can Check Good Plugin Health Status
 
 
 Verify Management Agent Can Receive Service Health Information
-    [Tags]  TAP_PARALLEL6
+    [Tags]  TAP_PARALLEL5
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -87,7 +87,7 @@ Verify Management Agent Can Receive Service Health Information
 
 
 Verify Management Agent Can Check Bad Plugin Health Status
-    [Tags]  SMOKE  TAP_PARALLEL6
+    [Tags]  SMOKE  TAP_PARALLEL5
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -136,7 +136,7 @@ Verify Management Agent does not check health when suldownloader is running
 
 
 Verify Management Agent Does Not Report Health Of Removed Plugins
-    [Tags]  TAP_PARALLEL6
+    [Tags]  TAP_PARALLEL5
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 

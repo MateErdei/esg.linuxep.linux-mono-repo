@@ -19,7 +19,7 @@ Suite Teardown  Uninstall All
 Test Setup      AV and Base Setup
 Test Teardown   AV And Base Teardown
 
-Default Tags    TAP_PARALLEL2
+Default Tags    TAP_PARALLEL3
 
 *** Keywords ***
 SafeStore Telemetry Suite Setup
