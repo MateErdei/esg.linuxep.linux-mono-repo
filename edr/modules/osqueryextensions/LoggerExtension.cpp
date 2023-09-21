@@ -43,7 +43,7 @@ LoggerExtension::LoggerExtension(
 LoggerExtension::~LoggerExtension()
 {
     // cppcheck-suppress virtualCallInConstructor
-    Stop();
+    Stop(SVC_EXT_STOP_TIMEOUT);
 }
 
 void LoggerExtension::Start(
@@ -101,25 +101,39 @@ void LoggerExtension::reloadTags()
     }
 }
 
-void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
+void LoggerExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFinished)
 {
-    LOGINFO("LoggerExtension running");
-    // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
-    if (!m_stopping)
+    assert(extensionFinished);
+    try
     {
-        m_extension->Wait();
-    }
-
-    if (!m_stopped && !m_stopping)
-    {
-        const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
-        if (!healthCheckMessage.empty())
+        LOGINFO("LoggerExtension running");
+        // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
+        if (!m_stopping)
         {
-            LOGWARN(healthCheckMessage);
+            m_extension->Wait();
         }
 
-        LOGWARN("Service extension stopped unexpectedly. Calling reset.");
+        if (!m_stopped && !m_stopping)
+        {
+            const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
+            if (!healthCheckMessage.empty())
+            {
+                LOGWARN(healthCheckMessage);
+            }
 
+            LOGWARN("Service extension stopped unexpectedly. Calling reset.");
+
+            extensionFinished->store(true);
+        }
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGFATAL("LoggerException failed with IException: " << ex.what_with_location());
+        extensionFinished->store(true);
+    }
+    catch (const std::exception& ex)
+    {
+        LOGFATAL("LoggerException failed with exception: " << ex.what());
         extensionFinished->store(true);
     }
 }

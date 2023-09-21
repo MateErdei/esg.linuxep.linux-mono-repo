@@ -25,7 +25,7 @@ public:
             uintmax_t maxBatchBytes);
     ~LoggerExtension() override;
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
-    void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) final;
+    void Stop(long timeoutSeconds) final;
     void setDataLimit(unsigned long long int limitBytes);
     void setMTRLicense(bool hasMTRLicense);
     void setDataPeriod(unsigned int periodSeconds);
@@ -40,11 +40,11 @@ public:
     int GetExitCode() override;
 
 private:
-    void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
+    void Run(const std::shared_ptr<std::atomic_bool>& extensionFinished);
     ResultsSender m_resultsSender;
     BatchTimer m_batchTimer;
-    bool m_stopped = { true };
-    bool m_stopping = { false };
+    bool m_stopped = true;
+    bool m_stopping = false;
     std::unique_ptr<boost::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;

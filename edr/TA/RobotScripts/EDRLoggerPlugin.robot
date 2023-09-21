@@ -400,6 +400,8 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
 
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
 
+    Sleep  ${5}  Sleep to allow EDR to settle before stopping it - try to work out if it crashes anyway
+
 Check XDR Results Contain Correct ScheduleEpoch Timestamp
     ${currentEpochTime} =  get_current_epoch_time
     ${currentEpochTimeMinus3Days} =  Evaluate  ${currentEpochTime} - (60*60*24*3)
