@@ -5,6 +5,9 @@
 #include "IServiceExtension.h"
 #include "ResultsSender.h"
 #include "BatchTimer.h"
+
+#include "Common/Threads/LockableData.h"
+
 #include <OsquerySDK/OsquerySDK.h>
 #include <boost/thread.hpp>
 
@@ -44,11 +47,23 @@ private:
     ResultsSender m_resultsSender;
     BatchTimer m_batchTimer;
     bool m_stopped = true;
-    bool m_stopping = false;
+    Common::Threads::LockableData<bool> stopping_{false};
     std::unique_ptr<boost::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
     uintmax_t m_maxBatchBytes = 10000000;
     unsigned int m_maxBatchSeconds = 15;
     std::vector<Json::Value> m_foldingRules;
+
+    [[nodiscard]] bool stopping()
+    {
+        auto locked = stopping_.lock();
+        return *locked;
+    }
+
+    void stopping(bool value)
+    {
+        auto locked = stopping_.lock();
+        *locked = value;
+    }
 };

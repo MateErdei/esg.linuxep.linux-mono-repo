@@ -69,10 +69,10 @@ void LoggerExtension::Start(
 
 void LoggerExtension::Stop(long timeoutSeconds)
 {
-    if (!m_stopped && !m_stopping)
+    if (!m_stopped && !stopping())
     {
         LOGINFO("Stopping LoggerExtension");
-        m_stopping = true;
+        stopping(true);
 
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
@@ -81,19 +81,20 @@ void LoggerExtension::Stop(long timeoutSeconds)
             m_runnerThread.reset();
         }
         m_stopped = true;
-        m_stopping = false;
+        stopping(false);
         LOGINFO("LoggerExtension::Stopped");
     }
 }
+
 void LoggerExtension::reloadTags()
 {
     try
     {
         m_resultsSender.loadScheduledQueryTags();
     }
-    catch (Common::FileSystem::IFileSystemException& e)
+    catch (const Common::FileSystem::IFileSystemException& e)
     {
-        LOGWARN("Failed to load scheduled query tags on start up of Logger extension. Error: " << e.what());
+        LOGWARN("Failed to load scheduled query tags on start up of Logger extension. Error: " << e.what_with_location());
     }
     catch (const std::runtime_error& e)
     {
@@ -108,12 +109,12 @@ void LoggerExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
     {
         LOGINFO("LoggerExtension running");
         // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
-        if (!m_stopping)
+        if (!stopping())
         {
             m_extension->Wait();
         }
 
-        if (!m_stopped && !m_stopping)
+        if (!m_stopped && !stopping())
         {
             const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
             if (!healthCheckMessage.empty())
