@@ -179,7 +179,7 @@ def run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
 
 def run_edr_tests(stage, context, edr_build, mode, parameters):
     #exclude tags are in robot_task
-    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
 
     test_inputs = get_inputs(context, edr_build, mode)
     test_machines = get_test_machines(test_inputs, parameters)

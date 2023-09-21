@@ -16,7 +16,7 @@ Suite Teardown  Uninstall All
 Test Setup      Install EDR Directly from SDDS With Fixed Value Queries
 Test Teardown   Common Teardown
 
-Default Tags    TAP_PARALLEL6
+Default Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 
