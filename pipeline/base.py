@@ -73,10 +73,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
-
-    default_include_tags = ["TAP_TESTS"]
-    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ"]
-    default_robot_args = " ".join(["BAZEL=1", f"PLATFORM={machine_name.upper()}"])
+    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ",
+                            "EXCLUDE_BAZEL", f"EXCLUDE_{machine_name.upper()}"]
 
     machine_full_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
@@ -86,13 +84,14 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
         install_requirements(machine)
 
         if include_tag:
-            machine.run(*default_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', include_tag,
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
         else:
-            final_robot_args = " ".join([robot_args, default_robot_args])
-            machine.run(*final_robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
+            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py'
+                        , timeout=ROBOT_TEST_TIMEOUT)
+
 
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')

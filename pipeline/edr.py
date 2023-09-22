@@ -126,10 +126,9 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str):
+def robot_task(machine: tap.Machine, robot_args: str, include_tag: str):
     default_exclude_tags = ["TESTFAILURE"]
 
-    machine_full_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
     print(f"include_tag: {include_tag}")
@@ -193,7 +192,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                     stage.task(task_name=template_name,
                                func=robot_task,
                                machine=machine,
-                               branch_name=context.branch,
                                robot_args=robot_args,
                                include_tag="")
 
@@ -203,7 +201,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                     stage.task(task_name=template_name,
                                func=robot_task,
                                machine=machine,
-                               branch_name=context.branch,
                                robot_args=robot_args,
                                include_tag="")
         else:
@@ -217,7 +214,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                             stage.task(task_name=template_name,
                                        func=robot_task,
                                        machine=machine,
-                                       branch_name=context.branch,
                                        robot_args="",
                                        include_tag=include)
 
@@ -229,6 +225,5 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                             stage.task(task_name=template_name,
                                        func=robot_task,
                                        machine=machine,
-                                       branch_name=context.branch,
                                        robot_args="",
                                        include_tag=include)
