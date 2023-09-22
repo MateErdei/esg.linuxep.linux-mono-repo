@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT
+    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 PACKAGE_PATH = "./base/build/release-package.xml"
 INPUTS_DIR = '/opt/test/inputs'
@@ -65,10 +65,11 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     return test_inputs
 
 
+@tap.timeout(task_timeout=TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tags: str, machine_name: str):
 
     default_include_tags = ["TAP_TESTS"]
-    default_exclude_tags = ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "FAULTINJECTION"]
+    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ"]
     default_robot_args = " ".join(["BAZEL=1", f"PLATFORM={machine_name.upper()}"])
 
     machine_full_name = machine.template
@@ -142,6 +143,7 @@ def python(machine: tap.Machine):
     return "python3"
 
 
+@tap.timeout(task_timeout=TASK_TIMEOUT)
 def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
         install_requirements(machine)

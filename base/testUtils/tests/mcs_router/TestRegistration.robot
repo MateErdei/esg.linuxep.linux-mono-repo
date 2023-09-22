@@ -23,14 +23,13 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog  AND
 ...              Restore Version Ini
 
-Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
-Force Tags  LOAD3
+Force Tags    MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER    TAP_TESTS
 *** Variables ***
 ${metadataFilePath}   ${SOPHOS_INSTALL}/base/etc/sophosspl/instance-metadata.json
 *** Test Case ***
 Successful Register With Cloud And Correct Status Is Sent Up In Amazon
     [Documentation]  Derived from CLOUD.001_Register_in_cloud.sh
-    [Tags]  AMAZON_LINUX  MCS  MCS_ROUTER  FAKE_CLOUD
+    [Tags]  AMAZON_LINUX
     Register With Local Cloud Server
     Check Register Central Log Contains In Order   <aws>  <region>  </region>  <accountId>  </accountId>  <instanceId>  </instanceId>  </aws>
     File Should Exist  ${metadataFilePath}
@@ -40,7 +39,7 @@ Successful Register With Cloud And Correct Status Is Sent Up In Amazon
     File Should Contain  ${metadataFilePath}    aws
 
 Successful Registration With Correct Log Permissions
-    [Tags]  SMOKE  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_TESTS
+    [Tags]  SMOKE
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Check Cloud Server Log Does Not Contain  Processing deployment api call
@@ -48,8 +47,8 @@ Successful Registration With Correct Log Permissions
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/register_central.log  root  root  -rw-------
 
 Successful Registration With New Token Gives New Machine ID and resends existing status and event
-    Start System Watchdog
     Register With Local Cloud Server
+    Start System Watchdog
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
@@ -80,8 +79,8 @@ Successful Registration With New Token Gives New Machine ID and resends existing
     ...  5 secs
     ...  check_marked_mcsrouter_log_contains_string_n_times    queuing event for ALC  1
 Successful Re-Registration When MCSID is Missing
-    Start System Watchdog
     Register With Local Cloud Server
+    Start System Watchdog
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
@@ -156,10 +155,12 @@ Successful Deregistration
     Check Correct MCS Password And ID For Deregister
 
 Deregister Command Stops MCS Router
-    Start System Watchdog
     Register With Local Cloud Server
-    Check Correct MCS Password And ID For Local Cloud Saved
-    Check MCS Router Running
+    Start System Watchdog
+    Wait Until Keyword Succeeds
+    ...    10 secs
+    ...    2 secs
+    ...    Check Mcsenvelope Log Contains    ThisIsAnMCSID+1001
     Mark Mcsrouter Log
     Deregister
     Wait Until Keyword Succeeds     # using this to ensure mcsrouter shutdown cleanly
@@ -183,7 +184,7 @@ MCSRouter Registers Itself On Startup After Deregistration
     ...  Check Correct MCS Password And ID For Local Cloud Saved
 
 Verify MCS Router Running After Installation With Registration
-    [Tags]  INSTALLER  MCS  FAKE_CLOUD  REGISTRATION   MCS_ROUTER
+    [Tags]  INSTALLER
     Uninstall SSPL
     Check MCS Router Not Running
     Set Local CA Environment Variable
@@ -194,7 +195,6 @@ Verify MCS Router Running After Installation With Registration
     Check MCS Router Not Running
 
 Verify Common Status Contains All Interface MAC Addresses
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     ${MacAddresses} =  Get Interface Mac Addresses

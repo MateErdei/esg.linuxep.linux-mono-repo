@@ -6,7 +6,8 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input, TaskOutput
 
-from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, ROBOT_TEST_TIMEOUT
+from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, \
+    ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 
 INPUTS_DIR = '/opt/test/inputs'
@@ -175,8 +176,8 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
                         "av" + get_suffix() + "_" + machine_name + "_" + robot_args + "-report.html")
 
 
-@tap.timeout(task_timeout=120)
-def robot_task(machine: tap.Machine, include_tag: str, robot_args: str, machine_name: str = None):
+@tap.timeout(task_timeout=TASK_TIMEOUT)
+def robot_task(machine: tap.Machine, include_tag: str, branch_name: str, robot_args: str, machine_name: str = None):
     print("robot_task for", machine_name, id(machine))
     install_requirements(machine)
     robot_task_with_env(machine, include_tag, robot_args, machine_name=machine_name)
@@ -257,8 +258,8 @@ def bullseye_coverage_pytest_task(machine: tap.Machine):
     machine.output_artifact(COVERAGE_DIR, output=machine.outputs.covfile)
 
 
-@tap.timeout(task_timeout=120)
-def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str):
+@tap.timeout(task_timeout=TASK_TIMEOUT)
+def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str, branch_name: str):
     install_requirements(machine)
 
     machine.run('rm', '-rf', COVERAGE_DIR)

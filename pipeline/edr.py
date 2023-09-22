@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import ANALYSIS_MODE, unified_artifact, pip_install, get_test_machines, get_robot_args, \
-    COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT
+    COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +64,7 @@ def install_requirements(machine: tap.Machine):
         logger.warning("On adding user and group: {}".format(ex))
 
 
+@tap.timeout(task_timeout=TASK_TIMEOUT)
 def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
         install_requirements(machine)
@@ -122,6 +123,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
+@tap.timeout(task_timeout=TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
