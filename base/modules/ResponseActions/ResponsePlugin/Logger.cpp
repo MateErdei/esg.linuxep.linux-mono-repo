@@ -1,10 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #include "Logger.h"
 
-#include "config.h"
-
+#include "ResponseActions/ResponsePlugin/config.h"
 #include "Common/Logging/LoggerConfig.h"
-
 #include <log4cplus/logger.h>
 
 log4cplus::Logger& getPluginLogger()

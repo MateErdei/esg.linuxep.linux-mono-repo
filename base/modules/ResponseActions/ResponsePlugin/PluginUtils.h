@@ -3,7 +3,6 @@
 #pragma once
 #include "ActionType.h"
 
-#include <json.hpp>
 #include <string>
 namespace ResponsePlugin
 {

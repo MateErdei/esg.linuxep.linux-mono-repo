@@ -9,9 +9,11 @@ soph_export_assets(
     deps = [
         "//base:installer",
         "//base:system_test",
+        "//response_actions:installer",
     ] + select({
         "//tools/config:linux_x64_rel": [
             "//base:installer_symbols",
+            "//response_actions:installer_symbols",
         ],
         "//tools/config:linux_x64_dbg": [
         ],

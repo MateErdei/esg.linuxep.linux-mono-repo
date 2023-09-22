@@ -1,0 +1,32 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+load("//base/modules/ResponseActions:substitutions.bzl", "SUBSTITUTIONS")
+load("//tools/config:expand_template.bzl", "expand_template")
+
+soph_cc_library(
+    name = "ActionRunner",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]) + [":config"],
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/CurlWrapper",
+        "//base/modules/Common/HttpRequestsImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ProcessMonitoringImpl",
+        "//base/modules/ResponseActions/ResponseActionsImpl",
+    ],
+    visibility = [
+        "//base/products/ResponseActions/actionRunner:__pkg__",
+    ],
+    deps = [
+        "//base/thirdparty/nlohmann-json",
+    ],
+)
+
+expand_template(
+    name = "config",
+    out = "config.h",
+    substitutions = SUBSTITUTIONS,
+    template = "config.h.in",
+)

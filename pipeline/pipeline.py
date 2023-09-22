@@ -30,26 +30,44 @@ BUILD_SELECTION_EJ = "ej"
 
 
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    # In CI parameters.mode will be set
+    print(f"parameters.mode = {parameters.mode}")
+    mode = parameters.mode or RELEASE_MODE
+    print(f"MODE = {mode}")
+
+    build_selection = parameters.build_selection or BUILD_SELECTION_ALL
+
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
-    with stage.parallel("bazel"):
-        base_build = stage.artisan_build(name="linux_x64_rel",
-                                         component=component,
-                                         image=BUILD_TEMPLATE_BAZEL,
-                                         mode="all_lfast,all_lx64r",
-                                         release_package=PACKAGE_PATH)
+    base_build = stage.artisan_build(name="linux_x64_rel",
+                                     component=component,
+                                     image=BUILD_TEMPLATE_BAZEL,
+                                     mode="all_lfast,all_lx64r",
+                                     release_package=PACKAGE_PATH)
 
-        stage.artisan_build(name="linux_x64_dbg",
-                            component=component,
-                            image=BUILD_TEMPLATE_BAZEL,
-                            mode="all_lx64d",
-                            release_package=PACKAGE_PATH)
+    stage.artisan_build(name="linux_x64_dbg",
+                        component=component,
+                        image=BUILD_TEMPLATE_BAZEL,
+                        mode="all_lx64d",
+                        release_package=PACKAGE_PATH)
 
-    return base_build
+    if parameters.run_tests:
+        with stage.parallel('testing'):
+            if mode == RELEASE_MODE:
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
+                    run_base_tests(stage, context, base_build, mode, parameters)
 
 
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    with stage.parallel("products"):
+        with stage.parallel("bazel"):
+            bazel_pipeline(stage, context, parameters)
+        with stage.parallel("cmake"):
+            cmake_pipeline(stage, context, parameters)
+
+
+def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     assert (os.path.exists(base.PACKAGE_PATH))
     assert (os.path.exists(PACKAGE_PATH_EDR))
     assert (os.path.exists(PACKAGE_PATH_AV))
@@ -71,8 +89,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     base_component = tap.Component(name="sspl_base", base_version=get_package_version(base.PACKAGE_PATH))
 
     with stage.parallel('base'):
-        base_build_bazel = bazel_pipeline(stage, context, parameters)
-
         if mode == RELEASE_MODE:
             base_build = stage.artisan_build(name=f"base_{RELEASE_MODE}",
                                              component=base_component,
@@ -188,9 +204,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     if parameters.run_tests != False:
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                    run_base_tests(stage, context, base_build, base_build_bazel, mode, parameters)
-
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)
 

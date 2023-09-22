@@ -4,7 +4,7 @@
 
 #include "ActionStructs.h"
 
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/HttpRequests/IHttpRequester.h"
 
 #include <json.hpp>
 #include <string>

@@ -10,8 +10,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  Ra Teardown
 
-Force Tags  LOAD7
-Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 
 *** Test Cases ***
@@ -25,6 +24,8 @@ Verify that the response actions installer works correctly
 ## fileset.
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
+    # TODO LINUXDAR-7870: Remove coverage exclusion
+    [Tags]   EXCLUDE_ON_COVERAGE
     [Teardown]  Response Actions Tests Teardown With Installed File Replacement
     Install Response Actions Directly
     Wait Until Keyword Succeeds

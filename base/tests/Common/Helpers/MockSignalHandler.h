@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/ProcessMonitoringImpl/SignalHandler.h"
+#include "Common/ProcessMonitoring/ISignalHandler.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

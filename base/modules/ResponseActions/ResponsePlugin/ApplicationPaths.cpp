@@ -2,7 +2,7 @@
 #include "ApplicationPaths.h"
 
 #include "Logger.h"
-#include "config.h"
+#include "ResponseActions/ResponsePlugin/config.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"

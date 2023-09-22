@@ -24,15 +24,18 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
 
-def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, base_build_bazel: ArtisanInput, mode: str):
+def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
+    openssl = unified_artifact(context, "thirdparty.all", "develop",
+                               "build/openssl_3/openssl_linux64_gcc11-2glibc2-17")
+
     test_inputs = None
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build_bazel / "base/linux_x64_rel/installer",
-            ra_sdds=base_build / 'sspl-base/RA-SDDS-COMPONENT',
-            system_test=base_build_bazel / 'base/linux_x64_rel/system_test',
-            openssl=base_build / 'sspl-base' / 'openssl',
+            base_sdds=base_build / "base/linux_x64_rel/installer",
+            ra_sdds=base_build / "response_actions/linux_x64_rel/installer",
+            system_test=base_build / "base/linux_x64_rel/system_test",
+            openssl=openssl,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
@@ -40,10 +43,10 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     if mode == 'debug':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build_bazel / 'base/linux_x64_dbg/installer',
-            ra_sdds=base_build / 'sspl-base-debug/RA-SDDS-COMPONENT',
-            system_test=base_build_bazel / 'base/linux_x64_dbg/system_test',
-            openssl=base_build / 'sspl-base-debug' / 'openssl',
+            base_sdds=base_build / "base/linux_x64_dbg/installer",
+            ra_sdds=base_build / "response_actions/linux_x64_dbg/installer",
+            system_test=base_build / "base/linux_x64_dbg/system_test",
+            openssl=openssl,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
@@ -54,7 +57,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
             ra_sdds=base_build / 'sspl-base-coverage/RA-SDDS-COMPONENT',
             system_test=base_build / 'sspl-base-coverage/system_test',
-            openssl=base_build / 'sspl-base-coverage' / 'openssl',
+            openssl=openssl,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
@@ -219,8 +222,8 @@ def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameter
                    robot_args=robot_args)
 
 
-def run_base_tests(stage, context, base_build, base_build_bazel, mode, parameters):
-    base_test_inputs = get_base_test_inputs(context, base_build, base_build_bazel, mode)
+def run_base_tests(stage, context, base_build, mode, parameters):
+    base_test_inputs = get_base_test_inputs(context, base_build, mode)
     base_test_machines = get_test_machines(base_test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 

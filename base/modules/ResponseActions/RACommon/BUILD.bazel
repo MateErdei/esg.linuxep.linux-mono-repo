@@ -1,0 +1,18 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "RACommon",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "@boost//:locale",
+    ],
+    visibility = [
+        "//base/modules/ResponseActions:__subpackages__",
+    ],
+)

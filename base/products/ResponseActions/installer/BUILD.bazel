@@ -1,0 +1,57 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//base/modules/ResponseActions:version_info.bzl", "RESPONSE_ACTIONS_BASE_VERSION", "RESPONSE_ACTIONS_LINE_ID", "RESPONSE_ACTIONS_PRODUCT_NAME", "RESPONSE_ACTIONS_VERSIONING_COMPONENT_NAME")
+load("//base/modules/ResponseActions:substitutions.bzl", "SUBSTITUTIONS")
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+)
+
+expand_template(
+    name = "registry_json",
+    out = "plugin.json",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+)
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = RESPONSE_ACTIONS_BASE_VERSION,
+    component_name = RESPONSE_ACTIONS_PRODUCT_NAME,
+    line_id = RESPONSE_ACTIONS_LINE_ID,
+    spv_features = ["MDR"],
+    spv_platforms = ["LINUX_INTEL_LIBC6"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in {
+        "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
+        "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
+        "cleanuprealm.dat": "cleanuprealm.dat.in",
+        "files/base/pluginRegistry/responseactions.json": ":registry_json",
+        "files/plugins/responseactions/bin/responseactions": "//base/products/ResponseActions/plugin:responseactions",
+        "files/plugins/responseactions/bin/sophos_actions": "//base/products/ResponseActions/actionRunner:sophos_actions",
+        "files/plugins/responseactions/bin/uninstall.sh": ":uninstall_sh",
+        "install.sh": ":install_sh",
+    }.items()},
+    symbols_strip_prefix = "base/products/ResponseActions/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/responseactions/VERSION.ini",
+    ],
+    versioning_component_name = RESPONSE_ACTIONS_VERSIONING_COMPONENT_NAME,
+    visibility = [
+        "//response_actions:__pkg__",
+    ],
+)

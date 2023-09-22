@@ -4,6 +4,8 @@
 
 #include "Logger.h"
 
+#include <json.hpp>
+
 #include <limits.h>
 
 namespace ResponsePlugin

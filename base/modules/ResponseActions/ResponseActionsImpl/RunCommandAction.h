@@ -11,14 +11,14 @@
 
 namespace ResponseActionsImpl
 {
-    void to_json(nlohmann::json& j, const SingleCommandResult& singleCommandResult)
+    inline void to_json(nlohmann::json& j, const SingleCommandResult& singleCommandResult)
     {
         j = nlohmann::json{ { "duration", singleCommandResult.duration },
                             { "exitCode", singleCommandResult.exitCode },
                             { "stdErr", singleCommandResult.stdErr },
                             { "stdOut", singleCommandResult.stdOut } };
     }
-    void to_json(nlohmann::json& j, const CommandResponse& cmdResponse)
+    inline void to_json(nlohmann::json& j, const CommandResponse& cmdResponse)
     {
         j = nlohmann::json{ { "type", cmdResponse.type },
                             { "result", cmdResponse.result },

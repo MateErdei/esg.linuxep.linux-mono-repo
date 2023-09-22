@@ -7,10 +7,7 @@ soph_cc_library(
         # Doesn't propagate headers but still links it in the end
         "//base/modules/Common/FileSystemImpl",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
     deps = [
         ":FileSystem_interface",
     ],

@@ -4,13 +4,13 @@
 
 #include "Logger.h"
 #include "RunUtils.h"
-#include "config.h"
+#include "ResponseActions/ActionRunner/config.h"
+#include <json.hpp>
 
 #include "Common/Logging/PluginLoggingSetup.h"
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include <iostream>
-#include <json.hpp>
 
 namespace ActionRunner
 {

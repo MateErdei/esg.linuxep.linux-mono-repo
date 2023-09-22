@@ -71,13 +71,6 @@
             <workingdir>.</workingdir>
         </command>
 
-        <!-- Debug build -->
-        <command mode="debug">
-            <program>/bin/bash</program>
-            <args>./build.sh --debug</args>
-            <workingdir>.</workingdir>
-        </command>
-
         <!-- Coverage build -->
         <command mode="coverage">
             <program>/bin/bash</program>
@@ -97,10 +90,6 @@
         <workingdir>.</workingdir>
 
         <!-- Release -->
-        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT"
-                       mode="release"/>
-        <release-asset artifact-path="sspl-base/ra-symbols" source-dir="output/ra-symbols" mode="release"/>
-
         <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
             <include glob="pluginapi.tar.gz"/>
@@ -140,9 +129,6 @@
 
         <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
         <!-- debug -->
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
-
         <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">
             <include glob="pluginapi.tar.gz"/>

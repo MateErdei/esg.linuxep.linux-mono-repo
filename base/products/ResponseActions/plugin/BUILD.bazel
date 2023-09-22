@@ -1,0 +1,17 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "responseactions",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = [
+        "//base/products/ResponseActions/installer:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/ResponseActions/ResponsePlugin",
+    ],
+)

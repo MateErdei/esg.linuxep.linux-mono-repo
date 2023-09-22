@@ -6,7 +6,6 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 
 #include <limits.h>
