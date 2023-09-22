@@ -20,7 +20,7 @@
           <development-version branch="develop"/>
           <!-- Base -->
           <include artifact-path="base/linux_x64_rel/installer" dest-dir="redist/base/latest/x64" mode="dev,999"/>
-          <include artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="redist/responseactions/latest/x64" mode="dev,999"/>
+          <include artifact-path="response_actions/linux_x64_rel/installer" dest-dir="redist/responseactions/latest/x64" mode="dev,999"/>
           <include artifact-path="base/linux_x64_rel/system_test" dest-dir="."/>
           <!-- EDR -->
           <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64" mode="dev,999"/>
