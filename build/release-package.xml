@@ -60,10 +60,10 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=fast_lfast
                 test
                 <!-- TODO LINUXDAR-7977: enable -->
 <!--                &#45;&#45;config=black-->
-                --profile=.profile/fast_lfast.gz
                 --target_pattern_file=build/fast_build_targets.txt
             </args>
         </command>
@@ -71,8 +71,8 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lfast_build
                 build
-                --profile=.profile/linuxep_spl_lfast_build.gz
                 --target_pattern_file=build/linuxep_spl_build_targets.txt
             </args>
         </command>
@@ -80,8 +80,8 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lfast_test
                 test
-                --profile=.profile/linuxep_spl_lfast_test.gz
                 --build_tests_only
                 --target_pattern_file=build/linuxep_spl_test_targets.txt
             </args>
@@ -92,9 +92,9 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64r_build
                 build
                 --config=linux_x64_rel
-                --profile=.profile/linuxep_spl_lx64r_build.gz
                 --target_pattern_file=build/linuxep_spl_build_targets.txt
             </args>
         </command>
@@ -102,9 +102,9 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64r_test
                 test
                 --config=linux_x64_rel
-                --profile=.profile/linuxep_spl_lx64r_test.gz
                 --build_tests_only
                 --target_pattern_file=build/linuxep_spl_test_targets.txt
             </args>
@@ -124,9 +124,9 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64d_build
                 build
                 --config=linux_x64_dbg
-                --profile=.profile/linuxep_spl_lx64d_build.gz
                 --target_pattern_file=build/linuxep_spl_build_targets.txt
             </args>
         </command>
@@ -134,9 +134,9 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64d_test
                 test
                 --config=linux_x64_dbg
-                --profile=.profile/linuxep_spl_lx64d_test.gz
                 --build_tests_only
                 --target_pattern_file=build/linuxep_spl_test_targets.txt
             </args>

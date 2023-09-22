@@ -2,4 +2,4 @@
 # Each 'run' line is expanded into a separate 'bazel run' command.
 # Parameters to export_targets.py are also provided, plus --verbose_failures.
 
-run --profile=.profile/{mode}_export_assets.gz -- //products:export_assets
+run --profile={mode}_export_assets -- //products:export_assets
