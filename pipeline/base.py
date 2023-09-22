@@ -73,7 +73,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
-    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ",
+    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ", "SYSTEMPRODUCTTESTINPUT"
                             "EXCLUDE_BAZEL", f"EXCLUDE_{machine_name.upper()}"]
 
     machine_full_name = machine.template

@@ -13,6 +13,7 @@ Resource  ../upgrade_product/UpgradeResources.robot
 Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
+
 Force Tags    INSTALLER    TAP_PARALLEL5
 
 *** Variables ***
@@ -93,7 +94,7 @@ Simple Upgrade Test with a Breaking Update
     Check All Product Logs Do Not Contain Critical
 
 Simple Upgrade Test with a Breaking Update for plugin
-    [Tags]    INSTALLER     RA_PLUGIN
+    [Tags]    RA_PLUGIN
     Require Fresh Install
     Install Response Actions Directly
 
@@ -130,7 +131,7 @@ Simple Upgrade Test with a Breaking Update for plugin
     Check All Product Logs Do Not Contain Critical
 
 Simple Downgrade Test
-    [Tags]  INSTALLER  TAP_TESTS  EXCLUDE_ON_COVERAGE
+    [Tags]  EXCLUDE_ON_COVERAGE
 
     Require Fresh Install
     ${distribution} =   Get Folder With Installer
@@ -204,7 +205,7 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
     Should Be Equal As Strings  ${expected_local_file_contents}  ${actual_local_file_contents}
 
 VersionCopy File in the Wrong Location Is Removed
-    [Tags]  INSTALLER
+    [Tags]  INSTALLER    SYSTEMPRODUCTTESTINPUT
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     #fake the file being copied to the wrong location
@@ -228,14 +229,14 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
-    [Tags]      INSTALLER
+    [Tags]      INSTALLER    SYSTEMPRODUCTTESTINPUT
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Check Files Before Upgrade
     run_full_installer_from_location_expecting_code   ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/install.sh    ${0}
     Check Files After Upgrade
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
-    [Tags]  INSTALLER
+    [Tags]  INSTALLER    SYSTEMPRODUCTTESTINPUT
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
     Install Response Actions Directly
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
@@ -259,7 +260,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 
 Version Copy Versions All Changed Files When Upgrading
-    [Tags]  INSTALLER
+    [Tags]  INSTALLER    SYSTEMPRODUCTTESTINPUT
     run_full_installer_from_location_expecting_code   /opt/tmp/0-6-0/install.sh    ${0}
 
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
