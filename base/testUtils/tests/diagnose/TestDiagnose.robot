@@ -25,7 +25,7 @@ Force Tags  DIAGNOSE
 *** Test Cases ***
 
 Diagnose Tool Gathers Logs When Run From Installation
-    [Tags]  TAP_PARALLEL4    SMOKE
+    [Tags]  TAP_PARALLEL3    SMOKE
     Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
     create file    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/installed_features.json
@@ -169,7 +169,7 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers Response actions Logs When Run From Installation
-    [Tags]  RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL4
+    [Tags]  RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL3
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}

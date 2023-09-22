@@ -43,7 +43,6 @@ RA Plugin Reports Telemetry Correctly
 
 #Run Command Action
 Telemetry Reported For Run Command Action Expired
-    [Tags]    TAP_PARALLEL1
     ${id} =  Set Variable  id1
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -62,7 +61,6 @@ Telemetry Reported For Run Command Action Expired
 
 
 Telemetry Reported For Run Command Action Timeout Exceeded
-    [Tags]    TAP_PARALLEL2
     ${id} =  Set Variable  id2
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -81,7 +79,6 @@ Telemetry Reported For Run Command Action Timeout Exceeded
 
 
 Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
-    [Tags]    TAP_PARALLEL3
     ${id} =  Set Variable  id3
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -100,7 +97,6 @@ Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
 
 #Upload File Action
 Telemetry Reported For Upload File Action Expired
-    [Tags]    TAP_PARALLEL4
     ${id} =  Set Variable  id4
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -119,7 +115,6 @@ Telemetry Reported For Upload File Action Expired
 
 
 Telemetry Reported For Upload File Action Timeout Exceeded
-    [Tags]    TAP_PARALLEL5
     ${id} =  Set Variable  id5
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
@@ -138,7 +133,6 @@ Telemetry Reported For Upload File Action Timeout Exceeded
 
 
 Telemetry Reported For Upload File Action Failure Not Timeout Or Expiry
-    [Tags]    TAP_PARALLEL6
     ${id} =  Set Variable  id6
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
