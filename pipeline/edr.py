@@ -185,8 +185,8 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('edr_test'):
-        if robot_args:
-            with stage.parallel('integration'):
+        with stage.parallel('integration'):
+            if robot_args:
                 for template_name, machine in test_machines:
                     print("machine", robot_args, template_name, machine)
                     stage.task(task_name=template_name,
@@ -195,18 +195,8 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                                robot_args=robot_args,
                                include_tag="")
 
-            with stage.parallel('component'):
-                for template_name, machine in test_machines:
-                    print("machine", robot_args, template_name, machine)
-                    stage.task(task_name=template_name,
-                               func=robot_task,
-                               machine=machine,
-                               robot_args=robot_args,
-                               include_tag="")
-        else:
-            includedtags = parameters.include_tags or default_include_tags
-
-            with stage.parallel('integration'):
+            else:
+                includedtags = parameters.include_tags or default_include_tags
                 for include in includedtags.split(","):
                     with stage.parallel(include):
                         for template_name, machine in test_machines:
@@ -217,13 +207,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                                        robot_args="",
                                        include_tag=include)
 
-            with stage.parallel('component'):
-                for include in includedtags.split(","):
-                    with stage.parallel(include):
-                        for template_name, machine in test_machines:
-                            print("machine", include, template_name, machine)
-                            stage.task(task_name=template_name,
-                                       func=robot_task,
-                                       machine=machine,
-                                       robot_args="",
-                                       include_tag=include)
+        with stage.parallel('component'):
+            for template_name, machine in get_test_machines(test_inputs, parameters):
+                stage.task(task_name=template_name, func=pytest_task, machine=machine)
