@@ -553,6 +553,7 @@ Display All SSPL Files Installed
 AV And Base Teardown
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
