@@ -11,7 +11,7 @@ Resource        EDRResources.robot
 Resource        ComponentSetup.robot
 
 Suite Setup     Install With Base SDDS
-Suite Teardown  Uninstall And Revert Setup
+Suite Teardown  Uninstall All
 
 Test Setup      No Operation
 Test Teardown   EDR And Base Teardown
