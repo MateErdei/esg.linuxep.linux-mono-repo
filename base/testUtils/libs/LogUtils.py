@@ -152,6 +152,43 @@ class LogUtils(object):
 
         return difference.total_seconds()
 
+    def get_timestamp_of_next_occurrence_log_b_after_log_a(self,log_location, log_a, log_b):
+        contents = []
+        with open(log_location, "r") as log:
+            contents = log.readlines()
+
+        i = 0
+        max_index = len(contents)
+        while i < max_index:
+            if log_a in contents[i]:
+                break
+            i += 1
+
+        if i == (max_index - 1):
+            raise AssertionError(f"{log_location} log doesn't contain {log_a}")
+
+        while i < max_index:
+            if log_b in contents[i]:
+                break
+            i += 1
+
+        if i == (max_index - 1):
+            raise AssertionError(f"Remainder of {log_location} log doesn't contain {log_b}")
+
+        return self.get_timestamp_of_log_line(contents[i], log_location)
+    
+    def get_time_difference_between_two_log_lines_where_log_lines_are_in_order(self, string_to_contain1,
+                                                                               string_to_contain2,
+                                                                               path_to_log):
+        
+        timestamp1 = self.get_timestamp_of_log_line(string_to_contain1, path_to_log)
+        timestamp2 = self.get_timestamp_of_next_occurrence_log_b_after_log_a(path_to_log,
+                                                                            string_to_contain1,
+                                                                            string_to_contain2)
+        difference = timestamp2 - timestamp1
+
+        return difference.total_seconds()
+    
     def get_number_of_occurrences_of_substring_in_log(self, log_location, substring):
         contents = get_log_contents(log_location)
         return self.get_number_of_occurrences_of_substring_in_string(contents, substring)

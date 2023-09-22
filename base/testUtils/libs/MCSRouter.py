@@ -796,11 +796,21 @@ class MCSRouter(object):
     def __send_edr_response(self, app_id, correlation_id, content):
         logger.info("sending edr response with content: {}".format(content))
         file_name = "{}_{}_response.json".format(app_id, correlation_id)
+        response_dir = os.path.join(self.mcs_dir, "response")
         response_file = os.path.join(self.tmp_path, file_name)
         with open(response_file, "w") as f:
             f.write(content)
 
-        shutil.move(response_file, os.path.join(self.mcs_dir, "response", file_name))
+        try:
+            shutil.move(response_file, os.path.join(response_dir, file_name))
+        except Exception as ex:
+            info = ""
+            if not os.path.exists(response_file):
+                info = f"response file does not exist at {response_file} "
+            if not os.path.exists(response_dir):
+                info = info + f"response folder does not exist at {response_dir} "
+            logger.error(f"Failed to move response file with error: {ex} infor :{info}")
+
         return content
 
     def send_edr_response(self, app_id, correlation_id):

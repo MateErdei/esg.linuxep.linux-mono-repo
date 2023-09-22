@@ -88,12 +88,12 @@ Test Connection Retry Backoff Period Is Set Correctly
     ...   waiting up to 30.000000s after 2 failures
     ...   waiting up to 60.000000s after 3 failures
 
-    ${timestamp1} =  Get Time Difference Between Two Log Lines   waiting up to 15.000000s after 1 failures   waiting up to 30.000000s after 2 failures     ${MCSRouterLog}
+    ${timestamp1} =  get_time_difference_between_two_log_lines_where_log_lines_are_in_order   waiting up to 15.000000s after 1 failures   Trying connection directly to localhost:4443     ${MCSRouterLog}
     IF  ${timestamp1} < 10 or 15.5 < ${timestamp1}
       Fail
     END
 
-    ${timestamp2} =  Get Time Difference Between Two Log Lines   waiting up to 30.000000s after 2 failures   waiting up to 60.000000s after 3 failures     ${MCSRouterLog}
+    ${timestamp2} =  get_time_difference_between_two_log_lines_where_log_lines_are_in_order   waiting up to 30.000000s after 2 failures   Trying connection directly to localhost:4443     ${MCSRouterLog}
     IF  ${timestamp2} < 15 or 30.5 < ${timestamp2}
       Fail
     END
