@@ -26,7 +26,7 @@ Suite Teardown   Cleanup Telemetry Tests
 Test Setup       Telemetry Test Setup
 Test Teardown    Telemetry Test Teardown
 
-Default Tags  TELEMETRY
+Force Tags    TELEMETRY    TAP_PARALLEL1
 
 
 *** Variables ***
@@ -106,7 +106,7 @@ Run Telemetry And Expect Field Missing
 
 *** Test Cases ***
 Telemetry Executable Generates System Base and Watchdog Telemetry
-    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
+    [Tags]  SMOKE  TELEMETRY
     [Documentation]    Telemetry Executable Generates Telemetry
 
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}

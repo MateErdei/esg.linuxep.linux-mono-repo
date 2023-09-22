@@ -14,8 +14,7 @@ Suite Teardown  RA Suite Teardown
 Test Setup         RA Run Command Test Setup
 Test Teardown      RA Run Command Test Teardown
 
-Force Tags  LOAD5
-Default Tags   RESPONSE_ACTIONS_PLUGIN
+Force Tags  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL4
 
 *** Test Cases ***
 
@@ -167,7 +166,7 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amount Of Time
-    [Tags]    TAP_TESTS    EXCLUDE_ON_COVERAGE
+    [Tags]    EXCLUDE_ON_COVERAGE
     Override LogConf File as Global Level  DEBUG
 
     ${allowed_leeway} =    Set variable    0.5
