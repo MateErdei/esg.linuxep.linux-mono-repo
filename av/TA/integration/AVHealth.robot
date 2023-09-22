@@ -46,7 +46,7 @@ AV Health Test Setup
     AV And Base Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
-    Send Policies to enable on-access
+    Send Policies to disable on-access
     File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
 
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
@@ -114,8 +114,6 @@ Test av health is green right after install
 
 
 AV Not Running Triggers Bad Status Health
-    # Stopping threat_detector when OA is enabled can lead to some file scans being aborted
-    Register Cleanup  Exclude Aborted Scan Errors
     Check Status Health is Reporting Correctly    GOOD
 
     Stop AV Plugin
@@ -131,8 +129,6 @@ AV Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos Threat Detector Not Running Triggers Bad Status Health
-    # Stopping threat_detector when OA is enabled can lead to some file scans being aborted
-    Register Cleanup  Exclude Aborted Scan Errors
     Check Status Health is Reporting Correctly    GOOD
 
     Stop sophos_threat_detector
@@ -273,7 +269,6 @@ Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Bad Threat Health is preserved after av plugin restarts
-    Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
@@ -352,7 +347,7 @@ AV health is unaffected by scanning the threat_detector pidfile
 AV health is unaffected by on-access scanning the soapd pidfile
     Register Cleanup  Exclude On Access Scan Errors
 
-    # on-access already enabled in test setup
+    Send Policies to enable on-access
 
     # this will cause on-access events for the pid file
     Check Status Health is Reporting Correctly    GOOD
@@ -371,9 +366,10 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     [Tags]  susi_init
     Register Cleanup  Exclude Susi Initialisation Failed Messages On Access Enabled
 
+    Send Policies to enable on-access
+
     #necessary for error markers
     Create File   ${OA_LOCAL_SETTINGS}   { "numThreads" : 1 }
-    Register Cleanup    Restart soapd
     Register Cleanup    Remove File    ${OA_LOCAL_SETTINGS}
     Restart soapd
 
