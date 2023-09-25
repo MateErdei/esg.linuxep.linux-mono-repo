@@ -97,7 +97,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
    Wait For Safestore Log Contains After Mark    Quarantined ${SCAN_DIRECTORY}/eicar.com successfully   ${ss_mark}
-
+   Wait For AV Log Contains After Mark    SafeStoreClient received quarantine result from SafeStore: success  ${av_mark}   timeout=10
    Stop SafeStore
    Wait Until Keyword Succeeds
    ...  10 secs
@@ -113,11 +113,12 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
    Start SafeStore
    Wait For Safestore Log Contains After Mark    Successfully initialised SafeStore database     ${ss_mark}
    ${ss_mark} =    Get SafeStore Log Mark
+   ${av_mark} =  Get AV Log Mark
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
    Wait For SafeStore Log Contains After Mark    Quarantined ${SCAN_DIRECTORY}/eicar.com successfully    ${ss_mark}
-
+   Wait For AV Log Contains After Mark    SafeStoreClient received quarantine result from SafeStore: success  ${av_mark}   timeout=10
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
