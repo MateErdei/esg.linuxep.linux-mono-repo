@@ -73,6 +73,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * FAULTINJECTION - Tests that deliberately introduces faults to the normal installation
 * FUZZ - Tests that are related to fuzzer
 * INSTALLER - Tests which exercise the main installer 
+* LOAD${N} - Tags used to roughly balance the load of test jobs which can run in parallel
 * LIVERESPONSE_PLUGIN - Tests which exercise the live response plugin
 * LOGGING - Tests which exercise the products logging
 * MANAGEMENT_AGENT - Tests which exercise the Management Agent component
@@ -90,6 +91,8 @@ The following tags can be used to select which tests can be run, using the inclu
 * SLOW - Tests which take a long time to run
 * SMOKE - Tests which check that the most important functions of the product work
 * SULDOWNLOADER - Tests that exercise SUL Downloader
+* SYSTEMPRODUCTTESTINPUT - Tests that fail on TAP as they require this.
+* TAP_PARALLEL{N} - Tags used to balance TAP test load.
 * TELEMETRY - Tests that exercise the Telemetry executable
 * TESTFAILURE - Tests that we expect to fail
 * THIN_INSTALLER - Tests that exercise the Thin Installer
@@ -99,5 +102,3 @@ The following tags can be used to select which tests can be run, using the inclu
 * WATCHDOG - Tests that exercise the Watchdog
 * WAREHOUSE_SYNC - Test that fail if the warehouse and base build are out of sync
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
-* LOAD${N} - Tags used to roughly balance the load of test jobs which can run in parallel
-* TAP_PARALLEL{N} - Tags used to balance TAP test load. 

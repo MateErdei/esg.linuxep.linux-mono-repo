@@ -1,5 +1,5 @@
 *** Settings ***
-Default Tags  INSTALLER    TAP_PARALLEL5    CUSTOM_INSTALL_PATH
+Force Tags  INSTALLER    TAP_PARALLEL5    CUSTOM_INSTALL_PATH
 
 Library    Collections
 Library    OperatingSystem
