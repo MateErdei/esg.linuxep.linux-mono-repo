@@ -90,7 +90,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * SLOW - Tests which take a long time to run
 * SMOKE - Tests which check that the most important functions of the product work
 * SULDOWNLOADER - Tests that exercise SUL Downloader
-* TAP_TESTS - Tests to be executed in Tap environment
 * TELEMETRY - Tests that exercise the Telemetry executable
 * TESTFAILURE - Tests that we expect to fail
 * THIN_INSTALLER - Tests that exercise the Thin Installer
@@ -101,3 +100,4 @@ The following tags can be used to select which tests can be run, using the inclu
 * WAREHOUSE_SYNC - Test that fail if the warehouse and base build are out of sync
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
 * LOAD${N} - Tags used to roughly balance the load of test jobs which can run in parallel
+* TAP_PARALLEL{N} - Tags used to balance TAP test load. 
