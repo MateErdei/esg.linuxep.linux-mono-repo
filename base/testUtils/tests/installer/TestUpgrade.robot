@@ -14,7 +14,7 @@ Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
 
-Force Tags    INSTALLER    TAP_PARALLEL5
+Default Tags    INSTALLER    TAP_PARALLEL5
 
 *** Variables ***
 ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
@@ -94,7 +94,7 @@ Simple Upgrade Test with a Breaking Update
     Check All Product Logs Do Not Contain Critical
 
 Simple Upgrade Test with a Breaking Update for plugin
-    [Tags]    RA_PLUGIN
+    [Tags]    RA_PLUGIN    TAP_PARALLEL5
     Require Fresh Install
     Install Response Actions Directly
 
@@ -131,7 +131,7 @@ Simple Upgrade Test with a Breaking Update for plugin
     Check All Product Logs Do Not Contain Critical
 
 Simple Downgrade Test
-    [Tags]  EXCLUDE_ON_COVERAGE
+    [Tags]  EXCLUDE_ON_COVERAGE    TAP_PARALLEL5
 
     Require Fresh Install
     ${distribution} =   Get Folder With Installer
