@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Test installation on different filsystems
 
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../installer/InstallerResources.robot

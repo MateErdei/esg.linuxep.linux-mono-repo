@@ -8,7 +8,7 @@ Suite Teardown   Cleanup sdds3 Update Tests
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py

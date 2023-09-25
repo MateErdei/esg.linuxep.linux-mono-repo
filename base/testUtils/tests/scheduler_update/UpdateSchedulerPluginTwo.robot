@@ -7,7 +7,7 @@ Test Teardown   Teardown For Test
 Library    Process
 Library    OperatingSystem
 Library    DateTime
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py

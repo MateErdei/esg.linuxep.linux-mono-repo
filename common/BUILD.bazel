@@ -1,4 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_python//python:defs.bzl", "py_binary")
 load(":system_library.bzl", "system_library")
 
@@ -35,4 +36,11 @@ system_library(
     name = "libcap",
     src = "@libcap//:libcap_shared",
     visibility = [":spl_packages"],
+)
+
+pkg_tar(
+    name = "common_test_libs",
+    srcs = glob(["TA/libs/**"]),
+    strip_prefix = "/common/TA",
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
 )

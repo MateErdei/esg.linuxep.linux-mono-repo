@@ -16,7 +16,7 @@ Test Teardown    Run Keywords
 
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot

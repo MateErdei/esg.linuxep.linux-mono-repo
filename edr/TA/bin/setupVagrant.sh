@@ -24,6 +24,7 @@ ln -snf "$EDR_PATH/TA"  /opt/test/inputs/test_scripts
 ln -snf "$EDR_PATH/local_test_input/qp"  /opt/test/inputs/qp
 ln -snf "$EDR_PATH/local_test_input/lp"  /opt/test/inputs/lp
 ln -snf "$BASE_PATH/output/SDDS-COMPONENT" /opt/test/inputs/base_sdds
+ln -snf /vagrant/esg.linuxep.linux-mono-repo/common/TA/libs /opt/test/inputs/common_test_libs
 apt-get -y install python3 python3-pip python3-pkgconfig
 python3 -m pip install -r "$EDR_PATH/TA/requirements.txt"
 

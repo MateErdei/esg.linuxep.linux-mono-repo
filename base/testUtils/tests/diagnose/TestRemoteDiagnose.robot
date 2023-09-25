@@ -1,6 +1,6 @@
 *** Settings ***
 
-Library     ../../libs/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ../../libs/DiagnoseUtils.py
 Library     ../../libs/HttpsServer.py
 Library     ../../libs/TelemetryUtils.py

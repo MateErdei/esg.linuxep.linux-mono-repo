@@ -32,6 +32,7 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             base_sdds=edr_build / 'edr/base/base-sdds',
             componenttests=edr_build / 'edr/componenttests',
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
             lp=unified_artifact(context, 'em.esg', 'develop', 'build/endpoint-query-pack')
         )
@@ -44,6 +45,7 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             coverage_unittest=edr_build / 'sspl-edr-coverage/unittest-htmlreport',
             base_sdds=edr_build / 'sspl-edr-coverage/base/base-sdds',
             componenttests=edr_build / 'sspl-edr-coverage/componenttests',
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
             lp=unified_artifact(context, 'em.esg', 'develop', 'build/endpoint-query-pack'),
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')

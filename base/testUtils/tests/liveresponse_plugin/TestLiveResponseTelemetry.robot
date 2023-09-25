@@ -2,7 +2,7 @@
 Documentation    Suite description
 Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 
 Resource  ../installer/InstallerResources.robot

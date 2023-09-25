@@ -5,7 +5,7 @@ Library     OperatingSystem
 Library     String
 Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
 Resource  ../telemetry/TelemetryResources.robot

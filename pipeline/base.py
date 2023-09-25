@@ -39,6 +39,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
         )
     if mode == 'debug':
         test_inputs = dict(
@@ -50,6 +51,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
         )
     if mode == 'coverage':
         test_inputs = dict(
@@ -61,6 +63,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             websocket_server=context.artifact.from_component('liveterminal', 'prod',
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             coverage=base_build / 'sspl-base-coverage/covfile',
             coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')

@@ -2,7 +2,7 @@
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot

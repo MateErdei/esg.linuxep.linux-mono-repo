@@ -4,7 +4,7 @@ Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Resource    ../upgrade_product/UpgradeResources.robot
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Resource   ./ThinInstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot

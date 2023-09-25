@@ -67,6 +67,11 @@ Global Setup Tasks
     Set Global Variable  ${MCS_POLICY_CONFIG}           ${ETC_DIR}/sophosspl/mcs_policy.config
     Set Global Variable  ${WD_ACTUAL_USER_GROUP_IDS}       ${ETC_DIR}/user-group-ids-actual.conf
     Set Global Variable  ${WD_REQUESTED_USER_GROUP_IDS}    ${ETC_DIR}/user-group-ids-requested.conf
+    Set Global Variable  ${TEST_INPUT_PATH}                /opt/test/inputs
+    Set Global Variable  ${SYS_TEST_LIBS}                  /opt/sspl/SystemProductTestOutput/libs
+    ${isSystemTestRun}=    Directory Exists                ${SYS_TEST_LIBS}
+    Run Keyword If    ${isSystemTestRun}    Set Global Variable  ${COMMON_TEST_LIBS}  ${SYS_TEST_LIBS}
+    ...               ELSE                  Set Global Variable  ${COMMON_TEST_LIBS}  ${TEST_INPUT_PATH}/common_test_libs
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

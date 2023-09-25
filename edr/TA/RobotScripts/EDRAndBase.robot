@@ -4,7 +4,7 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FileSystemLibs.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/rsyslogUtils.py
 
 Resource        EDRResources.robot

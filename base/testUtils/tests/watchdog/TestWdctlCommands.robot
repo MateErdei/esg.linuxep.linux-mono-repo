@@ -5,7 +5,7 @@ Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource  WatchdogResources.robot
 Resource  ../installer/InstallerResources.robot

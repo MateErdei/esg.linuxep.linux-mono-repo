@@ -8,7 +8,7 @@ Test Teardown    UC Error Test Teardown
 Force Tags  LOAD6
 Test Timeout  10 mins
 
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py

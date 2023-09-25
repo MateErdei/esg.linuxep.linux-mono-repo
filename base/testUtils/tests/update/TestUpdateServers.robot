@@ -1,6 +1,6 @@
 *** Settings ***
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Default Tags    MANUAL
 Test Timeout    NONE

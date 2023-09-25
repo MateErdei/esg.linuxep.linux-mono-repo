@@ -7,7 +7,7 @@ Test Setup  Setup Update Scheduler Environment
 Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Resource  SchedulerUpdateResources.robot
 Resource  ../watchdog/LogControlResources.robot

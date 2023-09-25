@@ -1,7 +1,7 @@
 *** Settings ***
 Test Teardown  Upgrade Resources Test Teardown
 Library    Process
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot

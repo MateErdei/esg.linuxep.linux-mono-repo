@@ -714,3 +714,6 @@ def journalctl_contains(text) -> bool:
 
 def get_hostname() -> str:
     return socket.gethostname()
+
+def directory_exists(path) -> bool:
+    return os.path.isdir(path)

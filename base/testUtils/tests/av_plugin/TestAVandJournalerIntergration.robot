@@ -9,7 +9,7 @@ Resource  ../edr_plugin/EDRResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 
 Library   ${LIBS_DIRECTORY}/LiveQueryUtils.py
-Library   ${LIBS_DIRECTORY}/LogUtils.py
+Library   ${COMMON_TEST_LIBS}/LogUtils.py
 
 Suite Setup     Run keywords
 ...             Setup For Fake Cloud  AND

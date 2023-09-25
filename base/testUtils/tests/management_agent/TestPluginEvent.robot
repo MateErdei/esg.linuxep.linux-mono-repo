@@ -9,7 +9,7 @@ Library           Collections
 
 Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/EventUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 

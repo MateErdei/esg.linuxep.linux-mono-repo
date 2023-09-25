@@ -42,5 +42,6 @@ pkg_tar(
     deps = [
         ":zmqchecker",
         "//base:testUtils",
+        "//common:common_test_libs",
     ],
 )
