@@ -23,6 +23,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 namespace
 {
     constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 4096;
+    constexpr int SECONDS_UNTIL_OSQUERYD_SIGKILL = 5;
 
     class AnnounceStartedOnEndOfScope
     {
@@ -177,7 +178,7 @@ namespace Plugin
         std::lock_guard<std::mutex> lock { m_processMonitorSharedResource };
         if (m_processMonitorPtr)
         {
-            m_processMonitorPtr->kill();
+            m_processMonitorPtr->kill(SECONDS_UNTIL_OSQUERYD_SIGKILL);
         }
     }
 
