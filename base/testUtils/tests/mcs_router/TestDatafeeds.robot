@@ -67,20 +67,23 @@ Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
+    ${mcsrouter_mark} =  Mark Log Size    ${MCS_ROUTER_LOG}
     Start MCSRouter
     ${json_to_send1} =   Set Variable  {"abc":"def456"}
     ${json_to_send2} =   Set Variable  {"abc":"def789"}
     send_xdr_datafeed_result  scheduled_query  invalid  ${json_to_send1}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send2}
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  1s
-    ...  Check MCS Router Log Contains   Malformed datafeed file: scheduled_query-invalid.json
+    Wait For Log Contains From Mark  ${mcsrouter_mark}   Malformed datafeed file: scheduled_query-invalid.json
+
+    Wait For Log Contains From Mark  ${mcsrouter_mark}   Queuing datafeed result for: scheduled_query, with timestamp: 2001298948
     ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
     Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send2}
     Cloud Server Log Should Not Contain  ${json_to_send1}
-    Directory Should Be Empty  ${MCS_DIR}/datafeed
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...   Directory Should Be Empty  ${MCS_DIR}/datafeed
 
 Retrieve JWT Tokens from Central
     Override LogConf File as Global Level  DEBUG
