@@ -154,6 +154,7 @@ Send Filepath that is a dir To Safestore
     wait_for_safestore_log_contains_after_mark  Failed to quarantine /opt/Dir due to:   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  safestore <> Failed to quarantine /opt/Dir due to: FileReadFailed
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  SafeStoreSocket <> Closing SafeStoreServerConnectionThread, error from socket
 
 Send empty File To Safestore
     ${result} =  Send TDO To socket  filepath=""  fd=1
