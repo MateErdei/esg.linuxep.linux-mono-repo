@@ -68,7 +68,7 @@ Global Setup Tasks
     Set Global Variable  ${WD_ACTUAL_USER_GROUP_IDS}       ${ETC_DIR}/user-group-ids-actual.conf
     Set Global Variable  ${WD_REQUESTED_USER_GROUP_IDS}    ${ETC_DIR}/user-group-ids-requested.conf
     Set Global Variable  ${TEST_INPUT_PATH}                /opt/test/inputs
-    Set Global Variable  ${SYS_TEST_LIBS}                  /opt/sspl/SystemProductTestOutput/libs
+    Set Global Variable  ${SYS_TEST_LIBS}                  /opt/sspl/system-product-test-inputs/SystemProductTestOutput/libs
     ${isSystemTestRun}=    Directory Exists                ${SYS_TEST_LIBS}
     Run Keyword If    ${isSystemTestRun}    Set Global Variable  ${COMMON_TEST_LIBS}  ${SYS_TEST_LIBS}
     ...               ELSE                  Set Global Variable  ${COMMON_TEST_LIBS}  ${TEST_INPUT_PATH}/common_test_libs
