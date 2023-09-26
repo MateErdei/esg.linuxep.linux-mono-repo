@@ -117,7 +117,8 @@ Telemetry Reported For Upload File Action Expired
 Telemetry Reported For Upload File Action Timeout Exceeded
     ${id} =  Set Variable  id5
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
-
+    generate_file  /tmp/largefile  ${500}
+    Register Cleanup  Remove File  /tmp/largefile
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
@@ -278,6 +279,7 @@ RA Telemetry Test Setup
 RA Telemetry Test Teardown
     General Test Teardown
     Uninstall Response Actions
+    Run Keyword And Ignore Error   Remove File   ${SOPHOS_INSTALL}/base/telemetry/cache/era-telemetry.json
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server And Remove Telemetry Output
     Remove File  ${EXE_CONFIG_FILE}
