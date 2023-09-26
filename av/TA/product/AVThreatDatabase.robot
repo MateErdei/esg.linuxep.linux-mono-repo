@@ -147,12 +147,7 @@ Duplicate Threat Event Is Not Sent To Central If Not Quarantined
 *** Keywords ***
 ThreatDatabase Test Setup
     Component Test Setup
-    register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    register on fail  dump log  ${WATCHDOG_LOG}
-    register on fail  dump log  ${SAFESTORE_LOG_PATH}
-    register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
-    register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
-    register on fail  dump log   ${SUSI_DEBUG_LOG_PATH}
+    register on fail dump logs
     register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
     register on fail  dump threads  ${PLUGIN_BINARY}
 

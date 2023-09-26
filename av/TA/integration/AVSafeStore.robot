@@ -1560,13 +1560,7 @@ SafeStore Test Setup
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Empty Directory  ${MCS_PATH}/event
 
-    register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    register on fail  dump log  ${WATCHDOG_LOG}
-    register on fail  dump log  ${SAFESTORE_LOG_PATH}
-    register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
-    register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
-    register on fail  dump log   ${SUSI_DEBUG_LOG_PATH}
-    register on fail  dump log   ${ON_ACCESS_LOG_PATH}
+    register on fail dump logs
     register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
     register on fail  dump threads  ${PLUGIN_BINARY}
     register on fail  analyse Journalctl   print_always=True

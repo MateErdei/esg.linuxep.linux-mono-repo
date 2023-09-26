@@ -550,18 +550,24 @@ Display All SSPL Files Installed
     Log  ${result.stdout}
     Log  ${result.stderr}
 
-AV And Base Teardown
-    Run Keyword If Test Failed   Display All SSPL Files Installed
-    Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+register on fail dump logs
+    register on fail  dump log  ${WATCHDOG_LOG}
+    register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
-    Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
-    Register On Fail  dump log  ${AV_LOG_PATH}
-    Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
-    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
+    Register On Fail  dump log  ${AV_LOG_PATH}
+    register on fail  dump log  ${SUSI_DEBUG_LOG_PATH}
+    register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    register on fail  dump log  ${SAFESTORE_LOG_PATH}
+    Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
+
+
+AV And Base Teardown
+    Run Keyword If Test Failed   Display All SSPL Files Installed
+
+    register on fail dump logs
 
     Register On Fail    dump_dmesg
     Register On Fail    dump_log     /var/log/syslog

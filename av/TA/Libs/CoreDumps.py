@@ -169,6 +169,21 @@ class CoreDumps(object):
 
         return stdout
 
+    def __fail_test_on_core_dump_name(self, filename):
+        if "!opt!sophos-spl!base!bin!telemetry." in filename:
+            return False
+
+        if "!opt!sophos-spl!base!bin!python3" in filename:
+            logger.warn("Ignoring mcsrouter core dump")
+            return False
+
+        RTD_CORE_DUMP_RE = re.compile(r"core-.*sophos-subprocess-\d+-exec1 \(deleted\).\d+")
+        if RTD_CORE_DUMP_RE.match(filename):
+            logger.warn("Ignoring RTD core dump")
+            return False
+
+        return True
+
     def check_for_coredumps(self, testname=None):
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
@@ -197,6 +212,10 @@ class CoreDumps(object):
                 os.unlink(file_path)
                 continue
 
+            if "!opt!sophos-spl!base!bin!python3" in file:
+                logger.error("Core file from python3 - assuming mcsrouter")
+                BuiltIn().run_keyword("LogUtils.Dump mcsrouter log")
+
             stat_result = os.stat(file_path)
             timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
             logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
@@ -211,16 +230,13 @@ class CoreDumps(object):
         if not coredumpnames:
             return
 
-        all_core_dumps_are_rtd = True
-        RTD_CORE_DUMP_RE = re.compile(r"core-.*sophos-subprocess-\d+-exec1 \(deleted\).\d+")
+        all_cores_should_be_ignored = True
         for core in coredumpnames:
             core = ensure_text(core)
-            if not RTD_CORE_DUMP_RE.match(core):
-                all_core_dumps_are_rtd = False
+            if self.__fail_test_on_core_dump_name(core):
+                all_cores_should_be_ignored = False
 
-        if all_core_dumps_are_rtd:
-            logger.warn("Found RTD core dump(s)")
-        else:
+        if not all_cores_should_be_ignored:
             # Disabled failing test run until we can sort the core files out
             raise AssertionError("Core dump(s) found")
 
