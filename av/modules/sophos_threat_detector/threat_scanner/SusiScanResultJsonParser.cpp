@@ -1,12 +1,13 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SusiScanResultJsonParser.h"
 
 #include "SusiResultUtils.h"
 
-#include <common/StringUtils.h>
-#include <pluginimpl/ObfuscationImpl/Base64.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include "common/StringUtils.h"
+#include "pluginimpl/ObfuscationImpl/Base64.h"
+
+#include <nlohmann/json.hpp>
 
 namespace threat_scanner
 {

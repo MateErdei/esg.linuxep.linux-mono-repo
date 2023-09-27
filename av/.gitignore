@@ -49,3 +49,4 @@ tmp/
 TA/robot
 TA/vagrant
 /fuzz-libs/
+/log.html

@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 HELPER_SOURCES = [
@@ -32,7 +33,7 @@ spl_independent_cc_tests(
         "//base/tests/Common/FileSystemImpl",
         "//base/tests/Common/Helpers",
         "//base/tests/Common/UtilityImpl:TestStringGenerator",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
     ],
 )

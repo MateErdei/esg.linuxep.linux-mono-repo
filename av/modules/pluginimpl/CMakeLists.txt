@@ -34,7 +34,10 @@ sophos_add_library(pluginimpl SHARED
         ThreatDatabase.cpp
         ThreatDatabase.h
         ../common/config.h
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${JSON_INPUT}
+        EXTRA_INCLUDES
+                ${CMAKE_CURRENT_BINARY_DIR}
+                ${CMAKE_SOURCE_DIR}/modules
+                ${JSON_SINGLE_INPUT}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket scanprocessmonitor obfuscationimpl
 )
 

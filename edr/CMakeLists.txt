@@ -163,6 +163,7 @@ set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 set(GTEST_INPUT ${INPUT}/googletest)
+set(NLOHMANN_JSON_INCLUDE_DIR ${INPUT}/nlohmann-json/single_include)
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 

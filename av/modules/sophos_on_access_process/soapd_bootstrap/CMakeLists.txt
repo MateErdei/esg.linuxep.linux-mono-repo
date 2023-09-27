@@ -21,7 +21,11 @@ add_library(soapdbootstrap SHARED
         SoapdResources.cpp
         SoapdResources.h)
 
-target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)
+target_include_directories(soapdbootstrap
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}/products/distribution/include
+        ${JSON_SINGLE_INPUT}
+)
 
 target_link_libraries(soapdbootstrap PUBLIC
         common

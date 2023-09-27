@@ -23,6 +23,8 @@
 !/imports/thirdparty/libxcrypt/BUILD.bazel
 /imports/thirdparty/openssl/*
 !/imports/thirdparty/openssl/BUILD.bazel
+/imports/thirdparty/nlohmann-json/*
+!/imports/thirdparty/nlohmann-json/BUILD.bazel
 
 # bazel-tools from ESG monorepo
 /.bazelignore
@@ -44,3 +46,5 @@
 /bazel-esg.linuxep.linux-mono-repo
 /bazel-out
 /bazel-testlogs
+
+/tapvenv/

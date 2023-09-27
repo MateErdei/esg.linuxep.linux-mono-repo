@@ -12,14 +12,14 @@
 // Plugin
 #include "common/ApplicationPaths.h"
 // Product
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-
-#include <thirdparty/nlohmann-json/json.hpp>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+// Third party
+#include <nlohmann/json.hpp>
 // Std C++
 #include <fstream>
 #include <string>

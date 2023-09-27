@@ -15,7 +15,7 @@
 #include "Common/PersistentValue/PersistentValue.h"
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <memory>
 #include <mutex>

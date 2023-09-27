@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "pluginimpl/DetectionQueue.h"
 #include "pluginimpl/PluginCallback.h"
@@ -8,7 +8,7 @@
 #include "Common/Helpers/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <future>
 #include <thread>

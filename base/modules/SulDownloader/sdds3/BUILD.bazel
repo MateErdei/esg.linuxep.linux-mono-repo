@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -24,7 +25,7 @@ soph_cc_library(
     deps = [
         "//base/modules/Common/HttpRequests",
         "//base/modules/SulDownloader/suldownloaderdata",
-        "//base/thirdparty/nlohmann-json",
         "//common/sophlib/sdds3",
+        "//imports/thirdparty/nlohmann-json",
     ],
 )

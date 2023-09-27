@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 # define TEST_PUBLIC public
 
@@ -14,7 +14,7 @@
 #include "Common/Helpers/MockSysCalls.h"
 #include "PluginMemoryAppenderUsingTests.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 namespace fs = sophos_filesystem;

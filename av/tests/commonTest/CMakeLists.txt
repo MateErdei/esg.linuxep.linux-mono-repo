@@ -20,5 +20,5 @@ SophosAddTest(TestCommon
         signals/TestSigUSR1Monitor.cpp
         PROJECTS common
         LIBS ${testhelperslib} ${log4cpluslib}
-        INC_DIRS ${testhelpersinclude}
+        INC_DIRS ${testhelpersinclude} ${JSON_INPUT}
         )

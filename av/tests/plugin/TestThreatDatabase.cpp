@@ -15,7 +15,7 @@
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace Plugin;
 

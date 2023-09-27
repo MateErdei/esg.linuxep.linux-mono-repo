@@ -18,7 +18,7 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "//base/modules/Common/UtilityImpl:ProjectNames",
         "//base/modules/Common/UtilityImpl:StringUtils",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = ["//common:spl_packages"],
     deps = [

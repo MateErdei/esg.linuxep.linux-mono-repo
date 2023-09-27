@@ -25,14 +25,15 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//base/modules/Common/ZeroMQWrapper",
         "//base/modules/TelemetryScheduler/LoggerImpl",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = [
-        "//base/tests/TelemetryScheduler:__pkg__",
         "//base/products/Base/TelemetryScheduler:__pkg__",
+        "//base/tests/TelemetryScheduler:__pkg__",
     ],
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/Exceptions",
         "//base/modules/Common/PluginApi",
         "//base/modules/Common/Process",
         "//base/modules/Common/TelemetryConfigImpl",

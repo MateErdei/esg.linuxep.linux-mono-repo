@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -16,11 +17,11 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//base/modules/SulDownloader/common",
         "//base/modules/SulDownloader/sdds3",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = [
-        "//base/tests/SulDownloader:__pkg__",
         "//base/products/Base/SulDownloader:__pkg__",
+        "//base/tests/SulDownloader:__pkg__",
     ],
     deps = [
         "//base/modules/Common/Policy",

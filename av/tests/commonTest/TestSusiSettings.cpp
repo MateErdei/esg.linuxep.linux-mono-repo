@@ -7,7 +7,7 @@
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <json.hpp>
 
 #include <gtest/gtest.h>
 

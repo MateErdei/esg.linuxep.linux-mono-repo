@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -13,7 +14,7 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "//base/modules/Common/ObfuscationImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = ["//common:spl_packages"],
     deps = [

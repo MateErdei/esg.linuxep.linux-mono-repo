@@ -54,6 +54,8 @@
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
         <trusted-asset artifact-path="esg/python_dependencies/20230228/linux_spl" dest-dir="/build/input/pypi"/>
         <trusted-asset artifact-path="org.python/linux/3.11.1/cpython-3.11.1 20230116-x86_64-unknown-linux-gnu-install_only" dest-dir="/build/input"/>
+
+        <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="/build/redist/nlohmann-json"/>
     </inputs>
     <buildcommands>
 

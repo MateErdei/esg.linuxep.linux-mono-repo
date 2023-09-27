@@ -8,7 +8,7 @@
 
 #include "Common/XmlUtilities/AttributesMap.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #define USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
 #define USE_SXL_ENABLE_FROM_CORC_POLICY

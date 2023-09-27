@@ -7,7 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 std::string_view Plugin::threatHealthToString(E_HEALTH_STATUS status)
 {

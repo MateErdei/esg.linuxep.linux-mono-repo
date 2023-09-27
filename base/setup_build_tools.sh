@@ -41,7 +41,7 @@ function install_package()
 cd "$BASEDIR"
 
 # Where the TAP Python venv will be put
-TAP_VENV="$BASEDIR/tap_venv"
+TAP_VENV="$BASEDIR/../tapvenv"
 
 # Install python3 venv for TAP and then install TAP
 # For TAP we try to work out which python to use or install and then set PYTHON_TO_USE for use by TAP and TAP venv.
@@ -140,7 +140,7 @@ fi
 tap --version
 tap ls
 export TAP_JWT=$(cat "$BASEDIR/testUtils/SupportFiles/jenkins/jwt_token.txt")
-tap fetch sspl_base.build.release || {
+tap fetch linux_mono_repo.products.cmake.base.base_release || {
   # This is a work around because tap fetch seems to also try and do some sort
   # of build promotion which fails when using jwt_token.txt, so if this is used in a script we need
   # to run the below directly instead of running tap fetch.

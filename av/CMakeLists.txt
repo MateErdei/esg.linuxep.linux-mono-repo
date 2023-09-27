@@ -228,7 +228,8 @@ add_imported_library(boost_locale SHARED  ${BOOST_LIBRARYDIR}/liblocale.so ${BOO
 
 add_imported_library(boost_program_options SHARED ${BOOST_LIBRARYDIR}/libprogram_options.so ${BOOST_INCLUDEDIR})
 
-set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
+set(JSON_INPUT ${INPUT}/nlohmann-json/single_include/nlohmann)
+set(JSON_SINGLE_INPUT ${INPUT}/nlohmann-json/single_include)
 
 add_subdirectory(modules)
 add_subdirectory(products)

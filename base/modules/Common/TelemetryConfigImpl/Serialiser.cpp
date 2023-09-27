@@ -2,6 +2,8 @@
 
 #include "Serialiser.h"
 
+#include "Common/Exceptions/IException.h"
+
 #include <climits>
 #include <iostream>
 #include <json.hpp>
@@ -144,8 +146,9 @@ namespace Common::TelemetryConfigImpl
             auto value = j.at(INTERVAL_CONFIG_KEY);
             if (!value.is_number_unsigned() || value.get<unsigned long>() > (unsigned long)(UINT_MAX))
             {
-                throw nlohmann::detail::other_error::create(
-                    invalidNumberConversion, "Value for interval is negative or too large");
+                // Per https://github.com/nlohmann/json/discussions/3566
+                // We shouldn't be throwing nlohmann json exceptions ourselves
+                throw Common::Exceptions::IException(LOCATION, "Value for interval is negative or too large");
             }
             config.setInterval(value);
         }
@@ -217,12 +220,12 @@ namespace Common::TelemetryConfigImpl
         {
             std::stringstream msg;
             msg << "Configuration JSON is invalid: " << e.what();
-            throw std::runtime_error(msg.str());
+            std::throw_with_nested(Common::Exceptions::IException(LOCATION, msg.str()));
         }
 
         if (!config.isValid())
         {
-            throw std::runtime_error("Configuration from deserialised JSON is invalid");
+            throw Common::Exceptions::IException(LOCATION, "Configuration from deserialised JSON is invalid");
         }
 
         return config;

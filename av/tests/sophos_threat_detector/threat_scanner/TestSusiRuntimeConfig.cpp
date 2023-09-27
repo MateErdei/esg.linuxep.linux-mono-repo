@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 // File under test
 #include "sophos_threat_detector/threat_scanner/SusiRuntimeConfig.h"
@@ -9,7 +9,7 @@
 // Test helper
 #include "Common/Helpers/LogInitializedTests.h"
 // 3rd party
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 // Std C++
 #include <thread>
 

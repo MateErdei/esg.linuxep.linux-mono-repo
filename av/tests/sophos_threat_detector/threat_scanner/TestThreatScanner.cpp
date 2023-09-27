@@ -4,7 +4,7 @@
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
 #include "sophos_threat_detector/threat_scanner/ThreatScannerException.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <gtest/gtest.h>
 

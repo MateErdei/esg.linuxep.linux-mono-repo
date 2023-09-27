@@ -26,6 +26,6 @@ soph_cc_library(
         "//base/modules/UpdateSchedulerImpl/cronModule",
         "//base/modules/UpdateSchedulerImpl/runnerModule",
         "//base/modules/UpdateSchedulerImpl/stateMachinesModule",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
     ],
 )

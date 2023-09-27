@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #include "ProxySettings.h"
 
 #include "Logger.h"
@@ -7,7 +7,7 @@
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace
 {

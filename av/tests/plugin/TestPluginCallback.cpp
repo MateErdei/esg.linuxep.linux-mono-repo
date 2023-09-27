@@ -24,7 +24,7 @@
 
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace Plugin;
 namespace fs = sophos_filesystem;

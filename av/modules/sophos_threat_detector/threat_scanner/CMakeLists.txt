@@ -59,7 +59,11 @@ target_link_libraries(threat_scanner PUBLIC
         )
 
 target_include_directories(threat_scanner
-        PUBLIC ${CMAKE_SOURCE_DIR}/modules ${susi_include})
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}/modules
+        ${susi_include}
+        ${JSON_SINGLE_INPUT}
+)
 
 install(TARGETS threat_scanner
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

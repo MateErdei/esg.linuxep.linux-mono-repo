@@ -14,6 +14,7 @@ SophosAddTest(TestSafeStore
         PROJECTS safestoreimpl
         INC_DIRS
         ${testhelpersinclude}
+        ${JSON_SINGLE_INPUT}
         LIBS ${log4cpluslib} ${testhelperslib}
         )
 

@@ -27,6 +27,8 @@
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
         </build-asset>
+
+        <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
     </inputs>
     <buildcommands>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->

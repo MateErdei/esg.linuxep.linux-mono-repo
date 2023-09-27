@@ -59,6 +59,7 @@ RUN_CPPCHECK=0
 TAP=${TAP:-tap}
 [[ -n "$REDIST" ]] || REDIST=$BASE/redist
 VAGRANT=0
+TAP_VENV_DIR=$BASE/../tapvenv
 
 function install_package()
 {
@@ -235,32 +236,32 @@ do
             ;;
         --independent-build|--independent)
             rm -rf input "${REDIST}"
-            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            [[ -d ${TAP_VENV_DIR} ]] && source ${TAP_VENV_DIR}/bin/activate
 #            release-package has workingdir of av, so if we are in av directory already inputs end up in av/av/input
             cd ${BASE}/..
             export TAP_PARAMETER_MODE=independent
-            "$TAP" fetch linux_mono_repo.plugins.av_${TAP_PARAMETER_MODE}
+            "$TAP" fetch linux_mono_repo.products.cmake.plugins.av_${TAP_PARAMETER_MODE}
             cd ${BASE}
             install_package libcap-dev
             ;;
         --setup)
             rm -rf input "${REDIST}"
-            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            [[ -d ${TAP_VENV_DIR} ]] && source ${TAP_VENV_DIR}/bin/activate
             export TAP_PARAMETER_MODE=release
             cd ${BASE}/..
-            "$TAP" fetch linux_mono_repo.plugins.av_release
+            "$TAP" fetch linux_mono_repo.products.cmake.plugins.av_release
             cd ${BASE}
 #            # Needed for sys/capability.h
             install_package libcap-dev
             NO_BUILD=1
             ;;
         --venv|--setup-venv)
-            rm -rf "${BASE}/tapvenv"
+            rm -rf "${TAP_VENV_DIR}"
             PYTHON="${PYTHON:-python3.7}"
             [[ -x "$(which $PYTHON)" ]] || PYTHON=python3
-            "${PYTHON}" -m venv "${BASE}/tapvenv"
-            source "$BASE/tapvenv/bin/activate"
-            cat <<EOF >"${BASE}/tapvenv/pip.conf"
+            "${PYTHON}" -m venv "${TAP_VENV_DIR}"
+            source "${TAP_VENV_DIR}/bin/activate"
+            cat <<EOF >"${TAP_VENV_DIR}/pip.conf"
 [global]
 timeout=60
 index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple
@@ -416,8 +417,9 @@ function build()
         setup_susi
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
-        python3 ${BASE}/build-files/create_library_links.py ${REDIST}/pluginapi
-        (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
+        rm -rf "${REDIST}/pluginapi/include/thirdparty"
+        python3 ${BASE}/build-files/create_library_links.py "${REDIST}/pluginapi"
+        (( LOCAL_CMAKE == 0 )) && ln -snf "$INPUT/cmake" "$REDIST/"
         untar_input boost
 
         # Copy required by SUSI dependency (to remove when they move to monorepo zlib input)
@@ -450,36 +452,36 @@ function build()
         return 0
     fi
 
-    [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+    [[ -d "${TAP_VENV_DIR}" ]] && source "${TAP_VENV_DIR}/bin/activate"
 
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
 
     if (( BULLSEYE == 1 ))
     then
         BULLSEYE_DIR=/opt/BullseyeCoverage
-        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
-        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bullseye"
-        addpath ${BULLSEYE_DIR}/bin
-        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
+        [[ -d "$BULLSEYE_DIR" ]] || BULLSEYE_DIR=/usr/local/bullseye
+        [[ -d "$BULLSEYE_DIR" ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bullseye"
+        addpath "${BULLSEYE_DIR}/bin"
+        export LD_LIBRARY_PATH="${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}"
         export COVFILE
-        export COVSRCDIR=$PWD
+        export COVSRCDIR="$PWD"
         export COV_HTML_BASE
         export BULLSEYE_DIR
         [[ $CLEAN == 1 ]] && rm -f "$COVFILE"
         bash -x "$BASE/build/bullseye/createCovFile.sh" \
             || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
-        export CC=$BULLSEYE_DIR/bin/gcc
-        export CXX=$BULLSEYE_DIR/bin/g++
+        export CC="$BULLSEYE_DIR/bin/gcc"
+        export CXX="$BULLSEYE_DIR/bin/g++"
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
     fi
 
     #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/build/input/gcc/lib64:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu${LIBRARY_PATH:+:${LIBRARY_PATH}}
-    export CPLUS_INCLUDE_PATH=/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}
-    export CPATH=/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPATH:+:${CPATH}}
+    export LIBRARY_PATH="/build/input/gcc/lib64:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu${LIBRARY_PATH:+:${LIBRARY_PATH}}"
+    export CPLUS_INCLUDE_PATH="/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}"
+    export CPATH="/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPATH:+:${CPATH}}"
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
 
-    export LD_LIBRARY_PATH=${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs:${BUILD_DIR}/libs
+    export LD_LIBRARY_PATH="${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs:${BUILD_DIR}/libs"
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 
     if [[ ! $USE_LIBFUZZER ]]
@@ -497,11 +499,11 @@ function build()
     rm -rf output
     mkdir -p output
 
-    [[ $CLEAN == 1 ]] && rm -rf ${BUILD_DIR}
-    mkdir -p ${BUILD_DIR}
-    cd ${BUILD_DIR}
+    [[ $CLEAN == 1 ]] && rm -rf "${BUILD_DIR}"
+    mkdir -p "${BUILD_DIR}"
+    cd "${BUILD_DIR}"
     which cmake
-    LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
+    LD_LIBRARY_PATH="${LD_LIBRARY_PATH}" \
         cmake \
             -DINPUT="${INPUT}" \
             -DREDIST="${REDIST}" \
@@ -510,11 +512,11 @@ function build()
             -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
             -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
             -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
-            -DCMAKE_CXX_COMPILER=$CXX \
-            -DCMAKE_C_COMPILER=$CC \
+            -DCMAKE_CXX_COMPILER="$CXX" \
+            -DCMAKE_C_COMPILER="$CC" \
             ${EXTRA_CMAKE_OPTIONS} \
         ${BASE} || exitFailure 14 "Failed to configure $PRODUCT"
-    ls -lR ${BASE}/products/distribution/include
+    ls -lR "${BASE}/products/distribution/include"
     make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" VERBOSE=1 \
         || exitFailure 15 "Failed to build $PRODUCT"
 

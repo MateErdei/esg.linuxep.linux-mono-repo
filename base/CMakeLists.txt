@@ -134,7 +134,7 @@ set(BASE_DIST_PREFIX "base")
 set(RA_DIST_PREFIX "ra")
 
 find_program(VERSIONING_CLIENT "versioning_client"
-        PATHS ${CMAKE_SOURCE_DIR}/tap_venv/bin
+        PATHS ${CMAKE_SOURCE_DIR}/../tapvenv/bin
         REQUIRED)
 
 if (DEFINED ENV{VERSION_OVERRIDE})
@@ -285,7 +285,7 @@ target_link_libraries(openssl_crypto_static INTERFACE dl pthread)
 target_link_libraries(openssl_ssl INTERFACE openssl_crypto)
 target_link_libraries(openssl_ssl_static INTERFACE openssl_crypto_static)
 
-set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
+set(NLOHMANN_JSON_INCLUDE_DIR ${INPUT}/nlohmann-json/single_include/nlohmann)
 
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT} )
 

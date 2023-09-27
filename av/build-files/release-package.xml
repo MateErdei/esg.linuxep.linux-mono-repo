@@ -103,6 +103,7 @@
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="input/cmake"/>
+        <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="input/nlohmann-json"/>
     </inputs>
     <buildcommands>
         <command mode="release,oldci">

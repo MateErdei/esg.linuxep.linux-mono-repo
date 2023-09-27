@@ -40,6 +40,7 @@ target_include_directories(scanmessages PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}/modules
         ${pluginapiinclude}
+        ${JSON_SINGLE_INPUT}
         )
 
 target_link_libraries(scanmessages

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <string>
 

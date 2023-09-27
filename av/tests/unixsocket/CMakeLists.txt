@@ -51,6 +51,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestSafeStoreSocket.cpp
             PROJECTS unixsocket safestoreimpl
             INC_DIRS ${testhelpersinclude}
+            ${JSON_SINGLE_INPUT}
             LIBS ${log4cpluslib} ${testhelperslib}
             )
 

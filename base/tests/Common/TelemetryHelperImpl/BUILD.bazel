@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
@@ -11,7 +12,7 @@ spl_independent_cc_tests(
         "//base/modules/Common/Logging",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/tests/Common/Helpers",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
     ],
 )

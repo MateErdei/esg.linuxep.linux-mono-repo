@@ -60,6 +60,7 @@
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/redist/cmake"/>
         <trusted-asset artifact-path="com.osquery/osquery/5.8.2/osquery-5.8.2-linux" dest-dir="/build/redist"/>
+        <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="/build/redist/nlohmann-json"/>
 
         <!-- For local tests -->
         <!-- qp=em.esg/develop/build/scheduled-query-pack-sdds -->

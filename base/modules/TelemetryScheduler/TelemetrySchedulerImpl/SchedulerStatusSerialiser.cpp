@@ -2,6 +2,7 @@
 
 #include "SchedulerStatusSerialiser.h"
 
+#include "Common/Exceptions/IException.h"
 #include "Common/TelemetryConfigImpl/Serialiser.h"
 
 #include <climits>
@@ -25,8 +26,7 @@ namespace TelemetrySchedulerImpl
         auto value = j.at(TELEMETRY_SCHEDULED_TIME_KEY);
         if (!value.is_number_unsigned() || value.get<unsigned long>() > (unsigned long)(INT_MAX))
         {
-            throw nlohmann::detail::other_error::create(
-                Common::TelemetryConfigImpl::invalidNumberConversion,
+            throw Common::Exceptions::IException(LOCATION,
                 "Value for scheduled time is negative or too large");
         }
         config.setTelemetryScheduledTimeInSecondsSinceEpoch(value);
@@ -58,12 +58,12 @@ namespace TelemetrySchedulerImpl
         {
             std::stringstream msg;
             msg << "Configuration JSON is invalid: " << e.what();
-            throw std::runtime_error(msg.str());
+            std::throw_with_nested(Common::Exceptions::IException(LOCATION, msg.str()));
         }
 
         if (!config.isValid())
         {
-            throw std::runtime_error("Configuration from deserialised JSON is invalid");
+            throw Common::Exceptions::IException(LOCATION, "Configuration from deserialised JSON is invalid");
         }
 
         return config;

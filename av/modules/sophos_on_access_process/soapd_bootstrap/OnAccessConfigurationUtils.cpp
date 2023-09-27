@@ -5,12 +5,15 @@
 #include "Logger.h"
 
 #include "datatypes/sophos_filesystem.h"
-#include "thirdparty/nlohmann-json/json.hpp"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 
+// Third party
+#include <nlohmann/json.hpp>
+
+// System
 #include <limits>
 
 namespace fs = sophos_filesystem;

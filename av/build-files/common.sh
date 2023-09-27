@@ -30,6 +30,8 @@ function set_gcc_make()
         export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
         export CC=/usr/local/bin/gcc
         export CXX=/usr/local/bin/g++
+    else
+        echo "WARNING: Building with OS gcc/g++"
     fi
 }
 
@@ -56,25 +58,10 @@ function unpack_scaffold_gcc_make()
         export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
-    elif [[ -d /build/input/gcc ]]
-    then
-        ## Already unpacked
-        echo "WARNING: Using existing unpacked gcc"
-        export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
-        export CC=/build/input/gcc/bin/gcc
-        export CXX=/build/input/gcc/bin/g++
-    elif [[ -f /usr/local/bin/gcc ]]
-    then
-        ## Locally built gcc
-        echo "WARNING: Using gcc from /usr/local/bin"
-        export PATH=/usr/local/bin:$PATH
-        export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
-        export CC=/usr/local/bin/gcc
-        export CXX=/usr/local/bin/g++
     else
-        echo "WARNING: Building with OS gcc/g++"
+        set_gcc_make
     fi
+
     which gcc
     GCC=$(which gcc)
     [[ -x $GCC ]] || exitFailure 50 "No gcc is available"

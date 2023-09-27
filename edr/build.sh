@@ -48,6 +48,7 @@ VALGRIND=0
 AFL=0
 TAP=${TAP:-tap}
 VAGRANT=0
+TAP_VENV=${BASE}/../tapvenv
 
 while [[ $# -ge 1 ]]
 do
@@ -153,16 +154,16 @@ do
             ;;
         --independent)
             rm -rf input "${REDIST}"
-            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            [[ -d "${TAP_VENV}" ]] && source "${TAP_VENV}/bin/activate"
             export TAP_PARAMETER_MODE=independent
-            $TAP fetch linux_mono_repo.plugins.edr_independent
+            "$TAP" fetch linux_mono_repo.products.cmake.plugins.edr_independent
             NO_BUILD=1
             ;;
         --setup)
             rm -rf input "${REDIST}"
-            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            [[ -d "${TAP_VENV}" ]] && source "${TAP_VENV}/bin/activate"
             export TAP_PARAMETER_MODE=release
-            $TAP fetch linux_mono_repo.plugins.edr_release
+            "$TAP" fetch linux_mono_repo.products.cmake.plugins.edr_release
             NO_BUILD=1
             ;;
         --vagrant|--rsync)
@@ -280,7 +281,9 @@ function build()
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto
-
+    else
+        # Ensure LD_LIBRARY_PATH is set
+        set_gcc_make
     fi
 
     PATH=$REDIST/cmake/bin:$PATH

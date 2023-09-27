@@ -35,14 +35,14 @@ soph_cc_library(
         "//base/modules/Telemetry/LoggerImpl",
     ],
     visibility = [
-        "//base/tests/Telemetry:__pkg__",
         "//base/products/Base/Telemetry:__pkg__",
+        "//base/tests/Telemetry:__pkg__",
     ],
     deps = [
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/TelemetryConfigImpl",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:TimeUtils",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
     ],
 )

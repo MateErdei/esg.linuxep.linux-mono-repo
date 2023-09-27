@@ -21,7 +21,6 @@
 
 #include <datatypes/IUuidGenerator.h>
 #include <linux/fs.h>
-#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <utility>
 

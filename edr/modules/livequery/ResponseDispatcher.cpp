@@ -6,13 +6,20 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 
 #include "ResponseDispatcher.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+// Package
 #include "Logger.h"
+
+// SPL
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
+
+// Thirdparty
+#include <nlohmann/json.hpp>
+
+// System
 #include <sstream>
-#include <Common/UtilityImpl/StringUtils.h>
 
 namespace
 {

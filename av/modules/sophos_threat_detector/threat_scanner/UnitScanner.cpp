@@ -12,7 +12,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 
 // Thirdparties
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 // System C Headers
 #include <sys/syscall.h>

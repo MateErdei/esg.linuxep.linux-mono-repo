@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
@@ -8,7 +9,7 @@ spl_independent_cc_tests(
     ]),
     deps = [
         "//base/modules/Common/TelemetryConfigImpl",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SusiWrapperFactory.h"
 
@@ -18,7 +14,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
-#include "thirdparty/nlohmann-json/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include <fstream>
 

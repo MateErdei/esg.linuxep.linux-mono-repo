@@ -21,6 +21,7 @@ SophosAddTest(TestThreatScanner
         TestUnitScanner.cpp
         PROJECTS threat_scanner
         INC_DIRS ${testhelpersinclude}
+        ${JSON_SINGLE_INPUT}
         LIBS ${testhelperslib}
         )
 

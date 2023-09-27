@@ -51,6 +51,7 @@ export ENABLE_STRIP=1
 VALGRIND=0
 VAGRANT=0
 UNIT_TESTS=1
+TAP_VENV_DIR=$BASE/../tapvenv
 
 # Deal with arguments
 while [[ $# -ge 1 ]]
@@ -132,12 +133,12 @@ do
             "$BASE/tap_fetch.sh"
             ;;
         --setup-venv)
-            rm -rf "${BASE}/tap_venv"
+            rm -rf "${TAP_VENV_DIR}"
             PYTHON="${PYTHON:-python3.7}"
             [[ -x "$(which $PYTHON)" ]] || PYTHON=python3
-            "${PYTHON}" -m venv "${BASE}/tap_venv"
-            source "$BASE/tap_venv/bin/activate"
-            cat <<EOF >"${BASE}/tap_venv/pip.conf"
+            "${PYTHON}" -m venv "${TAP_VENV_DIR}"
+            source "${TAP_VENV_DIR}/bin/activate"
+            cat <<EOF >"${TAP_VENV_DIR}/pip.conf"
 [global]
 timeout=60
 index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple

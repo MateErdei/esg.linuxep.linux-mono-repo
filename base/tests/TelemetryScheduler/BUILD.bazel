@@ -15,7 +15,7 @@ spl_independent_cc_tests(
         "//base/tests/Common/ApplicationConfiguration",
         "//base/tests/Common/Helpers",
         "//base/tests/Common/UtilityImpl:TestStringGenerator",
-        "//base/thirdparty/nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -10,10 +10,10 @@
 #include "common/ShuttingDownException.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/LoggerConfig.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <sys/file.h>
 #include <sys/stat.h>

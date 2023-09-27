@@ -19,14 +19,14 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
+// Third party
+#include <nlohmann/json.hpp>
+
 // Std C
 #include <sys/stat.h>
 
 // Std C++
 #include <fstream>
-
-// Third party
-#include <thirdparty/nlohmann-json/json.hpp>
 
 using json = nlohmann::json;
 
