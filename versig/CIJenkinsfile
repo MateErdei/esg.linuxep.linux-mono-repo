@@ -1,5 +1,0 @@
-#!/usr/bin/env groovy
-@Library("tap-pipe")
-
-def params = []
-CIPipeline { pipelineEntryPoint = 'versig'; pipelineRootDir = './sophos/'; buildParameters = params }

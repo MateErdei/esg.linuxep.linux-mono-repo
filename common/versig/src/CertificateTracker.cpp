@@ -28,15 +28,9 @@ namespace verify_exceptions
         m_CertNames.append(CertName);
     }
 
-    vector<string>::const_iterator CertificateTracker::GetProblems()
-    {
-        return m_CertProblems.begin();
-    }
+    vector<string>::const_iterator CertificateTracker::GetProblems() { return m_CertProblems.begin(); }
 
-    vector<string>::const_iterator CertificateTracker::GetEnd()
-    {
-        return m_CertProblems.end();
-    }
+    vector<string>::const_iterator CertificateTracker::GetEnd() { return m_CertProblems.end(); }
 
     void CertificateTracker::Clear()
     {
