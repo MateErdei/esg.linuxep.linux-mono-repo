@@ -140,7 +140,12 @@
     </command>
     <command mode="dev,999">
         <program>cp</program>
-        <args>SystemProductTestOutput/libs/* TA/libs/</args>
+        <args>SystemProductTestOutput/libs/LogUtils.py TA/libs/</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="dev,999">
+        <program>cp</program>
+        <args>SystemProductTestOutput/libs/LogHandler.py TA/libs/</args>
         <workingdir>.</workingdir>
     </command>
     <command mode="dev,999">
