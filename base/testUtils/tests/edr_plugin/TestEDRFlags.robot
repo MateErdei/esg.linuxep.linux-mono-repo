@@ -51,7 +51,10 @@ EDR disables curl tables when network available flag becomes false
     ...   5 secs
     ...   Check EDR Osquery Executable Running
 
-    File Should Not Contain  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags  --disable_tables=curl,curl_certificate
+    Wait Until Keyword Succeeds
+    ...  10
+    ...  1
+    ...  File Should Not Contain  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags  --disable_tables=curl,curl_certificate
     #mark edr osquery log because "Table curl is disabled" can appear before the test starts on a slow system
     Mark EDR Osquery Log
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
