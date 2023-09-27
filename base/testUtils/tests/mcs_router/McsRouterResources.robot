@@ -4,7 +4,7 @@ Documentation    Shared keywords for MCS Router tests
 Library     OperatingSystem
 
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py

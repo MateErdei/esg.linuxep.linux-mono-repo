@@ -4,7 +4,7 @@ Documentation    Fuzzer tests for MCS
 Default Tags  MCS_FUZZ
 
 Library    Process
-Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 

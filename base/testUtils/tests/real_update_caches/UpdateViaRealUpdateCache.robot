@@ -7,7 +7,7 @@ Test Teardown   Run Keywords
 ...  Uninstall_SSPL    ${SOPHOS_INSTALL}
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../GeneralTeardownResource.robot

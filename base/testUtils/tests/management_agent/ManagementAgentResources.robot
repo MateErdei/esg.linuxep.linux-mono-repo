@@ -3,7 +3,7 @@ Library    Process
 Library    OperatingSystem
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/LogControlResources.robot
 
