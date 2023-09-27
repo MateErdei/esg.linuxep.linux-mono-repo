@@ -121,8 +121,8 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
     finally:
-        machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
+        machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
@@ -146,7 +146,7 @@ def robot_task(machine: tap.Machine, robot_args: str, include_tag: str):
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
-        machine.output_artifact('/opt/test/results', 'results')
+        machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
 
 
 

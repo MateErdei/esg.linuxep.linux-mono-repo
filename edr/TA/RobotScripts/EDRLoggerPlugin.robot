@@ -8,6 +8,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/InstallerUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/CoreDumps.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
@@ -964,6 +965,7 @@ Set Discovery Query Interval In EDR SDDS Directory Config
 
 
 Test Setup
+    CoreDumps.enable_core_files
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
@@ -976,6 +978,7 @@ Test Teardown
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Clear Datafeed Dir And Wait For Next Result File
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Dump Scheduled Query Table
     Run Keyword If Test Failed    Verify RPM DB
+    Run Keyword If Test Failed    CoreDumps.check_for_coredumps
     EDR And Base Teardown Without Starting EDR
     Uninstall EDR
     clear_datafeed_folder
