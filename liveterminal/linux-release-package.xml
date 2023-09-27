@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package name="liveterminal_linux" version="1.7.2">
+    <versioning>
+        <workingdir>./source/linux/products/distribution/include/AutoVersioningHeaders</workingdir>
+    </versioning>
+
+    <inputs>
+        <workingdir>.</workingdir>
+        <build-asset project="linuxep" repo="everest-base">
+            <release-version branch="release/2023.3" build-id="20230821090353-6831bc696103186d1ab534d10297e650db78dd4b-3rqV4H"/>
+            <development-version branch="develop"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
+        </build-asset>
+
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
+            <development-version branch="develop"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
+
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
+        </build-asset>
+        
+        <build-asset project="thirdparty" repo="all">
+            <release-version branch="release/SPRINT-2023.37" build-id="20230831140213-af97a782aef02e11f317f420f5dca5de2bb5d20b-0Egr1t"/>
+            <development-version branch="develop"/>
+            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl"/>
+        </build-asset>
+
+        <build-asset project="thirdparty" repo="gcc">
+            <release-version branch="release/Version_11_2_0"
+                             build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="protobuf">
+            <release-version branch="release/sspl/Version_3_17_3"
+                             build-id="20220310143632-66a638734ca9de06319cfc97fdd27ac200fdec15-yMZBAU"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+
+        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
+
+        <!-- Rust -->
+        <trusted-asset artifact-path="org.rust-lang/rustlinux/1.68.2/rustlinux" dest-dir="source/_input/installer" />
+        <trusted-asset artifact-path="org.rust-lang/rustlinux/coverage/grcov-0.8.13-x86_64-unknown-linux-gnu" dest-dir="source/_input/installer/rust/cargo/bin" />
+        <trusted-asset artifact-path="org.rust-lang/vendor/20230628/vendor" dest-dir="source/_input/rust/vendor" />
+    </inputs>
+    <buildcommands>
+        <!--<command buildtype="prod">-->
+        <command mode="release">
+            <program>/bin/bash</program>
+            <args>source/linux/build-files/build.sh --clean --name liveresponse</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="linux-coverage">
+            <program>/bin/bash</program>
+            <args>source/linux/build-files/build.sh --clean --name liveresponse --debug --bullseye</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="linux-analysis">
+            <program>/bin/bash</program>
+            <args>source/linux/build-files/build.sh --no-build --analysis</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="999">
+            <program>/bin/bash</program>
+            <args>source/linux/build-files/build.sh --clean --name liveresponse --999 --no-unit-test</args>
+            <workingdir>.</workingdir>
+        </command>
+
+    </buildcommands>
+    <publish>
+        <workingdir>.</workingdir>
+
+        <!-- change to release-asset-->
+        <release-asset artifact-path="liveterminal/sdds" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <build-asset artifact-path="sspl-liveterminal-coverage/sdds" source-dir="output/SDDS-COMPONENT"
+                     mode="linux-coverage"/>
+        <release-asset artifact-path="liveterminal/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
+        <!-- 999 -->
+        <release-asset artifact-path="liveterminal-999/sdds" source-dir="output/SDDS-COMPONENT" mode="999"/>
+        <release-asset artifact-path="liveterminal-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
+
+
+        <build-asset artifact-path="liveterminal/symbols" source-dir="output/symbols" mode="release">
+        </build-asset>
+
+        <build-asset artifact-path="base/base_sdds" source-dir="output/base-sdds" mode="release"/>
+        <build-asset artifact-path="sspl-liveterminal-coverage/base_sdds" source-dir="output/base-sdds"
+                     mode="linux-coverage">
+
+        </build-asset>
+        <!--logs name="build_log"  pattern="log/**" /-->
+        <build-asset artifact-path="linux/rust_coverage/unittests" source-dir="source/_rustcov/cov_unittests"
+                     mode="coverage,linux-coverage"/>
+        <build-asset artifact-path="linux/rust_coverage/empty" source-dir="source/_rustcov/cov_empty"
+                     mode="coverage,linux-coverage"/>
+        <build-asset artifact-path="linux/bullseye" source-dir="output/coverage" mode="linux-coverage"/>
+        <build-asset artifact-path="linux/analysis" source-dir="output/analysis/cppcheck" mode="linux-analysis"/>
+
+
+        <!-- while all the products are not moved to unified pipeline, we will probably still need to run a artisan build (production) -->
+        <destdir>liveterminal_linux</destdir>
+
+        <buildoutputs>
+            <output name="websocket_server" srcfolder="ta\scripts\utils\websocket_server" mode="release"/>
+            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release"></output>
+            <output name="build_log" srcfolder="log" mode="debug,release"></output>
+        </buildoutputs>
+        <publishbranches>develop,bugfix,release,feature</publishbranches>
+    </publish>
+</package>
