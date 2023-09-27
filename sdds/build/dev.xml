@@ -139,6 +139,11 @@
         <workingdir>SystemProductTestOutput/testUtils</workingdir>
     </command>
     <command mode="dev,999">
+        <program>cp</program>
+        <args>SystemProductTestOutput/libs/* TA/libs/</args>
+        <workingdir>.</workingdir>
+    </command>
+    <command mode="dev,999">
         <program>mkdir -p</program>
         <args>TA/SupportFiles/openssl</args>
         <workingdir>.</workingdir>
