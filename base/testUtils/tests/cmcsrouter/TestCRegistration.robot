@@ -2,17 +2,18 @@
 Documentation    Tests to verify we can register successfully with
 ...              fake cloud with C++ implementation.
 
-Suite Setup      Setup MCS Tests
-Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
+Suite Setup      Run Keywords
+                 ...    Setup MCS Tests    AND
+                 ...    Start Local Cloud Server
+Suite Teardown  Run Keywords
+                 ...    Uninstall SSPL Unless Cleanup Disabled    AND
+                 ...    Stop Local Cloud Server
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 
-Test Setup       Run Keywords
-...              Start Local Cloud Server
-
 Test Teardown    Run Keywords
-...              Stop Local Cloud Server  AND
+...              MCSRouter Test Teardown  AND
 ...			     Stop System Watchdog
 
 Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
