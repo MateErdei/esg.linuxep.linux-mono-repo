@@ -16,7 +16,7 @@ Resource  ../GeneralTeardownResource.robot
 
 Test Timeout    4 minutes
 
-Default Tags    MANAGEMENT_AGENT  PUB_SUB
+Default Tags    MANAGEMENT_AGENT  TAP_PARALLEL4
 
 *** Test Cases ***
 Verify Can Send Message Via Management Agent Pub Sub Data Channel

@@ -21,6 +21,7 @@ Test Teardown   Teardown
 
 Test Setup   Setup Fake Cloud
 Default Tags  DIAGNOSE    TAP_PARALLEL2
+
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
