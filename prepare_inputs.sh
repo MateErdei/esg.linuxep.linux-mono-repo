@@ -23,3 +23,10 @@ alias(
 )
 EOF
 done
+
+rm -rf imports/thirdparty/python/x64
+rm -rf imports/thirdparty/python/arm64
+mkdir -p imports/thirdparty/python/x64
+mkdir -p imports/thirdparty/python/arm64
+tar -zxf $(ls imports/thirdparty/python/cpython-3.11.5*-x86_64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/x64
+tar -zxf $(ls imports/thirdparty/python/cpython-3.11.5*-aarch64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/arm64

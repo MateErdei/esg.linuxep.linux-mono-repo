@@ -28,10 +28,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/telemetry
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/tscheduler
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/UpdateScheduler
 o777, sophos-spl-group, root, /opt/sophos-spl/base/etc/telemetry-config.json
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libcrypt.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libcrypt.so.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libcrypt.so.1.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libcrypt.so.1.1.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libpython3.11.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libpython3.11.so.1
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/libpython3.11.so.1.0

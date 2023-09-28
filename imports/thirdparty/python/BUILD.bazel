@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+alias(
+    name = "python3",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x64/bin/python3.11",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "libpython",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x64/lib/libpython3.11.so.1.0",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "libraries",
+    srcs = select({
+        "@bazel_tools//src/conditions:linux_x86_64": glob(["x64/lib/python3.11/**"]),
+    }),
+    visibility = ["//visibility:public"],
+)

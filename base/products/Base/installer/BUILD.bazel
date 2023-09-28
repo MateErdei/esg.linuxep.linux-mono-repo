@@ -58,7 +58,7 @@ copy_file(
 
 filter_files(
     name = "python_standard_libs",
-    srcs = ["@cpython_spl//:libraries"],
+    srcs = ["//imports/thirdparty/python:libraries"],
     disallowed_suffixes = [
         ".exe",  # unsigned .exe files are not allowed by CI
         ".whl",  # may contain ".exe"s, they are not needed anyway
@@ -69,7 +69,9 @@ filter_files(
 zip_asset(
     name = "python_standard_libs_zip",
     srcs = [":python_standard_libs"],
-    strip_prefix = "/external/cpython_spl/lib/python3.11",
+    strip_prefix = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "/imports/thirdparty/python/x64/lib/python3.11",
+    }),
 )
 
 genrule(
@@ -181,7 +183,7 @@ spl_sdds_packages(
         "files/base/bin/machineid": ":machineid",
         "files/base/bin/manifestdiff": ":manifestdiff",
         "files/base/bin/mcsrouter": "//base/products/Base/mcsrouter:mcsrouter_sh",
-        "files/base/bin/python3": "@cpython_spl//:python3",
+        "files/base/bin/python3": "//imports/thirdparty/python:python3",
         "files/base/bin/registerCentral": "//base/products/Base/commandline:registerCentral_sh",
         "files/base/bin/sdu": "//base/products/Base/SDU:sdu",
         "files/base/bin/sophos_managementagent": "//base/products/Base/ManagementAgent:sophos_managementagent",
@@ -196,8 +198,7 @@ spl_sdds_packages(
         "files/base/etc/licenses.txt": "licenses.txt",
         "files/base/etc/logger.conf": "logger.conf",
         "files/base/etc/telemetry-config.json": ":telemetry_config",
-        "files/base/lib/libcrypt.so.1.1.0": "//imports/thirdparty/libxcrypt:extract_libxcrypt",
-        "files/base/lib/libpython{}.so.1.0".format(PYTHON_VERSION): "@cpython_spl//:libpython",
+        "files/base/lib/libpython{}.so.1.0".format(PYTHON_VERSION): "//imports/thirdparty/python:libpython",
         "files/base/lib/python{}.zip".format(PYTHON_VERSION.replace(".", "")): ":python_standard_libs_zip",
         "files/base/lib/python{}/lib-dynload/empty".format(PYTHON_VERSION): ":create_empty_file_to_create_lib_dynload_directory",
         "files/base/lib/python{}/site-packages/sseclient.py".format(PYTHON_VERSION): ":patched_sseclient",

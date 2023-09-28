@@ -1,5 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
-load("//common/copied_from_monorepo:sophos_versioning.bzl", "expand_version")
+load("//tools/config:sophos_versioning.bzl", "expand_version")
 load("//common:strip.bzl", "strip")
 load("//thininstaller:version_info.bzl", "THIN_INSTALLER_BASE_VERSION", "THIN_INSTALLER_VERSIONING_COMPONENT_NAME")
 load("//tools/config:copy_file.bzl", "copy_file")

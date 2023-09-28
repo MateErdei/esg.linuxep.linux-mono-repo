@@ -20,8 +20,8 @@
 /imports/internal/sdds3_utils/
 /imports/internal/versig/*
 !/imports/internal/versig/BUILD.bazel
-/imports/thirdparty/libxcrypt/*
-!/imports/thirdparty/libxcrypt/BUILD.bazel
+/imports/thirdparty/python/*
+!/imports/thirdparty/python/BUILD.bazel
 /imports/thirdparty/openssl/*
 !/imports/thirdparty/openssl/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*

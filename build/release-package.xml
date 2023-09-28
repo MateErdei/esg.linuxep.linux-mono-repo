@@ -6,10 +6,6 @@
             <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
             <include artifact-path="output" dest-dir="imports/internal/versig"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="libxcrypt">
-            <release-version branch="release/version_4_4_28" build-id="20220325112559-16cdaea644b21a42436fbffb79ab4aa5aa9a1b6e-tFdACT"/>
-            <include artifact-path="libxcrypt" dest-dir="imports/thirdparty/libxcrypt" />
-        </build-asset>
         <build-asset project="thirdparty" repo="all">
             <release-version branch="release/2023.31"
                              build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
@@ -29,8 +25,9 @@
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
-
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="thininstaller/certs"/>
+        <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-x86_64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
+        <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-aarch64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
     </inputs>
     <buildcommands>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->
@@ -51,7 +48,7 @@
         <!-- Common build steps -->
         <command>
             <program>bash</program>
-            <args>./fixup_bazel_tools.sh</args>
+            <args>./prepare_inputs.sh</args>
         </command>
         <command>
             <program>bash</program>

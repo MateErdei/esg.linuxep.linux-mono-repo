@@ -51,7 +51,6 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/sophos_managementagent.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/telemetry.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/tscheduler.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/UpdateScheduler.0
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/libcrypt.so.1.1.0.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/libpython3.11.so.1.0.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/lib-dynload/empty.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/certifi/__init__.py.0
