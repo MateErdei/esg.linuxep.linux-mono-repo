@@ -10,7 +10,7 @@ Resource    ../installer/InstallerResources.robot
 
 *** Test Case ***
 Default SAV Policy Is Written To File and Passed Through The Management Agent To The Plugin
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
+    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL2
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 

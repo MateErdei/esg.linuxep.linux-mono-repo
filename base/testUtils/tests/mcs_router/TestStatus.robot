@@ -10,7 +10,7 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL4
 
 *** Test Case ***
 MCS Status Sent When Message Relay Changed

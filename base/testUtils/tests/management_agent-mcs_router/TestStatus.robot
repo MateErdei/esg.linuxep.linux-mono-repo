@@ -8,14 +8,14 @@ Resource    ../management_agent/ManagementAgentResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 
-Force Tags    MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
+Force Tags    MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL2
+
 *** Variables ***
 ${SophosManagementLog}      ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 ${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Test Case ***
 Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

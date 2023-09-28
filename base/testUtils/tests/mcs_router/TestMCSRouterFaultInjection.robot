@@ -11,7 +11,7 @@ Test Setup  Test Setup
 Test Teardown  Test Teardown
 Suite Teardown    Stop Local Cloud Server
 
-Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  TESTRUN2
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
 
 *** Variables ***
 ${PROXY_USER}              proxyuser

@@ -18,7 +18,7 @@ Suite Setup   Run Keywords
 Suite Teardown    Run Keywords
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  DATAFEED  TESTRUN2
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  DATAFEED  TAP_PARALLEL6
 
 *** Test Cases ***
 Basic XDR Datafeed Sent

@@ -6,7 +6,7 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
 Test Teardown    MCSRouter Default Test Teardown
 
-Default Tags  MCS  MCS_ROUTER  TAP_TESTS  TESTRUN2
+Default Tags  MCS  MCS_ROUTER  TAP_PARALLEL6
 
 *** Test Case ***
 Successful Start Up of MCS

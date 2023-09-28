@@ -13,7 +13,7 @@ Test Teardown    Registration 401 Test Teardown
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Force Tags  TAP_TESTS    TESTRUN2
+Force Tags  TAP_PARALLEL2
 
 *** Keywords ***
 Registration 401 Test Teardown

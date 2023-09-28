@@ -11,7 +11,7 @@ Resource    ../mcs_router/McsRouterResources.robot
 
 Test Teardown     Test Action Teardown
 
-Force Tags    TAP_TESTS  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TESTRUN2
+Force Tags    MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL3
 
 *** Test Case ***
 Verify Scan Now Action Sent Through MCS Router And Management Agent Will Be Processed By Plugin
