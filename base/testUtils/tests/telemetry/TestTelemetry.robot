@@ -65,6 +65,7 @@ Telemetry Test Setup With Broken Put Requests
 
 
 Telemetry Test Teardown
+    Run Keyword If Test Failed   Dump Cloud Server Log
     Remove Environment Variable  https_proxy
     Stop Proxy Servers
     Stop Proxy If Running
@@ -131,7 +132,6 @@ Telemetry Executable Generates mcs-connection when message relay
     [Tags]  SMOKE  TELEMETRY
     [Teardown]  Teardown With Proxy Clear
     Start Simple Proxy Server    3000
-    Register With Local Cloud Server
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -146,18 +146,18 @@ Telemetry Executable Generates mcs-connection when message relay
 Telemetry Executable Generates mcs-connection when proxy
     [Tags]  SMOKE  TELEMETRY
     [Teardown]  Teardown With Proxy Clear
-    Start Simple Proxy Server    3000
-    Set Environment Variable  https_proxy   http://localhost:3000
+    Start Simple Proxy Server    3001
+    Set Environment Variable  https_proxy   http://localhost:3001
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+    ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3001
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Proxy"
-    File Should Contain  ${TELEMETRY_EXECUTABLE_LOG}  Uploading via proxy: localhost:3000
+    File Should Contain  ${TELEMETRY_EXECUTABLE_LOG}  Uploading via proxy: localhost:3001
 
 
 Telemetry Executable Generates Update Scheduler Telemetry
