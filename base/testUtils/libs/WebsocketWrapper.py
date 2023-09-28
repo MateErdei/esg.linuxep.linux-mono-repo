@@ -13,15 +13,11 @@ except ImportError:
 
 def get_websocket_server_path():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("liveterminal")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "ta", "scripts", "utils", "websocket_server"))
-    else:
-        logger.error("Failed to find liveterminal when looking for websocket_server")
 
-    candidates.append(os.path.join(FullInstallerUtils.SYSTEM_PRODUCT_TEST_INPUTS, "websocket_server"))  # vagrant location
+    candidates.append(os.path.join(FullInstallerUtils.SYSTEM_PRODUCT_TEST_INPUTS, "liveterminal-test-scripts"))  # vagrant location
 
-    return FullInstallerUtils.get_plugin_sdds("websocket server", "WEBSOCKET_SERVER", candidates)
+    dir_path = FullInstallerUtils.get_plugin_sdds("websocket server", "WEBSOCKET_SERVER", candidates)
+    return os.path.join(dir_path, "utils", "websocket_server")
 
 
 PathManager.addPathToSysPath(get_websocket_server_path())

@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
 #include "PluginUtils.h"
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <fstream>
 namespace Plugin

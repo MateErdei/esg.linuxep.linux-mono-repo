@@ -12,6 +12,7 @@ from pipeline.common import get_package_version, \
     ZERO_SIX_ZERO_MODE, COVERAGE_MODE
 from pipeline.edr import run_edr_tests, run_edr_coverage_tests
 from pipeline.eventjournaler import run_ej_tests, run_ej_coverage_tests
+from pipeline.liveterminal import run_liveterminal_tests, run_liveterminal_coverage_tests
 
 
 PACKAGE_PATH = "build/release-package.xml"
@@ -20,11 +21,13 @@ BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230512'
 
 PACKAGE_PATH_EDR = "./edr/build-files/release-package.xml"
 PACKAGE_PATH_AV = "./av/build-files/release-package.xml"
+PACKAGE_PATH_LIVETERMINAL = "./liveterminal/linux-release-package.xml"
 PACKAGE_PATH_EJ = "./eventjournaler/build-files/release-package.xml"
 
 BUILD_SELECTION_ALL = "all"
 BUILD_SELECTION_BASE = "base"
 BUILD_SELECTION_AV = "av"
+BUILD_SELECTION_LIVETERMINAL = "liveterminal"
 BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
 
@@ -72,7 +75,8 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     assert (os.path.exists(PACKAGE_PATH_EDR))
     assert (os.path.exists(PACKAGE_PATH_AV))
     assert (os.path.exists(PACKAGE_PATH_EJ))
-
+    assert (os.path.exists(PACKAGE_PATH_LIVETERMINAL))
+    os.environ["BRANCH_NAME"] = context.branch
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
     # In CI parameters.mode will be set
@@ -121,6 +125,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     edr_component = tap.Component(name="edr", base_version=get_package_version(PACKAGE_PATH_EDR))
     ej_component = tap.Component(name='sspl-event-journaler-plugin', base_version=get_package_version(PACKAGE_PATH_EJ))
     av_component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_package_version(PACKAGE_PATH_AV))
+    liveterminal_component = tap.Component(name='liveterminal_linux', base_version=get_package_version(PACKAGE_PATH_LIVETERMINAL))
     with stage.parallel('plugins'):
         if mode == INDEPENDENT_MODE:
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
@@ -178,6 +183,19 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                             mode=ANALYSIS_MODE,
                                                             release_package=PACKAGE_PATH_AV)
 
+            #liveterminal
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                liveterminal_build = stage.artisan_build(name=f"liveterminal_{RELEASE_MODE}",
+                                                              component=liveterminal_component,
+                                                              image=BUILD_TEMPLATE,
+                                                              mode=RELEASE_MODE,
+                                                              release_package=PACKAGE_PATH_LIVETERMINAL)
+                if running_in_ci:
+                    liveterminal_analysis_build = stage.artisan_build(name=f"liveterminal_{ANALYSIS_MODE}",
+                                                             component=liveterminal_component,
+                                                             image=BUILD_TEMPLATE,
+                                                             mode=ANALYSIS_MODE,
+                                                             release_package=PACKAGE_PATH_LIVETERMINAL)
         elif mode == COVERAGE_MODE:
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                 edr_coverage_build = stage.artisan_build(name=f"edr_{COVERAGE_MODE}",
@@ -199,7 +217,12 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         image=BUILD_TEMPLATE,
                                                         mode=COVERAGE_MODE,
                                                         release_package=PACKAGE_PATH_AV)
-
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                liveterminal_coverage_build = stage.artisan_build(name=f"liveterminal_{COVERAGE_MODE}",
+                                                        component=liveterminal_component,
+                                                        image=BUILD_TEMPLATE,
+                                                        mode=COVERAGE_MODE,
+                                                        release_package=PACKAGE_PATH_LIVETERMINAL)
     # NB: run_tests can be None when tap is run locally.
     if parameters.run_tests != False:
         with stage.parallel('testing'):
@@ -213,6 +236,9 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_tests(stage, context, av_build, mode, parameters)
 
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                    run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters)
+
             elif mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
@@ -225,3 +251,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
+
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                    run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)

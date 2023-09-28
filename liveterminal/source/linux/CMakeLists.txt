@@ -112,6 +112,7 @@ set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 
 set(GTEST_INPUT ${REDIST}/googletest)
+set(JSON_SINGLE_INPUT ${REDIST}/nlohmann-json/single_include)
 
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so*)
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so*)

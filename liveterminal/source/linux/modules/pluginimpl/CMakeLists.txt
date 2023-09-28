@@ -18,6 +18,6 @@ sophos_add_library(pluginimpl SHARED
         Telemetry/TelemetryConsts.h
         config.h
         EXTRA_PROJECTS sessionrunnerimpl
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}  ${JSON_SINGLE_INPUT}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
 )

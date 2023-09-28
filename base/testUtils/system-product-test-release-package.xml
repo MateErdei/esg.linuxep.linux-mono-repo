@@ -33,11 +33,26 @@
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage//SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
+
+            <!-- AV -->
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
+
+            <!-- LIVETERMINAL -->
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
+            <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
+            <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
         </build-asset>
+
+        <build-asset project="winep" repo="liveterminal">
+            <development-version branch="develop"/>
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-liveterminal/test-scripts" dest-dir="liveterminal-test-scripts" />
+
+        </build-asset>
+
         <build-asset project="core" repo="safestore">
             <development-version branch="develop" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="release/linux-x64/safestore" dest-dir="safestore_tools"/>
@@ -47,13 +62,6 @@
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
-        </build-asset>
-        <build-asset project="winep" repo="liveterminal">
-            <development-version branch="develop" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="websocket_server" dest-dir="websocket_server" />
-            <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
-            <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
         </build-asset>
 
         <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->

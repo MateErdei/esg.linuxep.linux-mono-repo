@@ -44,7 +44,6 @@ add_custom_target(
         COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
-        COMMAND ${REDIST}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
 )
 
 install(FILES  ${third_party_libs}
@@ -63,7 +62,7 @@ else()
             OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(
-            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} ../../CIJenkinsfile
+            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION}
             OUTPUT_VARIABLE PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()

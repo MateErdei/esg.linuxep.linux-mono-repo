@@ -134,9 +134,6 @@ do
         --bullseye|--bulleye)
             BULLSEYE=1
             ;;
-        --999)
-            export VERSION_OVERRIDE=99.99.99.999
-            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -253,6 +250,7 @@ function build()
           cp -r ${INPUT}/cmake ${REDIST}
         fi
 
+
         untar_input protobuf
     fi
 
@@ -318,9 +316,8 @@ function build()
       RustCoverage="on"
     fi
 
-    bash -x ${BUILD_FILES}/build_agent.sh ${BASE} ${RustAgentMode} ${RustCoverage} || exitFailure $FAILURE_BUILD_LIVETERMINAL_AGENT "Failed to build liveterminal Agent"
 
-    LiveTerminalAgent=$(find ${BASE}/source/_target/${RustAgentMode}/sophos-live-terminal)
+    LiveTerminalAgent=/build/redist/rust-liveterminal/sophos-live-terminal
     if [[ ! -f ${LiveTerminalAgent} ]]; then
         exitFailure $FAILURE_BUILD_LIVETERMINAL_AGENT "No liveterminal agent at: ${LiveTerminalAgent}"
     fi
@@ -372,7 +369,6 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
-    cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
     cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
     cp -aL ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
 

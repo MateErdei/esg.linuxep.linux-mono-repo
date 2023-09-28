@@ -5,7 +5,7 @@ def params = [
         choices: ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ /^release.+/ ) ? ["run_all"] : ["run_subset", "run_all"]),
         description: 'setting to run all test machine or not'),
  choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
- choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base'], defaultValue: 'all'),
+ choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all'),
  booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Test Automation in TAP'),
 
  booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
