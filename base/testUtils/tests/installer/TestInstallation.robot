@@ -14,6 +14,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../thin_installer/ThinInstallerResources.robot
+Resource  ../watchdog/WatchdogResources.robot
 Force Tags  INSTALLER  TAP_PARALLEL2
 
 *** Test Cases ***
@@ -280,7 +281,9 @@ Installer Resets Ownership Of Stale MCS Router Process ID File
     Require Fresh Install
     Check Expected Base Processes Are Running
     ${mcs_router_pid_file} =    Set Variable    ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
-    Wait Until Created    ${mcs_router_pid_file}
+    Wait Until Created  ${mcs_router_pid_file}
+    Wdctl Stop Plugin   mcsrouter
+    create file  ${mcs_router_pid_file}
     Run Process  chown  sophos-spl-user:sophos-spl-group  ${mcs_router_pid_file}
     Run Process  chmod  600  ${mcs_router_pid_file}
 
