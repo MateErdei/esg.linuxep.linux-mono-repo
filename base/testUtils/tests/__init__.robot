@@ -34,6 +34,12 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable  SYSTEMPRODUCT_TEST_INPUT  default=/tmp/system-product-test-inputs
     Set Global Variable  ${SYSTEMPRODUCT_TEST_INPUT}  ${placeholder}
 
+    ${placeholder} =  Get Environment Variable  THIN_INSTALLER_OVERRIDE  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-thininstaller
+    Set Global Variable  ${THIN_INSTALLER_INPUT}  ${placeholder}
+
+    ${placeholder} =  Get Environment Variable  SDDS3_Builder  default=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder
+    Set Global Variable  ${SDDS3_Builder}  ${placeholder}
+
     Set Global Variable  ${SUL_DOWNLOADER}              ${SOPHOS_INSTALL}/base/bin/SulDownloader
     Set Global Variable  ${VERSIGPATH}                  ${SOPHOS_INSTALL}/base/update/versig
     Set Global Variable  ${MCS_ROUTER}                  ${SOPHOS_INSTALL}/base/bin/mcsrouter
@@ -67,11 +73,21 @@ Global Setup Tasks
     Set Global Variable  ${MCS_POLICY_CONFIG}           ${ETC_DIR}/sophosspl/mcs_policy.config
     Set Global Variable  ${WD_ACTUAL_USER_GROUP_IDS}       ${ETC_DIR}/user-group-ids-actual.conf
     Set Global Variable  ${WD_REQUESTED_USER_GROUP_IDS}    ${ETC_DIR}/user-group-ids-requested.conf
-    Set Global Variable  ${TEST_INPUT_PATH}                /opt/test/inputs
-    Set Global Variable  ${SYS_TEST_LIBS}                  /opt/sspl/libs
-    ${isSystemTestRun}=    Directory Exists                ${SYS_TEST_LIBS}
-    Run Keyword If    ${isSystemTestRun}    Set Global Variable  ${COMMON_TEST_LIBS}  ${SYS_TEST_LIBS}
-    ...               ELSE                  Set Global Variable  ${COMMON_TEST_LIBS}  ${TEST_INPUT_PATH}/common_test_libs
+
+    Set Global Variable    ${TEST_INPUT_PATH}    /opt/test/inputs
+    Set Global Variable    ${SYS_TEST_LIBS}      /opt/sspl/libs
+    Set Global Variable    ${LOCAL_TEST_LIBS}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/libs
+
+    ${isSystemTestRun}=    Directory Exists    ${SYS_TEST_LIBS}
+    ${isLocalTestRun}=     Directory Exists    ${LOCAL_TEST_LIBS}
+
+    IF    ${isSystemTestRun}
+        Set Global Variable    ${COMMON_TEST_LIBS}    ${SYS_TEST_LIBS}
+    ELSE IF    ${isLocalTestRun}
+        Set Global Variable    ${COMMON_TEST_LIBS}    ${LOCAL_TEST_LIBS}
+    ELSE
+        Set Global Variable    ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
+    END
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

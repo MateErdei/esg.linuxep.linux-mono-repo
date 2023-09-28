@@ -18,8 +18,7 @@ soph_cc_library(
         "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = [
-        "//base/products/Base/CentralRegistration:__pkg__",
-        "//base/tests/CentralRegistration:__pkg__",
+        "//common:spl_packages",
     ],
     deps = [
         "//base/modules/Common/HttpRequests",

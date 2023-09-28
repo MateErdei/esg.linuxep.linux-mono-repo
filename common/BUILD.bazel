@@ -27,6 +27,12 @@ py_binary(
 )
 
 py_binary(
+    name = "expand_template_from_file",
+    srcs = ["expand_template_from_file.py"],
+    visibility = [":spl_packages"],
+)
+
+py_binary(
     name = "generate_spv_template",
     srcs = ["generate_spv_template.py"],
     visibility = [":spl_packages"],

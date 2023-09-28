@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages
 
 PACKAGE_PATH = "./base/build/release-package.xml"
 INPUTS_DIR = '/opt/test/inputs'
@@ -40,6 +40,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            thininstaller=base_build / "thininstaller/linux_x64_rel/thininstaller",
+            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', 'build/sophlib/linux_x64_rel/sdds3_tools')
         )
     if mode == 'debug':
         test_inputs = dict(
@@ -52,6 +54,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
                                                              '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            thininstaller=base_build / "thininstaller/linux_x64_rel/thininstaller",
+            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', 'build/sophlib/linux_x64_rel/sdds3_tools')
         )
     if mode == 'coverage':
         test_inputs = dict(
@@ -100,11 +104,12 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
 
         if include_tag:
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html")
+                        branch_name + "/base" + get_suffix(
+                            branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html")
         elif robot_args:
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html")
-
+                        branch_name + "/base" + get_suffix(
+                            branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html")
 
 
 def install_requirements(machine: tap.Machine):
@@ -119,23 +124,25 @@ def install_requirements(machine: tap.Machine):
     except Exception:
         pass
 
-    #TODO LINUXDAR-5855 remove this section when we stop signing with sha1
+    # TODO LINUXDAR-5855 remove this section when we stop signing with sha1
     try:
         if machine.template == "centos9stream_x64_aws_server_en_us" or machine.template == "rhel91_x64_aws_server_en_us":
             machine.run("update-crypto-policies", "--set", "LEGACY")
     except Exception as ex:
-        print("On updating openssl policy: {}".format(ex))
+        print(f"On updating openssl policy: {ex}")
 
     try:
-        pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
+        pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
         machine.run('groupadd', 'sophos-spl-group')
         machine.run('useradd', 'sophos-spl-user')
         machine.run('useradd', 'sophos-spl-local')
-        package_install(machine, "rsync")
-        package_install(machine, "openssl")
+
+        os_packages = get_os_packages(machine)
+        install_command = ["bash", machine.inputs.test_scripts / "SupportFiles/install_os_packages.sh"] + os_packages
+        machine.run(*install_command)
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
-        print("On adding installing requirements: {}".format(ex))
+        print(f"On adding installing requirements: {ex}")
 
 
 def pip(machine: tap.Machine):
@@ -223,7 +230,7 @@ def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameter
 
 
 def run_base_tests(stage, context, base_build, mode, parameters):
-    #exclude tags are in robot_task
+    # exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
 
     base_test_inputs = get_base_test_inputs(context, base_build, mode)

@@ -6,7 +6,6 @@ cc_library(
     includes = ["."],
     strip_include_prefix = "single_include/nlohmann",
     visibility = [
-        "//base/modules:__subpackages__",
-        "//base/tests:__subpackages__",
+        "//common:spl_packages",
     ],
 )

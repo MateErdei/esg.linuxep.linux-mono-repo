@@ -48,3 +48,5 @@
 /bazel-testlogs
 
 /tapvenv/
+
+/thininstaller/certs/ps_rootca.crt

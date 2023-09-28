@@ -7,5 +7,6 @@ genrule(
     cmd_bash = "tar -xf $< --strip-components=2 -C $(RULEDIR)",
     visibility = [
         "//base/products/Base/installer:__pkg__",
+        "//thininstaller:__pkg__",
     ],
 )

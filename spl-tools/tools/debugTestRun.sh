@@ -70,10 +70,6 @@ fi
 
 STARTING_DIR=$(pwd)
 
-pushd thininstaller
-./buildLinux.sh
-popd
-
 pushd sspl-base
 ./build.sh --debug --noclean
 popd

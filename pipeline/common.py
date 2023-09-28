@@ -149,3 +149,47 @@ def pip_install(machine: tap.Machine, *install_args: str):
     machine.run("pip3", '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
+
+
+def get_os_packages(machine: tap.Machine):
+    common = [
+        "git",
+        "openssl",
+        "rsync",
+    ]
+    if machine.template == "amzlinux2_x64_server_en_us":
+        return common
+    elif machine.template == "amzlinux2023_x64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos7_x64_aws_server_en_us":
+        return common
+    elif machine.template == "centos8stream_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos9stream_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "debian10_x64_aws_server_en_us":
+        return common
+    elif machine.template == "debian11_x64_aws_server_en_us":
+        return common
+    elif machine.template == "oracle79_x64_aws_server_en_us":
+        return common
+    elif machine.template == "oracle87_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "rhel79_x64_aws_server_en_us":
+        return common
+    elif machine.template == "rhel87_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "rhel91_x64_aws_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "sles12_x64_sp5_aws_server_en_us":
+        return common + ["libcap-progs", "curl"]
+    elif machine.template == "sles15_x64_sp4_aws_server_en_us":
+        return common + ["libcap-progs"]
+    elif machine.template == "ubuntu1804_x64_aws_server_en_us":
+        return common
+    elif machine.template == "ubuntu2004_x64_aws_server_en_us":
+        return common
+    elif machine.template == "ubuntu2204_x64_aws_server_en_us":
+        return common
+    else:
+        raise Exception(f"Unknown template {machine.template}")

@@ -59,12 +59,6 @@ Vagrant.configure("2") do |config|
             rsync__exclude: ["bazel-bin", "bazel-esg.linuxep.sspl-warehouse", "bazel-out", "bazel-testlogs"], rsync__args: rsync_options
         end
 
-        # Thininstaller
-        if File.directory?(repos_dir + "/esg.linuxep.thininstaller/")
-            config.vm.synced_folder repos_dir + "/esg.linuxep.thininstaller/", "/vagrant/esg.linuxep.thininstaller/", type: "rsync",
-            rsync__exclude: ".git/", rsync__args: rsync_options
-        end
-
         # Live Terminal
         if File.directory?(repos_dir + "/esg.winep.liveterminal/")
             config.vm.synced_folder repos_dir + "/esg.winep.liveterminal/", "/vagrant/esg.winep.liveterminal/", type: "rsync",

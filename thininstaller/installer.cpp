@@ -1,17 +1,17 @@
 #include "curl.h"
 #include "json.hpp"
 
-#include <CentralRegistration/Main.h>
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/CurlWrapper/ICurlWrapper.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/Policy/ALCPolicy.h>
-#include <Common/Policy/SerialiseUpdateSettings.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <cmcsrouter/Config.h>
-#include <cmcsrouter/ConfigOptions.h>
-#include <cmcsrouter/MCSApiCalls.h>
+#include "CentralRegistration/Main.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/CurlWrapper/ICurlWrapper.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/Policy/ALCPolicy.h"
+#include "Common/Policy/SerialiseUpdateSettings.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "cmcsrouter/Config.h"
+#include "cmcsrouter/ConfigOptions.h"
+#include "cmcsrouter/MCSApiCalls.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/initializer.h>
 #include <log4cplus/logger.h>
@@ -433,12 +433,17 @@ int main(int argc, char** argv)
         if (thisBinary.has_value())
         {
             auto thisDir = Common::FileSystem::dirName(thisBinary.value());
-            mcsRootCert = Common::FileSystem::join(thisDir,"mcs_rootca.crt");
+            mcsRootCert = Common::FileSystem::join(thisDir, "..", "mcs_rootca.crt");
+            if (!fs->isFile(mcsRootCert))
+            {
+                logError("Shipped MCS cert cannot be found here: " + mcsRootCert);
+                return 55;
+            }
             logDebug("Using shipped MCS cert: " + mcsRootCert);
         }
         else
         {
-            return 55;
+            return 56;
         }
 
         MCS::ConfigOptions rootConfigOptions = CentralRegistration::innerCentralRegistration(registerArgValues, mcsRootCert);
@@ -511,7 +516,7 @@ int main(int argc, char** argv)
                 updateSettings.setJWToken(jwt[MCS::JWT_TOKEN]);
                 updateSettings.setDeviceId(jwt[MCS::DEVICE_ID]);
                 updateSettings.setTenantId(jwt[MCS::TENANT_ID]);
-                updateSettings.setVersigPath(Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig"));
+                updateSettings.setVersigPath(Common::FileSystem::join( fs->currentWorkingDirectory(),"bin/versig"));
 
                 if (!rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
                 {

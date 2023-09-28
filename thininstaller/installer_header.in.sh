@@ -5,7 +5,7 @@ umask 077
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
 
 args="$*"
-VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
+VERSION=@PRODUCT_VERSION@
 PRODUCT_NAME="Sophos Protection for Linux"
 INSTALL_FILE=$0
 # Display help

@@ -1,4 +1,5 @@
 *** Settings ***
+Library    OperatingSystem
 
 Resource  ../update/SDDS3Resources.robot
 
@@ -47,7 +48,17 @@ Setup base Install
     Create File    ${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag
     Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
     Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
-    ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
+
+    ${usingSystemProductTestInput}=    Directory Exists    ${SYSTEMPRODUCT_TEST_INPUT}
+    IF    ${usingSystemProductTestInput}
+        ${result} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
+    ELSE
+        ${result} =   Run Process   cp ${TEST_INPUT_PATH}/base_sdds/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
+    END
+
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}
 
 Setup Thininstaller Test
     Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml

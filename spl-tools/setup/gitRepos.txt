@@ -6,7 +6,6 @@ git@github.com:sophos-internal/esg.linuxep.sspl-plugin-event-journaler.git
 git@github.com:sophos-internal/esg.linuxep.sspl-plugin-heartbeat.git
 git@github.com:sophos-internal/esg.linuxep.sspl-plugin-mdr-component.git
 git@github.com:sophos-internal/esg.linuxep.sspl-plugin-template.git
-git@github.com:sophos-internal/esg.linuxep.thininstaller.git
 git@github.com:sophos-internal/esg.linuxep.versig.git
 git@github.com:sophos-internal/esg.em.esg.git
 git@github.com:sophos-internal/esg.winep.liveterminal.git

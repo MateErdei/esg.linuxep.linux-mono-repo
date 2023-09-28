@@ -7,7 +7,6 @@ Library    Process
 *** Variables ***
 ${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py
 ${SDDS_IMPORT}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImport.py
-${SDDS3_Builder}  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder
 ${SDDS3_LOCAL_BASE}   /tmp/sdds3LocalBase
 ${SDDS3_FAKEWAREHOUSE_DIR}   /tmp/sdds3FakeWarehouse
 ${SDDS3_FAKEBASE}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakebase

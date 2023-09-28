@@ -29,6 +29,8 @@
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
+
+        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="thininstaller/certs"/>
     </inputs>
     <buildcommands>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->
@@ -188,6 +190,10 @@
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
+
+        <!-- ThinInstaller Output -->
+        <build-asset artifact-path="thininstaller/linux_x64_rel/thininstaller" source-zip=".output/thininstaller/linux_x64_rel/thininstaller.zip" mode="all_lx64r"/>
+        <release-asset artifact-path="thininstaller/linux_x64_rel/thininstaller" source-dir=".output/thininstaller/linux_x64_rel/thininstaller" manifest-path=".output/thininstaller/linux_x64_rel/thininstaller.manifest.json" mode="all_lx64r"/>
 
 <!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
 <!--            <include glob="pluginapi.tar.gz"/>-->

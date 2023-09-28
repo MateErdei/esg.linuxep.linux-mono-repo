@@ -16,11 +16,13 @@ Suite Teardown    Compatibility Tool Suite Teardown
 
 Test Teardown    Compatibility Tool Test Teardown
 
+Force Tags    TAP_PARALLEL6
+
 *** Variables ***
 ${susUrl}    https://sus.sophosupd.com
 ${cdnUrl}    https://sdds3.sophosupd.com:443
 
-${compatibilityScript}          ${SYSTEMPRODUCT_TEST_INPUT}/sspl-thininstaller/SPLCompatibilityChecks.sh
+${compatibilityScript}          ${THIN_INSTALLER_INPUT}/SPLCompatibilityChecks.sh
 ${defaultThinInstallerPath}     ./tmp/thin_installer/thininstaller_files/installer-default.sh
 ${credentialsPath}              ./tmp/thin_installer/thininstaller_files/credentials.txt
 

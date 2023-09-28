@@ -1,21 +1,15 @@
 import errno
-import stat
 import glob
-import subprocess
 import os
-import shutil
-import robot.api.logger as logger
-import robot
-import hashlib
 import re
-import xml.dom.minidom
+import shutil
+import stat
+import subprocess
 
-import WarehouseUtils
-import CentralUtils
-from robot.libraries.BuiltIn import BuiltIn
+import robot.api.logger as logger
 
 import PathManager
-import FullInstallerUtils
+import robot
 
 
 class ThinInstallerUtils(object):
@@ -57,19 +51,19 @@ class ThinInstallerUtils(object):
         if os.path.exists(filename):
             try:
                 with open(filename, "r") as f:
-                    logger.info("Log output (from %s): " % filename+''.join(f.readlines()))
+                    logger.info(f"Log output (from {filename}): {''.join(f.readlines())}")
             except Exception as e:
-                logger.info("Failed to read file {}: {}".format(filename, e))
+                logger.info(f"Failed to read file {filename}: {e}")
         else:
-            logger.info("File %s does not exist" % filename)
+            logger.info(f"File {filename} does not exist")
 
     def find_thininstaller_output(self, source=None):
         source = os.environ.get("THIN_INSTALLER_OVERRIDE", source)
         if source is not None:
-            logger.info("using {} as source".format(source))
+            logger.info(f"using {source} as source")
             return source
 
-        local_dir = "/vagrant/esg.linuxep.thininstaller/output"
+        local_dir = "/vagrant/esg.linuxep.linux-mono-repo/.output/thininstaller/linux_x64_rel/thininstaller"
         if os.path.isdir(local_dir):
             logger.info("Thin Installer source: " + local_dir)
             return local_dir
@@ -83,17 +77,18 @@ class ThinInstallerUtils(object):
 
             attempts.append(last_good_build)
 
-            print("Last good Thin Installer build: {}".format(last_good_build))
-            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build, "sspl-thininstaller")
+            print(f"Last good Thin Installer build: {last_good_build}")
+            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build,
+                                         "sspl-thininstaller")
             version_dirs = os.listdir(source_folder)
             if len(version_dirs) == 1:
                 source = os.path.join(source_folder, version_dirs[0], "output")
             else:
-                raise AssertionError("More than one version in the build for thininstaller: {}".format(version_dirs))
-            logger.info("using {} as source".format(source))
+                raise AssertionError(f"More than one version in the build for thininstaller: {version_dirs}")
+            logger.info(f"using {source} as source")
             return source
 
-        raise AssertionError("Could not find thininstaller output in {}".format(attempts))
+        raise AssertionError(f"Could not find thininstaller output in {attempts}")
 
     def teardown_reset_original_path(self):
         self.env["PATH"] = self.original_path
@@ -111,7 +106,7 @@ class ThinInstallerUtils(object):
         self.copy_and_unpack_thininstaller(source)
 
     def copy_and_unpack_thininstaller(self, source):
-        print("Getting Thin Installer from: {}".format(source))
+        print(f"Getting Thin Installer from: {source}")
         shutil.rmtree(self.installer_files)
         shutil.copytree(source, self.installer_files)
 
@@ -120,9 +115,10 @@ class ThinInstallerUtils(object):
             raise AssertionError("Could not find a thin installer .tar.gz file!")
 
         installer_tar_gz = max(list_of_files, key=os.path.getctime)
-        os.system("tar xzf {} -C {}".format(installer_tar_gz, self.installer_files))
+        os.system(f"tar xzf {installer_tar_gz} -C {self.installer_files}")
 
-    def create_credentials_file(self, token, url, update_creds, customer_token, message_relays, location, update_caches):
+    def create_credentials_file(self, token, url, update_creds, customer_token, message_relays, location,
+                                update_caches):
         new_line = '\n'
         with open(location, 'w') as fh:
             fh.write("TOKEN=" + token + new_line)
@@ -147,21 +143,22 @@ class ThinInstallerUtils(object):
                                         customer_token="ThisIsACustomerToken",
                                         message_relays=None,
                                         update_caches=None):
-        self.create_credentials_file(token, url, update_creds, customer_token, message_relays, self.default_credentials_file_location, update_caches)
+        self.create_credentials_file(token, url, update_creds, customer_token, message_relays,
+                                     self.default_credentials_file_location, update_caches)
 
     def build_thininstaller_from_sections(self, credentials_file, target_path=None):
         if target_path is None:
             target_path = self.default_installsh_path
-        command = "sed '/^__MIDDLE_BIT__/r {}' {} > {}".format(credentials_file, os.path.join(self.installer_files, "SophosSetup.sh"), target_path)
+        command = f"sed '/^__MIDDLE_BIT__/r {credentials_file}' {os.path.join(self.installer_files, 'SophosSetup.sh')} > {target_path}"
         process = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, stderr = process.communicate()
         rc = process.returncode
-        logger.info("stdout:\n {}".format(stdout))
-        logger.info("stderr:\n {}".format(stderr))
-
+        logger.info(f"stdout:\n {stdout}")
+        logger.info(f"stderr:\n {stderr}")
 
         if rc != 0:
-            raise AssertionError("Could not run sed replacement of __MIDDLE_BIT__ with credentials. Command = {}".format(command))
+            raise AssertionError(
+                f"Could not run sed replacement of __MIDDLE_BIT__ with credentials. Command = {command}")
         os.chmod(target_path, 0o700)
 
     def configure_and_run_SDDS3_thininstaller(self, expected_return_code,
@@ -204,13 +201,14 @@ class ThinInstallerUtils(object):
         # Wait for execution to finish.
         self.install_process.communicate()
         rc = self.install_process.returncode
-        logger.info("Thin Installer return code: {}".format(rc))
+        logger.info(f"Thin Installer return code: {rc}")
         log.flush()
         log.close()
         if expected_return_code is not None:
             if str(rc) != str(expected_return_code):
                 self.dump_log()
-                raise AssertionError("Thin Installer failed with exit code: " + str(rc) + " but was expecting: " + str(expected_return_code))
+                raise AssertionError(
+                    f"Thin Installer failed with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
 
     def run_thininstaller(self,
                           command,
@@ -228,11 +226,11 @@ class ThinInstallerUtils(object):
                           force_legacy_install=False):
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
-            logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
+            logger.info(f"sophos_certs_dir: {sophos_certs_dir}")
         else:
             sophos_certs_dir = certs_dir
         if not mcs_ca:
-            env_cert = os.environ.get("MCS_CA","")
+            env_cert = os.environ.get("MCS_CA", "")
             if os.path.isfile(env_cert):
                 mcs_ca = env_cert
             else:
@@ -244,7 +242,7 @@ class ThinInstallerUtils(object):
             except KeyError:
                 pass
         else:
-            logger.info("Set sophos_certs_dir to: {}".format(sophos_certs_dir))
+            logger.info(f"Set sophos_certs_dir to: {sophos_certs_dir}")
             test_using_prod = os.environ.get('TEST_USING_PROD', None)
             if test_using_prod:
                 self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
@@ -276,7 +274,7 @@ class ThinInstallerUtils(object):
         if force_legacy_install:
             self.env['FORCE_LEGACY_INSTALL'] = "1"
 
-        logger.info("env: {}".format(self.env))
+        logger.info(f"env: {self.env}")
         log = open(self.log_path, 'w+')
         logger.info("Running: " + str(command))
         self.install_process = subprocess.Popen(command, env=self.env, stdout=log, stderr=subprocess.STDOUT)
@@ -284,12 +282,13 @@ class ThinInstallerUtils(object):
         # Wait for execution to finish.
         self.install_process.communicate()
         rc = self.install_process.returncode
-        logger.info("Thin Installer return code: {}".format(rc))
+        logger.info(f"Thin Installer return code: {rc}")
         log.flush()
         log.close()
         if str(rc) != str(expected_return_code):
             self.dump_log()
-            raise AssertionError("Thin Installer failed with exit code: " + str(rc) + " but was expecting: " + str(expected_return_code))
+            raise AssertionError(
+                f"Thin Installer failed with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
 
     def run_default_thininstaller(self,
                                   expected_return_code=0,
@@ -315,11 +314,12 @@ class ThinInstallerUtils(object):
 
     def run_default_thininstaller_with_different_name(self, new_filename, *args, **kwargs):
         new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)
-        logger.info("new thin installer file path: {}".format(new_filepath))
+        logger.info(f"new thin installer file path: {new_filepath}")
         shutil.move(self.default_installsh_path, new_filepath)
         self.run_default_thininstaller(*args, installsh_path=new_filepath, **kwargs)
 
-    def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None, force_certs_dir=None):
+    def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None,
+                                                 force_certs_dir=None):
         self.run_thininstaller([self.default_installsh_path],
                                expected_return_code,
                                override_path=override_path,
@@ -336,27 +336,27 @@ class ThinInstallerUtils(object):
         os.makedirs(fake_sav, exist_ok=True)
         uninstall = os.path.join(fake_sav, "uninstall.sh")
         f = open(uninstall, "w")
-        f.write("""#!/bin/bash
+        f.write(f"""#!/bin/bash
 touch /tmp/uninstalled
-rm -rf %s
+rm -rf {fake_sav}
 rm -f /usr/bin/sweep
-exit 0""" % fake_sav)
+exit 0""")
         f.close()
         os.chmod(uninstall, stat.S_IRUSR | stat.S_IXUSR)
 
     def remove_fake_savscan_in_tmp(self):
         shutil.rmtree("/tmp/i/")
 
-    def create_fake_sweep_symlink(self, destination = "/usr/bin"):
+    def create_fake_sweep_symlink(self, destination="/usr/bin"):
         destination = os.path.join(destination, "sweep")
         link_target = "/tmp/i/am/fake/bin/savscan"
         os.symlink(link_target, destination)
-        logger.info("made symlink at: {}".format(destination))
+        logger.info(f"made symlink at: {destination}")
 
-    def delete_fake_sweep_symlink(self, location = "/usr/bin"):
+    def delete_fake_sweep_symlink(self, location="/usr/bin"):
         location = os.path.join(location, "sweep")
         os.remove(location)
-        logger.info("deleted symlink at: {}".format(location))
+        logger.info(f"deleted symlink at: {location}")
 
     def run_default_thininstaller_with_fake_memory_amount(self, memory_in_kB):
         fake_mem_info_path = os.path.join(self.tmp_path, "fakememinfo")
@@ -372,13 +372,15 @@ exit 0""" % fake_sav)
         with open(fake_mem_info_path, "w+") as fake_mem_info_file:
             fake_mem_info_file.writelines(contents)
 
-        print ("Running installer with faked memory")
+        print("Running installer with faked memory")
         bash_command_string = 'mount --bind ' + fake_mem_info_path + ' ' + mem_info_path + ' && bash -x ' + self.default_installsh_path
         command = ["unshare", "-m", "bash", "-x", "-c", bash_command_string]
         self.run_thininstaller(command, 4)
 
     def run_default_thininstaller_with_fake_small_disk(self):
-        fake_small_disk_df_dir = os.path.join(PathManager.get_support_file_path(), "fake_system_scripts", "fake_df_small_disk")
+        fake_small_disk_df_dir = os.path.join(PathManager.get_support_file_path(), "fake_system_scripts",
+                                              "fake_df_small_disk")
+        os.chmod(os.path.join(fake_small_disk_df_dir, "df"), 0o755)
         self.env["PATH"] = fake_small_disk_df_dir + ":" + os.environ['PATH']
         self.run_thininstaller([self.default_installsh_path], 5)
 
@@ -389,7 +391,8 @@ exit 0""" % fake_sav)
 
         self.run_thininstaller(command, expectedReturnCode, force_certs_dir=force_certs_dir)
 
-    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, force_certs_dir, product_argument="", mcsurl=None):
+    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, force_certs_dir,
+                                                               product_argument="", mcsurl=None):
         command = [self.default_installsh_path]
         if product_argument != "":
             command.append(product_argument)
@@ -419,8 +422,8 @@ exit 0""" % fake_sav)
 
     def get_glibc_version_from_thin_installer(self):
         installer = self.get_thininstaller_script()
-        build_variable_setting_line="BUILD_LIBC_VERSION="
-        regex_pattern = r"{}([0-9]*\.[0-9]*)".format(build_variable_setting_line)
+        build_variable_setting_line = "BUILD_LIBC_VERSION="
+        regex_pattern = fr"{build_variable_setting_line}([0-9]*\.[0-9]*)"
         with open(installer, "rb") as installer_file:
             for line in installer_file.readlines():
                 line = line.decode("utf-8")
@@ -428,11 +431,11 @@ exit 0""" % fake_sav)
                     match_object = re.match(regex_pattern, line)
                     version = match_object.group(1)
                     return version
-        raise AssertionError("Installer: {}\nDid not contain line matching: {}".format(installer, regex_pattern))
+        raise AssertionError(f"Installer: {installer}\nDid not contain line matching: {regex_pattern}")
 
     def replace_register_central_with_script_that_echos_args(self):
-        register_central = os.path.join("/opt","sophos-spl","base","bin","registerCentral")
-        output_file_path = os.path.join("/tmp","registerCentralArgs")
+        register_central = os.path.join("/opt", "sophos-spl", "base", "bin", "registerCentral")
+        output_file_path = os.path.join("/tmp", "registerCentralArgs")
         os.remove(register_central)
         with open(register_central, "w") as file:
             file.write(f'#!/bin/bash\necho "$@">{output_file_path}')

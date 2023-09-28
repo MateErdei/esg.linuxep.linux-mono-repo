@@ -55,6 +55,10 @@ def main():
     os.environ['OUTPUT'] = '/opt/test/inputs/base/'
     os.environ['WEBSOCKET_SERVER'] = '/opt/test/inputs/websocket_server'
 
+    os.environ['THIN_INSTALLER_OVERRIDE'] = '/opt/test/inputs/thininstaller'
+    os.environ['SDDS3_Builder'] = '/opt/test/inputs/sdds3_tools/sdds3-builder'
+    os.chmod(os.environ['SDDS3_Builder'], 0o755)
+
     try:
         # Create the TAP Robot result listener.
         listener = tap_result_listener(path, tags, robot_args['name'])

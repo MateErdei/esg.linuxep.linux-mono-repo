@@ -194,7 +194,7 @@ function verify_system_requirements() {
 
     # Check machine architecture
     if [[ $(uname -m) = "x86_64" ]]; then
-        BIN="installer/bin"
+        BIN="bin"
     else
         failure ${EXITCODE_NOT_64_BIT} "ERROR: SPL installation will fail as it can only be installed on a x86_64 system"
     fi
@@ -215,7 +215,7 @@ function verify_system_requirements() {
     [[ (-z $(which getcap)) || (-z $(which setcap)) ]] && log_warn "SPL requires capabilities for the AV and RTD plugins to be installed. The base installation will succeed but these plugins will not be operational"
 
     # Check Fanotify is enabled in kernel
-    fanotify_config=$(cat /boot/config-"$(uname -r)" | grep FANOTIFY 2>/dev/null)
+    fanotify_config=$(cat /boot/config-"$(uname -r)" 2>/dev/null | grep FANOTIFY 2>/dev/null)
     [[ ("${fanotify_config}" =~ "CONFIG_FANOTIFY=y") && ("${fanotify_config}" =~ "CONFIG_FANOTIFY_ACCESS_PERMISSIONS=y") ]] || log_warn "Fanotify is not enabled by this kernel so the AV plugin will not be able to scan files on access and, if necessary, block access to threats. SPL can be installed but OnAccess scanning will not be operational, see https://support.sophos.com/support/s/article/KB-000034610 for more details"
 
     # Check there is enough disk space
@@ -242,7 +242,7 @@ function verify_connection_to_central() {
     else
         if [[ $(curl --proxy "${proxy}" -k -is "${CENTRAL_URL}" -m 60 | head -n 1) =~ "200" ]]; then
             VALID_CENTRAL_CONNECTION=1
-            log_debug "Server can connect to Sophos Central via ${proxy}"
+            log_info "Server can connect to Sophos Central via ${proxy}"
         else
             log_warn "SPL installation will not be performed via ${proxy}. Server cannot connect to Sophos Central via ${proxy}"
             debug_curl_output "${CENTRAL_URL}" "${proxy}"
@@ -264,7 +264,7 @@ function verify_connection_to_sus() {
     else
         if [[ $(curl --proxy "${proxy}" -is "${SUS_URL}" -m 60 | head -n 1) =~ "200" ]]; then
             VALID_SUS_CONNECTION=1
-            log_debug "Server can connect to the SUS server (${SUS_URL}) via ${proxy}"
+            log_info "Server can connect to the SUS server (${SUS_URL}) via ${proxy}"
         else
             log_warn "SPL installation will not be performed via ${proxy}. Server cannot connect to the SUS server (${SUS_URL}) via ${proxy}"
             debug_curl_output "${SUS_URL}" "${proxy}"
@@ -311,11 +311,11 @@ function verify_connection_to_cdn() {
 function verify_network_connections() {
     IFS=' ' read -ra MESSAGE_RELAYS <<<"${1}"
     IFS=' ' read -ra UPDATE_CACHES <<<"${2}"
-    [[ ${#MESSAGE_RELAYS[@]} != 0 ]] && MESSAGE_RELAYS_CONFIGURED=1
 
     [[ ${#UPDATE_CACHES[@]} != 0 ]] && log_info "Verifying connections to configured Update Caches"
     for update_cache in "${UPDATE_CACHES[@]}"; do
-        if [[ $(curl -k -is "${update_cache}" -m 60 | head -n 1) =~ "200" ]]; then
+        if curl -k -is "https://${update_cache}/v3" -m 60 >/dev/null; then
+            VALID_UPDATE_CACHE_CONNECTION=1
             log_info "Server can connect to configured Update Cache (${update_cache})"
         else
             log_warn "Server cannot connect to configured Update Cache (${update_cache})"
@@ -363,7 +363,11 @@ function verify_network_connections() {
         CDN_URL="${SDDS3_NET_URL}"
     else
         if [[ -z "${PROXY}" ]]; then
-            log_error "SPL installation will fail as a connection to a CDN server could not be established"
+            if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]]; then
+                log_warn "A direct connection to a CDN server could not be established"
+            else
+                log_error "SPL installation will fail as a connection to a CDN server could not be established"
+            fi
         else
             if [[ $(curl --proxy "${PROXY}" -is ${SDDS3_COM_URL} -m 60 | head -n 1) =~ "404" ]]; then
                 log_debug "Server can connect to .com CDN address (${SDDS3_COM_URL}) via ${PROXY}"
@@ -382,5 +386,5 @@ function verify_network_connections() {
         verify_connection_to_cdn "${CDN_URL}"
         [[ -n "${PROXY}" ]] && verify_connection_to_cdn "${CDN_URL}" "${PROXY}"
     fi
-    [[ "${VALID_CDN_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as the server is not able to download packages from the CDN server"
+    [[ "${VALID_CDN_CONNECTION}" == 0 && "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as the server is not able to download packages from the CDN server"
 }

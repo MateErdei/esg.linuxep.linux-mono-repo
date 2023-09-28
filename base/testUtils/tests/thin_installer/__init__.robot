@@ -13,7 +13,7 @@ Resource    ../update/SDDS3Resources.robot
 Suite Setup      Setup base package
 Suite Teardown   Cleanup base package
 Test Teardown    Thin installer test teardown
-Force Tags  LOAD7
+Force Tags  TAP_PARALLEL4
 
 *** Keywords ***
 Setup base package

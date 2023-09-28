@@ -197,7 +197,10 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     # Check the message relays made their way through to the MCS Router
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
-    check_mcsrouter_log_contains    Successfully directly connected to localhost:4443
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    2 secs
+    ...    check_mcsrouter_log_contains    Successfully directly connected to localhost:4443
 
     # Also to prove MCS is working correctly check that we get an ALC policy
     Wait Until Keyword Succeeds

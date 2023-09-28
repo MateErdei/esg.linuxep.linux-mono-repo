@@ -12,9 +12,11 @@
             <include mode="base-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/covfile" dest-dir="coverage"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="develop"/>
+
+            <!-- ThinInstaller -->
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="thininstaller/linux_x64_rel/thininstaller" dest-dir="sspl-thininstaller" />
+
+            <!-- EDR -->
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
@@ -52,14 +54,6 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="websocket_server" dest-dir="websocket_server" />
             <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
-        </build-asset>
-        <build-asset project="linuxep" repo="thininstaller">
-            <development-version branch="develop" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output" dest-dir="sspl-thininstaller" />
-        </build-asset>
-        <build-asset project="linuxep" repo="thininstaller">
-            <development-version branch="release/Version-1_1_4" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output" dest-dir="sspl-legacy-thininstaller" />
         </build-asset>
 
         <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->

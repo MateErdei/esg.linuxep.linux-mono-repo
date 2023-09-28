@@ -1,3 +1,0 @@
-[submodule "test/googletest"]
-	path = test/googletest
-	url = ssh://git@stash.sophos.net:7999/linuxep/3rdparty-googletest.git
