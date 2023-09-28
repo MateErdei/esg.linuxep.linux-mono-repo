@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "LogInitializedTests.h"
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include "datatypes/Print.h"
 

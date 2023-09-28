@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/MemoryAppender.h"
 
-#include <common/AbortScanException.h>
+#include "common/AbortScanException.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <common/PathUtils.h>
+#include "common/PathUtils.h"
 #include <gtest/gtest.h>
 
 namespace fs = sophos_filesystem;

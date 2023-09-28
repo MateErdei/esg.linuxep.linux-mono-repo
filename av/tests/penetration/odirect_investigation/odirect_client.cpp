@@ -1,9 +1,9 @@
-//Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <datatypes/Print.h>
-#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include "datatypes/Print.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <cassert>
 #include <string>

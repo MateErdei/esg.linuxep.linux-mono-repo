@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "modules/common/StoppableSleeper.h"
-#include "modules/common/ThreatDetector/SusiSettings.h"
+#include "common/StoppableSleeper.h"
+#include "common/ThreatDetector/SusiSettings.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
 #include "Common/XmlUtilities/AttributesMap.h"

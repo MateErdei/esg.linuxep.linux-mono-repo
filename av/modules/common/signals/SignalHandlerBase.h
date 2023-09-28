@@ -1,10 +1,10 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISignalHandlerBase.h"
 
-#include <Common/Threads/NotifyPipe.h>
+#include "Common/Threads/NotifyPipe.h"
 
 #include <cassert>
 #include <csignal>

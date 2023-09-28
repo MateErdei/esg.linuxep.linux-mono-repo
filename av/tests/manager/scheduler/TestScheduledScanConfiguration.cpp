@@ -1,11 +1,11 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 #include "tests/common/LogInitializedTests.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 using namespace manager::scheduler;
 

@@ -21,7 +21,7 @@
 #include "Common/Helpers/MockSysCalls.h"
 
 #include <gmock/gmock.h>
-#include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 
 using namespace testing;
 using namespace sspl::sophosthreatdetectorimpl;

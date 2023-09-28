@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 
 #include <gtest/gtest.h>
 
 #include "datatypes/sophos_filesystem.h"
-#include "modules/manager/scanprocessmonitor/ScanProcessMonitor.h"
+#include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
 
 #include "Common/Helpers/MockSysCalls.h"
-#include <Common/Threads/AbstractThread.h>
+#include "Common/Threads/AbstractThread.h"
 
 #include <fstream>
 

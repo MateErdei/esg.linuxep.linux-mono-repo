@@ -20,7 +20,7 @@
 #else
 #define LOGGING_ENABLED
 
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 log4cplus::Logger& getCommonLogger();
 

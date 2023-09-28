@@ -9,7 +9,7 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-#include <unixsocket/SocketUtils.h>
+#include "unixsocket/SocketUtils.h"
 
 #include "tests/common/FakeThreatScannerFactory.h"
 

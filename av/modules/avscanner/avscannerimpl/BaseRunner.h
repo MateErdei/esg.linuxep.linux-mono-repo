@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "IRunner.h"
 #include "ScanCallbackImpl.h"
 
-#include <filewalker/FileWalker.h>
-#include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
+#include "filewalker/FileWalker.h"
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 #include "ScanCallbackImpl.h"
 
 #include <memory>

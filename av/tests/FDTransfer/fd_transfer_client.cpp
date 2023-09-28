@@ -1,11 +1,11 @@
-//Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include <string>
 #include <cassert>
 #include <fcntl.h>
-#include <datatypes/Print.h>
+#include "datatypes/Print.h"
 
 static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int file_fd, const std::string& filename)
 {

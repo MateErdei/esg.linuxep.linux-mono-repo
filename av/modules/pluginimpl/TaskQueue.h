@@ -1,8 +1,8 @@
-// Copyright 2018-2022 Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "modules/common/StoppableSleeper.h"
+#include "common/StoppableSleeper.h"
 
 #include <condition_variable>
 #include <list>

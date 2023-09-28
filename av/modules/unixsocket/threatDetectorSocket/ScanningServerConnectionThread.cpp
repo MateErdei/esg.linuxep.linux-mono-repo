@@ -14,7 +14,7 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
-#include <Common/FileSystem/IFileSystem.h>
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <capnp/serialize.h>
 

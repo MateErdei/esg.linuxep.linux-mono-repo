@@ -1,15 +1,15 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <tests/common/MemoryAppender.h>
+#include "tests/common/MemoryAppender.h"
 
 #include <fstream>
 

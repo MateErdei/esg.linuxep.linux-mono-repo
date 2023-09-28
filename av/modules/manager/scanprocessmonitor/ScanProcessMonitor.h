@@ -6,7 +6,7 @@
 
 #include "common/LockableData.h"
 #include "datatypes/sophos_filesystem.h"
-#include "modules/common/NotifyPipeSleeper.h"
+#include "common/NotifyPipeSleeper.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"

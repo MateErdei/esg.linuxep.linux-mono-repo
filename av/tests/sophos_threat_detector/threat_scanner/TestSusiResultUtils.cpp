@@ -2,7 +2,7 @@
 
 #include "sophos_threat_detector/threat_scanner/SusiResultUtils.h"
 
-#include <Common/Helpers/LogInitializedTests.h>
+#include "Common/Helpers/LogInitializedTests.h"
 #include <gtest/gtest.h>
 #include <log4cplus/loglevel.h>
 

@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include <string>
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/Logging/LoggerConfig.h"
 
 log4cplus::Logger& getNamedScanRunnerLogger();
 

@@ -1,8 +1,8 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/SusiScanResultJsonParser.h"
 
-#include <Common/Helpers/LogInitializedTests.h>
+#include "Common/Helpers/LogInitializedTests.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

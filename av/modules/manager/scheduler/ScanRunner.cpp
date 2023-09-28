@@ -1,4 +1,4 @@
-//Copyright 2020-2021, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 
 // File
@@ -10,9 +10,9 @@
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 // Base
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/Process/IProcess.h>
-#include <Common/UtilityImpl/StringUtils.h> // String replacer
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Process/IProcess.h"
+#include "Common/UtilityImpl/StringUtils.h" // String replacer
 // 3rd party
 // C++ std
 #include <chrono>

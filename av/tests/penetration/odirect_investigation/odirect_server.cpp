@@ -5,7 +5,7 @@
 
 #include "tests/common/FakeThreatScannerFactory.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <string>
 

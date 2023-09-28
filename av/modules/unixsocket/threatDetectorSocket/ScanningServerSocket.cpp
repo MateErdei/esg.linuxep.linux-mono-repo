@@ -7,7 +7,7 @@
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <Common/ZeroMQWrapper/IIPCException.h>
+#include "Common/ZeroMQWrapper/IIPCException.h"
 
 #include <sys/stat.h>
 

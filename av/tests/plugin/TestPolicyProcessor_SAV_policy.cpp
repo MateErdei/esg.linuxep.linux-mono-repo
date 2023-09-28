@@ -4,8 +4,8 @@
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <gtest/gtest.h>
 

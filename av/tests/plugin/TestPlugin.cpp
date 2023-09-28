@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 
-#include <pluginimpl/Logger.h>
+#include "pluginimpl/Logger.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 using namespace Common::FileSystem;
 

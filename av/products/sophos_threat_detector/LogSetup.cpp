@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "LogSetup.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
-#include <Common/Logging/LoggingSetup.h>
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/LoggingSetup.h"
+#include "Common/Logging/SophosLoggerMacros.h"
 #include "../common/config.h"
 
 #include <log4cplus/logger.h>

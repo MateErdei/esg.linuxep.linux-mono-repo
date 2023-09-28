@@ -1,9 +1,9 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include <pluginimpl/ActionUtils.h>
+#include "pluginimpl/ActionUtils.h"
 
 #include "tests/common/LogInitializedTests.h"
-#include <Common/XmlUtilities/AttributesMap.h>
+#include "Common/XmlUtilities/AttributesMap.h"
 
 namespace
 {

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h>
+#include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 #include <gmock/gmock.h>
 
 using namespace testing;

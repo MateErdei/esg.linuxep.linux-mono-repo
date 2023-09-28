@@ -23,7 +23,7 @@
 #include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
-#include <pluginimpl/HealthStatus.h>
+#include "pluginimpl/HealthStatus.h"
 #include <nlohmann/json.hpp>
 
 using namespace Plugin;

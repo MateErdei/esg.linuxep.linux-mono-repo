@@ -1,7 +1,7 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "modules/common/NotifyPipeSleeper.h"
-#include <tests/common/LogInitializedTests.h>
+#include "common/NotifyPipeSleeper.h"
+#include "tests/common/LogInitializedTests.h"
 
 #include <chrono>
 

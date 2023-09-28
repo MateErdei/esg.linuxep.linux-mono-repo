@@ -1,11 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "FakeServerConnectionThread.h"
-#include <unixsocket/BaseServerSocket.h>
+#include "unixsocket/BaseServerSocket.h"
 
 namespace FakeDetectionServer
 {

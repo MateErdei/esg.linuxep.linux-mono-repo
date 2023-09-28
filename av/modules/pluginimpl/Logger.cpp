@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Logger.h"
 
 #include "../common/config.h"
-#include <Common/Logging/LoggerConfig.h>
+#include "Common/Logging/LoggerConfig.h"
 
 log4cplus::Logger& getPluginLogger()
 {

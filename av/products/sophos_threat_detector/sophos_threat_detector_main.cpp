@@ -6,7 +6,7 @@
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SophosThreatDetectorMain.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <sys/stat.h>
 namespace fs = sophos_filesystem;

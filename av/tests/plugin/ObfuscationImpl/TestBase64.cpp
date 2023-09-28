@@ -1,12 +1,8 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <pluginimpl/Obfuscation/IBase64Exception.h>
-#include <pluginimpl/ObfuscationImpl/Base64.h>
-#include <tests/common/LogInitializedTests.h>
+#include "pluginimpl/Obfuscation/IBase64Exception.h"
+#include "pluginimpl/ObfuscationImpl/Base64.h"
+#include "tests/common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 

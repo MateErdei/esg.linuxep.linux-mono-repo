@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <log4cplus/logger.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 
 namespace test_common

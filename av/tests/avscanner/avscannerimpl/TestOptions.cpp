@@ -1,7 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include "avscanner/avscannerimpl/Options.h"
 

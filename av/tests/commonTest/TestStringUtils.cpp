@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 
 #include <gtest/gtest.h>
 
-#include <common/StringUtils.h>
+#include "common/StringUtils.h"
 
 #include <log4cplus/loglevel.h>
-#include <Common/Logging/SophosLoggerMacros.h>
-#include <tests/common/LogInitializedTests.h>
+#include "Common/Logging/SophosLoggerMacros.h"
+#include "tests/common/LogInitializedTests.h"
 #include <regex>
 
 

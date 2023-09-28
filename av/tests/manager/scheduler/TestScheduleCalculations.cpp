@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 
-#include <datatypes/Print.h>
+#include "datatypes/Print.h"
 
 using namespace manager::scheduler;
 

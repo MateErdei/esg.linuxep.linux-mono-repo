@@ -1,4 +1,4 @@
-//Copyright 2020, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -9,7 +9,7 @@
 // Product
 #include "datatypes/sophos_filesystem.h"
 // Base
-#include <Common/Threads/AbstractThread.h>
+#include "Common/Threads/AbstractThread.h"
 
 namespace manager::scheduler
 {

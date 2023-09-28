@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockEvpCipherWrapper.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <pluginimpl/Obfuscation/ICipherException.h>
-#include <pluginimpl/ObfuscationImpl/Base64.h>
-#include <pluginimpl/ObfuscationImpl/Cipher.h>
-#include <pluginimpl/ObfuscationImpl/Obscurity.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "pluginimpl/Obfuscation/ICipherException.h"
+#include "pluginimpl/ObfuscationImpl/Base64.h"
+#include "pluginimpl/ObfuscationImpl/Cipher.h"
+#include "pluginimpl/ObfuscationImpl/Obscurity.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

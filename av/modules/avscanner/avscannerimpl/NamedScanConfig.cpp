@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "NamedScanConfig.h"
 
 #define AUTO_FD_IMPLICIT_INT
-#include <datatypes/AutoFd.h>
-#include <datatypes/sophos_filesystem.h>
+#include "datatypes/AutoFd.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include <capnp/serialize.h>
 

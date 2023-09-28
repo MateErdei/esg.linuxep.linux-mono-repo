@@ -1,8 +1,8 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <common/PidLockFile.h>
+#include "common/PidLockFile.h"
 #include <gmock/gmock.h>
 
 using namespace testing;

@@ -9,7 +9,7 @@
 #include "avscanner/avscannerimpl/MockMountPoint.h"
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
-#include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
+#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"

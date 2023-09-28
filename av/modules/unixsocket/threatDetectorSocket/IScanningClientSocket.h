@@ -5,8 +5,8 @@
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
 
-#include <scan_messages/ScanResponse.h>
-#include <scan_messages/ClientScanRequest.h>
+#include "scan_messages/ScanResponse.h"
+#include "scan_messages/ClientScanRequest.h"
 
 namespace unixsocket
 {

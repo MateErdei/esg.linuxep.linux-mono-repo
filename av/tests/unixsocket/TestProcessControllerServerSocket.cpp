@@ -6,8 +6,8 @@
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
-#include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
-#include <unixsocket/processControllerSocket/ProcessControllerClient.h>
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+#include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 #include "unixsocket/SocketUtils.h"
 
 #include <gtest/gtest.h>

@@ -1,11 +1,7 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <datatypes/AutoFd.h>
-#include <unixsocket/BaseServerConnectionThread.h>
+#include "datatypes/AutoFd.h"
+#include "unixsocket/BaseServerConnectionThread.h"
 
 #include <vector>
 

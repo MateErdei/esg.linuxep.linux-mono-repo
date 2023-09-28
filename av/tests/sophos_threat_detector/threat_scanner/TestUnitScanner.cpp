@@ -7,8 +7,8 @@
 #include "sophos_threat_detector/threat_scanner/SusiLogger.h"
 #include "sophos_threat_detector/threat_scanner/UnitScanner.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

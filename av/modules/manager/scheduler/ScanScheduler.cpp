@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ScanScheduler.h"
 
@@ -6,9 +6,9 @@
 #include "ScanRunner.h"
 #include "ScanSerialiser.h"
 
-#include <common/SaferStrerror.h>
+#include "common/SaferStrerror.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <poll.h>
 

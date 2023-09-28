@@ -12,8 +12,8 @@
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/ThreatDetectedBuilder.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <gmock/gmock.h>
 

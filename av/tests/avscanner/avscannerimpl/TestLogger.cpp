@@ -1,7 +1,8 @@
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include <gtest/gtest.h>
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <tests/common/LogInitializedTests.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "tests/common/LogInitializedTests.h"
 
 #include "avscanner/avscannerimpl/Logger.h"
 #include "datatypes/sophos_filesystem.h"

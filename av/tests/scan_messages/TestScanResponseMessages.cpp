@@ -2,7 +2,7 @@
 
 #include "ScanResponse.capnp.h"
 
-#include <scan_messages/ScanResponse.h>
+#include "scan_messages/ScanResponse.h"
 
 #include <gtest/gtest.h>
 #include <capnp/serialize.h>

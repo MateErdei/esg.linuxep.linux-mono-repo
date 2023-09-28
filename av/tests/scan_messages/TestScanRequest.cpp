@@ -2,7 +2,7 @@
 
 #include "ScanRequest.capnp.h"
 
-#include <scan_messages/ScanRequest.h>
+#include "scan_messages/ScanRequest.h"
 
 #include "Common/Helpers/MockSysCalls.h"
 

@@ -1,7 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "modules/common/signals/SigUSR1Monitor.h"
-#include <modules/common/FDUtils.h>
+#include "common/signals/SigUSR1Monitor.h"
+#include "common/FDUtils.h"
 #include "tests/common/LogInitializedTests.h"
 
 #include <gmock/gmock.h>

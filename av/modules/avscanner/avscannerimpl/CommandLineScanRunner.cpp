@@ -13,7 +13,7 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <common/StringUtils.h>
+#include "common/StringUtils.h"
 
 #include <memory>
 #include <utility>

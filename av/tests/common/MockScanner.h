@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/sophos_threat_detector/threat_scanner/IThreatScanner.h"
+#include "sophos_threat_detector/threat_scanner/IThreatScanner.h"
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 #include "scan_messages/ScanResponse.h"
 #include <gmock/gmock.h>

@@ -14,8 +14,8 @@
 #include <unistd.h>
 
 #include <capnp/serialize.h>
-#include <common/SaferStrerror.h>
-#include <scan_messages/ProcessControlDeserialiser.h>
+#include "common/SaferStrerror.h"
+#include "scan_messages/ProcessControlDeserialiser.h"
 
 #include <cassert>
 #include <stdexcept>

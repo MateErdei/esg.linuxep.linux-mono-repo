@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "PluginUtils.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <fstream>
 

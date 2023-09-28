@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "mount_monitor/mountinfo/IMountInfo.h"
 
-#include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include <memory>
 

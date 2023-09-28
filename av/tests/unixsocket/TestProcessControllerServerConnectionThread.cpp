@@ -15,8 +15,8 @@
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <gtest/gtest.h>
-#include <scan_messages/ProcessControlSerialiser.h>
-#include <scan_messages/ClientScanRequest.h> // for invalid_request_type test
+#include "scan_messages/ProcessControlSerialiser.h"
+#include "scan_messages/ClientScanRequest.h" // for invalid_request_type test
 
 #include <memory>
 

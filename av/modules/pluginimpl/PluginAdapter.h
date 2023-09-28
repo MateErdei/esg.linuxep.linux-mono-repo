@@ -23,7 +23,7 @@
 #include "datatypes/IUuidGenerator.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
-#include "modules/common/ThreadRunner.h"
+#include "common/ThreadRunner.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingServer.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 

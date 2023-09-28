@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -8,7 +8,7 @@
 #include "common/Exclusion.h"
 #include "common/PathUtils.h"
 
-#include <filewalker/IFileWalkCallbacks.h>
+#include "filewalker/IFileWalkCallbacks.h"
 
 namespace avscanner::avscannerimpl
 {

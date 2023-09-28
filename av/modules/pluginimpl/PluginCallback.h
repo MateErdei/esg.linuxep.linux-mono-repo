@@ -12,10 +12,10 @@
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/PluginApi/IPluginCallbackApi.h>
-#include <common/PluginUtils.h>
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
+#include "common/PluginUtils.h"
 
 #include <atomic>
 

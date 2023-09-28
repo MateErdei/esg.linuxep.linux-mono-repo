@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
@@ -7,7 +7,7 @@
 #include "datatypes/Time.h"
 #include "tests/common/LogInitializedTests.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <chrono>
 #include <thread>

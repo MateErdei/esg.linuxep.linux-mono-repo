@@ -1,12 +1,12 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "PluginMemoryAppenderUsingTests.h"
 #include "TestPolicyProcessor.h"
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 
 #include <gtest/gtest.h>
 

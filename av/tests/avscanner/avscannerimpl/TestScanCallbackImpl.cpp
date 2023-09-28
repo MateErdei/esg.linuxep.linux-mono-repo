@@ -1,8 +1,8 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include "avscanner/avscannerimpl/ScanCallbackImpl.h"
 #include <gtest/gtest.h>

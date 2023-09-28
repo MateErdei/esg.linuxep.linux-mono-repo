@@ -12,9 +12,9 @@
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include <Common/UtilityImpl/Uuid.h>
+#include "Common/UtilityImpl/Uuid.h"
 
-#include <common/ApplicationPaths.h>
+#include "common/ApplicationPaths.h"
 #include <gtest/gtest.h>
 
 using namespace safestore::SafeStoreWrapper;

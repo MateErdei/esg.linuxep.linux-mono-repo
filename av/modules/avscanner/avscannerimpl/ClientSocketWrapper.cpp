@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "ClientSocketWrapper.h"
 #include "ReconnectSettings.h"
@@ -9,7 +9,7 @@
 #include "common/SaferStrerror.h"
 #include "common/ScanInterruptedException.h"
 #include "common/ScanManuallyInterruptedException.h"
-#include <common/StringUtils.h>
+#include "common/StringUtils.h"
 
 #include <sstream>
 

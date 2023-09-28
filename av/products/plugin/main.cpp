@@ -4,8 +4,8 @@
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <pluginimpl/Logger.h>
-#include <pluginimpl/PluginAdapter.h>
+#include "pluginimpl/Logger.h"
+#include "pluginimpl/PluginAdapter.h"
 
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"

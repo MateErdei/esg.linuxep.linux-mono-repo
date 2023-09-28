@@ -1,8 +1,8 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <sophos_threat_detector/sophosthreatdetectorimpl/ISafeStoreRescanWorker.h>
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ISafeStoreRescanWorker.h"
 #include <gmock/gmock.h>
 
 using namespace testing;

@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2019-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "TestFileWalker.h"
 #include "MockCallbacks.h"
 
-#include <filewalker/FileWalker.h>
+#include "filewalker/FileWalker.h"
 #include "common/AbortScanException.h"
 
 #include <gtest/gtest.h>

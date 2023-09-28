@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
@@ -10,7 +10,7 @@
 
 #include <capnp/serialize.h>
 #include <gtest/gtest.h>
-#include <scan_messages/ThreatDetected.h>
+#include "scan_messages/ThreatDetected.h"
 
 using namespace pluginimpl;
 using namespace scan_messages;

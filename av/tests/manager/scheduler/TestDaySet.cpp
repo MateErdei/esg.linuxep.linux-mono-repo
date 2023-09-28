@@ -1,9 +1,9 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
-#include <datatypes/Print.h>
+#include "datatypes/Print.h"
 #include "manager/scheduler/DaySet.h"
-#include <tests/common/MemoryAppender.h>
+#include "tests/common/MemoryAppender.h"
 
 using namespace manager::scheduler;
 
