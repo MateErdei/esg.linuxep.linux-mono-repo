@@ -38,25 +38,28 @@
             <program>./build/python.sh</program>
             <args>tools/src/dump_environment/buildcfg.py --reset</args>
         </command>
+        <!--
+          Gather up environment, so variables that change per build can be
+          plumbed through to the tools that need them without breaking the Bazel
+          cache. This runs for every mode.
+        -->
+        <command>
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/dump_environment.py</args>
+        </command>
 
         <!-- Common build steps -->
         <command>
             <program>bash</program>
             <args>./fixup_bazel_tools.sh</args>
         </command>
-        <!--
-        We want to include the commit hash in VERSION.ini, but using that would lead to rebuilds on a different commit
-        even if a component didn't change. So, we write it to a file in a fixed location outside the workspace, and read
-        that only if the autoversion has changed (i.e. some file changed or cache got cleared).
-        So the hash more-or-less corresponds to the last commit that changed that component, rather the exact build hash
-        -->
         <command>
             <program>bash</program>
-            <args>-c 'mkdir -p /build &amp;&amp; git rev-parse HEAD > /build/COMMIT_HASH'</args>
+            <args>-c 'echo $SOURCE_CODE_BRANCH > build/SOURCE_CODE_BRANCH'</args>
         </command>
         <command>
             <program>bash</program>
-            <args>-c 'echo "$SOURCE_CODE_BRANCH" > build/SOURCE_CODE_BRANCH'</args>
+            <args>-c 'git rev-parse HEAD > build/COMMIT_HASH'</args>
         </command>
 
         <!-- FAST: lfast -->

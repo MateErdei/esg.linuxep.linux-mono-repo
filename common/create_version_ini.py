@@ -12,7 +12,7 @@ def main(argv):
 
     build_date = datetime.datetime.utcnow().strftime("%Y-%m-%d")
 
-    with open("/build/COMMIT_HASH") as f:
+    with open("build/COMMIT_HASH") as f:
         commit_hash = f.read().strip()
 
     with open(output_file, "w") as f:

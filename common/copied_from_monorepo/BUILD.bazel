@@ -1,6 +1,0 @@
-py_binary(
-    name = "apply_version_template",
-    srcs = ["apply_version_template.py"],
-    python_version = "PY3",
-    visibility = ["//visibility:public"],
-)

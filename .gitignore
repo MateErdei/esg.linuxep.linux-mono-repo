@@ -13,6 +13,7 @@
 !/.profile/README.md
 /log.html
 /build/SOURCE_CODE_BRANCH
+/build/COMMIT_HASH
 
 # Import locations
 /common/sophlib/

@@ -4,7 +4,7 @@ load(":version_ini.bzl", "version_ini")
 load("//tools/config:copy_file.bzl", "copy_file")
 load("//tools/config:zip.bzl", "zip_asset")
 load("//common:strip.bzl", "strip")
-load("//common/copied_from_monorepo:sophos_versioning.bzl", "collate_sdds_packages")
+load("//tools/config:sophos_sdds_package.bzl", "collate_sdds_packages")
 load("@rules_python//python:defs.bzl", "py_test")
 
 def _generate_spv_template_impl(ctx):

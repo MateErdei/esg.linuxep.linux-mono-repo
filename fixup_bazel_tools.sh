@@ -6,6 +6,7 @@
 sed -i 's/\r//' tools/aspects/wrapper.sh
 chmod +x tools/aspects/wrapper.sh
 chmod +x imports/internal/sdds3_utils/sdds3-builder
+chmod +x tools/launch_py3.py
 
 # sophlib is not part of bazel-tools, however this fix is necessary because of bazel-tools.
 # sophlib is exported so that e.g. sdds3 is accessible as //common/sophlib:sdds3

@@ -1,6 +1,6 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 
-load("//common/copied_from_monorepo:sophos_versioning.bzl", "expand_version")
+load("//tools/config:sophos_versioning.bzl", "expand_version")
 
 COMPONENT_AUTO_VERSION_TOKEN = "@ComponentAutoVersion@"
 
@@ -13,6 +13,9 @@ def _create_version_ini_impl(ctx):
     outputs = [ctx.outputs.out]
 
     ctx.actions.run(
+        execution_requirements = {
+            "no-sandbox": "1",  # To be able to access build/COMMIT_HASH without it being an action input
+        },
         executable = ctx.executable._create_version_ini,
         inputs = [ctx.file.version_file],
         outputs = outputs,
