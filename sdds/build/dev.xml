@@ -28,6 +28,7 @@
           <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/event-journaler/latest/x64" mode="dev,999"/>
           <!-- AV -->
           <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/av/latest/x64" mode="dev,999"/>
+          <include artifact-path="liveterminal/sdds" dest-dir="redist/liveresponse/latest/x64" mode="dev,999"/>
       </build-asset>
 
       <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
@@ -38,11 +39,6 @@
       <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="dev,999">
         <development-version branch="develop"/>
           <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/heartbeat/latest/x64" mode="dev,999"/>
-      </build-asset>
-
-      <build-asset project="winep" repo="liveterminal" mode="dev,999">
-        <development-version branch="develop"/>
-          <include artifact-path="liveterminal/sdds" dest-dir="redist/liveresponse/latest/x64" mode="dev,999"/>
       </build-asset>
 
         <!--supplements-->
