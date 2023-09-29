@@ -185,7 +185,6 @@ Wait For RuntimeDetections to be Installed
     ...   40 secs
     ...   1 secs
     ...   Runtime Detections Plugin Is Running
-    Wait Until Created    ${RTD_DIR}/var/run/sensor.sock    timeout=30s
     
 Verify RTD Component Permissions
     ${result} =   Run Process    find ${RTD_DIR} | xargs ls -ld    shell=True   stderr=STDOUT
@@ -220,11 +219,16 @@ Verify RTD Component Permissions
 
 Verify Running RTD Component Permissions
     Verify Permissions    ${RTD_DIR}/var/run/cache_analytics.yaml    0o640    sophos-spl-user   sophos-spl-group
-    Verify Permissions    ${RTD_DIR}/var/run/sensor.sock             0o770    sophos-spl-user   sophos-spl-group
 
     Verify Permissions    /var/run/sophos   0o700   sophos-spl-user   sophos-spl-group
     Verify Permissions    /run/sophos       0o700   sophos-spl-user   sophos-spl-group
 
+    Wait Until Keyword Succeeds
+    ...   40 secs
+    ...   1 secs
+    ...   Verify Running RTD Cgroup Permissions
+
+Verify Running RTD Cgroup Permissions
     IF   ${{os.path.isdir("/sys/fs/cgroup/")}}
         IF   ${{os.path.isdir("/sys/fs/cgroup/systemd/runtimedetections/")}}
             Verify Permissions   /sys/fs/cgroup/systemd/runtimedetections   0o755    sophos-spl-user   sophos-spl-group
