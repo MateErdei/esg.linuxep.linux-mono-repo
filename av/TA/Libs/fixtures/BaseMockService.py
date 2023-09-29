@@ -121,13 +121,6 @@ def install_base(sophos_install):
 
     dest_libs = os.path.join(sophos_install, "base", "lib64")
 
-    def copy_lib(lib_glob):
-        src = glob.glob(os.path.join(base_libs, lib_glob))[0]
-        dest = os.path.join(dest_libs, os.path.basename(src))
-        shutil.copy(src, dest)
-        create_library_symlinks(dest)
-    #
-    copy_lib("libstdc++.so.6.*")
 
 
 def install_component(sophos_install):

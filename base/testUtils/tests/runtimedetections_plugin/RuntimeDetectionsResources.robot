@@ -17,8 +17,6 @@ Wait For RuntimeDetections to be Installed
     ...   1 secs
     ...   RuntimeDetections Plugin Is Running
 
-    Wait Until Created    ${RTD_PLUGIN_PATH}/var/run/sensor.sock   timeout=30s
-
 RuntimeDetections Plugin Is Running
     ${result} =    Run Process  pgrep  -f  ${RTD_EXECUTABLE}
     Should Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin not running
@@ -108,7 +106,6 @@ Verify Component Permissions
 
 Verify Running Component Permissions
     Verify Permissions   ${RTD_PLUGIN_PATH}/var/run/cache_analytics.yaml  0o640    sophos-spl-user   sophos-spl-group
-    Verify Permissions   ${RTD_PLUGIN_PATH}/var/run/sensor.sock  0o770    sophos-spl-user   sophos-spl-group
 
     Verify Permissions   /var/run/sophos/   0o700   sophos-spl-user   sophos-spl-group
     Verify Permissions   /run/sophos/   0o700   sophos-spl-user   sophos-spl-group
