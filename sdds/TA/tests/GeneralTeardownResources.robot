@@ -70,7 +70,7 @@ Dump All Logs
     dump_teardown_log    ${installDir}/plugins/responseactions/log/responseactions.log
     dump_teardown_log    ${installDir}/plugins/responseactions/log/actionrunner.log
 
-    dump_teardown_log    ${installDir}/plugins/rtd/log/runtimedetections.log
+    dump_teardown_log    ${installDir}/plugins/runtimedetections/log/runtimedetections.log
 
     dump_teardown_log    ./tmp/proxy_server.log
     dump_teardown_log    ./tmp/sdds3_server.log
