@@ -25,19 +25,37 @@ namespace std
     //  Various character classes
     //
 
-    inline bool char_class_num(char c) { return (c >= '0' && c <= '9'); }
-    inline bool char_class_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
-    inline bool char_class_alphanum(char c) { return char_class_num(c) || char_class_alpha(c); }
+    inline bool char_class_num(char c)
+    {
+        return (c >= '0' && c <= '9');
+    }
+    inline bool char_class_alpha(char c)
+    {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+    inline bool char_class_alphanum(char c)
+    {
+        return char_class_num(c) || char_class_alpha(c);
+    }
 
-    inline bool char_class_base64(char c) { return char_class_alphanum(c) || (c == '+') || (c == '/'); }
-    inline bool char_class_hex(char c) { return char_class_num(c) || (c >= 'a' && c <= 'f'); }
+    inline bool char_class_base64(char c)
+    {
+        return char_class_alphanum(c) || (c == '+') || (c == '/');
+    }
+    inline bool char_class_hex(char c)
+    {
+        return char_class_num(c) || (c >= 'a' && c <= 'f');
+    }
     // Note - this has been changed to allow the windows file separator as part of a filename.
     inline bool char_class_file(char c)
     {
         return (c >= 32 && c <= 126) && (c != '"') && (c != ':') && (c != '|') //&& (c != '\\')
                && (c != '<') && (c != '>') && (c != '*') && (c != '?');
     }
-    inline bool char_literal_eq(char c) { return (c == '='); }
+    inline bool char_literal_eq(char c)
+    {
+        return (c == '=');
+    }
 
     ////////////////////////////////////////////////////////////
     // cin << expect("some constant string")
@@ -130,7 +148,9 @@ namespace std
         bool (*p)(char);
         string& s;
         int min, max;
-        _Match(bool (*p)(char), string& s, int min, int max) : p(p), s(s), min(min), max(max) {}
+        _Match(bool (*p)(char), string& s, int min, int max) : p(p), s(s), min(min), max(max)
+        {
+        }
     };
     inline _Match match(bool (*p)(char), string& s, int min = 0, int max = -2)
     {
@@ -168,7 +188,9 @@ namespace std
     {
         string& s;
         int maxlines;
-        _Match_base64(string& s, int maxlines) : s(s), maxlines(maxlines) {}
+        _Match_base64(string& s, int maxlines) : s(s), maxlines(maxlines)
+        {
+        }
     };
     inline _Match_base64 match_base64(string& s, int maxlines = -1)
     {
@@ -222,7 +244,9 @@ namespace std
         const string& delim;
         int maxbytes;
 
-        _Get_upto(string& s, const string& delim, int maxbytes) : s(s), delim(delim), maxbytes(maxbytes) {}
+        _Get_upto(string& s, const string& delim, int maxbytes) : s(s), delim(delim), maxbytes(maxbytes)
+        {
+        }
     };
 
     inline _Get_upto get_upto(string& s, const string& delim, int maxbytes = -1)
@@ -241,7 +265,8 @@ namespace std
         stringstream tmpbuf;
         size_t f_delim_len = f.delim.length();
         char f_delim_end = f.delim[f_delim_len - 1];
-        int tmpstr_len, terminator;
+        size_t tmpstr_len;
+        int terminator;
 
         // read into tmpbuf up to last character in the delim string
         while (is.good())

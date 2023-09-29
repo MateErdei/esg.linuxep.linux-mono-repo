@@ -66,6 +66,8 @@ namespace VerificationTool
 
                 case file_info::file_invalid:
                     errorMessage = "Invalid file found: " + p->path();
+                    bAllFilesOK = false;
+                    break;
                 default:
                     bAllFilesOK = false;
                     break;

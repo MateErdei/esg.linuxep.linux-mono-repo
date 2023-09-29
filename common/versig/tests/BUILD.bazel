@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "versig_test",
+    srcs = [
+        "TestTestData.cpp",
+        "test_crypto_utils.cpp",
+        "test_sau_samples.cpp",
+        "test_versig.cpp",
+    ],
+    data = glob([
+        "cert_files/**",
+        "data_files/**",
+        "SauTestData/**",
+        "TestData/**",
+    ]),
+    deps = [
+        "//common/versig:versigimpl",
+    ],
+)

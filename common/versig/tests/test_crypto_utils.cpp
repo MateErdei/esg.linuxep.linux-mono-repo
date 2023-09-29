@@ -1,6 +1,6 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "crypto_utils.h"
+#include "common/versig/crypto_utils.h"
 
 #include <gtest/gtest.h>
 

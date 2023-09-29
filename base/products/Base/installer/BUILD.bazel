@@ -135,14 +135,6 @@ filter_files(
     include_runfiles = True,  # Needed because the python :pkg targets split some of the files into runfiles
 )
 
-filter_files(
-    name = "toolchain_dynamic_libraries",
-    srcs = ["@gcc//:dynamic_runtime_lib"],
-    disallowed_suffixes = [
-        "libstdc++.so.6",  # Since we also have libstdc++.so.6.0.29
-    ],
-)
-
 genrule(
     name = "telemetry_config",
     srcs = [
@@ -170,7 +162,6 @@ spl_sdds_packages(
             "../pip_deps_spl_{} -> files/base/lib/python{}".format(thirdparty, PYTHON_VERSION)
             for thirdparty in python_thirdparties
         ]),
-        ":toolchain_dynamic_libraries": "../gcc -> files/base",
     },
     # Inverted for better clarity of the package structure
     srcs_renamed = {value: key for key, value in {
@@ -207,7 +198,7 @@ spl_sdds_packages(
         "files/base/update/rootcerts/ps_rootca.crt": ":ps_rootca_crt",
         "files/base/update/rootcerts/rootca.crt": "rootca.crt",
         "files/base/update/rootcerts/rootca384.crt": "rootca384.crt",
-        "files/base/update/versig": "//imports/internal/versig:extract_versig_binary",
+        "files/base/update/versig": "//common/versig",
         "files/bin/sophos_diagnose": "//base/products/Base/Diagnose:sophos_diagnose",
         "files/bin/uninstall.sh": ":uninstall_sh",
         "files/bin/version": "version",

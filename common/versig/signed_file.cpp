@@ -24,7 +24,9 @@ namespace VerificationTool
     {
     }
 
-    SignedFile::~SignedFile() {}
+    SignedFile::~SignedFile()
+    {
+    }
 
     // void SignedFile::SetDigestSizeLimit
     //(

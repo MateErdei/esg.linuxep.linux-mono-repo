@@ -22,7 +22,7 @@ namespace VerificationToolCrypto
     // X509* X509_decode(const string &);
     string BIO_read_all(BIO* bio);
 
-#ifndef NDEBUG
+#ifdef DEBUG
     std::string convertASN1StringToStdString(ASN1_STRING* d)
     {
         std::string asn1_string;
@@ -47,7 +47,7 @@ namespace VerificationToolCrypto
     // from the store (this is only available in English) and access the CN part
     // of the certificate name. This is used to manage logical 'errors' that crop
     // up during the verification of a certificate chain (such as revoked cert,
-    // or expired cert) rather than actual errors (which are handled differently).
+    // for expired cert) rather than actual errors (which are handled differently).
     static string MakeErrString(X509_STORE_CTX* stor, string& CertName)
     {
         string Error;
@@ -108,7 +108,7 @@ namespace VerificationToolCrypto
         }
         return ok;
     }
-#endif /* ndef NDEBUG */
+#endif /* def DEBUG */
 
     string BIO_read_all(BIO* bio)
     {

@@ -42,8 +42,6 @@ o700, root, root, /opt/sophos-spl/bin/version.0
 o700, root, root, /opt/sophos-spl/bin/wdctl.0
 o710, sophos-spl-group, root, /opt/sophos-spl/base/bin/machineid.0
 o710, sophos-spl-group, root, /opt/sophos-spl/base/bin/python3.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so.1.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0.29.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/mcsrouter.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/sdu.0

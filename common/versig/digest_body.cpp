@@ -90,7 +90,6 @@ namespace VerificationTool
             string path;
             unsigned long size;
             string checksum;
-            char comment[100];
             switch (in.peek())
             { // With an MS iostream, calling peek() on a stream which is in an eof state
               // sets the fail bit! So be careful to only call peek() once. GNU does it ok.

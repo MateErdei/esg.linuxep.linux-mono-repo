@@ -2,10 +2,6 @@
 <package name="linux-mono-repo" version="1.0.0">
     <inputs>
         <workingdir>.</workingdir>
-        <build-asset project="linuxep" repo="versig">
-            <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
-            <include artifact-path="output" dest-dir="imports/internal/versig"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="all">
             <release-version branch="release/2023.31"
                              build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>

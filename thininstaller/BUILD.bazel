@@ -33,11 +33,8 @@ copy_file(
 
 strip(
     name = "installer_files",
-    srcs_remapped = {
-        "@gcc//:dynamic_runtime_lib": "../gcc/lib64 -> lib64",
-    },
     srcs_renamed = {
-        "//imports/internal/versig": "bin/versig",
+        "//common/versig": "bin/versig",
         "//base/products/Base/SulDownloader": "bin/SulDownloader",
         ":installer": "bin/installer",
         "certs/mcs_rootca.crt": "mcs_rootca.crt",

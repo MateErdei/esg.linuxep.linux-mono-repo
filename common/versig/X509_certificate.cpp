@@ -56,11 +56,6 @@ namespace crypto
 
     X509_certificate::~X509_certificate() = default;
 
-    static X509_certificate_impl X509_decode(const std::string& text)
-    {
-        return X509_certificate_impl{text};
-    }
-
     static std::string decode_raw_signature(const std::string& base64_signature)
     {
         return VerificationToolCrypto::base64_decode(base64_signature);

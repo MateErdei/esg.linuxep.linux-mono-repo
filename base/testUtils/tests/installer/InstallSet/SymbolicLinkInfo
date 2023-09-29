@@ -404,11 +404,5 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/watchdog/version.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/watchdog/watchmedo.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python311.zip
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0.29
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip
 o777, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt

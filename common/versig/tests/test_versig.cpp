@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "SophosCppStandard.h"
+#include "common/versig/SophosCppStandard.h"
 
 #include <gtest/gtest.h>
 
@@ -11,7 +11,7 @@ extern int versig_main(
     char* argv[] //[i] Array of argument values
 );
 
-#define TESTS "../tests"
+#define TESTS "common/versig/tests"
 
 namespace
 {
@@ -45,8 +45,8 @@ namespace
         int ret = versig_main(argc, argv);
         EXPECT_EQ(ret, 2);
     }
-
-    TEST(versig_test, test_valid_sha1)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_test_valid_sha1)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",
@@ -65,8 +65,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 6);
     }
-
-    TEST(versig_test, test_data_files)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_test_data_files)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",
@@ -96,8 +96,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 4);
     }
-
-    TEST(versig_test, bad_data_file)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_bad_data_file)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",
@@ -127,9 +127,16 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }
-
-    TEST(versig_test, spaces_in_filename)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_spaces_in_filename)
     {
+        //Bazel doesn't like files with spaces in them during building
+        //Renaming the files during runtine to circumvent this
+        std::string source = TESTS;
+        source = source + "/data_files/data_spaces/tbp2.txt";
+        std::string destination = TESTS;
+        destination = destination + "/data_files/data_spaces/tbp 2.txt" ;
+        std::rename(source.c_str(), destination.c_str());
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT(bugprone-suspicious-missing-comma)
                                         "-f" TESTS "/data_files/manifest.dat.spaces",
@@ -138,8 +145,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }
-
-    TEST(versig_test, no_sha256)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_no_sha256)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
@@ -150,8 +157,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }
-
-    TEST(versig_test, no_sha256_but_required)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_no_sha256_but_required)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
@@ -162,8 +169,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 5);
     }
-
-    TEST(versig_test, really_long_comment)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_really_long_comment)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
@@ -173,8 +180,8 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }
-
-    TEST(versig_test, badSHA256)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_badSHA256)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
@@ -197,8 +204,8 @@ namespace
         EXPECT_EQ(ret, 3);
     }
 
-
-    TEST(versig_test, linuxStyleSlashInstallSh)
+    // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_linuxStyleSlashInstallSh)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",
@@ -210,8 +217,8 @@ namespace
         EXPECT_EQ(ret, 0);
     }
 
-
-    TEST(versig_test, windowsStyleSlashInstallSh)
+      // TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+    TEST(versig_test, DISABLED_windowsStyleSlashInstallSh)
     {
         std::vector<std::string> argv { "versig_test",
                                         "-c" TESTS "/cert_files/rootca.crt.valid",

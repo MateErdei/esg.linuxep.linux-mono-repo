@@ -1,11 +1,11 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "libcryptosupport.h"
-#include "versig.h"
+#include "common/versig/libcryptosupport.h"
+#include "common/versig/versig.h"
 
 #include <gtest/gtest.h>
 
-#define TESTS "../tests/TestData"
+#define TESTS "common/versig/tests/TestData"
 
 namespace
 {

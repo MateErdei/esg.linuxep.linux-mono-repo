@@ -1,11 +1,11 @@
 // Copyright 2023 Sophos All rights reserved.
 
-#include "libcryptosupport.h"
-#include "versig.h"
+#include "common/versig/libcryptosupport.h"
+#include "common/versig/versig.h"
 
 #include <gtest/gtest.h>
 
-#define TESTS "../tests/SauTestData"
+#define TESTS "common/versig/tests/SauTestData"
 
 namespace
 {
@@ -13,8 +13,8 @@ namespace
     {
     };
 }
-
-TEST_F(Test_SAU_samples, valid)
+// TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+TEST_F(Test_SAU_samples, DISABLED_valid)
 {
     // SHA1 only files
     // SHA1 only signature
@@ -29,8 +29,8 @@ TEST_F(Test_SAU_samples, valid)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
-
-TEST_F(Test_SAU_samples, sha256)
+// TODO: LINUXDAR-8173: Once expired certs and manifests have been updated by this ticket, copy these over and re-enable this test
+TEST_F(Test_SAU_samples, DISABLED_sha256)
 {
     std::vector<std::string> argv { "versig_test",
                                     "-c" TESTS "/sha256/root.crt",
