@@ -25,7 +25,7 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
 
     if mode == 'release':
             test_inputs = dict(
-                test_scripts=context.artifact.from_component("winep.liveterminal", "feature--LINUXDAR-6803-refactor-code-of-live-response-that-depends-on-base-common-code-into-linux-mono-repo", None, org="",
+                test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
                                                              storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             liveresponse=liveterminal_build / "liveterminal/sdds",
             base=liveterminal_build / "base/base_sdds",
@@ -33,7 +33,7 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
     if mode == 'coverage':
 
             test_inputs = dict(
-                test_scripts=context.artifact.from_component("winep.liveterminal", "testfix--LINUXDAR-6803-just-build", None, org="",
+                test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
                                                              storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             liveresponse=liveterminal_build / "sspl-liveterminal-coverage/sdds",
             base=liveterminal_build / "sspl-liveterminal-coverage/base_sdds",

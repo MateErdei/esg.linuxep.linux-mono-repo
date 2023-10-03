@@ -10,7 +10,7 @@
         <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.31-linux" build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
+            <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
 
@@ -34,6 +34,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="liveterminal">
+            <release-version branch="release/2023-40-linux" build-id="20231003073741-0078e534766984feb591ce11d7197d67e7eb2f7e-UYx5sa"/>
             <development-version branch="develop" />
             <include artifact-path="sspl-liveterminal/rust_binary" dest-dir="/build/redist/rust-liveterminal" />
         </build-asset>
