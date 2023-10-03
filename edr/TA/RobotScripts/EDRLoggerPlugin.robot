@@ -807,8 +807,9 @@ Ensure Default Osquery Flags Are Contained in flags file
     [Setup]  No Operation
     Install Base For Component Tests
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    ${edr_mark} =    Mark Log Size    ${EDR_LOG_FILE}
     Install EDR Directly from SDDS
-    Wait Until Keyword Succeeds    5 secs    1 secs    EDR Plugin Log Contains  LiveQuery policy has not been sent to the plugin
+    Wait For Log Contains From Mark    ${edr_mark}    LiveQuery policy has not been sent to the plugin    ${20}
     Wait Until Created  ${OSQUERY_FLAG_FILE}
     Osquery Flag File Should Contain    --host_identifier=uuid
     Osquery Flag File Should Contain    --log_result_events=true
@@ -846,7 +847,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     # Flags are different if scheduled queries are enabled, so check they change once we enable scheduled queries.
     ${edr_mark} =    Mark Log Size    ${EDR_LOG_FILE}
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    wait_for_log_contains_from_mark    ${edr_mark}    Scheduled queries are enabled in policy
+    Wait For Log Contains From Mark    ${edr_mark}    Scheduled queries are enabled in policy
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    2 secs
