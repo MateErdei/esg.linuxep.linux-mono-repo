@@ -1,0 +1,7 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+alias(
+    name = "JournalReader",
+    actual = "//common/journal:JournalReader",
+    visibility = ["//visibility:public"],
+)

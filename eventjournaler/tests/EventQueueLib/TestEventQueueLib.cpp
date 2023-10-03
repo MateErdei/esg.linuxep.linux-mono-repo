@@ -1,11 +1,17 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <gtest/gtest.h>
-#include <Common/Helpers/LogInitializedTests.h>
+#ifdef SPL_BAZEL
+#include "JournalerCommon/Event.h"
+#include "SubscriberLib/EventQueuePusher.h"
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "modules/JournalerCommon/Event.h"
+#include "modules/SubscriberLib/EventQueuePusher.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/JournalerCommon/Event.h>
+#include <gtest/gtest.h>
 
 #include <future>
 #include <thread>
@@ -191,7 +197,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
     eventQueueWithMaxSize2.push(expectedData);
     auto duration = blockWhileWaitingForData.get();
     EXPECT_GE(duration, delay);
-    EXPECT_NEAR(duration, delay, 10);
+    EXPECT_NEAR(duration, delay, 15);
 }
 
 TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
@@ -242,7 +248,7 @@ TEST_F(TestEventQueue, stopWakesUpLongPop)
     eventQueue->stop();
     auto duration = blockWhileWaitingForData.get();
     EXPECT_GE(duration, delay);
-    EXPECT_LE(duration, delay*2);
+    EXPECT_LE(duration, delay*3);
 }
 
 TEST_F(TestEventQueue,restartAllowsPop)

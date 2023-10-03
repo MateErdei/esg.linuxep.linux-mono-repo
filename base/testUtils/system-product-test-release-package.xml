@@ -20,16 +20,10 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="runtimedetections">
-            <development-version branch="develop"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="SDDS-COMPONENT" dest-dir="sspl-runtimedetections-plugin"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="sspl-rdrules" dest-dir="sspl-runtimedetections-plugin/content_rules"/>
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
-            <development-version branch="develop"/>
-            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
-            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
+
+            <!-- event journaler-->
+            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sspl-plugin-event-journaler"/>
+            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage//SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>

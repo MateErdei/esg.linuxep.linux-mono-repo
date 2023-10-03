@@ -6,7 +6,7 @@
 
 #include "Common/ZeroMQWrapper/IReadable.h"
 
-#include <modules/JournalerCommon/Event.h>
+#include "JournalerCommon/Event.h"
 
 #include <condition_variable>
 #include <optional>

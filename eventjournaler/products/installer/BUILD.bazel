@@ -1,0 +1,54 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//eventjournaler/modules/pluginimpl:substitutions.bzl", "SUBSTITUTIONS")
+load("//eventjournaler/modules/pluginimpl:version_info.bzl", "EVENTJOURNALER_LINE_ID", "EVENTJOURNALER_PRODUCT_NAME", "EVENTJOURNALER_VERSION", "EVENTJOURNALER_VERSIONING_COMPONENT_NAME")
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+)
+
+expand_template(
+    name = "plugin_json",
+    out = "plugin.json",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+)
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = EVENTJOURNALER_VERSION,
+    component_name = EVENTJOURNALER_PRODUCT_NAME,
+    line_id = EVENTJOURNALER_LINE_ID,
+    spv_features = ["CORE"],
+    spv_platforms = ["LINUX_INTEL_LIBC6"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in {
+        "files/plugins/eventjournaler/bin/eventjournaler": "//eventjournaler/products/plugin:eventjournaler",
+        "files/plugins/eventjournaler/bin/uninstall.sh": ":uninstall_sh",
+        "files/base/pluginRegistry/eventjournaler.json": ":plugin_json",
+        "install.sh": ":install_sh",
+        "cleanuprealm.dat": "cleanuprealm.dat",
+    }.items()},
+    symbols_strip_prefix = "eventjournaler/products/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/eventjournaler/VERSION.ini",
+    ],
+    versioning_component_name = EVENTJOURNALER_VERSIONING_COMPONENT_NAME,
+    visibility = [
+        "//eventjournaler:__pkg__",
+    ],
+)

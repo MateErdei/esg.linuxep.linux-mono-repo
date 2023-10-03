@@ -77,10 +77,15 @@ Check Marked Event Journaler Log Contains
     [Arguments]  ${input}  ${mark}
     Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}   ${input}   ${mark}
 
+List File In Test Dir
+    ${filenames} =  List Directory  /opt/test/inputs/fake_management/
+    Log    ${filenames}
+
 Event Journaler Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}
+    Run Keyword If Test Failed  List File In Test Dir
     Remove Directory  ${EVENT_JOURNALER_DATA_STORE}  recursive=True
 
 Journaler Log Contains String X Times

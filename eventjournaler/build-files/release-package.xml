@@ -42,11 +42,6 @@
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
     </inputs>
     <buildcommands>
-        <command mode="release">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler</args>
-            <workingdir>.</workingdir>
-        </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name eventjournaler --bullseye</args>
@@ -59,18 +54,7 @@
         </command>
     </buildcommands>
     <publish>
-        <workingdir>.</workingdir>
-        <!--   Release outputs   -->
-        <release-asset artifact-path="eventjournaler/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-
-        <!--   non-release outputs   -->
-        <build-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release"/>
-        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
-        <build-asset artifact-path="base/fake-management" source-dir="output/fake-management" mode="release"/>
-        <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
-        <build-asset artifact-path="build_log" source-dir="output" mode="release">
-            <include glob="./build.log"/>
-        </build-asset>
+        <workingdir>eventjournaler</workingdir>
 
         <!--   Coverage outputs   -->
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>

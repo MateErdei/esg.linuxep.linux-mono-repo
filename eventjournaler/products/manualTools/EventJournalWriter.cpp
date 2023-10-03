@@ -14,12 +14,12 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <time.h>
 #include <unistd.h>
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <EventJournal/EventJournalWriter.h>
+#include "EventJournal/EventJournalWriter.h"
 
 static void printUsageAndExit(const std::string name)
 {

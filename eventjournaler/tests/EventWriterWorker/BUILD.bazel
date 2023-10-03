@@ -1,0 +1,24 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TestWriterLib",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+    ),
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/tests/Common/Helpers",
+        "//eventjournaler/modules/EventJournal",
+        "//eventjournaler/modules/EventQueueLib",
+        "//eventjournaler/modules/EventWriterWorkerLib",
+        "//eventjournaler/modules/JournalerCommon",
+        "//eventjournaler/tests/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

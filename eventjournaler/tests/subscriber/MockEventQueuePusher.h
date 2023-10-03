@@ -1,13 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #pragma once
 
+#include "SubscriberLib/IEventHandler.h"
+
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/SubscriberLib/IEventHandler.h"
 
 #include <gmock/gmock.h>
 

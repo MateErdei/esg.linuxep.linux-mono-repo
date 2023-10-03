@@ -1,0 +1,24 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Heartbeat",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = ["IHeartbeat.h"],
+    implementation_deps = [
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//base/modules/Common/ZMQWrapperApi",
+    ],
+    visibility = [
+        "//eventjournaler/modules:__subpackages__",
+        "//eventjournaler/tests/EventQueueLib:__pkg__",
+        "//eventjournaler/tests/Heartbeat:__pkg__",
+        "//eventjournaler/tests/plugin:__pkg__",
+    ],
+    deps = [
+        "//eventjournaler/modules/JournalerCommon",
+    ],
+)

@@ -1,16 +1,25 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Heartbeat/Heartbeat.h"
+#include "Heartbeat/MockHeartbeat.h"
+#include "Heartbeat/ThreadIdConsts.h"
+#include "pluginimpl/ApplicationPaths.h"
+#include "pluginimpl/PluginCallback.h"
+#include "pluginimpl/TaskQueue.h"
+
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#include "base/tests/Common/Helpers/MockFileSystem.h"
+#else
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFileSystem.h"
+#endif
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <gtest/gtest.h>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <modules/Heartbeat/MockHeartbeat.h>
-#include <modules/Heartbeat/ThreadIdConsts.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/PluginCallback.h>
-#include <modules/pluginimpl/TaskQueue.h>
 
 class PluginCallbackTests : public LogOffInitializedTests
 {
@@ -29,9 +38,9 @@ TEST_F(PluginCallbackTests, testPluginAdapterRegistersExpectedIDs)
 
     std::map<std::string, bool> map = heartbeat->getMapOfIdsAgainstIsAlive();
     ASSERT_EQ(map.size(), 3);
-    EXPECT_EQ(map.count(Heartbeat::getWriterThreadId()), true);
-    EXPECT_EQ(map.count(Heartbeat::getSubscriberThreadId()), true);
-    EXPECT_EQ(map.count(Heartbeat::getPluginAdapterThreadId()), true);
+    EXPECT_EQ(map.count(Heartbeat::WriterThreadId), true);
+    EXPECT_EQ(map.count(Heartbeat::SubscriberThreadId), true);
+    EXPECT_EQ(map.count(Heartbeat::PluginAdapterThreadId), true);
 }
 
 TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)

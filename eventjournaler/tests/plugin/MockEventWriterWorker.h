@@ -2,8 +2,10 @@
 
 #pragma once
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/EventWriterWorkerLib/IEventWriterWorker.h>
+#include "EventWriterWorkerLib/IEventWriterWorker.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

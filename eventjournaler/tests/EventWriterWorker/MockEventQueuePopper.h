@@ -1,13 +1,15 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
-
+#ifdef SPL_BAZEL
+#include "EventQueueLib//IEventQueuePopper.h"
+#else
 #include "modules/EventQueueLib//IEventQueuePopper.h"
+#endif
 
 #include <gmock/gmock.h>
 
 using namespace ::testing;
-using namespace EventWriterLib;
 
 class MockEventQueuePopper : public EventQueueLib::IEventQueuePopper
 {

@@ -1,0 +1,7 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+alias(
+    name = "cpp_lib",
+    actual = "//common/journal",
+    visibility = ["//visibility:public"],
+)

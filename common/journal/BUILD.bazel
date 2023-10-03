@@ -1,0 +1,15 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "journal",
+    srcs = ["linux_x64_release/lib/libcpp_lib.a"],
+    hdrs = glob(["linux_x64_release/headers/cpp_lib/*.h"]),
+    visibility = ["//common/journal/protocol:__pkg__"],
+)
+
+filegroup(
+    name = "JournalReader",
+    srcs = ["linux_x64_release/JournalReader/JournalReader"],
+    visibility = ["//common/journal/tools/JournalReader:__pkg__"],
+)

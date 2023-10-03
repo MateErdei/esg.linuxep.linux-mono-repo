@@ -1,11 +1,10 @@
-/******************************************************************************************************
-Copyright 2021 Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/IDataType.h>
-#include <modules/JournalerCommon/Event.h>
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IDataType.h"
+
+#include "JournalerCommon/Event.h"
 
 namespace SubscriberLib
 {

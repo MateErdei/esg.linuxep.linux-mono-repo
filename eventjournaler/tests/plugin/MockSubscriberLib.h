@@ -1,11 +1,11 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/SubscriberLib/ISubscriber.h>
+#include "SubscriberLib/ISubscriber.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

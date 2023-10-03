@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TestPlugin",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+    ),
+    deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/tests/Common/Helpers",
+        "//eventjournaler/modules/Heartbeat",
+        "//eventjournaler/modules/pluginimpl",
+        "@com_google_googletest//:gtest_main",
+        "@xzutils//:lzma",
+    ],
+)

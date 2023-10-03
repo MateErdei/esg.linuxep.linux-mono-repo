@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "FakeTimeUtils.h"
 
 AbstractFakeTimeUtils::AbstractFakeTimeUtils(

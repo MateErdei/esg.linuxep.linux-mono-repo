@@ -1,0 +1,19 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TestEventJournal",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+    ),
+    deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/tests/Common/Helpers",
+        "//eventjournaler/modules/EventJournal",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

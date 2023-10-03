@@ -4,9 +4,10 @@
 
 #include "IEventWriterWorker.h"
 
-#include "modules/EventJournal/IEventJournalWriter.h"
-#include "modules/EventQueueLib/IEventQueuePopper.h"
-#include "modules/Heartbeat/IHeartbeat.h"
+#include "EventJournal/IEventJournalWriter.h"
+#include "EventQueueLib/IEventQueuePopper.h"
+#include "Heartbeat/IHeartbeat.h"
+#include "JournalerCommon/TimeConsts.h"
 
 #include "Common/Threads/LockableData.h"
 
@@ -19,12 +20,11 @@ namespace EventWriterLib
     class  EventWriterWorker final : public IEventWriterWorker
     {
     public:
-        static constexpr const int DEFAULT_QUEUE_SLEEP_INTERVAL_MS = 50000;
         explicit EventWriterWorker(
             std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
-            int queueSleepIntervalMs=DEFAULT_QUEUE_SLEEP_INTERVAL_MS
+            int queueSleepIntervalMs=JournalerCommon::DEFAULT_QUEUE_SLEEP_INTERVAL_MS
             );
         ~EventWriterWorker() override;
         void stop() final;

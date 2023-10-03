@@ -38,6 +38,21 @@ soph_build_asset(
 )
 
 soph_build_asset_pkg(
+    name = "fake_management",
+    srcs = glob(
+        [
+            "testUtils/SupportFiles/FakeManagement/**",
+        ],
+    ) + ["testUtils/libs/ActionUtils.py"],
+    remap_paths = {
+        "base/testUtils/SupportFiles/FakeManagement": "",
+        "base/testUtils/libs": "",
+    },
+    strip_prefix = "/",
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset_pkg(
     name = "system_test",
     srcs = ["//base/products/SystemProductTestOutput"],
     visibility = ["//products:__pkg__"],

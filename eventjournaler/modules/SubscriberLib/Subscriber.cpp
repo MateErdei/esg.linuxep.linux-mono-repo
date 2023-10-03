@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-#include "modules/Heartbeat/Heartbeat.h"
+#include "Heartbeat/Heartbeat.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"

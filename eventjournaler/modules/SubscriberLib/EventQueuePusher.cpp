@@ -1,12 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #include "EventQueuePusher.h"
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
+
+#include "JournalerCommon/TelemetryConsts.h"
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 namespace SubscriberLib
 {
@@ -21,7 +19,7 @@ namespace SubscriberLib
         auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
         if (!m_eventQueue->push(event))
         {
-            telemetryHelper.increment(Plugin::Telemetry::telemetryDroppedAvEvents, 1L);
+            telemetryHelper.increment(JournalerCommon::Telemetry::telemetryDroppedAvEvents, 1L);
         }
     }
 }

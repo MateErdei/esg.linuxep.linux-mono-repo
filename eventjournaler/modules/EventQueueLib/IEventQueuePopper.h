@@ -1,7 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <modules/JournalerCommon/Event.h>
+#include "JournalerCommon/Event.h"
 
 #include <optional>
 

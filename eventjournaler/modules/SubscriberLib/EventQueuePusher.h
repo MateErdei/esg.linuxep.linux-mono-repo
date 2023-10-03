@@ -1,14 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #include "IEventHandler.h"
 
+#include "EventQueueLib/EventQueue.h"
+#include "Heartbeat/HeartbeatPinger.h"
+
 #include "Common/ZeroMQWrapper/IReadable.h"
-#include "modules/EventQueueLib/EventQueue.h"
-#include "modules/Heartbeat/HeartbeatPinger.h"
 
 #include <optional>
 

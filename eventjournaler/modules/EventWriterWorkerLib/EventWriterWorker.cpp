@@ -1,17 +1,18 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "EventWriterWorker.h"
-
 #include "Logger.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <EventJournal/EventJournalWriter.h>
+#include "EventJournal/EventJournalWriter.h"
+#include "Heartbeat/Heartbeat.h"
+#include "JournalerCommon/TelemetryConsts.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
-#include <modules/pluginimpl/PluginCallback.h>
+
+static constexpr uint ACCEPTABLE_DAILY_DROPPED_EVENTS = 5;
 
 namespace EventWriterLib
 {
@@ -25,7 +26,7 @@ namespace EventWriterLib
             m_heartbeatPinger(std::move(heartbeatPinger)),
             queueSleepIntervalMs_(queueSleepIntervalMs)
     {
-        m_heartbeatPinger->setDroppedEventsMax(Plugin::PluginCallback::ACCEPTABLE_DAILY_DROPPED_EVENTS+1);
+        m_heartbeatPinger->setDroppedEventsMax(ACCEPTABLE_DAILY_DROPPED_EVENTS+1);
     }
 
     EventWriterWorker::~EventWriterWorker()
@@ -140,7 +141,7 @@ namespace EventWriterLib
     void EventWriterWorker::writeEvent(const JournalerCommon::Event& event)
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.increment(Plugin::Telemetry::telemetryAttemptedJournalWrites, 1L);
+        telemetry.increment(JournalerCommon::Telemetry::telemetryAttemptedJournalWrites, 1L);
         const std::string& journalSubType = JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(event.type);
         EventJournal::Detection detection{ journalSubType, event.data };
         auto encodedDetection = EventJournal::encode(detection);
@@ -152,7 +153,7 @@ namespace EventWriterLib
         {
             LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
             m_heartbeatPinger->pushDroppedEvent();
-            telemetry.increment(Plugin::Telemetry::telemetryFailedEventWrites, 1L);
+            telemetry.increment(JournalerCommon::Telemetry::telemetryFailedEventWrites, 1L);
         }
     }
 

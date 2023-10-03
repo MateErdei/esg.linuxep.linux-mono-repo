@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Helpers",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+    ),
+    implementation_deps = [
+        "//eventjournaler/modules/EventQueueLib",
+        "//eventjournaler/modules/JournalerCommon",
+        "@com_google_googletest//:gtest_main",
+    ],
+    visibility = [
+        "//eventjournaler/tests/EventWriterWorker:__pkg__",
+        "//eventjournaler/tests/subscriber:__pkg__",
+    ],
+)

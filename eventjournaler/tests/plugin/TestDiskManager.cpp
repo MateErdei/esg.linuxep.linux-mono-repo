@@ -1,18 +1,22 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+#include "pluginimpl/DiskManager.h"
 
-******************************************************************************************************/
+#include "Common/FileSystem/IFileSystem.h"
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#include "base/tests/Common/Helpers/MockFileSystem.h"
+#include "base/tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "base/tests/Common/Helpers/TempDir.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/TempDir.h"
+#endif
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
-
-#include <pluginimpl/DiskManager.h>
-#include <Common/Helpers/TempDir.h>
 
 
 class DiskManagerTest : public LogInitializedTests

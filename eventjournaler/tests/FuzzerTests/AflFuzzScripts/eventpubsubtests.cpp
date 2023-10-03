@@ -1,14 +1,15 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/EventWriterWorkerLib/EventWriterWorker.h>
-#include <modules/EventJournal/EventJournalWriter.h>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <modules/Heartbeat/ThreadIdConsts.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
+#include "SubscriberLib/EventQueuePusher.h"
+#include "EventWriterWorkerLib/EventWriterWorker.h"
+#include "EventJournal/EventJournalWriter.h"
+#include "Heartbeat/Heartbeat.h"
+#include "Heartbeat/ThreadIdConsts.h"
+
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 
 #include <iostream>
 #include <fstream>
@@ -69,7 +70,7 @@ int main()
         std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(
             std::move(eventQueue),
             std::move(eventJournalWriter),
-            heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
+            heartbeat->getPingHandleForId(Heartbeat::WriterThreadId)));
 
         eventWriter->start();
         for (int i=0 ; i<10 ; i++)

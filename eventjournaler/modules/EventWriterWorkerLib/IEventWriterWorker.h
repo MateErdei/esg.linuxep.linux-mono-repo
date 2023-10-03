@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/IDataType.h>
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IDataType.h"
 
 namespace EventWriterLib
 {

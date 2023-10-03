@@ -5,10 +5,11 @@
 #include "PluginCallback.h"
 #include "TaskQueue.h"
 
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <EventWriterWorkerLib/IEventWriterWorker.h>
-#include <SubscriberLib/ISubscriber.h>
-#include <modules/Heartbeat/HeartbeatPinger.h>
+#include "EventWriterWorkerLib/IEventWriterWorker.h"
+#include "Heartbeat/HeartbeatPinger.h"
+#include "SubscriberLib/ISubscriber.h"
+
+#include "Common/PluginApi/IBaseServiceApi.h"
 
 namespace Plugin
 {

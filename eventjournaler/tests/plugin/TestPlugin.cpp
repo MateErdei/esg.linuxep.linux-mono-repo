@@ -3,24 +3,28 @@
 #include "MockEventWriterWorker.h"
 #include "MockSubscriberLib.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockApiBaseServices.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <SubscriberLib/Subscriber.h>
+#include "SubscriberLib/Subscriber.h"
+#include "Heartbeat/Heartbeat.h"
+#include "Heartbeat/MockHeartbeatPinger.h"
+#include "pluginimpl/PluginAdapter.h"
+#include "pluginimpl/TaskQueue.h"
+
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#include "base/tests/Common/Helpers/MockApiBaseServices.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockApiBaseServices.h"
+#endif
+
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
 #include <gtest/gtest.h>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <modules/Heartbeat/MockHeartbeatPinger.h>
-#include <modules/pluginimpl/Logger.h>
-#include <pluginimpl/PluginAdapter.h>
-#include <pluginimpl/TaskQueue.h>
 
 #include <atomic>
 #include <future>
 #include <utility>
 
-using namespace Common::FileSystem;
 
 class TestablePluginAdapter : public Plugin::PluginAdapter
 {

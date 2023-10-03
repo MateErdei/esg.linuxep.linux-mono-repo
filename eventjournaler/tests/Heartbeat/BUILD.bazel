@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "FakeTimeutils",
+    srcs = [
+        "FakeTimeUtils.cpp",
+        "FakeTimeUtils.h",
+    ],
+    deps = [
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+    ],
+)
+
+spl_independent_cc_tests(
+    name = "TestHeartbeat",
+    srcs = ["TestHeartbeat.cpp"],
+    deps = [
+        ":FakeTimeutils",
+        "//eventjournaler/modules/EventWriterWorkerLib",
+        "//eventjournaler/modules/SubscriberLib",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

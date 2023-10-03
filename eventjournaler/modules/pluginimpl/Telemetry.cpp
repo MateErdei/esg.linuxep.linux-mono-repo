@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #include "ApplicationPaths.h"
 #include "Telemetry.h"
 #include "Logger.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/UtilityImpl/StringUtils.h"
 
 namespace
 {

@@ -8,15 +8,17 @@
             <development-version branch="develop"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="imports/thirdparty/openssl"/>
         </build-asset>
-
+        
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
             <development-version branch="develop"/>
-            <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
             <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
+            <include artifact-path="bazel-tools" dest-dir="."/>
+            <include artifact-path="common/journal/linux_x64_rel/libs" dest-dir="common/journal/linux_x64_release"/>
+            <include artifact-path="common/journal/linux_x64_rel/tools" dest-dir="common/journal/linux_x64_release"/>
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
@@ -177,11 +179,23 @@
         <build-asset artifact-path="base/linux_x64_dbg/installer" source-zip=".output/base/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="base/linux_x64_rel/installer_symbols" source-zip=".output/base/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
 
+        <build-asset artifact-path="base/linux_x64_rel/fake_management" source-zip=".output/base/linux_x64_rel/fake_management.zip" mode="all_lx64r"/>
+
         <!-- Response Actions -->
         <release-asset artifact-path="response_actions/linux_x64_rel/installer" source-dir=".output/response_actions/linux_x64_rel/installer" manifest-path=".output/response_actions/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="response_actions/linux_x64_rel/installer" source-zip=".output/response_actions/linux_x64_rel/installer.zip" mode="all_lx64r"/>
         <build-asset artifact-path="response_actions/linux_x64_dbg/installer" source-zip=".output/response_actions/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="response_actions/linux_x64_rel/installer_symbols" source-zip=".output/response_actions/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+
+
+        <!-- Event Journaler -->
+        <release-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-dir=".output/eventjournaler/linux_x64_rel/installer" manifest-path=".output/eventjournaler/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-zip=".output/eventjournaler/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_dbg/installer" source-zip=".output/eventjournaler/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_rel/installer_symbols" source-zip=".output/eventjournaler/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+
+        <build-asset artifact-path="eventjournaler/linux_x64_rel/manualTools" source-zip=".output/eventjournaler/linux_x64_rel/manualTools.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_dbg/manualTools" source-zip=".output/eventjournaler/linux_x64_dbg/manualTools.zip" mode="all_lx64d"/>
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>

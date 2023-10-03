@@ -17,6 +17,10 @@
 
 # Import locations
 /common/sophlib/
+/common/journal/*
+!/common/journal/BUILD.bazel
+!/common/journal/protocol/BUILD.bazel
+!/common/journal/tools/JournalReader/BUILD.bazel
 /imports/internal/sdds3_utils/
 /imports/thirdparty/python/*
 !/imports/thirdparty/python/BUILD.bazel

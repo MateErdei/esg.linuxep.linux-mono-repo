@@ -1,15 +1,16 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+#include "EventWriterWorkerLib/IEventWriterWorker.h"
 
-******************************************************************************************************/
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <EventWriterWorkerLib/IEventWriterWorker.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
+
 #include <list>
 #include <optional>
+
 #include <lzma.h>
+
 namespace Plugin
 {
 

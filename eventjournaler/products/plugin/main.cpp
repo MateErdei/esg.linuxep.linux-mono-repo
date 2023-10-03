@@ -1,25 +1,27 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#ifdef SPL_BAZEL
+#include "pluginimpl/config.h"
+#else
 #include "config.h"
+#endif
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/ErrorCodes.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include <EventJournal/EventJournalWriter.h>
-#include <EventWriterWorkerLib/EventWriterWorker.h>
-#include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/SubscriberLib/Subscriber.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/PluginAdapter.h>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <modules/Heartbeat/ThreadIdConsts.h>
+#include "EventJournal/EventJournalWriter.h"
+#include "EventWriterWorkerLib/EventWriterWorker.h"
+#include "SubscriberLib/EventQueuePusher.h"
+#include "SubscriberLib/Subscriber.h"
+#include "pluginimpl/ApplicationPaths.h"
+#include "pluginimpl/Logger.h"
+#include "pluginimpl/PluginAdapter.h"
+#include "Heartbeat/Heartbeat.h"
+#include "Heartbeat/ThreadIdConsts.h"
 
-// Auto version headers
-#include "products/distribution/include/AutoVersioningHeaders/AutoVersion.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/ErrorCodes.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApi/IPluginResourceManagement.h"
 
 const char* PluginName = PLUGIN_NAME;
 const int MAX_QUEUE_SIZE = 100;
@@ -29,7 +31,7 @@ int main()
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
-    LOGINFO("Event Journaler " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+    LOGINFO("Event Journaler " << PLUGIN_VERSION << " started");
 
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
@@ -59,7 +61,7 @@ int main()
                     Plugin::getSubscriberSocketPath(),
                     Common::ZMQWrapperApi::createContext(),
                     std::move(eventQueuePusher),
-                    heartbeat->getPingHandleForId(Heartbeat::getSubscriberThreadId())));
+                    heartbeat->getPingHandleForId(Heartbeat::SubscriberThreadId)));
 
     std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
 
@@ -67,7 +69,7 @@ int main()
             new EventWriterLib::EventWriterWorker(
         eventQueue,
         std::move(eventJournalWriter),
-        heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
+        heartbeat->getPingHandleForId(Heartbeat::WriterThreadId)));
 
     PluginAdapter pluginAdapter(
             queueTask,
@@ -75,7 +77,7 @@ int main()
             sharedPluginCallBack,
             std::move(subscriber),
             eventWriter,
-            heartbeat->getPingHandleForId(Heartbeat::getPluginAdapterThreadId()));
+            heartbeat->getPingHandleForId(Heartbeat::PluginAdapterThreadId));
 
     try
     {

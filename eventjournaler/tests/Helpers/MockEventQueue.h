@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/EventQueueLib/IEventQueue.h"
+#include "EventQueueLib/IEventQueue.h"
 
 #include <gmock/gmock.h>
 

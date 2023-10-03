@@ -1,14 +1,19 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
+
+#include "ApplicationPaths.h"
 #include "Logger.h"
 #include "Telemetry.h"
-#include "TelemetryConsts.h"
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <unistd.h>
+#include "JournalerCommon/TelemetryConsts.h"
+
+#include "Heartbeat/ThreadIdConsts.h"
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <utility>
-#include <modules/Heartbeat/ThreadIdConsts.h>
+
+#include <unistd.h>
 
 namespace Plugin
 {
@@ -17,7 +22,7 @@ namespace Plugin
     m_heartbeat(heartbeat)
     {
         LOGDEBUG("Plugin Callback Started");
-        std::vector<std::string> ids{Heartbeat::getWriterThreadId(), Heartbeat::getSubscriberThreadId(), Heartbeat::getPluginAdapterThreadId()};
+        std::vector<std::string> ids{Heartbeat::WriterThreadId, Heartbeat::SubscriberThreadId, Heartbeat::PluginAdapterThreadId};
         m_heartbeat->registerIds(ids);
     }
 
@@ -58,7 +63,7 @@ namespace Plugin
         std::optional<std::string> version = Plugin::getVersion();
         if (version)
         {
-            telemetry.set(Plugin::Telemetry::version, version.value());
+            telemetry.set(JournalerCommon::Telemetry::version, version.value());
         }
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
@@ -89,11 +94,11 @@ namespace Plugin
                 LOGDEBUG("A heartbeat ping was missed by: " << kv.first);
                 health = 1;
             }
-            telemetry.set(Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
+            telemetry.set(JournalerCommon::Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
         }
 
         bool subscriberSocketExists = Common::FileSystem::fileSystem()->exists(Plugin::getSubscriberSocketPath());
-        telemetry.set(Telemetry::telemetryMissingEventSubscriberSocket,
+        telemetry.set(JournalerCommon::Telemetry::telemetryMissingEventSubscriberSocket,
                       !subscriberSocketExists);
         if (!subscriberSocketExists)
         {
@@ -102,14 +107,14 @@ namespace Plugin
 
         bool maxAcceptableDroppedEventsExceeded = m_heartbeat->getNumDroppedEventsInLast24h() > getAcceptableDailyDroppedEvents();
         // set telemetry bool for dropped events max exceeded
-        telemetry.set(Telemetry::telemetryAcceptableDroppedEventsExceeded,
+        telemetry.set(JournalerCommon::Telemetry::telemetryAcceptableDroppedEventsExceeded,
                       maxAcceptableDroppedEventsExceeded);
         if (maxAcceptableDroppedEventsExceeded)
         {
             health = 1;
         }
 
-        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, static_cast<u_long>(health));
+        Common::Telemetry::TelemetryHelper::getInstance().set(JournalerCommon::Telemetry::pluginHealthStatus, static_cast<u_long>(health));
         return health;
     }
 

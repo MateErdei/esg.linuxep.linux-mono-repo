@@ -9,6 +9,13 @@ def main():
     tags = {'include': [], 'exclude': []}
     log_files = ['log.html', 'output.xml', 'report.html']
 
+    if os.environ.get('TEST'):
+        robot_args['test'] = os.environ.get('TEST')
+    if os.environ.get('SUITE'):
+        robot_args['suite'] = os.environ.get('SUITE')
+    if os.environ.get('COVFILE'):
+        tags['exclude'].append('EXCLUDE_ON_COVERAGE')
+
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts',
         'name': 'integration',
@@ -22,11 +29,6 @@ def main():
         'suite': '*',
         'test': '*'
     }
-
-    if os.environ.get('TEST'):
-        robot_args['test'] = os.environ.get('TEST')
-    if os.environ.get('SUITE'):
-        robot_args['suite'] = os.environ.get('SUITE')
 
     try:
         # Create the TAP Robot result listener.

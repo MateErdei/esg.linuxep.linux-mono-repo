@@ -1,0 +1,34 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "SubscriberLib",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "IEventHandler.h",
+        "ISubscriber.h",
+    ],
+    implementation_deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:ProjectNames",
+        "//base/modules/Common/UtilityImpl:WaitForUtils",
+        "//base/modules/Common/ZMQWrapperApi",
+    ],
+    visibility = [
+        "//eventjournaler/modules/pluginimpl:__pkg__",
+        "//eventjournaler/tests/EventQueueLib:__pkg__",
+        "//eventjournaler/tests/FuzzerTests/AflFuzzScripts:__pkg__",
+        "//eventjournaler/tests/Heartbeat:__pkg__",
+        "//eventjournaler/tests/subscriber:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Threads",
+        "//eventjournaler/modules/EventQueueLib",
+        "//eventjournaler/modules/Heartbeat",
+        "//eventjournaler/modules/JournalerCommon",
+    ],
+)

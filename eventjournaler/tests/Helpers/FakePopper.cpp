@@ -1,10 +1,10 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "FakePopper.h"
+
 #include <optional>
 #include <mutex>
 #include <thread>
-#include "modules/EventQueueLib//IEventQueuePopper.h"
 
 using namespace EventQueueLib;
 

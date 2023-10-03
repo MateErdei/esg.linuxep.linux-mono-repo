@@ -4,8 +4,10 @@
 
 #include "ISubscriber.h"
 
-#include "modules/SubscriberLib/IEventHandler.h"
-#include "modules/Heartbeat/IHeartbeat.h"
+#include "IEventHandler.h"
+
+#include "Heartbeat/IHeartbeat.h"
+#include "JournalerCommon/TimeConsts.h"
 
 #include "Common/Threads/LockableData.h"
 #include "Common/Threads/NotifyPipe.h"
@@ -26,13 +28,12 @@ namespace SubscriberLib
     class Subscriber final : public ISubscriber
     {
     public:
-        static constexpr const int DEFAULT_READ_LOOP_TIMEOUT_MS = 50000;
         Subscriber(
             std::string socketAddress,
             Common::ZMQWrapperApi::IContextSharedPtr context,
             std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
-            int readLoopTimeoutMilliSeconds = DEFAULT_READ_LOOP_TIMEOUT_MS);
+            int readLoopTimeoutMilliSeconds = JournalerCommon::DEFAULT_READ_LOOP_TIMEOUT_MS);
         ~Subscriber() override;
         void stop() noexcept final;
         void start() override;

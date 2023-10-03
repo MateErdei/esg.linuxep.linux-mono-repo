@@ -1,11 +1,8 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <chrono>
 #include <functional>

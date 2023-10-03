@@ -1,6 +1,4 @@
-/******************************************************************************************************
-Copyright 2021 Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #include <algorithm>
 #include "Heartbeat.h"

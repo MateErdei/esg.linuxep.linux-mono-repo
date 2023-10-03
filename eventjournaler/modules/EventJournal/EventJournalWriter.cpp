@@ -1,26 +1,26 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "EventJournalWriter.h"
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/RegexUtilities.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/RegexUtilities.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <Event.capnp.h>
+#ifdef SPL_BAZEL
+#include "common/journal/linux_x64_release/headers/cpp_lib/Event.capnp.h"
+#else
+#include "Event.capnp.h"
+#endif
 #include <cstddef>
 #include <cstring>
 #include <fstream>

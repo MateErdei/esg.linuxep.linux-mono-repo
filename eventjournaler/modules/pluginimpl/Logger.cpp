@@ -1,12 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 #include "Logger.h"
-
+#ifdef SPL_BAZEL
+#include "pluginimpl/config.h"
+#else
 #include "config.h"
-#include <Common/Logging/LoggerConfig.h>
+#endif
+#include "Common/Logging/LoggerConfig.h"
 
 log4cplus::Logger& getPluginLogger()
 {

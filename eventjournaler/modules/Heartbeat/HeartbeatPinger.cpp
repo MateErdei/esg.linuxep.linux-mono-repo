@@ -2,12 +2,9 @@
 
 #include "HeartbeatPinger.h"
 
-#include "ThreadHeartbeatInterval.h"
+#include "JournalerCommon/TimeConsts.h"
 
-#include "EventWriterWorkerLib/EventWriterWorker.h"
-#include "SubscriberLib/Subscriber.h"
-
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <set>
 
@@ -23,7 +20,7 @@ namespace Heartbeat
     bool HeartbeatPinger::isAlive()
     {
         // Threads need to ping at least once per X seconds, which we'll set to the max time a thread is asleep + a bit.
-        return Common::UtilityImpl::TimeUtils::getCurrTime() - MAX_PING_TIMEOUT_SECONDS <= m_lastPinged;
+        return Common::UtilityImpl::TimeUtils::getCurrTime() - JournalerCommon::MAX_PING_TIMEOUT_SECONDS <= m_lastPinged;
     }
 
     void HeartbeatPinger::pushDroppedEvent()

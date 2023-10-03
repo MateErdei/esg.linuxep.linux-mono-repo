@@ -7,5 +7,7 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = glob(["*.h"]),
-    visibility = ["//common:spl_packages"],
+    visibility = [
+        "//common:spl_packages",
+    ],
 )

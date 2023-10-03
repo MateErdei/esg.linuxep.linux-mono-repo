@@ -1,13 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#ifdef SPL_BAZEL
+#include "EventJournal/IEventJournalWriter.h"
+#else
 #include "modules/EventJournal/IEventJournalWriter.h"
+#endif
 
 #include <gmock/gmock.h>
 

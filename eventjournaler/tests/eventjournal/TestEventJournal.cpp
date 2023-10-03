@@ -6,16 +6,26 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include "SampleJournal.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFilePermissions.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/TempDir.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <EventJournal/EventJournalWriter.h>
+#include "EventJournal/EventJournalWriter.h"
+
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#include "base/tests/Common/Helpers/MockFilePermissions.h"
+#include "base/tests/Common/Helpers/MockFileSystem.h"
+#include "base/tests/Common/Helpers/TempDir.h"
+#else
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/TempDir.h"
+#endif
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -78,7 +88,11 @@ protected:
         EXPECT_STREQ(PRODUCER.c_str(), header.producer.c_str());
         EXPECT_STREQ(SUBJECT.c_str(), header.subject.c_str());
         EXPECT_STREQ("CapnProto", header.serialisationMethod.c_str());
+#ifdef SPL_BAZEL
+        EXPECT_STREQ("1.0.1", header.serialisationVersion.c_str());
+#else
         EXPECT_STREQ("0.8.0", header.serialisationVersion.c_str());
+#endif
         EXPECT_EQ(expected_size-8, header.riffLength);
         EXPECT_EQ(expected_sjrn_length, header.sjrnLength);
         EXPECT_EQ(1, header.sjrnVersion);

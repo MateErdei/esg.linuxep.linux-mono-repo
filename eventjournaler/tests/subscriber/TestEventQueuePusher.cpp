@@ -1,15 +1,23 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/FileSystem/IFileSystem.h>
-#include <gtest/gtest.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <modules/SubscriberLib/EventQueuePusher.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#ifdef SPL_BAZEL
+#include "eventjournaler/tests/Helpers/MockEventQueue.h"
+#else
 #include "tests/Helpers/MockEventQueue.h"
+#endif
+
+#include "SubscriberLib/EventQueuePusher.h"
+
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+
+#include <gtest/gtest.h>
 
 
 class TestEventQueuePusher : public LogOffInitializedTests{};

@@ -1,10 +1,8 @@
-/******************************************************************************************************
+// Copyright 2021 Sophos Limited. All rights reserved.
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+#pragma once
 
-******************************************************************************************************/
-
-namespace Plugin
+namespace JournalerCommon
 {
     namespace Telemetry
     {
@@ -17,4 +15,4 @@ namespace Plugin
         const char* const telemetryAttemptedJournalWrites = "attempted-journal-writes";
         const char* const pluginHealthStatus = "health";
     } // namespace Telemetry
-} // namespace Plugin
+} // namespace JournalerCommon

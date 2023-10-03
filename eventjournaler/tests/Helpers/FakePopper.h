@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/EventQueueLib/IEventQueuePopper.h"
+#include "EventQueueLib/IEventQueuePopper.h"
 
 #include <vector>
 

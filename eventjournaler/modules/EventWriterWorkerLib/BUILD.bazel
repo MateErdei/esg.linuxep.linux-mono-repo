@@ -1,0 +1,30 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "EventWriterWorkerLib",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = ["IEventWriterWorker.h"],
+    implementation_deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/TelemetryHelperImpl",
+    ],
+    visibility = [
+        "//eventjournaler/modules/pluginimpl:__pkg__",
+        "//eventjournaler/tests/EventWriterWorker:__pkg__",
+        "//eventjournaler/tests/FuzzerTests/AflFuzzScripts:__pkg__",
+        "//eventjournaler/tests/Heartbeat:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Threads",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//eventjournaler/modules/EventJournal",
+        "//eventjournaler/modules/EventQueueLib",
+        "//eventjournaler/modules/Heartbeat",
+        "//eventjournaler/modules/JournalerCommon",
+    ],
+)

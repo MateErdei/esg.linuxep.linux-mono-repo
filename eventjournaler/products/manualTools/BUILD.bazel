@@ -1,0 +1,32 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+load("//tools/config:zip.bzl", "zip_asset")
+
+soph_cc_binary(
+    name = "EventPubSub",
+    srcs = ["EventPubSub.cpp"],
+    deps = [
+        "//base/modules/Common/ZMQWrapperApi",
+    ],
+)
+
+soph_cc_binary(
+    name = "EventJournalWriter",
+    srcs = ["EventJournalWriter.cpp"],
+    deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//eventjournaler/modules/EventJournal",
+    ],
+)
+
+zip_asset(
+    name = "manualTools",
+    srcs = [
+        ":EventJournalWriter",
+        ":EventPubSub",
+        "//common/journal/tools/JournalReader",
+    ],
+    visibility = ["//eventjournaler:__pkg__"],
+)

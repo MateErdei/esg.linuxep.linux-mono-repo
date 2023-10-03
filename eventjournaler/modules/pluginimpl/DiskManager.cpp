@@ -1,20 +1,17 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021 Sophos Limited. All rights reserved.
 
 #include "DiskManager.h"
 
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <sys/stat.h>
 
 #include <cstring>
 #include <lzma.h>
+
 namespace Plugin
 {
     bool DiskManager::init_encoder(lzma_stream *strm, uint32_t preset)

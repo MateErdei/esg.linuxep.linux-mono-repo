@@ -4,25 +4,22 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+
+#include <cassert>
+#include <chrono>
+#include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <thread>
-#include <chrono>
-#include <cstring>
-#include <cstdlib>
-#include <cassert>
 
-#include <sstream>
-#include <fstream>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <pwd.h>
-
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-
+#include <sys/stat.h>
+#include <unistd.h>
 
 // Listen for event from AV plugin
 //  EventPubSub -s /opt/sophos-spl/plugins/av/var/threatEventPublisherSocketPath -u sophos-spl-av listen

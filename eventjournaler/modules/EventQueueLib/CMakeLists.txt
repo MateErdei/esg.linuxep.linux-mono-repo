@@ -3,7 +3,7 @@ sophos_add_library(eventqueuelib SHARED
         EventQueue.cpp
         Logger.cpp
         Logger.h
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
         )
 

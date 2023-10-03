@@ -26,10 +26,10 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./eventjournaler/TA'),
-            event_journaler_sdds=ej_build / 'eventjournaler/SDDS-COMPONENT',
-            manual_tools=ej_build / 'eventjournaler/manualTools',
-            base_sdds=ej_build / 'eventjournaler/base/base-sdds',
-            fake_management=ej_build / 'eventjournaler/base/fake-management'
+            event_journaler_sdds=ej_build / 'eventjournaler/linux_x64_rel/installer',
+            manual_tools=ej_build / 'eventjournaler/linux_x64_rel/manualTools',
+            base_sdds=ej_build / 'base/linux_x64_rel/installer',
+            fake_management=ej_build / 'base/linux_x64_rel/fake_management',
         )
     if mode == 'coverage':
         test_inputs = dict(  # TODO check this by setting mode and tap ls

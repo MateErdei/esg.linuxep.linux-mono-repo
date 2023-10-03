@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "EventQueueLib",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "IEventQueue.h",
+        "IEventQueuePopper.h",
+    ],
+    implementation_deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//eventjournaler/modules/JournalerCommon",
+    ],
+    visibility = [
+        "//eventjournaler/modules:__subpackages__",
+        "//eventjournaler/tests/EventQueueLib:__pkg__",
+        "//eventjournaler/tests/EventWriterWorker:__pkg__",
+        "//eventjournaler/tests/Helpers:__pkg__",
+    ],
+)

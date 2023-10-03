@@ -7,6 +7,5 @@ sophos_add_library(heartbeat SHARED
 	MockHeartbeat.h
 	MockHeartbeatPinger.h
 	ThreadIdConsts.h
-	ThreadHeartbeatInterval.h
 	EXTRA_INCLUDES ${pluginapiinclude} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules
 )

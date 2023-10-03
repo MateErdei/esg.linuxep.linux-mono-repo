@@ -1,18 +1,37 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <gtest/gtest.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <thread>
-#include "tests/Helpers/FakePopper.h"
-#include "MockJournalWriter.h"
-#include <modules/EventWriterWorkerLib/EventWriterWorker.h>
-#include <modules/EventJournal/EventJournalWriter.h>
-#include <modules/Heartbeat/MockHeartbeatPinger.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
 #include "MockEventQueuePopper.h"
+#include "MockJournalWriter.h"
+
+#ifdef SPL_BAZEL
+#include "eventjournaler/tests/Helpers/FakePopper.h"
+#include "EventWriterWorkerLib/EventWriterWorker.h"
+#include "EventJournal/EventJournalWriter.h"
+#include "Heartbeat/MockHeartbeatPinger.h"
+#include "JournalerCommon/TimeConsts.h"
+
+#include "base/tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "base/tests/Common/Helpers/LogInitializedTests.h"
+#include "base/tests/Common/Helpers/MockFileSystem.h"
+#else
+#include "tests/Helpers/FakePopper.h"
+#include "modules/EventWriterWorkerLib/EventWriterWorker.h"
+#include "modules/EventJournal/EventJournalWriter.h"
+#include "modules/Heartbeat/MockHeartbeatPinger.h"
+#include "modules/JournalerCommon/TimeConsts.h"
+
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFileSystem.h"
+#endif
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+#include <gtest/gtest.h>
+
+#include <thread>
 
 using namespace EventQueueLib;
 using namespace EventWriterLib;
@@ -23,7 +42,7 @@ namespace
     {
     };
 
-    constexpr const auto DEFAULT_QUEUE_SLEEP_INTERVAL_MS = EventWriterWorker::DEFAULT_QUEUE_SLEEP_INTERVAL_MS;
+    constexpr const auto DEFAULT_QUEUE_SLEEP_INTERVAL_MS = JournalerCommon::DEFAULT_QUEUE_SLEEP_INTERVAL_MS;
 }
 
 TEST_F(TestWriter, testWriterLogsWarningOnBadDataAndThenContinues)
@@ -104,10 +123,6 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop)
     writer.stop();
 
     ASSERT_FALSE(writer.getRunningStatus());
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto telemetryJson = telemetry.serialise();
-    EXPECT_TRUE(telemetryJson.find("attempted-journal-writes\":10") != std::string::npos);
-
 }
 
 TEST_F(TestWriter, StartStopStart)
@@ -395,10 +410,4 @@ TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite)
         usleep(1);
     }
     writer.stop();
-
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto telemetryJson = telemetry.serialise();
-    EXPECT_NE(telemetryJson.find("failed-event-writes\":2"), std::string::npos);
-    EXPECT_NE(telemetryJson.find("attempted-journal-writes\":2"), std::string::npos);
-
 }

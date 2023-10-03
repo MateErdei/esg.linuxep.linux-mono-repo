@@ -42,7 +42,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
-    base_build = stage.artisan_build(name="linux_x64_rel",
+    build = stage.artisan_build(name="linux_x64_rel",
                                      component=component,
                                      image=BUILD_TEMPLATE_BAZEL,
                                      mode="all_lfast,all_lx64r",
@@ -58,7 +58,10 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                    run_base_tests(stage, context, base_build, mode, parameters)
+                    run_base_tests(stage, context, build, mode, parameters)
+
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
+                    run_ej_tests(stage, context, build, mode, parameters)
 
 
 @tap.pipeline(version=1, component='linux-mono-repo')
@@ -74,8 +77,8 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     assert (os.path.exists(base.PACKAGE_PATH))
     assert (os.path.exists(PACKAGE_PATH_EDR))
     assert (os.path.exists(PACKAGE_PATH_AV))
-    assert (os.path.exists(PACKAGE_PATH_EJ))
     assert (os.path.exists(PACKAGE_PATH_LIVETERMINAL))
+    assert (os.path.exists(PACKAGE_PATH_EJ))
     os.environ["BRANCH_NAME"] = context.branch
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
@@ -157,11 +160,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
             # Event Journaler
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-                ej_build = stage.artisan_build(name=f"ej_{RELEASE_MODE}",
-                                               component=ej_component,
-                                               image=BUILD_TEMPLATE,
-                                               mode=RELEASE_MODE,
-                                               release_package=PACKAGE_PATH_EJ)
                 if running_in_ci:
                     ej_analysis_build = stage.artisan_build(name=f"ej_{ANALYSIS_MODE}",
                                                             component=ej_component,
@@ -229,9 +227,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)
-
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-                    run_ej_tests(stage, context, ej_build, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_tests(stage, context, av_build, mode, parameters)

@@ -6,9 +6,8 @@
 #include "DiskManager.h"
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <SubscriberLib/Subscriber.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <utility>
 
