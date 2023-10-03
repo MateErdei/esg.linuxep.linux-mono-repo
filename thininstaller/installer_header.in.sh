@@ -24,7 +24,9 @@ for arg in $escaped_args; do
         echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
         echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
         echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
-        echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
+        echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
+        echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\Specify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
+        echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\Specify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
         exit 0
     fi
 
@@ -281,11 +283,11 @@ function validate_MR_and_UC_addresses() {
     local server_type="${2}"
 
     [[ "${addresses: -1}" == "," ]] && failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s passed with trailing comma --- aborting install"
-    [[ -n "${addresses}" && "${addresses}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s not passed with '--${server_type/ /_}s=' argument --- aborting install"
+    [[ -n "${addresses}" && "${addresses}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s not passed with '--${server_type/ /-}s=' argument --- aborting install"
 
     declare -a valid_addresses
     IFS=',' read -ra ADDRESS_ARRAY <<<"${addresses}"
-    [[ -n "${ADDRESS_ARRAY}" && "${ADDRESS_ARRAY}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s not passed with '--${server_type/ /_}s=' argument --- aborting install"
+    [[ -n "${ADDRESS_ARRAY}" && "${ADDRESS_ARRAY}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type}s not passed with '--${server_type/ /-}s=' argument --- aborting install"
     for address in "${ADDRESS_ARRAY[@]}"; do
         [[ -n "${address}" && "${address}" != " " ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: ${server_type} cannot be whitespace"
         [[ "${address}" =~ ^[a-zA-Z0-9._-]+:[0-9]+$ ]] || failure ${EXITCODE_INVALID_MR_UC_GIVEN} "Error: Requested ${server_type} address not valid: ${address} --- aborting install"
@@ -404,14 +406,14 @@ for i in "$@"; do
         INSTALL_OPTIONS_ARGS+=("$i")
         shift
         ;;
-    --message_relays=*)
+    --message-relays=*)
         [[ "${i#*=}" == "none" ]] || validate_MR_and_UC_addresses "${i#*=}" "message relay"
         MESSAGE_RELAYS_OVERRIDE="${i#*=}"
         shift
         ;;
-    --update_caches=*)
+    --update-caches=*)
         [[ "${i#*=}" == "none" ]] || validate_MR_and_UC_addresses "${i#*=}" "update cache"
-        UPDATE_CACHES_OVERRIDE="${i#*=}"
+        export UPDATE_CACHES_OVERRIDE="${i#*=}"
         shift
         ;;
     --uninstall-sav)

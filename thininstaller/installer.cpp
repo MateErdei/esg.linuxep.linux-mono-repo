@@ -523,6 +523,8 @@ int main(int argc, char** argv)
                             rootConfigOptions.config[MCS::MCS_PROXY_USERNAME])));
                 }
 
+                // the policy certificate will always be the most up-to-date version of the uc certs
+                // so we should use them in the case where the baked in certs and policy certs are different
                 std::string updateCacheCertPath = Common::FileSystem::join(fs->currentWorkingDirectory(),"installer/uc_certs.crt");
                 std::string updateCachePolicyCert = alcPolicy->getUpdateCertificatesContent();
                 if (!updateCachePolicyCert.empty())
@@ -534,16 +536,32 @@ int main(int argc, char** argv)
                 // we only use this field when using updateCaches so its fine to set all the time
                 updateSettings.setUpdateCacheCertPath(updateCacheCertPath);
 
-                if (!update_caches.empty())
+                std::string updateCacheOverride;
+                auto val = std::getenv("UPDATE_CACHES_OVERRIDE");
+                if (val != nullptr)
                 {
-                    std::vector<std::string> updateCaches;
-                    for (const auto& cache: update_caches)
-                    {
-                        std::string fullAddress = cache.address+":"+cache.port;
-                        updateCaches.push_back(fullAddress);
-                    }
-                    updateSettings.setLocalUpdateCacheHosts(updateCaches);
+                    updateCacheOverride = std::string(val);
                 }
+
+                if (updateCacheOverride == "none")
+                {
+                    updateSettings.setLocalUpdateCacheHosts({});
+                }
+                else
+                {
+                    if (!update_caches.empty())
+                    {
+                        // override policy update caches with the ones from the thinstaller
+                        std::vector<std::string> updateCaches;
+                        for (const auto& cache: update_caches)
+                        {
+                            std::string fullAddress = cache.address+":"+cache.port;
+                            updateCaches.push_back(fullAddress);
+                        }
+                        updateSettings.setLocalUpdateCacheHosts(updateCaches);
+                    }
+                }
+
 
                 auto updateConfigJson = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
                 logDebug("Writing to update config: " + updateConfigJson);
