@@ -150,7 +150,7 @@ fi
 SUDOE="sudo -E "
 [[ $(id -u) == 0 ]] && SUDOE=
 
-python3 -m pip install --upgrade robotframework
+${SUDOE} python3 -m pip install --upgrade robotframework
 ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot -x ${WORKSPACE}/base/testUtils/robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
 HasFailure=false
