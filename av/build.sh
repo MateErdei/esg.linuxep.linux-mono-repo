@@ -236,7 +236,12 @@ do
             ;;
         --independent-build|--independent)
             rm -rf input "${REDIST}"
-            [[ -d ${TAP_VENV_DIR} ]] && source ${TAP_VENV_DIR}/bin/activate
+            if [[ -d ${TAP_VENV_DIR} ]]
+            then
+              source ${TAP_VENV_DIR}/bin/activate
+            else
+              echo "venv not found at ${TAP_VENV_DIR}"
+            fi
 #            release-package has workingdir of av, so if we are in av directory already inputs end up in av/av/input
             cd ${BASE}/..
             export TAP_PARAMETER_MODE=independent
