@@ -57,13 +57,13 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
-    try:
-        machine.run('useradd', 'sophos-spl-user')
-        machine.run('useradd', 'sophos-spl-local')
-        machine.run('groupadd', 'sophos-spl-group')
-    except Exception as ex:
-        # the previous command will fail if user already exists. But this is not an error
-        logger.warning("On adding user and group: {}".format(ex))
+    # try:
+    #     machine.run('useradd', 'sophos-spl-user', timeout=5)
+    #     machine.run('useradd', 'sophos-spl-local', timeout=5)
+    #     machine.run('groupadd', 'sophos-spl-group', timeout=5)
+    # except Exception as ex:
+    #     # the previous command will fail if user already exists. But this is not an error
+    #     logger.warning("On adding user and group: {}".format(ex))
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
@@ -74,47 +74,51 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # upload unit test coverage html results to allegro (and the .cov file which is in unitest_htmldir)
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-edr-unittest")
-        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
+        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir, timeout=5)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir, 'COVFILE': COVFILE_UNITTEST,
-                                 'COVERAGE_TYPE': 'unit'})
+                                 'COVERAGE_TYPE': 'unit'},
+                    timeout=240)
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-        machine.run('rm', '-rf', coverage_results_dir)
-        machine.run('mkdir', coverage_results_dir)
-        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+        machine.run('rm', '-rf', coverage_results_dir, timeout=60)
+        machine.run('mkdir', '-p', coverage_results_dir, timeout=5)
+        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir, timeout=120)
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir, timeout=60)
 
         # run component pytests and integration robot tests with coverage file to get tap coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS, timeout=5)
 
         # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
         # We can set the COVFILE env var here so that all instrumented processes know where it is.
-        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt")
+        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt", timeout=5)
 
         # Make sure that any product process can update the cov file, no matter the running user.
-        machine.run("chmod", "666", COVFILE_TAPTESTS)
+        machine.run("chmod", "666", COVFILE_TAPTESTS, timeout=5)
 
         # run component pytest and tap-tests
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
+        machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS}, timeout=1200)
         try:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT,
+            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        timeout=ROBOT_TEST_TIMEOUT,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
 
-        # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
+        # generate tap (tap tests + unit tests) coverage html results and upload to allegro
+        # (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-edr-taptest')
-        machine.run('mkdir', tap_htmldir)
-        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
+        machine.run('mkdir', tap_htmldir, timeout=5)
+        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir, timeout=10)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir},
+                    timeout=120)
 
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
-        machine.run('mv', tap_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        machine.run('mv', tap_htmldir, coverage_results_dir, timeout=5)
+        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir, timeout=60)
 
         # trigger system test coverage job on jenkins - this will also upload to allegro
         if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
@@ -141,10 +145,13 @@ def robot_task(machine: tap.Machine, robot_args: str, include_tag: str):
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
         else:
-            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
+            machine.run(*robot_args.split(),
+                        python(machine),
+                        machine.inputs.test_scripts / 'RobotFramework.py',
+                        timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
-        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
 
@@ -158,8 +165,8 @@ def pytest_task(machine: tap.Machine):
         # To run the pytest with additional verbosity add following to arguments
         # '-o', 'log_cli=true'
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        machine.run(*args)
-        machine.run('ls', '/opt/test/logs')
+        machine.run(*args, timeout=1200)
+        machine.run('ls', '/opt/test/logs', timeout=10)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')

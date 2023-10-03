@@ -55,9 +55,11 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT)
+        machine.run(robot_args, 'python3',
+                    machine.inputs.test_scripts / 'RobotFramework.py',
+                    timeout=ROBOT_TEST_TIMEOUT)
     finally:
-        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
         machine.output_artifact('/opt/test/logs', 'logs')
 
 
@@ -69,45 +71,47 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # upload unit test coverage html results to allegro (and the .cov file which is in unitest_htmldir)
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-eventjournaler-unittest")
-        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
+        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir, timeout=30)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={
             'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir, 'COVFILE': COVFILE_UNITTEST, 'COVERAGE_TYPE': 'unit'
-        })
+        },
+                    timeout=120)
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-        machine.run('rm', '-rf', coverage_results_dir)
-        machine.run('mkdir', coverage_results_dir)
-        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+        machine.run('rm', '-rf', coverage_results_dir, timeout=60)
+        machine.run('mkdir', coverage_results_dir, timeout=60)
+        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir, timeout=60)
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir, timeout=60)
 
         # run component pytests and integration robot tests with coverage file to get tap coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS, timeout=60)
 
         # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
         # We can set the COVFILE env var here so that all instrumented processes know where it is.
-        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt")
+        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt", timeout=60)
 
         # Make sure that any product process can update the cov file, no matter the running user.
-        machine.run("chmod", "666", COVFILE_TAPTESTS)
+        machine.run("chmod", "666", COVFILE_TAPTESTS, timeout=60)
 
         # run component pytest and tap-tests
         try:
             machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-eventjournaler-taptest')
-        machine.run('mkdir', tap_htmldir)
-        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
+        machine.run('mkdir', tap_htmldir, timeout=60)
+        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir, timeout=60)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir},
+                    timeout=60)
 
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
-        machine.run('mv', tap_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        machine.run('mv', tap_htmldir, coverage_results_dir, timeout=60)
+        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir, timeout=60)
 
         # trigger system test coverage job on jenkins - this will also upload to allegro
         if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:

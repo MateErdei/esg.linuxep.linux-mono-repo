@@ -119,9 +119,9 @@ def get_test_machines(test_inputs, parameters):
 
 def package_install(machine: tap.Machine, *install_args: str):
     confirmation_arg = "-y"
-    if machine.run('which', 'apt-get', return_exit_code=True) == 0:
+    if machine.run('which', 'apt-get', return_exit_code=True, timeout=5) == 0:
         pkg_installer = "apt-get"
-    elif machine.run('which', 'yum', return_exit_code=True) == 0:
+    elif machine.run('which', 'yum', return_exit_code=True, timeout=5) == 0:
         pkg_installer = "yum"
     else:
         pkg_installer = "zypper"
@@ -130,7 +130,8 @@ def package_install(machine: tap.Machine, *install_args: str):
     for _ in range(20):
         if machine.run(pkg_installer, confirmation_arg, 'install', *install_args,
                        log_mode=tap.LoggingMode.ON_ERROR,
-                       return_exit_code=True) == 0:
+                       return_exit_code=True,
+                       timeout=600) == 0:
             break
         else:
             time.sleep(3)
@@ -145,10 +146,10 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
     machine.run("pip3", 'install', "pip", "--upgrade", *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
+                log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
     machine.run("pip3", '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
+                log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
 
 
 def get_os_packages(machine: tap.Machine):

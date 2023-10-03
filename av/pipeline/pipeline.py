@@ -80,13 +80,12 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    # machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
     try:
-        machine.run("which", python(machine), return_exit_code=True)
-        machine.run("which", pip(machine), return_exit_code=True)
-        machine.run(python(machine), "-V", return_exit_code=True)
-        machine.run("which", "python", return_exit_code=True)
-        machine.run("python", "-V", return_exit_code=True)
+        machine.run("which", python(machine), return_exit_code=True, timeout=5)
+        machine.run("which", pip(machine), return_exit_code=True, timeout=5)
+        machine.run(python(machine), "-V", return_exit_code=True, timeout=5)
+        machine.run("which", "python", return_exit_code=True, timeout=5)
+        machine.run("python", "-V", return_exit_code=True, timeout=5)
     except Exception:
         pass
 
@@ -140,9 +139,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             robot_exclusion_tags.append("ntfs")
             install_command.append("--without-ntfs")
 
-        machine.run(*install_command)
+        machine.run(*install_command, timeout=600)
 
-        machine.run('mkdir', '-p', '/opt/test/coredumps')
+        machine.run('mkdir', '-p', '/opt/test/coredumps', timeout=5)
 
         if include_tag:
             include, *exclude = include_tag.split("NOT")
@@ -160,20 +159,24 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
                         environment=environment, timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
-        machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
+        machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
         if include_tag:
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
+                        "av" + get_suffix(branch_name) + "_" + machine_name + "_" + include_tag + "-log.html",
+                        timeout=120)
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
-                        "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
+                        "av" + get_suffix(branch_name) + "_" + machine_name + "_" + include_tag + "-report.html",
+                        timeout=120)
         elif robot_args:
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        "av" + get_suffix() + "_" + machine_name + "_" + robot_args + "-log.html")
+                        "av" + get_suffix(branch_name) + "_" + machine_name + "_" + robot_args + "-log.html",
+                        timeout=120)
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
-                        "av" + get_suffix() + "_" + machine_name + "_" + robot_args + "-report.html")
+                        "av" + get_suffix(branch_name) + "_" + machine_name + "_" + robot_args + "-report.html",
+                        timeout=120)
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
@@ -190,9 +193,9 @@ def pytest_task_with_env(machine: tap.Machine, environment=None):
                 '-o', 'log_cli=true',
                 '--html=/opt/test/results/report.html'
                 ]
-        machine.run(*args, environment=environment)
-        machine.run('ls', '-l', '/opt/test/results')
-        machine.run('ls', '-l', '/opt/test/logs')
+        machine.run(*args, environment=environment, timeout=3600)
+        machine.run('ls', '-l', '/opt/test/results', timeout=5)
+        machine.run('ls', '-l', '/opt/test/logs', timeout=5)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -244,11 +247,11 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
 def bullseye_coverage_pytest_task(machine: tap.Machine):
     install_requirements(machine)
 
-    machine.run('rm', '-rf', COVERAGE_DIR)
-    machine.run('mkdir', '-p', COVERAGE_DIR)
+    machine.run('rm', '-rf', COVERAGE_DIR, timeout=60)
+    machine.run('mkdir', '-p', COVERAGE_DIR, timeout=5)
     covfile = os.path.join(COVERAGE_DIR, "sspl-plugin-av-pytest.cov")
 
-    machine.run('cp', COVFILE_BASE, covfile)
+    machine.run('cp', COVFILE_BASE, covfile, timeout=5)
 
     pytest_task_with_env(machine, environment={
         'COVFILE': covfile,
@@ -262,17 +265,17 @@ def bullseye_coverage_pytest_task(machine: tap.Machine):
 def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str, branch_name: str):
     install_requirements(machine)
 
-    machine.run('rm', '-rf', COVERAGE_DIR)
-    machine.run('mkdir', '-p', COVERAGE_DIR)
+    machine.run('rm', '-rf', COVERAGE_DIR, timeout=60)
+    machine.run('mkdir', '-p', COVERAGE_DIR, timeout=5)
 
     # use /tmp so that it's accessible to all users/processes
     covfile = os.path.join("/tmp", "sspl-plugin-av-robot-" + include_tag + ".cov")
-    machine.run('cp', COVFILE_BASE, covfile)
-    machine.run('chmod', '666', covfile)
+    machine.run('cp', COVFILE_BASE, covfile, timeout=5)
+    machine.run('chmod', '666', covfile, timeout=5)
 
     # set bullseye environment in a file, so that daemons pick up the settings too
     machine.run('bash', os.path.join(BULLSEYE_SCRIPT_DIR, "createBullseyeCoverageEnv.sh"),
-                covfile, COVSRCDIR)
+                covfile, COVSRCDIR, timeout=120)
 
     exception = None
     try:
@@ -286,9 +289,9 @@ def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str, branch_
     except tap.exceptions.PipelineProcessExitNonZeroError as e:
         exception = e
 
-    machine.run('rm', '-f', '/tmp/BullseyeCoverageEnv.txt')
+    machine.run('rm', '-f', '/tmp/BullseyeCoverageEnv.txt', timeout=5)
 
-    machine.run('cp', covfile, COVERAGE_DIR)
+    machine.run('cp', covfile, COVERAGE_DIR, timeout=5)
     machine.output_artifact(COVERAGE_DIR, output=machine.outputs.covfile)
 
     if exception is not None:
@@ -309,7 +312,8 @@ def bullseye_upload(machine: tap.Machine, name, covfile=None):
                     'COVSRCDIR': COVSRCDIR,
                     'COV_HTML_BASE': name + suffix,
                     'htmldir': htmldir,
-                })
+                },
+                timeout=120)
 
     return covfile
 
@@ -320,7 +324,7 @@ def bullseye_merge(machine: tap.Machine, output_name, *input_names):
     output_file = os.path.join(coverage_results_dir, output_name + ".cov")
     input_files = {os.path.join(coverage_results_dir, input_name + ".cov") for input_name in input_names}
 
-    machine.run('covmerge', '--create', '--file', output_file, *input_files)
+    machine.run('covmerge', '--create', '--file', output_file, *input_files, timeout=600)
 
     return output_file
 
@@ -341,7 +345,7 @@ def bullseye_test_coverage(machine: tap.Machine, covfile):
     global BRANCH_NAME
     if BRANCH_NAME == 'develop':
         test_coverage_args += ['--upload', '--upload-job', 'UnifiedPipelines/linuxep/sspl-plugin-anti-virus']
-    machine.run(*test_coverage_args)
+    machine.run(*test_coverage_args, timeout=1200)
 
 
 def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
@@ -349,18 +353,20 @@ def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
 
     # str(machine.inputs.covfiles) = /opt/test/inputs/covfiles
     # /opt/test/inputs/covfiles/av_plugin.testing.coverage.ubuntu1804_bullseye_component/machine/sspl-plugin-av-pytest.cov
-    machine.run('ls', '-Rl', machine.inputs.covfiles)
+    machine.run('ls', '-Rl', machine.inputs.covfiles, timeout=10)
 
     coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-    machine.run('rm', '-rf', coverage_results_dir)
-    machine.run('mkdir', coverage_results_dir)
+    machine.run('rm', '-rf', coverage_results_dir, timeout=60)
+    machine.run('mkdir', coverage_results_dir, timeout=5)
 
     try:
         # copy all the covfiles to coverage_results_dir
-        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
-        machine.run('find', machine.inputs.covfiles, '-type', 'f', '-exec', 'cp', r'\{\}', coverage_results_dir, r'\;')
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir, timeout=5)
+        machine.run('find', machine.inputs.covfiles, '-type', 'f', '-exec', 'cp', r'\{\}', coverage_results_dir, r'\;',
+                    timeout=60)
 
-        machine.run('ls', '-Rl', coverage_results_dir)
+        machine.run('ls', '-Rl', coverage_results_dir,
+                    timeout=60)
 
         # individual coverage
         bullseye_upload(machine, 'sspl-plugin-av-unit')
