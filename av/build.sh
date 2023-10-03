@@ -494,11 +494,8 @@ function build()
       [[ -n $CXX ]] || CXX=$(which g++)
       [[ -n $CC ]] || CC=$(which gcc)
     else
-#      CLANG=$(which clang)
-#      if [[ ! -x ${CLANG} ]]
-#      then
+      sudo apt-get update
       sudo apt-get -y install clang
-#      fi
       CXX=$(which clang++)
       CC=$(which clang)
     fi
