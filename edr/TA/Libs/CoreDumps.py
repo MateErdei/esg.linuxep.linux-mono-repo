@@ -59,6 +59,7 @@ class CoreDumps(object):
         self.__m_ignore_cores_segfaults = False
 
     def enable_core_files(self):
+        logger.info("Enabling core dumps")
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
@@ -72,6 +73,14 @@ class CoreDumps(object):
         # Configure core_pattern so we can find core files
         with open("/proc/sys/kernel/core_pattern", "wb") as f:
             f.write(b"/z/core-%t-%P-%E")
+
+        os.environ['SOPHOS_CORE_DUMP_ON_PLUGIN_KILL'] = "1"
+        os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
+
+    def disable_core_files(self):
+        logger.info("Disabling core dumps")
+        os.environ.pop('SOPHOS_CORE_DUMP_ON_PLUGIN_KILL', None)
+        os.environ.pop('SOPHOS_ENABLE_CORE_DUMP', None)
 
     def dump_dmesg(self):
         sp = subprocess

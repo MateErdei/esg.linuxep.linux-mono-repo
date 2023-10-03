@@ -106,6 +106,9 @@ if [[ -n $SOPHOS_CORE_DUMP_ON_PLUGIN_KILL ]]
 then
   CORESETTING="LimitCORE=infinity"
   DEBUGENV="Environment='SOPHOS_CORE_DUMP_ON_PLUGIN_KILL=1'"
+elif [[ -n $SOPHOS_ENABLE_CORE_DUMP ]]
+then
+  CORESETTING="LimitCORE=infinity"
 fi
 
 function createWatchdogSystemdService()

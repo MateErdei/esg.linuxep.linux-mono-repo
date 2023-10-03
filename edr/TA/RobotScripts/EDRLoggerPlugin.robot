@@ -965,7 +965,6 @@ Set Discovery Query Interval In EDR SDDS Directory Config
 
 
 Test Setup
-    CoreDumps.enable_core_files
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds

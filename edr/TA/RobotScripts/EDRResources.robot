@@ -4,6 +4,7 @@ Library         OperatingSystem
 Library         String
 Library         DateTime
 
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OSLibs.py
 Library         ../Libs/ProcessUtils.py
@@ -120,11 +121,13 @@ Simulate Live Query
 
 Install With Base SDDS
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
+    Set Environment Variable    SOPHOS_LOG_LEVEL    DEBUG
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
     Install EDR Directly from SDDS
 
 Install With Base SDDS Debug
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
+    Set Environment Variable    SOPHOS_LOG_LEVEL    DEBUG
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
@@ -134,6 +137,7 @@ Install With Base SDDS Inner
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
+    CoreDumps.enable_core_files
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
     ${ALCContent}=  Get ALC Policy Without MTR
