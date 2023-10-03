@@ -13,7 +13,7 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-def get_version(repository_path):
+def get_version(repository_path: str):
     """
     Convert
     esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023.2-DTP1/20230531081647-0913f58259eed5aa7ad386a9508739b0d9f8fc16-DAmXzD/sspl-plugin-anti-virus/SDDS3-PACKAGE/
@@ -22,6 +22,9 @@ def get_version(repository_path):
     :param repository_path:
     :return:
     """
+    if not repository_path.endswith("/"):
+        repository_path = repository_path + "/"
+
     url = "https://artifactory.sophos-ops.com/artifactory/" + repository_path + "SDDS-Import.xml"
     response = urllib.request.urlopen(url)
     xml_data = response.read()
