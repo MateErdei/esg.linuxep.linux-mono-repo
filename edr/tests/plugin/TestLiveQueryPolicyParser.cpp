@@ -6,7 +6,7 @@
 #include <Common/Helpers/LogInitializedTests.h>
 
 #include <gtest/gtest.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 class TestLiveQueryPolicyParser: public LogInitializedTests{};
 

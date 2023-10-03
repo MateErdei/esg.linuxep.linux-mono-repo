@@ -1,17 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "LiveQueryPolicyParser.h"
 
 #include "Logger.h"
 #include "PluginUtils.h"
 
+#include "pluginimpl/ApplicationPaths.h"
+
 #include <json/json.h>
-#include <thirdparty/nlohmann-json/json.hpp>
-#include <modules/pluginimpl/ApplicationPaths.h>
+#include <nlohmann/json.hpp>
 
 #include <string>
 

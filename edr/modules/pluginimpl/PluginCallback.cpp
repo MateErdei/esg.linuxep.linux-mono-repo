@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
 
@@ -11,9 +7,9 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include "TelemetryConsts.h"
 #include "PluginUtils.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 #include <unistd.h>
 
 namespace Plugin

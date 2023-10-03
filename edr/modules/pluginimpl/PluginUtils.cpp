@@ -11,7 +11,7 @@
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <fstream>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Plugin
 {

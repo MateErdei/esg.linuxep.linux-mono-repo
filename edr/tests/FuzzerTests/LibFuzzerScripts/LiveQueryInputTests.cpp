@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "FuzzerUtils.h"
 
@@ -20,7 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/livequery/IQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 #include <OsquerySDK/OsquerySDK.h>
 #include <future>
 #include <string>

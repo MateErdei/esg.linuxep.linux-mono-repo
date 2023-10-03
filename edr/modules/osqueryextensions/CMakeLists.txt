@@ -39,7 +39,14 @@ sophos_add_library(OsqueryExtensions SHARED
             osquerysdk_library
             sqlite_library
 
-        EXTRA_INCLUDES ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR} ${LIVEQUERY_INCLUDE} ${CMAKE_SOURCE_DIR}/modules/EdrCommon
+        EXTRA_INCLUDES
+                ${CMAKE_BINARY_DIR}
+                ${INPUT}/jsoncpp/include
+                ${BOOST_INCLUDE_DIR}
+                ${JOURNAL_INCLUDE_DIR}
+                ${LIVEQUERY_INCLUDE}
+                ${CMAKE_SOURCE_DIR}/modules/EdrCommon
+                ${NLOHMANN_JSON_INCLUDE_DIR}
         )
 
 set(TABLE_PLUGIN_HDRS

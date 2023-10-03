@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <livequery/IQueryProcessor.h>
 #include <osqueryclient/OsqueryProcessor.h>
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>

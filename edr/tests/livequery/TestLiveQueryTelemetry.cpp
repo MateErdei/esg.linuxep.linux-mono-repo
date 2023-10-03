@@ -6,7 +6,7 @@
 #include <modules/queryrunner/Telemetry.h>
 #include <modules/livequery/QueryResponse.h>
 
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <gtest/gtest.h>
 
