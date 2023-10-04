@@ -76,95 +76,91 @@
     </inputs>
 
     <buildcommands>
-    <!-- Clear the output directory for the packages/suites, so that old ones are not left around, which can cause
-         problems with tests -->
-    <command mode="dev,999,prod">
-        <program>rm</program>
-        <args>-rf bazel-bin/sdds3</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999,prod">
-        <program>python3</program>
-        <args>makesuites.py</args>
-        <workingdir>./linuxep_suites</workingdir>
-    </command>
-    <command mode="dev,999,prod">
-        <program>/bin/bash</program>
-        <args>./fixup_bazel_tools.sh</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999,prod">
-        <program>python3</program>
-        <args>-u tools/src/dump_environment/dump_environment.py</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999,prod">
-        <program>mv</program>
-        <args>tools/environment.json imports/environment.json</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev">
-        <program>python3</program>
-        <args>-u sdds3/tools/gen_bazel.py --mode dev</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="999">
-        <program>python3</program>
-        <args>-u sdds3/tools/gen_bazel.py --mode 999</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="prod">
-        <program>python3</program>
-        <args>-u sdds3/tools/gen_bazel.py --mode prod</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999,prod">
-        <program>bazel</program>
-        <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
-        <workingdir>.</workingdir>
-    </command>
-    <!-- Extracting SystemProductTestOutput for use in tests -->
-    <command mode="dev,999">
-        <program>rm</program>
-        <args>-rf TA/libs TA/SupportFiles</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>tar</program>
-        <args>-xf SystemProductTestOutput.tar.gz</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>cp</program>
-        <args>-r libs SupportFiles ../../TA/</args>
-        <workingdir>SystemProductTestOutput/testUtils</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>rsync</program>
-        <args>-avh SystemProductTestOutput/libs/ TA/libs/</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>mkdir -p</program>
-        <args>TA/SupportFiles/openssl</args>
-        <workingdir>.</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>cp</program>
-        <args>-f libcrypto.so.3 libssl.so.3 openssl ../TA/SupportFiles/openssl</args>
-        <workingdir>SystemProductTestOutput</workingdir>
-    </command>
-    <command mode="dev,999">
-        <program>rm</program>
-        <args>-rf SystemProductTestOutput</args>
-        <workingdir>.</workingdir>
-    </command>
+        <!-- Clear the output directory for the packages/suites, so that old ones are not left around, which can cause
+            problems with tests -->
+        <command mode="dev,999,prod">
+            <program>rm</program>
+            <args>-rf bazel-bin/sdds3</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999,prod">
+            <program>python3</program>
+            <args>makesuites.py</args>
+            <workingdir>./linuxep_suites</workingdir>
+        </command>
+        <command mode="dev,999,prod">
+            <program>/bin/bash</program>
+            <args>./fixup_bazel_tools.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999,prod">
+            <program>python3</program>
+            <args>-u tools/src/dump_environment/dump_environment.py</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999,prod">
+            <program>mv</program>
+            <args>tools/environment.json imports/environment.json</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev">
+            <program>python3</program>
+            <args>-u sdds3/tools/gen_bazel.py --mode dev</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="999">
+            <program>python3</program>
+            <args>-u sdds3/tools/gen_bazel.py --mode 999</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="prod">
+            <program>python3</program>
+            <args>-u sdds3/tools/gen_bazel.py --mode prod</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999,prod">
+            <program>bazel</program>
+            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
+            <workingdir>.</workingdir>
+        </command>
+        <!-- Extracting SystemProductTestOutput for use in tests -->
+        <command mode="dev,999">
+            <program>rm</program>
+            <args>-rf TA/libs TA/SupportFiles</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>tar</program>
+            <args>-xf SystemProductTestOutput.tar.gz</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>cp</program>
+            <args>-r libs SupportFiles ../../TA/</args>
+            <workingdir>SystemProductTestOutput/testUtils</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>rsync</program>
+            <args>-avh SystemProductTestOutput/libs/ TA/libs/</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>mkdir -p</program>
+            <args>TA/SupportFiles/openssl</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>cp</program>
+            <args>-f libcrypto.so.3 libssl.so.3 openssl ../TA/SupportFiles/openssl</args>
+            <workingdir>SystemProductTestOutput</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>rm</program>
+            <args>-rf SystemProductTestOutput</args>
+            <workingdir>.</workingdir>
+        </command>
     </buildcommands>
-    <signingexclusions>
-        <promotedfile name="dummy.bpf.o"/>
-        <promotedfile name="task.bpf.o"/>
-        <promotedfile name="file.bpf.o"/>
-    </signingexclusions>
+
   <publish>
       <!--sdds3-->
       <build-asset artifact-path="test-scripts" source-dir="TA" mode="dev"/>
