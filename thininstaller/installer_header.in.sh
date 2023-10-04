@@ -25,8 +25,8 @@ for arg in $escaped_args; do
         echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
         echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
         echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
-        echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\Specify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
-        echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\Specify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
+        echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
+        echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
         exit 0
     fi
 
@@ -327,19 +327,35 @@ function pre_install_checks() {
     CENTRAL_URL=$(sed -n -e "/^URL=/ s/.*\= *//p" "${INSTALL_FILE}")
 
     if [[ "${MESSAGE_RELAYS_OVERRIDE}" != "none" ]]; then
-        [[ -n "${MESSAGE_RELAYS_OVERRIDE}" ]] && message_relays="${MESSAGE_RELAYS_OVERRIDE}" || message_relays="$(sed -n -e "/^MESSAGE_RELAYS=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
-        IFS=';' read -ra message_relay_array <<<"${message_relays}"
-        for message_relay in "${message_relay_array[@]}"; do
-            MESSAGE_RELAYS+=("${message_relay%%,*}")
-        done
+        if [[ -n "${MESSAGE_RELAYS_OVERRIDE}" ]]; then
+          message_relays="${MESSAGE_RELAYS_OVERRIDE}"
+          IFS=',' read -ra message_relay_array <<<"${message_relays}"
+          for message_relay in "${message_relay_array[@]}"; do
+              MESSAGE_RELAYS+=("${message_relay%%,*}")
+          done
+        else
+          message_relays="$(sed -n -e "/^MESSAGE_RELAYS=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
+          IFS=';' read -ra message_relay_array <<<"${message_relays}"
+          for message_relay in "${message_relay_array[@]}"; do
+              MESSAGE_RELAYS+=("${message_relay%%,*}")
+          done
+        fi
     fi
 
     if [[ "${UPDATE_CACHES_OVERRIDE}" != "none" ]]; then
-        [[ -n "${UPDATE_CACHES_OVERRIDE}" ]] && update_caches="${UPDATE_CACHES_OVERRIDE}" || update_caches="$(sed -n -e "/^UPDATE_CACHES=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
-        IFS=';' read -ra update_cache_array <<<"${update_caches}"
-        for update_cache in "${update_cache_array[@]}"; do
-            UPDATE_CACHES+=("${update_cache%%,*}")
-        done
+        if [[ -n "${UPDATE_CACHES_OVERRIDE}" ]]; then
+          update_caches="${UPDATE_CACHES_OVERRIDE}"
+          IFS=',' read -ra update_cache_array <<<"${update_caches}"
+          for update_cache in "${update_cache_array[@]}"; do
+              UPDATE_CACHES+=("${update_cache%%,*}")
+          done
+        else
+          update_caches="$(sed -n -e "/^UPDATE_CACHES=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
+          IFS=';' read -ra update_cache_array <<<"${update_caches}"
+          for update_cache in "${update_cache_array[@]}"; do
+              UPDATE_CACHES+=("${update_cache%%,*}")
+          done
+        fi
     fi
 
     # Verify network connections made during installation to Central, SUS and CDN servers
