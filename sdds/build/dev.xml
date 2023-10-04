@@ -98,6 +98,11 @@
         <args>-u tools/src/dump_environment/dump_environment.py</args>
         <workingdir>.</workingdir>
     </command>
+    <command mode="dev,999,prod">
+        <program>mv</program>
+        <args>tools/environment.json imports/environment.json</args>
+        <workingdir>.</workingdir>
+    </command>
     <command mode="dev">
         <program>python3</program>
         <args>-u sdds3/tools/gen_bazel.py --mode dev</args>

@@ -19,14 +19,9 @@ def _set_environment():
     # Needed for dev machines
     os.environ["PATH"] += r":/opt/tapvenv/bin"
 
-    # If the environment file isn't there (for example, because the user is
-    # running bazel commands directly), just silently continue.
-    if not os.path.exists('./tools/environment.json'):
-        return
-
     # Set the specific environment variables that the signing tools care about.
     # These variables won't exist on a developer machine.
-    environment = json.loads(open('./tools/environment.json').read())
+    environment = json.loads(open('./imports/environment.json').read())
     if "CI_SIGNING_URL" in environment:
         os.environ["CI_SIGNING_URL"] = environment["CI_SIGNING_URL"]
     if "BUILD_JWT_PATH" in environment:

@@ -25,6 +25,9 @@ def _build_sdds3_package_impl(ctx):
         executable = ctx.executable._env,
         tools = [ctx.executable._make_sdds3_package, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [
@@ -147,6 +150,9 @@ def _build_sdds3_suite_impl(ctx):
         executable = ctx.executable._env,
         tools = [ctx.executable._maker, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [
@@ -214,6 +220,9 @@ def _build_sdds3_supplement_impl(ctx):
         executable = ctx.executable._env,
         tools = [ctx.executable._maker, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [
