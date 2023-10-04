@@ -733,12 +733,8 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
     version_pattern = "^PRODUCT_VERSION = ([0-9]*\.)*[0-9]*\n\Z"
     date_pattern = "^BUILD_DATE = [0-9]{4}\-[0-9]{2}\-[0-9]{2}\n\Z"
     git_commit_pattern = "^COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
-    plugin_api_commit_pattern = "^PLUGIN_API_COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
 
-    if product_name == "SPL-Base-Component":
-        patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern]
-    else:
-        patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern, plugin_api_commit_pattern]
+    patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern]
 
 
     lines = []
@@ -746,14 +742,14 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
         lines = f.readlines()
 
     if len(lines) != len(patterns):
-        raise AssertionError
+        logger.info(f"VERSION.ini = {lines}")
+        raise AssertionError(f"VERSION.ini does not contain all {len(patterns)} expected fields")
 
     n = 0
     for line in lines:
         if re.match(patterns[n], line) is None:
-            logger.info("line = ||{}||".format(line))
-            logger.info("{} does not match {}".format(line, patterns[n]))
-            raise AssertionError
+            logger.info(f"line = ||{line}||")
+            raise AssertionError(f"VERSION.ini field {line} does not match {patterns[n]}")
         n += 1
 
 
