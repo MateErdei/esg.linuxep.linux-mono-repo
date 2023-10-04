@@ -25,7 +25,7 @@
           <!-- EDR -->
           <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64" mode="dev,999"/>
           <!-- Event Journaler -->
-          <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/event-journaler/latest/x64" mode="dev,999"/>
+          <include artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="redist/event-journaler/latest/x64" mode="dev,999"/>
           <!-- AV -->
           <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/av/latest/x64" mode="dev,999"/>
           <include artifact-path="liveterminal/sdds" dest-dir="redist/liveresponse/latest/x64" mode="dev,999"/>
