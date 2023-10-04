@@ -330,32 +330,26 @@ function pre_install_checks() {
         if [[ -n "${MESSAGE_RELAYS_OVERRIDE}" ]]; then
           message_relays="${MESSAGE_RELAYS_OVERRIDE}"
           IFS=',' read -ra message_relay_array <<<"${message_relays}"
-          for message_relay in "${message_relay_array[@]}"; do
-              MESSAGE_RELAYS+=("${message_relay%%,*}")
-          done
         else
           message_relays="$(sed -n -e "/^MESSAGE_RELAYS=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
           IFS=';' read -ra message_relay_array <<<"${message_relays}"
-          for message_relay in "${message_relay_array[@]}"; do
-              MESSAGE_RELAYS+=("${message_relay%%,*}")
-          done
         fi
+        for message_relay in "${message_relay_array[@]}"; do
+            MESSAGE_RELAYS+=("${message_relay%%,*}")
+        done
     fi
 
     if [[ "${UPDATE_CACHES_OVERRIDE}" != "none" ]]; then
         if [[ -n "${UPDATE_CACHES_OVERRIDE}" ]]; then
           update_caches="${UPDATE_CACHES_OVERRIDE}"
           IFS=',' read -ra update_cache_array <<<"${update_caches}"
-          for update_cache in "${update_cache_array[@]}"; do
-              UPDATE_CACHES+=("${update_cache%%,*}")
-          done
         else
           update_caches="$(sed -n -e "/^UPDATE_CACHES=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
           IFS=';' read -ra update_cache_array <<<"${update_caches}"
-          for update_cache in "${update_cache_array[@]}"; do
-              UPDATE_CACHES+=("${update_cache%%,*}")
-          done
         fi
+        for update_cache in "${update_cache_array[@]}"; do
+            UPDATE_CACHES+=("${update_cache%%,*}")
+        done
     fi
 
     # Verify network connections made during installation to Central, SUS and CDN servers
