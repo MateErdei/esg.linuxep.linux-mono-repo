@@ -741,7 +741,7 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
     with open(file) as f:
         lines = f.readlines()
 
-    if len(lines) != len(patterns):
+    if len(lines) <= len(patterns):
         logger.info(f"VERSION.ini = {lines}")
         raise AssertionError(f"VERSION.ini does not contain all {len(patterns)} expected fields")
 
