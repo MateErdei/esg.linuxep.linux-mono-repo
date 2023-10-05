@@ -99,11 +99,11 @@ class TeardownTools(object):
             sp.run(["dmesg", "-C"])
             logger.info("Clear dmesg after segfault detected")
             output = str(stdout)
-            CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
-            if CLOUD_SETUP_SEGFAULT_RE.search(output) is None:
+            segfaults = stdout.decode().splitlines()
+            to_ignore = ["nm-cloud-setup", "wget"]
+            segfaults = [x for x in segfaults if all(y not in x for y in to_ignore)]
+            if len(segfaults) > 0:
                 raise AssertionError("segfault found : " + output)
-            else:
-                logger.error("Ignoring segfault from nm-cloud-setup: " + output)
 
         return stdout
 
