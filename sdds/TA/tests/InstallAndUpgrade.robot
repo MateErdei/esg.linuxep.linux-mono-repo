@@ -40,7 +40,9 @@ ${SDDS3PrimaryRepository}             ${SOPHOS_INSTALL}/base/update/cache/sdds3p
 ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 
-${CUSTOM_INSTALL_DIRECTORY}    /etc/sophos-spl
+# Thin installer appends sophos-spl to the argument
+${CUSTOM_INSTALL_DIRECTORY}    /home/sophos-spl
+${CUSTOM_INSTALL_DIRECTORY_ARG}    /home
 ${RPATHCheckerLog}                          /tmp/rpath_checker.log
 
 *** Test Cases ***
@@ -87,6 +89,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrading to VUT
+    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
     Wait Until Threat Detector Running
@@ -151,6 +154,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
+    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
@@ -348,6 +354,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrade to VUT
+    ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
     Wait Until Keyword Succeeds
@@ -404,6 +411,9 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
+    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
@@ -645,7 +655,7 @@ SPL Can Be Installed To A Custom Location
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -709,7 +719,7 @@ Installing New Plugins Respects Custom Installation Location
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY}
+    ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
 
     Wait Until Keyword Succeeds
     ...   150 secs
