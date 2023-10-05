@@ -19,6 +19,8 @@ ${PROXY_PASSWORD}          proxypassword
 *** Test Cases ***
 
 Actions Folder Without Permissions Does Not Cause A Crash
+    Wait Until Created  ${MCS_DIR}/policy/ALC-1_policy.xml
+
     Check Cloud Server Log For Command Poll
     Chmod  550  ${MCS_DIR}/action
 
@@ -33,6 +35,8 @@ Actions Folder Without Permissions Does Not Cause A Crash
 
 
 Overwriting Action File Doesn't Cause Crash
+    Wait Until Created  ${MCS_DIR}/policy/ALC-1_policy.xml
+
     Chmod  550  ${MCS_DIR}/action
 
     Trigger Update Now
@@ -59,10 +63,7 @@ Overwriting Action File Doesn't Cause Crash
     Check UpdateScheduler Log Contains  Unexpected action xml received: fakecontents
 
 Repeatedly writing the same file into the action folder Does Not Cause A Crash
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_DIR}/policy/ALC-1_policy.xml
+    Wait Until Created  ${MCS_DIR}/policy/ALC-1_policy.xml
 
     Stop MCSRouter
     ${temp_dir} =  add_temporary_directory  staging
@@ -97,6 +98,7 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
 Actions Folder Out Of Space Does Not Crash MCSRouter
     [Teardown]  Test Teardown With Mount Removal
+    Wait Until Created  ${MCS_DIR}/policy/ALC-1_policy.xml
 
     Check Cloud Server Log For Command Poll
 
