@@ -180,7 +180,7 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=localhost:20000,2,4
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller_with_args    ${0}    --message_relays=none    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --message-relays=none    force_certs_dir=${SDDS3_DEVCERTS}
 
     check_thininstaller_log_contains    Message relay manually set to none, installation will not be performed via a message relay
     check_thininstaller_log_contains    Checking we can connect to Sophos Central (at https://localhost:4443/mcs)\nDEBUG: Set CURLOPT_NOPROXY to *\nDEBUG: Successfully got [No error] from Sophos Central
@@ -233,7 +233,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=dummyhost1:10000,1,2
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller_with_args    ${0}    --message_relays=localhost:20000    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --message-relays=localhost:20000    force_certs_dir=${SDDS3_DEVCERTS}
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy

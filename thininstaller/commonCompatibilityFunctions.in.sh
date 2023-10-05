@@ -363,7 +363,7 @@ function verify_network_connections() {
         CDN_URL="${SDDS3_NET_URL}"
     else
         if [[ -z "${PROXY}" ]]; then
-            if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]]; then
+            if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 1 ]]; then
                 log_warn "A direct connection to a CDN server could not be established"
             else
                 log_error "SPL installation will fail as a connection to a CDN server could not be established"

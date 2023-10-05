@@ -210,7 +210,9 @@ Thin Installer Help Prints Correct Output
     Check Thininstaller Log Contains   --force\t\t\t\tForce re-install
     Check Thininstaller Log Contains   --group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified
     Check Thininstaller Log Contains   --group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'
-    Check Thininstaller Log Contains   --uninstall-sav\t\tUninstall Sophos Anti-Virus if installed
+    Check Thininstaller Log Contains   --uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed
+    Check Thininstaller Log Contains   --message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none
+    Check Thininstaller Log Contains   --update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Help Prints Correct Output And Other Arguments Are Ignored
@@ -365,55 +367,55 @@ Thin Installer With Duplicate ID In Custom GID Args Fails
     Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-ipc:100 --- aborting install
 
 Thin Installer With Invalid Message Relays Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,
+    Run Default Thininstaller With Args  ${32}  --message-relays=localhost:1000,
     Check Thininstaller Log Contains   Error: message relays passed with trailing comma --- aborting install
 
 Thin Installer With Invalid Update Cache Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,
+    Run Default Thininstaller With Args  ${32}  --update-caches=localhost:1000,
     Check Thininstaller Log Contains   Error: update caches passed with trailing comma --- aborting install
 
 Thin Installer With Empty Message Relays Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=
-    Check Thininstaller Log Contains     Error: message relays not passed with '--message_relays=' argument --- aborting install
+    Run Default Thininstaller With Args  ${32}  --message-relays=
+    Check Thininstaller Log Contains     Error: message relays not passed with '--message-relays=' argument --- aborting install
 
 Thin Installer With Empty Update Caches Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=
-    Check Thininstaller Log Contains     Error: update caches not passed with '--update_caches=' argument --- aborting install
+    Run Default Thininstaller With Args  ${32}  --update-caches=
+    Check Thininstaller Log Contains     Error: update caches not passed with '--update-caches=' argument --- aborting install
 
 Thin Installer With Blank Message Relay Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,\ ,localhost:2000
+    Run Default Thininstaller With Args  ${32}  --message-relays=localhost:1000,\ ,localhost:2000
     Check Thininstaller Log Contains     Error: message relay cannot be whitespace
 
 Thin Installer With Blank Update Cache Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,\ ,localhost:2000
+    Run Default Thininstaller With Args  ${32}  --update-caches=localhost:1000,\ ,localhost:2000
     Check Thininstaller Log Contains     Error: update cache cannot be whitespace
 
 Thin Installer With Invalid Message Relays Address Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:
+    Run Default Thininstaller With Args  ${32}  --message-relays=localhost:
     Check Thininstaller Log Contains     Error: Requested message relay address not valid: localhost: --- aborting install
 
-    Run Default Thininstaller With Args  ${32}  --message_relays=localhost1000
+    Run Default Thininstaller With Args  ${32}  --message-relays=localhost1000
     Check Thininstaller Log Contains     Error: Requested message relay address not valid: localhost1000 --- aborting install
 
 Thin Installer With Invalid Update Caches Address Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:
+    Run Default Thininstaller With Args  ${32}  --update-caches=localhost:
     Check Thininstaller Log Contains     Error: Requested update cache address not valid: localhost: --- aborting install
 
-    Run Default Thininstaller With Args  ${32}  --update_caches=localhost1000
+    Run Default Thininstaller With Args  ${32}  --update-caches=localhost1000
     Check Thininstaller Log Contains     Error: Requested update cache address not valid: localhost1000 --- aborting install
 
 Thin Installer With Non Ascii Message Relays Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=ローカルホスト:1000
+    Run Default Thininstaller With Args  ${32}  --message-relays=ローカルホスト:1000
     Check Thininstaller Log Contains     Error: Requested message relay address not valid: ローカルホスト:1000 --- aborting install
 
 Thin Installer With Non Ascii Update Caches Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=ローカルホスト:1000
+    Run Default Thininstaller With Args  ${32}  --update-caches=ローカルホスト:1000
     Check Thininstaller Log Contains     Error: Requested update cache address not valid: ローカルホスト:1000 --- aborting install
 
 Thin Installer With Duplicate Message Relays Argument Fails
-    Run Default Thininstaller With Args  ${32}  --message_relays=localhost:1000,localhost:1000
+    Run Default Thininstaller With Args  ${32}  --message-relays=localhost:1000,localhost:1000
     Check Thininstaller Log Contains     Error: Duplicate message relay given: localhost:1000 --- aborting install.
 
 Thin Installer With Duplicate Update Caches Argument Fails
-    Run Default Thininstaller With Args  ${32}  --update_caches=localhost:1000,localhost:1000
+    Run Default Thininstaller With Args  ${32}  --update-caches=localhost:1000,localhost:1000
     Check Thininstaller Log Contains     Error: Duplicate update cache given: localhost:1000 --- aborting install.
