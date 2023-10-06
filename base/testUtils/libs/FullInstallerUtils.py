@@ -742,10 +742,10 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
         lines = f.readlines()
 
     n = 0
-    for line in lines:
-        if re.match(patterns[n], line) is None:
-            logger.info(f"line = ||{line}||")
-            raise AssertionError(f"VERSION.ini field {line} does not match {patterns[n]}")
+    for pattern in patterns:
+        if re.match(pattern, lines[n]) is None:
+            logger.info(f"line = ||{lines[n]}||")
+            raise AssertionError(f"VERSION.ini field {lines[n]} does not match {pattern}")
         n += 1
 
 
