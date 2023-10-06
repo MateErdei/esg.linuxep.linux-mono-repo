@@ -36,9 +36,9 @@ BUILD_SELECTION_EJ = "ej"
 
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     # In CI parameters.mode will be set
-    print(f"parameters.mode = {parameters.mode}")
+    print(f"bazel parameters.mode = {parameters.mode}")
     mode = parameters.mode or RELEASE_MODE
-    print(f"MODE = {mode}")
+    print(f"bazel MODE = {mode}")
 
     build_selection = parameters.build_selection or BUILD_SELECTION_ALL
 
@@ -85,9 +85,9 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
     # In CI parameters.mode will be set
-    print(f"parameters.mode = {parameters.mode}")
+    print(f"cmake parameters.mode = {parameters.mode}")
     mode = parameters.mode or RELEASE_MODE
-    print(f"MODE = {mode}")
+    print(f"cmake MODE = {mode}")
 
     if parameters.include_tags is None:
         parameters.include_tags = ""
