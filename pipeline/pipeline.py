@@ -255,6 +255,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)
 
-        if parameters.run_system_tests:
+        if parameters.run_system_tests and build_selection == BUILD_SELECTION_ALL:
             if mode == RELEASE_MODE:
                 sdds(stage, context, parameters)
