@@ -7,6 +7,8 @@ def params = [
  choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
  choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all'),
  booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Test Automation in TAP'),
+ booleanParam(name: 'RUN_SYSTEM_TESTS', defaultValue: false, description: 'Run System Test Automation in TAP'),
+ choice(name: 'SDDS_SELECTION', choices: ['dev', 'prod'], defaultValue: 'dev', description: 'If RUN_SYSTEM_TESTS, build dev/prod SDDS3?'),
 
  booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
  booleanParam(name: 'run_amazon_2023', defaultValue: true, description: 'Run TAP on Amazon Linux 2023'),

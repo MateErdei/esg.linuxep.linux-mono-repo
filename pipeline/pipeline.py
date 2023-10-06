@@ -13,6 +13,7 @@ from pipeline.common import get_package_version, \
 from pipeline.edr import run_edr_tests, run_edr_coverage_tests
 from pipeline.eventjournaler import run_ej_tests, run_ej_coverage_tests
 from pipeline.liveterminal import run_liveterminal_tests, run_liveterminal_coverage_tests
+from pipeline.sdds import sdds
 
 
 PACKAGE_PATH = "build/release-package.xml"
@@ -23,6 +24,7 @@ PACKAGE_PATH_EDR = "./edr/build-files/release-package.xml"
 PACKAGE_PATH_AV = "./av/build-files/release-package.xml"
 PACKAGE_PATH_LIVETERMINAL = "./liveterminal/linux-release-package.xml"
 PACKAGE_PATH_EJ = "./eventjournaler/build-files/release-package.xml"
+PACKAGE_PATH_SDDS = "./sdds/build/dev.xml"
 
 BUILD_SELECTION_ALL = "all"
 BUILD_SELECTION_BASE = "base"
@@ -221,31 +223,38 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         image=BUILD_TEMPLATE,
                                                         mode=COVERAGE_MODE,
                                                         release_package=PACKAGE_PATH_LIVETERMINAL)
-    # NB: run_tests can be None when tap is run locally.
-    if parameters.run_tests != False:
-        with stage.parallel('testing'):
+
+
+    sdds_component = tap.Component(name='sdds', base_version=get_package_version(PACKAGE_PATH_SDDS))
+    with stage.parallel('testing'):
+        # NB: run_tests can be None when tap is run locally.
+        if parameters.run_tests:
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_tests(stage, context, av_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters)
-
+    
             elif mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
                     run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
-
+    
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)
+
+        if parameters.run_system_tests:
+            if mode == RELEASE_MODE:
+                sdds(stage, context, parameters)

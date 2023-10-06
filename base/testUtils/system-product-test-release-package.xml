@@ -35,6 +35,14 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
+
+            <!-- SDDS Packages -->
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
             <development-version branch="develop"/>
@@ -68,23 +76,6 @@
         <build-asset project="em" repo="esg">
             <development-version branch="develop"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="sdds3"/>
-        </build-asset>
-
-
-        <!--
-                    local warehouses
-                    when overriding a warehouse, do not change the customer dest-dir. only change the development-version and the
-                    warehouse dest-dir to contain the override branch name with /s replaced by -s
-                    The customer dest-dir matches up against constants set in WarehouseUtils.lib
-        -->
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="develop" />
-            <include artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
-            <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
-            <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
-            <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
-            <include artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
-            <include artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
         </build-asset>
     </inputs>
 
