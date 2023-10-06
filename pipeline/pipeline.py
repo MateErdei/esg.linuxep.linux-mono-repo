@@ -227,8 +227,8 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
     sdds_component = tap.Component(name='sdds', base_version=get_package_version(PACKAGE_PATH_SDDS))
     with stage.parallel('testing'):
-        # NB: run_tests can be None when tap is run locally.
-        if parameters.run_tests:
+        # run_tests can be None when tap runs locally, this needs to be "!= False" instead of "if parameters.run_tests:"
+        if parameters.run_tests != False:
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)
