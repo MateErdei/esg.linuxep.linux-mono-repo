@@ -18,17 +18,71 @@
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ProcUtilImpl/ProcUtilities.h"
 
+#include <execinfo.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <unistd.h>
 
-const char* g_pluginName = PLUGIN_NAME;
+static const char* g_pluginName = PLUGIN_NAME;
+
+static void terminate_handler()
+{
+    void** buffer = new void*[15];
+    int count = backtrace(buffer, 15);
+    backtrace_symbols_fd(buffer, count, STDERR_FILENO);
+
+    //etc.
+    auto ptr = std::current_exception();
+    if (ptr)
+    {
+        try
+        {
+            std::rethrow_exception(ptr);
+        }
+        catch (const Common::Exceptions::IException& ex)
+        {
+            std::cerr << "IException thrown and not caught: " << ex.what_with_location() << '\n';
+        }
+        catch (const std::system_error& ex)
+        {
+            std::cerr << "std::system_error thrown and not caught: " << ex.code() << ": " << ex.what() << '\n';
+        }
+        catch (const std::exception& p)
+        {
+            std::cerr << "std::exception thrown and not caught: " << p.what() << '\n';
+        }
+        catch (...)
+        {
+            std::cerr << "Non-std::exception thrown and not caught\n";
+        }
+    }
+    std::abort();
+}
+
+static void checkCoreFileLimit()
+{
+    struct rlimit coreFileLimit{};
+    auto ret = getrlimit(RLIMIT_CORE, &coreFileLimit);
+    if (ret == 0)
+    {
+        LOGDEBUG("Core file limit: Hard:" << coreFileLimit.rlim_max);
+        LOGDEBUG("Core file limit: Soft:" << coreFileLimit.rlim_cur);
+    }
+    else
+    {
+        LOGERROR("Failed to get core file limit: " << errno);
+    }
+}
 
 int main()
 {
+    std::set_terminate(terminate_handler);
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
 
     LOGINFO(PLUGIN_NAME << " " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+    checkCoreFileLimit();
 
     Common::Logging::PluginLoggingSetupEx scheduledQueryLoggerSetup(g_pluginName, "scheduledquery", "scheduledquery");
     Common::Logging::PluginLoggingSetupEx osqueryLoggerSetup(g_pluginName, "edr_osquery", "edr_osquery");
