@@ -262,6 +262,7 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
             do_dev = parameters.sdds_selection == "dev"
             do_prod = parameters.sdds_selection == "prod"
 
+        build = None
         if do_prod:
             build_sdds3_warehouse(stage=stage, mode=parameters.sdds_selection)
             build = None
