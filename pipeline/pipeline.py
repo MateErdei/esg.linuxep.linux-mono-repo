@@ -34,14 +34,7 @@ BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
 
 
-def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    # In CI parameters.mode will be set
-    print(f"bazel parameters.mode = {parameters.mode}")
-    mode = parameters.mode or RELEASE_MODE
-    print(f"bazel MODE = {mode}")
-
-    build_selection = parameters.build_selection or BUILD_SELECTION_ALL
-
+def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
     build = stage.artisan_build(name="linux_x64_rel",
@@ -56,7 +49,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                         mode="all_lx64d",
                         release_package=PACKAGE_PATH)
 
-    if parameters.run_tests:
+    if parameters.run_tests != False:
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
@@ -68,14 +61,25 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    # In CI parameters.mode will be set
+    print(f"parameters.mode = {parameters.mode}")
+    mode = parameters.mode or RELEASE_MODE
+    print(f"MODE = {mode}")
+
+    build_selection = parameters.build_selection or BUILD_SELECTION_ALL
+
     with stage.parallel("products"):
         with stage.parallel("bazel"):
-            bazel_pipeline(stage, context, parameters)
+            bazel_pipeline(stage, context, parameters, mode, build_selection)
         with stage.parallel("cmake"):
-            cmake_pipeline(stage, context, parameters)
+            cmake_pipeline(stage, context, parameters, mode, build_selection)
+
+        if build_selection == BUILD_SELECTION_ALL and parameters.run_system_tests != "false" and mode == RELEASE_MODE:
+            sdds_component = tap.Component(name='sdds', base_version=get_package_version(PACKAGE_PATH_SDDS))
+            sdds(stage, context, parameters)
 
 
-def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
     assert (os.path.exists(base.PACKAGE_PATH))
     assert (os.path.exists(PACKAGE_PATH_EDR))
     assert (os.path.exists(PACKAGE_PATH_AV))
@@ -84,15 +88,8 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     os.environ["BRANCH_NAME"] = context.branch
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
-    # In CI parameters.mode will be set
-    print(f"cmake parameters.mode = {parameters.mode}")
-    mode = parameters.mode or RELEASE_MODE
-    print(f"cmake MODE = {mode}")
-
     if parameters.include_tags is None:
         parameters.include_tags = ""
-
-    build_selection = parameters.build_selection or BUILD_SELECTION_ALL
 
     # Base always builds
     base_component = tap.Component(name="sspl_base", base_version=get_package_version(base.PACKAGE_PATH))
@@ -224,8 +221,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         mode=COVERAGE_MODE,
                                                         release_package=PACKAGE_PATH_LIVETERMINAL)
 
-
-    sdds_component = tap.Component(name='sdds', base_version=get_package_version(PACKAGE_PATH_SDDS))
     with stage.parallel('testing'):
         # run_tests can be None when tap runs locally, this needs to be "!= False" instead of "if parameters.run_tests:"
         if parameters.run_tests != False:
@@ -254,7 +249,3 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)
-
-        if parameters.run_system_tests and build_selection == BUILD_SELECTION_ALL:
-            if mode == RELEASE_MODE:
-                sdds(stage, context, parameters)

@@ -246,7 +246,6 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     return
 
 
-@tap.pipeline(root_sequential=False)
 def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     run_tests = parameters.run_system_tests != "false"
 
@@ -259,15 +258,14 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
             do_dev = False
             do_prod = True
         else:
-            do_dev = parameters.sdds_selection == "dev"
+            do_dev = not parameters.sdds_selection or parameters.sdds_selection == "dev"
             do_prod = parameters.sdds_selection == "prod"
 
         build = None
         if do_prod:
-            build_sdds3_warehouse(stage=stage, mode=parameters.sdds_selection)
-            build = None
+            build_sdds3_warehouse(stage=stage, mode="prod")
         if do_dev:
-            build = build_sdds3_warehouse(stage=stage, mode=parameters.sdds_selection)
+            build = build_sdds3_warehouse(stage=stage, mode="dev")
             build_sdds3_warehouse(stage=stage, mode="999")
 
     with stage.parallel("system_testing"):
