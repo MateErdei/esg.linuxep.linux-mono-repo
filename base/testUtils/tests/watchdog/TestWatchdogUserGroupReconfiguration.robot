@@ -287,6 +287,7 @@ Verify Product is Running Without Error After ID Change
     Wait Until Created    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request failed with error: Couldn't resolve host name
     Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request failed to connect to the server with error: Couldn't resolve host name
+    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request failed with error: Couldn't connect to server
 
     Wait Until Created    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed.
