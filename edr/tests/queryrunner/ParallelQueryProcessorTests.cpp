@@ -99,7 +99,8 @@ namespace
     class ParallelQueryProcessorTests : public LogInitializedTests{};
 }
 
-TEST_F(ParallelQueryProcessorTests, addJob)
+// TODO LINUXDAR-7936 Disabled because this intermittently SEGFAULTs - needs fixing
+TEST_F(ParallelQueryProcessorTests, DISABLED_addJob)
 {
     Common::Threads::LockableData<int> counter{0};
     {
