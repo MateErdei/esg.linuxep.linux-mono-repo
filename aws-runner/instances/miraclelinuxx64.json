@@ -48,6 +48,7 @@
         "getenforce >>/tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
         "yum install -y openssl-perl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "yum install -y gdb >> /tmp/cloudFormationInit.log 2>&1\n",
         "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",

@@ -9,6 +9,7 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
@@ -100,19 +101,21 @@ Create Local SDDS3 Override
 
 Start Local SDDS3 Server
     [Arguments]    ${launchdarklyPath}=${VUT_WAREHOUSE_ROOT}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_ROOT}/repo
+    ...  ${port}=8080
     ${handle}=  Start Process
     ...  bash  -x
     ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
     ...  python3  ${LIBS_DIRECTORY}/SDDS3server.py
     ...  --launchdarkly  ${launchdarklyPath}
     ...  --sdds3  ${sdds3repoPath}
+    ...  --port   ${port}
     ...  stdout=${sdds3_server_std_output}
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Can Curl Url    https://localhost:8080
+    ...  Can Curl Url    https://localhost:${port}
     [Return]  ${handle}
 
 Start Local SDDS3 Server With Empty Repo
@@ -122,16 +125,22 @@ Start Local SDDS3 Server With Empty Repo
     [Return]  ${handle}
 
 Debug Local SDDS3 Server
+    [Arguments]  ${handle}
+    Run Keyword If Test Passed  Return From Keyword
     ${result} =  Run Process  pstree  -a  stderr=STDOUT
     Log  pstree: ${result.rc} : ${result.stdout}
-    ${result} =  Run Process  netstat  --pl  --inet  stderr=STDOUT
-    Log  netstat: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  netstat  -pnl  --inet  stderr=STDOUT
+    Log  netstat -pnl: ${result.rc} : ${result.stdout}
+    ${result} =  Run Process  netstat  -pn  --inet  stderr=STDOUT
+    Log  netstat -pn: ${result.rc} : ${result.stdout}
     ${result} =  Run Process  ss  -plt  stderr=STDOUT
     Log  ss: ${result.rc} : ${result.stdout}
+    return from keyword if  "${handle}" == "${EMPTY}"
+    ProcessUtils.dump_threads_from_process  ${handle}
 
 Stop Local SDDS3 Server
     return from keyword if  "${GL_handle}" == "${EMPTY}"
-    Run Keyword and Ignore Error  Run Keyword If Test Failed  Debug Local SDDS3 Server
+    Run Keyword and Ignore Error  Debug Local SDDS3 Server  ${GL_handle}
     ${result} =  Terminate Process  ${GL_handle}  True
     Set Suite Variable    $GL_handle    ${EMPTY}
     Dump Teardown Log    ${sdds3_server_std_output}
