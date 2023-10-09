@@ -7,7 +7,7 @@ from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input, TaskOutput
 
 from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, \
-    ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+    python, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 
 INPUTS_DIR = '/opt/test/inputs'
@@ -56,27 +56,6 @@ def include_ntfs_for_machine_name(name: str, template):
 
 def pip(machine: tap.Machine):
     return "pip3"
-
-
-def python(machine: tap.Machine):
-    return "python3"
-
-
-def pip_install(machine: tap.Machine, *install_args: str):
-    """Installs python packages onto a TAP machine"""
-    pip_index = os.environ.get('TAP_PIP_INDEX_URL')
-    pip_index_args = ['--index-url', pip_index] if pip_index else []
-    pip_index_args += ["--no-cache-dir",
-                       "--progress-bar", "off",
-                       "--disable-pip-version-check",
-                       "--default-timeout", "120"]
-    machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
-                'install', '--upgrade', 'pip', *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
-    machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
-                'install', '-v', *install_args, *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
-
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """

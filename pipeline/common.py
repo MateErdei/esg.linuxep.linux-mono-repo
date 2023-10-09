@@ -151,6 +151,8 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
 
+def python(machine: tap.Machine):
+    return "python3"
 
 def get_os_packages(machine: tap.Machine):
     common = [

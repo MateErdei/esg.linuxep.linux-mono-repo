@@ -6,6 +6,7 @@ import tap.v1 as tap
 from tap._backend import Input
 from tap._pipeline.tasks import ArtisanInput
 
+from pipeline.common import get_test_machines, pip_install, get_os_packages, python
 
 def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel_20230512"):
     component = tap.Component(name="sdds3-warehouse-" + mode, base_version="1.0.0")
@@ -14,70 +15,6 @@ def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel
                                image=image,
                                release_package="./sdds/build/dev.xml",
                                mode=mode)
-
-
-def get_test_machines(test_inputs, parameters):
-    test_environments = {}
-
-    if parameters.run_amazon_2 != "false":
-        test_environments["amazonlinux2"] = "amzlinux2_x64_server_en_us"
-
-    if parameters.run_amazon_2023 != "false":
-        test_environments["amazonlinux2023"] = "amzlinux2023_x64_server_en_us"
-
-    if parameters.run_centos_7 != "false":
-        test_environments["centos79"] = "centos7_x64_aws_server_en_us"
-
-    if parameters.run_centos_stream_8 != "false":
-        test_environments["centos8stream"] = "centos8stream_x64_aws_server_en_us"
-
-    if parameters.run_centos_stream_9 != "false":
-        test_environments["centos9stream"] = "centos9stream_x64_aws_server_en_us"
-
-    if parameters.run_debian_10 != "false":
-        test_environments["debian10"] = "debian10_x64_aws_server_en_us"
-
-    if parameters.run_debian_11 != "false":
-        test_environments["debian11"] = "debian11_x64_aws_server_en_us"
-
-    if parameters.run_oracle_7 != "false":
-        test_environments["oracle7"] = "oracle79_x64_aws_server_en_us"
-
-    if parameters.run_oracle_8 != "false":
-        test_environments["oracle8"] = "oracle87_x64_aws_server_en_us"
-
-    if parameters.run_rhel_7 != "false":
-        test_environments["rhel7"] = "rhel79_x64_aws_server_en_us"
-
-    if parameters.run_rhel_8 != "false":
-        test_environments["rhel8"] = "rhel87_x64_aws_server_en_us"
-
-    if parameters.run_rhel_9 != "false":
-        test_environments["rhel9"] = "rhel91_x64_aws_server_en_us"
-
-    if parameters.run_sles_12 != "false":
-        test_environments["sles12"] = "sles12_x64_sp5_aws_server_en_us"
-
-    if parameters.run_sles_15 != "false":
-        test_environments["sles15"] = "sles15_x64_sp4_aws_server_en_us"
-
-    if parameters.run_ubuntu_18_04 != "false":
-        test_environments["ubuntu1804"] = "ubuntu1804_x64_aws_server_en_us"
-
-    if parameters.run_ubuntu_20_04 != "false":
-        test_environments["ubuntu2004"] = "ubuntu2004_x64_aws_server_en_us"
-
-    if parameters.run_ubuntu_22_04 != "false":
-        test_environments["ubuntu2204"] = "ubuntu2204_x64_aws_server_en_us"
-
-    ret = []
-    for name, image in test_environments.items():
-        ret.append((
-            name,
-            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
-        ))
-    return ret
-
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
     print(f"Build directory: {str(build)}")
@@ -118,69 +55,6 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
                                                         storage="esg-build-tested") / "build/release/linux-x64/safestore"
     )
     return test_inputs
-
-
-def python(machine: tap.Machine):
-    return "python3"
-
-
-def pip_install(machine: tap.Machine, *install_args: str):
-    """Installs python packages onto a TAP machine"""
-    pip_index = os.environ.get("TAP_PIP_INDEX_URL")
-    pip_index_args = ["--index-url", pip_index] if pip_index else []
-    pip_index_args += ["--no-cache-dir",
-                       "--progress-bar", "off",
-                       "--disable-pip-version-check",
-                       "--default-timeout", "120"]
-    machine.run("pip3", "install", "pip", "--upgrade", *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
-    machine.run("pip3", "--log", "/opt/test/logs/pip.log",
-                "install", *install_args, *pip_index_args,
-                log_mode=tap.LoggingMode.ON_ERROR)
-
-
-def get_os_packages(machine: tap.Machine):
-    common = [
-        "openssl",  # For generating certs
-        "git",  # Required by some part of tap
-    ]
-    if machine.template == "amzlinux2_x64_server_en_us":
-        return common
-    elif machine.template == "amzlinux2023_x64_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "centos7_x64_aws_server_en_us":
-        return common
-    elif machine.template == "centos8stream_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "centos9stream_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "debian10_x64_aws_server_en_us":
-        return common
-    elif machine.template == "debian11_x64_aws_server_en_us":
-        return common
-    elif machine.template == "oracle79_x64_aws_server_en_us":
-        return common
-    elif machine.template == "oracle87_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "rhel79_x64_aws_server_en_us":
-        return common
-    elif machine.template == "rhel87_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "rhel91_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
-    elif machine.template == "sles12_x64_sp5_aws_server_en_us":
-        return common + ["libcap-progs", "curl"]
-    elif machine.template == "sles15_x64_sp4_aws_server_en_us":
-        return common + ["libcap-progs"]
-    elif machine.template == "ubuntu1804_x64_aws_server_en_us":
-        return common
-    elif machine.template == "ubuntu2004_x64_aws_server_en_us":
-        return common
-    elif machine.template == "ubuntu2204_x64_aws_server_en_us":
-        return common
-    else:
-        raise Exception(f"Unknown template {machine.template}")
-
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
@@ -246,6 +120,7 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     return
 
 
+@tap.pipeline(root_sequential=False)
 def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     run_tests = parameters.run_system_tests != "false"
 

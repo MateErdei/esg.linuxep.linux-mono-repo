@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages
+    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages, python
 
 PACKAGE_PATH = "./base/build/release-package.xml"
 INPUTS_DIR = '/opt/test/inputs'
@@ -145,11 +145,6 @@ def install_requirements(machine: tap.Machine):
 
 def pip(machine: tap.Machine):
     return "pip3"
-
-
-def python(machine: tap.Machine):
-    return "python3"
-
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
 def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
