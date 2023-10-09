@@ -41,7 +41,35 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
             {
                 LOGINFO(line);
             }
-            LOGDEBUG_OSQUERY(line);
+
+            // The below lines are checks that indicate the reason for OSQuery restarting
+            // Want to log them at INFO level as they are important
+            std::string linesToAlwaysLog[] {
+                // Other OSQuery restarts
+                "An error occurred during extension manager startup",
+                "Refreshing configuration state",
+
+                // CPU OSQuery restart
+                "Maximum sustainable CPU utilization limit exceeded",
+
+                // Memory OSQuery restarts
+                "Memory limits exceeded",
+            };
+
+            bool matchFound = false;
+            for (auto& logLineCheck : linesToAlwaysLog)
+            {
+                if (line.find(logLineCheck) != std::string::npos)
+                {
+                    LOGWARN_OSQUERY(line);
+                    matchFound = true;
+                    break;
+                }
+            }
+            if (!matchFound)
+            {
+                LOGDEBUG_OSQUERY(line);
+            }
         }
 
         processOsqueryLogLineForTelemetry(line);

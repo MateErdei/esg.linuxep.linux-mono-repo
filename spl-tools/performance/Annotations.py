@@ -2,8 +2,6 @@ import datetime
 import logging
 import os
 import socket
-import subprocess
-
 import requests
 
 import LogUtils
@@ -25,16 +23,12 @@ COMPONENT_NAMES_TO_FORMAT = {
 
 API_HOST = "https://sspl-alex-1.eng.sophos:3000"
 
+
 def get_grafana_auth():
     with open("/root/performance/grafana_token") as f:
         return {
             "Authorization": f"Bearer {f.read().strip()}"
         }
-
-
-def get_epoch_time_from_journal_entry(journal_line):
-    time_string = f"{datetime.date.today().year} {journal_line.split(socket.gethostname())[0].strip()}"
-    return int(datetime.datetime.strptime(time_string, "%Y %b %d %H:%M:%S").timestamp() * 1000)  # in milliseconds
 
 
 def add_annotation(tag, start_time, text, end_time=None):
@@ -115,40 +109,70 @@ def add_scheduled_scan_annotations():
 
 
 def add_osquery_restart_annotations():
+    # Note: every PID restart shown on Grafana can technically be related to an "executing worker (<new pid>)" log line
+    # But the checks below try to add an annotation that can specify why the restart happened as well
+
     annotation_failures = 0
-    with open(LOG_UTILS.edr_log) as f:
-        lines = f.readlines()
+    logs_dir_path = os.path.dirname(LOG_UTILS.edr_log)
+    # Directory contains a downgrade-backup subdirectory that we want to ignore, so only want os.walk() to yield once
+    log_files_names = next(os.walk(logs_dir_path), (None, None, []))[2]
 
-        for line in lines:
-            if "Restarting osquery, reason:" in line:
-                annotation_failures += add_annotation(tag="osquery-restart",
-                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
-                                                      text=line.split('reason:')[-1])
-            if "Restarting OSQuery after unexpected extension exit" in line:
-                annotation_failures += add_annotation(tag="osquery-restart",
-                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
-                                                      text="OSQuery Restart due to unexpected extension exit")
+    for log_file_name in log_files_names:
+        with open(os.path.join(logs_dir_path, log_file_name)) as f:
+            log_file_data = f.readlines()
 
-    ps = subprocess.run(["journalctl", "-u", "sophos-spl"], check=True, capture_output=True)
+            for line in log_file_data:
+                # ---- In edr logs ----
+                # Other restarts
+                if "edr <> Restarting osquery" in line:  # Technically EDR is trying to start OSQuery not "restart"
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text="EDR trying to start osquery")
+                elif "Failed to reconfigure osquery" in line:
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text="Failed to reconfigure osquery")
+                elif "Process task STOP" in line:
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text="Process task STOP")
+                elif "Restarting osquery, reason: " in line:
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text=line.split("reason: ")[-1])
+                # Memory restarts
+                elif "Memory usage exceeded" in line:
+                    # In edr logs
+                    annotation_failures += add_annotation(tag="osquery-memory-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text=line.split("stopping, ")[-1])
 
-    cpu_limit_data = subprocess.run(["grep", "Maximum sustainable CPU utilization limit exceeded"],
-                                    input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
-    for data in cpu_limit_data:
-        if data:
-            annotation_failures += add_annotation(tag="osquery-cpu-restart",
-                                                  start_time=get_epoch_time_from_journal_entry(data),
-                                                  text=data.split("stopping: ")[-1])
+                # ---- In edr_osquery logs ----
+                # Other restarts
+                elif "An error occurred during extension manager startup" in line:
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text=line.split("startup: ")[-1])
+                elif "Refreshing configuration state" in line:
+                    # At the time the config given to OSQuery specified a "--config_refresh" flag set to 3600
+                    # So if OSQuery doesn't have to restart for an hour, the config refresh will cause a PID change
+                    annotation_failures += add_annotation(tag="osquery-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text="Refreshing configuration state")
 
-    memory_limit_data = subprocess.run(["grep", "Memory limits exceeded"],
-                                       input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
-    for data in memory_limit_data:
-        if data:
-            annotation_failures += add_annotation(tag="osquery-memory-restart",
-                                                  start_time=get_epoch_time_from_journal_entry(data),
-                                                  text=data.split("stopping: ")[-1])
+                # CPU restarts
+                elif "Maximum sustainable CPU utilization limit exceeded" in line:
+                    annotation_failures += add_annotation(tag="osquery-cpu-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text=line.split("stopping: ")[-1])
+
+                # Memory restarts
+                elif "Memory limits exceeded" in line:
+                    annotation_failures += add_annotation(tag="osquery-memory-restart",
+                                                          start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                          text=line.split("stopping: ")[-1])
 
     return annotation_failures
-
 
 
 def check_duplicate_annotation_does_not_exist_and_get_id(tag):
@@ -209,7 +233,6 @@ def patch_onaccess_performance_test_annotation(tag, end_time):
         return 1
 
     return 0
-
 
 
 def annotate_graphs():
