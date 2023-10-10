@@ -1,8 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/PluginRegistryImpl/PluginRegistryException.h"
 #include <gmock/gmock.h>

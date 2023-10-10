@@ -2,7 +2,7 @@
 #include "TempDir.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/FileSystemImpl/TempDir.h"
 #include "Common/UtilityImpl/StrError.h"

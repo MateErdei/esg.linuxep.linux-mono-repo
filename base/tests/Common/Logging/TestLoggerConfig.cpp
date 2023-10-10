@@ -48,7 +48,7 @@ public:
     TestLoggerConfig()
     {
         // ensure google run the test in a thread safe way
-        testing::FLAGS_gtest_death_test_style = "threadsafe";
+        GTEST_FLAG_SET(death_test_style, "threadsafe");
     }
 
     static void SetUpTestCase() { testRunPath.reset(new Tests::TempDir("/tmp", "sspl-log")); }

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/FileSystemImpl/PidLockFile.h"
+#include "Common/FileSystem/IPidLockFileUtils.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

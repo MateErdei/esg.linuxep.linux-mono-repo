@@ -2,7 +2,6 @@
 
 #include "ConfigurationDataUtil.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Logger.h"
 
 #include <algorithm>

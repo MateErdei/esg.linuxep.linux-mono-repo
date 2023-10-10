@@ -5,7 +5,6 @@
 #include "ReqRepTestImplementations.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
-#include "Common/ProcessImpl/ProcessInfo.h"
 #include "Common/Process/IProcess.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
@@ -95,7 +94,11 @@ namespace
         void runExec(std::vector<std::string> args)
         {
             // Find executable
+#ifdef SPL_BAZEL
+            std::string exe = "tests/Common/ZeroMQWrapperImpl";
+#else
             std::string exe = CMAKE_CURRENT_BINARY_DIR;
+#endif
             exe += "/TestReqRepTool";
 
             auto process = Common::Process::createProcess();

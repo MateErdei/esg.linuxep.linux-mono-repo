@@ -1,6 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/ProcessImpl/ArgcAndEnv.h"
 #include <gmock/gmock.h>

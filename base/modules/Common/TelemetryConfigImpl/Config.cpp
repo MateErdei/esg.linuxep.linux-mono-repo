@@ -2,8 +2,6 @@
 
 #include "Config.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-
 using namespace Common::TelemetryConfigImpl;
 
 Config::Config() :

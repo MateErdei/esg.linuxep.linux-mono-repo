@@ -61,7 +61,9 @@ testUtils/*-VBoxSVC-*.log
 /robot
 /vagrant
 /log.html
-/imports/
+
+# Import location for sophlib
+/common/
 
 # bazel-tools from ESG monorepo
 /.bazelignore

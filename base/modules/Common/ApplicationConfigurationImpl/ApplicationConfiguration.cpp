@@ -3,7 +3,6 @@
 #include "ApplicationConfiguration.h"
 
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 namespace
 {

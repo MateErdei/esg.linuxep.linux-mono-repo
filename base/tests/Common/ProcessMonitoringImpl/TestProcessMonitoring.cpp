@@ -4,7 +4,6 @@
 #include "Common/ProcessMonitoring/IProcessMonitor.h"
 #include "Common/ProcessMonitoringImpl/ProcessMonitor.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
-#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

@@ -5,7 +5,6 @@
 #include "Common/OSUtilities/ILocalIP.h"
 #include "Common/OSUtilitiesImpl/LocalIPImpl.h"
 #include "Common/Process/IProcess.h"
-#include "Common/ProcessImpl/ProcessImpl.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

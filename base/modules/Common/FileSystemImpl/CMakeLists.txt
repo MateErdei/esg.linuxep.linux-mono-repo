@@ -3,6 +3,10 @@ add_library(filesystemimplobject OBJECT
         ../FileSystem/IFileSystem.h
         ../FileSystem/IFilePermissions.h
         ../FileSystem/IPidLockFileUtils.h
+        ../FileSystem/IFileNotFoundException.h
+        ../FileSystem/IFileSystemException.h
+        ../FileSystem/IFileTooLargeException.h
+        ../FileSystem/IPermissionDeniedException.h
         ../FileSystem/ITempDir.h
         FileSystemImpl.cpp
         FileSystemImpl.h

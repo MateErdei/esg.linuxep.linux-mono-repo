@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "TelemetryHelper.h"
 
@@ -482,4 +478,48 @@ namespace Common::Telemetry
         addValueToSetInternal(setKey, value);
     }
 
+    void TelemetryHelper::restructureTelemetry()
+    {
+        for (const auto& [currentPos, finalPos] : fieldsToMoveToTopLevel)
+        {
+            // Currently this will only support fields to move in following example format
+            // updatescheduler.esmName
+            //  and not
+            // updatescheduler.something.esmName
+            auto keys = Common::UtilityImpl::StringUtils::splitString(currentPos, ".");
+            auto parentKey = keys.front();
+            auto childKey = keys.back();
+
+            if (m_root.keyExists(parentKey))
+            {
+                auto& parentObj = m_root.getObject(parentKey);
+                if (parentObj.keyExists(childKey))
+                {
+                    LOGDEBUG("Moving field in " << currentPos << " to " << finalPos);
+                    // Insert new value
+                    auto childVal = parentObj.getObject(childKey).getValue();
+                    //  has lock guard
+                    setInternal(finalPos, childVal, false);
+
+                    // Remove old value
+                    {
+                        std::lock_guard<std::mutex> lock(m_dataLock);
+                        parentObj.removeKey(childKey);
+                        if (parentObj.getChildObjects().size() == 0)
+                        {
+                            m_root.removeKey(parentKey);
+                        }
+                    }
+                }
+                else
+                {
+                    LOGDEBUG("Item " << childKey << " does not exist in " << parentKey);
+                }
+            }
+            else
+            {
+                LOGDEBUG("Item " << parentKey << " does not exist in telemetry");
+            }
+        }
+    }
 } // namespace Common::Telemetry

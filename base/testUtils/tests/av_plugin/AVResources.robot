@@ -19,6 +19,7 @@ ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
 ${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${QUERY_PACKS_PATH}                 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
+${OSQUERY_CONF_PATH}                ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
 
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
@@ -120,16 +121,3 @@ Enable On Access Via Policy
     ${mark} =  get_on_access_log_mark
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
     wait for on access log contains after mark   On-access scanning enabled  mark=${mark}  timeout=${15}
-
-Create Query Packs
-    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 100, "denylist": false}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
-
-Cleanup Query Packs
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf

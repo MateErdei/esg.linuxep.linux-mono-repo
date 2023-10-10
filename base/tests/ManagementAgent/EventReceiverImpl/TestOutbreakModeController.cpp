@@ -3,6 +3,7 @@
 #define TEST_PUBLIC public
 
 #include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
@@ -271,10 +272,10 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
 
 TEST_F(TestOutbreakModeController, loads_true)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({"outbreak-mode":true})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_TRUE(controller->outbreakMode());
@@ -283,10 +284,10 @@ TEST_F(TestOutbreakModeController, loads_true)
 TEST_F(TestOutbreakModeController, loads_false)
 {
     UsingMemoryAppender recorder(*this);
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({"outbreak-mode":false})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -295,10 +296,10 @@ TEST_F(TestOutbreakModeController, loads_false)
 
 TEST_F(TestOutbreakModeController, loads_missing_key)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -306,9 +307,9 @@ TEST_F(TestOutbreakModeController, loads_missing_key)
 
 TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(""));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -316,11 +317,23 @@ TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
 
 TEST_F(TestOutbreakModeController, loads_absent_file)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Throw(
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Throw(
         Common::FileSystem::IFileNotFoundException("Test text")
         ));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_large_file)
+{
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Throw(
+        Common::FileSystem::IFileTooLargeException("Test text")
+            ));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -386,9 +399,9 @@ TEST_F(TestOutbreakModeController, timestamp_in_future)
 
 TEST_F(TestOutbreakModeController, loads_not_json)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return("abcdef"));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return("abcdef"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -396,10 +409,10 @@ TEST_F(TestOutbreakModeController, loads_not_json)
 
 TEST_F(TestOutbreakModeController, loads_not_boolean)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({"outbreak-mode":123})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
@@ -407,10 +420,10 @@ TEST_F(TestOutbreakModeController, loads_not_boolean)
 
 TEST_F(TestOutbreakModeController, loads_uuid_not_string)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({"outbreak-mode":true, "uuid":false})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     OutbreakModeControllerPtr controller;
     ASSERT_NO_THROW(controller = std::make_shared<OutbreakModeController>());
@@ -419,9 +432,9 @@ TEST_F(TestOutbreakModeController, loads_uuid_not_string)
 
 TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
-    auto mockFilePermissions = std::make_unique<MockFilePermissions>();
-    EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto* mockFilePermissions = new MockFilePermissions();
+    EXPECT_CALL(*mockFileSystem, readFile(_,_)).WillOnce(Return(""));
 
     auto now = OutbreakModeController::clock_t::now();
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
@@ -429,15 +442,15 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
     // because mockable time not being used
     std::string expectedContentRegex = R"(.\"outbreak-mode\":true,\"timestamp\":\".*\",\"uuid\":\"5df69683-a5a2-5d96-897d-06f9c4c8c7bf\".)";
 
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, MatchesRegex(expectedContentRegex), _, _)).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(expectedStatusFile_, MatchesRegex(expectedContentRegex), _, _)).WillOnce(Return());
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(
                                      HasSubstr("base/mcs/event/CORE_event-"),
                                      HasSubstr("sophos.core.outbreak"), _, _)).WillOnce(Return());
 
     EXPECT_CALL(*mockFilePermissions, chown(expectedStatusFile_,"root","sophos-spl-group")).WillOnce(Return());
 
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(std::move(mockFilePermissions));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
     Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
     auto controller = std::make_shared<OutbreakModeController>();
@@ -597,10 +610,10 @@ TEST_F(TestOutbreakModeController, ignore_broken_action_xml)
 
 TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
 {
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     std::string contents = R"({"outbreak-mode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
-    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock))};
+    EXPECT_CALL(*mockFileSystem, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
 
     auto controller = std::make_shared<OutbreakModeController>();
     ASSERT_TRUE(controller->outbreakMode());

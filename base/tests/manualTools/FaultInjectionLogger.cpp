@@ -30,7 +30,7 @@ void faultInjectionLoggingSetup(const std::string& logfilePath)
 
 void logToLimit(log4cplus::Logger logger, unsigned int limit)
 {
-    for(unsigned long i =0; i < limit; i++)
+    for(unsigned long i =1; i <= limit; i++)
     {
         std::stringstream st;
         st << "Write this boring line";
@@ -82,5 +82,6 @@ int main(int argc, char * argv[])
         logToLimit(logger, numLines);
     }
 
+    std::cout << "Finished Execution" << numLines << std::endl;
     return 0;
 }

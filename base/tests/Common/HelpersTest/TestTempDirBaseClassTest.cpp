@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "TempDirBaseClassTest.h"
+#include "tests/Common/Helpers/TempDirBaseClassTest.h"
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 

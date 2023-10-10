@@ -9,32 +9,28 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
-namespace Common
+namespace Common::OSUtilities
 {
-    namespace OSUtilities
+    class IDnsLookup
     {
-        class IDnsLookup
-        {
-        public:
-            virtual ~IDnsLookup() = default;
-            /**
-             * Return the ips associated with the given server address.
-             * @param uri
-             * @param sysCallWrapper
-             * @return the ips associated with the given server address or throw exception if it can not get the dns
-             * resolution of the given address.
-             */
-            virtual IPs lookup(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper) const = 0;
-        };
-
+    public:
+        virtual ~IDnsLookup() = default;
         /**
-         * Return a BORROWED pointer to a static IDnsLookup instance.
-         *
-         * Do not delete this yourself.
-         *
-         * @return BORROWED IDnsLookup pointer
+         * Return the ips associated with the given server address.
+         * @param uri
+         * @param sysCallWrapper
+         * @return the ips associated with the given server address or throw exception if it can not get the dns
+         * resolution of the given address.
          */
-        IDnsLookup* dnsLookup();
+        virtual IPs lookup(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper) const = 0;
+    };
 
-    } // namespace OSUtilities
-} // namespace Common
+    /**
+     * Return a BORROWED pointer to a static IDnsLookup instance.
+     *
+     * Do not delete this yourself.
+     *
+     * @return BORROWED IDnsLookup pointer
+     */
+    IDnsLookup* dnsLookup();
+} // namespace Common::OSUtilities

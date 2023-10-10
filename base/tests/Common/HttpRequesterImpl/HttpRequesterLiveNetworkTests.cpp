@@ -12,7 +12,6 @@
 
 #include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
-#include <curl/curl.h>
 #include <gtest/gtest.h>
 
 namespace

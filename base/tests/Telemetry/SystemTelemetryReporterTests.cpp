@@ -42,8 +42,7 @@ TEST_F(SystemTelemetryReporterTests, getTelemetryEmptyOK) // NOLINT
 TEST_F(SystemTelemetryReporterTests, getTelemetryOk) // NOLINT
 {
     std::map<std::string, Telemetry::TelemetryItem> simpleObjs = {
-        { "test-simple-string", { { "", { "test-version 10.5 string" } } } },
-        { "test-simple-int", { { "", { 101 } } } }
+        { "test-simple-string", { { "", { "test-version 10.5 string" } } } }, { "test-simple-int", { { "", { 101 } } } }
     };
 
     std::map<std::string, std::vector<Telemetry::TelemetryItem>> arrayObjs = {

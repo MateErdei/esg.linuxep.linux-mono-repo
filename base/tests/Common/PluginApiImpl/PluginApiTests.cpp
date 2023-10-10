@@ -2,8 +2,6 @@
 #include "MockedPluginApiCallback.h"
 #include "SingleResponseServer.h"
 
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/IBaseServiceApi.h"

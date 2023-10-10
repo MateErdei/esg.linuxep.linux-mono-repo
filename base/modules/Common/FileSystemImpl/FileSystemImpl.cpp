@@ -12,7 +12,6 @@
 
 #include <ext/stdio_filebuf.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #include <cassert>
 #include <dirent.h>

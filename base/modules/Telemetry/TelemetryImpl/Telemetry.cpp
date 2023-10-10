@@ -8,6 +8,7 @@
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"

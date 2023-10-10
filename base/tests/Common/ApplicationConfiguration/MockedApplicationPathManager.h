@@ -51,12 +51,14 @@ public:
     MOCK_METHOD(std::string, getLocalSdds3Repository, (), (const, override));
     MOCK_METHOD(std::string, getLocalSdds3DistributionRepository, (), (const, override));
     MOCK_METHOD(std::string, getSdds3PackageConfigPath, (), (const, override));
+    MOCK_METHOD(std::string, getSulDownloaderInstalledTrackerFile, (), (const, override));
     MOCK_METHOD(std::string, getSdds3OverrideSettingsFile, (), (const, override));
     MOCK_METHOD(std::string, getSulDownloaderSynLogPath, (), (const, override));
 
     MOCK_METHOD(std::string, getLocalUninstallSymLinkPath, (), (const, override));
     MOCK_METHOD(std::string, getLocalVersionSymLinkPath, (), (const, override));
     MOCK_METHOD(std::string, getLocalBaseUninstallerPath, (), (const, override));
+    MOCK_METHOD(std::string, getWdctlPath, (), (const, override));
 
     MOCK_METHOD(std::string, getUpdateCertificatesPath, (), (const, override));
     MOCK_METHOD(std::string, getSulDownloaderProcessedReportPath, (), (const, override));
@@ -82,7 +84,6 @@ public:
 
     MOCK_METHOD(std::string, getTelemetryExeConfigFilePath, (), (const, override));
     MOCK_METHOD(std::string, getTelemetryExecutableFilePath, (), (const, override));
-    MOCK_METHOD(std::string, getSophosAliasFilePath, (), (const, override));
 
     MOCK_METHOD(std::string, getAlcPolicyFilePath, (), (const, override));
     MOCK_METHOD(std::string, getAlcStatusFilePath, (), (const, override));
@@ -111,5 +112,6 @@ public:
     MOCK_METHOD(std::string, getMcsCaOverrideFlag, (), (const, override));
 
     MOCK_METHOD(std::string, getOutbreakModeStatusFilePath, (), (const, override));
+    MOCK_METHOD(std::string, getProductInstallLogFilePath, (const std::string& productName), (const, override));
 
 };

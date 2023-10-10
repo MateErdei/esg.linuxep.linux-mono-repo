@@ -35,6 +35,7 @@ public:
     MOCK_METHOD(bool, isSymlink, (const Path& path), (const, override));
     MOCK_METHOD(Path, currentWorkingDirectory, (), (const, override));
     MOCK_METHOD(void, moveFile, (const Path& sourcePath, const Path& destPath), (const, override));
+    MOCK_METHOD(void, moveFileTryCopy, (const Path& sourcePath, const Path& destPath), (const, override));
     MOCK_METHOD(std::string, readFile, (const Path& path), (const, override));
     MOCK_METHOD(std::string, readFile, (const Path& path, unsigned long maxSize), (const, override));
     MOCK_METHOD((std::vector<std::string>), readLines, (const Path& path), (const, override));

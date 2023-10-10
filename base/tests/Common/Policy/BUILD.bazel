@@ -9,7 +9,9 @@ spl_independent_cc_tests(
     deps = [
         "//modules/Common/ApplicationConfiguration",
         "//modules/Common/Policy",
+        "//modules/Common/UtilityImpl:StringUtils",
         "//tests/Common/Helpers",
+        "//tests/Common/UtilityImpl:TestStringGenerator",
         "@com_google_googletest//:gtest_main",
     ],
 )

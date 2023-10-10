@@ -2,6 +2,7 @@
 #include "DnsLookupImpl.h"
 
 #include "Common/OSUtilities/IIPUtils.h"
+
 #include <net/if.h>
 
 #include <cstring>
@@ -70,21 +71,23 @@ namespace
 
 } // namespace
 
-namespace Common
+namespace Common::OSUtilitiesImpl
 {
-    namespace OSUtilitiesImpl
+    Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper) const
     {
-        Common::OSUtilities::IPs DnsLookupImpl::lookup(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper) const
-        {
-            return ::ipResolution(uri, sysCallWrapper);
-        }
+        return ::ipResolution(uri, sysCallWrapper);
+    }
 
-        void replaceDnsLookup(IDnsLookupPtr other) { LocalDnsStaticPointer().reset(other.release()); }
+    void replaceDnsLookup(IDnsLookupPtr other)
+    {
+        LocalDnsStaticPointer().reset(other.release());
+    }
 
-        void restoreDnsLookup() { LocalDnsStaticPointer().reset(new DnsLookupImpl()); }
-
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+    void restoreDnsLookup()
+    {
+        LocalDnsStaticPointer().reset(new DnsLookupImpl());
+    }
+} // namespace Common::OSUtilitiesImpl
 
 Common::OSUtilities::IDnsLookup* Common::OSUtilities::dnsLookup()
 {

@@ -97,6 +97,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getDiagnoseOutputPath() const override;
 
         std::string getCloudMetadataJsonPath() const override;
+        std::string getUpdateMarkerFile() const override;
         std::string getThreatHealthJsonFilePath() const override;
         std::string getShsStatusFilePath() const override;
         std::string getOverallHealthFilePath() const override;

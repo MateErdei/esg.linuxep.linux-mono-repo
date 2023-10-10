@@ -424,8 +424,8 @@ TEST_F(ConfigTests, configEquality)
 TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig)
 {
     const std::string resourceName = "name";
-    Config exeConfig = Config::buildExeConfigFromTelemetryConfig(m_config, resourceName);
-    EXPECT_EQ(m_config.getServer(), exeConfig.getServer());
+    Config exeConfig = Config::buildExeConfigFromTelemetryConfig(m_config, "telemetryHost", resourceName);
+    EXPECT_EQ("telemetryHost", exeConfig.getServer());
     EXPECT_EQ(m_config.getPort(), exeConfig.getPort());
     EXPECT_EQ(m_config.getVerb(), exeConfig.getVerb());
     EXPECT_EQ(m_config.getHeaders(), exeConfig.getHeaders());

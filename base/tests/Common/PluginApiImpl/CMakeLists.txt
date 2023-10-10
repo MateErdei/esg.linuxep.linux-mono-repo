@@ -4,6 +4,7 @@ add_executable(PluginApiImplTests
         SingleResponseServer.h
         MockedPluginApiCallback.h
         PluginApiTests.cpp
+        PluginCallBackHandlerTests.cpp
         SingleManagementRequest.h
         PluginApiCallbackTests.cpp
         MessageBuilderTests.cpp

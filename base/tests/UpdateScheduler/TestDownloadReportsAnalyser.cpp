@@ -191,7 +191,7 @@ public:
         UpdateEvent event;
         event.IsRelevantToSend = true;
         event.UpdateSource = SophosURL;
-        event.MessageNumber = 0;
+        event.MessageNumber = EventMessageNumber::SUCCESS;
         return event;
     }
 
@@ -321,7 +321,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 112;
+    expectedEvent.MessageNumber = EventMessageNumber::CONNECTIONERROR;
     expectedEvent.Messages.emplace_back("", "failed2connect");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
@@ -346,7 +346,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -371,7 +371,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -397,7 +397,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -451,7 +451,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     // copy from SuccessFollowedBy2Failures
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = EventMessageNumber::INSTALLFAILED;
@@ -550,7 +550,7 @@ TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) 
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -576,7 +576,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
@@ -605,7 +605,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
@@ -637,7 +637,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     expectedEvent.UpdateSource = "cache1";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
@@ -668,7 +668,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateEvent expectedEvent = upgradeEvent();
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     expectedEvent.UpdateSource = "cache2";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
@@ -716,7 +716,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.UpdateSource = "Sophos";
 
     // FIXME: LINUXEP-6473
@@ -793,7 +793,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     expectedEvent.UpdateSource = "Sophos";
 
     UpdateStatus expectedStatus;
@@ -840,7 +840,7 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = 0;
+    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     expectedEvent.UpdateSource = "https://localhost:1233";
 
     UpdateStatus expectedStatus;

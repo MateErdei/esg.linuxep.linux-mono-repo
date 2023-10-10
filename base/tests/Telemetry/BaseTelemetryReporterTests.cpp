@@ -25,6 +25,8 @@
 using ::testing::Return;
 using ::testing::StrictMock;
 
+#define PRINT(x) std::cerr << x << '\n'
+
 struct TelemetryTestCase
 {
     TelemetryTestCase(  std::string iXml, std::string value):

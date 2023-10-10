@@ -35,6 +35,8 @@ namespace Common::HttpRequestsImpl
     {
     public:
         HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper);
+        HttpRequesterImpl(const HttpRequesterImpl&) = delete;
+        HttpRequesterImpl& operator=(const HttpRequesterImpl&) = delete;
         ~HttpRequesterImpl();
         Common::HttpRequests::Response get(Common::HttpRequests::RequestConfig request) override;
         Common::HttpRequests::Response post(Common::HttpRequests::RequestConfig request) override;

@@ -26,6 +26,7 @@ namespace Common::TelemetryConfigImpl
 
         static Config buildExeConfigFromTelemetryConfig(
             const Config& supplementaryConfig,
+            const std::string& telemetryHost,
             const std::string& resourceName);
 
         const std::string& getServer() const;

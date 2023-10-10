@@ -6,7 +6,7 @@
 #include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/ProjectNames.h"

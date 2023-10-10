@@ -1,6 +1,5 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Common/UtilityImpl/RegexUtilities.h"
-#include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>

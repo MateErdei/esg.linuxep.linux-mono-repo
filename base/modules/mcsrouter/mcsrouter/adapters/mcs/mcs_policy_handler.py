@@ -458,8 +458,8 @@ class MCSPolicyHandler:
                 # Save successfully applied policy
                 self.__save_policy()
 
-        # except mcsrouter.utils.xml_helper.XMLException:
-        #     return
+        except mcsrouter.utils.xml_helper.XMLException:
+            return
 
         finally:
             dom.unlink()

@@ -33,7 +33,7 @@
 
     <!-- From SAV policy -->
     <onAccessScan>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
         <!-- START New (for finer control over on-access scans) -->
         <onRead>true</onRead>
         <onWrite>true</onWrite>

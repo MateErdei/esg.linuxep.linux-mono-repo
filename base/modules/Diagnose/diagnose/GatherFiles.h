@@ -95,7 +95,7 @@ namespace diagnose
          * destination directory. If the predefined sub-directory does not exist, it is ignored.  The sub-directory
          * structure is maintained when copying to the destination folder.
          */
-        void copyPluginSubDirectoryLogFiles(
+        void copyPluginSubDirectoryFiles(
             const Path& pluginsDir,
             const std::string& pluginName,
             const Path& destination);

@@ -16,7 +16,6 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/ReactorImpl/ReadableFd.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 #include <gmock/gmock.h>
@@ -108,7 +107,9 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
 
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
 
+#ifndef SPL_BAZEL
     ASSERT_TRUE(fileSystem->isDirectory(libsPath));
+#endif
     ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
     data_t args{ socketAddress };
 

@@ -102,7 +102,7 @@ Retrieve JWT Tokens from Central only once per connection
     Mark Mcsrouter Log
     Start MCSRouter
     Wait Until Keyword Succeeds
-    ...  20s
+    ...  10s
     ...  1s
     ...  Check MCS Router Running
     Wait Until Keyword Succeeds

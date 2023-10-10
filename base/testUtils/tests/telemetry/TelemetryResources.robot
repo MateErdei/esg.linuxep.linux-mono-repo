@@ -4,13 +4,15 @@ Documentation    Telemetry testing resources.
 Library    OperatingSystem
 Library    Process
 Library    String
-Library    ../../libs/FullInstallerUtils.py
-Library    ../../libs/LogUtils.py
-Library    ../../libs/OSUtils.py
-Library    ../../libs/TelemetryUtils.py
-Library    ../../libs/Watchdog.py
-Library    ../../libs/HttpsServer.py
-Library    ../../libs/UpdateSchedulerHelper.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/HttpsServer.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/PolicyUtils.py
+Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot
@@ -42,7 +44,7 @@ ${CERT_PATH}   /tmp/cert.pem
 ${USERNAME}    sophos-spl-user
 
 ${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-
+${tmpPolicy}       /tmp/tmpALC.xml
 
 *** Keywords ***
 Create Fake Telemetry Executable
@@ -204,7 +206,17 @@ Drop ALC Policy Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop ALC Policy With Fixed Version Into Place
-    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    ${paused_updating_ALC} =    populate_cloud_subscription_with_paused
+    Create File  ${tmpPolicy}   ${paused_updating_ALC}
+    Register Cleanup    Remove File    ${tmpPolicy}
+    Drop sophos-spl-local File Into Place     ${tmpPolicy}  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+
+Drop ALC Policy With ESM Into Place
+    [Arguments]    ${esmname}    ${esmtoken}
+    ${esm_ALC} =    populate_fixed_version_with_normal_cloud_sub    ${esmname}    ${esmtoken}
+    Create File  ${tmpPolicy}   ${esm_ALC}
+    Register Cleanup    Remove File    ${tmpPolicy}
+    Drop sophos-spl-local File Into Place     ${tmpPolicy}  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop ALC Policy With Scheduled Updating Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_policy_delayed_updating.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml

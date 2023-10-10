@@ -288,20 +288,6 @@ class MCSRouter:
         LOGGER.warning("Exiting mcsrouter")
         return ret
 
-
-def clear_tmp_directory():
-    """
-    clear_tmp_directory
-    """
-    temp_dir = path_manager.temp_dir()
-    if os.path.exists(temp_dir):
-        for files in os.listdir(temp_dir):
-            try:
-                os.unlink(files)
-            except (OSError, IOError):
-                pass
-
-
 def main():
     """
     main
@@ -313,7 +299,6 @@ def main():
         script_dir = os.path.dirname(os.path.realpath(arg0))
         install_dir = os.path.abspath(os.path.join(script_dir, ".."))
     path_manager.INST = install_dir
-    clear_tmp_directory()
     os.umask(0o177)
 
     sophos_logging = SophosLogging(install_dir)

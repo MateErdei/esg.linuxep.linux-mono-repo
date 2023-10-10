@@ -77,7 +77,7 @@ Thin Installer fails to install on system without enough memory
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
-    Check Thininstaller Log Contains    Not enough space in / to install Sophos Protection Linux. You need at least 2048mB to install Sophos Protection Linux
+    Check Thininstaller Log Contains    Not enough space in / to install Sophos Protection for Linux. You need at least 2048mB to install Sophos Protection for Linux
 
 Thin Installer Tells Us It Is Governed By A License
     Run Default Thininstaller    3
@@ -131,15 +131,15 @@ Thin Installer Detects Sweep And uninstalls SAV
 
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
-    Check Thininstaller Log Contains    Sophos Protection Linux Installer, version: 1.
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
 
 Thin Installer Has Working Version Option With Other Arguments
     Run Default Thininstaller With Args   0     --version  --other
-    Check Thininstaller Log Contains    Sophos Protection Linux Installer, version: 1.
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
 
 Thin Installer Has Working Version Option Where Preceding Arguments Are Ignored
     Run Default Thininstaller With Args   0     --other  --version
-    Check Thininstaller Log Contains    Sophos Protection Linux Installer, version: 1.
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
 
 Check Installer Does Not Contain Todos Or Fixmes
     [Tags]   THIN_INSTALLER
@@ -159,27 +159,29 @@ Thin Installer Fails When No Path In Systemd File
     # Install to default location and break it
     Create Initial Installation
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    ${serviceDir} =  Get Service Folder
 
-    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
+
+    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  ${serviceDir}/sophos-spl.service
     Should Be Equal As Integers    ${result.rc}    0
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
 
     ${result}=  Run Process  systemctl  daemon-reload
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
 
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  20
 
-    Check Thininstaller Log Contains  An existing installation of Sophos Protection Linux was found but could not find the installed path.
+    Check Thininstaller Log Contains  An existing installation of Sophos Protection for Linux was found but could not find the installed path.
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Help Prints Correct Output
     Run Default Thininstaller With Args  0  --help
-    Check Thininstaller Log Contains   Sophos Protection Linux Installer, help:
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Contains   Usage: [options]
     Check Thininstaller Log Contains   --help [-h]\t\t\tDisplay this summary
     Check Thininstaller Log Contains   --version [-v]\t\t\tDisplay version of installer
@@ -190,16 +192,16 @@ Thin Installer Help Prints Correct Output
 
 Thin Installer Help Prints Correct Output And Other Arguments Are Ignored
     Run Default Thininstaller With Args  0  --help  --other
-    Check Thininstaller Log Contains   Sophos Protection Linux Installer, help:
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
 
 Thin Installer Help Prints Correct Output And Preceding Arguments Are Ignored
     Run Default Thininstaller With Args  0  --other  --help
-    Check Thininstaller Log Contains   Sophos Protection Linux Installer, help:
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
 
 Thin Installer Help Takes Precedent Over Version Option And Prints Correct Output
     Run Default Thininstaller With Args  0  --version  --help
-    Check Thininstaller Log Contains   Sophos Protection Linux Installer, help:
-    Check Thininstaller Log Does Not Contain  Sophos Protection Linux Installer, version: 1.
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
 
 Thin Installer Fails With Unexpected Argument
     Run Default Thininstaller With Args  23  --ThisIsUnexpected

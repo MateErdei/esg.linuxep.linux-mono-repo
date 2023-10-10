@@ -23,48 +23,30 @@ namespace Common::Policy
     class ALCPolicy
     {
     public:
-        static std::string calculateSulObfuscated(const std::string& user, const std::string& pass);
         explicit ALCPolicy(const std::string& xmlPolicy);
-        [[nodiscard]] UpdateSettings getUpdateSettings() const
-        {
-            return updateSettings_;
-        }
+        [[nodiscard]] UpdateSettings getUpdateSettings() const { return updateSettings_; }
 
-        [[nodiscard]] std::string getSddsID() const { return sdds_id_; }
         [[nodiscard]] std::vector<ProductSubscription> getSubscriptions() const { return subscriptions_; }
 
         [[nodiscard]] std::chrono::minutes getUpdatePeriod() const
         {
-            return std::chrono::minutes{updatePeriodMinutes_};
+            return std::chrono::minutes{ updatePeriodMinutes_ };
         }
 
-        [[nodiscard]] std::string getUpdateCertificatesContent() const
-        {
-            return update_certificates_content_;
-        }
+        [[nodiscard]] std::string getUpdateCertificatesContent() const { return update_certificates_content_; }
 
-        [[nodiscard]] WeekDayAndTimeForDelay getWeeklySchedule() const
-        {
-            return weeklySchedule_;
-        }
+        [[nodiscard]] WeekDayAndTimeForDelay getWeeklySchedule() const { return weeklySchedule_; }
 
         [[nodiscard]] std::string cacheID(const std::string& hostname) const;
 
-        [[nodiscard]] std::string revID() const
-        {
-            return revID_;
-        }
+        [[nodiscard]] std::string revID() const { return revID_; }
 
-        [[nodiscard]] std::optional<std::string> getTelemetryHost() const
-        {
-            return telemetryHost_;
-        }
+        [[nodiscard]] std::optional<std::string> getTelemetryHost() const { return telemetryHost_; }
 
     private:
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
-
-        void extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation);
-        void extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation);
+        void extractSDDS3SusUrl(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractSDDS3SophosUrls(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractUpdateSchedule(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractProxyDetails(const Common::XmlUtilities::AttributesMap& attributesMap);
@@ -72,11 +54,11 @@ namespace Common::Policy
         void extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap);
-
+        void formatUrl(std::string& url);
+        bool validateHostname(const std::string& url);
         void logVersion();
 
         std::string revID_;
-        std::string sdds_id_;
         std::string update_certificates_content_;
         std::optional<std::string> telemetryHost_;
         std::vector<ProductSubscription> subscriptions_;
@@ -85,4 +67,4 @@ namespace Common::Policy
         WeekDayAndTimeForDelay weeklySchedule_;
         int updatePeriodMinutes_ = 60;
     };
-}
+} // namespace Common::Policy

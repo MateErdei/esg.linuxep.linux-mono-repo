@@ -4,8 +4,7 @@
 
 #include "Common/DownloadReport/DownloadReport.h"
 #include "suldownloaderdata/IRepository.h"
-
-#include "SulDownloader/suldownloaderdata/TimeTracker.h"
+#include "suldownloaderdata/TimeTracker.h"
 
 #include <chrono>
 #include <string>

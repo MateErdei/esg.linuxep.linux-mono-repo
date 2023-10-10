@@ -80,14 +80,15 @@ Systemctl Can Detect SulDownloader Service Runs Without Error After Error Report
 
     Replace Sul Downloader With Fake Broken Version
     ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
+    Sleep  1s  We need to allow fake sul downloader to run
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  0  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
     Replace Original Sul Downloader
 
     ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${1}  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
 UpdateScheduler Regenerates The Config File If It Does Not Exist
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
@@ -117,7 +118,7 @@ UpdateScheduler updates the device id and tenant id before an update
     Should Contain   ${File}  "JWToken": "stuff",
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
-    Create File       ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config   jwt_token=newjwt\ndevice_id=newdevice\ntenant_id=newtenant
+    Create File       ${MCS_CONFIG}  jwt_token=newjwt\ndevice_id=newdevice\ntenant_id=newtenant
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...   20 secs
@@ -470,6 +471,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
 
 UpdateScheduler Start and Restart
     Setup Plugin Install Failed  startTime=2  syncTime=1
+    Overwrite MCS Flags File
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Install Failed   ${eventPath}
@@ -478,7 +480,7 @@ UpdateScheduler Start and Restart
     Remove File  ${statusPath}
 
     Restart Update Scheduler
-    Send Policy With Cache
+    Send Policy With No Cache And No Proxy
     @{features}=  Create List   CORE
     Setup Base and Plugin Upgraded  ${features}  startTime=3  syncTime=3
     Simulate Update Now
@@ -784,7 +786,7 @@ Update Scheduler Waits Until Suldownloader Has Finished On Start
 Teardown For Test
     Cleanup Telemetry Server
     Log SystemCtl Update Status
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log
+    Dump Log On Failure  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown

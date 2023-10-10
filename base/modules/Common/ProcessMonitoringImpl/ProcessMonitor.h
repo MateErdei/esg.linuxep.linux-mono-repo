@@ -4,7 +4,6 @@
 
 #include "ProcessProxy.h"
 
-#include "Common/PluginRegistryImpl/PluginInfo.h"
 #include "Common/ProcessMonitoring/IProcessMonitor.h"
 #include "Common/Threads/NotifyPipe.h"
 #include "Common/ZMQWrapperApi/IContext.h"
