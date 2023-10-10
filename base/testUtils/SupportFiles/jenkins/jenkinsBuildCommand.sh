@@ -129,22 +129,17 @@ elif [[ -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
   export UPLOAD_PATH=UnifiedPipelines/linuxep/sspl-plugin-event-journaler
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  # Upload unit-test html coverage (liveterminal repo does not have the scripts)
-  mv $COVERAGE_STAGING/bullseye_report $COVERAGE_STAGING/sspl-liveresponse-unittest
-  cp $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-unittest
-  export COVFILE=$COVERAGE_STAGING/covfile/liveterminal_unittests.cov
-  export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
-  export COV_HTML_BASE=sspl-liveresponse-unittest
-  export BULLSEYE_UPLOAD=1
-  export UPLOAD_PATH=UnifiedPipelines/winep/liveterminal
-  export COVERAGE_SCRIPT="$SYSTEMPRODUCT_TEST_INPUT/bazel-tools/tools/src/bullseye/test_coverage.py"
-  COVERAGE_TYPE=unit bash -x $WORKSPACE/base/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+  # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
+  export FILESTODOWNLOAD=sspl-plugin-liveterminal-taptest/sspl-plugin-liveterminal-tap.cov
+  bash -x $WORKSPACE/base/build/bullseye/downloadFromAllegro.sh || fail "ERROR failed to download cov file, exit code:"$?
+  mv /tmp/allegro/sspl-plugin-liveterminal-tap.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   # Begin merging the combined coverage with the unit-test coverage
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-liveresponse-combined
   export COV_HTML_BASE=sspl-liveresponse-combined
-  export BULLSEYE_UPLOAD=1
+  export BULLSEYE_UPLOAD=
+  export UPLOAD_PATH=UnifiedPipelines/winep/liveterminal
 fi
 
 SUDOE="sudo -E "

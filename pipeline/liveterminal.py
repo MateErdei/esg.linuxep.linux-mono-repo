@@ -11,7 +11,7 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 # For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
-COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-liveterminal-unit.cov'
+COVFILE_UNITTEST = '/opt/test/inputs/coverage/liveterminal_unittests.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-liveterminal-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
@@ -37,14 +37,16 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
                                                              storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             liveresponse=liveterminal_build / "sspl-liveterminal-coverage/sdds",
             base=liveterminal_build / "sspl-liveterminal-coverage/base_sdds",
-            coverage=context.artifact.from_folder('./liveterminal/build/bullseye'),
+            coverage=liveterminal_build /'sspl-liveterminal-coverage/covfile',
+            coverage_unittest=liveterminal_build /'sspl-liveterminal-coverage/unittest-htmlreport',
+            bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
         )
     return test_inputs
 
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
+    pip_install(machine, '-r', machine.inputs.test_scripts / 'sspl_requirements.txt')
 
 
 def robot_task(machine: tap.Machine, robot_args: str):
@@ -67,7 +69,7 @@ def test_args(python, folder):
     return args
 
 def run_pytests(machine: tap.Machine):
-    requirements = "sspl_requirements.txt"
+
     results_dir = "/opt/test/results"
     dumps_dir = "/opt/test/dumps"
     logs_dir = "/opt/test/logs"
@@ -75,7 +77,7 @@ def run_pytests(machine: tap.Machine):
     pip = "pip3"
 
     try:
-        machine.run(pip, "--default-timeout=120", "install", "-r", machine.inputs.test_scripts / requirements)
+        install_requirements(machine)
 
 
         env = {
@@ -139,13 +141,16 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # Make sure that any product process can update the cov file, no matter the running user.
         machine.run("chmod", "666", COVFILE_TAPTESTS)
+        env = {
+            "COVFILE": COVFILE_TAPTESTS,
+            "BRANCH_NAME": os.environ["BRANCH_NAME"],
+        }
 
         # run component pytest and tap-tests
-        try:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
-                        environment={'COVFILE': COVFILE_TAPTESTS})
-        finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+
+        args = test_args('python3', machine.inputs.test_scripts / "tests/functional")
+        machine.run(*args, timeout=3600, environment=env)
+
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-liveterminal-taptest')

@@ -76,7 +76,8 @@
 
         </build-asset>
         <!--logs name="build_log"  pattern="log/**" /-->
-        <build-asset artifact-path="linux/bullseye" source-dir="output/coverage" mode="coverage"/>
+        <build-asset artifact-path="sspl-liveterminal-coverage/unittest-htmlreport" source-dir="output/coverage/bullseye_report" mode="coverage"/>
+        <build-asset artifact-path="sspl-liveterminal-coverage/covfile" source-dir="output/coverage/covfile" mode="coverage"/>
         <build-asset artifact-path="linux/analysis" source-dir="output/analysis/cppcheck" mode="linux-analysis"/>
 
 
