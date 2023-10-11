@@ -23,10 +23,20 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
     if (m_stopped)
     {
+        if (m_extension)
+        {
+            LOGDEBUG("Stopping old SophosExtension");
+            m_extension->Stop();
+            m_extension->Wait();
+            m_extension.reset();
+        }
+
         m_flags.socket = socket;
         m_flags.verbose = verbose;
         m_flags.interval = 3;
         m_flags.timeout = 3;
+
+        LOGDEBUG("Creating SophosExtension");
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0");
 
         LOGDEBUG("Adding Sophos Server Table");
@@ -42,6 +52,10 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_stopped = false;
         m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
+    }
+    else
+    {
+        LOGDEBUG("SophosExtension Start() called when extension not stopped");
     }
 }
 
