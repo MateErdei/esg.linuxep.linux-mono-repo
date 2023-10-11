@@ -32,15 +32,18 @@ def ensure_unicode(s, encoding="UTF-8"):
 
 
 class LogMark:
-    def __init__(self, log_path, position=-1):
+    def __init__(self, log_path, position=-1, inode=None):
         self.__m_log_path = log_path
         self.__m_override_position = position
-        try:
-            self.__m_stat = os.stat(self.__m_log_path)
-            self.__m_inode = self.__m_stat.st_ino
-        except OSError:
-            self.__m_stat = None
-            self.__m_inode = None
+        if inode is not None:
+            self.__m_inode = inode
+        else:
+            try:
+                self.__m_stat = os.stat(self.__m_log_path)
+                self.__m_inode = self.__m_stat.st_ino
+            except OSError:
+                self.__m_stat = None
+                self.__m_inode = None
 
         self.__m_mark_time = time.time()
         # Line-count?
@@ -59,6 +62,10 @@ class LogMark:
         Check if the log files inode matches the inode saved at mark construction time
         :return: True if the inode matches our saved inode
         """
+        if self.__m_inode is None:
+            # If the file didn't exist when mark was made, then all files are valid
+            return False
+
         if inode is None:
             # examine the file directly
             try:
@@ -66,9 +73,6 @@ class LogMark:
                 inode = stat.st_ino
             except OSError:
                 return True
-
-        if self.__m_inode is None:
-            self.__m_inode = inode
 
         return inode == self.__m_inode
 
@@ -83,6 +87,17 @@ class LogMark:
 
     def get_path(self) -> str:
         return self.__m_log_path
+
+    def get_current_contents(self) -> Optional[bytes]:
+        """
+        Get the contents of the current log file if present
+        :return:
+        """
+        try:
+            with open(self.__m_log_path, "rb") as f:
+                return f.read()
+        except OSError:
+            return None
 
     def get_contents(self) -> Optional[bytes]:
         try:
@@ -108,7 +123,9 @@ class LogMark:
                     contents = f.read() + contents
                 old_index += 1
         except OSError:
-            logger.error("Ran out of log files getting content for " + self.__m_log_path)
+            if self.__m_inode is not None:
+                # no inode means nothing counts as old
+                logger.error("Ran out of log files getting content for " + self.__m_log_path)
             return contents
 
     def get_contents_unicode(self) -> Optional[str]:
@@ -157,6 +174,8 @@ class LogMark:
         :param contents:
         :return: -1 if expected not in contents
         """
+        if contents is None:
+            return -1
         if isinstance(expected, list):
             positions = []
             for s in expected:
@@ -196,6 +215,13 @@ class LogMark:
         return self
 
     def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+        """
+        Wait for the log to contain the text specified
+
+        :param expected: List of strings or String that we are expecting
+        :param timeout: Fail the test if we spend too long waiting
+        :return: New LogMark for the position we found the match
+        """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         sleep_time = timeout / 60  # Check by default 60 times during the timeout
@@ -211,10 +237,20 @@ class LogMark:
 
                 pos = self.__find_str_in_contents(expected, contents)
                 if pos >= 0:
-                    absolute_pos = pos + self.get_size()
+                    # We found a match, now we need to return a new LogMark for the position of the match
                     stat = os.stat(self.__m_log_path)
-                    if stat.st_size < absolute_pos:
-                        absolute_pos = stat.st_size
+                    if self.__m_inode == stat.st_ino:
+                        # mark is within the current file, so pos must be as well
+                        absolute_pos = pos + self.get_size()
+                    else:
+                        # mark is is a previous log file
+                        # pos might be in a previous file
+                        current_contents = self.get_current_contents()
+                        absolute_pos = self.__find_str_in_contents(expected, current_contents) # current_contents is entire file
+                        if absolute_pos == -1:
+                            # match was is a previous file, which we have no way to cover
+                            absolute_pos = 0
+
                     return LogMark(self.__m_log_path, absolute_pos)
 
                 old_contents = contents
@@ -276,6 +312,17 @@ class LogMark:
         self.dump_marked_log()
         raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
 
+    def find_last_match_after_mark(self, line_to_search_for):
+        contents = self.get_contents()
+        pos = contents.rfind(ensure_binary(line_to_search_for))
+        if pos < 0:
+            raise AssertionError("Failed to find %s in %s" % (line_to_search_for, self.get_path()))
+        absolute_pos = pos + self.get_size()
+        stat = os.stat(self.__m_log_path)
+        if stat.st_size < absolute_pos:
+            absolute_pos = stat.st_size
+        return LogMark(self.__m_log_path, absolute_pos)
+
 
 class LogHandler:
     def __init__(self, log_path: str):
@@ -283,6 +330,9 @@ class LogHandler:
 
     def get_mark(self) -> LogMark:
         return LogMark(self.__m_log_path)
+
+    def get_mark_at_start_of_current_file(self) -> LogMark:
+        return LogMark(self.__m_log_path, 0)
 
     def assert_mark_is_good(self, mark: LogMark):
         assert isinstance(mark, LogMark)
@@ -300,7 +350,7 @@ class LogHandler:
 
     def wait_for_log_contains_from_mark(self, mark: LogMark, expected, timeout) -> None:
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     @staticmethod
@@ -401,3 +451,41 @@ class LogHandler:
         content_lines = [line.decode("UTF-8", errors="backslashreplace") for line in content_lines]
         logger.info("%s since last restart:" % self.__m_log_path + u"".join(content_lines))
         raise AssertionError("'%s' not found in %s after %d seconds" % (expected, self.__m_log_path, timeout))
+
+    def Wait_For_Entire_log_contains(self, expected, timeout: int) -> None:
+        """
+        Waits for expected to appear in the entire text of the logs
+        :param expected: str or bytes we are looking for in the log file
+        :param timeout: timeout in seconds
+        :return: None, throws AssertionError on failure
+        """
+        expected_bytes = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        while time.time() < start + timeout:
+            for file_path in self.__generate_log_file_names():
+                if expected_bytes in self.__read_content(file_path):
+                    return
+            time.sleep(1)
+
+        logger.error("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
+        raise AssertionError("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
+
+    def check_log_contains_expected_after_unexpected(self, expected, unexpected):
+        log_path = self.__m_log_path
+        expected = ensure_binary(expected)
+        unexpected = ensure_binary(unexpected)
+        contents = b"".join(self.get_content_since_last_start())
+        contentsStr = ensure_unicode(contents)
+        expected_find = contents.rfind(expected)
+        if expected_find >= 0:
+            remainder = contents[expected_find:]
+            if unexpected not in remainder:
+                return True
+            logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
+            raise AssertionError("Found unexpected %s after expected %s in %s" % (unexpected, expected, log_path))
+        logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
+
+        if unexpected in contents:
+            raise AssertionError("Found unexpected %s but not expected %s in %s" % (unexpected, expected, log_path))
+
+        raise AssertionError("Failed to find expected %s in %s" % (expected, log_path))

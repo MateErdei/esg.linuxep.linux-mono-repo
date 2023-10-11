@@ -1,7 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright 2022-2023 Sophos Limited. All rights reserved.
-# All rights reserved.
 
 import os
 import re
@@ -9,7 +8,11 @@ import six
 import time
 from typing import Optional
 
-from robot.api import logger
+try:
+    from robot.api import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger("LogHandler")
 
 
 def ensure_binary(s, encoding="UTF-8"):
@@ -29,15 +32,18 @@ def ensure_unicode(s, encoding="UTF-8"):
 
 
 class LogMark:
-    def __init__(self, log_path, position=-1):
+    def __init__(self, log_path, position=-1, inode=None):
         self.__m_log_path = log_path
         self.__m_override_position = position
-        try:
-            self.__m_stat = os.stat(self.__m_log_path)
-            self.__m_inode = self.__m_stat.st_ino
-        except OSError:
-            self.__m_stat = None
-            self.__m_inode = None
+        if inode is not None:
+            self.__m_inode = inode
+        else:
+            try:
+                self.__m_stat = os.stat(self.__m_log_path)
+                self.__m_inode = self.__m_stat.st_ino
+            except OSError:
+                self.__m_stat = None
+                self.__m_inode = None
 
         self.__m_mark_time = time.time()
         # Line-count?
@@ -82,6 +88,17 @@ class LogMark:
     def get_path(self) -> str:
         return self.__m_log_path
 
+    def get_current_contents(self) -> Optional[bytes]:
+        """
+        Get the contents of the current log file if present
+        :return:
+        """
+        try:
+            with open(self.__m_log_path, "rb") as f:
+                return f.read()
+        except OSError:
+            return None
+
     def get_contents(self) -> Optional[bytes]:
         try:
             with open(self.__m_log_path, "rb") as f:
@@ -111,6 +128,12 @@ class LogMark:
                 logger.error("Ran out of log files getting content for " + self.__m_log_path)
             return contents
 
+    def get_contents_unicode(self) -> Optional[str]:
+        contents = self.get_contents()
+        if contents is None:
+            return contents
+        return ensure_unicode(contents)
+
     def generate_reversed_lines(self):
         contents = self.get_contents()
         if contents is None:
@@ -121,8 +144,10 @@ class LogMark:
             for line in lines:
                 yield line
 
-
     def assert_is_good(self, log_path: str):
+        assert self.get_path() == log_path, "mark is for wrong file"
+
+    def assert_paths_match(self, log_path: str):
         assert self.get_path() == log_path, "mark is for wrong file"
 
     def dump_marked_log(self) -> None:
@@ -149,6 +174,8 @@ class LogMark:
         :param contents:
         :return: -1 if expected not in contents
         """
+        if contents is None:
+            return -1
         if isinstance(expected, list):
             positions = []
             for s in expected:
@@ -188,6 +215,13 @@ class LogMark:
         return self
 
     def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+        """
+        Wait for the log to contain the text specified
+
+        :param expected: List of strings or String that we are expecting
+        :param timeout: Fail the test if we spend too long waiting
+        :return: New LogMark for the position we found the match
+        """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         sleep_time = timeout / 60  # Check by default 60 times during the timeout
@@ -203,10 +237,20 @@ class LogMark:
 
                 pos = self.__find_str_in_contents(expected, contents)
                 if pos >= 0:
-                    absolute_pos = pos + self.get_size()
+                    # We found a match, now we need to return a new LogMark for the position of the match
                     stat = os.stat(self.__m_log_path)
-                    if stat.st_size < absolute_pos:
-                        absolute_pos = stat.st_size
+                    if self.__m_inode == stat.st_ino:
+                        # mark is within the current file, so pos must be as well
+                        absolute_pos = pos + self.get_size()
+                    else:
+                        # mark is is a previous log file
+                        # pos might be in a previous file
+                        current_contents = self.get_current_contents()
+                        absolute_pos = self.__find_str_in_contents(expected, current_contents) # current_contents is entire file
+                        if absolute_pos == -1:
+                            # match was is a previous file, which we have no way to cover
+                            absolute_pos = 0
+
                     return LogMark(self.__m_log_path, absolute_pos)
 
                 old_contents = contents
@@ -292,21 +336,21 @@ class LogHandler:
 
     def assert_mark_is_good(self, mark: LogMark):
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert isinstance(mark, LogMark), "mark is not an instance of LogMark"
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.get_contents()
 
     def dump_marked_log(self, mark: LogMark) -> None:
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.dump_marked_log()
 
     def wait_for_log_contains_from_mark(self, mark: LogMark, expected, timeout) -> None:
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     @staticmethod
@@ -342,7 +386,7 @@ class LogHandler:
                 for line in lines:
                     yield line
         else:
-            mark.assert_is_good(self.__m_log_path)
+            mark.assert_paths_match(self.__m_log_path)
             for line in mark.generate_reversed_lines():
                 yield line
 
