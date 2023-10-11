@@ -30,10 +30,15 @@ Dump and Reset Logs
     Dump log  ${SAFESTORE_LOG_PATH}
     Remove File  ${SAFESTORE_LOG_PATH}*
 
+mark expected socket error
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  SafeStoreSocket <> Closing SafeStoreServerConnectionThread, error from socket
+
 Send TDO To socket
     [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threat_type}=threatType  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0  ${threatid}=00010203-0405-0607-0809-0a0b0c0d0e0f
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threattype ${threat_type} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd} --threatid ${threatid}  OnError=Failed to run SendThreatDetectedEvent binary
     ...  timeout=${20}
+    # The sender tool closes the connection in a way that can cause a log message in safestore log.
+    mark expected socket error
     [Return]  ${result}
 
 *** Test Cases ***
@@ -154,7 +159,6 @@ Send Filepath that is a dir To Safestore
     wait_for_safestore_log_contains_after_mark  Failed to quarantine /opt/Dir due to:   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  safestore <> Failed to quarantine /opt/Dir due to: FileReadFailed
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  SafeStoreSocket <> Closing SafeStoreServerConnectionThread, error from socket
 
 Send empty File To Safestore
     ${result} =  Send TDO To socket  filepath=""  fd=1
@@ -165,6 +169,7 @@ Send Filepath only slashes To Safestore
     ${result} =  Send TDO To socket  filepath="//"  fd=1
     wait_for_safestore_log_contains_after_mark  Cannot quarantine // as it was moved   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Cannot quarantine // as it was moved
+    mark expected socket error
 
 Send Filepath no slashes To Safestore
     ${result} =  Send TDO To socket  filepath="tmp"  fd=1
