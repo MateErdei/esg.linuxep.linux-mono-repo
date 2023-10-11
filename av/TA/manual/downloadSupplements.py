@@ -158,14 +158,14 @@ def run(destination):
     return updated
 
 
-def main(argv):
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("destination", help="Destination directory to download supplements to")
-    args = parser.parse_args(argv)
+    args = parser.parse_args()
 
     run(args.destination)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())

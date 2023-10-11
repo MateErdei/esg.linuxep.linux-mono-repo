@@ -8,7 +8,7 @@
 
 namespace threat_scanner
 {
-    std::string generateThreatId(const std::string& filePath, const std::string& threatName);
+    std::string generateThreatId(const std::string& filePath, const std::string& sha256);
 
     /**
      * Builds a ThreatDetected object from a list of detections, scan path and file descriptor.

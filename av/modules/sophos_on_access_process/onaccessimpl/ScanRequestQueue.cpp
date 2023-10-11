@@ -18,7 +18,6 @@ bool ScanRequestQueue::emplace(scan_request_ptr_t item)
     size_t currentQueueSize = m_queue.size();
     if (currentQueueSize >= m_maxSize)
     {
-        LOGWARN("Unable to add scan request to queue as it is at full capacity: " << currentQueueSize);
         return false;
     }
     else

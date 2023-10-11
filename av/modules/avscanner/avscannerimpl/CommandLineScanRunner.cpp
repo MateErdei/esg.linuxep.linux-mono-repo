@@ -232,7 +232,7 @@ namespace avscanner::avscannerimpl
         fw.followSymlinks(m_followSymlinks);
 
         m_scanCallbacks->scanStarted();
-
+        bool scanAborted = false;
         // for each select included mount point call filewalker for that mount point
         for (auto& path : m_paths)
         {
@@ -254,7 +254,7 @@ namespace avscanner::avscannerimpl
 
             if (!walk(fw, p, path))
             {
-                // Abort scan
+                scanAborted = true;
                 break;
             }
         }
@@ -263,6 +263,11 @@ namespace avscanner::avscannerimpl
         if (m_scanCallbacks->returnCode() == common::E_VIRUS_FOUND)
         {
             m_returnCode = common::E_VIRUS_FOUND;
+
+            if(scanAborted)
+            {
+                m_returnCode = common::E_SCAN_ABORTED_WITH_THREATS;
+            }
         }
 
         // E_GENERIC_FAILURE should override E_CLEAN_SUCCESS but no other error code

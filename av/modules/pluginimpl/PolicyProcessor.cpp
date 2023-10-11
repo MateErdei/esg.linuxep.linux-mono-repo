@@ -291,6 +291,9 @@ namespace Plugin
         json exclusions(exclusionList);
         config["exclusions"] = exclusions;
 
+        auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
+        config["detectPUAs"] = oaPuaDetectionEnabled;
+
         if (originalConfig != config)
         {
             writeOnAccessConfig(config);
@@ -331,16 +334,6 @@ namespace Plugin
             needToSave = true;
         }
 #endif
-
-        // PUA Enabled
-        bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
-        const auto oaPuaDetectionEnabled =
-            boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
-        if (oldOaPuaDetectionEnabled != oaPuaDetectionEnabled || !m_gotFirstSavPolicy)
-        {
-            m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
-            needToSave = true;
-        }
 
         // PUA Approved list
         auto oldPuaApprovedList = m_threatDetectorSettings.copyPuaApprovedList();

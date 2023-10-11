@@ -27,6 +27,7 @@
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="input/monorepo-boost"/>
+            <include artifact-path="thirdparty/capnproto-linux-opt" dest-dir="input/capnproto"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
@@ -42,11 +43,6 @@
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>
-        </build-asset>
-        <!-- Need to compile our own messages -->
-        <build-asset project="thirdparty" repo="capnproto">
-            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
-            <include artifact-path="capnproto" dest-dir="input"/>
         </build-asset>
 
         <!-- SUSI imports -->

@@ -55,7 +55,7 @@ Start On Access without Log check
 Start On Access
     ${mark} =  get_on_access_log_mark
     Start On Access without Log check
-    Wait Until On Access running with offset  ${mark}
+    Wait Until On Access Running After Mark  ${mark}
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -318,3 +318,14 @@ Set OA local settings
     ${mark} =  get_on_access_log_mark
     Restart On Access
     wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
+
+Generate Clean OnAccess Event
+    [Arguments]  ${path}=/tmp_test/cleanfile.txt   ${mark}=${None}
+
+    IF   $mark is None
+        ${mark} =  get_on_access_log_mark
+    END
+
+    Create File  ${path}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${path}
+    wait for on access log contains after mark  On-close event for ${path}  mark=${mark}

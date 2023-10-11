@@ -181,7 +181,12 @@ def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary)
 
 
 def check_is_greater_than(actual_value, threshold_value):
-    return int(actual_value) > threshold_value
+    if int(actual_value) > threshold_value:
+        return
+    raise AssertionError("Value is less than or equal to threshold: {} <= {}".format(
+        actual_value,
+        threshold_value
+    ))
 
 
 def create_tar(path, file, tar_name):

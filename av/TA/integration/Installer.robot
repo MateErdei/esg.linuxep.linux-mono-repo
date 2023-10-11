@@ -791,6 +791,7 @@ AV Plugin Restores Older SafeStore Database On Upgrade
     ...    5 secs
     ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${safeStoreDatabaseBackup}) to ${SAFESTORE_DB_DIR}
     Directory Should Not Exist    ${safeStoreDatabaseBackup}
+    Directory Should Not Exist    ${AV_RESTORED_VAR_DIRECTORY}
     Verify SafeStore Database Exists
 
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
@@ -823,6 +824,7 @@ AV Plugin Restores Newest SafeStore Database Backup On Upgrade
     ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${backupToRestore}) to ${SAFESTORE_DB_DIR}
 
     Directory Should Not Exist    ${backupToRestore}
+    Directory Should Not Be Empty    ${AV_RESTORED_VAR_DIRECTORY}
     Verify SafeStore Database Exists
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
@@ -869,6 +871,7 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
     Verify SafeStore Database Exists
 
+
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
     Log  ${result.stdout}
@@ -884,10 +887,10 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     ...     ls -l ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Log   ${output}
 
-    Mark AV Log
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     Send Sav Policy With No Scheduled Scans
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
-    AV Plugin Log Does Not Contain With Offset  Failed to create file
+    Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
+    check_av_log_does_not_contain_after_mark  Failed to create file  mark=${av_mark}
 
 Check installer removes sophos_threat_detector log symlink
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log

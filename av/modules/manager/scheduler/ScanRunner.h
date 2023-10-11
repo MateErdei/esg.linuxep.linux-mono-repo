@@ -4,6 +4,8 @@
 
 // Module
 #include "ScheduledScanConfiguration.h"
+#include "IScanComplete.h"
+
 // Product
 #include "datatypes/sophos_filesystem.h"
 // Base
@@ -11,10 +13,13 @@
 
 namespace manager::scheduler
 {
+    std::string generateScanCompleteXml(const std::string& name);
+    std::string generateTimeStamp();
+
     class ScanRunner : public Common::Threads::AbstractThread
     {
     public:
-        explicit ScanRunner(std::string name, std::string scan);
+        explicit ScanRunner(std::string name, std::string scan, IScanComplete& completionNotifier);
 
         [[nodiscard]] bool scanCompleted() const
         {
@@ -23,6 +28,7 @@ namespace manager::scheduler
     private:
         void run() override;
 
+        IScanComplete& m_completionNotifier;
         std::string m_name;
         std::string m_configFilename;
         std::string m_scan;

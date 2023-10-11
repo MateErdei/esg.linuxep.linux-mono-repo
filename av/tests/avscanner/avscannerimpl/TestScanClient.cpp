@@ -220,9 +220,7 @@ TEST(TestScanClient, TestScanInfected)
             Return(true)
                 ));
 
-    std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
-            new StrictMock<MockIScanCallbacks>()
-    );
+    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
 
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, _, false))
             .Times(1);

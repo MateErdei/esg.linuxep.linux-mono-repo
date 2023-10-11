@@ -87,7 +87,7 @@ def uninstall_sspl_if_installed():
         logger.warning("/opt/sophos-spl/.sophos doesn't exist - uninstaller would break")
         open(dot_sophos, "wb").close()
 
-    p = subprocess.run(["bash", uninstaller, "--force"], timeout=60, stderr=subprocess.PIPE, stdout=subprocess.STDOUT)
+    p = subprocess.run(["bash", uninstaller, "--force"], timeout=60, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     if p.returncode != 0:
         logger.warning(p.stdout)
         raise Exception("Failed to uninstall")

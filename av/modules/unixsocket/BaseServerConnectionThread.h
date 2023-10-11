@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -26,6 +22,6 @@ namespace unixsocket
         const std::string m_threadName;
 
     private:
-        std::atomic_bool m_isRunning = false;
+        std::atomic_bool m_isRunning{ false };
     };
 }

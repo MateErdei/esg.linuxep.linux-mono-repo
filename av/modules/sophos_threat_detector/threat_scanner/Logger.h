@@ -17,6 +17,7 @@ log4cplus::Logger& getSusiDebugLogger();
 #define LOGINFO(x) LOG4CPLUS_INFO(getThreatScannerLogger(), x)    // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getThreatScannerLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getThreatScannerLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getThreatScannerLogger(), x)  // NOLINT
 
 #define LOG_SUSI_TRACE(x) LOG4CPLUS_TRACE(getSusiDebugLogger(), x)  // NOLINT
 #define LOG_SUSI_DEBUG(x) LOG4CPLUS_DEBUG(getSusiDebugLogger(), x)  // NOLINT

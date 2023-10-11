@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "BaseServerSocket.h"
 
@@ -86,8 +86,8 @@ void unixsocket::BaseServerSocket::run()
     while (!terminate)
     {
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-        auto ppollRet = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-        if (ppollRet < 0)
+        auto pollret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (pollret < 0)
         {
             if (errno == EINTR)
             {
@@ -99,7 +99,7 @@ void unixsocket::BaseServerSocket::run()
             break;
         }
 #ifndef USING_LIBFUZZER
-        assert(ppollRet > 0);
+        assert(pollret > 0);
 #endif
         if ((fds[1].revents & POLLERR) != 0)
         {
