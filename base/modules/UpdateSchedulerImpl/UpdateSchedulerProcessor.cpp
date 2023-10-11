@@ -34,6 +34,7 @@
 #include <json.hpp>
 #include <thread>
 
+static constexpr int SULDOWNLOADER_TIMEOUT = 1800;
 using namespace std::chrono;
 
 namespace UpdateSchedulerImpl
@@ -123,7 +124,7 @@ namespace UpdateSchedulerImpl
     {
         LOGINFO("Update Scheduler Starting");
         m_callback->setRunning(true);
-        waitForSulDownloaderToFinish(600);
+        waitForSulDownloaderToFinish(SULDOWNLOADER_TIMEOUT);
         m_cronThread->start();
 
         // Request policy on startup
@@ -818,7 +819,8 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::processSulDownloaderTimedOut()
     {
-        LOGERROR("SulDownloader failed to complete its job in 10 minutes");
+        int timeout_minutes = SULDOWNLOADER_TIMEOUT / 60;
+        LOGERROR("SulDownloader failed to complete its job in " << timeout_minutes << " minutes" );
         Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedDownloaderCount, 1UL);
 
         waitForSulDownloaderToFinish();
