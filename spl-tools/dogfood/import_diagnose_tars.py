@@ -309,7 +309,7 @@ def process_diagnose_file(tar_path):
         file_name_string = str(filename)
         file_size_bytes = os.path.getsize(file_name_string)
 
-        # skip system files bigger than 1MB
+        # skip system files bigger than a limit
         if file_size_bytes < 250000:
             system_files.append(str(filename))
             print("Including system file: {}".format(filename))
@@ -451,7 +451,7 @@ def main():
         if is_sspl_diagnose_file(tar_path):
             tars.append(tar_path)
         else:
-            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gz file.",format(tar_path))
+            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gz file.".format(tar_path))
     else:
         exit(1)
 
