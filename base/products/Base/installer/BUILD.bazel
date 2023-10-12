@@ -7,6 +7,7 @@ load("//common:common_substitutions.bzl", "USER_AND_GROUP_SUBSTITUTIONS")
 load("//common:filter_files.bzl", "filter_files")
 load("//base:version_info.bzl", "BASE_BASE_VERSION", "BASE_LINE_ID", "BASE_PRODUCT_NAME", "BASE_VERSIONING_COMPONENT_NAME")
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+load("@gcc//:glibc.bzl", "GLIBC_VERSION")
 
 soph_cc_binary(
     name = "machineid",
@@ -38,7 +39,7 @@ expand_template(
     out = "install.sh.tmp",
     substitutions = USER_AND_GROUP_SUBSTITUTIONS | {
         "@INSTALL_ADJUST@": "",
-        "@BUILD_SYSTEM_LIBC_VERSION@": "2.17",  # TODO LINUXDAR-6736: automatically provide this, perhaps via @gcc
+        "@BUILD_SYSTEM_LIBC_VERSION@": GLIBC_VERSION,
     },
     template = "install.in.sh",
 )
@@ -62,6 +63,7 @@ filter_files(
     disallowed_suffixes = [
         ".exe",  # unsigned .exe files are not allowed by CI
         ".whl",  # may contain ".exe"s, they are not needed anyway
+        ".o",  # not allowed in CI
     ],
     include_runfiles = True,
 )
@@ -71,6 +73,7 @@ zip_asset(
     srcs = [":python_standard_libs"],
     strip_prefix = select({
         "@bazel_tools//src/conditions:linux_x86_64": "/imports/thirdparty/python/x64/lib/python3.11",
+        "@bazel_tools//src/conditions:linux_aarch64": "/imports/thirdparty/python/arm64/lib/python3.11",
     }),
 )
 
@@ -104,7 +107,6 @@ python_thirdparties = [
     "chardet",
     "idna",
     "pathtools",
-    "pycryptodome",
     "requests",
     "six",
     "sseclient",
@@ -117,14 +119,23 @@ filter_files(
     srcs = [
         "@pip_deps_spl_{}//:pkg".format(thirdparty)
         for thirdparty in python_thirdparties
-    ],
+    ] + select({
+        "@bazel_tools//src/conditions:linux_x86_64": ["@pip_deps_spl_x64_pycryptodome//:pkg"],
+        "@bazel_tools//src/conditions:linux_aarch64": ["@pip_deps_spl_arm64_pycryptodome//:pkg"],
+    }),
     disallowed_prefixes = [
         "external/pip_deps_spl_{}/site-packages/__init__.py".format(thirdparty)
         for thirdparty in python_thirdparties
     ] + [
+        "external/pip_deps_spl_x64_pycryptodome/site-packages/__init__.py",
+        "external/pip_deps_spl_arm64_pycryptodome/site-packages/__init__.py",
+    ] + [
         # Exclude dist-info directories, '-' catches them
         "external/pip_deps_spl_{}/site-packages/{}-".format(thirdparty, thirdparty)
         for thirdparty in python_thirdparties
+    ] + [
+        "external/pip_deps_spl_x64_pycryptodome/site-packages/pycryptodome-",
+        "external/pip_deps_spl_arm64_pycryptodome/site-packages/pycryptodome-",
     ] + [
         # Exclude as we want to patch it
         "external/pip_deps_spl_sseclient/site-packages/sseclient.py",
@@ -161,6 +172,9 @@ spl_sdds_packages(
         ":mcsrouter_deps": ",".join([
             "../pip_deps_spl_{} -> files/base/lib/python{}".format(thirdparty, PYTHON_VERSION)
             for thirdparty in python_thirdparties
+        ] + [
+            "../pip_deps_spl_x64_pycryptodome -> files/base/lib/python{}".format(PYTHON_VERSION),
+            "../pip_deps_spl_arm64_pycryptodome -> files/base/lib/python{}".format(PYTHON_VERSION),
         ]),
     },
     # Inverted for better clarity of the package structure

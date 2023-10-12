@@ -187,8 +187,10 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
     #exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
 
-    test_inputs = get_inputs(context, edr_build, mode)
-    test_machines = get_test_machines(test_inputs, parameters)
+    test_inputs = {
+        "x64": get_inputs(context, edr_build, mode)
+    }
+    test_machines = get_test_machines(test_inputs, parameters, x64_only=True)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('edr_test'):
@@ -215,5 +217,5 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                                        include_tag=include)
 
         with stage.parallel('component'):
-            for template_name, machine in get_test_machines(test_inputs, parameters):
+            for template_name, machine in get_test_machines(test_inputs, parameters, x64_only=True):
                 stage.task(task_name=template_name, func=pytest_task, machine=machine)

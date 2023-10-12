@@ -18,8 +18,8 @@ soph_cc_library(
         "//common/versig/tests:__pkg__",
     ],
     deps = [
+        "//imports/thirdparty/openssl",
         "@com_google_googletest//:gtest_main",
-        "@openssl_linux//:openssl",
     ],
 )
 

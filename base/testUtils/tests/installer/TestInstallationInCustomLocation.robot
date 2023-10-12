@@ -47,10 +47,12 @@ Verify that the full installer works correctly in a custom location
 
     ## Check File Info
     ${ExpectedFileInfo}=  file_info_with_custom_install_directory    ${INSTALL_SET_DIRECTORY}/FileInfo    ${CUSTOM_INSTALL_DIRECTORY}
+    ${ExpectedFileInfo} =    Adjust Base Install Set Expected File Info For Platform    ${ExpectedFileInfo}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
     ${ExpectedSymbolicLinkInfo} =  file_info_with_custom_install_directory    ${INSTALL_SET_DIRECTORY}/SymbolicLinkInfo    ${CUSTOM_INSTALL_DIRECTORY}
+    ${ExpectedSymbolicLinkInfo} =    Adjust Base Install Set Expected Symbolic Link Info For Platform    ${ExpectedSymbolicLinkInfo}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files

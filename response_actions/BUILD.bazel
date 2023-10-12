@@ -1,12 +1,13 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load("@bazel_skylib//lib:selects.bzl", "selects")
 
 soph_release_asset(
     name = "installer",
     asset = "//base/products/ResponseActions/installer:installer_sdds2",
-    asset_type = select({
-        "//tools/config:linux_x64_rel": "release",
-        "//tools/config:linux_x64_dbg": "build",
+    asset_type = selects.with_or({
+        ("//tools/config:linux_x64_rel", "//tools/config:linux_arm64_rel"): "release",
+        ("//tools/config:linux_x64_dbg", "//tools/config:linux_arm64_dbg"): "build",
     }),
     visibility = ["//products:__pkg__"],
 )

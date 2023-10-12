@@ -13,7 +13,9 @@ Resource    ../update/SDDS3Resources.robot
 Suite Setup      Setup base package
 Suite Teardown   Cleanup base package
 Test Teardown    Thin installer test teardown
-Force Tags  TAP_PARALLEL4
+
+# TODO LINUXDAR-4130: Enable for ARM64
+Force Tags    TAP_PARALLEL4    EXCLUDE_ARM64
 
 *** Keywords ***
 Setup base package

@@ -110,8 +110,10 @@ def robot_task(machine: tap.Machine, parameters_json: str):
 
 
 def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build):
-    test_inputs = get_inputs(context, build, parameters)
-    machines = get_test_machines(test_inputs, parameters)
+    test_inputs = {
+        "x64": get_inputs(context, build, parameters)
+    }
+    machines = get_test_machines(test_inputs, parameters, x64_only=True)
 
     parameters_json = json.dumps(parameters)
 
@@ -120,7 +122,6 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     return
 
 
-@tap.pipeline(root_sequential=False)
 def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     run_tests = parameters.run_system_tests != "false"
 

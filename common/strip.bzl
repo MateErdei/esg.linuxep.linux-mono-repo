@@ -43,6 +43,9 @@ def _strip_impl(ctx):
     args.set_param_file_format("multiline")
     args.use_param_file("@%s", use_always = True)
 
+    args.add(ctx.file._strip.path)
+    inputs.append(ctx.file._strip)
+
     args.add(mode)
 
     src_to_dest_map = {}
@@ -94,7 +97,7 @@ def _strip_impl(ctx):
         args.add("{}={}".format(src_path, output.path))
 
     ctx.actions.run(
-        executable = ctx.executable._strip_executable,
+        executable = ctx.executable._strip_script,
         inputs = inputs,
         outputs = outputs,
         mnemonic = "Strip",
@@ -114,10 +117,14 @@ _strip = rule(
         "extract_symbols": attr.bool(
             default = False,
         ),
-        "_strip_executable": attr.label(
+        "_strip_script": attr.label(
             default = ":strip",
             cfg = "exec",
             executable = True,
+        ),
+        "_strip": attr.label(
+            default = "@gcc//:strip",
+            allow_single_file = True,
         ),
     },
 )

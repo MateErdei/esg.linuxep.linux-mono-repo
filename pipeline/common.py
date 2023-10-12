@@ -50,70 +50,85 @@ def get_package_version(release_pkg: str) -> str:
     return package_node.attrib['version']
 
 
-def get_test_machines(test_inputs, parameters):
+def get_test_machines(test_inputs, parameters, x64_only=False):
     if parameters.run_tests == "false":
         return []
 
-    test_environments = {}
+    test_environments = {"x64": {}, "arm64": {}}
 
-    if parameters.run_amazon_2 != "false":
-        test_environments['amazonlinux2'] = 'amzlinux2_x64_server_en_us'
+    if parameters.run_amazon_2 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["amazonlinux2"] = "amzlinux2_x64_server_en_us"
+        test_environments["arm64"]["amazonlinux2"] = "amzlinux2_arm64_server_en_us"
 
-    if parameters.run_amazon_2023 != "false":
-        test_environments['amazonlinux2023'] = 'amzlinux2023_x64_server_en_us'
+    if parameters.run_amazon_2023 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["amazonlinux2023"] = "amzlinux2023_x64_server_en_us"
+        test_environments["arm64"]["amazonlinux2023"] = "amzlinux2023_arm64_server_en_us"
 
     if parameters.run_centos_7 != "false":
-        test_environments['centos79'] = 'centos7_x64_aws_server_en_us'
+        test_environments["x64"]["centos79"] = "centos7_x64_aws_server_en_us"
 
-    if parameters.run_centos_stream_8 != "false":
-        test_environments['centos8stream'] = 'centos8stream_x64_aws_server_en_us'
+    if parameters.run_centos_stream_8 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["centos8stream"] = "centos8stream_x64_aws_server_en_us"
+        test_environments["arm64"]["centos8stream"] = "centos8stream_arm64_server_en_us"
 
-    if parameters.run_centos_stream_9 != "false":
-        test_environments['centos9stream'] = 'centos9stream_x64_aws_server_en_us'
+    if parameters.run_centos_stream_9 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["centos9stream"] = "centos9stream_x64_aws_server_en_us"
+        test_environments["arm64"]["centos9stream"] = "centos9stream_arm64_server_en_us"
 
     if parameters.run_debian_10 != "false":
-        test_environments['debian10'] = 'debian10_x64_aws_server_en_us'
+        test_environments["x64"]["debian10"] = "debian10_x64_aws_server_en_us"
+        test_environments["arm64"]["debian10"] = "debian10_arm64_server_en_us"
 
-    if parameters.run_debian_11 != "false":
-        test_environments['debian11'] = 'debian11_x64_aws_server_en_us'
+    if parameters.run_debian_11 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["debian11"] = "debian11_x64_aws_server_en_us"
+        test_environments["arm64"]["debian11"] = "debian11_arm64_server_en_us"
 
-    if parameters.run_oracle_7 != "false":
-        test_environments['oracle7'] = 'oracle79_x64_aws_server_en_us'
+    if parameters.run_oracle_7 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["oracle7"] = "oracle79_x64_aws_server_en_us"
 
-    if parameters.run_oracle_8 != "false":
-        test_environments['oracle8'] = 'oracle87_x64_aws_server_en_us'
+    if parameters.run_oracle_8 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["oracle8"] = "oracle87_x64_aws_server_en_us"
 
-    if parameters.run_rhel_7 != "false":
-        test_environments['rhel7'] = 'rhel79_x64_aws_server_en_us'
+    if parameters.run_rhel_7 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["rhel7"] = "rhel79_x64_aws_server_en_us"
 
-    if parameters.run_rhel_8 != "false":
-        test_environments['rhel8'] = 'rhel87_x64_aws_server_en_us'
+    if parameters.run_rhel_8 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["rhel8"] = "rhel87_x64_aws_server_en_us"
+        test_environments["arm64"]["rhel8"] = "rhel87_arm64_server_en_us"
 
-    if parameters.run_rhel_9 != "false":
-        test_environments['rhel9'] = 'rhel91_x64_aws_server_en_us'
+    if parameters.run_rhel_9 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["rhel9"] = "rhel91_x64_aws_server_en_us"
+        test_environments["arm64"]["rhel9"] = "rhel91_arm64_server_en_us"
 
     if parameters.run_sles_12 != "false":
-        test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
+        test_environments["x64"]["sles12"] = "sles12_x64_sp5_aws_server_en_us"
 
-    if parameters.run_sles_15 != "false":
-        test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
+    if parameters.run_sles_15 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["sles15"] = "sles15_x64_sp4_aws_server_en_us"
+        test_environments["arm64"]["sles15"] = "sles15_arm64_sp4_server_en_us"
 
-    if parameters.run_ubuntu_18_04 != "false":
-        test_environments['ubuntu1804'] = 'ubuntu1804_x64_aws_server_en_us'
+    if parameters.run_ubuntu_18_04 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["ubuntu1804"] = "ubuntu1804_x64_aws_server_en_us"
+        test_environments["arm64"]["ubuntu1804"] = "ubuntu1804_arm64_server_en_us"
 
-    if parameters.run_ubuntu_20_04 != "false":
-        test_environments['ubuntu2004'] = 'ubuntu2004_x64_aws_server_en_us'
+    if parameters.run_ubuntu_20_04 != "false" and parameters.run_all_tests == "run_all":
+        test_environments["x64"]["ubuntu2004"] = "ubuntu2004_x64_aws_server_en_us"
+        test_environments["arm64"]["ubuntu2004"] = "ubuntu2004_arm64_server_en_us"
 
     # TODO: LINUXDAR-7306 set CIJenkins to default=true once python3.10 issues are resolved
     if parameters.run_ubuntu_22_04 != "false":
-        test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
+        test_environments["x64"]["ubuntu2204"] = "ubuntu2204_x64_aws_server_en_us"
+        test_environments["arm64"]["ubuntu2204"] = "ubuntu2204_arm64_server_en_us"
 
     ret = []
-    for name, image in test_environments.items():
-        ret.append((
-            name,
-            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
-        ))
+    for arch, environments in test_environments.items():
+        if x64_only and arch != "x64":
+            continue
+        for name, image in environments.items():
+            ret.append((
+                f"{arch}_{name}",
+                tap.Machine(image, inputs=test_inputs[arch], platform=tap.Platform.Linux)
+            ))
     return ret
 
 

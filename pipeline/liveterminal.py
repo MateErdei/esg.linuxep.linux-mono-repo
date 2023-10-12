@@ -193,8 +193,10 @@ def run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters)
     # if mode in [ANALYSIS_MODE]:
     #     return
 
-    test_inputs = get_inputs(context, liveterminal_build, mode)
-    machines = get_test_machines(test_inputs, parameters)
+    test_inputs = {
+        "x64": get_inputs(context, liveterminal_build, mode)
+    }
+    machines = get_test_machines(test_inputs, parameters, x64_only=True)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('liveterminal_integration'):

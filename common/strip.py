@@ -12,19 +12,20 @@ def main(argv):
     with open(argv[1][1:]) as params_file:
         args = params_file.read().split("\n")
 
-    assert len(args) >= 1
-    mode = args[0]
+    assert len(args) >= 2
+    strip = args[0]
+    mode = args[1]
     assert mode in ["strip", "extract_symbols", "rename"]
 
-    for arg in args[1:]:
+    for arg in args[2:]:
         if len(arg) == 0:
             continue
         src, dest = arg.split("=")
         result = None
         if mode == "strip":
-            result = subprocess.run(["strip", "-o", dest, src], capture_output=True, text=True)
+            result = subprocess.run([strip, "-o", dest, src], capture_output=True, text=True)
         elif mode == "extract_symbols":
-            result = subprocess.run(["strip", "--only-keep-debug", "-o", dest, src], capture_output=True, text=True)
+            result = subprocess.run([strip, "--only-keep-debug", "-o", dest, src], capture_output=True, text=True)
 
         if result and result.returncode != 0:
             print(result.stderr)

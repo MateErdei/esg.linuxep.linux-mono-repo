@@ -9,6 +9,7 @@ load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 load("//tools/config:sophos_asset.bzl", "soph_release_asset")
 load(":create_thininstaller_asset.bzl", "create_thininstaller_asset")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@gcc//:glibc.bzl", "GLIBC_VERSION")
 
 soph_cc_binary(
     name = "installer",
@@ -56,7 +57,7 @@ expand_template(
     name = "commonCompatibilityFunctions_sh",
     out = "commonCompatibilityFunctions.sh",
     substitutions = {
-        "@BUILD_SYSTEM_LIBC_VERSION@": "2.17",  # TODO LINUXDAR-6736: automatically provide this, perhaps via @gcc
+        "@BUILD_SYSTEM_LIBC_VERSION@": GLIBC_VERSION,
     },
     template = "commonCompatibilityFunctions.in.sh",
 )

@@ -98,7 +98,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_mode_siv.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_pkcs1_decode.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aes.abi3.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aesni.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_arc2.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_blowfish.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_cast.abi3.so
@@ -127,7 +126,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/__init__.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_BLAKE2b.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_BLAKE2s.abi3.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_clmul.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_portable.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_keccak.abi3.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/Crypto/Hash/_MD2.abi3.so

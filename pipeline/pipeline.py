@@ -37,16 +37,16 @@ BUILD_SELECTION_EJ = "ej"
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
-    build = stage.artisan_build(name="linux_x64_rel",
+    build = stage.artisan_build(name="linux_rel",
                                      component=component,
                                      image=BUILD_TEMPLATE_BAZEL,
-                                     mode="all_lfast,all_lx64r",
+                                     mode="san_lsnty,all_lx64r,all_la64r",
                                      release_package=PACKAGE_PATH)
 
-    stage.artisan_build(name="linux_x64_dbg",
+    stage.artisan_build(name="linux_dbg",
                         component=component,
                         image=BUILD_TEMPLATE_BAZEL,
-                        mode="all_lx64d",
+                        mode="all_lx64d,all_la64d",
                         release_package=PACKAGE_PATH)
 
     if parameters.run_tests != False:

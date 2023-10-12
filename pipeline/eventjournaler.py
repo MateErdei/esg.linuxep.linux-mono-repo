@@ -29,7 +29,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
             event_journaler_sdds=ej_build / 'eventjournaler/linux_x64_rel/installer',
             manual_tools=ej_build / 'eventjournaler/linux_x64_rel/manualTools',
             base_sdds=ej_build / 'base/linux_x64_rel/installer',
-            fake_management=ej_build / 'base/linux_x64_rel/fake_management',
+            fake_management=ej_build / 'base/fake_management',
         )
     if mode == 'coverage':
         test_inputs = dict(  # TODO check this by setting mode and tap ls
@@ -143,8 +143,10 @@ def run_ej_tests(stage, context, ej_build, mode, parameters):
     # if mode in [ANALYSIS_MODE]:
     #     return
 
-    test_inputs = get_inputs(context, ej_build, mode)
-    machines = get_test_machines(test_inputs, parameters)
+    test_inputs = {
+        "x64": get_inputs(context, ej_build, mode)
+    }
+    machines = get_test_machines(test_inputs, parameters, x64_only=True)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('eventjournaler_integration'):

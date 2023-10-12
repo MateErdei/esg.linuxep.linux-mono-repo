@@ -16,7 +16,8 @@ Suite Teardown    Compatibility Tool Suite Teardown
 
 Test Teardown    Compatibility Tool Test Teardown
 
-Force Tags    TAP_PARALLEL6
+# TODO LINUXDAR-4130: Enable for ARM64
+Force Tags    TAP_PARALLEL6    EXCLUDE_ARM64
 
 *** Variables ***
 ${susUrl}    https://sus.sophosupd.com

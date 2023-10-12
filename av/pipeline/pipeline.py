@@ -49,7 +49,8 @@ def include_ntfs_for_machine_name(name: str, template):
         'sles12',
         'sles15'
     )
-    if name in no_ntfs:
+    distro = name.split("_")[1]
+    if distro in no_ntfs:
         return False
     return True
 
@@ -487,88 +488,28 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     # robot_task_with_env will parse this string
     include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
                                             "integrationNOTavbaseNOTav_health avbase av_health"
-
-    do_coverage: bool = parameters.mode == 'coverage'
-    do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
-    do_999_build: bool = parameters.do_999_build != 'false'
-
-    component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
-    build_image = 'centos79_x64_build_20230202'
-    release_package = "./build-files/release-package.xml"
-    with stage.parallel('build'):
-        if do_cppcheck:
-            av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
-                                               mode="cppcheck", release_package=release_package)
-
-        if do_999_build:
-            nine_nine_nine_mode = '999'
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
-                                                       mode=nine_nine_nine_mode, release_package=release_package)
-
-        av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
-                                       mode="release", release_package=release_package)
-
-        if do_coverage:
-            coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
-                                                 mode="coverage", release_package=release_package)
-
-    with stage.parallel('testing'):
-        # Coverage next, since that is the next slowest
-        if do_coverage:
-            with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
-
-                with stage.parallel('pytest'):
-                    machine_bullseye_pytest = \
-                        tap.Machine('ubuntu1804_x64_server_en_us',
-                                    inputs=coverage_inputs,
-                                    outputs={'covfile': TaskOutput('covfiles')},
-                                    platform=tap.Platform.Linux)
-                    stage.task(task_name='component',
-                               func=bullseye_coverage_pytest_task,
-                               machine=machine_bullseye_pytest)
-
-                with stage.parallel('robot'):
+    with stage.parallel('av_test'):
+        with stage.parallel('TA'):
+            test_inputs = {
+                "x64": get_inputs(context, av_build)
+            }
+            # Robot before pytest, since pytest is quick
+            with stage.parallel('robot'):
+                if robot_args:
+                    with stage.parallel("integration"):
+                        for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
+                            stage.task(task_name=name, func=robot_task, machine=machine,
+                                       robot_args=robot_args, include_tag="", branch_name=context.branch,
+                                       machine_name=name)
+                else:
                     for include in include_tag.split():
-                        machine_bullseye_robot = \
-                            tap.Machine('ubuntu1804_x64_server_en_us',
-                                        inputs=coverage_inputs,
-                                        outputs={'covfile': TaskOutput('covfiles')},
-                                        platform=tap.Platform.Linux)
-                        stage.task(task_name=include,
-                                   func=bullseye_coverage_robot_task,
-                                   machine=machine_bullseye_robot,
-                                   include_tag=include)
-
-                combine_inputs = coverage_inputs
-                combine_inputs['covfiles'] = TaskOutput('covfiles')
-                machine_bullseye_combine = \
-                    tap.Machine('ubuntu1804_x64_server_en_us',
-                                inputs=combine_inputs,
-                                platform=tap.Platform.Linux)
-                stage.task(task_name='combine',
-                           func=bullseye_coverage_combine_task,
-                           machine=machine_bullseye_combine,
-                           include_tag=include_tag)
-
-        if run_tests:
-            with stage.parallel('TA'):
-                test_inputs = get_inputs(context, av_build)
-                # Robot before pytest, since pytest is quick
-                with stage.parallel('robot'):
-                    if robot_args:
-                        with stage.parallel("integration"):
-                            for (name, machine) in get_test_machines(test_inputs, parameters):
+                        with stage.parallel(include):
+                            for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
                                 stage.task(task_name=name, func=robot_task, machine=machine,
-                                           robot_args=robot_args, include_tag="", machine_name=name)
-                    else:
-                        for include in include_tag.split():
-                            with stage.parallel(include):
-                                for (name, machine) in get_test_machines(test_inputs, parameters):
-                                    stage.task(task_name=name, func=robot_task, machine=machine,
-                                               include_tag=include, robot_args="", machine_name=name)
+                                           include_tag=include, branch_name=context.branch, robot_args="",
+                                           machine_name=name)
 
-                with stage.parallel('pytest'):
-                    with stage.parallel('component'):
-                        for (name, machine) in get_test_machines(test_inputs, parameters):
-                            stage.task(task_name=name, func=pytest_task, machine=machine)
+            with stage.parallel('pytest'):
+                with stage.parallel('component'):
+                    for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
+                        stage.task(task_name=name, func=pytest_task, machine=machine)

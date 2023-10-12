@@ -26,6 +26,6 @@ soph_cc_library(
     ],
     deps = [
         "//base/modules/Common/Exceptions",
-        "@openssl_linux//:openssl",
+        "//imports/thirdparty/openssl",
     ],
 )

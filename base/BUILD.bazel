@@ -26,7 +26,9 @@ soph_release_asset(
     asset = "//base/products/Base/installer:installer_sdds2",
     asset_type = select({
         "//tools/config:linux_x64_rel": "release",
+        "//tools/config:linux_arm64_rel": "release",
         "//tools/config:linux_x64_dbg": "build",
+        "//tools/config:linux_arm64_dbg": "build",
     }),
     visibility = ["//products:__pkg__"],
 )
@@ -44,6 +46,7 @@ soph_build_asset_pkg(
             "testUtils/SupportFiles/FakeManagement/**",
         ],
     ) + ["testUtils/libs/ActionUtils.py"],
+    platform_neutral = True,
     remap_paths = {
         "base/testUtils/SupportFiles/FakeManagement": "",
         "base/testUtils/libs": "",

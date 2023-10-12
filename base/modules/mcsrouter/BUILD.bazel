@@ -3,13 +3,14 @@
 load("@rules_python//python:defs.bzl", "py_library")
 load("//tools/config:zip.bzl", "zip_asset")
 load("@pip_deps_spl//:requirements.bzl", "requirement")
+load("@pip_deps_spl_x64//:requirements.bzl", requirement_x64 = "requirement")
 
 py_library(
     name = "mcsrouter",
     srcs = glob(["mcsrouter/**/*.py"]),
     visibility = ["//base/tests/mcsrouter:__pkg__"],
     deps = [
-        requirement("pycryptodome"),
+        requirement_x64("pycryptodome"),
         requirement("requests"),
         requirement("sseclient"),
         requirement("urllib3"),

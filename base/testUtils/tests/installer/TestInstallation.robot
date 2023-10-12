@@ -67,10 +67,12 @@ Verify that the full installer works correctly
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
     ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo
+    ${ExpectedFileInfo} =    Adjust Base Install Set Expected File Info For Platform    ${ExpectedFileInfo}
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
     ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =    Adjust Base Install Set Expected Symbolic Link Info For Platform    ${ExpectedSymbolicLinkInfo}
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files

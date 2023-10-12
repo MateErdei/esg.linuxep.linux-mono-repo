@@ -2,19 +2,14 @@
 <package name="linux-mono-repo" version="1.0.0">
     <inputs>
         <workingdir>.</workingdir>
-        <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/2023.31"
-                             build-id="20230726153611-1b91f6c8f79f9d98b6a0e67061d373346b234f8e-xUSViE"/>
-            <development-version branch="develop"/>
-            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="imports/thirdparty/openssl"/>
-        </build-asset>
-        
+
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
             <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
+            <include artifact-path="sophlib/linux_arm64_rel/lib" dest-dir="common/sophlib/linux_arm64_release/lib"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="common/journal/linux_x64_rel/libs" dest-dir="common/journal/linux_x64_release"/>
@@ -56,35 +51,17 @@
             <args>-c 'git rev-parse HEAD > build/COMMIT_HASH'</args>
         </command>
 
-        <!-- FAST: lfast -->
-        <command mode="all_lfast">
+        <!-- Linux Sanity: lsnty -->
+        <command mode="san_lsnty">
             <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
-                --profile=fast_lfast
-                test
+                --profile=sanity_nobuild
+                build
+                --nobuild
                 <!-- TODO LINUXDAR-7977: enable -->
 <!--                &#45;&#45;config=black-->
-                --target_pattern_file=build/fast_build_targets.txt
-            </args>
-        </command>
-        <command mode="all_lfast">
-            <program>./build/python.sh</program>
-            <args>
-                tools/src/bazel/run.py
-                --profile=linuxep_spl_lfast_build
-                build
-                --target_pattern_file=build/linuxep_spl_build_targets.txt
-            </args>
-        </command>
-        <command mode="all_lfast">
-            <program>./build/python.sh</program>
-            <args>
-                tools/src/bazel/run.py
-                --profile=linuxep_spl_lfast_test
-                test
-                --build_tests_only
-                --target_pattern_file=build/linuxep_spl_test_targets.txt
+                -- //...
             </args>
         </command>
 
@@ -152,6 +129,48 @@
             </args>
         </command>
 
+        <!-- linux_arm64_rel: la64r -->
+        <command mode="all_la64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64r_build
+                build
+                --config=linux_arm64_rel
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_la64r">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lx64r
+                --exports=build/linuxep_spl_exports.txt
+                --config=linux_arm64_rel
+            </args>
+        </command>
+
+        <!-- linux_arm64_dbg: la64d -->
+        <command mode="all_la64d">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64d_build
+                build
+                --config=linux_arm64_dbg
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_la64d">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lx64d
+                --exports=build/linuxep_spl_exports.txt
+                --config=linux_arm64_dbg
+            </args>
+        </command>
+
 <!--        &lt;!&ndash; Coverage build &ndash;&gt;-->
 <!--        <command mode="coverage">-->
 <!--            <program>/bin/bash</program>-->
@@ -176,44 +195,51 @@
         <!-- Base -->
         <release-asset artifact-path="base/linux_x64_rel/installer" source-dir=".output/base/linux_x64_rel/installer" manifest-path=".output/base/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="base/linux_x64_rel/installer" source-zip=".output/base/linux_x64_rel/installer.zip" mode="all_lx64r"/>
-        <build-asset artifact-path="base/linux_x64_dbg/installer" source-zip=".output/base/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="base/linux_x64_rel/installer_symbols" source-zip=".output/base/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
-
-        <build-asset artifact-path="base/linux_x64_rel/fake_management" source-zip=".output/base/linux_x64_rel/fake_management.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="base/linux_x64_dbg/installer" source-zip=".output/base/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="base/linux_arm64_rel/installer" source-dir=".output/base/linux_arm64_rel/installer" manifest-path=".output/base/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="base/linux_arm64_rel/installer" source-zip=".output/base/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="base/linux_arm64_rel/installer_symbols" source-zip=".output/base/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="base/linux_arm64_dbg/installer" source-zip=".output/base/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="base/fake_management" source-zip=".output/base/fake_management.zip" mode="all_lx64r"/>
 
         <!-- Response Actions -->
         <release-asset artifact-path="response_actions/linux_x64_rel/installer" source-dir=".output/response_actions/linux_x64_rel/installer" manifest-path=".output/response_actions/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="response_actions/linux_x64_rel/installer" source-zip=".output/response_actions/linux_x64_rel/installer.zip" mode="all_lx64r"/>
-        <build-asset artifact-path="response_actions/linux_x64_dbg/installer" source-zip=".output/response_actions/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="response_actions/linux_x64_rel/installer_symbols" source-zip=".output/response_actions/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
-
+        <build-asset artifact-path="response_actions/linux_x64_dbg/installer" source-zip=".output/response_actions/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="response_actions/linux_arm64_rel/installer" source-dir=".output/response_actions/linux_arm64_rel/installer" manifest-path=".output/response_actions/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="response_actions/linux_arm64_rel/installer" source-zip=".output/response_actions/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="response_actions/linux_arm64_rel/installer_symbols" source-zip=".output/response_actions/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="response_actions/linux_arm64_dbg/installer" source-zip=".output/response_actions/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
 
         <!-- Event Journaler -->
         <release-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-dir=".output/eventjournaler/linux_x64_rel/installer" manifest-path=".output/eventjournaler/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-zip=".output/eventjournaler/linux_x64_rel/installer.zip" mode="all_lx64r"/>
-        <build-asset artifact-path="eventjournaler/linux_x64_dbg/installer" source-zip=".output/eventjournaler/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="eventjournaler/linux_x64_rel/installer_symbols" source-zip=".output/eventjournaler/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
-
         <build-asset artifact-path="eventjournaler/linux_x64_rel/manualTools" source-zip=".output/eventjournaler/linux_x64_rel/manualTools.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_dbg/installer" source-zip=".output/eventjournaler/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="eventjournaler/linux_x64_dbg/manualTools" source-zip=".output/eventjournaler/linux_x64_dbg/manualTools.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="eventjournaler/linux_arm64_rel/installer" source-dir=".output/eventjournaler/linux_arm64_rel/installer" manifest-path=".output/eventjournaler/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_rel/installer" source-zip=".output/eventjournaler/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_rel/installer_symbols" source-zip=".output/eventjournaler/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_rel/manualTools" source-zip=".output/eventjournaler/linux_arm64_rel/manualTools.zip" mode="all_la64r"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/installer" source-zip=".output/eventjournaler/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/manualTools" source-zip=".output/eventjournaler/linux_arm64_dbg/manualTools.zip" mode="all_lx64d"/>
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="base/linux_arm64_rel/system_test" source-zip=".output/base/linux_arm64_rel/system_test.zip" mode="all_la64r"/>
 
         <!-- ThinInstaller Output -->
-        <build-asset artifact-path="thininstaller/linux_x64_rel/thininstaller" source-zip=".output/thininstaller/linux_x64_rel/thininstaller.zip" mode="all_lx64r"/>
         <release-asset artifact-path="thininstaller/linux_x64_rel/thininstaller" source-dir=".output/thininstaller/linux_x64_rel/thininstaller" manifest-path=".output/thininstaller/linux_x64_rel/thininstaller.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="thininstaller/linux_x64_rel/thininstaller" source-zip=".output/thininstaller/linux_x64_rel/thininstaller.zip" mode="all_lx64r"/>
+        <release-asset artifact-path="thininstaller/linux_arm64_rel/thininstaller" source-dir=".output/thininstaller/linux_arm64_rel/thininstaller" manifest-path=".output/thininstaller/linux_arm64_rel/thininstaller.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="thininstaller/linux_arm64_rel/thininstaller" source-zip=".output/thininstaller/linux_arm64_rel/thininstaller.zip" mode="all_la64r"/>
 
 <!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
 <!--            <include glob="pluginapi.tar.gz"/>-->
 <!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base/cmcsrouterapi" source-dir="output" mode="release">-->
-<!--            <include glob="cmcsrouterapi.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">-->
-<!--            <include glob="mcs.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>-->
 
         <!-- coverage(bullseye) -->
 <!--        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>-->
@@ -246,13 +272,6 @@
 <!--        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">-->
 <!--            <include glob="pluginapi.tar.gz"/>-->
 <!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-debug/cmcsrouterapi" source-dir="output" mode="debug">-->
-<!--            <include glob="cmcsrouterapi.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-debug/mcs" source-dir="output" mode="debug">-->
-<!--            <include glob="mcs.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-debug/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>-->
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

@@ -24,38 +24,41 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
 
-def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
-    openssl = unified_artifact(context, "thirdparty.all", "develop",
-                               "build/openssl_3/openssl_linux64_gcc11-2glibc2-17")
+def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str, arch: str):
+    thirdparty_all = unified_artifact(context, "thirdparty.all",
+                                      "feature--LINUXDAR-4103-build-thirdparty.all-for-arm64", "build")
+    openssl = None
+    if arch == "x64":
+        openssl = thirdparty_all / "openssl_3" / "openssl_linux64_gcc11-2glibc2-17"
+    elif arch == "arm64":
+        openssl = thirdparty_all / "openssl_3" / "openssl_linux_arm64_gcc11-2glibc2-17"
 
     test_inputs = None
     if mode == 'release':
+        config = f"linux_{arch}_rel"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / "base/linux_x64_rel/installer",
-            ra_sdds=base_build / "response_actions/linux_x64_rel/installer",
-            system_test=base_build / "base/linux_x64_rel/system_test",
+            base_sdds=base_build / f"base/{config}/installer",
+            ra_sdds=base_build / f"response_actions/{config}/installer",
+            system_test=base_build / f"base/{config}/system_test",
             openssl=openssl,
-            websocket_server=context.artifact.from_component('liveterminal', 'prod',
-                                                             '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            thininstaller=base_build / "thininstaller/linux_x64_rel/thininstaller",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', 'build/sophlib/linux_x64_rel/sdds3_tools')
+            thininstaller=base_build / f"thininstaller/{config}/thininstaller",
+            sdds3_tools=unified_artifact(context, 'em.esg', 'feature--bazeltools--LINUXDAR-6781_crosstool_toolchain', f"build/sophlib/{config}/sdds3_tools")
         )
     if mode == 'debug':
+        config = f"linux_{arch}_dbg"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / "base/linux_x64_dbg/installer",
-            ra_sdds=base_build / "response_actions/linux_x64_dbg/installer",
-            system_test=base_build / "base/linux_x64_dbg/system_test",
+            base_sdds=base_build / f"base/{config}/installer",
+            ra_sdds=base_build / "response_actions/{config}/installer",
+            system_test=base_build / f"base/{config}/system_test",
             openssl=openssl,
-            websocket_server=context.artifact.from_component('liveterminal', 'prod',
-                                                             '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            thininstaller=base_build / "thininstaller/linux_x64_rel/thininstaller",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', 'build/sophlib/linux_x64_rel/sdds3_tools')
+            thininstaller=base_build / f"thininstaller/{config}/thininstaller",
+            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
     if mode == 'coverage':
         test_inputs = dict(
@@ -64,8 +67,6 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             ra_sdds=base_build / 'sspl-base-coverage/RA-SDDS-COMPONENT',
             system_test=base_build / 'sspl-base-coverage/system_test',
             openssl=openssl,
-            websocket_server=context.artifact.from_component('liveterminal', 'prod',
-                                                             '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             coverage=base_build / 'sspl-base-coverage/covfile',
@@ -77,8 +78,9 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
+    arch, platform = machine_name.split("_")
     default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ", "SYSTEMPRODUCTTESTINPUT",
-                            "EXCLUDE_BAZEL", f"EXCLUDE_{machine_name.upper()}"]
+                            "EXCLUDE_BAZEL", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}"]
 
     machine_full_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
@@ -221,7 +223,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
 
 def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters):
-    base_test_inputs = get_base_test_inputs(context, base_coverage_build, base_coverage_build, mode)
+    base_test_inputs = get_base_test_inputs(context, base_coverage_build, mode, "x64")
     robot_args = get_robot_args(parameters)
     with stage.parallel('base_coverage'):
         # if mode == COVERAGE_MODE:
@@ -236,7 +238,10 @@ def run_base_tests(stage, context, base_build, mode, parameters):
     # exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
 
-    base_test_inputs = get_base_test_inputs(context, base_build, mode)
+    base_test_inputs = {
+        "x64": get_base_test_inputs(context, base_build, mode, "x64"),
+        "arm64": get_base_test_inputs(context, base_build, mode, "arm64")
+    }
     base_test_machines = get_test_machines(base_test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 

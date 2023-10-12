@@ -13,6 +13,6 @@ soph_cc_library(
     visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/Obfuscation:Obfuscation_interface",
-        "@openssl_linux//:openssl",
+        "//imports/thirdparty/openssl",
     ],
 )

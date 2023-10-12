@@ -1,6 +1,6 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
-
 load("//tools/config:sophos_stage_files.bzl", "soph_export_assets")
+load("@bazel_skylib//lib:selects.bzl", "selects")
 
 soph_export_assets(
     name = "export_assets",
@@ -9,18 +9,23 @@ soph_export_assets(
     deps = [
         "//base:installer",
         "//base:system_test",
-        "//base:fake_management",
         "//eventjournaler:installer",
         "//eventjournaler:manualTools",
         "//response_actions:installer",
-    ] + select({
-        "//tools/config:linux_x64_rel": [
+    ] + selects.with_or({
+        ("//tools/config:linux_x64_rel", "//tools/config:linux_arm64_rel"): [
             "//base:installer_symbols",
             "//eventjournaler:installer_symbols",
             "//response_actions:installer_symbols",
             "//thininstaller",
         ],
-        "//tools/config:linux_x64_dbg": [
+        ("//tools/config:linux_x64_dbg", "//tools/config:linux_arm64_dbg"): [
+        ],
+    }) + select({
+        "//tools/config:linux_x64_rel": [
+            "//base:fake_management",
+        ],
+        "//conditions:default": [
         ],
     }),
 )

@@ -24,8 +24,6 @@
 /imports/internal/sdds3_utils/
 /imports/thirdparty/python/*
 !/imports/thirdparty/python/BUILD.bazel
-/imports/thirdparty/openssl/*
-!/imports/thirdparty/openssl/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*
 !/imports/thirdparty/nlohmann-json/BUILD.bazel
 
