@@ -19,6 +19,7 @@ target_include_directories(BinaryDataTable PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
+        ${LIVEQUERY_INCLUDE}
         )
 
 SET_TARGET_PROPERTIES(BinaryDataTable

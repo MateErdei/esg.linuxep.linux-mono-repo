@@ -23,8 +23,10 @@ namespace Plugin
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
         void applyNewPolicy(const std::string& policyXml) override;
+        void applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml) override;
 
-        void queueAction(const std::string& actionXml) override;
+        void queueAction(const std::string& ) override;
+        void queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId) override;
 
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
@@ -33,6 +35,7 @@ namespace Plugin
         void setOsqueryShouldBeRunning(bool shouldBerunning);
 
         std::string getTelemetry() override;
+        void initialiseTelemetry();
 
         std::string getHealth() override;
 

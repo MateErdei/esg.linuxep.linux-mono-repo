@@ -25,7 +25,6 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 {
     LOGINFO("Starting SophosExtension");
 
-
     if (m_stopped)
     {
         m_flags.socket = socket;
@@ -44,8 +43,6 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::HexToIntTable>());
         LOGDEBUG("Extension Added");
         m_extension->Start();
-
-
         m_stopped = false;
         m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
@@ -54,16 +51,18 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
 void SophosExtension::Stop(long timeoutSeconds)
 {
-    if (!m_stopped)
+    if (!m_stopped && !m_stopping)
     {
         LOGINFO("Stopping SophosExtension");
-        m_stopped = true;
+        m_stopping = true;
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
             m_runnerThread.reset();
         }
+        m_stopped = true;
+        m_stopping = false;
         LOGINFO("SophosExtension::Stopped");
     }
 }
@@ -71,8 +70,14 @@ void SophosExtension::Stop(long timeoutSeconds)
 void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGINFO("SophosExtension running");
-    m_extension->Wait();
-    if (!m_stopped)
+
+    // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
+    if (!m_stopping)
+    {
+        m_extension->Wait();
+    }
+
+    if (!m_stopped && !m_stopping)
     {
         const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
@@ -83,4 +88,9 @@ void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         extensionFinished->store(true);
     }
+}
+
+int SophosExtension::GetExitCode()
+{
+   return m_extension->GetReturnCode();
 }
