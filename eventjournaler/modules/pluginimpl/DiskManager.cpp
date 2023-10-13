@@ -11,6 +11,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
+#include <sys/stat.h>
+
 #include <cstring>
 #include <lzma.h>
 namespace Plugin
@@ -369,6 +371,7 @@ namespace Plugin
                         {
                             try
                             {
+                                Common::FileSystem::filePermissions()->chmod(compressFileTempPath, S_IRUSR | S_IWUSR | S_IRGRP);
                                 fs->moveFile(compressFileTempPath,compressedFileFinalPath);
                                 fs->removeFile(path);
                             }

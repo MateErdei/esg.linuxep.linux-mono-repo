@@ -4,6 +4,7 @@ SophosAddTest(TestPlugin
         TestPlugin.cpp
         TestPluginCallback.cpp
         MockSubscriberLib.h
+        MockEventWriterWorker.h
         TestDiskManager.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} heartbeat rt pthread

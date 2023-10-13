@@ -1,5 +1,5 @@
 set(EXCLUDED_DIRS ${CMAKE_SOURCE_DIR}/tests/googletest ${CMAKE_SOURCE_DIR}/cmake-build-debug ${CMAKE_SOURCE_DIR}/redist
-        ${CMAKE_SOURCE_DIR}/CMakeFiles ${CMAKE_SOURCE_DIR}/sspl-plugin-template-build ${CMAKE_SOURCE_DIR}/tests
+        ${CMAKE_SOURCE_DIR}/CMakeFiles ${CMAKE_SOURCE_DIR}/sspl-plugin-event-journaler-build ${CMAKE_SOURCE_DIR}/tests
         ${CMAKE_SOURCE_DIR}/build64)
 
 file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)
