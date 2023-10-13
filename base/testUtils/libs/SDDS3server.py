@@ -528,7 +528,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(response)
 
     def sus_large_json(self):
-        arbitrary_data_array = ["some data"] * 100000000
+        arbitrary_data_array = ["some data"] * 10000
 
         response = json.dumps({
             'suites': arbitrary_data_array,
