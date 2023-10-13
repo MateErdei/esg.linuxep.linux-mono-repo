@@ -8,12 +8,12 @@ Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-Resource    ../GeneralTeardownResource.robot
-Resource    ../watchdog/LogControlResources.robot
-Resource    EDRResources.robot
-Resource    ../mcs_router/McsPushClientResources.robot
-Resource   ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../liveresponse_plugin/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
 Default Tags   EDR_PLUGIN   FAKE_CLOUD  INSTALLER
 Force Tags  LOAD1

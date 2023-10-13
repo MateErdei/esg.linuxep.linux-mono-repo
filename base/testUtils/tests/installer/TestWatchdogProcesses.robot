@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation    Tests around Watchdog and process spawning
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 *** Test Cases ***
 

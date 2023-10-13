@@ -1,11 +1,12 @@
 *** Settings ***
-Test Teardown  Upgrade Resources Test Teardown
 Library    Process
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    SulDownloaderResources.robot
-Resource  ../GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+
+Test Teardown  Upgrade Resources Test Teardown
 
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD6

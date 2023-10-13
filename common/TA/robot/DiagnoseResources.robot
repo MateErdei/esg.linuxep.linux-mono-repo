@@ -1,13 +1,10 @@
 *** Settings ***
-
+Library     OperatingSystem
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
-
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 
-Library     OperatingSystem
-
-Resource  ../GeneralTeardownResource.robot
+Resource    GeneralTeardownResource.robot
 
 *** Variables ***
 

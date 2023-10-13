@@ -2,10 +2,10 @@
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../upgrade_product/UpgradeResources.robot
-Resource  ../ra_plugin/ResponseActionsResources.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource  ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup    Require Fresh Install
 Suite Teardown    Require Uninstalled

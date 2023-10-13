@@ -1,9 +1,9 @@
 *** Settings ***
-Resource  ../installer/InstallerResources.robot
-Resource  ResponseActionsResources.robot
-Resource  ../telemetry/TelemetryResources.robot
-
 Library    ${LIBS_DIRECTORY}/OnFail.py
+
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Setup     RA Telemetry Suite Setup
 Suite Teardown  Require Uninstalled

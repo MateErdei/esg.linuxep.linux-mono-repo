@@ -1,9 +1,9 @@
 *** Settings ***
-Library    ../libs/FullInstallerUtils.py
-Library    ../libs/UpdateServer.py
-Library    ../libs/ProcessUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/ProcessUtils.py
+Library     ${LIBS_DIRECTORY}/UpdateServer.py
 
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Suite Setup      Local Suite Setup
 Suite Teardown   Local Suite Teardown

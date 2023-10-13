@@ -5,18 +5,17 @@ Test Teardown   Test Teardown
 Suite Setup      sdds3 suite setup with fakewarehouse with real base
 Suite Teardown   Cleanup sdds3 Update Tests
 
-
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
-Library     Process
 Library     DateTime
 Library     OperatingSystem
+Library     Process
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 
-Resource  ../GeneralTeardownResource.robot
-Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
-Resource  ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  THIN_INSTALLER
 *** Keywords ***

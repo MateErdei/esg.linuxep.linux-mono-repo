@@ -4,8 +4,8 @@ Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  McsRouterResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND

@@ -2,9 +2,9 @@
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/UserAndGroupReconfigurationUtils.py
 
-Resource    ProductAcceptanceTestsResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../watchdog/WatchdogResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ProductAcceptanceTestsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown

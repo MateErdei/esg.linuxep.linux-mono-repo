@@ -10,9 +10,9 @@ Library     ${LIBS_DIRECTORY}/FakeMultiPublisher.py
 
 Test Teardown   Test Teardown For Suite
 
-Resource    ManagementAgentResources.robot
-Resource    ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Test Timeout    4 minutes
 

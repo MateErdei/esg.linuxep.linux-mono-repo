@@ -12,13 +12,12 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OnFail.py
 Library    ${LIBS_DIRECTORY}/SystemInfo.py
 
-Resource    TelemetryResources.robot
-
-Resource    ../GeneralTeardownResource.robot
-Resource    ../installer/InstallerResources.robot
-Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../scheduler_update/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Setup      Setup Telemetry Tests
 Suite Teardown   Cleanup Telemetry Tests

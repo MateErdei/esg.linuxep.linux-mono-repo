@@ -1,12 +1,13 @@
 *** Settings ***
-Library    Process
-Library    OperatingSystem
-Library    String
-Library    ../../libs/FullInstallerUtils.py
-Library    ../../libs/UpgradeUtils.py
-Library    ../../libs/Watchdog.py
+Library     OperatingSystem
+Library     Process
+Library     String
 
-Resource  ../GeneralTeardownResource.robot
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/UpgradeUtils.py
+Library     ${LIBS_DIRECTORY}/Watchdog.py
+
+Resource    GeneralTeardownResource.robot
 
 *** Variables ***
 ${MCSROUTER_PROCESS_NAME}  /opt/sophos-spl/base/bin/python3 -m mcsrouter

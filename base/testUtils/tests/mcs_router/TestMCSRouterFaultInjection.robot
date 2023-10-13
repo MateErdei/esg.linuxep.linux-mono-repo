@@ -1,15 +1,17 @@
 *** Settings ***
-Library  OperatingSystem
+Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/ProxyUtils.py
+Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+
 Suite Setup  Suite Setup
+Suite Teardown    Stop Local Cloud Server
+
 Test Setup  Test Setup
 Test Teardown  Test Teardown
-Suite Teardown    Stop Local Cloud Server
 
 Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL6
 

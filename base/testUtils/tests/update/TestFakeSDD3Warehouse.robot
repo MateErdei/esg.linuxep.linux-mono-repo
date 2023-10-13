@@ -1,13 +1,17 @@
 *** Settings ***
-Default Tags    MANUAL
-Test Timeout    NONE
-Resource  SDDS3Resources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../thin_installer/ThinInstallerResources.robot
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+
 Test Setup   Generate Fake sdds3 warehouse
 Test Teardown  sdds3 Teardown
+
+Default Tags    MANUAL
+Test Timeout    NONE
+
 *** Keywords ***
 sdds3 Teardown
     Clean up fake warehouse

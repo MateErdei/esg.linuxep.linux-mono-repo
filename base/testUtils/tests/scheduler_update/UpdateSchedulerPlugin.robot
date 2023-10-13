@@ -14,12 +14,12 @@ Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 
-Resource  ../watchdog/LogControlResources.robot
-Resource  ../installer/InstallerResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource  ../telemetry/TelemetryResources.robot
-Resource  SchedulerUpdateResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Default Tags  UPDATE_SCHEDULER
 Force Tags  LOAD5

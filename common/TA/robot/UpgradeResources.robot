@@ -15,10 +15,10 @@ Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
-Resource    ../av_plugin/AVResources.robot
-Resource    ../av_plugin/SafeStoreResources.robot
-Resource    ../installer/InstallerResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
+Resource    AVResources.robot
+Resource    InstallerResources.robot
+Resource    McsRouterResources.robot
+Resource    SafeStoreResources.robot
 
 
 *** Variables ***

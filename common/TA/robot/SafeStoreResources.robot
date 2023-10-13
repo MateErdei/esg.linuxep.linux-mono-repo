@@ -1,13 +1,13 @@
 *** Settings ***
-Library    OperatingSystem
+Library     OperatingSystem
 
-Library    ${LIBS_DIRECTORY}/FaultInjectionTools.py
-Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/SafeStoreUtils.py
+Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/SafeStoreUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    AVResources.robot
-Resource    ../scheduler_update/SchedulerUpdateResources.robot
+Resource    SchedulerUpdateResources.robot
 
 *** Variables ***
 ${SAFESTORE_BIN}                    ${AV_PLUGIN_PATH}/sbin/safestore

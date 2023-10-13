@@ -1,16 +1,14 @@
 *** Settings ***
-
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ../../libs/DiagnoseUtils.py
-Library     ../../libs/HttpsServer.py
-Library     ../../libs/TelemetryUtils.py
-
-Library     Process
-Library     OperatingSystem
 Library     Collections
+Library     OperatingSystem
+Library     Process
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
+Library     ${LIBS_DIRECTORY}/HttpsServer.py
+Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
 
-Resource    DiagnoseResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup  Require Fresh Install
 Suite Teardown  Run Keywords

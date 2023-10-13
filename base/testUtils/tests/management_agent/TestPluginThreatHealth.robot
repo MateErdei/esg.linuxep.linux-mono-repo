@@ -8,7 +8,7 @@ Library           Collections
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
-Resource    ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Default Tags    MANAGEMENT_AGENT  TAP_PARALLEL6
 

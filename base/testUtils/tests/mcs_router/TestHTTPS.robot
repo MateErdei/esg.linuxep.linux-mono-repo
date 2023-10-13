@@ -2,7 +2,7 @@
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library   OperatingSystem
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled

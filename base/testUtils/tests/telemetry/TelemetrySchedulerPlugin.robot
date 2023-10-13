@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation  Test the Telemetry Scheduler's installation, uninstallation and watchdog interaction
 
-Resource  TelemetryResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Teardown   Cleanup Telemetry Scheduler Tests
 

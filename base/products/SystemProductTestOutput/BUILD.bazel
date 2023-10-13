@@ -41,5 +41,6 @@ pkg_tar(
         ":zmqchecker",
         "//base:testUtils",
         "//common:common_test_libs",
+        "//common:common_test_robot",
     ],
 )

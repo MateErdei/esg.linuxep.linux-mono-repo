@@ -1,14 +1,15 @@
 *** Settings ***
 Library    Process
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Resource    ../upgrade_product/UpgradeResources.robot
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Resource   ./ThinInstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../mcs_router/McsRouterResources.robot
-Resource    ../update/SDDS3Resources.robot
+
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Setup base package
 Suite Teardown   Cleanup base package

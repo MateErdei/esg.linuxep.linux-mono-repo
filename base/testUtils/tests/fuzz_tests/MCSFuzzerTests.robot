@@ -9,8 +9,8 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
 
 
-Resource   ../GeneralTeardownResource.robot
-Resource  ../mcs_router/McsRouterResources.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup     Run Keywords
 ...             Regenerate Certificates

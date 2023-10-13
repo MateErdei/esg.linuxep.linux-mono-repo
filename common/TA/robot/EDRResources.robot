@@ -1,8 +1,9 @@
 *** Settings ***
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Resource  ../GeneralUtilsResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
+
+Resource    GeneralUtilsResources.robot
+Resource    UpgradeResources.robot
 
 
 *** Variables ***

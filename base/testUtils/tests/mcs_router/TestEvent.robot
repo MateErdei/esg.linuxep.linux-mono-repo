@@ -2,7 +2,7 @@
 Library   OperatingSystem
 Library   Process
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND

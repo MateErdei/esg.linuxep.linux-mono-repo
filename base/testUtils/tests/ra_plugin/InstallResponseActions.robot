@@ -1,9 +1,9 @@
 *** Settings ***
 Documentation    Suite description
 
-Resource  ../installer/InstallerResources.robot
-Resource  ResponseActionsResources.robot
-Resource  ../watchdog/WatchdogResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled

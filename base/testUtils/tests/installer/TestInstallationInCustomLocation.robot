@@ -5,11 +5,11 @@ Library    Collections
 Library    OperatingSystem
 Library    Process
 
-Library    ../../libs/OSUtils.py
-Library    ../../libs/FullInstallerUtils.py
-Library    ../../libs/Watchdog.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/Watchdog.py
 
-Resource    ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Suite Setup    Create Directory     /opt/etc
 Suite Teardown    remove Directory    /opt/etc

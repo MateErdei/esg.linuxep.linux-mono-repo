@@ -1,10 +1,10 @@
 *** Settings ***
 Documentation    Suite description
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../event_journaler/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Resource    ../edr_plugin/EDRResources.robot
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Suite Setup     Require Installed

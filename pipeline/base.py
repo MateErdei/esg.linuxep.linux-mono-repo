@@ -44,6 +44,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             openssl=openssl,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
             thininstaller=base_build / f"thininstaller/{config}/thininstaller",
             sdds3_tools=unified_artifact(context, 'em.esg', 'feature--bazeltools--LINUXDAR-6781_crosstool_toolchain', f"build/sophlib/{config}/sdds3_tools")
         )

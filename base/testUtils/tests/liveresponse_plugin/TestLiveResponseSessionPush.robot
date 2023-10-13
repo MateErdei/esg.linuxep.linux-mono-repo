@@ -7,11 +7,12 @@ Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
 
 Library     String
 Library     OperatingSystem
-Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../mcs_router/McsPushClientResources.robot
-Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../watchdog/LogControlResources.robot
-Resource  LiveResponseResources.robot
+
+Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 
 Test Setup  Liveresponse Test Setup

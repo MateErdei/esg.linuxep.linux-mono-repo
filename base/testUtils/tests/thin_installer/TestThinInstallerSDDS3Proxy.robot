@@ -17,12 +17,12 @@ Library     Process
 Library     DateTime
 Library     OperatingSystem
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource  ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  THIN_INSTALLER
 

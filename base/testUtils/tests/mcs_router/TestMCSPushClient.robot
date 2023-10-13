@@ -1,13 +1,13 @@
 *** Settings ***
 
+Library     String
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
-Library     String
-Resource    McsRouterResources.robot
-Resource    McsPushClientResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../management_agent/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 
 Suite Setup      Setup MCS Tests

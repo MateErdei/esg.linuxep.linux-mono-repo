@@ -140,6 +140,11 @@
             <workingdir>./sdds</workingdir>
         </command>
         <command mode="dev,999">
+            <program>rsync</program>
+            <args>-avh SystemProductTestOutput/robot/ TA/robot/</args>
+            <workingdir>./sdds</workingdir>
+        </command>
+        <command mode="dev,999">
             <program>mkdir -p</program>
             <args>TA/SupportFiles/openssl</args>
             <workingdir>./sdds</workingdir>

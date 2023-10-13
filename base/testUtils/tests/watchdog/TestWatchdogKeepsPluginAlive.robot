@@ -6,8 +6,8 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Test Setup  Require Fresh Install
 Test Teardown  Run Keywords  Kill Manual Watchdog  AND

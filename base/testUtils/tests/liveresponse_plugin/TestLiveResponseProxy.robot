@@ -5,13 +5,11 @@ Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
 
-
-
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../watchdog/LogControlResources.robot
-Resource  LiveResponseResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource  ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource  ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 
 Test Setup  LiveResponse Test Setup

@@ -11,17 +11,17 @@ Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../av_plugin/AVResources.robot
-Resource    ../event_journaler/EventJournalerResources.robot
-Resource    ../GeneralTeardownResource.robot
-Resource    ../watchdog/LogControlResources.robot
-Resource    ../watchdog/WatchdogResources.robot
-Resource    EDRResources.robot
-Resource    ../mcs_router/McsPushClientResources.robot
-Resource    ../liveresponse_plugin/LiveResponseResources.robot
-Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
-Resource    ../sul_downloader/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
+Resource    ${COMMON_TEST_ROBOT}/RuntimeDetectionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Default Tags   EDR_PLUGIN  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 Force Tags  LOAD4

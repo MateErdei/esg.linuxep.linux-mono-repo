@@ -1,11 +1,11 @@
 *** Settings ***
 Library     Process
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Resource    GeneralTeardownResource.robot
 
-Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 ${EVENT_JOURNALER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
 ${EVENT_READER_TOOL}          ${EVENT_JOURNALER_TOOLS}/JournalReader

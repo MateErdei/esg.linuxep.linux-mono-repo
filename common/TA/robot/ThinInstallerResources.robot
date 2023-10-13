@@ -1,7 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
 
-Resource  ../update/SDDS3Resources.robot
+Resource    SDDS3Resources.robot
 
 *** Variables ***
 ${EtcGroupFilePath}  /etc/group

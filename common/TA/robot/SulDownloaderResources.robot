@@ -1,10 +1,10 @@
 *** Settings ***
-Library    Process
 Library    OperatingSystem
+Library    Process
 Library    ${LIBS_DIRECTORY}/SulDownloader.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 
-Resource  ../watchdog/LogControlResources.robot
+Resource    LogControlResources.robot
 
 *** Keywords ***
 Dump Suldownloader Log

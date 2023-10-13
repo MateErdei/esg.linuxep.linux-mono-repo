@@ -2,7 +2,7 @@
 Library  OperatingSystem
 Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND

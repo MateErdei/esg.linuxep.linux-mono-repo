@@ -5,11 +5,12 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 
-Resource  InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../GeneralUtilsResources.robot
-Resource  ../ra_plugin/ResponseActionsResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
+Resource   ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource   ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource   ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+
 Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown

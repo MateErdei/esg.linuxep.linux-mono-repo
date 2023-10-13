@@ -1,7 +1,7 @@
 *** Settings ***
-Library   OperatingSystem
+Library     OperatingSystem
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND

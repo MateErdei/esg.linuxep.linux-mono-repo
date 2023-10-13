@@ -1,8 +1,8 @@
 *** Settings ***
-Library     ../libs/TeardownTools.py
-
-Resource    installer/InstallerResources.robot
 Library    OperatingSystem
+Library    ${LIBS_DIRECTORY}/TeardownTools.py
+
+Resource   InstallerResources.robot
 
 *** Variables ***
 

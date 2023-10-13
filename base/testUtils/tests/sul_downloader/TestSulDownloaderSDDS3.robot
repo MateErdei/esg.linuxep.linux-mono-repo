@@ -12,16 +12,16 @@ Test Teardown    Run Keywords
 ...                Clean up fake warehouse  AND
 ...                Upgrade Resources SDDS3 Test Teardown
 
-Library    DateTime
+Library     DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
 Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
-Resource    ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../installer/InstallerResources.robot
-Resource    ../update/SDDS3Resources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    SulDownloaderResources.robot
-Resource  ../GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD9

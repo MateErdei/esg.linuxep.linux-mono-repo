@@ -4,18 +4,17 @@ Documentation    Telemetry testing resources.
 Library    OperatingSystem
 Library    Process
 Library    String
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/HttpsServer.py
-Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/PolicyUtils.py
 Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 
-
-Resource  ../installer/InstallerResources.robot
-Resource  ../watchdog/WatchdogResources.robot
+Resource    InstallerResources.robot
+Resource    WatchdogResources.robot
 
 *** Variables ***
 ${STATUS_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json

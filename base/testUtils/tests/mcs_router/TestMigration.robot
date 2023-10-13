@@ -10,8 +10,8 @@ Library     String
 #Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Resource  ../installer/InstallerResources.robot
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Setup  Run Keywords
 ...         Setup MCS Tests  AND

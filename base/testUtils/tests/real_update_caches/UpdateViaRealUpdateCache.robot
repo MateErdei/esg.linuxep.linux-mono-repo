@@ -10,9 +10,9 @@ Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-Resource    ../GeneralTeardownResource.robot
-Resource  ../installer/InstallerResources.robot
-Resource  ../edr_plugin/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 

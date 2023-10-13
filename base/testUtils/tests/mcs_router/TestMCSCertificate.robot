@@ -1,5 +1,5 @@
 *** Settings ***
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Setup  Setup
 Suite Teardown  Remove Directory  /tmp/tempcertdir   True

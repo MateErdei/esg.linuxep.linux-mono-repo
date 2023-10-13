@@ -5,8 +5,8 @@ Library    String
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 *** Test Cases ***
 Verify Watchdog Service Installed And Uninstalled Correctly

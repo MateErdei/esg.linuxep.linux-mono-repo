@@ -6,8 +6,8 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Teardown     Test Action Teardown
 

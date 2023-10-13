@@ -3,14 +3,13 @@ Documentation    Suite description
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../watchdog/LogControlResources.robot
-Resource  ../watchdog/WatchdogResources.robot
-Resource  ../telemetry/TelemetryResources.robot
-Resource  EDRResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
+Resource  ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/TelemetryResources.robot
+Resource  ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Test Setup  EDR Telemetry Test Setup With Debug Logging
 Test Teardown  EDR Telemetry Test Teardown

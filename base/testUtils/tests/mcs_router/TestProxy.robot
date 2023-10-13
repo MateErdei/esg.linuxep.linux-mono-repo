@@ -1,7 +1,8 @@
 *** Settings ***
-Resource  McsRouterResources.robot
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${LIBS_DIRECTORY}/ProxyUtils.py
+
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup      Run Keywords  Setup MCS Tests  AND  Start MCS Push Server
 Suite Teardown   Run Keywords  Uninstall SSPL Unless Cleanup Disabled  AND  Server Close

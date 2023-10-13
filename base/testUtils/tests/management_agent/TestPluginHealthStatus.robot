@@ -9,8 +9,8 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
-Resource  ../mcs_router/McsRouterResources.robot
-Resource    ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS  TAP_PARALLEL5
 

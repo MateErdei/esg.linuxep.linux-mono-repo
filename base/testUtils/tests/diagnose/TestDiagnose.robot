@@ -8,11 +8,11 @@ Library     Process
 Library     OperatingSystem
 Library     Collections
 
-Resource    ../edr_plugin/EDRResources.robot
-Resource    ../liveresponse_plugin/LiveResponseResources.robot
-Resource    DiagnoseResources.robot
-Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
-Resource    ../ra_plugin/ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/RuntimeDetectionsResources.robot
 
 Suite Setup  Require Fresh Install
 Suite Teardown  Ensure Uninstalled

@@ -1,12 +1,12 @@
 *** Settings ***
-Resource  ../installer/InstallerResources.robot
-Resource  ResponseActionsResources.robot
-Resource  ../telemetry/TelemetryResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
-
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/OnFail.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
+
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Setup     RA Action With Register Suite Setup
 Suite Teardown  RA Suite Teardown

@@ -7,8 +7,8 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  WatchdogResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 
 *** Test Cases ***

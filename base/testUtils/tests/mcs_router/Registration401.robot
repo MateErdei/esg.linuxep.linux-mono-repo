@@ -6,7 +6,7 @@ Documentation    Tests to verify we can register successfully with
 Library     String
 Library     Process
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Teardown    Registration 401 Test Teardown
 

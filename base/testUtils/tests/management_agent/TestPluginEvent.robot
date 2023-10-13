@@ -13,8 +13,8 @@ Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
-Resource    ManagementAgentResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Force Tags     MANAGEMENT_AGENT    TAP_PARALLEL5
 

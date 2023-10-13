@@ -4,7 +4,7 @@ Documentation    Port tests related to mcs policies and fake cloud that were ori
 Library   String
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 
 Suite Setup      Setup MCS Tests

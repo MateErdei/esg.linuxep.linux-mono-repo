@@ -8,8 +8,8 @@ Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
 
-Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup    Compatibility Tool Suite Setup
 Suite Teardown    Compatibility Tool Suite Teardown

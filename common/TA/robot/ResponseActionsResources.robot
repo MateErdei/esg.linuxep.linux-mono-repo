@@ -1,12 +1,11 @@
 *** Settings ***
 Library     Process
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-
-Resource  ../GeneralTeardownResource.robot
-Resource  ../GeneralUtilsResources.robot
+Resource    GeneralTeardownResource.robot
+Resource    GeneralUtilsResources.robot
 
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log

@@ -8,11 +8,11 @@ Test Teardown    Upgrade Resources SDDS3 Test Teardown
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
 
-Resource    ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../installer/InstallerResources.robot
-Resource    ../update/SDDS3Resources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD6

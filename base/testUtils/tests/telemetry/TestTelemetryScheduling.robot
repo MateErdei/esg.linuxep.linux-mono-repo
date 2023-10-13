@@ -1,10 +1,10 @@
 *** Settings ***
 Documentation  Test the Telemetry Scheduler
 
-Library    ../../libs/TemporaryDirectoryManager.py
+Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
-Resource  TelemetryResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Setup      Setup TelemetryScheduling Tests
 Suite Teardown   Cleanup TelemetryScheduling Tests

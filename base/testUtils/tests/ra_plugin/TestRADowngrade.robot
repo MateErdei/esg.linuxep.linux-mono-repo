@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation    Testing RA Downgrade Logs
 
-Resource  ../installer/InstallerResources.robot
-Resource  ResponseActionsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled

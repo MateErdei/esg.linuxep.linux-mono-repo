@@ -1,8 +1,7 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/FakeSDDS3WarehouseUtils.py
-
 Library    OperatingSystem
 Library    Process
+Library    ${LIBS_DIRECTORY}/FakeSDDS3WarehouseUtils.py
 
 *** Variables ***
 ${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py

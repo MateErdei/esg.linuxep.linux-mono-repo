@@ -3,12 +3,12 @@ Documentation    Test base uninstaller clean up all components
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  ../event_journaler/EventJournalerResources.robot
-Resource  ../ra_plugin/ResponseActionsResources.robot
-Resource  ../edr_plugin/EDRResources.robot
-Resource  ../liveresponse_plugin/LiveResponseResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource  ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource  ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
+Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
 Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN
 

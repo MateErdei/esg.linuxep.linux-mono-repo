@@ -8,11 +8,11 @@ Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 
-Resource  ../telemetry/TelemetryResources.robot
-Resource  ../installer/InstallerResources.robot
-Resource  ../watchdog/WatchdogResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Teardown   Require Uninstalled
 

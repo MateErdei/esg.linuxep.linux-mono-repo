@@ -5,9 +5,9 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  DiagnoseResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../mcs_router/McsRouterResources.robot
+Resource   ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup  Require Fresh Install
 Suite Teardown  Run Keywords

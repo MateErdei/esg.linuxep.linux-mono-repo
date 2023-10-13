@@ -8,9 +8,9 @@ Library    ${LIBS_DIRECTORY}/Watchdog.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  WatchdogResources.robot
-Resource  ../installer/InstallerResources.robot
-Resource  LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown

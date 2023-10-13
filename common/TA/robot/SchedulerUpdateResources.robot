@@ -1,5 +1,4 @@
 *** Settings ***
-
 Library    Process
 Library    OperatingSystem
 Library    String
@@ -10,10 +9,10 @@ Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../watchdog/LogControlResources.robot
-Resource  ../management_agent/ManagementAgentResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource    GeneralTeardownResource.robot
+Resource    LogControlResources.robot
+Resource    InstallerResources.robot
+Resource    ManagementAgentResources.robot
 
 *** Variables ***
 ${UPDATE_SCHEDULER_BINARY_NAME}  UpdateScheduler

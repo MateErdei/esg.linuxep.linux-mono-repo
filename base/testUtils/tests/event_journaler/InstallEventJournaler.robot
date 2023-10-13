@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation    Suite description
 
-Resource  ../installer/InstallerResources.robot
-Resource  EventJournalerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled

@@ -6,8 +6,8 @@ Library    String
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Force Tags    TAP_PARALLEL4    WDCTL
 

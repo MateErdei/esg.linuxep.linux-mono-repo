@@ -4,9 +4,11 @@ Documentation    Suite description
 Default Tags  FUZZ
 
 Library           OperatingSystem
+
 Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
-Resource  ../GeneralTeardownResource.robot
-Resource  FuzzTestsResources.robot
+
+Resource   ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Suite Setup   Fuzzer Tests Global Setup
 Suite Teardown   Fuzzer Tests Global TearDown

@@ -1,19 +1,15 @@
 *** Settings ***
-Resource    ../update/SDDS3Resources.robot
-
-
-Suite Setup      Setup SUL Downloader Tests
-Suite Teardown   Cleanup SUL Downloader Tests
-
-
 Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/SulDownloader.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+
+Suite Setup      Setup SUL Downloader Tests
+Suite Teardown   Cleanup SUL Downloader Tests
 
 *** Variables ***
-
 ${SUL_DOWNLOADER_LOG} =  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Keywords ***

@@ -4,8 +4,9 @@ Documentation    Fuzz Tests
 Default Tags  FUZZ
 
 Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
-Resource  ../GeneralTeardownResource.robot
-Resource  FuzzTestsResources.robot
+
+Resource  ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Test Setup   Run Keywords
 ...          Fuzzer Set Paths  ${EVEREST-BASE}  ${SUPPORT_FILES}/base_data/fuzz  AND

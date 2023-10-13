@@ -1,12 +1,12 @@
 *** Settings ***
-Library    Process
 Library    OperatingSystem
+Library    Process
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 
-Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../GeneralTeardownResource.robot
+Resource    GeneralTeardownResource.robot
+Resource    ManagementAgentResources.robot
 
 *** Keywords ***
 Stop System Watchdog

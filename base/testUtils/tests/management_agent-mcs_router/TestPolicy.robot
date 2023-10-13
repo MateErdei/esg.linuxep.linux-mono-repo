@@ -4,9 +4,9 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../installer/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 *** Test Case ***
 Default SAV Policy Is Written To File and Passed Through The Management Agent To The Plugin

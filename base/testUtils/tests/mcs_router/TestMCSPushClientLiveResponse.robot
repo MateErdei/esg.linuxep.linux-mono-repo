@@ -1,14 +1,14 @@
 *** Settings ***
 
+Library     String
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
-Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
-Library     String
-Resource    McsRouterResources.robot
-Resource    McsPushClientResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled

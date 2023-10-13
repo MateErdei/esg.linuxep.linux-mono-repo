@@ -50,3 +50,10 @@ pkg_tar(
     strip_prefix = "/common/TA",
     visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
 )
+
+pkg_tar(
+    name = "common_test_robot",
+    srcs = glob(["TA/robot/**"]),
+    strip_prefix = "/common/TA",
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+)

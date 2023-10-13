@@ -6,8 +6,8 @@ Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  WatchdogResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Test Setup  Require Fresh Install
 

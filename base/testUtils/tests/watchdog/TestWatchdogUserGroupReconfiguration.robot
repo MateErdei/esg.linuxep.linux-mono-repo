@@ -1,19 +1,19 @@
 *** Settings ***
 Documentation   Tests that check WD will reconfigure the products user and group IDs to match what the user requested.
 
-Library    Process
 Library    OperatingSystem
-Library    ../../libs/FullInstallerUtils.py
-Library    ../../libs/MCSRouter.py
-Library    ../../libs/UserAndGroupReconfigurationUtils.py
-Library    ../../libs/Watchdog.py
+Library    Process
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/UserAndGroupReconfigurationUtils.py
+Library    ${LIBS_DIRECTORY}/Watchdog.py
 
-Resource  ../av_plugin/AVResources.robot
-Resource  ../edr_plugin/EDRResources.robot
-Resource  ../event_journaler/EventJournalerResources.robot
-Resource  ../installer/InstallerResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
-Resource  WatchdogResources.robot
+Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup    Suite Setup
 

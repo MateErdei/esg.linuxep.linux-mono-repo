@@ -2,19 +2,18 @@
 Suite Setup   Global Setup Tasks
 Suite Teardown   Global Cleanup Tasks
 
-Library    ../libs/SystemProductTestOutputInstall.py
-Library    ../libs/FullInstallerUtils.py
+Library    OperatingSystem
+Library    Process
 Library    ../libs/CentralUtils.py
-Library    ../libs/TemporaryDirectoryManager.py
-Library    ../libs/WarehouseUtils.py
+Library    ../libs/FullInstallerUtils.py
 Library    ../libs/OSUtils.py
-Library    ../libs/UpdateServer.py
 Library    ../libs/PathManager.py
+Library    ../libs/SystemProductTestOutputInstall.py
+Library    ../libs/TemporaryDirectoryManager.py
+Library    ../libs/UpdateServer.py
+Library    ../libs/WarehouseUtils.py
 
-Library           OperatingSystem
-Library           Process
-
-Resource   GeneralTeardownResource.robot
+Resource    ../../common_test_robot/GeneralTeardownResource.robot
 
 Test Timeout    5 minutes
 Test Teardown   General Test Teardown
@@ -76,17 +75,22 @@ Global Setup Tasks
 
     Set Global Variable    ${TEST_INPUT_PATH}    /opt/test/inputs
     Set Global Variable    ${SYS_TEST_LIBS}      /opt/sspl/libs
+    Set Global Variable    ${SYS_TEST_COMMON_ROBOT}      /opt/sspl/common
     Set Global Variable    ${LOCAL_TEST_LIBS}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/libs
+    Set Global Variable    ${LOCAL_TEST_ROBOT}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/robot
 
     ${isSystemTestRun}=    Directory Exists    ${SYS_TEST_LIBS}
     ${isLocalTestRun}=     Directory Exists    ${LOCAL_TEST_LIBS}
 
     IF    ${isSystemTestRun}
         Set Global Variable    ${COMMON_TEST_LIBS}    ${SYS_TEST_LIBS}
+        Set Global Variable    ${COMMON_TEST_ROBOT}   ${SYS_TEST_COMMON_ROBOT}
     ELSE IF    ${isLocalTestRun}
         Set Global Variable    ${COMMON_TEST_LIBS}    ${LOCAL_TEST_LIBS}
+        Set Global Variable    ${COMMON_TEST_ROBOT}   ${LOCAL_TEST_ROBOT}
     ELSE
         Set Global Variable    ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
+        Set Global Variable    ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
     END
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl

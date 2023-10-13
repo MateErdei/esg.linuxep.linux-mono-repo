@@ -3,11 +3,13 @@ Documentation    Suite description
 
 Library    OperatingSystem
 Library    Process
-Resource  ../GeneralTeardownResource.robot
-Library     ${LIBS_DIRECTORY}/TeardownTools.py
+
 Library     ${LIBS_DIRECTORY}/FaultInjectionTools.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
-Resource  ../installer/InstallerResources.robot
+Library     ${LIBS_DIRECTORY}/TeardownTools.py
+
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Suite Setup  ZMQ Suite Setup
 

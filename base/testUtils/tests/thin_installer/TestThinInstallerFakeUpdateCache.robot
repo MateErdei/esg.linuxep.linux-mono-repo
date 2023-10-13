@@ -11,10 +11,10 @@ Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
 Library     Process
 Library     OperatingSystem
 
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ThinInstallerResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Test Setup      Setup Thininstaller Test
 Test Teardown   Teardown

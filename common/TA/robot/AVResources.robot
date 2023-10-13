@@ -1,12 +1,13 @@
 *** Settings ***
 Library     Process
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OnFail.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/DownloadAVSupplements.py
+Library     ${LIBS_DIRECTORY}/DownloadAVSupplements.py
+Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/OnFail.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  ../GeneralTeardownResource.robot
+Resource    GeneralTeardownResource.robot
+
 *** Variables ***
 ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
 ${AV_LOG_PATH}                      ${AV_PLUGIN_PATH}/log/

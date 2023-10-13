@@ -3,8 +3,8 @@ Documentation    Test that wdctl can install a plugin configuration
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 *** Test Cases ***
 Test that wdctl can install a plugin configuration

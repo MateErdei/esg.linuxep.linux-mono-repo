@@ -1,11 +1,12 @@
 *** Settings ***
-Library    Process
-Library    OperatingSystem
+Library     Process
+Library     OperatingSystem
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
-Resource  ../installer/InstallerResources.robot
-Resource  ../watchdog/LogControlResources.robot
+
+Resource    LogControlResources.robot
+Resource    InstallerResources.robot
 
 
 *** Keywords ***

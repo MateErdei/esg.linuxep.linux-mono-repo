@@ -1,12 +1,10 @@
 *** Settings ***
-
+Library     String
 Library     ${LIBS_DIRECTORY}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
-
-Library     String
 Resource    McsRouterResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
+Resource    UpgradeResources.robot
 
 *** Variables ***
 ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log

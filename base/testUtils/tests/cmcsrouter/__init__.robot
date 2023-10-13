@@ -1,5 +1,5 @@
 *** Settings ***
-Resource  ../mcs_router/McsRouterResources.robot
+Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup      Regenerate Certificates
 Suite Teardown   Cleanup Certificates

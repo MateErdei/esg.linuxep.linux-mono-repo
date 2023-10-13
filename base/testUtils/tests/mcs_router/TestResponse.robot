@@ -5,7 +5,7 @@ Library   Process
 
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 
 Test Setup  Test Setup

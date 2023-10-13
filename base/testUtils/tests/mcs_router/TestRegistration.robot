@@ -6,11 +6,11 @@ Documentation    Tests to verify we can register successfully with
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     String
 
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
-
-Resource  ../installer/InstallerResources.robot
-Resource  McsRouterResources.robot
 
 Test Setup       Run Keywords
 ...              Start Local Cloud Server  AND

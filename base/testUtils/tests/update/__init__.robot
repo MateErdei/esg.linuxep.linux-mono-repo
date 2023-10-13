@@ -15,7 +15,7 @@ Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 *** Keywords ***
 

@@ -3,9 +3,9 @@ Documentation    Test base uninstaller clean up all components
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  ../edr_plugin/EDRResources.robot
-Resource  ../liveresponse_plugin/LiveResponseResources.robot
-Resource  ../GeneralTeardownResource.robot
+Resource   ${COMMON_TEST_ROBOT}/EDRResources.robot
+Resource   ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Default Tags  UNINSTALL
 

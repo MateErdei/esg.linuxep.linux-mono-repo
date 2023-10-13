@@ -1,7 +1,7 @@
 *** Settings ***
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 

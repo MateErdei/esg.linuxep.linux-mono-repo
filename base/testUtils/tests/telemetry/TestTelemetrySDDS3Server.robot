@@ -12,9 +12,9 @@ Test Teardown    Run Keywords
 ...                Clean up fake warehouse  AND
 ...                Upgrade Resources SDDS3 Test Teardown
 
-Resource    TelemetryResources.robot
-Resource    ../update/SDDS3Resources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 *** Variables ***
 

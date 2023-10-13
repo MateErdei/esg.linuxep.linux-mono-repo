@@ -10,7 +10,7 @@ Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-Resource    ManagementAgentResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Test Teardown     Plugin Action Test Teardown
 

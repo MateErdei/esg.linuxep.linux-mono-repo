@@ -2,15 +2,15 @@
 Documentation    Tests to verify we can register successfully with
 ...              fake cloud with C++ implementation.
 
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+
 Suite Setup      Run Keywords
                  ...    Setup MCS Tests    AND
                  ...    Start Local Cloud Server
 Suite Teardown  Run Keywords
                  ...    Uninstall SSPL Unless Cleanup Disabled    AND
                  ...    Stop Local Cloud Server
-
-Resource  ../installer/InstallerResources.robot
-Resource  ../mcs_router/McsRouterResources.robot
 
 Test Teardown    Run Keywords
 ...              MCSRouter Test Teardown  AND

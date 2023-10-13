@@ -3,7 +3,7 @@ Documentation    Setup an installation
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  ../installer/InstallerResources.robot
+Resource   ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Default Tags  MANUAL  INSTALLER
 

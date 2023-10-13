@@ -10,11 +10,12 @@ Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    Collections
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../thin_installer/ThinInstallerResources.robot
-Resource  ../watchdog/WatchdogResources.robot
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource  ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
+Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
+
 Force Tags  INSTALLER  TAP_PARALLEL2
 
 *** Test Cases ***

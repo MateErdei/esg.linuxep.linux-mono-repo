@@ -4,7 +4,7 @@ Documentation    Suite description
 
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
-Resource    ../installer/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Test Setup  Local Test Setup
 Test Teardown  Local Test Teardown

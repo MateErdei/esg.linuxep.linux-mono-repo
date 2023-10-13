@@ -9,8 +9,9 @@ Test Teardown   Fake SulDownloader TearDown
 Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
-Resource  ../installer/InstallerResources.robot
-Resource  ../GeneralTeardownResource.robot
+
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD6

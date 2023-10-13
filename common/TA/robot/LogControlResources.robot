@@ -5,7 +5,7 @@ Library    Collections
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  WatchdogResources.robot
+Resource   WatchdogResources.robot
 
 
 *** Keywords ***

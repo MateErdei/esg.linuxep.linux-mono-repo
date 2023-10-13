@@ -6,8 +6,8 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library    ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
-Resource  McsRouterResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
+Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND

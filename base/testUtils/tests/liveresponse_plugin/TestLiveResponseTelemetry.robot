@@ -1,17 +1,17 @@
 *** Settings ***
 Documentation    Suite description
+
 Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
-
-Resource  ../installer/InstallerResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../watchdog/LogControlResources.robot
-Resource  ../watchdog/WatchdogResources.robot
-Resource  ../telemetry/TelemetryResources.robot
-Resource  LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
+Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 
 Test Setup  LiveResponse Telemetry Test Setup

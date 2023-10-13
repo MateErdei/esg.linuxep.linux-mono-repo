@@ -9,11 +9,11 @@ Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Resource  SchedulerUpdateResources.robot
-Resource  ../watchdog/LogControlResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
+
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
 
 Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER

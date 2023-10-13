@@ -22,3 +22,11 @@ install(FILES
 install(DIRECTORY
         ${CMAKE_SOURCE_DIR}/testUtils
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
+
+install(DIRECTORY
+        ${CMAKE_SOURCE_DIR}/../common/TA/libs
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
+
+install(DIRECTORY
+        ${CMAKE_SOURCE_DIR}/../common/TA/robot
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)

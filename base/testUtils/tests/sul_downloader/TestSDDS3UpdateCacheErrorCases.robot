@@ -22,11 +22,11 @@ Library     OperatingSystem
 Library     String
 
 
-Resource    ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../installer/InstallerResources.robot
-Resource    ../update/SDDS3Resources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
+Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  SULDOWNLOADER  sdds3updatecache_error_cases
 *** Keywords ***

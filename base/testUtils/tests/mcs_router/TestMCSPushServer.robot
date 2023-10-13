@@ -1,11 +1,10 @@
 *** Settings ***
-Library  OperatingSystem
+Library    OperatingSystem
 Library    ${libs_directory}/PushServerUtils.py
 Library    ${libs_directory}/MCSRouter.py
 
-Resource  McsRouterResources.robot
-
-Resource  ../GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Teardown  Push Server Test Teardown
 

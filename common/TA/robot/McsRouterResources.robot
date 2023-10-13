@@ -2,17 +2,16 @@
 Documentation    Shared keywords for MCS Router tests
 
 Library     OperatingSystem
-
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
-Resource  ../installer/InstallerResources.robot
-Resource  ../watchdog/WatchdogResources.robot
-Resource  ../GeneralTeardownResource.robot
-Resource  ../GeneralUtilsResources.robot
+Resource    GeneralTeardownResource.robot
+Resource    GeneralUtilsResources.robot
+Resource    InstallerResources.robot
+Resource    WatchdogResources.robot
 
 *** Variables ***
 ${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log

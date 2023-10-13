@@ -6,7 +6,7 @@ Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 
-Resource  McsRouterResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Setup  Test Setup
 Test Teardown  Test Teardown
