@@ -81,7 +81,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
     arch, platform = machine_name.split("_")
     default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ", "SYSTEMPRODUCTTESTINPUT",
-                            "EXCLUDE_BAZEL", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}"]
+                            "EXCLUDE_BAZEL", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}",
+                            f"EXCLUDE_{machine_name.upper()}"]
 
     machine_full_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
@@ -131,7 +132,8 @@ def install_requirements(machine: tap.Machine):
 
     # TODO LINUXDAR-5855 remove this section when we stop signing with sha1
     try:
-        if machine.template == "centos9stream_x64_aws_server_en_us" or machine.template == "rhel91_x64_aws_server_en_us":
+        distro = machine.template.split("_")[0]
+        if distro in ["centos9stream", "rhel91"]:
             machine.run("update-crypto-policies", "--set", "LEGACY", timeout=30)
     except Exception as ex:
         print(f"On updating openssl policy: {ex}")

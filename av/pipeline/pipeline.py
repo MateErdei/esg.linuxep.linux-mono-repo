@@ -92,7 +92,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         # Exclude DISABLED on TAP
         # Exclude STRESS on TAP; as some tests here will not be appropriate
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
-        if machine_name.startswith('centos9stream'):
+        if machine_name.endswith('centos9stream'):
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
