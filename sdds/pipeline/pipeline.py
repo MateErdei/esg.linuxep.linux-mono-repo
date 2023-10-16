@@ -142,6 +142,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 def get_os_packages(machine: tap.Machine):
     common = [
         "openssl",  # For generating certs
+        "git",  # Required by some part of tap
     ]
     if machine.template == "amzlinux2_x64_server_en_us":
         return common

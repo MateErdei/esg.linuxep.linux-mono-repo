@@ -43,7 +43,7 @@ ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 # Thin installer appends sophos-spl to the argument
 ${CUSTOM_INSTALL_DIRECTORY}    /home/sophos-spl
 ${CUSTOM_INSTALL_DIRECTORY_ARG}    /home
-
+${RPATHCheckerLog}                          /tmp/rpath_checker.log
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
@@ -154,6 +154,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
+    Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
