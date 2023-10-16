@@ -84,7 +84,9 @@ namespace verify_exceptions
 #    if CPPSTD == 11
         ~ve_base() override = default;
 #    else
-        virtual ~ve_base() NOEXCEPT {}
+        virtual ~ve_base() NOEXCEPT
+        {
+        }
 #    endif
 
         // Copy constructor (defined for the use of derived classes)
@@ -135,7 +137,9 @@ namespace verify_exceptions
         }
 
 #    if CPPSTD != 11
-        virtual ~ve_file() NOEXCEPT {}
+        virtual ~ve_file() NOEXCEPT
+        {
+        }
 #    endif
 
         // Copy constructor
@@ -180,7 +184,9 @@ namespace verify_exceptions
         string m_Message;
 
     public:
-        explicit ve_crypt(STRARG Msg) : ve_base(SignedFile::openssl_error), m_Message(STDMOVE(Msg)) {}
+        explicit ve_crypt(STRARG Msg) : ve_base(SignedFile::openssl_error), m_Message(STDMOVE(Msg))
+        {
+        }
         //      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
         // ve_crypt& operator=(const ve_crypt& rhs) {
         //   ve_base::operator=(rhs);
@@ -194,7 +200,9 @@ namespace verify_exceptions
         }
 
 #    if CPPSTD != 11
-        virtual ~ve_crypt() NOEXCEPT {}
+        virtual ~ve_crypt() NOEXCEPT
+        {
+        }
 #    endif
 
         // OpenSSL errors are in an error queue from which
@@ -240,7 +248,9 @@ namespace verify_exceptions
         // virtual ostream& output(ostream &s) { s << *this; return s; }
 
 #    if CPPSTD != 11
-        virtual ~ve_badsig() NOEXCEPT {}
+        virtual ~ve_badsig() NOEXCEPT
+        {
+        }
 #    endif
 
         friend ostream& operator<<(ostream& s, ve_badsig& vc);
@@ -275,7 +285,9 @@ namespace verify_exceptions
         }
 
 #    if CPPSTD != 11
-        virtual ~ve_badcert() NOEXCEPT {}
+        virtual ~ve_badcert() NOEXCEPT
+        {
+        }
 #    endif
 
         //      string GetBadCertNames() { return m_BadCertNames; }

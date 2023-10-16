@@ -18,11 +18,20 @@ namespace
     class StringHolder
     {
     public:
-        explicit StringHolder(const char* orig) { m_value = strdup(orig); }
+        explicit StringHolder(const char* orig)
+        {
+            m_value = strdup(orig);
+        }
 
-        ~StringHolder() { free(m_value); }
+        ~StringHolder()
+        {
+            free(m_value);
+        }
 
-        char* get() { return m_value; }
+        char* get()
+        {
+            return m_value;
+        }
 
         char* m_value;
     };

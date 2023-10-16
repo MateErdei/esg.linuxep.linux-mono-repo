@@ -51,7 +51,7 @@ namespace VerificationToolCrypto
     static string MakeErrString(X509_STORE_CTX* stor, string& CertName)
     {
         string Error;
-        Error.append(X509_verify_cert_error_string(stor->error));
+        Error.append(X509_verify_cert_error_string(X509_STORE_CTX_get_error(stor)));
         CertName.clear();
         X509* currentCert = X509_STORE_CTX_get_current_cert(stor);
         if (currentCert == NULLPTR)
@@ -144,31 +144,41 @@ namespace VerificationToolCrypto
 
     static bytestring sum_raw(istream& in, const EVP_MD* digest)
     {
-        EVP_MD_CTX ctx;
-        EVP_DigestInit(&ctx, digest);
+        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+        EVP_DigestInit(ctx, digest);
         char buf[128 * 1024];
 
         while (!in.eof())
         {
             in.read(buf, sizeof(buf));
             if (in.gcount() > 0)
-                EVP_DigestUpdate(&ctx, buf, in.gcount());
+                EVP_DigestUpdate(ctx, buf, in.gcount());
         }
 
         unsigned char hash_buf[EVP_MAX_MD_SIZE];
         unsigned int hash_len = 0;
-        EVP_DigestFinal(&ctx, hash_buf, &hash_len);
+        EVP_DigestFinal(ctx, hash_buf, &hash_len);
+        EVP_MD_CTX_free(ctx);
         // assert(hash_len != 0);
 
         bytestring result((char*)hash_buf, hash_len);
         return result;
     }
 
-    static bytestring sha1sum_raw(istream& in) { return sum_raw(in, EVP_sha1()); }
+    static bytestring sha1sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha1());
+    }
 
-    static bytestring sha512sum_raw(istream& in) { return sum_raw(in, EVP_sha512()); }
+    static bytestring sha512sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha512());
+    }
 
-    static bytestring sha256sum_raw(istream& in) { return sum_raw(in, EVP_sha256()); }
+    static bytestring sha256sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha256());
+    }
 
     static string hex(const bytestring& data)
     {
@@ -187,11 +197,20 @@ namespace VerificationToolCrypto
         return result;
     }
 
-    string sha1sum(istream& in) { return hex(sha1sum_raw(in)); }
+    string sha1sum(istream& in)
+    {
+        return hex(sha1sum_raw(in));
+    }
 
-    string sha512sum(istream& in) { return hex(sha512sum_raw(in)); }
+    string sha512sum(istream& in)
+    {
+        return hex(sha512sum_raw(in));
+    }
 
-    string sha256sum(istream& in) { return hex(sha256sum_raw(in)); }
+    string sha256sum(istream& in)
+    {
+        return hex(sha256sum_raw(in));
+    }
 
     string sha384sum(istream& in)
     {
