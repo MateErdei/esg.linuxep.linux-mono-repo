@@ -26,7 +26,7 @@ SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
 def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str, arch: str):
     thirdparty_all = unified_artifact(context, "thirdparty.all",
-                                      "feature--LINUXDAR-4103-build-thirdparty.all-for-arm64", "build")
+                                      "develop", "build")
     openssl = None
     if arch == "x64":
         openssl = thirdparty_all / "openssl_3" / "openssl_linux64_gcc11-2glibc2-17"
@@ -46,7 +46,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             common_test_robot=context.artifact.from_folder('./common/TA/robot'),
             thininstaller=base_build / f"thininstaller/{config}/thininstaller",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'feature--bazeltools--LINUXDAR-6781_crosstool_toolchain', f"build/sophlib/{config}/sdds3_tools")
+            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
     if mode == 'debug':
         config = f"linux_{arch}_dbg"
