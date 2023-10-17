@@ -28,6 +28,7 @@ cp -r ../common/TA/robot ${CREATE_DIR}
 
 export TEST_UTILS=${CREATE_DIR}
 export SYSTEMPRODUCT_TEST_INPUT=./system-product-test-inputs
+export FULL_TESTS=True
 # this changes the working directory of the gather process to a relative path to the job so that we can run
 # multiple jobs on the same machine
 sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UTILS}/system-product-test-release-package.xml

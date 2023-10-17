@@ -5,72 +5,68 @@
         <build-asset project="linuxep" repo="everest-base">
             <development-version branch="develop"/>
             <!-- Base -->
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/installer" dest-dir="sspl-base"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sspl-responseactions-plugin"/>
-            <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/system_test" dest-dir="SystemProductTestOutput"/>
+            <include mode="system-test,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/installer" dest-dir="sspl-base"/>
+            <include mode="system-test,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sspl-responseactions-plugin"/>
+            <include mode="system-test,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="base-coverage" artifact-path="sspl-base/RA-SDDS-COMPONENT" dest-dir="sspl-responseactions-plugin"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/covfile" dest-dir="coverage"/>
 
             <!-- ThinInstaller -->
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="thininstaller/linux_x64_rel/thininstaller" dest-dir="sspl-thininstaller" />
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="thininstaller/linux_x64_rel/thininstaller" dest-dir="sspl-thininstaller" />
 
             <!-- EDR -->
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
 
             <!-- event journaler-->
-            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sspl-plugin-event-journaler"/>
-            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
+            <include mode="system-test,base-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sspl-plugin-event-journaler"/>
+            <include mode="system-test,base-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage//SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
 
             <!-- AV -->
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
 
             <!-- LIVETERMINAL -->
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
 
             <!-- SDDS Packages -->
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
             <development-version branch="develop"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="SDDS-COMPONENT" dest-dir="sspl-runtimedetections-plugin"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="sspl-rdrules" dest-dir="sspl-runtimedetections-plugin/content_rules"/>
         </build-asset>
 
         <build-asset project="winep" repo="liveterminal">
             <development-version branch="develop"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-liveterminal/test-scripts" dest-dir="liveterminal-test-scripts" />
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="sspl-liveterminal/test-scripts" dest-dir="liveterminal-test-scripts" />
 
         </build-asset>
 
         <build-asset project="core" repo="safestore">
             <development-version branch="develop" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="release/linux-x64/safestore" dest-dir="safestore_tools"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="release/linux-x64/safestore" dest-dir="safestore_tools"/>
         </build-asset>
 
-
-        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
-            <development-version branch="develop"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
-        </build-asset>
 
         <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->
         <build-asset project="em" repo="esg">
             <!-- release-version fetches for all branches with no development-version -->
             <development-version branch="release--bazeltools"/>
-            <include mode="base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools"/>
+            <include mode="base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools"/>
         </build-asset>
 
         <build-asset project="em" repo="esg">

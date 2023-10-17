@@ -28,7 +28,7 @@ function try_command_with_backoff()
 sudo rm -rf $SYSTEMPRODUCT_TEST_INPUT
 
 TEST_PACKAGE_XML=system-product-test-release-package.xml
-MODE=system-test
+MODE=no-suite
 if [[ -n ${BASE_COVERAGE:-} ]]; then
   MODE=base-coverage
 elif [[ -n ${LIVERESPONSE_COVERAGE:-} ]]; then
@@ -39,6 +39,8 @@ elif [[ -n ${PLUGIN_TEMPLATE_COVERAGE:-} ]]; then
   MODE=template-coverage
 elif [[ -n ${PLUGIN_EVENTJOURNALER_COVERAGE:-} ]]; then
   MODE=ej-coverage
+elif [[ -n ${FULL_TESTS:-} ]]; then
+  MODE=system-test
 fi
 
 PYTHONCOMMAND=python3
