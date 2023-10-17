@@ -2,30 +2,31 @@
 load("//tools/config:sophos_stage_files.bzl", "soph_export_assets")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 
+COMMON_DEPS = [
+    "//base:installer",
+    "//base:system_test",
+    "//eventjournaler:installer",
+    "//eventjournaler:manualTools",
+    "//response_actions:installer",
+]
+
+RELEASE_DEPS = [
+    "//base:installer_symbols",
+    "//eventjournaler:installer_symbols",
+    "//response_actions:installer_symbols",
+]
+
 soph_export_assets(
     name = "export_assets",
     output_folder = ".output",
     release_package = "//build:release-package.xml",
-    deps = [
-        "//base:installer",
-        "//base:system_test",
-        "//eventjournaler:installer",
-        "//eventjournaler:manualTools",
-        "//response_actions:installer",
-    ] + selects.with_or({
-        ("//tools/config:linux_x64_rel", "//tools/config:linux_arm64_rel"): [
-            "//base:installer_symbols",
-            "//eventjournaler:installer_symbols",
-            "//response_actions:installer_symbols",
+    deps = select({
+        "//tools/config:linux_x64_rel": COMMON_DEPS + RELEASE_DEPS + [
+            "//base:fake_management",
             "//thininstaller",
         ],
-        ("//tools/config:linux_x64_dbg", "//tools/config:linux_arm64_dbg"): [
-        ],
-    }) + select({
-        "//tools/config:linux_x64_rel": [
-            "//base:fake_management",
-        ],
-        "//conditions:default": [
-        ],
+        "//tools/config:linux_arm64_rel": COMMON_DEPS + RELEASE_DEPS,
+        "//tools/config:linux_x64_dbg": COMMON_DEPS,
+        "//tools/config:linux_arm64_dbg": COMMON_DEPS,
     }),
 )

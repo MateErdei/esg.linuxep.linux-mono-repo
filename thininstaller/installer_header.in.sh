@@ -74,6 +74,7 @@ EXITCODE_MISSING_PACKAGE=30
 EXITCODE_INVALID_CA_PATHS=31
 EXITCODE_INVALID_MR_UC_GIVEN=32
 EXITCODE_COMPATIBILITY_CHECKS_FAILED=33
+EXITCODE_MALFORMED_THININSTALLER=34
 EXITCODE_REGISTRATION_FAILED=51
 EXITCODE_AUTHENTICATION_FAILED=52
 EXITCODE_ALC_POLICY_TRANSLATION_FAILED=53
@@ -472,6 +473,10 @@ MIDDLEBIT=$(awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}")
 UC_CERTS=$(awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}")
 ARCHIVE=$(awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}")
 
+if [[ -z "${MIDDLEBIT}" ]]; then
+  failure ${EXITCODE_MALFORMED_THININSTALLER} "Thin installer is malformed it is missing the __MIDDLE_BIT__ seperator."
+fi
+
 # If we have __UPDATE_CACHE_CERTS__ section then the middle section ends there, else it ends at the ARCHIVE marker.
 if [[ -n "${UC_CERTS}" ]]; then
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}/installer"
@@ -485,7 +490,14 @@ fi
 
 CREDENTIALS_FILE_PATH=${SOPHOS_TEMP_DIRECTORY}/credentials.txt
 tail -n+"${MIDDLEBIT}" "${INSTALL_FILE}" | head -"${MIDDLEBIT_SIZE}" >"${CREDENTIALS_FILE_PATH}"
-tail -n+${ARCHIVE} "${INSTALL_FILE}" >${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+
+if [[ $(uname -m) = "x86_64" ]]; then
+  sed -n -e '/^__ARCHIVE_BELOW__$/,/^__ARM64_ARCHIVE_BELOW__$/{ /^__ARCHIVE_BELOW__$/d; /^__ARM64_ARCHIVE_BELOW__$/d; p; }' "${INSTALL_FILE}" > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+  truncate -s -1 ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+elif [[ $(uname -m) = "aarch64" ]]; then
+  sed -n -e '/^__ARM64_ARCHIVE_BELOW__$/,/^__ARM64_ARCHIVE_ABOVE__$/{ /^__ARM64_ARCHIVE_BELOW__$/d; /^__ARM64_ARCHIVE_ABOVE__$/d; p; }' "${INSTALL_FILE}" > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+  truncate -s -1 ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
+fi
 
 # Adjust Message Relays and Update Caches in credentials file based on override arguments
 if [[ "${MESSAGE_RELAYS_OVERRIDE}" == "none" ]]; then

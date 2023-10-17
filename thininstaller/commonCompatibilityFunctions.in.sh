@@ -190,10 +190,10 @@ function verify_system_requirements() {
     [[ $(uname -a) =~ "Linux" ]] || failure ${EXITCODE_NOT_LINUX} "ERROR: SPL installation will fail as it can only be installed on Linux"
 
     # Check machine architecture
-    if [[ $(uname -m) = "x86_64" ]]; then
+    if [[ $(uname -m) = "x86_64" || $(uname -m) = "aarch64" ]]; then
         BIN="bin"
     else
-        failure ${EXITCODE_NOT_64_BIT} "ERROR: SPL installation will fail as it can only be installed on a x86_64 system"
+        failure ${EXITCODE_NOT_64_BIT} "ERROR: SPL installation will fail as it can only be installed on a x86_64 or aarch64 system"
     fi
 
     # Check for systemd
