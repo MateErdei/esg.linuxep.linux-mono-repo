@@ -50,8 +50,8 @@ def get_package_version(release_pkg: str) -> str:
     return package_node.attrib['version']
 
 
-def get_test_machines(test_inputs, parameters, x64_only=False):
-    if parameters.run_tests == "false":
+def get_test_machines(test_inputs, parameters, x64_only=False, system_tests=False):
+    if parameters.run_tests == "false" and not system_tests:
         return []
 
     test_environments = {"x64": {}, "arm64": {}}

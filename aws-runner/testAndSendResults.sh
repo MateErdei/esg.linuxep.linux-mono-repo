@@ -7,6 +7,7 @@ RERUNFAILED=${RERUNFAILED:-false}
 STACKNAME=$1
 shift
 
+[[ -d /opt/sspl/robot ]] && ln -s /opt/sspl/robot /opt/common_test_robot
 /opt/sspl/test.sh "$@"
 RESULT=$?
 

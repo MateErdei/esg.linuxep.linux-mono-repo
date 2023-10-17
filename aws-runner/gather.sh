@@ -22,6 +22,8 @@ rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete old $CREATE_DIR"
 
 # Assume (for jenkins job) that base is already present in the directory above aws-runner
 cp -r ../base/testUtils ${CREATE_DIR}
+cp -r ../common/TA/libs ${CREATE_DIR}
+cp -r ../common/TA/robot ${CREATE_DIR}
 
 
 export TEST_UTILS=${CREATE_DIR}

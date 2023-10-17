@@ -75,7 +75,7 @@ Global Setup Tasks
 
     Set Global Variable    ${TEST_INPUT_PATH}    /opt/test/inputs
     Set Global Variable    ${SYS_TEST_LIBS}      /opt/sspl/libs
-    Set Global Variable    ${SYS_TEST_COMMON_ROBOT}      /opt/sspl/common
+    Set Global Variable    ${SYS_TEST_COMMON_ROBOT}      /opt/sspl/robot
     Set Global Variable    ${LOCAL_TEST_LIBS}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/libs
     Set Global Variable    ${LOCAL_TEST_ROBOT}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/robot
 
