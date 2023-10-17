@@ -1,19 +1,23 @@
-# TODO LINUXDAR-6783: This needs update scheduler to be converted.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
-#load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
-#
-#spl_independent_cc_tests(
-#    name = "ManagementAgentImplTests",
-#    srcs = glob([
-#        "*.cpp",
-#    ]),
-#    deps = [
-#        "//base/modules/Common/FileSystemImpl",
-#        "//base/modules/Common/TaskQueueImpl",
-#        "//base/modules/Common/UtilityImpl:StringUtils",
-#        "//base/modules/Common/ZMQWrapperApi",
-#        "//base/modules/ManagementAgent/ManagementAgentImpl",
-#        "//base/tests/Common/ApplicationConfiguration",
-#        "//base/tests/ManagementAgent/MockPluginManager",
-#    ],
-#)
+spl_independent_cc_tests(
+    name = "ManagementAgentImplTests",
+    srcs = glob([
+        "*.cpp",
+    ]),
+    deps = [
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/PluginRegistryImpl",
+        "//base/modules/Common/TaskQueueImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/ManagementAgent/ManagementAgentImpl",
+        "//base/modules/UpdateSchedulerImpl",
+        "//base/tests/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/TaskQueueImpl",
+        "//base/tests/ManagementAgent/MockPluginManager",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

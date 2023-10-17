@@ -10,6 +10,7 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     visibility = [
         "//base/products/Base/UpdateScheduler:__pkg__",
+        "//base/tests/ManagementAgentImpl:__pkg__",
         "//base/tests/UpdateScheduler:__pkg__",
     ],
     deps = [

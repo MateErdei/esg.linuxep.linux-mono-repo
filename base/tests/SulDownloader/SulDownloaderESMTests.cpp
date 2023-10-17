@@ -101,14 +101,7 @@ INSTANTIATE_TEST_SUITE_P(
         R"("esmVersion": { "token": "token", "name": ")" +
             std::string(30000, 't') + R"(" })"));
 
-#ifdef SPL_BAZEL
-// TODO LINUXDAR-6783: this test fails when running during a build but passes
-// when only this suite is run. I wasn't able to track it down so I decided to
-// disable it for now
-TEST_P(TestSulDownloaderParameterizedValidESM, DISABLED_validESMInput)
-#else
 TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
-#endif
 {
   const std::string everest_installer =
       "/opt/sophos-spl/base/update/cache/sdds3primary/"
