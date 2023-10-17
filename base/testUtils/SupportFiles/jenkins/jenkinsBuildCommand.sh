@@ -78,6 +78,8 @@ then
 fi
 
 export TEST_UTILS=$WORKSPACE/base/testUtils
+rsync -auv $WORKSPACE/common/TA/libs/ ${TEST_UTILS}/libs/
+cp -r $WORKSPACE/common/TA/robot ${TEST_UTILS}/
 bash ${JENKINS_DIR}/install_dependencies.sh
 bash ${JENKINS_DIR}/install_setup_tools.sh
 [[ -n $NO_GATHER ]] || source $WORKSPACE/base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"

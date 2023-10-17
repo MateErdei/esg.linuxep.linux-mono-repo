@@ -39,6 +39,9 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable  SDDS3_Builder  default=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder
     Set Global Variable  ${SDDS3_Builder}  ${placeholder}
 
+    ${placeholder} =  Get Environment Variable  WORKSPACE  default=/home/jenkins/workspace/
+    Set Global Variable  ${JENKINS_WORKSPACE}  ${placeholder}
+
     Set Global Variable  ${SUL_DOWNLOADER}              ${SOPHOS_INSTALL}/base/bin/SulDownloader
     Set Global Variable  ${VERSIGPATH}                  ${SOPHOS_INSTALL}/base/update/versig
     Set Global Variable  ${MCS_ROUTER}                  ${SOPHOS_INSTALL}/base/bin/mcsrouter
@@ -78,9 +81,12 @@ Global Setup Tasks
     Set Global Variable    ${SYS_TEST_COMMON_ROBOT}      /opt/sspl/robot
     Set Global Variable    ${LOCAL_TEST_LIBS}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/libs
     Set Global Variable    ${LOCAL_TEST_ROBOT}    /vagrant/esg.linuxep.linux-mono-repo/common/TA/robot
+    Set Global Variable    ${JENKINS_TEST_LIBS}    ${JENKINS_WORKSPACE}/base/testUtils/libs
+    Set Global Variable    ${JENKINS_TEST_ROBOT}    ${JENKINS_WORKSPACE}/base/testUtils/robot
 
     ${isSystemTestRun}=    Directory Exists    ${SYS_TEST_LIBS}
     ${isLocalTestRun}=     Directory Exists    ${LOCAL_TEST_LIBS}
+    ${isJenkinsTestRun}=   Directory Exists    ${JENKINS_TEST_LIBS}
 
     IF    ${isSystemTestRun}
         Set Global Variable    ${COMMON_TEST_LIBS}    ${SYS_TEST_LIBS}
@@ -88,6 +94,9 @@ Global Setup Tasks
     ELSE IF    ${isLocalTestRun}
         Set Global Variable    ${COMMON_TEST_LIBS}    ${LOCAL_TEST_LIBS}
         Set Global Variable    ${COMMON_TEST_ROBOT}   ${LOCAL_TEST_ROBOT}
+    ELSE IF    ${isJenkinsTestRun}
+        Set Global Variable    ${COMMON_TEST_LIBS}    ${JENKINS_TEST_LIBS}
+        Set Global Variable    ${COMMON_TEST_ROBOT}   ${JENKINS_TEST_ROBOT}
     ELSE
         Set Global Variable    ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
         Set Global Variable    ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
