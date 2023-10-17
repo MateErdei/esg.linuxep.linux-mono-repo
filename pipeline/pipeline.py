@@ -75,7 +75,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
             cmake_pipeline(stage, context, parameters, mode, build_selection)
 
         if build_selection == BUILD_SELECTION_ALL and parameters.run_system_tests != "false" and mode == RELEASE_MODE:
-            sdds_component = tap.Component(name='sdds', base_version=get_package_version(PACKAGE_PATH_SDDS))
             sdds(stage, context, parameters)
 
 
@@ -214,6 +213,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         image=BUILD_TEMPLATE,
                                                         mode=COVERAGE_MODE,
                                                         release_package=PACKAGE_PATH_AV)
+
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                 liveterminal_coverage_build = stage.artisan_build(name=f"liveterminal_{COVERAGE_MODE}",
                                                         component=liveterminal_component,

@@ -20,8 +20,11 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Default Tags  THIN_INSTALLER
 
+Suite Setup      Setup sdds3 Update Tests
+
 Test Setup      Setup Thininstaller Test Without Local Cloud Server
 Test Teardown   Thininstaller Test Teardown
+
 *** Keywords ***
 
 Remove SAV files
@@ -92,19 +95,22 @@ Thin Installer Detects Sweep And Cancels Installation If SAV can not be uninstal
     [Tags]  SAV  THIN_INSTALLER
     [Setup]    Setup Thininstaller Test
     [Teardown]  SAV Teardown
+
+    Wait Until Keyword Succeeds  10 secs  1 secs  Can Curl Url    https://localhost:8080
+
     Create Fake Savscan In Tmp
     Create Fake Sweep Symlink    /usr/bin
-    Run Default Thininstaller    ${8}
+    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink   /usr/bin
 
     Create Fake Sweep Symlink    /usr/local/bin/
-    Run Default Thininstaller    ${8}
+    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /usr/local/bin/
 
     Create Fake Sweep Symlink    /bin
-    Run Default Thininstaller    ${8}
+    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /bin
 
@@ -121,8 +127,7 @@ Thin Installer Detects Sweep And uninstalls SAV
     Create Fake Savscan In Tmp
     Create Fake SAV Uninstaller in Tmp
     Create Fake Sweep Symlink    /usr/bin
-    ## Installer fails trying to talk to fakeCloud
-    Run Default Thininstaller    ${18}  thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
+    Run Default Thininstaller    ${0}  force_certs_dir=${SUPPORT_FILES}/sophos_certs    thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
     Check Thininstaller Log Contains    Found an existing installation of Sophos Anti-Virus in /tmp/i/am/fake/.
     Check Thininstaller Log Contains    This product cannot be run alongside Sophos Anti-Virus.
     Check Thininstaller Log Contains    Sophos Anti-Virus will be uninstalled:
@@ -194,7 +199,7 @@ Thin Installer Fails When No Path In Systemd File
     Log File  ${serviceDir}/sophos-spl.service
 
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  ${20}
+    Run Default Thininstaller  ${20}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     Check Thininstaller Log Contains  An existing installation of Sophos Protection for Linux was found but could not find the installed path.
     mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays

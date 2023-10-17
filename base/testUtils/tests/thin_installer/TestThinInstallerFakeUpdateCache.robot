@@ -20,7 +20,7 @@ Test Setup      Setup Thininstaller Test
 Test Teardown   Teardown
 
 Suite Setup  sdds3 suite setup with fakewarehouse with real base
-Suite Teardown   sdds3 suite fake warehouse Teardown
+Suite Teardown   SDDS3 Suite Fake Warehouse Teardown
 
 Default Tags  THIN_INSTALLER  UPDATE_CACHE
 

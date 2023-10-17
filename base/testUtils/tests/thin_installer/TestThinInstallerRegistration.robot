@@ -2,7 +2,9 @@
 Test Setup      Setup Thininstaller Test
 Test Teardown   Thininstaller Test Teardown
 
-Suite Setup    Upgrade Resources Suite Setup
+Suite Setup    Thininstaller Suite Setup
+Suite Teardown   Thininstaller Suite Teardown
+
 
 Library     DateTime
 Library     OperatingSystem
@@ -26,6 +28,16 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Default Tags  THIN_INSTALLER
 
 *** Keywords ***
+Thininstaller Suite Setup
+    Upgrade Resources Suite Setup
+    ${handle} =    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Wait Until Keyword Succeeds  10 secs  1 secs  Can Curl Url    https://localhost:8080
+
+Thininstaller Suite Teardown
+    Upgrade Resources Suite Teardown
+    SDDS3 Suite Fake Warehouse Teardown
+
 
 *** Variables ***
 

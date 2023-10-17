@@ -208,7 +208,7 @@ class ThinInstallerUtils(object):
             if str(rc) != str(expected_return_code):
                 self.dump_log()
                 raise AssertionError(
-                    f"Thin Installer failed with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
+                    f"Thin Installer exited with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
 
     def run_thininstaller(self,
                           command,
@@ -288,7 +288,7 @@ class ThinInstallerUtils(object):
         if str(rc) != str(expected_return_code):
             self.dump_log()
             raise AssertionError(
-                f"Thin Installer failed with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
+                f"Thin Installer exited with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
 
     def run_default_thininstaller(self,
                                   expected_return_code=0,

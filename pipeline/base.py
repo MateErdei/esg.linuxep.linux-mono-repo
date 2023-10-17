@@ -251,7 +251,6 @@ def run_base_tests(stage, context, base_build, mode, parameters):
     with stage.parallel('base_integration'):
         if robot_args:
             for template_name, machine in base_test_machines:
-                print("machine", robot_args, template_name, machine)
                 stage.task(task_name=template_name,
                            func=robot_task,
                            machine=machine,
@@ -265,7 +264,6 @@ def run_base_tests(stage, context, base_build, mode, parameters):
             for include in includedtags.split(","):
                 with stage.parallel(include):
                     for template_name, machine in base_test_machines:
-                        print("machine", include, template_name, machine)
                         stage.task(task_name=template_name,
                                    func=robot_task,
                                    machine=machine,

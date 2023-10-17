@@ -1,6 +1,10 @@
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 
 SUS_URL="https://sus.sophosupd.com"
+if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
+    echo "WARN: Using SUS URL override: $OVERRIDE_SUS_LOCATION"
+    SUS_URL=$OVERRIDE_SUS_LOCATION
+fi
 SDDS3_COM_URL="https://sdds3.sophosupd.com:443"
 SDDS3_NET_URL="https://sdds3.sophosupd.net:443"
 DAT_FILES=("supplement/sdds3.ScheduledQueryPack.dat"
@@ -38,18 +42,11 @@ function log_error() {
     echo "ERROR: ${1}"
 }
 
-function debug_curl_output() {
-    local url=$1
-    local proxy=$2
-
-    if [[ -n "${DEBUG_THIN_INSTALLER}" ]]; then
-        echo "DEBUG: See curl output for more detail:"
-        if [[ -z ${proxy} ]]; then
-            echo "$(curl -k -v ${url} -m 60)"
-        else
-            echo "$(curl --proxy ${proxy} -k -v ${url} -m 60)"
-        fi
-    fi
+function curl_debug() {
+    local curl_output
+    curl_output="$1"
+    log_debug "See curl output for more detail:"
+    log_debug "$curl_output"
 }
 
 function check_install_path_has_correct_permissions() {
@@ -230,44 +227,52 @@ function verify_system_requirements() {
 
 function verify_connection_to_central() {
     local proxy=$1
-
+    local curl_output
     if [[ -z ${proxy} ]]; then
-        if [[ $(curl --noproxy '*' -k -is "${CENTRAL_URL}" -m 60 | head -n 1) =~ "200" ]]; then
+        curl_output=$(curl --tlsv1.2 --noproxy '*' -k -is "${CENTRAL_URL}" -m 60 -v 2>&1)
+        curl_exitcode=$?
+        if [[ $curl_exitcode == 0 ]]; then
             VALID_CENTRAL_CONNECTION=1
             log_info "Server can connect to Sophos Central directly"
         else
             log_warn "Server cannot connect to Sophos Central directly"
-            debug_curl_output "${CENTRAL_URL}"
+            curl_debug "$curl_output"
         fi
     else
-        if [[ $(curl --proxy "${proxy}" -k -is "${CENTRAL_URL}" -m 60 | head -n 1) =~ "200" ]]; then
+        curl_output=$(curl --tlsv1.2 --proxy "${proxy}" -k -is "${CENTRAL_URL}" -m 60 -v 2>&1)
+        curl_exitcode=$?
+        if [[ $curl_exitcode == 0 ]]; then
             VALID_CENTRAL_CONNECTION=1
             log_info "Server can connect to Sophos Central via ${proxy}"
         else
             log_warn "SPL installation will not be performed via ${proxy}. Server cannot connect to Sophos Central via ${proxy}"
-            debug_curl_output "${CENTRAL_URL}" "${proxy}"
+            curl_debug "$curl_output"
         fi
     fi
 }
 
 function verify_connection_to_sus() {
     local proxy=$1
-
+    local curl_output
     if [[ -z ${proxy} ]]; then
-        if [[ $(curl --noproxy '*' -is "${SUS_URL}" -m 60 | head -n 1) =~ "200" ]]; then
+        curl_output=$(curl --tlsv1.2 --noproxy '*' -is "${SUS_URL}" -m 60 -v 2>&1)
+        curl_exitcode=$?
+        if [[ $curl_exitcode == 0 ]]; then
             VALID_SUS_CONNECTION=1
             log_info "Server can connect to the SUS server (${SUS_URL}) directly"
         else
             log_warn "Server cannot connect to the SUS server (${SUS_URL}) directly"
-            debug_curl_output "${SUS_URL}"
+            curl_debug "$curl_output"
         fi
     else
-        if [[ $(curl --proxy "${proxy}" -is "${SUS_URL}" -m 60 | head -n 1) =~ "200" ]]; then
+        curl_output=$(curl --tlsv1.2 --proxy "${proxy}" -is "${SUS_URL}" -m 60 -v 2>&1)
+        curl_exitcode=$?
+        if [[ $curl_exitcode == 0 ]]; then
             VALID_SUS_CONNECTION=1
             log_info "Server can connect to the SUS server (${SUS_URL}) via ${proxy}"
         else
             log_warn "SPL installation will not be performed via ${proxy}. Server cannot connect to the SUS server (${SUS_URL}) via ${proxy}"
-            debug_curl_output "${SUS_URL}" "${proxy}"
+            curl_debug "$curl_output"
         fi
     fi
 }
@@ -313,13 +318,16 @@ function verify_network_connections() {
     IFS=' ' read -ra UPDATE_CACHES <<<"${2}"
 
     [[ ${#UPDATE_CACHES[@]} != 0 ]] && log_info "Verifying connections to configured Update Caches"
+    local curl_output
     for update_cache in "${UPDATE_CACHES[@]}"; do
-        if curl -k -is "https://${update_cache}/v3" -m 60 >/dev/null; then
+        curl_output=$(curl --tlsv1.2 -k -is "https://${update_cache}/v3" -m 60 -v 2>&1)
+        curl_exitcode=$?
+        if [[ $curl_exitcode == 0 ]]; then
             VALID_UPDATE_CACHE_CONNECTION=1
             log_info "Server can connect to configured Update Cache (${update_cache})"
         else
             log_warn "Server cannot connect to configured Update Cache (${update_cache})"
-            debug_curl_output "${update_cache}"
+            curl_debug "$curl_output"
         fi
     done
 
@@ -355,10 +363,10 @@ function verify_network_connections() {
     # Check connection to CDN
     log_info "Verifying connections to the CDN server"
     CDN_URL=""
-    if [[ $(curl --noproxy '*' -is ${SDDS3_COM_URL} -m 60 | head -n 1) =~ "404" ]]; then
+    if curl --tlsv1.2 --noproxy '*' -is ${SDDS3_COM_URL} -m 60; then
         log_info "Server can connect to .com CDN address (${SDDS3_COM_URL}) directly"
         CDN_URL="${SDDS3_COM_URL}"
-    elif [[ $(curl --noproxy '*' -is ${SDDS3_NET_URL} -m 60 | head -n 1) =~ "404" ]]; then
+    elif curl --tlsv1.2 --noproxy '*' -is ${SDDS3_NET_URL} -m 60; then
         log_info "Server can connect to .net CDN address (${SDDS3_NET_URL}) directly"
         CDN_URL="${SDDS3_NET_URL}"
     else
@@ -369,10 +377,10 @@ function verify_network_connections() {
                 log_error "SPL installation will fail as a connection to a CDN server could not be established"
             fi
         else
-            if [[ $(curl --proxy "${PROXY}" -is ${SDDS3_COM_URL} -m 60 | head -n 1) =~ "404" ]]; then
+            if curl --tlsv1.2 --proxy "${PROXY}" -is ${SDDS3_COM_URL} -m 60; then
                 log_debug "Server can connect to .com CDN address (${SDDS3_COM_URL}) via ${PROXY}"
                 CDN_URL="${SDDS3_COM_URL}"
-            elif [[ $(curl --proxy "${PROXY}" -is ${SDDS3_NET_URL} -m 60 | head -n 1) =~ "404" ]]; then
+            elif curl --tlsv1.2 --proxy "${PROXY}" -is ${SDDS3_NET_URL} -m 60; then
                 log_debug "Server can connect to .net CDN address (${SDDS3_NET_URL}) via ${PROXY}"
                 CDN_URL="${SDDS3_NET_URL}"
             else

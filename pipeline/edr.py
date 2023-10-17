@@ -197,7 +197,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
         with stage.parallel('integration'):
             if robot_args:
                 for template_name, machine in test_machines:
-                    print("machine", robot_args, template_name, machine)
                     stage.task(task_name=template_name,
                                func=robot_task,
                                machine=machine,
@@ -209,7 +208,6 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                 for include in includedtags.split(","):
                     with stage.parallel(include):
                         for template_name, machine in test_machines:
-                            print("machine", include, template_name, machine)
                             stage.task(task_name=template_name,
                                        func=robot_task,
                                        machine=machine,

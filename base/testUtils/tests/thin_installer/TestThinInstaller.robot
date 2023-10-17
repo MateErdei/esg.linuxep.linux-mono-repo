@@ -107,7 +107,8 @@ Thin Installer can download test file from warehouse and execute it
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
     Cleanup System Ca Certs
-    Run Default Thininstaller    18  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    33  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains    SPL installation will fail as a connection to the SUS server could not be established
 
 Thin Installer Cannot Connect to Central timeout
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
@@ -123,7 +124,7 @@ Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     TRY
         Run Default Thininstaller    ${3}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
         Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
-    EXCEPT    Thin Installer failed with exit code: 33 but was expecting: 3
+    EXCEPT    Thin Installer exited with exit code: 33 but was expecting: 3
         Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
         Check Thininstaller Log Contains    SPL installation will fail as a connection to Sophos Central could not be established
     END
@@ -132,9 +133,9 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     [Setup]  Setup TSL server 1_1
     [Teardown]  Restore fake SDDS3 server
     Start Local Cloud Server
-    Run Default Thininstaller    18
-    Check Thininstaller Log Contains    Failed to connect to repository: SUS request failed with error: SSL connect error
-
+    Run Default Thininstaller    33
+    # Different curl versions have different TLS version error messages:
+    check_thininstaller_log_contains_pattern    (unsupported protocol|SSL_ERROR_UNSUPPORTED_VERSION|SSL_ERROR_SYSCALL)
 
 Thin Installer With Space In Name Works
     Run Default Thininstaller With Different Name    SophosSetup (1).sh    0   force_certs_dir=${SUPPORT_FILES}/sophos_certs

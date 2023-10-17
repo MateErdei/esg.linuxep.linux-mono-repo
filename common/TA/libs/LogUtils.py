@@ -511,6 +511,9 @@ class LogUtils(object):
     def check_thininstaller_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.thin_install_log, "Thin Installer")
 
+    def check_thininstaller_log_contains_pattern(self, pattern_to_contain):
+        self.check_string_matching_regex_in_file(self.thin_install_log, pattern_to_contain)
+
     def check_thininstaller_log_does_not_contain(self, string_not_to_contain):
         self.check_log_does_not_contain(string_not_to_contain, self.thin_install_log, "Thin Installer")
 

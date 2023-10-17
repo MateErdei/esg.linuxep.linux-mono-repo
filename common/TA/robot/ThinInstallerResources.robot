@@ -39,7 +39,7 @@ sdds3 suite setup with fakewarehouse with real base
     Set Suite Variable    ${GL_handle}    ${handle}
     Set Local CA Environment Variable
 
-sdds3 suite fake warehouse Teardown
+SDDS3 Suite Fake Warehouse Teardown
     Clean up fake warehouse
     Stop Local SDDS3 Server
 

@@ -3,7 +3,7 @@ Test Setup      Setup Thininstaller Test
 Test Teardown   Thininstaller Test Teardown
 
 Suite Setup  sdds3 suite setup with fakewarehouse with real base
-Suite Teardown   sdds3 suite fake warehouse Teardown
+Suite Teardown   SDDS3 Suite Fake Warehouse Teardown
 
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
