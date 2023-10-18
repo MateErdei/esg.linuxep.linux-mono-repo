@@ -64,6 +64,9 @@
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="sdds/redist/gcc" mode="dev,999,prod"/>
         </build-asset>
+
+        <!-- test inputs only-->
+        <intermediate artifact-path="thininstaller/thininstaller" dest-dir="sdds/thinstaller" mode="dev"/>
     </inputs>
 
     <buildcommands>
@@ -160,6 +163,7 @@
   <publish>
       <!--sdds3-->
       <build-asset artifact-path="test-scripts" source-dir="sdds/TA" mode="dev"/>
+      <build-asset artifact-path="test-thininstaller" source-dir="sdds/thinstaller" mode="dev"/>
       <!--dev version-->
       <build-asset artifact-path="sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="dev">
           <include glob="package/**"/>
