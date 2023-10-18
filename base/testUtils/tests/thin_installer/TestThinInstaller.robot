@@ -53,6 +53,11 @@ Restore warehouse with fake sdds3 base
     Clean up fake warehouse
     Generate Fake sdds3 warehouse
 
+Restore warehouse with fake sdds3 base with force cleanup
+    Restore warehouse with fake sdds3 base
+    Run Keyword If Test Failed    Run Full Installer
+    Run Keyword If Test Failed    Require Uninstalled
+
 Cert Test Teardown
     Thininstaller Test Teardown
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
@@ -269,7 +274,7 @@ Thin Installer Repairs Broken Existing Installation
 
 
 Thin Installer Force Works
-    [Teardown]  Restore warehouse with fake sdds3 base
+    [Teardown]  Restore warehouse with fake sdds3 base with force cleanup
     Setup warehouse With sdds3 base
     Run Full Installer
 
