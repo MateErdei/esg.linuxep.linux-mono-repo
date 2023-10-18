@@ -21,14 +21,15 @@ INPUTS_DIR = '/opt/test/inputs'
 NAME = "event_journaler"
 
 
-def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
+def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str, arch: str):
     test_inputs = None
     if mode == 'release':
+        config = f"linux_{arch}_rel"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./eventjournaler/TA'),
-            event_journaler_sdds=ej_build / 'eventjournaler/linux_x64_rel/installer',
-            manual_tools=ej_build / 'eventjournaler/linux_x64_rel/manualTools',
-            base_sdds=ej_build / 'base/linux_x64_rel/installer',
+            event_journaler_sdds=ej_build / f'eventjournaler/{config}/installer',
+            manual_tools=ej_build / f'eventjournaler/{config}/manualTools',
+            base_sdds=ej_build / f'base/{config}/installer',
             fake_management=ej_build / 'base/fake_management',
         )
     if mode == 'coverage':
@@ -127,7 +128,7 @@ def run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters):
     # if mode in [ANALYSIS_MODE]:
     #     return
 
-    test_inputs = get_inputs(context, ej_coverage_build, mode)
+    test_inputs = get_inputs(context, ej_coverage_build, mode, "x64")
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('ej_coverage'):
@@ -144,9 +145,10 @@ def run_ej_tests(stage, context, ej_build, mode, parameters):
     #     return
 
     test_inputs = {
-        "x64": get_inputs(context, ej_build, mode)
+        "x64": get_inputs(context, ej_build, mode, "x64"),
+        "arm64": get_inputs(context, ej_build, mode, "arm64")
     }
-    machines = get_test_machines(test_inputs, parameters, x64_only=True)
+    machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('eventjournaler_integration'):

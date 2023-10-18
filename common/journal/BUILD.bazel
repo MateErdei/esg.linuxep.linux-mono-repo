@@ -3,13 +3,19 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "journal",
-    srcs = ["linux_x64_release/lib/libcpp_lib.a"],
+    srcs = select({
+        "@bazel_tools//src/conditions:linux_x86_64": ["linux_x64_release/lib/libcpp_lib.a"],
+        "@bazel_tools//src/conditions:linux_aarch64": ["linux_arm64_release/lib/libcpp_lib.a"],
+    }),
     hdrs = glob(["linux_x64_release/headers/cpp_lib/*.h"]),
     visibility = ["//common/journal/protocol:__pkg__"],
 )
 
 filegroup(
     name = "JournalReader",
-    srcs = ["linux_x64_release/JournalReader/JournalReader"],
+    srcs = select({
+        "@bazel_tools//src/conditions:linux_x86_64": ["linux_x64_release/JournalReader/JournalReader"],
+        "@bazel_tools//src/conditions:linux_aarch64": ["linux_arm64_release/JournalReader/JournalReader"],
+    }),
     visibility = ["//common/journal/tools/JournalReader:__pkg__"],
 )

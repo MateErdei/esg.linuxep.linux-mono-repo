@@ -14,6 +14,8 @@
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="common/journal/linux_x64_rel/libs" dest-dir="common/journal/linux_x64_release"/>
             <include artifact-path="common/journal/linux_x64_rel/tools" dest-dir="common/journal/linux_x64_release"/>
+            <include artifact-path="common/journal/linux_arm64_rel/libs" dest-dir="common/journal/linux_arm64_release"/>
+            <include artifact-path="common/journal/linux_arm64_rel/tools" dest-dir="common/journal/linux_arm64_release"/>
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>

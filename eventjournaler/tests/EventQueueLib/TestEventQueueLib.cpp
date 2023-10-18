@@ -185,9 +185,9 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
     auto blockWhileWaitingForData = std::async(std::launch::async,
             [&eventQueueWithMaxSize2, &expectedData]
         {
-            std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
             std::optional<JournalerCommon::Event> data = eventQueueWithMaxSize2.pop(delay*10);
-            std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
             EXPECT_TRUE(data.has_value());
             EXPECT_EQ(data->data, expectedData.data);
             return after.count() - before.count();
