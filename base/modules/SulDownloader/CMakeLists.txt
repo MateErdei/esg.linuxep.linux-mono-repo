@@ -44,6 +44,7 @@ target_include_directories(suldownloaderimplobject
         ${LOG4CPLUS_INCLUDE_DIR}
         ${CURL_INPUT}/include/curl
         ${SOPHLIB_INCLUDE}
+        ${AUTOVERSION_INCLUDE}
         )
 
 add_library(suldownloaderimpl_static STATIC

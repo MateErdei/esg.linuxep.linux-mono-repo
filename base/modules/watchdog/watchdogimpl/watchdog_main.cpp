@@ -9,6 +9,9 @@
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/UtilityImpl/ConfigException.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sys/stat.h>
 
 #include <unistd.h>
@@ -56,6 +59,7 @@ int watchdog_main::main(int argc, char** argv)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, installDir);
     Common::Logging::FileLoggingSetup logSetup("watchdog", false);
+    LOGINFO("Watchdog " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
     if (argc > 1)
     {
         LOGERROR("Error, invalid command line arguments. Usage: watchdog");

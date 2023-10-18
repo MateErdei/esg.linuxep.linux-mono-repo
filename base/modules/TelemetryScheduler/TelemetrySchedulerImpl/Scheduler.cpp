@@ -16,6 +16,9 @@
 #include "Common/ZeroMQWrapper/IIPCException.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sys/stat.h>
 
 namespace TelemetrySchedulerImpl
@@ -27,7 +30,7 @@ namespace TelemetrySchedulerImpl
             umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
             Common::Logging::FileLoggingSetup loggerSetup("tscheduler", true);
 
-            LOGINFO("Telemetry Scheduler running...");
+            LOGINFO("Telemetry Scheduler " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
             std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
                 Common::PluginApi::createPluginResourceManagement();

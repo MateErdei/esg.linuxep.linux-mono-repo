@@ -26,6 +26,9 @@
 #include "ManagementAgent/StatusReceiverImpl/StatusTask.h"
 #include "ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sys/stat.h>
 
 #include <csignal>
@@ -57,6 +60,7 @@ namespace ManagementAgent::ManagementAgentImpl
         umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
         static_cast<void>(argv);            // unused
         Common::Logging::FileLoggingSetup loggerSetup(sophosManagementPluginName, true);
+        LOGINFO("Management Agent " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
         if (argc > 1)
         {
             LOGERROR("Error, invalid command line arguments. Usage: Management Agent");

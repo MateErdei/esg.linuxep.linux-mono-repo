@@ -17,6 +17,7 @@ soph_cc_library(
         "TaskQueue.h",
     ],
     implementation_deps = [
+        "//base:AutoVersion",
         "//base/modules/Common/ApplicationConfigurationImpl",
         "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/Policy",

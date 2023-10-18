@@ -19,7 +19,14 @@ add_library(telemetryimpl SHARED
         TelemetryUtils.h
         )
 
-include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ../../ManagementAgent ${BOOST_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
+include_directories(telemetryimpl BEFORE
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ../../ManagementAgent
+        ${BOOST_INCLUDE_DIR}
+        ${CMAKE_SOURCE_DIR}
+        ${AUTOVERSION_INCLUDE}
+)
 
 target_link_libraries(telemetryimpl PUBLIC
         HttpRequestsImpl

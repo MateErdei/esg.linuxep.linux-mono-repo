@@ -10,11 +10,8 @@
 #include "runnerModule/AsyncSulDownloaderRunner.h"
 
 // Auto version headers
-#ifdef SPL_BAZEL
-#    include "base/AutoVersion.h"
-#else
-#    include "AutoVersioningHeaders/AutoVersion.h"
-#endif
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/PluginApi/ApiException.h"

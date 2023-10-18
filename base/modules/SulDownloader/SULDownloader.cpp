@@ -30,6 +30,9 @@
 #include "common/SulDownloaderUtils.h"
 #include "suldownloaderdata/DownloadReportBuilder.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sys/stat.h>
 
 #include <algorithm>
@@ -934,6 +937,8 @@ namespace SulDownloader
         umask(S_IRWXG | S_IRWXO);
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("suldownloader", false);
+        LOGINFO("SulDownloader " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+
         std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock;
         try
         {

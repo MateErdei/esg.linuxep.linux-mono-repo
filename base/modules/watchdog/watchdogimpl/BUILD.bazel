@@ -9,6 +9,7 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
+        "//base:AutoVersion",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/Logging",
         "//base/modules/Common/TelemetryHelperImpl",

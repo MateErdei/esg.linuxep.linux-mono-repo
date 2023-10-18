@@ -19,6 +19,7 @@ soph_cc_library(
         "TelemetryUtils.h",
     ],
     implementation_deps = [
+        "//base:AutoVersion",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/CurlWrapper",
         "//base/modules/Common/HttpRequestsImpl",

@@ -13,6 +13,12 @@ add_library(watchdogimpl STATIC
         WatchdogServiceLine.h
         )
 
+
+target_include_directories(watchdogimpl PUBLIC
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${AUTOVERSION_INCLUDE}
+)
+
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl
         watchdogservice

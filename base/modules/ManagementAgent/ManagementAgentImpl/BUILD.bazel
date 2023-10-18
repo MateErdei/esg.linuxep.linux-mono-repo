@@ -6,6 +6,7 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     implementation_deps = [
         "//base/modules/Common/DirectoryWatcherImpl",
+        "//base:AutoVersion",
     ],
     visibility = [
         "//base/products/Base/ManagementAgent:__pkg__",

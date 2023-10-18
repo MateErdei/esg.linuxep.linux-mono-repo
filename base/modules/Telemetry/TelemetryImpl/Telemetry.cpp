@@ -21,6 +21,9 @@
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Telemetry/LoggerImpl/Logger.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sstream>
 #include <string>
 
@@ -111,6 +114,7 @@ namespace Telemetry
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
+        LOGINFO("Telemetry " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
         try
         {

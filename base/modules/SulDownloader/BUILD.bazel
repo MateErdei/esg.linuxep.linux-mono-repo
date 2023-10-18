@@ -9,6 +9,7 @@ soph_cc_library(
     ]),
     hdrs = ["SulDownloader.h"],
     implementation_deps = [
+        "//base:AutoVersion",
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Process",
         "//base/modules/Common/UpdateUtilities",

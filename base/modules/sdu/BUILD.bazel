@@ -9,6 +9,7 @@ soph_cc_library(
     ]),
     hdrs = ["Main.h"],
     implementation_deps = [
+        "//base:AutoVersion",
         "//base/modules/sdu/logger",
     ],
     visibility = [

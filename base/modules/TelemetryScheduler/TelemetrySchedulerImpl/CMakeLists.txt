@@ -15,7 +15,11 @@ add_library(telemetryschedulerimpl SHARED
         ITaskQueue.h
         RequestToStopException.h)
 
-include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+include_directories(telemetryschedulerimpl BEFORE
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${AUTOVERSION_INCLUDE}
+)
 
 target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryschedulerloggerimpl

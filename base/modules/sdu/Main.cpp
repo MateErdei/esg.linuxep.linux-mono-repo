@@ -13,6 +13,9 @@
 #include "runnerModule/IAsyncDiagnoseRunner.h"
 #include "taskQueue/TaskQueue.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 #include <sys/stat.h>
 
 #include <stdexcept>
@@ -26,7 +29,7 @@ namespace RemoteDiagnoseImpl
             umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
             Common::Logging::FileLoggingSetup loggerSetup("remote_diagnose", true);
 
-            LOGINFO("SDU running...");
+            LOGINFO("SDU " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
             std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
                 Common::PluginApi::createPluginResourceManagement();

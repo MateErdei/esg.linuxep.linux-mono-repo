@@ -6,7 +6,7 @@ soph_cc_library(
     srcs = glob([
         "*.cpp",
         "*.h",
-    ]) + ["//base:AutoVersion_h"],
+    ]),
     hdrs = glob(["*.h"]),
     visibility = [
         "//base/products/Base/UpdateScheduler:__pkg__",
@@ -14,6 +14,7 @@ soph_cc_library(
         "//base/tests/UpdateScheduler:__pkg__",
     ],
     deps = [
+        "//base:AutoVersion",
         "//base/modules/Common/FlagUtils",
         "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/PersistentValue",

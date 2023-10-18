@@ -3,7 +3,11 @@ add_library(managementagentimpl SHARED
         ManagementAgentMain.cpp
         ../LoggerImpl/Logger.h
         )
-target_include_directories(managementagentimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(managementagentimpl PUBLIC
+        ../../Common
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${AUTOVERSION_INCLUDE}
+)
 target_link_libraries(managementagentimpl PUBLIC
         pluginapiimpl
         applicationconfigurationimpl
