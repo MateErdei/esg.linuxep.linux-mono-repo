@@ -14,27 +14,23 @@
         <workingdir>.</workingdir>
         
         <!-- Base -->
-        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="sdds/redist/base/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="sdds/redist/base/latest/x64" mode="dev,prod,999"/>
         <intermediate artifact-path="base/linux_x64_rel/system_test" dest-dir="sdds"/>
-        <intermediate artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sdds/redist/responseactions/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sdds/redist/responseactions/latest/x64" mode="dev,prod,999"/>
         <!-- EDR -->
-        <intermediate artifact-path="edr/SDDS-COMPONENT" dest-dir="sdds/redist/edr/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="edr/SDDS-COMPONENT" dest-dir="sdds/redist/edr/latest/x64" mode="dev,prod,999"/>
         <!-- Event Journaler -->
-        <intermediate artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sdds/redist/event-journaler/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sdds/redist/event-journaler/latest/x64" mode="dev,prod,999"/>
         <!-- AV -->
-        <intermediate artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sdds/redist/av/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sdds/redist/av/latest/x64" mode="dev,prod,999"/>
         <!-- Live Response -->
-        <intermediate artifact-path="liveterminal/sdds" dest-dir="sdds/redist/liveresponse/latest/x64" mode="dev,999"/>
+        <intermediate artifact-path="liveterminal/sdds" dest-dir="sdds/redist/liveresponse/latest/x64" mode="dev,prod,999"/>
         
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
             <development-version branch="develop"/>
             <include artifact-path="SDDS-COMPONENT" dest-dir="sdds/redist/runtimedetections/latest/x64" mode="dev,999"/>
         </build-asset>
-        
-        <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="dev,999">
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="sdds/redist/heartbeat/latest/x64" mode="dev,999"/>
-        </build-asset>
+
         
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">

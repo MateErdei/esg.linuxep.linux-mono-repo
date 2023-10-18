@@ -7,23 +7,18 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/edr/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/sspl-plugin-anti-virus/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/base/linux_x64_rel/installer/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/eventjournaler/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/liveterminal/sdds/
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
@@ -31,6 +26,5 @@ runtimedetections.latest.x64:
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/response_actions/linux_x64_rel/installer
   line-id: ServerProtectionLinux-Plugin-responseactions
   mountpoint: ServerProtectionLinux-Plugin-responseactions
