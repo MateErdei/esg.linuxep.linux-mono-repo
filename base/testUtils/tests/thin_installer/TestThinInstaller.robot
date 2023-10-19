@@ -140,7 +140,7 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     Start Local Cloud Server
     Run Default Thininstaller    33
     # Different curl versions have different TLS version error messages:
-    check_thininstaller_log_contains_pattern    (unsupported protocol|SSL_ERROR_UNSUPPORTED_VERSION|SSL_ERROR_SYSCALL)
+    check_thininstaller_log_contains_pattern    (unsupported protocol|SSL_ERROR_UNSUPPORTED_VERSION|SSL_ERROR_SYSCALL|TLS alert)
 
 Thin Installer With Space In Name Works
     Run Default Thininstaller With Different Name    SophosSetup (1).sh    0   force_certs_dir=${SUPPORT_FILES}/sophos_certs
