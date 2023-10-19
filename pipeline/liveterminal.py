@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 import os
 
 import requests
@@ -20,27 +21,28 @@ INPUTS_DIR = '/opt/test/inputs'
 
 
 
-def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, mode: str):
+def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, mode: str, arch: str = "x64"):
     test_inputs = None
 
-    if mode == 'release':
-            test_inputs = dict(
-                test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
-                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
-            liveresponse=liveterminal_build / "liveterminal/sdds",
-            base=liveterminal_build / "base/base_sdds",
-        )
     if mode == 'coverage':
-
-            test_inputs = dict(
-                test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
-                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
+        test_inputs = dict(
+            test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                            storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             liveresponse=liveterminal_build / "sspl-liveterminal-coverage/sdds",
             base=liveterminal_build / "sspl-liveterminal-coverage/base_sdds",
             coverage=liveterminal_build /'sspl-liveterminal-coverage/covfile',
             coverage_unittest=liveterminal_build /'sspl-liveterminal-coverage/unittest-htmlreport',
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
         )
+
+    if mode == 'release':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                            storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
+            liveresponse=liveterminal_build / f"liveterminal/linux_{arch}_rel/installer",
+            base=liveterminal_build / f"base/linux_{arch}_rel/installer"
+        )
+
     return test_inputs
 
 
@@ -101,7 +103,15 @@ def run_pytests(machine: tap.Machine):
                              'debian11_x64_aws_server_en_us',
                              'debian10_x64_aws_server_en_us',
                              'amzlinux2023_x64_server_en_us',
-                             'amzlinux2_x64_server_en_us']
+                             'amzlinux2_x64_server_en_us',
+
+                             'ubuntu1804_arm64_server_en_us',
+                             'ubuntu2004_arm64_server_en_us',
+                             'debian11_arm64_server_en_us',
+                             'debian10_arm64_server_en_us',
+                             'amzlinux2023_arm64_server_en_us',
+                             'amzlinux2_arm64_server_en_us'
+                            ]
 
         if machine.template in exclude_proxy_test:
             machine.run("rm", "-rf", machine.inputs.test_scripts / "tests/functional/test_proxy_connection.py")
@@ -194,9 +204,10 @@ def run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters)
     #     return
 
     test_inputs = {
-        "x64": get_inputs(context, liveterminal_build, mode)
+        "x64": get_inputs(context, liveterminal_build, mode, "x64"),
+        "arm64": get_inputs(context, liveterminal_build, mode, "arm64")
     }
-    machines = get_test_machines(test_inputs, parameters, x64_only=True)
+    machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('liveterminal_integration'):

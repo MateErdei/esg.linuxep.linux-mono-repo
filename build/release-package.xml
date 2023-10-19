@@ -18,6 +18,14 @@
             <include artifact-path="common/journal/linux_arm64_rel/tools" dest-dir="common/journal/linux_arm64_release"/>
         </build-asset>
 
+        <build-asset project="winep" repo="liveterminal">
+            <!-- TODO: uncomment release-version once new rust binary for it exists? -->
+            <!-- <release-version branch="release/2023-40-linux" build-id="20231003073741-0078e534766984feb591ce11d7197d67e7eb2f7e-UYx5sa"/>-->
+            <development-version branch="develop" />
+            <include artifact-path="sspl-liveterminal/rust_binary_x64" dest-dir="liveterminal/products/installer/rust-liveterminal-x64" />
+            <include artifact-path="sspl-liveterminal/rust_binary_arm64" dest-dir="liveterminal/products/installer/rust-liveterminal-arm64" />
+        </build-asset>
+
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="thininstaller/certs"/>
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-x86_64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
@@ -214,6 +222,16 @@
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer" source-zip=".output/response_actions/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer_symbols" source-zip=".output/response_actions/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_dbg/installer" source-zip=".output/response_actions/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+
+        <!-- Live Response -->
+        <release-asset artifact-path="liveterminal/linux_x64_rel/installer" source-dir=".output/liveterminal/linux_x64_rel/installer" manifest-path=".output/liveterminal/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="liveterminal/linux_x64_rel/installer" source-zip=".output/liveterminal/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="liveterminal/linux_x64_rel/installer_symbols" source-zip=".output/liveterminal/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="liveterminal/linux_x64_dbg/installer" source-zip=".output/liveterminal/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="liveterminal/linux_arm64_rel/installer" source-dir=".output/liveterminal/linux_arm64_rel/installer" manifest-path=".output/liveterminal/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="liveterminal/linux_arm64_rel/installer" source-zip=".output/liveterminal/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="liveterminal/linux_arm64_rel/installer_symbols" source-zip=".output/liveterminal/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="liveterminal/linux_arm64_dbg/installer" source-zip=".output/liveterminal/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
 
         <!-- Event Journaler -->
         <release-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-dir=".output/eventjournaler/linux_x64_rel/installer" manifest-path=".output/eventjournaler/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>

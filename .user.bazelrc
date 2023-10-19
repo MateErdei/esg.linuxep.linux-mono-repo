@@ -6,4 +6,4 @@ build --copt=-DSPL_BAZEL
 
 # Add global include search paths
 # 'base' is needed for tests/ include paths to work currently
-build --define SOPH_ASSET_SOURCE_ROOT=base/modules;base;eventjournaler/modules
+build --define SOPH_ASSET_SOURCE_ROOT=base/modules;base;eventjournaler/modules;liveterminal/modules;

@@ -58,6 +58,9 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
                     run_ej_tests(stage, context, build, mode, parameters)
 
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                    run_liveterminal_tests(stage, context, build, mode, parameters)
+
 
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
@@ -179,19 +182,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                             mode=ANALYSIS_MODE,
                                                             release_package=PACKAGE_PATH_AV)
 
-            #liveterminal
-            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-                liveterminal_build = stage.artisan_build(name=f"liveterminal_{RELEASE_MODE}",
-                                                              component=liveterminal_component,
-                                                              image=BUILD_TEMPLATE,
-                                                              mode=RELEASE_MODE,
-                                                              release_package=PACKAGE_PATH_LIVETERMINAL)
-                if running_in_ci:
-                    liveterminal_analysis_build = stage.artisan_build(name=f"liveterminal_{ANALYSIS_MODE}",
-                                                             component=liveterminal_component,
-                                                             image=BUILD_TEMPLATE,
-                                                             mode=ANALYSIS_MODE,
-                                                             release_package=PACKAGE_PATH_LIVETERMINAL)
         elif mode == COVERAGE_MODE:
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                 edr_coverage_build = stage.artisan_build(name=f"edr_{COVERAGE_MODE}",
@@ -213,7 +203,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         image=BUILD_TEMPLATE,
                                                         mode=COVERAGE_MODE,
                                                         release_package=PACKAGE_PATH_AV)
-
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                 liveterminal_coverage_build = stage.artisan_build(name=f"liveterminal_{COVERAGE_MODE}",
                                                         component=liveterminal_component,
@@ -231,9 +220,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_tests(stage, context, av_build, mode, parameters)
     
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-                    run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters)
-    
             elif mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
@@ -246,6 +232,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
-    
+
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)

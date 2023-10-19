@@ -1,0 +1,41 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+load("//liveterminal:substitutions.bzl", "SUBSTITUTIONS")
+load("//tools/config:expand_template.bzl", "expand_template")
+
+soph_cc_library(
+    name = "pluginimpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+        "Telemetry/*.cpp",
+        "Telemetry/*.h",
+    ]) + [":config"],
+    hdrs = glob([
+        "*.h",
+        "Telemetry/*.h",
+    ]),
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/XmlUtilities",
+        "//imports/thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//liveterminal/products/plugin:__pkg__",
+        "//liveterminal/tests/plugin:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/UtilityImpl:FileUtils",
+        "//liveterminal/modules/sessionrunner",
+    ],
+)
+
+expand_template(
+    name = "config",
+    out = "config.h",
+    substitutions = SUBSTITUTIONS,
+    template = "config.h.in",
+)

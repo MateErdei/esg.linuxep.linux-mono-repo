@@ -24,7 +24,7 @@
         <!-- AV -->
         <intermediate artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sdds/redist/av/latest/x64" mode="dev,prod,999"/>
         <!-- Live Response -->
-        <intermediate artifact-path="liveterminal/sdds" dest-dir="sdds/redist/liveresponse/latest/x64" mode="dev,prod,999"/>
+        <intermediate artifact-path="liveterminal/linux_x64_rel/installer" dest-dir="sdds/redist/liveresponse/latest/x64" mode="dev,prod,999"/>
         
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
             <development-version branch="develop"/>

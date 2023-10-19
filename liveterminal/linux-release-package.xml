@@ -1,13 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <package name="liveterminal_linux" version="1.7.2">
     <versioning>
-        <workingdir>./liveterminal/source/linux/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./liveterminal/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
         <workingdir>.</workingdir>
         <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
-        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
@@ -45,17 +44,17 @@
         <!--<command buildtype="prod">-->
         <command mode="release">
             <program>/bin/bash</program>
-            <args>source/linux/build-files/build.sh --clean --name liveresponse</args>
+            <args>build-files/build.sh --clean --name liveresponse</args>
             <workingdir>liveterminal</workingdir>
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>source/linux/build-files/build.sh --clean --name liveresponse --debug --bullseye</args>
+            <args>build-files/build.sh --clean --name liveresponse --debug --bullseye</args>
             <workingdir>liveterminal</workingdir>
         </command>
         <command mode="analysis">
             <program>/bin/bash</program>
-            <args>source/linux/build-files/build.sh --no-build --analysis</args>
+            <args>build-files/build.sh --no-build --analysis</args>
             <workingdir>liveterminal</workingdir>
         </command>
 
@@ -69,8 +68,6 @@
                      mode="coverage"/>
         <build-asset artifact-path="liveterminal/symbols" source-dir="output/symbols" mode="release">
         </build-asset>
-
-        <build-asset artifact-path="base/base_sdds" source-dir="output/base-sdds" mode="release"/>
         <build-asset artifact-path="sspl-liveterminal-coverage/base_sdds" source-dir="output/base-sdds"
                      mode="coverage">
 

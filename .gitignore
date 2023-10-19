@@ -26,6 +26,7 @@
 !/imports/thirdparty/python/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*
 !/imports/thirdparty/nlohmann-json/BUILD.bazel
+/liveterminal/products/installer/rust-liveterminal-*
 
 # bazel-tools from ESG monorepo
 /.bazelignore

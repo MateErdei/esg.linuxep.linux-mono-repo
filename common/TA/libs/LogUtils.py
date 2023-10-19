@@ -1,3 +1,5 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
 import configparser
 import glob
 import os

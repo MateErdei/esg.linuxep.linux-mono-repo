@@ -1,0 +1,13 @@
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "liveresponse",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = [
+        "//liveterminal/products/installer:__pkg__",
+    ],
+    deps = ["//liveterminal/modules/pluginimpl"],
+)

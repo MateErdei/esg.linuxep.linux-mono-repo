@@ -1,0 +1,14 @@
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "LiveResponsePluginTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//base/tests/Common/Helpers",
+        "//liveterminal/modules/pluginimpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

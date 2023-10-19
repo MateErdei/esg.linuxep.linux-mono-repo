@@ -1,3 +1,5 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
 import os
 import json
 from typing import Dict

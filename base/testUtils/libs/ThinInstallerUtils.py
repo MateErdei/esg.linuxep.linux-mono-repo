@@ -1,3 +1,5 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
+
 import errno
 import glob
 import os

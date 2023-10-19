@@ -1,2 +1,0 @@
-add_subdirectory(pluginimpl)
-add_subdirectory(sessionrunner)

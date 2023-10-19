@@ -1,0 +1,70 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+load("//liveterminal:substitutions.bzl", "SUBSTITUTIONS")
+load("//liveterminal:version_info.bzl", "LIVE_RESPONSE_BASE_VERSION", "LIVE_RESPONSE_LINE_ID", "LIVE_RESPONSE_PRODUCT_NAME", "LIVE_RESPONSE_VERSIONING_COMPONENT_NAME")
+load("//tools/config:expand_template.bzl", "expand_template")
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+)
+
+expand_template(
+    name = "registry_json",
+    out = "plugin.json",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+)
+
+expand_template(
+    name = "cleanuprealm_dat",
+    out = "cleanuprealm.dat.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "cleanuprealm.dat.in",
+)
+
+alias(
+    name = "rust_binary",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "rust-liveterminal-x64/sophos-live-terminal",
+        "@bazel_tools//src/conditions:linux_aarch64": "rust-liveterminal-arm64/sophos-live-terminal",
+    }),
+)
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = LIVE_RESPONSE_BASE_VERSION,
+    component_name = LIVE_RESPONSE_PRODUCT_NAME,
+    line_id = LIVE_RESPONSE_LINE_ID,
+    spv_features = ["MDR"],
+    spv_platforms = ["LINUX_INTEL_LIBC6"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in {
+        "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
+        "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
+        "cleanuprealm.dat": ":cleanuprealm_dat",
+        "files/base/pluginRegistry/liveresponse.json": ":registry_json",
+        "files/plugins/liveresponse/bin/liveresponse": "//liveterminal/products/plugin:liveresponse",
+        "files/plugins/liveresponse/bin/uninstall.sh": ":uninstall_sh",
+        "files/plugins/liveresponse/bin/sophos-live-terminal": ":rust_binary",
+        "install.sh": ":install_sh",
+    }.items()},
+    symbols_strip_prefix = "liveterminal/products/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/liveresponse/VERSION.ini",
+    ],
+    versioning_component_name = LIVE_RESPONSE_VERSIONING_COMPONENT_NAME,
+    visibility = ["//liveterminal:__pkg__"],
+)

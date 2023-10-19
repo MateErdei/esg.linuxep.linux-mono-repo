@@ -1,0 +1,21 @@
+{
+  "policyAppIds": [
+    "LiveTerminal"
+  ],
+  "actionAppIds": [
+    "LiveTerminal"
+  ],
+  "statusAppIds": [
+  ],
+  "pluginName": "@LR_PLUGIN_NAME@",
+  "executableFullPath": "plugins/@LR_PLUGIN_NAME@/bin/@LR_PLUGIN_NAME@",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    }
+  ],
+  "executableUserAndGroup": "root:root"
+}

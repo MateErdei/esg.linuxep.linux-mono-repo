@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "sessionrunner",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob([".h"]),
+    implementation_deps = [
+        "//base/modules/Common/TelemetryHelperImpl",
+    ],
+    visibility = [
+        "//liveterminal/modules/pluginimpl:__pkg__",
+        "//liveterminal/products/plugin:__pkg__",
+        "//liveterminal/tests/sessionrunner:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/Process",
+        "//liveterminal/modules/common",
+    ],
+)

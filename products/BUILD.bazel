@@ -8,12 +8,14 @@ COMMON_DEPS = [
     "//eventjournaler:installer",
     "//eventjournaler:manualTools",
     "//response_actions:installer",
+    "//liveterminal:installer",
 ]
 
 RELEASE_DEPS = [
     "//base:installer_symbols",
     "//eventjournaler:installer_symbols",
     "//response_actions:installer_symbols",
+    "//liveterminal:installer_symbols",
 ]
 
 soph_export_assets(

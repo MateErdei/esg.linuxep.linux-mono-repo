@@ -1,0 +1,11 @@
+/******************************************************************************************************
+
+Copyright 2018-2020 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#pragma once
+
+
+#define LR_PLUGIN_NAME "@LR_PLUGIN_NAME@"
+#define LR_PRODUCT_LINE_ID "@LR_PRODUCT_LINE_ID@"
