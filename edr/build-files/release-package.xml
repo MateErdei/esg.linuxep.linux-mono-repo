@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-edr-component" version="1.1.10">
     <versioning>
-        <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./edr/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
@@ -81,19 +81,19 @@
         <command mode="release,release-classic">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name edr</args>
-            <workingdir>.</workingdir>
+            <workingdir>edr</workingdir>
         </command>
 
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name edr --bullseye</args>
-            <workingdir>.</workingdir>
+            <workingdir>edr</workingdir>
         </command>
 
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --name edr --analysis</args>
-            <workingdir>.</workingdir>
+            <workingdir>edr</workingdir>
         </command>
 
 
@@ -105,16 +105,16 @@
         </command> -->
     </buildcommands>
     <publish>
-        <workingdir>.</workingdir>
+        <workingdir>edr</workingdir>
         <!-- new unified pipeline -->
         <!-- change edr/sdds to a release asset -->
         <release-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
 
-        <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
-        <build-asset artifact-path="schema" source-dir="output/schema" mode="release"/>
-        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
-        <build-asset artifact-path="componenttests" source-dir="output/componenttests" mode="release"/>
-        <build-asset artifact-path="build_log" source-dir="output" mode="release">
+        <build-asset artifact-path="edr/symbols" source-dir="output/symbols" mode="release"/>
+        <build-asset artifact-path="edr/schema" source-dir="output/schema" mode="release"/>
+        <build-asset artifact-path="edr/base/base-sdds" source-dir="output/base-sdds" mode="release"/>
+        <build-asset artifact-path="edr/componenttests" source-dir="output/componenttests" mode="release"/>
+        <build-asset artifact-path="edr/build_log" source-dir="output" mode="release">
             <include glob="./build.log"/>
         </build-asset>
 

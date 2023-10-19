@@ -2,45 +2,53 @@
 
 set -e
 
+THIS_FILE_FULL_PATH=$(readlink -f $0)
+THIS_DIR=$(dirname "$THIS_FILE_FULL_PATH")
+LINUX_MONO_REPO=$(dirname "$THIS_DIR")
+
 function make_links()
 {
-  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/tests/remoterobot-wsl.py" robot
-  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/vagrant" vagrant
+  ln -sf "$THIS_DIR/tests/remoterobot-wsl.py" robot
+  ln -sf "$THIS_DIR/vagrant" vagrant
 }
 
+# Linux mono repo
+cd "$LINUX_MONO_REPO"
+make_links
+
 # Base
-if [ -d  /home/$USER/gitrepos/esg.linuxep.everest-base ]
+if [ -d  "$LINUX_MONO_REPO/base" ]
 then
-  cd "/home/$USER/gitrepos/esg.linuxep.everest-base"
+  cd "$LINUX_MONO_REPO/base"
   make_links
-  cd "/home/$USER/gitrepos/esg.linuxep.everest-base/testUtils"
+  cd "$LINUX_MONO_REPO/base/testUtils"
   make_links
 fi
 
 # AV
-if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-plugin-anti-virus ]
+if [ -d  "$LINUX_MONO_REPO/av" ]
 then
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-anti-virus"
+  cd "$LINUX_MONO_REPO/av"
   make_links
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-anti-virus/TA"
+  cd "$LINUX_MONO_REPO/av/TA"
   make_links
 fi
 
 # EDR
-if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-plugin-edr-component ]
+if [ -d  "$LINUX_MONO_REPO/edr" ]
 then
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-edr-component"
+  cd "$LINUX_MONO_REPO/edr"
   make_links
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-edr-component/TA"
+  cd "$LINUX_MONO_REPO/edr/TA"
   make_links
 fi
 
 # Event Journaler
-if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-plugin-event-journaler ]
+if [ -d  "$LINUX_MONO_REPO/eventjournaler" ]
 then
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-event-journaler"
+  cd "$LINUX_MONO_REPO/eventjournaler"
   make_links
-  cd "/home/$USER/gitrepos/esg.linuxep.sspl-plugin-event-journaler/TA"
+  cd "$LINUX_MONO_REPO/eventjournaler/TA"
   make_links
 fi
 
@@ -48,6 +56,6 @@ fi
 if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-warehouse ]
 then
   cd "/home/$USER/gitrepos/esg.linuxep.sspl-warehouse"
-  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/tests/remote_tap.py" tap
-  ln -sf "/home/$USER/gitrepos/esg.linuxep.sspl-tools/vagrant" vagrant
+  ln -sf "/home/$USER/gitrepos/esg.linuxep.linux-mono-repo/spl-tools/tests/remote_tap.py" tap
+  ln -sf "/home/$USER/gitrepos/esg.linuxep.linux-mono-repo/spl-tools/vagrant" vagrant
 fi

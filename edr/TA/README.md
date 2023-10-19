@@ -2,9 +2,9 @@
 
 
 The robot tests require that your dev machine has been set up (https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine) and that the esg.linuxep.sspl-tools/setup_vagrant_wsl.sh script has been run.
-1) Activate the tap environment (if not already activated by IDE - to set this up see dev setup page)
+1) Activate the tap environment (if not already activated by IDE - to set this up see dev setup page) When in "edr" directory:
 ```sh
-source ../esg.linuxep.everest-base/tap_venv/bin/activate
+source ../base/tap_venv/bin/activate
 ```
 2) Change directory to "TA"
 ```sh

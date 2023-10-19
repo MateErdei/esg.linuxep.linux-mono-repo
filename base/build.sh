@@ -164,7 +164,6 @@ if [[ "$CI" == "true" ]]
 then
   echo "Detected that this is a CI build"
   CLEAN=1
-  TEST_NPROC=1
   set -x
 else
   echo "Detected that this is a non-CI (local) build"
@@ -283,8 +282,11 @@ function build()
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
 
-    # Some dev laptops have 16 cores but only 32GB RAM (16GB for WSL) and 15 build threads will trigger OOM
-    (( $NPROC > 8 )) && NPROC=7
+    if [[ "$CI" != "true" ]]
+    then
+          # Some dev laptops have 16 cores but only 32GB RAM (16GB for WSL) and 15 build threads will trigger OOM
+          (( $NPROC > 8 )) && NPROC=7
+    fi
 
     cmake -G "Unix Makefiles" \
           -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \

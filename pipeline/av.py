@@ -1,17 +1,15 @@
-import logging
 import os
 from typing import Dict
 
 import tap.v1 as tap
-from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input, TaskOutput
+from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, \
     python, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 
 INPUTS_DIR = '/opt/test/inputs'
-LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 COVERAGE_DIR = '/opt/test/coverage'
 COVSRCDIR = os.path.join(INPUTS_DIR, 'av', 'src')
@@ -20,18 +18,6 @@ COVFILE_UNITTEST = os.path.join(INPUTS_DIR, 'av', 'sspl-plugin-av-unit.cov')
 BULLSEYE_SCRIPT_DIR = os.path.join(INPUTS_DIR, 'bullseye_files')
 UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
 UPLOAD_ROBOT_LOG_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadRobotLog.sh')
-
-logger = logging.getLogger(__name__)
-
-BRANCH_NAME = "master"
-
-
-def is_debian_based(machine: tap.Machine):
-    return machine.template.startswith("ubuntu")
-
-
-def is_redhat_based(machine: tap.Machine):
-    return machine.template.startswith("centos")
 
 
 def include_cifs_for_machine_name(name: str, template):
@@ -72,15 +58,9 @@ def install_requirements(machine: tap.Machine):
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
 
 
-def get_suffix():
-    global BRANCH_NAME
-    if BRANCH_NAME == "develop":
-        return ""
-    return "-" + BRANCH_NAME
-
-
-def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str = None, environment=None,
-                        machine_name: str=None):
+def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str, robot_args: str = None,
+                        environment=None,
+                        machine_name: str = None):
     if machine_name is None:
         machine_name = machine.template
 
@@ -94,10 +74,6 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
         if machine_name.endswith('centos9stream'):
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
-            robot_exclusion_tags.append("nfsv2")
-
-        if machine_name.startswith('ubuntu2204'):
-            # On 2023-08-18 NFSv2 tests failed on Ubuntu 22.04 as NFSv2 was no longer supported (?)
             robot_exclusion_tags.append("nfsv2")
 
         cifs = getattr(machine, "cifs_supported", 1)
@@ -163,7 +139,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
 def robot_task(machine: tap.Machine, include_tag: str, branch_name: str, robot_args: str, machine_name: str = None):
     print("robot_task for", machine_name, id(machine))
     install_requirements(machine)
-    robot_task_with_env(machine, include_tag, robot_args, machine_name=machine_name)
+    robot_task_with_env(machine, include_tag, branch_name, robot_args, machine_name=machine_name)
 
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
@@ -186,14 +162,6 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
-    """Return an input artifact from a unified pipeline build"""
-    artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
-    # Using the truediv operator to set the subdirectory forgets the storage option
-    artifact.sub_directory = sub_directory
-    return artifact
-
-
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     supplement_branch = "released"
     output = 'output'
@@ -203,8 +171,8 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         output = 'coverage'
 
     test_inputs = dict(
-        test_scripts=context.artifact.from_folder('./TA'),
-        bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
+        test_scripts=context.artifact.from_folder('./av/TA'),
+        bullseye_files=context.artifact.from_folder('./av/build/bullseye'),  # used for robot upload
         av=build / output,
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
@@ -261,6 +229,7 @@ def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str, branch_
     try:
         robot_task_with_env(machine,
                             include_tag=include_tag,
+                            branch_name=branch_name,
                             environment={
                                 'COVFILE': covfile,
                                 'COVSRCDIR': COVSRCDIR,
@@ -278,8 +247,8 @@ def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str, branch_
         raise exception
 
 
-def bullseye_upload(machine: tap.Machine, name, covfile=None):
-    suffix = get_suffix()
+def bullseye_upload(machine: tap.Machine, name, branch_name: str, covfile=None):
+    suffix = get_suffix(branch_name)
     coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
 
     if covfile is None:
@@ -309,26 +278,25 @@ def bullseye_merge(machine: tap.Machine, output_name, *input_names):
     return output_file
 
 
-def bullseye_test_coverage(machine: tap.Machine, covfile):
+def bullseye_test_coverage(machine: tap.Machine, covfile, branch_name: str):
     coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
 
-    COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
-    COVERAGE_MIN_FUNCTION = 70
-    COVERAGE_MIN_CONDITION = 70
+    coverage_normalise_json = os.path.join(coverage_results_dir, "test_coverage.json")
+    coverage_min_function = 70
+    coverage_min_condition = 70
     test_coverage_script = machine.inputs.bazel_tools / 'tools' / 'src' / 'bullseye' / 'test_coverage.py'
     test_coverage_args = [
         'python', '-u', str(test_coverage_script),
-        covfile, '--output', COVERAGE_NORMALISE_JSON,
-        '--min-function', str(COVERAGE_MIN_FUNCTION),
-        '--min-condition', str(COVERAGE_MIN_CONDITION)
+        covfile, '--output', coverage_normalise_json,
+        '--min-function', str(coverage_min_function),
+        '--min-condition', str(coverage_min_condition)
     ]
-    global BRANCH_NAME
-    if BRANCH_NAME == 'develop':
+    if branch_name == 'develop':
         test_coverage_args += ['--upload', '--upload-job', 'UnifiedPipelines/linuxep/sspl-plugin-anti-virus']
     machine.run(*test_coverage_args, timeout=1200)
 
 
-def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
+def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str, branch_name: str):
     install_requirements(machine)
 
     # str(machine.inputs.covfiles) = /opt/test/inputs/covfiles
@@ -349,100 +317,30 @@ def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
                     timeout=60)
 
         # individual coverage
-        bullseye_upload(machine, 'sspl-plugin-av-unit')
-        bullseye_upload(machine, 'sspl-plugin-av-pytest')
+        bullseye_upload(machine, 'sspl-plugin-av-unit', branch_name)
+        bullseye_upload(machine, 'sspl-plugin-av-pytest', branch_name)
         robot_covfiles = []
         for include in include_tag.split():
             covfile = 'sspl-plugin-av-robot-' + include
-            bullseye_upload(machine, covfile)
+            bullseye_upload(machine, covfile, branch_name)
             robot_covfiles.append(covfile)
 
         # robot coverage
         bullseye_merge(machine,
                        'sspl-plugin-av-robot',
                        *robot_covfiles)
-        bullseye_upload(machine, 'sspl-plugin-av-robot')
+        bullseye_upload(machine, 'sspl-plugin-av-robot', branch_name)
 
         # combined coverage
         bullseye_merge(machine,
                        'sspl-plugin-av-combined',
                        'sspl-plugin-av-unit', 'sspl-plugin-av-pytest', 'sspl-plugin-av-robot')
-        covfile_combined = bullseye_upload(machine, 'sspl-plugin-av-combined')
+        covfile_combined = bullseye_upload(machine, 'sspl-plugin-av-combined', branch_name)
 
         # check (and report) overall coverage
-        bullseye_test_coverage(machine, covfile_combined)
+        bullseye_test_coverage(machine, covfile_combined, branch_name)
     finally:
         machine.output_artifact(coverage_results_dir, 'coverage')
-
-
-def get_test_machines(test_inputs, parameters: tap.Parameters):
-    if parameters.run_tests == "false":
-        return []
-
-    test_environments = {}
-
-    if parameters.run_amazon_2 != "false":
-        test_environments['amazonlinux2'] = 'amzlinux2_x64_server_en_us'
-
-    if parameters.run_amazon_2023 != "false":
-        test_environments['amazonlinux2023'] = 'amzlinux2023_x64_server_en_us'
-
-    if parameters.run_centos_7 != "false":
-        test_environments['centos79'] = 'centos7_x64_aws_server_en_us'
-
-    if parameters.run_centos_stream_8 != "false":
-        test_environments['centos8stream'] = 'centos8stream_x64_aws_server_en_us'
-
-    if parameters.run_centos_stream_9 != "false":
-        test_environments['centos9stream'] = 'centos9stream_x64_aws_server_en_us'
-
-    if parameters.run_debian_10 != "false":
-        test_environments['debian10'] = 'debian10_x64_aws_server_en_us'
-
-    if parameters.run_debian_11 != "false":
-        test_environments['debian11'] = 'debian11_x64_aws_server_en_us'
-
-    if parameters.run_debian_12 != "false":
-        test_environments['debian12'] = 'debian12_x64_aws_server_en_us'
-
-    if parameters.run_oracle_7 != "false":
-        test_environments['oracle7'] = 'oracle79_x64_aws_server_en_us'
-
-    if parameters.run_oracle_8 != "false":
-        test_environments['oracle8'] = 'oracle87_x64_aws_server_en_us'
-
-    if parameters.run_rhel_7 != "false":
-        test_environments['rhel7'] = 'rhel79_x64_aws_server_en_us'
-
-    if parameters.run_rhel_8 != "false":
-        test_environments['rhel8'] = 'rhel87_x64_aws_server_en_us'
-
-    if parameters.run_rhel_9 != "false":
-        test_environments['rhel9'] = 'rhel91_x64_aws_server_en_us'
-
-    if parameters.run_sles_12 != "false":
-        test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
-
-    if parameters.run_sles_15 != "false":
-        test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
-
-    if parameters.run_ubuntu_18_04 != "false":
-        test_environments['ubuntu1804'] = 'ubuntu1804_x64_server_en_us'
-
-    if parameters.run_ubuntu_20_04 != "false":
-        test_environments['ubuntu2004'] = 'ubuntu2004_x64_server_en_us'
-
-    if parameters.run_ubuntu_22_04 != "false":
-        test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
-
-    ret = []
-    for name, image in test_environments.items():
-        machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
-        machine.cifs_supported = include_cifs_for_machine_name(name, image)
-        machine.ntfs_supported = include_ntfs_for_machine_name(name, image)
-        machine.sspl_name = name
-        ret.append((name, machine))
-    return ret
 
 
 def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
@@ -454,37 +352,58 @@ def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.Pipe
     return not branch.startswith("release/")
 
 
-def get_base_version():
-    import xml.dom.minidom
-    package_path = "./build-files/release-package.xml"
-    if os.path.isfile(package_path):
-        dom = xml.dom.minidom.parseString(open(package_path).read())
-        package = dom.getElementsByTagName("package")[0]
-        version = package.getAttribute("version")
-        if version:
-            logger.info("Extracted version from release-package.xml: %s", version)
-            return version
+def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
 
-    logger.info("CWD: %s", os.getcwd())
-    logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
+    # robot_task_with_env will parse this string
+    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
+                                            "integrationNOTavbaseNOTav_health avbase av_health"
 
-    raise Exception("Failed to extract version from release-package.xml")
+    # Not sure why it's different to all the other plugins?
+    av_coverage_machine = "ubuntu1804_x64_server_en_us"
+
+    with stage.parallel('av_coverage'):
+        with stage.parallel('coverage'):
+            coverage_inputs = get_inputs(context, av_coverage_build, coverage=True)
+
+            with stage.parallel('pytest'):
+                machine_bullseye_pytest = tap.Machine(av_coverage_machine,
+                                                      inputs=coverage_inputs,
+                                                      outputs={'covfile': TaskOutput('covfiles')},
+                                                      platform=tap.Platform.Linux)
+                stage.task(task_name='component',
+                           func=bullseye_coverage_pytest_task,
+                           machine=machine_bullseye_pytest)
+
+            with stage.parallel('robot'):
+                for include in include_tag.split():
+                    machine_bullseye_robot = tap.Machine(av_coverage_machine,
+                                                         inputs=coverage_inputs,
+                                                         outputs={'covfile': TaskOutput('covfiles')},
+                                                         platform=tap.Platform.Linux)
+                    stage.task(task_name=include,
+                               func=bullseye_coverage_robot_task,
+                               machine=machine_bullseye_robot,
+                               include_tag=include,
+                               branch_name=context.branch)
+
+            combine_inputs = coverage_inputs
+            combine_inputs['covfiles'] = TaskOutput('covfiles')
+            machine_bullseye_combine = \
+                tap.Machine('ubuntu1804_x64_server_en_us',
+                            inputs=combine_inputs,
+                            platform=tap.Platform.Linux)
+            stage.task(task_name='combine',
+                       func=bullseye_coverage_combine_task,
+                       machine=machine_bullseye_combine,
+                       include_tag=include_tag,
+                       branch_name=context.branch)
 
 
-@tap.pipeline(root_sequential=False)
-def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    global BRANCH_NAME
-    BRANCH_NAME = context.branch
+def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None):
+    # run_tests: bool = parameters.run_tests != 'false'
 
-    run_tests: bool = parameters.run_tests != 'false'
+    robot_args = get_robot_args(parameters)
 
-    # Add args to pass env vars to RobotFramework.py call in test runs
-    robot_args_list = []
-    if parameters.test:
-        robot_args_list.append("TEST=" + parameters.test)
-    elif parameters.suite:
-        robot_args_list.append("SUITE=" + parameters.suite)
-    robot_args = " ".join(robot_args_list)
     # robot_task_with_env will parse this string
     include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
                                             "integrationNOTavbaseNOTav_health avbase av_health"

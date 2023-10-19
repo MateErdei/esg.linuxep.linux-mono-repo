@@ -3,8 +3,8 @@ set -e
 [[ -d /vagrant ]]
 (( UID == 0 )) || exec sudo -H "$0" "$@"
 
-JOURNALER_PATH="/vagrant/esg.linuxep.sspl-plugin-event-journaler"
-BASE_PATH="/vagrant/esg.linuxep.everest-base"
+JOURNALER_PATH="/vagrant/esg.linuxep.linux-mono-repo/eventjournaler"
+BASE_PATH="/vagrant/esg.linuxep.linux-mono-repo/base"
 
 if [ ! -d "$JOURNALER_PATH" ]
 then

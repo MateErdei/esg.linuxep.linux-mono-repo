@@ -20,7 +20,7 @@ ALLOWED_PRODUCT_BFR_PATHS = [
 
 
 SSPL_TOOLS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-assert os.path.basename(SSPL_TOOLS) == "esg.linuxep.sspl-tools" and os.path.isdir(SSPL_TOOLS)
+assert os.path.basename(SSPL_TOOLS) == "spl-tools" and os.path.isdir(SSPL_TOOLS)
 
 # It doesn't matter what this is, as long as it works. This one works.
 DEFAULT_BUILD_TIMESTAMP= "20191014161549-a"

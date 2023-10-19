@@ -59,7 +59,7 @@ def find_local_component_dir_path(component_dirname):
 
 
 def find_local_base_dir_path():
-    local_path = find_local_component_dir_path("esg.linuxep.everest-base")
+    local_path = find_local_component_dir_path("base")
     if local_path:
         return local_path
     return None

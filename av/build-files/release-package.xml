@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-anti-virus" version="1.1.2">
     <versioning>
-        <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./av/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>.</workingdir>
+        <workingdir>av</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
 
         <build-asset project="linuxep" repo="linux-mono-repo" mode="independent">
@@ -113,26 +113,26 @@
         <command mode="release,oldci">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av</args>
-            <workingdir>.</workingdir>
+            <workingdir>av</workingdir>
         </command>
         <command mode="debug">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av --debug</args>
-            <workingdir>.</workingdir>
+            <workingdir>av</workingdir>
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av --esg-ci-coverage</args>
-            <workingdir>.</workingdir>
+            <workingdir>av</workingdir>
         </command>
-        <command mode="cppcheck">
+        <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av --cpp-check</args>
-            <workingdir>.</workingdir>
+            <workingdir>av</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>.</workingdir>
+        <workingdir>av</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
 
         <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>

@@ -2,7 +2,8 @@
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
-        <build-asset project="linuxep" repo="everest-base">
+
+        <build-asset project="linuxep" repo="linux-mono-repo">
             <development-version branch="develop"/>
             <!-- Base -->
             <include mode="system-test,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="base/linux_x64_rel/installer" dest-dir="sspl-base"/>
@@ -27,7 +28,7 @@
             <include mode="system-test,base-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sspl-plugin-event-journaler"/>
             <include mode="system-test,base-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="eventjournaler/linux_x64_rel/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
-            <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage//SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
 
             <!-- AV -->
@@ -46,7 +47,8 @@
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites" dest-dir="sdds3/launchdarkly-static" />
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage" artifact-path="prod-sdds3-static-suites-999" dest-dir="sdds3/launchdarkly-static-999" />
         </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+
+        <build-asset project="linuxep" repo="runtimedetections">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="SDDS-COMPONENT" dest-dir="sspl-runtimedetections-plugin"/>
             <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="sspl-rdrules" dest-dir="sspl-runtimedetections-plugin/content_rules"/>

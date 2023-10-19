@@ -28,7 +28,7 @@ from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 
 SYSTEM_PRODUCT_TEST_INPUTS = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
-BASE_REPO_NAME="esg.linuxep.everest-base"
+BASE_VAGRANT_DIR = "/vagrant/esg.linuxep.linux-mono-repo/base"
 
 # using the subprocess.PIPE can make the robot test to hang as the buffer could be filled up. 
 # this auxiliary method ensure that this does not happen. It also uses a temporary file in 
@@ -104,9 +104,9 @@ def get_full_installer():
     else:
         paths_tried.append("OUTPUT not set")
 
-    installer_release = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-release/distribution/base/install.sh")
-    installer_debug = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-debug/distribution/base/install.sh")
-    output = os.path.join(f"/vagrant/{BASE_REPO_NAME}/output/SDDS-COMPONENT/install.sh")
+    installer_release = os.path.join(f"{BASE_VAGRANT_DIR}/cmake-build-release/distribution/base/install.sh")
+    installer_debug = os.path.join(f"{BASE_VAGRANT_DIR}/cmake-build-debug/distribution/base/install.sh")
+    output = os.path.join(f"{BASE_VAGRANT_DIR}/output/SDDS-COMPONENT/install.sh")
     paths_tried.append(installer_release)
     paths_tried.append(installer_debug)
     paths_tried.append(output)
@@ -154,7 +154,7 @@ def get_sspl_live_response_plugin_sdds():
 
 def get_sspl_edr_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-edr-component")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("edr")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -170,7 +170,7 @@ def get_sspl_runtimedetections_plugin_sdds():
 
 def get_sspl_event_journaler_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-event-journaler")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("eventjournaler")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -187,7 +187,7 @@ def get_sspl_response_actions_plugin_sdds():
             return RA_DIST
 
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path(BASE_REPO_NAME)
+    local_path_to_plugin = PathManager.find_local_component_dir_path(BASE_VAGRANT_DIR)
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-release/distribution/ra"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/distribution/ra"))
@@ -195,7 +195,7 @@ def get_sspl_response_actions_plugin_sdds():
 
 def get_sspl_anti_virus_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-anti-virus")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("av")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))

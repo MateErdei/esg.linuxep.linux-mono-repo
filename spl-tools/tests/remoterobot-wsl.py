@@ -4,11 +4,18 @@ import os
 import subprocess as sp
 import glob
 
-BASE_REPO_DIR_NAME = "esg.linuxep.everest-base"
-SSPL_TOOLS_REPO_DIR_NAME = "esg.linuxep.sspl-tools"
-AV_REPO_DIR_NAME = "esg.linuxep.sspl-plugin-anti-virus"
-EDR_REPO_DIR_NAME = "esg.linuxep.sspl-plugin-edr-component"
-EVENT_JOURNALER_REPO_DIR_NAME = "esg.linuxep.sspl-plugin-event-journaler"
+MONO_REPO = "esg.linuxep.linux-mono-repo"
+BASE_DIR_NAME = "base"
+SPL_TOOLS_DIR_NAME = "spl-tools"
+AV_DIR_NAME = "av"
+EDR_DIR_NAME = "edr"
+EVENT_JOURNALER_DIR_NAME = "eventjournaler"
+
+BASE_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, BASE_DIR_NAME)
+AV_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, AV_DIR_NAME)
+EDR_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EDR_DIR_NAME)
+EJ_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EVENT_JOURNALER_DIR_NAME)
+TOOLS_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, SPL_TOOLS_DIR_NAME)
 
 
 def add_quote(input_arg: str) -> str:
@@ -41,19 +48,26 @@ def vagrant_rsync(vagrant_wrapper_dir: str):
     sp.check_call([vagrant_wrapper, 'rsync'])
 
 
-def get_plugin_names(vagrant_root_dir: str):
-    repos = []
-    with open(os.path.join(vagrant_root_dir, "setup/gitRepos.txt")) as git_repos_file:
-        for line in git_repos_file.readlines():
-            plugin = {}
-            line = line.strip()
-            if "plugin" in line.lower():
-                plugin_name = line.split("/")[-1].replace(".git", "").split(".")[-1]
-                plugin["dir"] = line.split("/")[-1].replace(".git", "")
-                plugin["name"] = plugin_name
-                plugin["envName"] = plugin_name.upper().replace("-", "_") + "_SDDS"
-                repos.append(plugin)
-    return repos
+def get_plugin_names():
+    plugins = [
+        {
+            'name': 'sspl-plugin-anti-virus',
+            'dir': 'av',
+            'envName': 'SSPL_PLUGIN_ANTI_VIRUS_SDDS'
+        },
+        {
+            'name': 'sspl-plugin-edr-component',
+            'dir': 'edr',
+            'envName': 'SSPL_PLUGIN_EDR_COMPONENT_SDDS'
+        },
+        {
+            'name': 'sspl-plugin-event-journaler',
+            'dir': 'eventjournaler',
+            'envName': 'SSPL_PLUGIN_EVENT_JOURNALER_SDDS'
+        },
+    ]
+    return plugins
+
 
 
 def newer_folder(folder_one, folder_two):
@@ -82,32 +96,47 @@ def newest_dir(dirs: [str]):
     return newest
 
 
-def get_base_folder(repos_root_dir):
-    old_base_debug_build = os.path.join(repos_root_dir, "everest-base/cmake-build-debug/distribution")
-    old_base_release_build = os.path.join(repos_root_dir, "everest-base/cmake-build-release/distribution")
-    base_debug_build = os.path.join(repos_root_dir, f"{BASE_REPO_DIR_NAME}/cmake-build-debug/distribution")
-    base_release_build = os.path.join(repos_root_dir, f"{BASE_REPO_DIR_NAME}/cmake-build-release/distribution")
-    return newest_dir([old_base_debug_build, old_base_release_build, base_debug_build, base_release_build])
+def get_base_folder(root_dir):
+    base_dir = os.path.join(root_dir, BASE_DIR_NAME)
+    base_debug_build = os.path.join(base_dir, "cmake-build-debug/distribution")
+    base_release_build = os.path.join(base_dir, "cmake-build-release/distribution")
+    return newest_dir([base_debug_build, base_release_build])
 
-
-def update_plugin_info_with_dirs(plugin_list, repos_root_dir):
+def update_plugin_info_with_dirs(plugin_list, mono_repo_dir):
     for p in plugin_list:
-        plugin_build = os.path.join(repos_root_dir, p["dir"], "build64/sdds")
-        plugin_debug_build = os.path.join(repos_root_dir, p["dir"], "cmake-build-debug/sdds")
-        av_variant_plugin_debug_build = os.path.join(repos_root_dir, p["dir"], "build64-Debug/sdds")
-        av_variant_plugin_release_build = os.path.join(repos_root_dir, p["dir"], "build64-RelWithDebInfo/sdds")
+        plugin_build = os.path.join(mono_repo_dir, p["dir"], "build64/sdds")
+        plugin_debug_build = os.path.join(mono_repo_dir, p["dir"], "cmake-build-debug/sdds")
+        av_variant_plugin_debug_build = os.path.join(mono_repo_dir, p["dir"], "build64-Debug/sdds")
+        av_variant_plugin_release_build = os.path.join(mono_repo_dir, p["dir"], "build64-RelWithDebInfo/sdds")
         p["build_dir"] = newest_dir(
             [plugin_build, plugin_debug_build, av_variant_plugin_debug_build, av_variant_plugin_release_build])
 
 
-def find_repos_root_dir(current_dir: str) -> str:
+def matching_starting_chars(string1, string2):
+    shortest_len = min(len(string1), len(string2))
+    matching_chars = 0
+    for i in range(shortest_len):
+        if string1[i] == string2[i]:
+            matching_chars += 1
+    return matching_chars
+
+
+def find_mono_repo_root_dir(current_dir: str) -> str:
+    this_file = os.path.realpath(__file__)
+    this_dir = os.path.dirname(this_file)
     current_user = os.environ.get('USER')
     find_result = sp.run(["find", f"/home/{current_user}", "-name", ".git"], text=True, capture_output=True)
     stdout_str = find_result.stdout
     repos = stdout_str.splitlines()
+    closest_path = ""
+    best_match = 0
     for repo_path in repos:
-        if repo_path.endswith(SSPL_TOOLS_REPO_DIR_NAME+"/.git"):
-            return str(os.path.dirname(os.path.dirname(repo_path)))
+        if repo_path.endswith(MONO_REPO + "/.git"):
+            matching_start_of_path = matching_starting_chars(repo_path, this_dir)
+            if matching_start_of_path > best_match:
+                best_match = matching_start_of_path
+                closest_path = os.path.dirname(repo_path)
+    return closest_path
 
 
 def copy_file_from_vagrant_machine_to_host(vagrant_wrapper_dir: str, src: str, dest: str):
@@ -121,8 +150,8 @@ def generate_base_test_script(remote_dir: str, base_folder_vagrant: str, env_var
         gather = ""
         av = ""
     else:
-        gather = f"TEST_UTILS=/vagrant/{BASE_REPO_DIR_NAME}/testUtils  sudo -HE /vagrant/{BASE_REPO_DIR_NAME}/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
-        av = f"sudo -E /vagrant/{BASE_REPO_DIR_NAME}/testUtils/libs/DownloadAVSupplements.py"
+        gather = f"TEST_UTILS={base_folder_vagrant}/testUtils  sudo -HE {base_folder_vagrant}/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
+        av = f"sudo -E {base_folder_vagrant}/testUtils/libs/DownloadAVSupplements.py"
     temp_file_content = f"""#!/bin/bash
 set -ex
 cd {remote_dir}
@@ -134,7 +163,7 @@ export BASE_DIST={base_folder_vagrant}
 # Env vars
 {env_variables}
 # Set python path
-export PYTHONPATH=/vagrant/{BASE_REPO_DIR_NAME}/testUtils/libs:/vagrant/{BASE_REPO_DIR_NAME}/testUtils/SupportFiles:$PYTHONPATH
+export PYTHONPATH={base_folder_vagrant}/testUtils/libs:{base_folder_vagrant}/testUtils/SupportFiles:$PYTHONPATH
 # Run robot
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
@@ -184,8 +213,10 @@ sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
     return temp_file_content
 
+
 # Create the temp file that will be executed inside the vagrant machine for Event Journaler tests
-def generate_event_journaler_test_script(remote_dir: str, journaler_folder_vagrant: str, env_variables: str, quoted_args: [str]) -> str:
+def generate_event_journaler_test_script(remote_dir: str, journaler_folder_vagrant: str, env_variables: str,
+                                         quoted_args: [str]) -> str:
     temp_file_content = f"""#!/bin/bash
 set -ex
 cd {remote_dir}
@@ -209,45 +240,48 @@ def main():
     current_dir = os.path.abspath(os.getcwd())
     print(f"Current dir: {current_dir}")
 
-    # Where are we running this script from, different repos have different test setup steps.
-    current_repo = BASE_REPO_DIR_NAME
-    if BASE_REPO_DIR_NAME in current_dir:
-        current_repo = BASE_REPO_DIR_NAME
-    elif AV_REPO_DIR_NAME in current_dir:
-        current_repo = AV_REPO_DIR_NAME
-    elif EDR_REPO_DIR_NAME in current_dir:
-        current_repo = EDR_REPO_DIR_NAME
-    elif EVENT_JOURNALER_REPO_DIR_NAME in current_dir:
-        current_repo = EVENT_JOURNALER_REPO_DIR_NAME
+    # Where are we running this script from, different components have different test setup steps.
+    current_repo = BASE_DIR_NAME
+    if os.path.join(MONO_REPO, BASE_DIR_NAME) in current_dir:
+        current_repo = BASE_DIR_NAME
+    elif os.path.join(MONO_REPO, AV_DIR_NAME) in current_dir:
+        current_repo = AV_DIR_NAME
+    elif os.path.join(MONO_REPO, EDR_DIR_NAME) in current_dir:
+        current_repo = EDR_DIR_NAME
+    elif os.path.join(MONO_REPO, EVENT_JOURNALER_DIR_NAME) in current_dir:
+        current_repo = EVENT_JOURNALER_DIR_NAME
 
-    # repos_root is where all SPL repos are located, usually /home/$USER/gitrepos/
-    repos_root = find_repos_root_dir(current_dir)
-    print(f"Repos root dir: {repos_root}")
+    mono_repo_path = find_mono_repo_root_dir(current_dir)
+    print(f"Linux mono repo dir: {mono_repo_path}")
 
-    sspl_tools_repo_dir = os.path.join(repos_root, SSPL_TOOLS_REPO_DIR_NAME)
+    # repos_root = find_repos_root_dir(current_dir)
+    # print(f"Repos root dir: {repos_root}")
+
+    sspl_tools_repo_dir = os.path.join(mono_repo_path, SPL_TOOLS_DIR_NAME)
 
     # vagrant_root is where the .vagrant file is located
     vagrant_root = find_vagrant_root(sspl_tools_repo_dir)
     print(f"Vagrant root dir: {vagrant_root}")
 
-    vagrant_shared_dir = repos_root
+    vagrant_shared_dir = os.path.dirname(mono_repo_path)
     print(f"Vagrant shared dir: {vagrant_shared_dir}")
 
-    if current_repo == BASE_REPO_DIR_NAME:
+    if current_repo == BASE_DIR_NAME:
         # Find the latest build directory for base
-        base_folder = get_base_folder(repos_root)
+        base_folder = get_base_folder(mono_repo_path)
         if base_folder:
             print("Using {} folder for base".format(base_folder))
         else:
             print("Cannot find folder for everest-base")
             exit(1)
-        base_folder_vagrant = "/vagrant" + base_folder[len(repos_root):]
+        # base_folder_vagrant = os.path.join("/vagrant/base", base_folder[len(vagrant_shared_dir):])
+        base_folder_vagrant = f"/vagrant/{MONO_REPO}/base"
         print(f"Base folder = {base_folder}")
         print(f"Base folder on vagrant = {base_folder_vagrant}")
 
     def get_plugin_info():
-        plugins_info = get_plugin_names(vagrant_root)
-        update_plugin_info_with_dirs(plugins_info, repos_root)
+        plugins_info = get_plugin_names()
+        update_plugin_info_with_dirs(plugins_info, mono_repo_path)
         return plugins_info
 
     plugins = get_plugin_info()
@@ -258,10 +292,15 @@ def main():
         local_folder = plugin["build_dir"]
         if os.path.isdir(local_folder):
             print(f'Using {local_folder} folder for {plugin["name"]}')
-            plugin["build_dir_from_vagrant"] = "/vagrant" + local_folder[len(repos_root):]
+            plugin["build_dir_from_vagrant"] = os.path.join("/vagrant", MONO_REPO, local_folder[len(mono_repo_path)+1:])
             env_variables += "export " + plugin["envName"] + "=" + plugin["build_dir_from_vagrant"] + "\n"
         else:
             print(f'Cannot find folder for {plugin["name"]}, looked here: {plugin["build_dir"]}')
+
+    # for p in plugins:
+    #     print(p)
+
+
 
     # Translate the arguments from the host machine to the vagrant machine
     remote_args = []
@@ -303,39 +342,42 @@ def main():
     print("Checking vagrant machine status...")
     check_vagrant_up_and_running(vagrant_root)
 
-
     # Create the temp file that will be executed inside the vagrant machine
-    if current_repo == BASE_REPO_DIR_NAME:
+    if current_repo == BASE_DIR_NAME:
         temp_file_content = generate_base_test_script(remote_dir, base_folder_vagrant, env_variables, quoted_args)
-    elif current_repo == AV_REPO_DIR_NAME:
-        av_dir_on_vagrant = f"/vagrant/{AV_REPO_DIR_NAME}"
+
+    elif current_repo == AV_DIR_NAME:
         # AV needs to run tests from TA dir so hard code the remote_dir
         # remap test location arg, assuming last arg is the dir of the tests we want to run
         test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
         quoted_args[-1] = add_quote(test_dir_absolute)
-        remote_dir = f"{av_dir_on_vagrant}/TA"
-        temp_file_content = generate_av_test_script(remote_dir, av_dir_on_vagrant, env_variables, quoted_args)
-    elif current_repo == EDR_REPO_DIR_NAME:
-        edr_dir_on_vagrant = f"/vagrant/{EDR_REPO_DIR_NAME}"
+        remote_dir = f"{AV_ON_VAGRANT}/TA"
+        temp_file_content = generate_av_test_script(remote_dir, AV_ON_VAGRANT, env_variables, quoted_args)
+
+    elif current_repo == EDR_DIR_NAME:
         # EDR also needs to run tests from TA dir so hard code the remote_dir
         # remap test location arg, assuming last arg is the dir of the tests we want to run
         test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
         quoted_args[-1] = add_quote(test_dir_absolute)
-        remote_dir = f"{edr_dir_on_vagrant}/TA"
-        temp_file_content = generate_edr_test_script(remote_dir, edr_dir_on_vagrant, env_variables, quoted_args)
-    elif current_repo == EVENT_JOURNALER_REPO_DIR_NAME:
-        journaler_dir_on_vagrant = f"/vagrant/{EVENT_JOURNALER_REPO_DIR_NAME}"
+        remote_dir = f"{EDR_ON_VAGRANT}/TA"
+        temp_file_content = generate_edr_test_script(remote_dir, EDR_ON_VAGRANT, env_variables, quoted_args)
+
+    elif current_repo == EVENT_JOURNALER_DIR_NAME:
         # Event Journaler also needs to run tests from TA dir so hard code the remote_dir
         # remap test location arg, assuming last arg is the dir of the tests we want to run
         test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
         quoted_args[-1] = add_quote(test_dir_absolute)
-        remote_dir = f"{journaler_dir_on_vagrant}/TA"
-        temp_file_content = generate_event_journaler_test_script(remote_dir, journaler_dir_on_vagrant, env_variables, quoted_args)
+        remote_dir = f"{EJ_ON_VAGRANT}/TA"
+        temp_file_content = generate_event_journaler_test_script(remote_dir, EJ_ON_VAGRANT, env_variables, quoted_args)
     else:
         raise AssertionError("Unknown Repo")
 
     tmp_file_on_host = os.path.join(vagrant_root, 'tmpscript.sh')
-    tmp_file_on_guest = os.path.join('/vagrant/', SSPL_TOOLS_REPO_DIR_NAME, 'tmpscript.sh')
+    tmp_file_on_guest = os.path.join('/vagrant/', MONO_REPO, SPL_TOOLS_DIR_NAME, 'tmpscript.sh')
+
+    print(f"tmp_file_on_host = {tmp_file_on_host}")
+    print(f"tmp_file_on_guest = {tmp_file_on_guest}")
+    print(f"temp_file_content = {temp_file_content}")
 
     with open(tmp_file_on_host, 'w') as f:
         f.write(temp_file_content)

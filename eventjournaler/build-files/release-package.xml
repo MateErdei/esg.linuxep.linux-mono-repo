@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.6">
     <versioning>
-        <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>./eventjournaler/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
@@ -45,12 +45,12 @@
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --name eventjournaler --bullseye</args>
-            <workingdir>.</workingdir>
+            <workingdir>eventjournaler</workingdir>
         </command>
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --name eventjournaler --analysis</args>
-            <workingdir>.</workingdir>
+            <workingdir>eventjournaler</workingdir>
         </command>
     </buildcommands>
     <publish>

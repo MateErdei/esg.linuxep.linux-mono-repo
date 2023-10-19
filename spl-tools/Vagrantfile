@@ -12,46 +12,49 @@ wsl_user = ENV["USER"]
 windows_user = ENV["WINDOWS_USER"]
 
 repos_dir = "/home/" + wsl_user + "/gitrepos"
+mono_repo_dir = repos_dir + "/esg.linuxep.linux-mono-repo"
 
 Vagrant.configure("2") do |config|
     config.ssh.forward_agent = true
 
     config.vm.define "ubuntu", primary: true do |ubuntu|
+        config.trigger.before [:provision] do |trigger|
+            trigger.info = "Running ./bootstrap_ubuntu.sh..."
+            trigger.run_remote = {path: "./bootstrap_ubuntu.sh"}
+        end
+
         config.vm.boot_timeout = 600
         config.vm.box = "ubuntu/focal64"
         config.vm.synced_folder ".", "/vagrant", disabled: true
 
         # Source to sync
-        config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-tools/", "/vagrant/esg.linuxep.sspl-tools/", type: "rsync",
-        rsync__exclude: ".git/", rsync__args: rsync_options
-
-        # Base
-        config.vm.synced_folder repos_dir + "/esg.linuxep.everest-base/", "/vagrant/esg.linuxep.everest-base/", type: "rsync",
-        rsync__exclude: [".git/", "tap_venv/", "bazel-bin", "bazel-esg.linuxep.everest-base", "bazel-out", "bazel-testlogs", "log"], rsync__args: rsync_options
-
-        # AV
-        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-anti-virus/")
-            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-anti-virus/", "/vagrant/esg.linuxep.sspl-plugin-anti-virus/", type: "rsync",
-            rsync__exclude: [".git/", "input", "redist", "cmake-build-debug-sspl", "cmake-build-release-sspl", "log"], rsync__args: rsync_options
-        end
-
-        # EDR
-        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-edr-component/")
-            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-edr-component/", "/vagrant/esg.linuxep.sspl-plugin-edr-component/", type: "rsync",
-            rsync__exclude: ".git/", rsync__args: rsync_options
-        end
-
-        # EDR Component componentsuite
-        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-edr-componentsuite/")
-            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-edr-componentsuite/", "/vagrant/esg.linuxep.sspl-plugin-edr-componentsuite/", type: "rsync",
-            rsync__exclude: ".git/", rsync__args: rsync_options
-        end
-
-        # Event Journaler
-        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-event-journaler/")
-            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-event-journaler/", "/vagrant/esg.linuxep.sspl-plugin-event-journaler/", type: "rsync",
-            rsync__exclude: ".git/", rsync__args: rsync_options
-        end
+        config.vm.synced_folder mono_repo_dir, "/vagrant/esg.linuxep.linux-mono-repo/", type: "rsync",
+        rsync__exclude: [
+            ".git/",
+            "pipeline",
+            "base/bazel-bin",
+            "base/bazel-esg.linuxep.everest-base",
+            "base/bazel-out",
+            "base/bazel-testlogs",
+            "base/tap_venv",
+            "base/log",
+            "base/.idea",
+            "base/.clwb",
+            "base/.github",
+            "base/log",
+            "edr/.idea",
+            "av/.github",
+            "av/log",
+            "av/input",
+            "av/redist",
+            "av/cmake-build-debug-sspl",
+            "av/cmake-build-release-sspl",
+            "eventjournaler/.github",
+            "eventjournaler/.idea",
+            "eventjournaler/log",
+            "spl-tools/.github",
+            "spl-tools/.vagrant",
+             ], rsync__args: rsync_options
 
         # Warehouse
         if File.directory?(repos_dir + "/esg.linuxep.sspl-warehouse/")

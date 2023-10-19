@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 echo "Bootstrapping Ubuntu"
 apt-get update --fix-missing
 apt-get upgrade -y

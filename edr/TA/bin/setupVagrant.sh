@@ -3,8 +3,8 @@ set -e
 [[ -d /vagrant ]]
 (( UID == 0 )) || exec sudo -H "$0" "$@"
 
-EDR_PATH="/vagrant/esg.linuxep.sspl-plugin-edr-component"
-BASE_PATH="/vagrant/esg.linuxep.everest-base"
+EDR_PATH="/vagrant/esg.linuxep.linux-mono-repo/edr"
+BASE_PATH="/vagrant/esg.linuxep.linux-mono-repo/base"
 
 if [ ! -d "$EDR_PATH" ]
 then

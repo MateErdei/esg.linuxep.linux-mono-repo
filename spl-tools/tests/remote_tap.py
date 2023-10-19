@@ -4,8 +4,9 @@ import os
 import subprocess as sp
 
 
-SSPL_TOOLS_REPO_DIR_NAME = "esg.linuxep.sspl-tools"
-
+SPL_TOOLS_DIR = "spl-tools"
+MONO_REPO_ON_VAGRANT = "/vagrant/esg.linuxep.linux-mono-repo"
+SPL_TOOLS_ON_VAGRANT = os.path.join(MONO_REPO_ON_VAGRANT, SPL_TOOLS_DIR)
 
 def add_quote(input_arg: str) -> str:
     if input_arg[0] == '"' or input_arg[0] == "'":
@@ -43,7 +44,7 @@ def find_repos_root_dir(current_dir: str) -> str:
     stdout_str = find_result.stdout
     repos = stdout_str.splitlines()
     for repo_path in repos:
-        if repo_path.endswith(SSPL_TOOLS_REPO_DIR_NAME+"/.git"):
+        if repo_path.endswith("esg.linuxep.linux-mono-repo/.git"):
             return str(os.path.dirname(os.path.dirname(repo_path)))
 
 
@@ -87,10 +88,10 @@ def main():
     repos_root = find_repos_root_dir(current_dir)
     print(f"Repos root dir: {repos_root}")
 
-    sspl_tools_repo_dir = os.path.join(repos_root, SSPL_TOOLS_REPO_DIR_NAME)
+    sspl_tools_dir = os.path.join(repos_root, SPL_TOOLS_DIR)
 
     # vagrant_root is where the .vagrant file is located
-    vagrant_root = find_vagrant_root(sspl_tools_repo_dir)
+    vagrant_root = find_vagrant_root(sspl_tools_dir)
     print(f"Vagrant root dir: {vagrant_root}")
 
     vagrant_shared_dir = repos_root
@@ -124,7 +125,7 @@ def main():
     check_vagrant_up_and_running(vagrant_root)
 
     tmp_file_on_host = os.path.join(vagrant_root, 'tmpscript.sh')
-    tmp_file_on_guest = os.path.join('/vagrant/', SSPL_TOOLS_REPO_DIR_NAME, 'tmpscript.sh')
+    tmp_file_on_guest = os.path.join(SPL_TOOLS_ON_VAGRANT, 'tmpscript.sh')
 
     with open(tmp_file_on_host, 'w') as f:
         f.write(temp_file_content)

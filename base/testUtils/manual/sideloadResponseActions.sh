@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export SOPHOS_INSTALL="${SOPHOS_INSTALL:-/opt/sophos-spl}"
-OUTPUT="${OUTPUT:-/vagrant/esg.linuxep.everest-base/output}"
+OUTPUT="${OUTPUT:-/vagrant/esg.linuxep.linux-mono-repo/base/output}"
 SDDS="${SDDS:-$OUTPUT/RA-SDDS-COMPONENT}"
 
 STARTINGDIR="$(pwd)"

@@ -1,11 +1,17 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
+Copyright 2021, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #pragma once
 
-#include "datatypes/AVException.h"
+#include <string>
 
-class ScanInterruptedException : public datatypes::AVException
+namespace Common::UtilityImpl
 {
-public:
-    using datatypes::AVException::AVException;
-};
+    class SystemExecutableUtils
+    {
+    public:
+        static std::string getSystemExecutablePath(const std::string& executableName);
+    };
+} // namespace Common::UtilityImpl

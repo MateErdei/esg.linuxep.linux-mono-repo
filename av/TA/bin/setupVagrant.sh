@@ -4,7 +4,7 @@ set -e
 (( UID == 0 )) || exec sudo -H "$0" "$@"
 
 STASH_PATH="/vagrant/sspl-plugin-anti-virus"
-GITHUB_PATH="/vagrant/esg.linuxep.sspl-plugin-anti-virus"
+GITHUB_PATH="/vagrant/esg.linuxep.linux-mono-repo/av"
 
 if [ -d "$GITHUB_PATH" ]
 then
