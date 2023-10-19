@@ -7,6 +7,12 @@ if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
 fi
 SDDS3_COM_URL="https://sdds3.sophosupd.com:443"
 SDDS3_NET_URL="https://sdds3.sophosupd.net:443"
+if [[ -n $OVERRIDE_CDN_LOCATION ]]; then
+    echo "WARN: Using CDN URL override: $OVERRIDE_CDN_LOCATION"
+    SDDS3_COM_URL=$OVERRIDE_CDN_LOCATION
+    SDDS3_NET_URL=$OVERRIDE_CDN_LOCATION
+fi
+
 DAT_FILES=("supplement/sdds3.ScheduledQueryPack.dat"
     "supplement/sdds3.ML_MODEL3_LINUX_X86_64.dat"
     "supplement/sdds3.DataSetA.dat"
