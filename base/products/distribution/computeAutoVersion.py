@@ -3,16 +3,13 @@
 # All rights reserved.
 
 
-
 import readVersion
 
 import sys
 import os
 
 
-def readAutoVersion(base_path,jenkins_file):
-    assert os.path.isfile(os.path.join(base_path,jenkins_file))
-
+def readAutoVersion(base_path):
     autoVersionFile = readVersion.get_valid_auto_version_path(base_path)
 
     if autoVersionFile is None:
@@ -30,14 +27,13 @@ def readAutoVersion(base_path,jenkins_file):
 def main(argv):
     base_path = argv[1]
     base_version = argv[2]
-    jenkins_file = argv[3]
     ## Get AutoVersion
-    autoVersion = readAutoVersion(base_path,jenkins_file)
+    autoVersion = readAutoVersion(base_path)
 
     if autoVersion:
         version = autoVersion
     else:
-        version = base_version+".999"
+        version = base_version + ".999"
 
     print(version)
     return 0

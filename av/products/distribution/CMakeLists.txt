@@ -102,9 +102,8 @@ else()
             COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
             OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-
     execute_process(
-            COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
+            COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION}
             OUTPUT_VARIABLE PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
