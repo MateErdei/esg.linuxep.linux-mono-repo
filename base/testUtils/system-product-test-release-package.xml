@@ -35,7 +35,7 @@
             <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
 
             <!-- LIVETERMINAL -->
-            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage" artifact-path="liveterminal/linux_x64_rel/installer" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />
 
