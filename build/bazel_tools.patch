@@ -1,0 +1,22 @@
+--- a/tools/thirdparty/BUILD.gcc.bazel
++++ b/tools/thirdparty/BUILD.gcc.bazel
+@@ -101,8 +101,8 @@
+                 # We should re-evaluate whether this can go to general compile_flags on migration to crosstool-ng
+                 "-D_FORTIFY_SOURCE=2",  # bazel default was =1
+                 "-DNDEBUG",
+-                # "-ffunction-sections", don't take bazel default
+-                # "-fdata-sections", don't take bazel default
++                "-ffunction-sections",
++                "-fdata-sections",
+ 
+                 # These are in the standard toolchain so we should look at this
+                 # "-U_FORTIFY_SOURCE", We set "-D_FORTIFY_SOURCE=2", above so this is not needed
+@@ -111,7 +111,7 @@
+                 "-fno-omit-frame-pointer",
+             ],
+             opt_link_flags = [
+-                #"-Wl,--gc-sections"
++                "-Wl,--gc-sections",
+             ],
+             supports_start_end_lib = False,  # Disabled as the default linker does not support this, and gold is not available
+             target_libc = "local",
