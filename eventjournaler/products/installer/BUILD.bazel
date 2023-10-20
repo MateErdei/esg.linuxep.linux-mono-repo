@@ -1,7 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//eventjournaler/modules/pluginimpl:substitutions.bzl", "SUBSTITUTIONS")
-load("//eventjournaler/modules/pluginimpl:version_info.bzl", "EVENTJOURNALER_LINE_ID", "EVENTJOURNALER_PRODUCT_NAME", "EVENTJOURNALER_VERSION", "EVENTJOURNALER_VERSIONING_COMPONENT_NAME")
+load("//eventjournaler:substitutions.bzl", "SUBSTITUTIONS")
+load("//eventjournaler:version_info.bzl", "EVENTJOURNALER_BASE_VERSION", "EVENTJOURNALER_LINE_ID", "EVENTJOURNALER_PRODUCT_NAME", "EVENTJOURNALER_VERSIONING_COMPONENT_NAME")
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
 
 expand_template(
@@ -27,7 +27,7 @@ expand_template(
 
 spl_sdds_packages(
     name = "installer",
-    base_version = EVENTJOURNALER_VERSION,
+    base_version = EVENTJOURNALER_BASE_VERSION,
     component_name = EVENTJOURNALER_PRODUCT_NAME,
     line_id = EVENTJOURNALER_LINE_ID,
     spv_features = ["CORE"],

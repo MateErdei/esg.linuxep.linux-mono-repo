@@ -1,7 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
-load("//eventjournaler/modules/pluginimpl:substitutions.bzl", "SUBSTITUTIONS")
+load("//eventjournaler:substitutions.bzl", "SUBSTITUTIONS")
 
 soph_cc_library(
     name = "pluginimpl",
