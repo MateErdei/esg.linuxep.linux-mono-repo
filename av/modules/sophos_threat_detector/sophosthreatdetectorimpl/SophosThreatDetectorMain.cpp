@@ -17,29 +17,34 @@
 #include "common/ThreadRunner.h"
 #include "common/signals/SigUSR1Monitor.h"
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/sophos_prctl.h"
 #include "unixsocket/UnixSocketException.h"
 
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
+
+#define INIT_BOOST
 
 // SPL Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Exceptions/IException.h"
 
 // C++ 3rd Party
+#ifdef INIT_BOOST
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
+#endif
 
 // C++ standard
 #include <cassert>
 #include <csignal>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 
 // C system/standard/3rd party
 #include <netdb.h>
 #include <sys/capability.h>
-#include <sys/prctl.h>
 #include <zlib.h>
 
 using namespace std::chrono_literals;
@@ -380,6 +385,7 @@ namespace sspl::sophosthreatdetectorimpl
         // ensure zlib library is loaded
         (void) zlibVersion();
 
+#ifdef INIT_BOOST
         // ensure all charsets are loaded from boost::locale before entering chroot
         boost::locale::generator gen;
         std::locale localeEUC_JP = gen("EUC-JP");
@@ -390,6 +396,7 @@ namespace sspl::sophosthreatdetectorimpl
         boost::locale::conv::to_utf<char>("", localeSJIS);
         std::locale localeLatin1 = gen("Latin1");
         boost::locale::conv::to_utf<char>("", localeLatin1);
+#endif
 
         // Copy logger config from base
         fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
@@ -450,6 +457,8 @@ namespace sspl::sophosthreatdetectorimpl
 #endif
         fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
         fs::path updateCompletePath = chrootPath / "var/update_complete_socket";
+        fs::path lib64 = chrootPath / "lib64";
+        ::setenv("LD_LIBRARY_PATH", lib64.c_str(), 1);
 
         remove_shutdown_notice_file(pluginInstall);
         fs::path lockfile = chrootPath / "var/threat_detector.pid";
@@ -671,9 +680,13 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
+#ifndef _AUTOVER_COMPONENTAUTOVERSION_STR_
+# define _AUTOVER_COMPONENTAUTOVERSION_STR_ "BAZEL-VERSION-NOT-AVAILABLE"
+#endif
+
     int SophosThreatDetectorMain::sophos_threat_detector_main()
     {
-        LOGINFO("Sophos Threat Detectors " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << "started");
+        LOGINFO("Sophos Threat Detector " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
         auto resources = std::make_shared<ThreatDetectorResources>();
         return outer_main(std::move(resources));
     }

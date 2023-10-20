@@ -16,8 +16,8 @@
 #include "common/UsernameSetting.h"
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
-#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
-#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
+#include "sophos_on_access_process/IOnAccessTelemetryUtility/IOnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/ScanRequestQueue/ScanRequestQueue.h"
 
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include "Common/Threads/NotifyPipe.h"

@@ -3,7 +3,7 @@
 
 # For more information on what each field means check: LINUXDAR-1472
 
-using Cxx = import "capnp/c++.capnp";
+using Cxx = import "/capnp/c++.capnp";
 
 $Cxx.namespace("Sophos::ssplav");
 

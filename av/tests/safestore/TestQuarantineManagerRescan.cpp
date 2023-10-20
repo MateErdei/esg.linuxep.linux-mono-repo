@@ -1,22 +1,23 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "MockISafeStoreWrapper.h"
-#include "MockSafeStoreResources.h"
-
-#include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
-#include "common/TestFile.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 #include "scan_messages/QuarantineResponse.h"
-#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+#include "MockISafeStoreWrapper.h"
+#include "MockSafeStoreResources.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Helpers/MockSysCalls.h"
+
+#include "tests/common/MemoryAppender.h"
+#include "tests/common/TestFile.h"
+#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

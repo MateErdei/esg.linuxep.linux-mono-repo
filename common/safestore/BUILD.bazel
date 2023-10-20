@@ -1,0 +1,41 @@
+cc_import(
+    name = "safestore_lib",
+    shared_library = select({
+        "//tools/config:linux_x64": "linux_x64_rel/lib/libsafestore.so.2",
+        "//tools/config:linux_arm64": "linux_arm64_rel/lib/libsafestore.so.2",
+    }),
+    visibility = [
+        "//av/products/distribution:__pkg__",
+    ],
+)
+
+cc_library(
+    name = "safestore",
+    hdrs = glob(["linux_x64_rel/interface/*.h"]),
+    strip_include_prefix = "linux_x64_rel/interface",
+    visibility = ["//av/modules/safestore:__subpackages__"],
+    deps = [
+        ":safestore_lib",
+        "@selinux//:selinux_shared",
+    ],
+)
+
+alias(
+    name = "libsafestore",
+    actual = select({
+        "//tools/config:linux_x64": "linux_x64_rel/lib/libsafestore.so.2",
+        "//tools/config:linux_arm64": "linux_arm64_rel/lib/libsafestore.so.2",
+    }),
+    visibility = [
+        "//av/products/distribution:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "ssr",
+    srcs = select({
+        "//tools/config:linux_x64": ["linux_x64_rel/ssr/ssr"],
+        "//tools/config:linux_arm64": ["linux_arm64_rel/ssr/ssr"],
+    }),
+    visibility = ["//av/products/distribution:__pkg__"],
+)

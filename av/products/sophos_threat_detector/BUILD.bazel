@@ -1,0 +1,78 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library")
+load("//common:shared_library_helper.bzl", "shared_library_helper")
+
+soph_cc_library(
+    name = "LogSetup",
+    srcs = ["LogSetup.cpp"],
+    hdrs = ["LogSetup.h"],
+    deps = [
+        "//av/modules/common:config",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationPathManager",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "sophos_threat_detector_inner",
+    srcs = ["sophos_threat_detector_inner_main.cpp"],
+    hdrs = ["sophos_threat_detector_inner_main.h"],
+    deps = [
+        ":LogSetup",
+        "//av/modules/common:config",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/sophos_threat_detector/sophosthreatdetectorimpl",
+        "//base/modules/Common/ApplicationConfiguration",
+        # Due to https://github.com/bazelbuild/bazel/issues/14731, need to specify all transitive implementation_deps explicitly:
+        "//av/modules/common:PidLockFile",
+        "//av/modules/common:Logger",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/scan_messages:ProcessControlDeserialiser",
+        "//av/modules/unixsocket/threatDetectorSocket:ThreatDetectedMessageUtils",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/UtilityImpl:ProjectNames",
+        "//base/modules/Common/UtilityImpl:StrError",
+        "//base/modules/Common/UtilityImpl:UniformIntDistribution",
+    ],
+)
+
+shared_library_helper(
+    name = "sophos_threat_detector_impl",
+    visibility = [
+        "//av/products/distribution:__pkg__",
+    ],
+    deps = [
+        ":sophos_threat_detector_inner",
+    ],
+)
+
+soph_cc_binary(
+    name = "sophos_threat_detector",
+    srcs = [
+        "sophos_threat_detector_main.cpp",
+    ],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../chroot/lib64:$$ORIGIN/../lib64",
+        "-lrt",
+    ],
+    linkstatic = False,
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        ":sophos_threat_detector_impl",
+        #        "//imports/internal/susi",
+    ],
+)
+
+soph_cc_binary(
+    name = "sophos_threat_detector_launcher",
+    srcs = ["sophos_threat_detector_launcher.c"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        "//av/products/capability",
+    ],
+)

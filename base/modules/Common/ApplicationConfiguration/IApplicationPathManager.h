@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+
 namespace Common::ApplicationConfiguration
 {
     class IApplicationPathManager

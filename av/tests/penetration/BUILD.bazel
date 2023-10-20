@@ -1,0 +1,26 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "attack_client",
+    srcs = ["attack_client.cpp"],
+    deps = [
+        "//av/modules/datatypes:Print",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningClientSocket",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "async_attack_client",
+    srcs = ["async_attack_client.cpp"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:Print",
+        "//av/modules/scan_messages:ClientScanRequest",
+        "//av/modules/unixsocket:SocketUtils",
+        "//base/modules/Common/Logging",
+    ],
+)

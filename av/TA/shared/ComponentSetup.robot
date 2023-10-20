@@ -4,6 +4,7 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 
@@ -65,6 +66,7 @@ Set Log Level
 
 Bootstrap SUSI From Update Source
     Create File  ${SOPHOS_INSTALL}/base/etc/machine_id.txt  ab7b6758a3ab11ba8a51d25aa06d1cf4
+    Recursive Create Library Symlinks  ${SOPHOS_INSTALL}/plugins/av/chroot/update_source
     ${result} =  Run Process   bash  ${TEST_SCRIPTS_PATH}/bin/bootstrap_susi.sh  stderr=STDOUT
     Log  "Bootstrap output: " ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${0}
@@ -95,12 +97,17 @@ Setup Component For Testing
     ...  ${COMPONENT_ROOT_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+    create_symlink_if_required
+    ...  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/libupdater/libupdater.so.2
+    ...  ${COMPONENT_ROOT_PATH}/chroot/lib64/libupdater.so.2
     ${RELATIVE_PATH} =   Replace String Using Regexp   ${COMPONENT_ROOT_PATH}/log   [^/]+   ..
     ${RELATIVE_PATH} =   Strip String   ${RELATIVE_PATH}   characters=/
     Run Process   ln  -snf  ${RELATIVE_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
     create library symlinks  ${COMPONENT_LIB64_DIR}
     ${result} =  Run Process  ls  -l  cwd=${COMPONENT_LIB64_DIR}
     log  ls -l lib64 ${result.stdout}
+    Recursive Create Library Symlinks    ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
+    copy or link iconv libraries  ${COMPONENT_ROOT_PATH}/chroot
     Run Process   setcap  cap_sys_chroot\=eip  ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
     Run Process   setcap  cap_dac_read_search\=eip  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Bootstrap SUSI From Update Source

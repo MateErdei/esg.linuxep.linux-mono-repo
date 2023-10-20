@@ -2,19 +2,22 @@
 
 #define TEST_PUBLIC public
 
-#include "../SoapMemoryAppenderUsingTests.h"
-#include "common/MemoryAppender.h"
-#include "common/MockPidLock.h"
-#include "common/MockUpdateCompleteCallback.h"
-
 #include "sophos_on_access_process/soapd_bootstrap/SoapdBootstrap.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+#include <utility>
+
+// test headers
+#include "tests/sophos_on_access_process/SoapMemoryAppenderUsingTests.h"
+#include "tests/common/MemoryAppender.h"
+#include "tests/common/MockPidLock.h"
+#include "tests/common/MockUpdateCompleteCallback.h"
+
 #include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 
-#include <utility>
 
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::service_impl;

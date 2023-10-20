@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 
-#include "../common/config.h"
+#include "common/config.h"
 #include "common/StringUtils.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"

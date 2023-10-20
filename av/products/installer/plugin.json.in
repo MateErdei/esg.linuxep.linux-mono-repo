@@ -14,7 +14,7 @@
         "SAV"
   ],
   "pluginName": "@PLUGIN_NAME@",
-  "executableFullPath": "plugins/@PLUGIN_NAME@/sbin/@plugin_name@",
+  "executableFullPath": "plugins/@PLUGIN_NAME@/sbin/@PLUGIN_NAME@",
   "executableArguments": [
   ],
   "environmentVariables": [

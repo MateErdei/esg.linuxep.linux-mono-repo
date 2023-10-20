@@ -1,0 +1,28 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library")
+
+soph_cc_library(
+    name = "sync_versioned_files_lib",
+    srcs = ["sync_versioned_files.cpp"],
+    hdrs = ["sync_versioned_files.h"],
+    strip_include_prefix = "/av/products/installer/sync_versioned_files",
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:Print",
+        "//av/modules/datatypes:sophos_filesystem",
+        "@boost//:program_options",
+    ],
+)
+
+soph_cc_binary(
+    name = "sync_versioned_files",
+    srcs = ["sync_versioned_files_main.cpp"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products:__subpackages__"],
+    deps = [
+        ":sync_versioned_files_lib",
+    ],
+)

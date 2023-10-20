@@ -15,7 +15,7 @@
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
-#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
+#include "sophos_on_access_process/ScanRequestQueue/ScanRequestQueue.h"
 
 #include <atomic>
 #include <cassert>

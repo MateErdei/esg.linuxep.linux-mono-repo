@@ -2,7 +2,6 @@
 
 #include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/ThreatDetected.h"
-#include "unixsocket/TestClient.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
@@ -11,6 +10,8 @@
 #include <unistd.h>
 
 #include <iostream>
+// test code:
+#include "tests/unixsocket/TestClient.h"
 
 //  SendDataToSocket -p /opt/sophos-spl/plugins/av/var/safestore_socket -d data
 

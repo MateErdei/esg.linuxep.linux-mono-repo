@@ -103,6 +103,7 @@ namespace
     {
     public:
         explicit MemoryAppenderUsingTests(std::string loggerInstanceName);
+        MemoryAppenderUsingTests(const MemoryAppenderUsingTests&) = delete;
         std::string m_loggerInstanceName;
         MemoryAppender* m_memoryAppender = nullptr;
         log4cplus::SharedAppenderPtr m_sharedAppender;

@@ -13,8 +13,8 @@
             <include artifact-path="base/linux_x64_rel/installer" dest-dir="input/base-sdds"/>
         </build-asset>
 
-        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="input" mode="release,coverage,debug,analysis"/>
-        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="input/base-sdds" mode="release,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="input" mode="coverage,analysis"/>
+        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="input/base-sdds" mode="coverage,analysis"/>
 
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2.2" build-id="20230517150224-b8f6ceae5bd9fa1b35d6ada337b6ac0361d51602-eA6afi"/>
@@ -110,16 +110,6 @@
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="input/nlohmann-json"/>
     </inputs>
     <buildcommands>
-        <command mode="release,oldci">
-            <program>/bin/bash</program>
-            <args>./build.sh --ci --name av</args>
-            <workingdir>av</workingdir>
-        </command>
-        <command mode="debug">
-            <program>/bin/bash</program>
-            <args>./build.sh --ci --name av --debug</args>
-            <workingdir>av</workingdir>
-        </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --ci --name av --esg-ci-coverage</args>
@@ -135,31 +125,14 @@
         <workingdir>av</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
 
-        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-
-        <build-asset artifact-path="output" source-dir="output" mode="release,debug">
-        </build-asset>
         <build-asset artifact-path="coverage" source-dir="output" mode="coverage">
         </build-asset>
-        <logs name="build_log" source-dir="log" mode="debug,release"/>
         <logs name="coverage_log" source-dir="log" mode="coverage"/>
-
-        <build-asset artifact-path="tap_test_output" source-dir="output" mode="release">
-            <include glob="tap_test_output.tar.gz"/>
-        </build-asset>
 
         <build-asset artifact-path="coverage_tap_test_output" source-dir="output" mode="coverage">
             <include glob="tap_test_output.tar.gz"/>
         </build-asset>
 
-        <buildoutputs>
-            <!-- rename logs for coverage builds -->
-            <output name="build_log" srcfolder="log" mode="oldci"/>
-            <output name="coverage_log" srcfolder="log" mode="oldcoverage"/>
-
-            <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"/>
-        </buildoutputs>
         <publishbranches>master,develop,feature/LINUXDAR-2501-make-changes-necessary-to-use-2020.47-version-of-susi
         </publishbranches>
     </publish>

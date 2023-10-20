@@ -11,7 +11,7 @@
 #include "MockSafeStoreRescanWorker.h"
 #include "MockThreatDetectorResources.h"
 
-#include "common/TestSpecificDirectory.h"
+#include "tests/common/TestSpecificDirectory.h"
 // SPL Test
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"

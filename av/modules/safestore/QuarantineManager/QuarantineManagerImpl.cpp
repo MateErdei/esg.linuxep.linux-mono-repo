@@ -5,12 +5,12 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
+#include "datatypes/IUuidGenerator.h"
 #include "safestore/Logger.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
-#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
+#include "safestore/SafeStoreWrapper/SafeStoreInclude.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/MetadataRescan.h"
-#include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -19,7 +19,6 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "Common/UtilityImpl/WaitForUtils.h"
 
-#include "datatypes/IUuidGenerator.h"
 #include <linux/fs.h>
 
 #include <utility>
@@ -766,7 +765,7 @@ namespace safestore::QuarantineManager
 
         // We don't have NotifyPipe to initialise the StoppableSleeper to pass here
         auto metadataRescanClient = safeStoreResources_.CreateMetadataRescanClientSocket(
-            Plugin::getMetadataRescanSocketPath(), unixsocket::BaseClient::DEFAULT_SLEEP_TIME, {});
+            Plugin::getMetadataRescanSocketPath(), ISafeStoreResources::DEFAULT_CLIENT_SLEEP_TIME, {});
 
         for (auto& objectHandle : threatObjects)
         {

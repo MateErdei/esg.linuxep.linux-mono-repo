@@ -2,8 +2,8 @@
 
 #define TEST_PUBLIC public
 
-#include "common/RecordingMockSocket.h"
-#include "../SoapMemoryAppenderUsingTests.h"
+#include "tests/common/RecordingMockSocket.h"
+#include "tests/sophos_on_access_process/SoapMemoryAppenderUsingTests.h"
 
 #include "sophos_on_access_process/onaccessimpl/ClientSocketWrapper.h"
 #include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"

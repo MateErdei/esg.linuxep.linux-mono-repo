@@ -2,8 +2,8 @@
 
 #include "RestoreReportingServer.h"
 
-#include "../Logger.h"
-#include "../UnixSocketException.h"
+#include "unixsocket/Logger.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
@@ -11,7 +11,7 @@
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-#include <RestoreReport.capnp.h>
+#include "scan_messages/RestoreReport.capnp.h"
 
 #include <capnp/serialize-packed.h>
 

@@ -1,0 +1,50 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "IQuarantineManager",
+    hdrs = ["IQuarantineManager.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/common:CentralEnums",
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/safestore/SafeStoreWrapper:ISafeStoreWrapper",
+        "//av/modules/scan_messages:QuarantineResponse",
+        "//av/modules/scan_messages:RestoreReport",
+    ],
+)
+
+soph_cc_library(
+    name = "QuarantineManager",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "QuarantineManagerImpl.h",
+    ],
+    implementation_deps = [
+    ],
+    visibility = [
+        "//av/modules/safestore:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":IQuarantineManager",
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:StringUtils",
+        "//av/modules/datatypes:IUuidGenerator",
+        "//av/modules/safestore:ISafeStoreResources",
+        "//av/modules/safestore:Logger",
+        "//av/modules/safestore:SafeStoreTelemetryConsts",
+        "//av/modules/safestore/SafeStoreWrapper:SafeStoreInclude",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationPathManager",
+        "//base/modules/Common/FileSystem:IFileSystem",
+        "//base/modules/Common/PersistentValue",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:WaitForUtils",
+    ],
+)

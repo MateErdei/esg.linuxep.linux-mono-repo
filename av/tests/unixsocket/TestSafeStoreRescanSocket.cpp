@@ -1,20 +1,21 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "UnixSocketMemoryAppenderUsingTests.h"
-#include "TestClient.h"
-
 #include "common/ApplicationPaths.h"
 #include "common/NotifyPipeSleeper.h"
-#include "safestore/MockIQuarantineManager.h"
-#include "tests/common/Common.h"
-#include "tests/common/WaitForEvent.h"
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanClient.h"
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 
-#include <gtest/gtest.h>
-
-
 #include <string>
+
+// Tests
+#include "UnixSocketMemoryAppenderUsingTests.h"
+#include "TestClient.h"
+
+#include "tests/common/Common.h"
+#include "tests/common/WaitForEvent.h"
+#include "tests/safestore/MockIQuarantineManager.h"
+
+#include <gtest/gtest.h>
 
 using namespace testing;
 using namespace unixsocket;

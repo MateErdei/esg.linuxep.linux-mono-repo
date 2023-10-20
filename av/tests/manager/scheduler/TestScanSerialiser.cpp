@@ -1,18 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-
-#include <gtest/gtest.h>
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "manager/scheduler/ScanSerialiser.h"
 #include "manager/scheduler/ScheduledScanConfiguration.h"
 
-#include <NamedScan.capnp.h>
+#include "scan_messages/NamedScan.capnp.h"
 
 #include <capnp/serialize.h>
+
+#include <gtest/gtest.h>
 
 using namespace manager::scheduler;
 

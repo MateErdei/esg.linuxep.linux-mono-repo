@@ -174,7 +174,7 @@ namespace
     }
 } // namespace
 
-TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
+TEST_F(TestLoggingProxyImpl, PassMessage)
 {
     testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses
@@ -202,16 +202,17 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     ASSERT_NE(subscriber.get(), nullptr);
     subscriber->setTimeout(2000);
     subscriber->connect(backend);
-    subscriber->subscribeTo("FOOBAR");
+    const std::string CHANNEL = "FOOBAR";
+    subscriber->subscribeTo(CHANNEL);
 
     // Start sender thread - since we need to wait for subscription to propagate
-    SenderThread thread(*publisher, frontend, { "FOOBAR", "DATA" });
+    SenderThread thread(*publisher, frontend, { CHANNEL, "TestLoggingProxyImpl_PassMessage" });
     thread.start();
 
     auto data = subscriber->read();
 
-    EXPECT_EQ(data.at(0), "FOOBAR");
-    EXPECT_EQ(data.at(1), "DATA");
+    EXPECT_EQ(data.at(0), CHANNEL);
+    EXPECT_EQ(data.at(1), "TestLoggingProxyImpl_PassMessage");
 
     subscriber.reset();
 
@@ -224,9 +225,9 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     std::string logMessage = testing::internal::GetCapturedStderr();
     PRINT(logMessage);
     EXPECT_NE(logMessage.size(), 0);
-    EXPECT_EQ(countOccurancesInString(logMessage, "Subscribe FOOBAR"), 1);
-    EXPECT_EQ(countOccurancesInString(logMessage, "FOOBAR DATA"), 1);
-    EXPECT_EQ(countOccurancesInString(logMessage, "Unsubscribe FOOBAR"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Subscribe " + CHANNEL), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, CHANNEL + " TestLoggingProxyImpl_PassMessage"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Unsubscribe " + CHANNEL), 1);
     EXPECT_EQ(countOccurancesInString(logMessage, "TERMINATE"), 1);
 }
 

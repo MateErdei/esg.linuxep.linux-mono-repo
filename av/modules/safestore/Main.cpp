@@ -26,6 +26,7 @@
 // Product
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <poll.h>
 
@@ -54,6 +55,7 @@ namespace safestore
 
     void Main::innerRun()
     {
+        auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
         auto sigIntMonitor{ common::signals::SigIntMonitor::getSigIntMonitor(true) };
         auto sigTermMonitor{ common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
@@ -67,7 +69,7 @@ namespace safestore
 
         std::shared_ptr<QuarantineManager::IQuarantineManager> quarantineManager =
             std::make_shared<QuarantineManager::QuarantineManagerImpl>(
-                std::move(safeStoreWrapper), std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>(), resources);
+                std::move(safeStoreWrapper), sysCalls, resources);
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<QuarantineManager::StateMonitor>(quarantineManager);

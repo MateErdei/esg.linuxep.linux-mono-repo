@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+// product code:
 #include "scan_messages/ThreatDetected.h"
-#include "unixsocket/TestClient.h"
 #include "unixsocket/UnixSocketException.h"
 
 #include "Common/Exceptions/IException.h"
@@ -9,11 +9,14 @@
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/Logging/SophosLoggerMacros.h"
 
+#include <iostream>
+
 #include <fcntl.h>
 #include <getopt.h>
 
+// test code
+#include "tests/unixsocket/TestClient.h"
 
-#include <iostream>
 // Generate AV TDO
 //  SendThreatDetectedEvent -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 

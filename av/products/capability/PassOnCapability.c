@@ -1,18 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "PassOnCapability.h"
 
 #include "common/ErrorCodesC.h"
+#include "datatypes/sophos_prctl.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-
-#include <sys/prctl.h>
 
 #define pr_arg(x) ((unsigned long) x)
 

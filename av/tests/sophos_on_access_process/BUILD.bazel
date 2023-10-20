@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "SoapMemoryAppenderUsingTests",
+    hdrs = ["SoapMemoryAppenderUsingTests.h"],
+    visibility = [
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/tests/common",
+    ],
+)
+
+soph_cc_binary(
+    name = "OnAccessConfigReaderFuzzer",
+    srcs = ["OnAccessConfigReaderFuzzer.cpp"],
+    deps = [
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:OnAccessConfigurationUtils",
+        "//base/modules/Common/FileSystem:IFileSystem",
+        "//base/modules/Common/Logging",
+    ],
+)

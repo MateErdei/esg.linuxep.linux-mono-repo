@@ -24,8 +24,10 @@ def _should_strip(ctx):
 
 def _strip_impl(ctx):
     should_strip = _should_strip(ctx)
+    should_replace_rpath = True
 
     if ctx.attr.extract_symbols:
+        should_replace_rpath = False
         if should_strip:
             mode = "extract_symbols"
         else:
@@ -47,6 +49,14 @@ def _strip_impl(ctx):
     inputs.append(ctx.file._strip)
 
     args.add(mode)
+
+    tools = []
+
+    if ctx.attr.correct_rpaths:
+        args.add("--patchelf=" + ctx.executable._patchelf_executable.path)
+        tools.append(ctx.executable._patchelf_executable)
+        for src, rpath in ctx.attr.rpath_exceptions.items():
+            args.add("--rpath-exception:" + src + "=" + rpath)
 
     src_to_dest_map = {}
 
@@ -102,6 +112,7 @@ def _strip_impl(ctx):
         outputs = outputs,
         mnemonic = "Strip",
         arguments = [args],
+        tools = tools,
     )
 
     return [DefaultInfo(files = depset(outputs))]
@@ -117,14 +128,25 @@ _strip = rule(
         "extract_symbols": attr.bool(
             default = False,
         ),
+        "correct_rpaths": attr.bool(
+            default = False,
+        ),
+        "rpath_exceptions": attr.string_dict(
+            doc = "Base names mapped to RPATH values to override the default RPATH",
+        ),
         "_strip_script": attr.label(
-            default = ":strip",
+            default = "//common:strip",
             cfg = "exec",
             executable = True,
         ),
         "_strip": attr.label(
             default = "@gcc//:strip",
             allow_single_file = True,
+        ),
+        "_patchelf_executable": attr.label(
+            default = "@patchelf",
+            cfg = "exec",
+            executable = True,
         ),
     },
 )

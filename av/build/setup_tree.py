@@ -330,6 +330,7 @@ def main(argv):
     libsavi_checksum = dirhash(SAVI_DIR)
     libglobalrep_checksum = dirhash(GRLIB_DIR)
     rules_checksum = dirhash(RULES_DIR)
+    libupdater_checksum = dirhash(UPDATER_DIR)
 
     manifest = """susicore {}
 lrlib {}
@@ -337,13 +338,15 @@ libsophtainer {}
 libsavi {}
 libglobalrep {}
 rules {}
+libupdater {}
 """.format(
         susicore_checksum,
         lrlib_checksum,
         libsophtainer_checksum,
         libsavi_checksum,
         libglobalrep_checksum,
-        rules_checksum)
+        rules_checksum,
+        libupdater_checksum)
 
     write_file(os.path.join(UPDATE_CACHE_DIR, "nonsupplement_manifest.txt"), manifest)
     write_file(os.path.join(UPDATE_CACHE_DIR, "version_manifest.txt"), "version1")

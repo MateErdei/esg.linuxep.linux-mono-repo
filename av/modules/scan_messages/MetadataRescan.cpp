@@ -2,7 +2,7 @@
 
 #include "MetadataRescan.h"
 
-#include "MetadataRescan.capnp.h"
+#include "scan_messages/MetadataRescan.capnp.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>

@@ -1,0 +1,2 @@
+/safestore/*
+!/safestore/BUILD.bazel

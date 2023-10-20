@@ -9,11 +9,16 @@
 
 #include <gmock/gmock.h>
 
+#include <string>
+#include <memory>
+
 using namespace ::testing;
 
 class MockSafeStoreResources : public safestore::ISafeStoreResources
 {
 public:
+    using duration_t = unixsocket::duration_t;
+    using IStoppableSleeperSharedPtr = unixsocket::IStoppableSleeperSharedPtr;
     MockSafeStoreResources()
     {
         ON_CALL(*this, CreateMetadataRescanClientSocket)
@@ -29,21 +34,21 @@ public:
         std::unique_ptr<unixsocket::IMetadataRescanClientSocket>,
         CreateMetadataRescanClientSocket,
         (std::string socket_path,
-         const unixsocket::BaseClient::duration_t& sleepTime,
-         unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper),
+         const duration_t& sleepTime,
+         IStoppableSleeperSharedPtr sleeper),
         (override));
 
     MOCK_METHOD(
         std::unique_ptr<unixsocket::IScanningClientSocket>,
         CreateScanningClientSocket,
         (std::string socket_path,
-         const unixsocket::BaseClient::duration_t& sleepTime,
-         unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper),
+         const duration_t& sleepTime,
+         IStoppableSleeperSharedPtr sleeper),
         (override));
 
     MOCK_METHOD(
         std::unique_ptr<unixsocket::IRestoreReportingClient>,
         CreateRestoreReportingClient,
-        (unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper),
+        (IStoppableSleeperSharedPtr sleeper),
         (override));
 };

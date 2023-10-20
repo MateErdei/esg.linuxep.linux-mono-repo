@@ -21,11 +21,11 @@ namespace Common::PluginApiImpl
         ~PluginCallBackHandler() override;
 
     protected:
-        std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
+        [[nodiscard]] std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
             const;
 
     private:
-        Common::PluginProtocol::DataMessage process(const Common::PluginProtocol::DataMessage& request) const override;
+        [[nodiscard]] Common::PluginProtocol::DataMessage process(const Common::PluginProtocol::DataMessage& request) const override;
         void onShutdownRequested() override;
         Common::PluginProtocol::MessageBuilder m_messageBuilder;
         std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;

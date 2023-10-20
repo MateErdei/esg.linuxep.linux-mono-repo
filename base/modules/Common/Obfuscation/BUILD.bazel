@@ -16,10 +16,6 @@ soph_cc_library(
 # This should not be used directly as it can result in a linking failure
 soph_cc_library(
     name = "Obfuscation_interface",
-    srcs = glob([
-        "*.cpp",
-        "*.h",
-    ]),
     hdrs = glob(["*.h"]),
     visibility = [
         "//base/modules/Common/ObfuscationImpl:__pkg__",

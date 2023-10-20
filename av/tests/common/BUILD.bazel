@@ -1,0 +1,79 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "LogInitializedTests",
+    srcs = ["LogInitializedTests.cpp"],
+    hdrs = ["LogInitializedTests.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//base/modules/Common/Logging",
+        "@com_google_googletest//:gtest_main",
+        "@log4cplus",
+    ],
+)
+
+soph_cc_library(
+    name = "MemoryAppender",
+    hdrs = ["MemoryAppender.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        ":LogInitializedTests",
+        "//av/modules/datatypes:Print",
+        "//base/modules/Common/Logging",
+        "@log4cplus",
+    ],
+)
+
+soph_cc_library(
+    name = "MockScanner",
+    hdrs = ["MockScanner.h"],
+    implementation_deps = [
+        "@com_google_googletest//:gtest_main",
+        "@log4cplus",
+    ],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/sophos_threat_detector/threat_scanner:IThreatScannerFactory",
+    ],
+)
+
+soph_cc_library(
+    name = "TestSpecificDirectory",
+    srcs = ["TestSpecificDirectory.cpp"],
+    hdrs = ["TestSpecificDirectory.h"],
+    implementation_deps = [
+        "@com_google_googletest//:gtest_main",
+        "@log4cplus",
+    ],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        ":LogInitializedTests",
+        ":MemoryAppender",
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+)
+
+soph_cc_library(
+    name = "common",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "@com_google_googletest//:gtest_main",
+        "@log4cplus",
+    ],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        ":LogInitializedTests",
+        ":MemoryAppender",
+        ":MockScanner",
+        ":TestSpecificDirectory",
+        "//av/modules/common:PidLockFile",
+        "//av/modules/common:ScanInterruptedException",
+        "//av/modules/datatypes:Print",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/sophos_on_access_process/onaccessimpl:ClientSocketException",
+        "//av/modules/unixsocket/threatDetectorSocket:IScanningClientSocket",
+        "//base/modules/Common/Logging",
+    ],
+)

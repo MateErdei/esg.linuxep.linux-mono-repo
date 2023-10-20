@@ -1,0 +1,11 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "OnAccessTelemetryFields",
+    hdrs = ["OnAccessTelemetryFields.h"],
+    visibility = [
+        "//av/modules/mount_monitor/mount_monitor:__pkg__",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:__pkg__",
+    ],
+)

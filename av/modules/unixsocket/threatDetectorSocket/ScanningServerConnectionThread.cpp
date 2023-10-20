@@ -2,7 +2,6 @@
 
 #include "ScanningServerConnectionThread.h"
 
-#include "ScanRequest.capnp.h"
 #include "ThreatDetectedMessageUtils.h"
 
 #include "common/ApplicationPaths.h"
@@ -133,7 +132,7 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
             return false;
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGWARN("Exiting " << m_threadName << ": " << e.what());
         return false;
@@ -174,13 +173,13 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
 #endif
         result = scanner_->scan(fd, *scanRequest);
     }
-    catch (FailedToInitializeSusiException& ex)
+    catch (const FailedToInitializeSusiException& ex)
     {
         errMsg = m_threadName + " aborting scan, failed to initialise SUSI: " + ex.what();
         fs->writeFile(Plugin::getThreatDetectorUnhealthyFlagPath(), "");
         return false;
     }
-    catch (ShuttingDownException&)
+    catch (const ShuttingDownException&)
     {
         errMsg =  m_threadName + " aborting scan, scanner is shutting down";
         return false;

@@ -1,0 +1,170 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+load("//tools/config:capnproto_defs.bzl", "SOPH_CAPNP_CPP_DEPS", "SOPH_CAPNP_CPP_RUNTIME_DEPS")
+
+soph_cc_library(
+    name = "BaseClientDefaultSleepTime",
+    hdrs = [
+        "BaseClientDefaultSleepTime.h",
+    ],
+    include_prefix = "unixsocket",
+    visibility = [
+        "//av/modules:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/common:StoppableSleeper",
+    ],
+)
+
+soph_cc_library(
+    name = "BaseClient",
+    srcs = ["BaseClient.cpp"],
+    hdrs = [
+        "BaseClient.h",
+    ],
+    implementation_deps = [
+        ":Logger",
+    ],
+    include_prefix = "unixsocket",
+    visibility = [
+        "//av/modules:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":BaseClientDefaultSleepTime",
+        "//av/modules/datatypes:AutoFd",
+    ],
+)
+
+soph_cc_library(
+    name = "BaseServerConnectionThread",
+    srcs = ["BaseServerConnectionThread.cpp"],
+    hdrs = ["BaseServerConnectionThread.h"],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/common:AbstractThreadPluginInterface",
+    ],
+)
+
+soph_cc_library(
+    name = "BaseServerSocket",
+    srcs = ["BaseServerSocket.cpp"],
+    hdrs = ["BaseServerSocket.h"],
+    implementation_deps = [
+        ":Logger",
+        ":UnixSocketException",
+        "//av/modules/common:SaferStrerror",
+        "//base/modules/Common/FileSystem",
+    ],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":IMessageCallback",
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:ErrorCodes",
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+)
+
+soph_cc_library(
+    name = "IMessageCallback",
+    hdrs = ["IMessageCallback.h"],
+    visibility = ["//av/modules/unixsocket:__subpackages__"],
+    deps = [
+        "//av/modules/scan_messages:ThreatDetected",
+    ],
+)
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    "EnvironmentInterruption",
+    hdrs = ["EnvironmentInterruption.h"],
+    visibility = [
+        "//av/tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "SocketUtils",
+    srcs = ["SocketUtils.cpp"],
+    hdrs = ["SocketUtils.h"],
+    implementation_deps = [
+        ":Logger",
+        ":SocketUtilsImpl",
+        "//av/modules/common:SaferStrerror",
+    ],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/products/sophos_threat_detector:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":EnvironmentInterruption",
+        "//base/modules/Common/SystemCallWrapper",
+    ],
+)
+
+soph_cc_library(
+    name = "SocketUtilsImpl",
+    srcs = ["SocketUtilsImpl.cpp"],
+    hdrs = ["SocketUtilsImpl.h"],
+    implementation_deps = [
+        ":UnixSocketException",
+    ],
+    visibility = [
+        "//av/products:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "UnixSocketException",
+    hdrs = ["UnixSocketException.h"],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/tests/unixsocket:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/datatypes:AVException",
+    ],
+)
+
+soph_cc_library(
+    name = "ReadAsync",
+    srcs = [
+        "ReadBufferAsync.cpp",
+        "ReadLengthAsync.cpp",
+    ],
+    hdrs = [
+        "ReadBufferAsync.h",
+        "ReadLengthAsync.h",
+    ],
+    visibility = [
+        "//av/modules/unixsocket:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":Logger",
+        "//av/modules/common:SaferStrerror",
+        "//base/modules/Common/SystemCallWrapper:ISystemCallWrapper",
+    ] + SOPH_CAPNP_CPP_RUNTIME_DEPS,
+)

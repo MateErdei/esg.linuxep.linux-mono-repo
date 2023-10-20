@@ -8,14 +8,13 @@
 
 // Plugin
 #include "common/ApplicationPaths.h"
-#include "common/StringUtils.h"
-#include "pluginimpl/ObfuscationImpl/Obfuscate.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 
 // Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 

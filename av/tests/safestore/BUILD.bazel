@@ -1,0 +1,50 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockIQuarantineManager",
+    hdrs = ["MockIQuarantineManager.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/safestore/QuarantineManager:IQuarantineManager",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSafeStore",
+    srcs = glob(
+        [
+            "*.h",
+            "*.cpp",
+        ],
+        exclude = ["SafeStoreTapTests.cpp"],
+    ),
+    deps = [
+        ":MockIQuarantineManager",
+        "//av/modules/safestore",
+        "//av/modules/safestore/QuarantineManager",
+        "//av/modules/safestore/SafeStoreWrapper",
+        "//av/tests/common",
+        "//av/tests/unixsocket:Mocks",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+    ],
+)
+
+soph_cc_binary(
+    name = "SafeStoreTapTests",
+    srcs = ["SafeStoreTapTests.cpp"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64:/opt/sophos-spl/plugins/av/lib64",
+    ],
+    visibility = [
+        "//av/tests:__pkg__",
+    ],
+    deps = [
+        "//av/modules/safestore",
+        "//av/modules/safestore/SafeStoreWrapper",
+        "//av/tests/common:LogInitializedTests",
+    ],
+)

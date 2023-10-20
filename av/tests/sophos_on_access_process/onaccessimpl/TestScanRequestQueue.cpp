@@ -3,7 +3,7 @@
 #define TEST_PUBLIC public
 
 // Product
-#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
+#include "sophos_on_access_process/ScanRequestQueue/ScanRequestQueue.h"
 #include "scan_messages/ClientScanRequest.h"
 // Test
 #include "OnAccessImplMemoryAppenderUsingTests.h"

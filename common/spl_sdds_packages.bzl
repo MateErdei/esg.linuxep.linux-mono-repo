@@ -60,7 +60,23 @@ _generate_spv_template = rule(
     },
 )
 
-def spl_sdds_packages(name, line_id, component_name, base_version, versioning_component_name, srcs_remapped = {}, srcs_renamed = {}, version_ini_locations = [], spv_features = [], spv_platforms = [], spv_roles = [], spv_target_types = [], symbols_strip_prefix = [], **kwargs):
+def spl_sdds_packages(
+        name,
+        line_id,
+        component_name,
+        base_version,
+        versioning_component_name,
+        srcs_remapped = {},
+        srcs_renamed = {},
+        version_ini_locations = [],
+        spv_features = [],
+        spv_platforms = [],
+        spv_roles = [],
+        spv_target_types = [],
+        symbols_strip_prefix = [],
+        correct_rpaths = False,
+        rpath_exceptions = {},
+        **kwargs):
     version_ini_renames = {}
     if len(version_ini_locations) > 0:
         version_ini(
@@ -84,6 +100,8 @@ def spl_sdds_packages(name, line_id, component_name, base_version, versioning_co
         name = "{}_files".format(name),
         srcs_remapped = srcs_remapped,
         srcs_renamed = srcs_renamed | version_ini_renames,
+        rpath_exceptions = rpath_exceptions,
+        correct_rpaths = correct_rpaths,
     )
 
     _generate_spv_template(

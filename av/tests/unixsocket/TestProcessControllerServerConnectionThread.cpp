@@ -2,21 +2,25 @@
 
 #define TEST_PUBLIC public
 
-#include "UnixSocketMemoryAppenderUsingTests.h"
-#include "common/WaitForEvent.h"
-
+// Product
 #include "datatypes/sophos_filesystem.h"
-#include "tests/common/MemoryAppender.h"
-#include "tests/common/TestFile.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerConnectionThread.h"
-
-#include "Common/Helpers/MockSysCalls.h"
-#include "Common/SystemCallWrapper/SystemCallWrapper.h"
-
-#include <gtest/gtest.h>
 #include "scan_messages/ProcessControlSerialiser.h"
 #include "scan_messages/ClientScanRequest.h" // for invalid_request_type test
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
+// test
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
+#include "tests/common/WaitForEvent.h"
+#include "tests/common/MemoryAppender.h"
+#include "tests/common/TestFile.h"
+
+#include "Common/Helpers/MockSysCalls.h"
+
+#include <gtest/gtest.h>
 
 #include <memory>
 

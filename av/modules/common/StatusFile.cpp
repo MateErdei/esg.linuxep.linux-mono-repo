@@ -5,13 +5,12 @@
 #include "Logger.h"
 #include "SaferStrerror.h"
 
-#include "datatypes/sophos_filesystem.h"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include <utility>
+#include <tuple>
 
 using namespace common;
 
@@ -53,7 +52,7 @@ void StatusFile::enabled()
     {
         LOGERROR("Failed to write status file at " << m_path << ": " << common::safer_strerror(errno));
     }
-    ftruncate(m_fd.get(), ENABLED.size());
+    std::ignore = ftruncate(m_fd.get(), ENABLED.size());
     fsync(m_fd.get());
 
     // Add locking if required
@@ -71,7 +70,7 @@ void StatusFile::disabled()
     {
         LOGERROR("Failed to write status file at " << m_path << ": " << common::safer_strerror(errno));
     }
-    ftruncate(m_fd.get(), DISABLED.size());
+    std::ignore = ftruncate(m_fd.get(), DISABLED.size());
     fsync(m_fd.get());
 }
 

@@ -5,13 +5,14 @@
 #define TEST_PUBLIC public
 
 #include "common/ThreadRunner.h"
-#include "common/WaitForEvent.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
-#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
+#include "sophos_on_access_process/OnAccessTelemetryUtility/OnAccessTelemetryUtility.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+#include "tests/common/WaitForEvent.h"
+#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
 #include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>

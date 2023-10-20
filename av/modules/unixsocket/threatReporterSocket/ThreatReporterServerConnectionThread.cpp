@@ -2,7 +2,7 @@
 
 #include "ThreatReporterServerConnectionThread.h"
 
-#include "ThreatDetected.capnp.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 
 #include "common/SaferStrerror.h"
 #include "scan_messages/ThreatDetected.h"

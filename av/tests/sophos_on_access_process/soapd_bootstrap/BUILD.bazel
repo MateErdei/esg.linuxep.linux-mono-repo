@@ -1,0 +1,19 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestSoapdBootstrap",
+    srcs = [
+        "TestOnAccessConfigurationUtils.cpp",
+        "TestOnAccessRunner.cpp",
+        "TestOnAccessServiceCallback.cpp",
+        "TestSoapdBootstrap.cpp",
+    ],
+    deps = [
+        "//av/modules/sophos_on_access_process/soapd_bootstrap",
+        "//av/tests/common",
+        "//av/tests/sophos_on_access_process:SoapMemoryAppenderUsingTests",
+        "//base/tests/Common/Helpers",
+    ],
+)

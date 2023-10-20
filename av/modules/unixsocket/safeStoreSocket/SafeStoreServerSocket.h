@@ -7,7 +7,7 @@
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerSocket.h"
 
-#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace unixsocket
 {
@@ -24,14 +24,15 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
-            return std::make_unique<SafeStoreServerConnectionThread>(fd, m_quarantineManager, sysCalls);
+            return std::make_unique<SafeStoreServerConnectionThread>(fd, m_quarantineManager, sysCalls_);
         }
 
         void logMaxConnectionsError() override
         {
             logError("Refusing connection: SafeStore Socket has reached the maximum allowed concurrent reports");
         }
+
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls_;
 
     private:
         std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;

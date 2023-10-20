@@ -1,0 +1,45 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "sophosthreatdetectorimpl_headers",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//av/products/sophos_threat_detector:__pkg__",
+    ],
+)
+
+soph_cc_library(
+    name = "sophosthreatdetectorimpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    implementation_deps = [
+        "//av:AutoVersion",
+        "//av/modules/common:PidLockFile",
+        "//av/modules/common:Define",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/datatypes:sophos_prctl",
+        "@boost//:locale",
+    ],
+    visibility = [
+        "//av/products/sophos_threat_detector:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":sophosthreatdetectorimpl_headers",
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:IPidLockFile",
+        "//av/modules/common/signals",
+        "//av/modules/sophos_threat_detector/threat_scanner",
+        "//av/modules/unixsocket/metadataRescanSocket",
+        "//av/modules/unixsocket/processControllerSocket:IProcessControlMessageCallback",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerServerSocket",
+        "//av/modules/unixsocket/safeStoreRescanSocket",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningServerSocket",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterClient",
+        "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteServerSocket",
+        "@zlib//:libz_shared",
+    ],
+)

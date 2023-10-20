@@ -1,0 +1,39 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ISafeStoreWrapper",
+    hdrs = ["ISafeStoreWrapper.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+    ],
+)
+
+soph_cc_library(
+    name = "SafeStoreInclude",
+    hdrs = ["SafeStoreInclude.h"],
+    visibility = ["//av/modules/safestore:__subpackages__"],
+    deps = [
+        "//common/safestore",
+    ],
+)
+
+soph_cc_library(
+    name = "SafeStoreWrapper",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = [
+        "//av/modules/safestore:__subpackages__",
+        "//av/tests:__subpackages__",
+        "//av/tools:__subpackages__",
+    ],
+    deps = [
+        ":ISafeStoreWrapper",
+        ":SafeStoreInclude",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/safestore:Logger",
+        "//base/modules/Common/UtilityImpl:Uuid",
+    ],
+)

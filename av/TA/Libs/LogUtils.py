@@ -81,12 +81,12 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
                     line = line.replace(error_string, mark_string)
                     break  # Don't need to look any further
             new_lines.append(line + "\n")
-        contents = "".join(new_lines)
+        contents = u"".join(new_lines)
 
         if contents != original_contents:
             logger.info("Marking: " + logfile)
-            with open(logfile, "w") as log:
-                log.write(contents)
+            with open(logfile, "wb") as log:
+                log.write(contents.encode("UTF-8"))
 
 
 class LogUtils(object):
@@ -375,8 +375,8 @@ File Log Contains
     def replace_all_in_file(self, log_location, target, replacement):
         contents = _get_log_contents(log_location)
         contents = contents.replace(target, replacement)
-        with open(log_location, "w") as log:
-            log.write(contents)
+        with open(log_location, "wb") as log:
+            log.write(contents.encode("UTF-8"))
 
     def check_all_product_logs_do_not_contain_string(self, string_to_find, search_list):
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]

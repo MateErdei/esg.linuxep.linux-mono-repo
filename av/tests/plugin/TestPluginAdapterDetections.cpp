@@ -2,15 +2,16 @@
 
 #include "PluginMemoryAppenderUsingTests.h"
 
-#include "common/WaitForEvent.h"
 #include "datatypes/UuidGeneratorImpl.h"
 #include "pluginimpl/PluginAdapter.h"
 #include "pluginimpl/StringUtils.h"
 #include "scan_messages/SampleThreatDetected.h"
+
+// Test code
 #include "tests/common/SetupFakePluginDir.h"
 #include "tests/common/Common.h"
+#include "tests/common/WaitForEvent.h"
 #include "tests/datatypes/MockUuidGenerator.h"
-
 #include "Common/Helpers/MockApiBaseServices.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 

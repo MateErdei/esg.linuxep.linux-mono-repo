@@ -1,0 +1,26 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+# $ORIGIN already put on rpath
+soph_cc_binary(
+    name = "av",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        "//av:AutoVersion",
+        "//av/modules/common:config",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/pluginimpl",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/ZeroMQWrapper",
+    ],
+)

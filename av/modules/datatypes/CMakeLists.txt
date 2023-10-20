@@ -4,12 +4,14 @@ add_library(datatypes SHARED
         AutoFd.h
         Print.h
         sophos_filesystem.h
+        sophos_prctl.h
         Time.cpp
         Time.h
         IUuidGenerator.h
         UuidGeneratorImpl.cpp
         UuidGeneratorImpl.h
-        AVException.h)
+        AVException.h
+)
 
 target_link_libraries(datatypes  PUBLIC
         cap

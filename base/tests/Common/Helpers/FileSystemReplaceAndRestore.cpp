@@ -3,7 +3,7 @@
 #include "FileSystemReplaceAndRestore.h"
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
-#include <mutex>
+
 namespace{
     std::mutex preventTestsToUseEachOtherFileSystemMock; 
 }

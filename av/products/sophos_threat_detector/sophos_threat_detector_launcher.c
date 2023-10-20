@@ -1,6 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "../capability/PassOnCapability.h"
+#include "products/capability/PassOnCapability.h"
 
 #include <signal.h>
 #include <stdio.h>

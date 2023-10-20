@@ -2,7 +2,7 @@
 
 #include "FakeServerConnectionThread.h"
 
-#include "ScanRequest.capnp.h"
+#include "scan_messages/ScanRequest.capnp.h"
 
 #include "unixsocket/SocketUtils.h"
 

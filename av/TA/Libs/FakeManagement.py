@@ -4,9 +4,21 @@
 # All rights reserved.
 
 import os
+import sys
 import time
 import traceback
 
+
+def append_path(p):
+    if p not in sys.path:
+        sys.path.append(p)
+
+
+THIS_FILE_PATH = os.path.realpath(__file__)
+LIBS_DIR = os.path.dirname(THIS_FILE_PATH)
+append_path(LIBS_DIR)
+TA_DIR = os.path.dirname(LIBS_DIR)
+append_path(TA_DIR)
 
 try:
     from .PluginCommunicationTools import FakeManagementAgent
@@ -16,12 +28,20 @@ try:
     from .PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
     from . import FakeManagementLog
 except ImportError:
-    from Libs.PluginCommunicationTools import FakeManagementAgent
-    from Libs.PluginCommunicationTools import ManagementAgentPluginRequester
-    from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-    from Libs.PluginCommunicationTools.common import PathsLocation
-    from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
-    from Libs import FakeManagementLog
+    try:
+        from Libs.PluginCommunicationTools import FakeManagementAgent
+        from Libs.PluginCommunicationTools import ManagementAgentPluginRequester
+        from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+        from Libs.PluginCommunicationTools.common import PathsLocation
+        from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+        from Libs import FakeManagementLog
+    except ImportError:
+        from PluginCommunicationTools import FakeManagementAgent
+        from PluginCommunicationTools import ManagementAgentPluginRequester
+        from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+        from PluginCommunicationTools.common import PathsLocation
+        from PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+        import FakeManagementLog
 
 PLUGIN_NAME = "av"
 

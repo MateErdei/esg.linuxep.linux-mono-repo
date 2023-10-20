@@ -24,6 +24,8 @@
 /imports/internal/sdds3_utils/
 /imports/thirdparty/python/*
 !/imports/thirdparty/python/BUILD.bazel
+/imports/internal/susi/*
+!/imports/internal/susi/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*
 !/imports/thirdparty/nlohmann-json/BUILD.bazel
 /liveterminal/products/installer/rust-liveterminal-*
@@ -41,6 +43,7 @@
 /platform_mappings
 /pyproject.toml
 /tools/
+/tools
 /WORKSPACE
 
 # Bazel auto-generated
@@ -49,6 +52,13 @@
 /bazel-out
 /bazel-testlogs
 
+/tapvenv
 /tapvenv/
+/av/tapvenv
+/av/tapvenv/
+/av/venv
+/base/venv
 
 /thininstaller/certs/ps_rootca.crt
+
+__pycache__/

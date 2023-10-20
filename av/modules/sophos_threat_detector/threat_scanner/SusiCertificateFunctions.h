@@ -1,3 +1,4 @@
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2020, Sophos Limited.  All rights reserved.
@@ -6,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Susi.h>
+#include "Susi.h"
 
 namespace threat_scanner
 {

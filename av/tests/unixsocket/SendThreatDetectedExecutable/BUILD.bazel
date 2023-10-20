@@ -1,0 +1,30 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_binary(
+    name = "SendThreatDetectedEvent",
+    srcs = ["SendThreatDetectedEvent.cpp"],
+    visibility = [
+        "//av/tests:__pkg__",
+    ],
+    deps = [
+        "//av/modules/scan_messages:ThreatDetected",
+        "//av/modules/unixsocket:UnixSocketException",
+        "//av/tests/unixsocket:TestClient",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "SendDataToSocket",
+    srcs = ["SendDataToSocket.cpp"],
+    visibility = [
+        "//av/tests:__pkg__",
+    ],
+    deps = [
+        "//av/modules/scan_messages:ClientScanRequest",
+        "//av/modules/scan_messages:ThreatDetected",
+        "//av/tests/unixsocket:TestClient",
+        "//base/modules/Common/Logging",
+    ],
+)

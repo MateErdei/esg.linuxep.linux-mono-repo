@@ -2,6 +2,59 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
+    name = "FileSystemReplaceAndRestore",
+    srcs = ["FileSystemReplaceAndRestore.cpp"],
+    hdrs = ["FileSystemReplaceAndRestore.h"],
+    implementation_deps = [
+        "//base/modules/Common/FileSystemImpl",
+    ],
+    include_prefix = "Common/Helpers",
+    visibility = ["//common:spl_packages"],
+    deps = [
+        "//base/modules/Common/FileSystem",
+    ],
+)
+
+soph_cc_library(
+    name = "LogInitializedTests",
+    hdrs = ["LogInitializedTests.h"],
+    implementation_deps = [
+    ],
+    include_prefix = "Common/Helpers",
+    visibility = ["//common:spl_packages"],
+    deps = [
+        "//base/modules/Common/Logging",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+soph_cc_library(
+    name = "MockFileSystem",
+    hdrs = ["MockFileSystem.h"],
+    implementation_deps = [
+    ],
+    include_prefix = "Common/Helpers",
+    visibility = ["//common:spl_packages"],
+    deps = [
+        ":FileSystemReplaceAndRestore",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+soph_cc_library(
+    name = "MockSysCalls",
+    hdrs = [
+        "MockSysCalls.h",
+        "MockSysCallsFactory.h",
+    ],
+    include_prefix = "Common/Helpers",
+    visibility = ["//common:spl_packages"],
+    deps = [
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+soph_cc_library(
     name = "Helpers",
     srcs = glob([
         "*.cpp",
@@ -9,11 +62,14 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
+        ":FileSystemReplaceAndRestore",
         "//base/modules/Common/FileSystemImpl",
         "//base/modules/Common/UtilityImpl:StrError",
     ],
+    include_prefix = "Common/Helpers",
     visibility = ["//common:spl_packages"],
     deps = [
+        ":MockSysCalls",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/CurlWrapper",
         "//base/modules/Common/FileSystem",

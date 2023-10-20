@@ -1,12 +1,14 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "../../common/MemoryAppender.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SafeStoreRescanWorker.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
+// test includes
+#include "tests/common/MemoryAppender.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gtest/gtest.h>
 

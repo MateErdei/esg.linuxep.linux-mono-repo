@@ -1,6 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "../capability/PassOnCapability.h"
+#include "products/capability/PassOnCapability.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -11,6 +11,7 @@
 
 int main(int argc, char* argv[])
 {
+    (void)argc;
     int ret = pass_on_capability(CAP_DAC_READ_SEARCH);
     if (ret != 0)
     {

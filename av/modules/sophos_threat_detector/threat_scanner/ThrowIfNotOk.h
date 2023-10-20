@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -6,7 +6,7 @@
 
 #include "common/FailedToInitializeSusiException.h"
 
-#include <Susi.h>
+#include "Susi.h"
 
 #include <stdexcept>
 #include <string>

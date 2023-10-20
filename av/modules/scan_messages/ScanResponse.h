@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ScanResponse.capnp.h"
+#include "scan_messages/ScanResponse.capnp.h"
 
 #include <string>
 #include <vector>

@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "sophos_on_access_process/onaccessimpl/OnAccessScanRequest.h"
+#include "sophos_on_access_process/ScanRequestQueue/OnAccessScanRequest.h"
 
 #include "Common/Helpers/MockSysCalls.h"
 

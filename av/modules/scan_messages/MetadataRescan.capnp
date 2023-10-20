@@ -1,7 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 @0xcb50fc79135e87f7;
 
-using Cxx = import "capnp/c++.capnp";
+using Cxx = import "/capnp/c++.capnp";
 
 $Cxx.namespace("Sophos::ssplav");
 

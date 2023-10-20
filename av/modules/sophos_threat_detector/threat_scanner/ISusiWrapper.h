@@ -4,7 +4,7 @@
 
 #include "datatypes/AutoFd.h"
 
-#include <Susi.h>
+#include "Susi.h"
 
 #include <memory>
 

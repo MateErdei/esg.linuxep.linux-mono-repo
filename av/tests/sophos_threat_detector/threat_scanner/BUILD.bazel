@@ -1,0 +1,77 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockSusiScannerFactory",
+    hdrs = ["MockSusiScannerFactory.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [],
+)
+
+soph_cc_test(
+    name = "TestThreatScanner",
+    srcs = [
+        "MockSusiApi.h",
+        "MockSusiScannerFactory.h",
+        "MockSusiWrapper.h",
+        "MockSusiWrapperFactory.h",
+        "TestSusiGlobalCertificateFunctions.cpp",
+        "TestSusiGlobalHandler.cpp",
+        "TestSusiLogger.cpp",
+        "TestSusiResultUtils.cpp",
+        "TestSusiRuntimeConfig.cpp",
+        "TestSusiScanResultJsonParser.cpp",
+        "TestSusiScanner.cpp",
+        "TestSusiScannerFactory.cpp",
+        "TestSusiWrapperFactory.cpp",
+        "TestThreatDetectedBuilder.cpp",
+        "TestThreatScanner.cpp",
+        "TestUnitScanner.cpp",
+    ],
+    deps = [
+        "//av/modules/sophos_threat_detector/threat_scanner",
+        "//av/modules/sophos_threat_detector/threat_scanner:SusiWrapperFactory_cpp",
+        "//av/tests/common",
+        "//av/tests/sophos_threat_detector/sophosthreatdetectorimpl:MockShutdownTimer",
+        "//av/tests/sophos_threat_detector/sophosthreatdetectorimpl:MockThreatReporter",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "//base/tests/Common/Helpers:LogInitializedTests",
+        "//base/tests/Common/Helpers:MockFileSystem",
+        "//imports/internal/susi",
+    ],
+)
+
+soph_cc_binary(
+    name = "AllowListTester",
+    srcs = ["AllowListTester.cpp"],
+    deps = [
+        "@log4cplus",
+    ],
+)
+
+soph_cc_binary(
+    name = "explore_susi_install",
+    srcs = [
+        "explore_susi_install.cpp",
+    ],
+    linkopts = [
+        "-Wl,-rpath,/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/plugins/av/chroot/lib64",
+    ],
+    linkstatic = False,
+    deps = [
+        "//imports/internal/susi",
+    ],
+)
+
+soph_cc_binary(
+    name = "explore_susi_install_c",
+    srcs = [
+        "explore_susi_install.c",
+    ],
+    linkopts = [
+        "-Wl,-rpath,/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/plugins/av/chroot/lib64",
+    ],
+    deps = [
+        "//imports/internal/susi",
+    ],
+)

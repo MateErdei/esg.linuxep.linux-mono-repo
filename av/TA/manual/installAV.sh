@@ -10,7 +10,30 @@ function failure()
     exit "$EXIT"
 }
 
-while getopts t:u:bfadc: flag
+function extract_creds()
+{
+    local SPL_INSTALLER=$1
+
+    MIDDLEBIT=$(awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' "${SPL_INSTALLER}" </dev/null)
+    UC_CERTS=$(awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' "${SPL_INSTALLER}" </dev/null)
+    ARCHIVE=$(awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' "${SPL_INSTALLER}" </dev/null)
+
+    # If we have __UPDATE_CACHE_CERTS__ section then the middle section ends there, else it ends at the ARCHIVE marker.
+    if [[ -n "${UC_CERTS}" ]]; then
+        MIDDLEBIT_SIZE=$((UC_CERTS - MIDDLEBIT - 1))
+    else
+        MIDDLEBIT_SIZE=$((ARCHIVE - MIDDLEBIT - 1))
+    fi
+    CREDENTIALS_FILE_PATH=/tmp/credentials.txt
+    tail -n+"${MIDDLEBIT}" "${SPL_INSTALLER}" | head -"${MIDDLEBIT_SIZE}" >"${CREDENTIALS_FILE_PATH}"
+
+    MCS_TOKEN=$(sed -ne's/^TOKEN=\(.*\)/\1/p' $CREDENTIALS_FILE_PATH)
+    echo MCS_TOKEN
+    MCS_URL=$(sed -ne's/^URL=\(.*\)/\1/p' $CREDENTIALS_FILE_PATH)
+    echo MCS_URL
+}
+
+while getopts e:st:u:bfadc: flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
@@ -20,6 +43,13 @@ do
         f) FLAGS=true;;
         a) ALC=true;;
         d) CONFIGURE_DEBUG=true;;
+        e) extract_creds "${OPTARG}"
+          ;;
+        s)
+          export SOPHOS_CORE_DUMP_ON_PLUGIN_KILL=1
+          export SOPHOS_ENABLE_CORE_DUMP=1
+          ulimit -c unlimited
+          ;;
         ?) failure 1 "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating";;
     esac
 done
@@ -52,7 +82,10 @@ SDDS_BASE=${AV_ROOT}/base-sdds
 
 SDDS_AV=${AV_ROOT}/INSTALL-SET
 PYTHON=${PYTHON:-python3}
-${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
+if [[ -z "$NO_CREATE_INSTALL_SET" || ! -d "$SDDS_AV" ]]
+then
+    ${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
+fi
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
 # Check supplements are present:

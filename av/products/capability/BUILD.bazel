@@ -1,0 +1,24 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "capability",
+    srcs = glob([
+        "*.c",
+        "*.h",
+    ]),
+    hdrs = ["PassOnCapability.h"],
+    implementation_deps = [
+        "//av/modules/common:ErrorCodesC",
+        "//av/modules/datatypes:sophos_prctl",
+    ],
+    include_prefix = "products/capability",
+    visibility = [
+        "//av/products/filewalker:__pkg__",
+        "//av/products/sophos_threat_detector:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//common:libcap",
+    ],
+)

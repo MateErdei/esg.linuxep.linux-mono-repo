@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "BaseRunner.h"
 #include "Logger.h"
-#include "NamedScan.capnp.h"
+#include "scan_messages/NamedScan.capnp.h"
 #include "NamedScanConfig.h"
 
 #include "mount_monitor/mountinfo/IMountPoint.h"

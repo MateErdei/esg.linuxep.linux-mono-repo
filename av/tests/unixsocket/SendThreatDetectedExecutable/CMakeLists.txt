@@ -2,7 +2,7 @@ add_executable(SendThreatDetectedEvent
         ../TestClient.h
         SendThreatDetectedEvent.cpp)
 
-target_include_directories(SendThreatDetectedEvent PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/tests ${pluginapiinclude})
+target_include_directories(SendThreatDetectedEvent PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR} ${pluginapiinclude})
 
 target_link_libraries(SendThreatDetectedEvent ${zmqlib} ${pluginapilib} ${log4cpluslib} ${CAPNPROTO_LIBRARIES} scanmessages unixsocket)
 
@@ -20,7 +20,7 @@ add_executable(SendDataToSocket
         ../TestClient.h
         SendDataToSocket.cpp)
 
-target_include_directories(SendDataToSocket PUBLIC .${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/tests ${pluginapiinclude})
+target_include_directories(SendDataToSocket PUBLIC .${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR} ${pluginapiinclude})
 
 target_link_libraries(SendDataToSocket ${zmqlib} ${pluginapilib} ${log4cpluslib} ${CAPNPROTO_LIBRARIES} scanmessages unixsocket)
 

@@ -1,16 +1,18 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "capnp/message.h"
-#include "common/Common.h"
-#include "common/MemoryAppender.h"
-#include "common/WaitForEvent.h"
 #include "scan_messages/ScanRequest.h"
-#include "sophos_threat_detector/sophosthreatdetectorimpl/MockShutdownTimer.h"
-#include "sophos_threat_detector/sophosthreatdetectorimpl/MockThreatReporter.h"
 #include "sophos_threat_detector/threat_scanner/IUnitScanner.h"
 #include "sophos_threat_detector/threat_scanner/SusiResultUtils.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/ThreatDetectedBuilder.h"
+
+// test includes
+#include "tests/common/Common.h"
+#include "tests/common/MemoryAppender.h"
+#include "tests/common/WaitForEvent.h"
+#include "tests/sophos_threat_detector/sophosthreatdetectorimpl/MockShutdownTimer.h"
+#include "tests/sophos_threat_detector/sophosthreatdetectorimpl/MockThreatReporter.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"

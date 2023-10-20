@@ -4,11 +4,9 @@
 
 #include "capnp/message.h"
 #include "datatypes/sophos_filesystem.h"
-#include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
-#include "unixsocket/SocketUtils.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 

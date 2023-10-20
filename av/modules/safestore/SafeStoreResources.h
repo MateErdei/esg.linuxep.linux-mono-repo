@@ -11,15 +11,15 @@ namespace safestore
     public:
         std::unique_ptr<unixsocket::IMetadataRescanClientSocket> CreateMetadataRescanClientSocket(
             std::string socket_path,
-            const unixsocket::BaseClient::duration_t& sleepTime,
-            unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
+            const duration_t& sleepTime,
+            SleeperSharedPtr sleeper) override;
 
         std::unique_ptr<unixsocket::IScanningClientSocket> CreateScanningClientSocket(
             std::string socket_path,
-            const unixsocket::BaseClient::duration_t& sleepTime,
-            unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
+            const duration_t& sleepTime,
+            SleeperSharedPtr sleeper) override;
 
         std::unique_ptr<unixsocket::IRestoreReportingClient> CreateRestoreReportingClient(
-            unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
+                SleeperSharedPtr sleeper) override;
     };
 } // namespace safestore

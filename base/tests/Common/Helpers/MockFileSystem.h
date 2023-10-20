@@ -24,7 +24,7 @@ public:
         {
             // Initialise the application configuration in the constructor of the mock to avoid
             // hitting an unexpected readlink when performing a strict mock
-            Common::ApplicationConfiguration::applicationConfiguration();
+            std::ignore = Common::ApplicationConfiguration::applicationConfiguration();
         }
     }
     MOCK_METHOD(bool, exists, (const Path& path), (const, override));

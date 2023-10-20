@@ -1,0 +1,39 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "IMetadataRescanClientSocket",
+    hdrs = ["IMetadataRescanClientSocket.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/scan_messages:MetadataRescan",
+    ],
+)
+
+soph_cc_library(
+    name = "metadataRescanSocket",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        ":IMetadataRescanClientSocket",
+        "//av/modules/scan_messages:ScanRequest",
+        "//av/modules/common:AbortScanException",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:StringUtils",
+        "//av/modules/unixsocket:Logger",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:IMessageCallback",
+        "//av/modules/unixsocket/threatDetectorSocket:ThreatDetectedMessageUtils",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/scan_messages:MetadataRescan",
+        "//av/modules/scan_messages:ScanResponse",
+        "//av/modules/sophos_threat_detector/threat_scanner:IThreatScannerFactory",
+        "//av/modules/unixsocket:BaseClient",
+        "//av/modules/unixsocket:BaseServerConnectionThread",
+        "//av/modules/unixsocket:BaseServerSocket",
+        "//av/modules/unixsocket:UnixSocketException",
+    ],
+)

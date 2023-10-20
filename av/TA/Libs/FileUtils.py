@@ -139,3 +139,53 @@ def get_file_group(filepath):
 def zip_file(zippath, filetozip):
     with zipfile.ZipFile(zippath, mode='w') as zipf:
         zipf.write(filetozip)
+
+
+def create_symlink_if_required(target, destination):
+    """
+    Create a symlink in destination pointing to target, iff destination doesn't already exist
+    :param target:
+    :param destination:
+    :return:
+    """
+    if os.path.isfile(destination):
+        return
+    os.symlink(target, destination)
+
+
+def _copy_or_link_iconv_libraries_from_lib(chroot, lib_dir):
+    src_dir = os.path.join("/", lib_dir)
+    dest_dir = os.path.join(chroot, lib_dir)
+    if not os.path.isdir(src_dir):
+        return
+
+    os.makedirs(dest_dir, mode=0o755, exist_ok=True)
+    for lib in ["EUC-JP.so", "SJIS.so", "libJIS.so", "ISO8859-1.so", "UTF-32.so"]:
+        src = os.path.join(src_dir, lib)
+        if not os.path.isfile(src):
+            continue
+        dest = os.path.join(dest_dir, lib)
+        try:
+            os.link(src, dest)
+        except EnvironmentError:
+            shutil.copy2(src, dest)
+        os.chmod(dest, 0o755)
+
+
+def copy_or_link_iconv_libraries(chroot):
+    """
+    for LIBDIR in "/usr/lib/x86_64-linux-gnu/gconv" "/usr/lib64/gconv"
+    do
+        [[ -d "$LIBDIR" ]] || continue
+        mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot${LIBDIR}"
+        for LIB in EUC-JP.so SJIS.so libJIS.so ISO8859-1.so UTF-32.so
+        do
+            copy_or_link "${LIBDIR}/${LIB}" "$SOPHOS_INSTALL/plugins/av/chroot${LIBDIR}/"
+        done
+    done
+    chmod -R a+rx "$SOPHOS_INSTALL/plugins/av/chroot/usr"
+    :param chroot:
+    :return:
+    """
+    _copy_or_link_iconv_libraries_from_lib(chroot, "usr/lib/x86_64-linux-gnu/gconv")
+    _copy_or_link_iconv_libraries_from_lib(chroot, "usr/lib64/gconv")

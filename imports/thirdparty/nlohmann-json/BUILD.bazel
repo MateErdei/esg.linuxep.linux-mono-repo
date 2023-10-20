@@ -1,10 +1,13 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "nlohmann-json",
     hdrs = ["single_include/nlohmann/json.hpp"],
-    includes = ["."],
-    strip_include_prefix = "single_include/nlohmann",
+    includes = [
+        "single_include",
+        "single_include/nlohmann",
+    ],
     visibility = [
         "//common:spl_packages",
     ],

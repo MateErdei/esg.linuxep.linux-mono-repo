@@ -43,7 +43,7 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
             throw unixsocket::UnixSocketException(LOCATION, m_name + " failed to write file descriptor to socket");
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGERROR(m_name << " failed to write to socket. Exception caught: " << e.what());
     }

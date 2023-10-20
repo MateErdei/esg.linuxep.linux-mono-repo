@@ -1,0 +1,74 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "SafeStoreTelemetryConsts",
+    hdrs = ["SafeStoreTelemetryConsts.h"],
+    visibility = [
+        "//av/modules/safestore:__subpackages__",
+        "//av/modules/unixsocket/safeStoreSocket:__pkg__",
+    ],
+)
+
+soph_cc_library(
+    name = "ISafeStoreResources",
+    hdrs = ["ISafeStoreResources.h"],
+    visibility = ["//av/modules/safestore:__subpackages__"],
+    deps = [
+        "//av/modules/unixsocket:BaseClientDefaultSleepTime",
+        "//av/modules/unixsocket/metadataRescanSocket:IMetadataRescanClientSocket",
+        "//av/modules/unixsocket/restoreReportingSocket:IRestoreReportingClient",
+        "//av/modules/unixsocket/threatDetectorSocket:IScanningClientSocket",
+    ],
+)
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    visibility = ["//av/modules/safestore:__subpackages__"],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "safestore",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "Main.h",
+        "SafeStoreServiceCallback.h",
+    ],
+    implementation_deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:PidLockFile",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/common/signals",
+        "//av/modules/safestore/QuarantineManager:IQuarantineManager",
+        "//av/modules/safestore/QuarantineManager",
+        "//av/modules/safestore/SafeStoreWrapper",
+        "//av/modules/unixsocket:BaseClient",
+        "//av/modules/unixsocket/metadataRescanSocket",
+        "//av/modules/unixsocket/restoreReportingSocket:RestoreReportingClient",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningClientSocket",
+        "//av/modules/unixsocket/safeStoreRescanSocket",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
+        "//av:AutoVersion",
+        "//base/modules/Common/Logging",
+    ],
+    visibility = [
+        "//av/products/safestore:__pkg__",
+        "//av/tests:__subpackages__",
+        "//av/tools/safestore:__pkg__",
+    ],
+    deps = [
+        ":ISafeStoreResources",
+        ":Logger",
+        "//base/modules/Common/PluginApiImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+    ],
+)

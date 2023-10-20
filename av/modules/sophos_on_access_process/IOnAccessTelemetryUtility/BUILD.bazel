@@ -1,0 +1,12 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "IOnAccessTelemetryUtility",
+    hdrs = ["IOnAccessTelemetryUtility.h"],
+    visibility = [
+        "//av/modules/sophos_on_access_process/OnAccessTelemetryUtility:__pkg__",
+        "//av/modules/sophos_on_access_process/fanotifyhandler:__pkg__",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:__pkg__",
+    ],
+)

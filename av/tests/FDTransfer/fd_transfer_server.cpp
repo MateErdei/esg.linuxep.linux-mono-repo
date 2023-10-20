@@ -2,7 +2,7 @@
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include "../common/FakeThreatScannerFactory.h"
+#include "tests/common/FakeThreatScannerFactory.h"
 
 #include "datatypes/Print.h"
 #include <string>

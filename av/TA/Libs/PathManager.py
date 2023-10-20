@@ -75,3 +75,7 @@ def addPathToSysPath(p):
     p = os.path.normpath(p)
     if p not in sys.path:
         sys.path.append(p)
+
+
+def add_ta_dir_to_sys_path():
+    addPathToSysPath(get_TA_dir())

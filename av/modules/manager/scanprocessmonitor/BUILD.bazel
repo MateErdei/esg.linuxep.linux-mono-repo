@@ -1,0 +1,57 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ConfigMonitor",
+    srcs = ["ConfigMonitor.cpp"],
+    hdrs = ["ConfigMonitor.h"],
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/common:FDUtils",
+        "//av/modules/common:SaferStrerror",
+        "//base/modules/Common/ApplicationConfiguration",
+    ],
+    deps = [
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:MultiInotifyFD",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/SystemCallWrapper",
+        "//base/modules/Common/Threads",
+    ],
+)
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "ScanProcessMonitor",
+    srcs = ["ScanProcessMonitor.cpp"],
+    hdrs = ["ScanProcessMonitor.h"],
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/common:PluginUtils",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerClient",
+    ],
+    visibility = [
+        "//av/modules/pluginimpl:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":ConfigMonitor",
+        "//av/modules/common:LockableData",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/scan_messages:ProcessControlSerialiser",
+        "//base/modules/Common/SystemCallWrapper",
+    ],
+)

@@ -1,5 +1,4 @@
 if (NOT DEFINED ENV{USE_LIBFUZZER})
-    add_subdirectory(ObfuscationImpl)
 
     SophosAddTest(TestPlugin
             ../common/LogInitializedTests.cpp

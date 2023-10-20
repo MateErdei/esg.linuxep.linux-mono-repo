@@ -1,8 +1,8 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/IOnAccessTelemetryUtility/IOnAccessTelemetryUtility.h"
 
 namespace sophos_on_access_process::service_impl
 {

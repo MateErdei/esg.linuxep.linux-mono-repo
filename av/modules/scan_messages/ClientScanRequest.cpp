@@ -7,7 +7,7 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#include <ScanRequest.capnp.h>
+#include "scan_messages/ScanRequest.capnp.h"
 
 using namespace scan_messages;
 

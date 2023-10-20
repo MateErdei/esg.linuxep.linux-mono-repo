@@ -2,6 +2,26 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
+    name = "IApplicationConfiguration",
+    hdrs = ["IApplicationConfiguration.h"],
+    implementation_deps = [
+        # Doesn't propagate headers but still links it in the end
+        "//base/modules/Common/ApplicationConfigurationImpl",
+    ],
+    visibility = ["//common:spl_packages"],
+)
+
+soph_cc_library(
+    name = "IApplicationPathManager",
+    hdrs = ["IApplicationPathManager.h"],
+    implementation_deps = [
+        # Doesn't propagate headers but still links it in the end
+        "//base/modules/Common/ApplicationConfigurationImpl",
+    ],
+    visibility = ["//common:spl_packages"],
+)
+
+soph_cc_library(
     name = "ApplicationConfiguration",
     implementation_deps = [
         # Doesn't propagate headers but still links it in the end

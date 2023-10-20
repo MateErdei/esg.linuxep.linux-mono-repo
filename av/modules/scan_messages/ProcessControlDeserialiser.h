@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ProcessControlSerialiser.h"
 
-#include <ProcessControl.capnp.h>
+#include "scan_messages/ProcessControl.capnp.h"
 
 namespace scan_messages
 {

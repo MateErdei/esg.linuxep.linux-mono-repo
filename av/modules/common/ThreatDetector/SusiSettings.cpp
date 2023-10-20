@@ -2,9 +2,9 @@
 
 #include "SusiSettings.h"
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
-#include "../Logger.h"
+#include "common/Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"

@@ -48,21 +48,12 @@ function generate_susi_package_manifest()
     lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
     echo "reputation ${lrdata_hash}" >> ${temp_manifest}
 
-    libupdater_hash=$(sha256sum "${SUSI_UPDATE_SRC}/libupdater/libupdater.so" | awk '{print $1}')
-    [[ -n "$libupdater_hash" ]] || failure "Unable to hash ${SUSI_UPDATE_SRC}/libupdater/libupdater.so"
-    echo "libupdater ${libupdater_hash}" >> ${temp_manifest}
-
     manifest_hash=$(sha256sum "${temp_manifest}" | awk '{print $1}')
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
 
     rm -f ${temp_manifest}
 
-    set_permissions_on_susi_update_source
-}
-
-function bootstrap_susi_from_update_source()
-{
     set_permissions_on_susi_update_source
 }
 
@@ -76,18 +67,9 @@ function main()
     SUSI_DIST_VERS="$PLUGIN_INSTALL/chroot/susi/distribution_version"
 
     ls -lR ${SUSI_UPDATE_SRC}
-    pushd ${SUSI_UPDATE_SRC}/libupdater
-    ldconfig -lNv "libupdater.so".*
-    ln -s libupdater.so.? "libupdater.so"
-    popd
-    ldconfig -lNv ${SUSI_UPDATE_SRC}/{susicore,libsavi,libglobalrep}/*.so.*
-    pushd ${SUSI_UPDATE_SRC}/libglobalrep
-    ln -s libglobalrep.so.? libglobalrep.so
-    popd
-    ls -lR ${SUSI_UPDATE_SRC}
 
     generate_susi_package_manifest
-    bootstrap_susi_from_update_source
+    set_permissions_on_susi_update_source
 }
 
 SOPHOS_INSTALL=${SOPHOS_INSTALL:-/opt/sophos-spl}

@@ -1,10 +1,10 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Common/UtilityImpl/Uuid.h"
 
-#include <RestoreReport.capnp.h>
+#include "scan_messages/RestoreReport.capnp.h"
 
 #include <capnp/message.h>
 

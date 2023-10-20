@@ -1,8 +1,8 @@
-// Copyright (c) 2022 , Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "redist/susi_build/include/SusiTypes.h"
+#include "SusiTypes.h"
 #include "sophos_threat_detector/threat_scanner/ISusiApiWrapper.h"
 
 #include <gmock/gmock.h>

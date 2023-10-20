@@ -1,13 +1,10 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-
 #include "ScanningServerSocket.h"
 
 #include "unixsocket/UnixSocketException.h"
 
 #include "datatypes/sophos_filesystem.h"
-
-#include "Common/ZeroMQWrapper/IIPCException.h"
 
 #include <sys/stat.h>
 

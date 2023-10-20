@@ -1,11 +1,11 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MockSusiWrapper.h"
-#include "json.hpp"
 
-#include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/SusiLogger.h"
 #include "sophos_threat_detector/threat_scanner/UnitScanner.h"
+
+#include "tests/common/MemoryAppender.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"

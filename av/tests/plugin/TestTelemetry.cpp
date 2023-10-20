@@ -61,7 +61,6 @@ namespace
             versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
-            versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
             versionFileStream.close();
         }
 
@@ -334,7 +333,6 @@ TEST_F(TestTelemetry, getTelemetry_version)
     versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
     versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
     versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
-    versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
     versionFileStream.close();
 
     json modifiedTelemetry = json::parse(telemetry.getTelemetry());

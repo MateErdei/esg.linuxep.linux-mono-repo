@@ -4,11 +4,11 @@ def params = [
     choice(name: 'run_all_tests',
         choices: ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ /^release.+/ ) ? ["run_all"] : ["run_subset", "run_all"]),
         description: 'setting to run all test machine or not'),
- choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
- choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all'),
+ choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], description: 'Build mode'),
+ choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal']),
  booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Test Automation in TAP'),
  booleanParam(name: 'RUN_SYSTEM_TESTS', defaultValue: false, description: 'Run System Test Automation in TAP'),
- choice(name: 'SDDS_SELECTION', choices: ['dev', 'prod'], defaultValue: 'dev', description: 'If RUN_SYSTEM_TESTS, build dev/prod SDDS3?'),
+ choice(name: 'SDDS_SELECTION', choices: ['dev', 'prod'], description: 'If RUN_SYSTEM_TESTS, build dev/prod SDDS3?'),
 
  booleanParam(name: 'run_amazon_2', defaultValue: true, description: 'Run TAP on Amazon Linux 2'),
  booleanParam(name: 'run_amazon_2023', defaultValue: true, description: 'Run TAP on Amazon Linux 2023'),
@@ -31,6 +31,10 @@ def params = [
  string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
  string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
  string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
+
+ booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
+ booleanParam(name: 'build_debug_bazel', defaultValue: true, description: 'Do the Bazel linux_dbg build'),
+
 ]
 
 CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';

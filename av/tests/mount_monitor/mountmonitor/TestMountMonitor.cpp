@@ -2,22 +2,25 @@
 
 # define TEST_PUBLIC public
 
+#include "common/ThreadRunner.h"
+#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
+#include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mountinfoimpl/SystemPaths.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+// Test code
 #include "MockSystemPaths.h"
 #include "MockSystemPathsFactory.h"
 #include "MountMonitorMemoryAppenderUsingTests.h"
 
-#include "avscanner/avscannerimpl/MockMountPoint.h"
-#include "common/ThreadRunner.h"
-#include "common/WaitForEvent.h"
-#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
-#include "mount_monitor/mount_monitor/MountMonitor.h"
-#include "mount_monitor/mountinfoimpl/SystemPaths.h"
-#include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
+#include "tests/common/WaitForEvent.h"
+#include "tests/avscanner/avscannerimpl/MockMountPoint.h"
+#include "tests/sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/MockSysCalls.h"
-#include "Common/SystemCallWrapper/SystemCallWrapper.h"
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <gtest/gtest.h>
 

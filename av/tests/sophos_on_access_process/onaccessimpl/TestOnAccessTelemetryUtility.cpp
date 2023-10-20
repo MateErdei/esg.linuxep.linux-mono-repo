@@ -4,7 +4,7 @@
 
 #include "OnAccessImplMemoryAppenderUsingTests.h"
 
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/OnAccessTelemetryUtility/OnAccessTelemetryUtility.h"
 
 #include <gtest/gtest.h>
 
@@ -12,8 +12,12 @@ using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 using namespace testing;
 
 
-class TestOnAccessTelemetryUtility : public OnAccessImplMemoryAppenderUsingTests
+class TestOnAccessTelemetryUtility : public MemoryAppenderUsingTests
 {
+public:
+    TestOnAccessTelemetryUtility()
+        : MemoryAppenderUsingTests("OnAccessTelemetryUtility")
+    {}
 protected:
     OnAccessTelemetryUtility m_TelemetryUtility;
 

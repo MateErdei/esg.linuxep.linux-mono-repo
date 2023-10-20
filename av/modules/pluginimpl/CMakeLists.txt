@@ -41,7 +41,10 @@ sophos_add_library(pluginimpl SHARED
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket scanprocessmonitor obfuscationimpl
 )
 
-target_include_directories(pluginimpl PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(pluginimpl PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_SOURCE_DIR}/../base/modules
+)
 
 SET_TARGET_PROPERTIES(pluginimpl
         PROPERTIES

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "EnvironmentInterruption.h"
+
 #include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <chrono>
@@ -21,21 +23,6 @@ namespace unixsocket
         int socket_fd, char* buf, ssize_t bytes, std::chrono::milliseconds timeout);
 
     bool writeLengthAndBufferAndFd(int socket_fd, const std::string& buffer, int fd);
-
-    struct environmentInterruption : public std::exception
-    {
-        explicit environmentInterruption(const char* where)
-            : where_(where)
-        {
-        }
-
-        const char* where_;
-
-        [[nodiscard]] const char * what () const noexcept override
-        {
-            return "Environment interruption";
-        }
-    };
 
     const int SU_EOF = -2;
     const int SU_ERROR = -1;

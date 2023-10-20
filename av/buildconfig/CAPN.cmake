@@ -35,7 +35,9 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
             "${_protobuf_protoc_hdr}"
             COMMAND ${CMAKE_COMMAND} -E copy ${ABS_FIL} .
             COMMAND  ${CMAKE_COMMAND} -E env PATH=${CAPNPATH} LD_LIBRARY_PATH=${LD} "${CAPNPROTO_EXECUTABLE}"
-            compile "-oc++"
+            compile
+            --no-standard-import -I${CMAKE_SOURCE_DIR}/input/capnproto/src
+            "-oc++"
              ${FIL_WE}.capnp
             DEPENDS ${ABS_FIL} capnp
             COMMENT "Running C++ capn compile buffer compiler on ${FIL} with LD_LIBRARY_PATH=${LD}"

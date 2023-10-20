@@ -5,7 +5,12 @@
 #include "SusiResultUtils.h"
 
 #include "common/StringUtils.h"
+
+#ifdef SPL_BAZEL
+#include "Common/ObfuscationImpl/Base64.h"
+#else
 #include "pluginimpl/ObfuscationImpl/Base64.h"
+#endif
 
 #include <nlohmann/json.hpp>
 

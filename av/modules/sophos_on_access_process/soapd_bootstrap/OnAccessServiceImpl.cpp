@@ -6,7 +6,8 @@
 // Package
 #include "OnAccessServiceCallback.h"
 
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/OnAccessTelemetryUtility/OnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/OnAccessTelemetryFields/OnAccessTelemetryFields.h"
 
 // Base
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"

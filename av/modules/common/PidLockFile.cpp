@@ -49,7 +49,7 @@ PidLockFile::PidLockFile(const std::string& pidfile, bool changePidGroup)
     {
         auto fp = Common::FileSystem::filePermissions();
         auto groupId = fp->getGroupId("sophos-spl-group");
-        fchown(local_fd.get(), -1, groupId);
+        std::ignore = fchown(local_fd.get(), -1, groupId);
     }
 
     fchmod(local_fd.get(), 0640);

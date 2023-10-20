@@ -350,7 +350,7 @@ TEST(TestWriteLength, WriteError)
         unixsocket::writeLength(socket_pair.get_client_fd(), 1);
         FAIL() << "writeLength() didn't throw";
     }
-    catch (environmentInterruption &e)
+    catch (EnvironmentInterruption &e)
     {
         ASSERT_STREQ(e.what(), "Environment interruption");
     }
@@ -539,9 +539,9 @@ TEST(TestSocketUtils, environmentInterruptionReportsWhat)
 {
     try
     {
-        throw unixsocket::environmentInterruption(__FUNCTION__);
+        throw unixsocket::EnvironmentInterruption(__FUNCTION__);
     }
-    catch (const unixsocket::environmentInterruption& ex)
+    catch (const unixsocket::EnvironmentInterruption& ex)
     {
         EXPECT_EQ(ex.what(), "Environment interruption");
     }

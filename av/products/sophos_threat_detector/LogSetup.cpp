@@ -2,12 +2,13 @@
 
 #include "LogSetup.h"
 
+#include "common/config.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Logging/FileLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/Logging/LoggingSetup.h"
 #include "Common/Logging/SophosLoggerMacros.h"
-#include "../common/config.h"
 
 #include <log4cplus/logger.h>
 #include <log4cplus/consoleappender.h>

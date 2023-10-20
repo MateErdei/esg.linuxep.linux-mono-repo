@@ -15,8 +15,6 @@ def spl_independent_cc_tests(name, srcs, per_test_srcs = [], **kwargs):
     for file in srcs:
         if file.endswith(".cpp"):
             cpp_files.append(file)
-
-    for file in srcs:
         if file.endswith(".h"):
             h_files.append(file)
 

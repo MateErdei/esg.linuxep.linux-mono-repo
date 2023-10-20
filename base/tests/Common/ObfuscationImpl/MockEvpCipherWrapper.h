@@ -9,8 +9,8 @@ using namespace ::testing;
 class MockEvpCipherWrapper : public Common::Obfuscation::IEvpCipherWrapper
 {
 public:
-    MOCK_CONST_METHOD0(EVP_CIPHER_CTX_new, EVP_CIPHER_CTX*(void));
-    MOCK_CONST_METHOD1(EVP_CIPHER_CTX_free, void(EVP_CIPHER_CTX*));
+    MOCK_METHOD(EVP_CIPHER_CTX*, EVP_CIPHER_CTX_new, (), (const override));
+    MOCK_METHOD(void, EVP_CIPHER_CTX_free, (EVP_CIPHER_CTX*), (const override));
     MOCK_CONST_METHOD5(
         EVP_DecryptInit_ex,
         int(EVP_CIPHER_CTX*, const EVP_CIPHER*, ENGINE*, const unsigned char*, const unsigned char*));

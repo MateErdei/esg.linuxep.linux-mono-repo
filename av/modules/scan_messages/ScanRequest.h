@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "ScanRequest.capnp.h"
+#include "scan_messages/ScanRequest.capnp.h"
 #include "ClientScanRequest.h"
 
 #include "datatypes/AutoFd.h"

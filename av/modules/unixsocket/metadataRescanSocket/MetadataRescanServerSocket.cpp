@@ -5,8 +5,6 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/UnixSocketException.h"
 
-#include "Common/ZeroMQWrapper/IIPCException.h"
-
 unixsocket::MetadataRescanServerSocket::MetadataRescanServerSocket(
     const std::string& path,
     mode_t mode,

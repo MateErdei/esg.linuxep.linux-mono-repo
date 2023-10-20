@@ -1252,3 +1252,4 @@ Create Archive With Eicar
     [Arguments]    ${output}
     Create File    ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/eicar
+

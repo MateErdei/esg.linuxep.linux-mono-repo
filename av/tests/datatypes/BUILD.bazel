@@ -1,0 +1,28 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockUuidGenerator",
+    hdrs = ["MockUuidGenerator.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:IUuidGenerator",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestDatatypes",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        ":MockUuidGenerator",
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:Time",
+        "//av/modules/datatypes:UuidGeneratorImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

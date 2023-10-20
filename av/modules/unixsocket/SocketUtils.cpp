@@ -25,7 +25,7 @@ void unixsocket::writeLength(int socket_fd, size_t length)
         = ::send(socket_fd, buffer.get(), bufferSize, MSG_NOSIGNAL);
     if (bytes_written != static_cast<ssize_t>(bufferSize))
     {
-        throw environmentInterruption(__FUNCTION__);
+        throw EnvironmentInterruption(__FUNCTION__);
     }
 }
 
@@ -46,7 +46,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     ssize_t bytes_written = ::sendmsg(socket_fd, &message, MSG_NOSIGNAL);
     if (static_cast<unsigned>(bytes_written) != buffer.size() + lengthBufferSize)
     {
-        throw environmentInterruption(__FUNCTION__);
+        throw EnvironmentInterruption(__FUNCTION__);
     }
     return true;
 }

@@ -1,8 +1,8 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
-
-#include "commonTest/pluginutils/TestAbstractThreadImpl.h"
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
+
+#include "tests/commonTest/pluginutils/TestAbstractThreadImpl.h"
 
 #include <gmock/gmock.h>
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/IOnAccessTelemetryUtility/IOnAccessTelemetryUtility.h"
 
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"

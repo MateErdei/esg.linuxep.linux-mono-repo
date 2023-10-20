@@ -46,6 +46,12 @@ Start On Access And AV With Running Threat Detector
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
     Force SUSI to be initialized
 
+Start On Access without Pid check
+    [Documentation]  Sometimes we need to start soapd and expect it to immediately exit e.g. for fault injection tests
+    Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
+    ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
+    Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
+
 Start On Access without Log check
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr

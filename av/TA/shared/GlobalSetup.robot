@@ -2,6 +2,7 @@
 
 Library         OperatingSystem
 Library         Process
+Library         ../Libs/PathManager.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py
@@ -30,6 +31,7 @@ ${TESTGROUP}        testgroup
 
 *** Keywords ***
 Global Setup Tasks
+    Add Ta Dir To Sys Path
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable              SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}                  ${placeholder}
@@ -40,7 +42,6 @@ Global Setup Tasks
     Set Global Variable  ${BASH_SCRIPTS_PATH}               ${LIBS_PATH}/bashScripts
     Set Global Variable  ${SUPPORT_FILES_PATH}              ${LIBS_PATH}/supportFiles
     Set Global Variable  ${RESOURCES_PATH}                  ${TEST_SCRIPTS_PATH}/resources
-    Set Global Variable  ${BUILD_ARTEFACTS_FOR_TAP}         ${TEST_INPUT_PATH}/tap_test_output_from_build
 
     Set Global Variable  ${COMPONENT_SDDS_COMPONENT}        ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_INSTALL_SET}           ${TEST_INPUT_PATH}/${COMPONENT_NAME}/INSTALL-SET
@@ -70,7 +71,7 @@ Global Setup Tasks
     CoreDumps.Enable Core Files
 
     Create test user and group
-    Unpack TAP Tools
+    InstallSet.extract_tap_test_output
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
@@ -93,8 +94,4 @@ Remove test user and group
     Run Process  /usr/sbin/groupdel   ${TESTGROUP}
 
 Unpack TAP Tools
-    ${result} =   Run Process    tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${TEST_INPUT_PATH}
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Integers   ${result.rc}  ${0}
-    Set Global Variable  ${AV_TEST_TOOLS}         ${TEST_INPUT_PATH}/tap_test_output
+    InstallSet.extract_tap_test_output

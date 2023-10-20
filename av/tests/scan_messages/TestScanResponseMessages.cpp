@@ -1,6 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "ScanResponse.capnp.h"
+#include "scan_messages/ScanResponse.capnp.h"
 
 #include "scan_messages/ScanResponse.h"
 

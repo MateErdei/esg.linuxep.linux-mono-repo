@@ -1,15 +1,16 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "OnAccessImplMemoryAppenderUsingTests.h"
 
-#include "common/RecordingMockSocket.h"
 #include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
-#include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
+
+#include "tests/common/RecordingMockSocket.h"
 #include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
+#include "tests/sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 

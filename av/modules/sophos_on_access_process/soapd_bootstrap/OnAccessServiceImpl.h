@@ -4,7 +4,7 @@
 
 #include "IOnAccessService.h"
 
-#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/IOnAccessTelemetryUtility/IOnAccessTelemetryUtility.h"
 
 #include "Common/PluginApiImpl/PluginCallBackHandler.h"
 #include "Common/ZMQWrapperApi/IContext.h"

@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "../../common/LogInitializedTests.h"
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
 
-#include <gtest/gtest.h>
-
-#include "../../common/Common.h"
-
 #include <fstream>
+
+// test headers
+#include "tests/common/Common.h"
+#include "tests/common/LogInitializedTests.h"
+
+#include <gtest/gtest.h>
 
 using namespace testing;
 

@@ -211,7 +211,7 @@ TEST_F(TestMetadataRescanServerConnectionThread, SendRequest)
     writeLengthAndBuffer(m_clientFd, serialised);
 
     MetadataRescanResponse response;
-    ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
+    std::ignore = ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
     EXPECT_EQ(response, MetadataRescanResponse::undetected);
 
     connectionThread.requestStop();
@@ -236,14 +236,14 @@ TEST_F(TestMetadataRescanServerConnectionThread, SendTwoRequests)
     {
         writeLengthAndBuffer(m_clientFd, serialised);
         MetadataRescanResponse response;
-        ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
+        std::ignore = ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
         EXPECT_EQ(response, MetadataRescanResponse::threatPresent);
     }
 
     {
         writeLengthAndBuffer(m_clientFd, serialised);
         MetadataRescanResponse response;
-        ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
+        std::ignore = ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
         EXPECT_EQ(response, MetadataRescanResponse::undetected);
     }
 

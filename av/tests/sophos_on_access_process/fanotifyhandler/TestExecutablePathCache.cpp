@@ -6,7 +6,7 @@
 // test
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
-#include "common/TestSpecificDirectory.h"
+#include "tests/common/TestSpecificDirectory.h"
 
 #include <gtest/gtest.h>
 
@@ -30,7 +30,7 @@ TEST_F(TestExecutablePathCache, get_executable_path_from_pid_init)
 {
     if (geteuid() != 0)
     {
-        GTEST_SKIP();
+        GTEST_SKIP() << "Can't get euid from init if not running as root";
     }
     auto initExe = test_get_executable_path_from_pid(1);
     EXPECT_NE(initExe, "");

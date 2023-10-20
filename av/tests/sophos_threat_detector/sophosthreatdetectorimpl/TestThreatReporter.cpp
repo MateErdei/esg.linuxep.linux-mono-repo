@@ -1,12 +1,14 @@
-// Copyright 2021-2022 Sophos Limited. All rights reserved.
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "scan_messages/SampleThreatDetected.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
+#include "unixsocket/IMessageCallback.h"
+#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
+
+// test includes
+#include "tests/scan_messages/SampleThreatDetected.h"
 #include "tests/common/Common.h"
 #include "tests/common/LogInitializedTests.h"
 #include "tests/common/WaitForEvent.h"
-#include "unixsocket/IMessageCallback.h"
-#include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

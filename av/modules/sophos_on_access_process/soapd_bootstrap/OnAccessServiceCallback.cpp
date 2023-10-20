@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
+#include "sophos_on_access_process/OnAccessTelemetryFields/OnAccessTelemetryFields.h"
 
 #include <utility>
 

@@ -1,0 +1,33 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "SampleThreatDetected",
+    hdrs = ["SampleThreatDetected.h"],
+    include_prefix = "scan_messages",
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/scan_messages:ThreatDetected",
+    ],
+)
+
+soph_cc_test(
+    name = "TestScanMessages",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        ":SampleThreatDetected",
+        "//av/modules/scan_messages:MetadataRescan",
+        "//av/modules/scan_messages:RestoreReport",
+        "//av/modules/scan_messages:ScanRequest",
+        "//av/modules/scan_messages:ScanRequest_capnp_cpp_fileset",
+        "//av/modules/scan_messages:ScanResponse",
+        "//av/modules/scan_messages:ScanResponse_capnp_cpp_fileset",
+        "//av/modules/scan_messages:ThreatDetected_capnp_cpp_fileset",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

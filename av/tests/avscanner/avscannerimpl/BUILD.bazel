@@ -1,0 +1,29 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockMountPoint",
+    hdrs = ["MockMountPoint.h"],
+    visibility = ["//av/tests:__subpackages__"],
+)
+
+soph_cc_test(
+    name = "TestAVScannerImpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/common:AbortScanException",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/mount_monitor/mountinfo",
+        "//av/tests/common",
+        "//av/tests/unixsocket:MockIScanningClientSocket",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

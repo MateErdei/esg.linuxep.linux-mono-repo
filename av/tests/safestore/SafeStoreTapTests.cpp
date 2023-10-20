@@ -7,7 +7,7 @@
 
 // The tests can be executed just like normal unit tests for local dev.
 
-#include "../common/LogInitializedTests.h"
+#include "tests/common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/FileSystem/IFilePermissions.h"

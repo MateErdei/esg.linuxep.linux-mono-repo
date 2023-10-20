@@ -1,0 +1,292 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+load("//av:version_info.bzl", "AV_LINE_ID", "AV_PLUGIN_NAME")
+load("//tools/config:expand_template.bzl", "expand_template")
+
+soph_cc_library(
+    name = "AbortScanException",
+    hdrs = ["AbortScanException.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AVException",
+    ],
+)
+
+soph_cc_library(
+    name = "AbstractThreadPluginInterface",
+    hdrs = ["AbstractThreadPluginInterface.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//base/modules/Common/Threads",
+    ],
+)
+
+soph_cc_library(
+    name = "ApplicationPaths",
+    srcs = ["ApplicationPaths.cpp"],
+    hdrs = ["ApplicationPaths.h"],
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+    ],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "CentralEnums",
+    hdrs = ["CentralEnums.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+expand_template(
+    name = "config_h_expand_template",
+    out = "config.h",
+    substitutions = {
+        "@PLUGIN_NAME@": AV_PLUGIN_NAME,
+        "@PRODUCT_LINE_ID@": AV_LINE_ID,
+    },
+    template = "config.h.in",
+)
+
+soph_cc_library(
+    name = "config",
+    hdrs = [":config_h_expand_template"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "Define",
+    hdrs = ["Define.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "ErrorCodes",
+    hdrs = ["ErrorCodes.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        ":ErrorCodesC",
+    ],
+)
+
+soph_cc_library(
+    name = "ErrorCodesC",
+    hdrs = ["ErrorCodesC.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "Exclusion",
+    srcs = ["Exclusion.cpp"],
+    hdrs = ["Exclusion.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        ":PathUtils",
+    ],
+)
+
+soph_cc_library(
+    name = "FailedToInitializeSusiException",
+    hdrs = ["FailedToInitializeSusiException.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "FDUtils",
+    srcs = ["FDUtils.cpp"],
+    hdrs = ["FDUtils.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "InotifyFD",
+    srcs = ["InotifyFD.cpp"],
+    hdrs = ["InotifyFD.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+)
+
+soph_cc_library(
+    name = "IPidLockFile",
+    hdrs = ["IPidLockFile.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "LockableData",
+    hdrs = ["LockableData.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    visibility = [
+        "//av/modules/common:__subpackages__",
+        "//av/products:__subpackages__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "MultiInotifyFD",
+    srcs = ["MultiInotifyFD.cpp"],
+    hdrs = ["MultiInotifyFD.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+)
+
+soph_cc_library(
+    name = "NotifyPipeSleeper",
+    srcs = ["NotifyPipeSleeper.cpp"],
+    hdrs = ["NotifyPipeSleeper.h"],
+    implementation_deps = [
+        ":Logger",
+        ":SaferStrerror",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        ":StoppableSleeper",
+        "//base/modules/Common/Threads",
+    ],
+)
+
+soph_cc_library(
+    name = "PathUtils",
+    srcs = ["PathUtils.cpp"],
+    hdrs = ["PathUtils.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+)
+
+soph_cc_library(
+    name = "PidLockFile",
+    srcs = ["PidLockFile.cpp"],
+    hdrs = ["PidLockFile.h"],
+    implementation_deps = [
+        ":Logger",
+        ":PidLockFileException",
+        ":SaferStrerror",
+        "//av/modules/datatypes:sophos_filesystem",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        ":IPidLockFile",
+        "//av/modules/datatypes:AutoFd",
+        "//base/modules/Common/SystemCallWrapper",
+    ],
+)
+
+soph_cc_library(
+    name = "PidLockFileException",
+    hdrs = ["PidLockFileException.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AVException",
+    ],
+)
+
+soph_cc_library(
+    name = "PluginUtils",
+    srcs = ["PluginUtils.cpp"],
+    hdrs = ["PluginUtils.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:sophos_filesystem",
+        "//base/modules/Common/ApplicationConfiguration",
+    ],
+)
+
+soph_cc_library(
+    name = "SaferStrerror",
+    srcs = ["SaferStrerror.cpp"],
+    hdrs = ["SaferStrerror.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "ScanInterruptedException",
+    hdrs = ["ScanInterruptedException.h"],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AVException",
+    ],
+)
+
+soph_cc_library(
+    name = "ScanManuallyInterruptedException",
+    hdrs = ["ScanManuallyInterruptedException.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "ShuttingDownException",
+    hdrs = ["ShuttingDownException.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "StatusFile",
+    srcs = ["StatusFile.cpp"],
+    hdrs = ["StatusFile.h"],
+    implementation_deps = [
+        ":Logger",
+        ":SaferStrerror",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+    ],
+)
+
+soph_cc_library(
+    name = "StoppableSleeper",
+    hdrs = ["StoppableSleeper.h"],
+    visibility = ["//av:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "StringUtils",
+    srcs = ["StringUtils.cpp"],
+    hdrs = ["StringUtils.h"],
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/datatypes:AVException",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "@boost//:locale",
+        "@log4cplus",
+    ],
+)
+
+soph_cc_library(
+    name = "ThreadRunner",
+    srcs = ["ThreadRunner.cpp"],
+    hdrs = ["ThreadRunner.h"],
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/datatypes:AVException",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/common:AbstractThreadPluginInterface",
+    ],
+)
+
+soph_cc_library(
+    name = "UsernameSetting",
+    hdrs = ["UsernameSetting.h"],
+    visibility = ["//av:__subpackages__"],
+)

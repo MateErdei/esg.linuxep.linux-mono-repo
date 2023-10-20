@@ -3,7 +3,6 @@
 #define TEST_PUBLIC public
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-#include "ScanResponse.capnp.h"
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
@@ -14,6 +13,7 @@
 #include "common/ShuttingDownException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/ScanRequest.h"
+
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"

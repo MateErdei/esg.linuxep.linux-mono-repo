@@ -1,10 +1,12 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+#define AUTO_FD_IMPLICIT_INT
+
+#include "datatypes/AutoFd.h"
 #include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/SocketUtilsImpl.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"

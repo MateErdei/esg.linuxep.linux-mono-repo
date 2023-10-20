@@ -3,7 +3,7 @@
 // Product code
 #include "common/PidLockFile.h"
 // Test support
-#include "common/TestSpecificDirectory.h"
+#include "tests/common/TestSpecificDirectory.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 // 3rd party
 #include <gtest/gtest.h>

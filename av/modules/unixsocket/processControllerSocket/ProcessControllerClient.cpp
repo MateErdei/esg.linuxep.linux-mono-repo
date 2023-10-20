@@ -52,7 +52,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
             throw unixsocket::UnixSocketException(LOCATION, errMsg.str());
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGWARN(m_name << "failed to write Process Control Request to socket "<< m_socketPath << ". Exception caught: " << e.what());
     }

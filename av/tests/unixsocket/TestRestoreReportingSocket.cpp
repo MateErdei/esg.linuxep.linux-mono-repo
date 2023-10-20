@@ -1,13 +1,14 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "UnixSocketMemoryAppenderUsingTests.h"
-
-#include "../common/Common.h"
-#include "../common/WaitForEvent.h"
 #include "common/ApplicationPaths.h"
 #include "common/NotifyPipeSleeper.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingServer.h"
+
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
+#include "tests/common/Common.h"
+#include "tests/common/WaitForEvent.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

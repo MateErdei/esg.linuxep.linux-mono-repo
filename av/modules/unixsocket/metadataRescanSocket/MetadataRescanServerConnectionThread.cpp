@@ -2,8 +2,6 @@
 
 #include "MetadataRescanServerConnectionThread.h"
 
-#include "MetadataRescan.capnp.h"
-
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "unixsocket/Logger.h"

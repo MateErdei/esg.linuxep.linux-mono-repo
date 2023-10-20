@@ -36,7 +36,7 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
             throw unixsocket::UnixSocketException(LOCATION, errMsg.str());
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGWARN(m_name + " failed to write to socket. Exception caught: " << e.what());
     }

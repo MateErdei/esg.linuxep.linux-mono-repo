@@ -1,7 +1,7 @@
-// Copyright 2019-2022 Sophos Limited. All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SampleThreatDetected.h"
-#include "ThreatDetected.capnp.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 
 #include "scan_messages/ThreatDetected.h"
 

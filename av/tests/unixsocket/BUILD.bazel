@@ -1,0 +1,330 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+load("//tools/config:capnproto_defs.bzl", "SOPH_CAPNP_CPP_DEPS", "SOPH_CAPNP_CPP_RUNTIME_DEPS")
+
+soph_cc_library(
+    name = "MockIScanningClientSocket",
+    hdrs = ["MockIScanningClientSocket.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+    ],
+)
+
+soph_cc_library(
+    name = "Mocks",
+    hdrs = [
+        "MockMetadataRescanClientSocket.h",
+        "MockRestoreReportingClient.h",
+    ],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        ":MockIScanningClientSocket",
+    ],
+)
+
+soph_cc_library(
+    name = "TestClient",
+    hdrs = ["TestClient.h"],
+    visibility = ["//av/tests/unixsocket:__subpackages__"],
+    deps = [
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/unixsocket:BaseClient",
+        "//av/modules/unixsocket:SocketUtils",
+    ],
+)
+
+soph_cc_library(
+    name = "UnixSocketMemoryAppenderUsingTests",
+    hdrs = ["UnixSocketMemoryAppenderUsingTests.h"],
+    deps = [
+        "//av/tests/common:TestSpecificDirectory",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSocketUtils",
+    srcs = [
+        "TestReadBufferAsync.cpp",
+        "TestReadFully.cpp",
+        "TestReadLengthAsync.cpp",
+        "TestSocketUtils.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/unixsocket:ReadAsync",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+    ],
+)
+
+soph_cc_test(
+    name = "TestProcessControllerServerSocket",
+    srcs = [
+        "TestProcessControllerServerConnectionThread.cpp",
+        "TestProcessControllerServerSocket.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerClient",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerServerSocket",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+    ],
+)
+
+soph_cc_test(
+    name = "TestThreatDetectorSocket",
+    srcs = [
+        "TestScanningServerConnectionThread.cpp",
+        "TestThreatDetectedMessageUtils.cpp",
+        "TestThreatDetectorSocket.cpp",
+        "threatDetectorSocket/FakeScanningServer.cpp",
+        "threatDetectorSocket/FakeScanningServer.h",
+        "threatDetectorSocket/TestScanningClientSocket.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:AbortScanException",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:FailedToInitializeSusiException",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:ShuttingDownException",
+        "//av/modules/common:StringUtils",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/scan_messages:ScanRequest",
+        "//av/modules/scan_messages:ScanResponse",
+        "//av/modules/unixsocket:BaseServerConnectionThread",
+        "//av/modules/unixsocket:EnvironmentInterruption",
+        "//av/modules/unixsocket:Logger",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningClientSocket",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningServerSocket",
+        "//av/modules/unixsocket/threatDetectorSocket:ThreatDetectedMessageUtils",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestThreatReporterSocket",
+    srcs = [
+        "TestThreatReporterServerConnectionThread.cpp",
+        "TestThreatReporterSocket.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterClient",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterServerConnectionThread",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterServerSocket",
+        "//av/tests/common",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/tests/Common/Helpers",
+    ],
+)
+
+soph_cc_test(
+    name = "TestUpdateCompleteClientSocketThread",
+    srcs = [
+        "TestUpdateCompleteClientSocketThread.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteClientSocketThread",
+        "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteServerSocket",
+        "//av/tests/common",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSafeStoreServerConnectionThread",
+    srcs = [
+        "SafeStoreSocketMemoryAppenderUsingTests.h",
+        "TestSafeStoreServerConnectionThread.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/safestore",
+        "//av/modules/scan_messages:ThreatDetected",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreClient",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
+        "//av/tests/common",
+        "//av/tests/safestore:MockIQuarantineManager",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "//base/tests/Common/Helpers:MockFileSystem",
+        "//base/tests/Common/Helpers:MockSysCalls",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSafeStoreSocket",
+    srcs = [
+        "SafeStoreSocketMemoryAppenderUsingTests.h",
+        "TestSafeStoreSocket.cpp",
+    ],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/safestore",
+        "//av/modules/scan_messages:ThreatDetected",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreClient",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
+        "//av/tests/common",
+        "//av/tests/safestore:MockIQuarantineManager",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "//base/tests/Common/Helpers:MockFileSystem",
+        "//base/tests/Common/Helpers:MockSysCalls",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSafeStoreRescanSocket",
+    srcs = [
+        "TestSafeStoreRescanSocket.cpp",
+    ],
+    deps = [
+        ":TestClient",
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/unixsocket/safeStoreRescanSocket",
+        "//av/tests/common",
+        "//av/tests/safestore:MockIQuarantineManager",
+    ],
+)
+
+soph_cc_test(
+    name = "TestRestoreReportingSocket",
+    srcs = ["TestRestoreReportingSocket.cpp"],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:NotifyPipeSleeper",
+        "//av/modules/unixsocket/restoreReportingSocket:RestoreReportingClient",
+        "//av/modules/unixsocket/restoreReportingSocket:RestoreReportingServer",
+        "//av/tests/common",
+    ],
+)
+
+soph_cc_test(
+    name = "TestMetadataRescanSocket",
+    srcs = ["TestMetadataRescanSocket.cpp"],
+    deps = [
+        ":UnixSocketMemoryAppenderUsingTests",
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/scan_messages:ScanRequest",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket/metadataRescanSocket",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers:MockSysCalls",
+    ],
+)
+
+soph_cc_binary(
+    name = "ProcessControlClientExecutable",
+    srcs = ["ProcessControlTestExecutable/ProcessControlClient.cpp"],
+    deps = ["//av/modules/unixsocket/processControllerSocket:ProcessControllerClient"],
+)
+
+soph_cc_binary(
+    name = "threatReporterClientExecutable",
+    srcs = ["ThreatReporterTestExecutable/threatReporterClient.cpp"],
+    deps = [
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterClient",
+        "//av/tests/scan_messages:SampleThreatDetected",
+    ],
+)
+
+soph_cc_binary(
+    name = "UpdateCompleteClient",
+    srcs = ["UpdateCompleteTestExecutable/UpdateCompleteClient.cpp"],
+    deps = [
+        "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteClientSocketThread",
+    ],
+)
+
+soph_cc_binary(
+    name = "FakeThreatReporterServer",
+    srcs = ["ThreatReporterTestExecutable/FakeThreatReporterServer.cpp"],
+    deps = [
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterServerSocket",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+#    add_subdirectory(SendThreatDetectedExecutable)
+
+soph_cc_binary(
+    name = "ProcessControlServerExecutable",
+    srcs = ["ProcessControlTestExecutable/ProcessControlServer.cpp"],
+    deps = [
+        "//av/modules/datatypes:Print",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerServerSocket",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "threatReporterServerExecutable",
+    srcs = ["ThreatReporterTestExecutable/threatReporterServer.cpp"],
+    deps = [
+        "//av/modules/datatypes:Print",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterServerSocket",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "threatDetectorServerExecutable",
+    srcs = ["ThreatDetectorTestExecutable/threatDetectorServer.cpp"],
+    deps = [
+        "//av/modules/datatypes:Print",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningServerSocket",
+        "//av/tests/common",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "threatDetectorClientExecutable",
+    srcs = [
+        "ThreatDetectorTestExecutable/FakeServerConnectionThread.cpp",
+        "ThreatDetectorTestExecutable/FakeServerConnectionThread.h",
+        "ThreatDetectorTestExecutable/FakeServerSocket.cpp",
+        "ThreatDetectorTestExecutable/FakeServerSocket.h",
+        "ThreatDetectorTestExecutable/threatDetectorClient.cpp",
+    ],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/common:AbortScanException",
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/datatypes:Print",
+        "//av/modules/datatypes:IUuidGenerator",
+        "//av/modules/scan_messages:ScanRequest_capnp_cpp_fileset",
+        "//av/modules/unixsocket:BaseServerConnectionThread",
+        "//av/modules/unixsocket:BaseServerSocket",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:SocketUtilsImpl",
+    ] + SOPH_CAPNP_CPP_RUNTIME_DEPS,
+)

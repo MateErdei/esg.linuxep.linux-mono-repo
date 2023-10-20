@@ -1,0 +1,28 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockFanotifyHandler",
+    hdrs = ["MockFanotifyHandler.h"],
+    visibility = ["//av/tests:__subpackages__"],
+)
+
+soph_cc_test(
+    name = "TestFanotifyHandler",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/sophos_on_access_process/OnAccessTelemetryUtility",
+        "//av/modules/sophos_on_access_process/fanotifyhandler",
+        "//av/modules/sophos_on_access_process/local_settings:OnAccessProductConfigDefaults",
+        "//av/tests/common",
+        "//av/tests/mount_monitor/mountinfoimpl:MockDeviceUtil",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//base/tests/Common/Helpers",
+    ],
+)

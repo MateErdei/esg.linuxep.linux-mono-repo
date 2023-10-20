@@ -1,7 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/Print.h"
-#include "tests/scan_messages/SampleThreatDetected.h"
 #include "unixsocket/SocketUtilsImpl.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
@@ -14,6 +13,8 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+
+#include "tests/scan_messages/SampleThreatDetected.h"
 
 #define handle_error(msg)                                                                                              \
     do                                                                                                                 \

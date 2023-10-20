@@ -4,7 +4,7 @@
 #------------------------------------------------------------------------------
 @0xe519b32c3dcdf821;
 
-using Cxx = import "capnp/c++.capnp";
+using Cxx = import "/capnp/c++.capnp";
 
 $Cxx.namespace("Sophos::ssplav");
 

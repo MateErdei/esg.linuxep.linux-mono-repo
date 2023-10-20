@@ -1,0 +1,76 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+package(
+    default_visibility = ["//av:__subpackages__"],
+)
+
+cc_import(
+    name = "susi_lib",
+    shared_library = "x86_64/lib/libsusi.so.2",
+)
+
+cc_library(
+    name = "susi",
+    hdrs = glob(["include/*.h"]),
+    strip_include_prefix = "include",
+    deps = [":susi_lib"],
+)
+
+alias(
+    name = "libsusi",
+    actual = "x86_64/lib/libsusi.so.2",
+)
+
+alias(
+    name = "libsusicore",
+    actual = "x86_64/lib/libsusicore.so.2",
+)
+
+alias(
+    name = "libupdater",
+    actual = "x86_64/lib/libupdater.so.2",
+)
+
+alias(
+    name = "liblocalreputation",
+    actual = "x86_64/lrlib/liblocalreputation.so",
+)
+
+alias(
+    name = "libglobalrep",
+    actual = "x86_64/grlib/libglobalrep.so",
+)
+
+alias(
+    name = "libicuuc",
+    actual = "x86_64/icu/lib/libicuuc.so.70",
+)
+
+alias(
+    name = "libicui18n",
+    actual = "x86_64/icu/lib/libicui18n.so.70",
+)
+
+alias(
+    name = "libicudata",
+    actual = "x86_64/icu/lib/libicudata.so.70",
+)
+
+alias(
+    name = "libluajit",
+    actual = "x86_64/luajit/lib/libluajit-5.1.so.2",
+)
+
+alias(
+    name = "libsavi",
+    actual = "x86_64/libsavi/release/libsavi.so.3.2.07.389.0",
+)
+
+alias(
+    name = "libsophtainer",
+    actual = "x86_64/libsophtainer/release/libsophtainer.so",
+)
+
+filegroup(
+    name = "rules",
+    srcs = glob(["rules/*.dec"]),
+)

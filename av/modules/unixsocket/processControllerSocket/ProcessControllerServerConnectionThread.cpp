@@ -2,7 +2,7 @@
 
 #include "ProcessControllerServerConnectionThread.h"
 
-#include "ProcessControl.capnp.h"
+#include "scan_messages/ProcessControl.capnp.h"
 
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"

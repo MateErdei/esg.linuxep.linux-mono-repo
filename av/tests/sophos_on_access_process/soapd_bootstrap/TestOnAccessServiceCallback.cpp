@@ -3,14 +3,13 @@
 # define TEST_PUBLIC public
 
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessServiceCallback.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
-
-#include "common/LogInitializedTests.h"
-
-
-#include <gtest/gtest.h>
+#include "sophos_on_access_process/OnAccessTelemetryUtility/OnAccessTelemetryUtility.h"
 
 #include <thread>
+
+#include "tests/common/LogInitializedTests.h"
+
+#include <gtest/gtest.h>
 
 using namespace sophos_on_access_process::service_callback;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;

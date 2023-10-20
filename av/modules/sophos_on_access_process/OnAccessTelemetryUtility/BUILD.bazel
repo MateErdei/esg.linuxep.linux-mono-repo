@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "OnAccessTelemetryUtility",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = ["OnAccessTelemetryUtility.h"],
+    implementation_deps = [
+        "//base/modules/Common/Logging",
+    ],
+    visibility = [
+        "//av/modules/sophos_on_access_process/onaccessimpl:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/sophos_on_access_process/IOnAccessTelemetryUtility",
+    ],
+)

@@ -1,0 +1,53 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestFileWalker",
+    srcs = [
+        "FileWalkerMemoryAppenderUsingTests.h",
+        "MockCallbacks.h",
+        "TestFileWalker.cpp",
+        "TestFileWalker.h",
+    ],
+    deps = [
+        "//av/modules/common:AbortScanException",
+        "//av/modules/filewalker:FileWalker",
+        "//av/tests/common",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestFileWalkerRecursion",
+    srcs = [
+        "FileWalkerMemoryAppenderUsingTests.h",
+        "MockCallbacks.h",
+        "TestFileWalker.h",
+        "TestFileWalkerRecursion.cpp",
+    ],
+    deps = [
+        "//av/modules/filewalker:FileWalker",
+        "//av/tests/common",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_binary(
+    name = "file_walker_experiment",
+    srcs = ["FileWalkerExperiment.cpp"],
+    deps = [
+        "//av/modules/filewalker:FileWalker",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "file_walker_stress_test",
+    srcs = ["FileWalkerStressTest.cpp"],
+    deps = [
+        "//av/modules/datatypes:Print",
+        "//av/modules/filewalker:FileWalker",
+        "//base/modules/Common/Logging",
+    ],
+)

@@ -1,0 +1,18 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestScanProcessMonitor",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/manager/scanprocessmonitor:ScanProcessMonitor",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

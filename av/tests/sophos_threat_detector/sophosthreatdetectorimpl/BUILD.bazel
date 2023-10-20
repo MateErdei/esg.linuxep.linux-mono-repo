@@ -1,0 +1,84 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "MockShutdownTimer",
+    hdrs = ["MockShutdownTimer.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/sophos_threat_detector/threat_scanner:IScanNotification",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_library(
+    name = "MockThreatReporter",
+    hdrs = ["MockThreatReporter.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/sophos_threat_detector/threat_scanner:IThreatReporter",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestThreatReporter",
+    srcs = [
+        "TestReloader.cpp",
+        "TestSafeStoreRescanWorker.cpp",
+        "TestThreatReporter.cpp",
+    ],
+    deps = [
+        "//av/modules/sophos_threat_detector/sophosthreatdetectorimpl",
+        "//av/modules/unixsocket/threatReporterSocket:ThreatReporterServerSocket",
+        "//av/tests/common",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "//base/tests/Common/Helpers:MockFileSystem",
+    ],
+)
+
+soph_cc_test(
+    name = "TestShutdownTimer",
+    srcs = ["TestShutdownTimer.cpp"],
+    deps = [
+        "//av/modules/sophos_threat_detector/sophosthreatdetectorimpl",
+        "//av/tests/common",
+    ],
+)
+
+soph_cc_test(
+    name = "TestProcessForceExitTimer",
+    srcs = ["TestProcessForceExitTimer.cpp"],
+    deps = [
+        "//av/modules/sophos_threat_detector/sophosthreatdetectorimpl",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers:MockSysCalls",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSophosThreatDetectorMain",
+    srcs = [
+        "MockMetadataRescanServerSocket.h",
+        "MockReloader.h",
+        "MockSafeStoreRescanWorker.h",
+        "MockScanningServerSocket.h",
+        "MockThreatDetectorControlCallbacks.h",
+        "MockThreatDetectorResources.h",
+        "MockUpdateCompleteServerSocket.h",
+        "TestProxySettings.cpp",
+        "TestSophosThreatDetectorMain.cpp",
+    ],
+    deps = [
+        ":MockShutdownTimer",
+        ":MockThreatReporter",
+        "//av/modules/sophos_threat_detector/sophosthreatdetectorimpl",
+        "//av/tests/common",
+        "//av/tests/commonTest/pluginutils:TestAbstractThreadImpl",
+        "//av/tests/sophos_threat_detector/threat_scanner:MockSusiScannerFactory",
+        "//base/tests/Common/Helpers:FileSystemReplaceAndRestore",
+        "//base/tests/Common/Helpers:MockFileSystem",
+        "//base/tests/Common/Helpers:MockSysCalls",
+    ],
+)

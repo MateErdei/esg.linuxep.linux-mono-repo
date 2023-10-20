@@ -3,7 +3,7 @@
 #include "SafeStoreServerConnectionThread.h"
 
 #include "Logger.h"
-#include "ThreatDetected.capnp.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
@@ -320,7 +320,7 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
             return false;
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGWARN("Exiting " << m_threadName << ": " << e.what());
         return false;

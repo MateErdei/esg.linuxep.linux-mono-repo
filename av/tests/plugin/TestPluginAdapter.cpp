@@ -861,18 +861,29 @@ TEST_F(TestPluginAdapter, processRestoreReport)
     PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
-    internal::CaptureStderr();
-    pluginAdapter.processRestoreReport(restoreReport);
-    auto log = internal::GetCapturedStderr();
-    EXPECT_THAT(log, HasSubstr(" INFO Reporting successful restoration of /tmp/eicar.txt"));
-    EXPECT_THAT(log, HasSubstr("DEBUG Added restore report to task queue"));
+//    internal::CaptureStderr();
+    {
+        UsingMemoryAppender memoryAppenderHolder(*this);
+
+        pluginAdapter.processRestoreReport(restoreReport);
+
+        EXPECT_TRUE(waitForLog("Reporting successful restoration of /tmp/eicar.txt"));
+        EXPECT_TRUE(waitForLog("Added restore report to task queue"));
+    }
+//    auto log = internal::GetCapturedStderr();
+//    EXPECT_THAT(log, HasSubstr(" INFO Reporting successful restoration of /tmp/eicar.txt"));
+//    EXPECT_THAT(log, HasSubstr("DEBUG Added restore report to task queue"));
 
     m_taskQueue->pushStop();
 
-    internal::CaptureStderr();
-    pluginAdapter.mainLoop();
-    log = internal::GetCapturedStderr();
-    EXPECT_THAT(log, HasSubstr("DEBUG Sending Restore Event to Central: " + eventXml));
+    {
+        UsingMemoryAppender memoryAppenderHolder(*this);
+//        internal::CaptureStderr();
+        pluginAdapter.mainLoop();
+        EXPECT_TRUE(waitForLog("Sending Restore Event to Central: " + eventXml));
+//        log = internal::GetCapturedStderr();
+//        EXPECT_THAT(log, HasSubstr("DEBUG Sending Restore Event to Central: " + eventXml));
+    }
 }
 
 class SubscriberThread

@@ -14,7 +14,11 @@
 #include "common/signals/SigTermMonitor.h"
 
 // Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
+#ifdef SPL_BAZEL
+#    include "av/AutoVersion.h"
+#else
+#    include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 
 // Std C++
 #include <memory>

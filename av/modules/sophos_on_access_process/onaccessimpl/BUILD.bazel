@@ -1,0 +1,46 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ClientSocketException",
+    hdrs = ["ClientSocketException.h"],
+    visibility = ["//av/tests:__subpackages__"],
+)
+
+soph_cc_library(
+    name = "onaccessimpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        ":ClientSocketException",
+        "//av/modules/common:AbortScanException",
+        "//av/modules/common:PluginUtils",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:StringUtils",
+        "//av/modules/datatypes:Time",
+        "//base/modules/Common/Logging",
+        "@boost//:functional",
+    ],
+    visibility = [
+        "//av/modules/sophos_on_access_process/fanotifyhandler:__pkg__",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl:IClientSocketWrapper",
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:ScanInterruptedException",
+        "//av/modules/mount_monitor/mountinfo",
+        "//av/modules/scan_messages:ClientScanRequest",
+        "//av/modules/sophos_on_access_process/OnAccessTelemetryUtility",
+        "//av/modules/sophos_on_access_process/ScanRequestQueue",
+        "//av/modules/sophos_on_access_process/fanotifyhandler",
+        "//av/modules/sophos_on_access_process/local_settings",
+        "//av/modules/unixsocket/threatDetectorSocket:IScanningClientSocket",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningClientSocket",
+        "//base/modules/Common/Threads",
+    ],
+)

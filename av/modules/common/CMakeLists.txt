@@ -65,7 +65,12 @@ target_link_libraries(common  PUBLIC
         boost_locale
         )
 
-target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${JSON_INPUT})
+target_include_directories(common PUBLIC
+        ${pluginapiinclude}
+        ${CMAKE_SOURCE_DIR}/modules
+        ${JSON_INPUT}
+        ${JSON_SINGLE_INPUT}
+)
 target_include_directories(common SYSTEM PUBLIC ${BOOST_INCLUDEDIR})
 
 install(TARGETS common

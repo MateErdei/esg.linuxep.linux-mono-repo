@@ -3,7 +3,7 @@
 #include "MockISafeStoreWrapper.h"
 #include "MockSafeStoreResources.h"
 
-#include "../common/MemoryAppender.h"
+#include "tests/common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"

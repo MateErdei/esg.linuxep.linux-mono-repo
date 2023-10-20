@@ -1,0 +1,69 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "SafeStoreClient",
+    srcs = ["SafeStoreClient.cpp"],
+    hdrs = ["SafeStoreClient.h"],
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/common:CentralEnums",
+        "//av/modules/common:FDUtils",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common:StringUtils",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:UnixSocketException",
+        "@capnproto//:capnp",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/scan_messages:QuarantineResponse",
+        "//av/modules/scan_messages:ThreatDetected",
+        "//av/modules/unixsocket:BaseClient",
+        "//base/modules/Common/Threads",
+    ],
+)
+
+soph_cc_library(
+    name = "SafeStoreServer",
+    srcs = glob(["SafeStoreServer*.cpp"]),
+    hdrs = glob(["SafeStoreServer*.h"]),
+    implementation_deps = [
+        ":Logger",
+        "//av/modules/common:StringUtils",
+        "//av/modules/datatypes:AutoFd",
+        "//av/modules/safestore/QuarantineManager:IQuarantineManager",
+        "//av/modules/safestore:SafeStoreTelemetryConsts",
+        "//av/modules/unixsocket:SocketUtils",
+        "//av/modules/unixsocket:UnixSocketException",
+        "//base/modules/Common/SystemCallWrapper:SystemCallWrapper",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "@capnproto//:capnp",
+    ],
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        "//av/modules/unixsocket:BaseServerConnectionThread",
+        "//av/modules/unixsocket:BaseServerSocket",
+        "//av/modules/unixsocket:ReadAsync",
+        "//base/modules/Common/SystemCallWrapper:ISystemCallWrapper",
+    ],
+)
+
+soph_cc_library(
+    name = "safeStoreSocket",
+    visibility = ["//av:__subpackages__"],
+    deps = [
+        ":SafeStoreClient",
+        ":SafeStoreServer",
+    ],
+)

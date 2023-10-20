@@ -35,6 +35,7 @@ BUILD_SELECTION_EJ = "ej"
 
 
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
+    print("Running bazel pipeline")
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
     build = stage.artisan_build(name="linux_rel",
@@ -43,15 +44,19 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                      mode="san_lsnty,all_lx64r,all_la64r",
                                      release_package=PACKAGE_PATH)
 
-    stage.artisan_build(name="linux_dbg",
-                        component=component,
-                        image=BUILD_TEMPLATE_BAZEL,
-                        mode="all_lx64d,all_la64d",
-                        release_package=PACKAGE_PATH)
+    if parameters.build_debug_bazel != False:
+        stage.artisan_build(name="linux_dbg",
+                            component=component,
+                            image=BUILD_TEMPLATE_BAZEL,
+                            mode="all_lx64d,all_la64d",
+                            release_package=PACKAGE_PATH)
 
     if parameters.run_tests != False:
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
+                    run_av_tests(stage, context, build, mode, parameters, bazel=True)
+
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_tests(stage, context, build, mode, parameters)
 
@@ -62,22 +67,40 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                     run_liveterminal_tests(stage, context, build, mode, parameters)
 
 
+def truthy(value, parameterName, defaultValue):
+    if value in (True, "true", 1, "1", "T", "True"):
+        return True
+    if value in (False, "false", 0, "0", "F", "False"):
+        return False
+    if value is None:
+        return defaultValue
+    print(f"{parameterName} is not a good truthy value: {value}, assuming {defaultValue}")
+    return defaultValue
+
+
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     # In CI parameters.mode will be set
-    print(f"parameters.mode = {parameters.mode}")
     mode = parameters.mode or RELEASE_MODE
-    print(f"MODE = {mode}")
+    cmake = truthy(parameters.build_with_cmake, "build_with_cmake", True)
+    print(f"parameters.mode = {parameters.mode}; MODE = {mode}; cmake = {cmake} - {parameters.build_with_cmake}")
 
     build_selection = parameters.build_selection or BUILD_SELECTION_ALL
 
     with stage.parallel("products"):
         with stage.parallel("bazel"):
             bazel_pipeline(stage, context, parameters, mode, build_selection)
-        with stage.parallel("cmake"):
-            cmake_pipeline(stage, context, parameters, mode, build_selection)
 
-        if build_selection == BUILD_SELECTION_ALL and parameters.run_system_tests != "false" and mode == RELEASE_MODE:
+        if cmake:
+            with stage.parallel("cmake"):
+                cmake_pipeline(stage, context, parameters, mode, build_selection)
+
+        if (
+                build_selection == BUILD_SELECTION_ALL and
+                parameters.run_system_tests != "false" and
+                mode == RELEASE_MODE and
+                cmake
+        ):
             sdds(stage, context, parameters)
 
 
@@ -87,6 +110,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     assert (os.path.exists(PACKAGE_PATH_AV))
     assert (os.path.exists(PACKAGE_PATH_LIVETERMINAL))
     assert (os.path.exists(PACKAGE_PATH_EJ))
+    print("Running cmake pipeline")
     os.environ["BRANCH_NAME"] = context.branch
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
@@ -132,12 +156,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     liveterminal_component = tap.Component(name='liveterminal_linux', base_version=get_package_version(PACKAGE_PATH_LIVETERMINAL))
     with stage.parallel('plugins'):
         if mode == INDEPENDENT_MODE:
-            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                av_build = stage.artisan_build(name=f"av_{mode}",
-                                               component=av_component,
-                                               image=BUILD_TEMPLATE,
-                                               mode=mode,
-                                               release_package=PACKAGE_PATH_AV)
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                 edr_build = stage.artisan_build(name=f"edr_{mode}",
                                                 component=edr_component,
@@ -170,11 +188,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
             # AV
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                av_build = stage.artisan_build(name=f"av_{RELEASE_MODE}",
-                                               component=av_component,
-                                               image=BUILD_TEMPLATE,
-                                               mode=RELEASE_MODE,
-                                               release_package=PACKAGE_PATH_AV)
                 if running_in_ci:
                     av_analysis_build = stage.artisan_build(name=f"av_{ANALYSIS_MODE}",
                                                             component=av_component,
@@ -216,10 +229,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, edr_build, mode, parameters)
-    
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                    run_av_tests(stage, context, av_build, mode, parameters)
-    
+
             elif mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)

@@ -28,6 +28,7 @@ add_executable(SafeStoreTapTests
 
 target_include_directories(SafeStoreTapTests SYSTEM BEFORE PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
+        ${CMAKE_SOURCE_DIR}
         ${GMOCK_INCLUDE}
         ${GTEST_INCLUDE}
         )

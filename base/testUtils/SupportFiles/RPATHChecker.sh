@@ -8,9 +8,12 @@ clear='\033[0m'
 VALID_RPATHS=(
   "\$ORIGIN"
   "\$ORIGIN/../lib64"
+  "\$ORIGIN:\$ORIGIN/../lib64"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN"
   "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../lib"
   "\$ORIGIN/../chroot/lib64:\$ORIGIN/../lib64"
+  "\$ORIGIN/../lib64:\$ORIGIN/../chroot/lib64"
+  "\$ORIGIN:\$ORIGIN/../lib64:\$ORIGIN/../chroot/lib64"
   "\$ORIGIN/../base/lib64"
   "\$ORIGIN:\$ORIGIN/.."
 )

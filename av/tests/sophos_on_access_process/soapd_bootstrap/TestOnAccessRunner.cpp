@@ -1,13 +1,13 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
-
-#include "../SoapMemoryAppenderUsingTests.h"
-#include "common/MemoryAppender.h"
 
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessRunner.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+// test headers
+#include "tests/sophos_on_access_process/SoapMemoryAppenderUsingTests.h"
+#include "tests/common/MemoryAppender.h"
 
 using namespace sophos_on_access_process::soapd_bootstrap;
 

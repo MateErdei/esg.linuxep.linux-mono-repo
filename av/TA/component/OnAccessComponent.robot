@@ -50,7 +50,7 @@ soapd handles missing var directory
 
     Remove Var directory
     ${oa_mark} =  get_on_access_log_mark
-    Start On Access without Log check
+    Start On Access without Pid check
 
     wait for on access log contains after mark  Exception caught at top-level: Unable to open lock file /opt/sophos-spl/plugins/av/var/soapd.pid because No such file or directory(2)
         ...  mark=${oa_mark}  timeout=${5}
@@ -61,7 +61,7 @@ soapd handles process control socket already exists as a directory
     Register Cleanup  Remove Directory  ${COMPONENT_VAR_DIR}/soapd_controller
 
     ${oa_mark} =  get_on_access_log_mark
-    Start On Access without Log check
+    Start On Access without Pid check
 
     wait for on access log contains after mark   Exception caught at top-level: ProcessControlServer failed to bind to unix socket path
             ...  mark=${oa_mark}  timeout=${5}

@@ -3,14 +3,13 @@
 #pragma once
 
 #include "ClientSocketWrapper.h"
-#include "OnAccessTelemetryUtility.h"
-#include "ScanRequestQueue.h"
 
+#include "sophos_on_access_process/OnAccessTelemetryUtility/OnAccessTelemetryUtility.h"
+#include "common/AbstractThreadPluginInterface.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
+#include "sophos_on_access_process/ScanRequestQueue/ScanRequestQueue.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 #include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
-
-#include "common/AbstractThreadPluginInterface.h"
 
 namespace sophos_on_access_process::onaccessimpl
 {

@@ -12,13 +12,13 @@
 
 class TestObscurity: public LogOffInitializedTests{};
 
-TEST_F(TestObscurity, obscurityThrowsWithBadAESAlgorithm) // NOLINT
+TEST_F(TestObscurity, obscurityThrowsWithBadAESAlgorithm)
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
-    EXPECT_THROW(cObscurity.Reveal("3"), Common::Obfuscation::IObscurityException); // NOLINT
+    EXPECT_THROW(cObscurity.Reveal("3"), Common::Obfuscation::IObscurityException);
 }
 
-TEST_F(TestObscurity, obscurityRevealsPassword) // NOLINT
+TEST_F(TestObscurity, obscurityRevealsPassword)
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
     std::string b64DecodedPassword =
@@ -36,7 +36,7 @@ TEST_F(TestObscurity, obscurityRevealsPassword) // NOLINT
         "");
 }
 
-TEST_F(TestObscurity, testObfuscationRoundTrip) // NOLINT
+TEST_F(TestObscurity, testObfuscationRoundTrip)
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
     std::string password = "password";
@@ -45,7 +45,7 @@ TEST_F(TestObscurity, testObfuscationRoundTrip) // NOLINT
     ASSERT_EQ(password, revealed);
 }
 
-TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
+TEST_F(TestObscurity, SECDeobfuscate)
 {
     EXPECT_EQ(
         Common::ObfuscationImpl::SECDeobfuscate("CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM="),
@@ -56,14 +56,14 @@ TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
     // regruser:regrABC123pass  -  9539d7d1f36a71bbac1259db9e868231
 }
 
-TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
+TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer)
 {
     ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
                      "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
                      Common::Obfuscation::ICipherException);
 }
 
-TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT
+TEST_F(TestObscurity, testOversizedPasswordsHandled)
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
     std::string OneHundredTwentyEightCharPassword =
@@ -71,9 +71,22 @@ TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT
     ASSERT_THROW(cObscurity.Conceal(OneHundredTwentyEightCharPassword), Common::Obfuscation::IObscurityException);
 }
 
-TEST_F(TestObscurity, testEmptyPasswordsHandled) // NOLINT
+TEST_F(TestObscurity, testEmptyPasswordsHandled)
 {
     Common::ObfuscationImpl::CObscurity cObscurity;
-    std::string emptyPassword = "";
+    std::string emptyPassword; // = ""
     ASSERT_THROW(cObscurity.Conceal(emptyPassword), Common::Obfuscation::IObscurityException);
+}
+
+TEST_F(TestObscurity, SECDeobfuscateThrowsExceptionForInvalidSaltLength)
+{
+    try
+    {
+        Common::ObfuscationImpl::SECDeobfuscate(
+                "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg=");
+        FAIL() << "No exception for invalid salt length";
+    }
+    catch (const Common::Obfuscation::ICipherException& ex)
+    {
+    }
 }

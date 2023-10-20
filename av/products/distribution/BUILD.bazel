@@ -1,0 +1,90 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+load("//av:version_info.bzl", "AV_BASE_VERSION", "AV_LINE_ID", "AV_PRODUCT_NAME", "AV_VERSIONING_COMPONENT_NAME")
+load("@rules_python//python:defs.bzl", "py_binary")
+load(":create_nonsupplement_manifest.bzl", "create_nonsupplement_manifest")
+
+SUSI_SRCS_REMAPPED = {
+    "//imports/internal/susi:rules": "imports/internal/susi -> files/plugins/av/chroot/susi/update_source",
+}
+
+SUSI_SRCS_RENAMED = {
+    "files/plugins/av/chroot/susi/update_source/libglobalrep/libglobalrep.so.1.4.1.1": "//imports/internal/susi:libglobalrep",
+    "files/plugins/av/chroot/susi/update_source/libsavi/libsavi.so.3.2.07.389.0": "//imports/internal/susi:libsavi",
+    "files/plugins/av/chroot/susi/update_source/libsophtainer/libsophtainer.so": "//imports/internal/susi:libsophtainer",
+    "files/plugins/av/chroot/susi/update_source/libupdater/libupdater.so.2": "//imports/internal/susi:libupdater",
+    "files/plugins/av/chroot/susi/update_source/lrlib/liblocalreputation.so": "//imports/internal/susi:liblocalreputation",
+    "files/plugins/av/chroot/susi/update_source/susicore/libsusicore.so.2": "//imports/internal/susi:libsusicore",
+    "files/plugins/av/chroot/susi/update_source/susicore/libluajit-5.1.so.2": "//imports/internal/susi:libluajit",
+    "files/plugins/av/chroot/susi/update_source/susicore/libicuuc.so.70": "//imports/internal/susi:libicuuc",
+    "files/plugins/av/chroot/susi/update_source/susicore/libicui18n.so.70": "//imports/internal/susi:libicui18n",
+    "files/plugins/av/chroot/susi/update_source/susicore/libicudata.so.70": "//imports/internal/susi:libicudata",
+}
+
+py_binary(
+    name = "create_nonsupplement_manifest",
+    srcs = ["create_nonsupplement_manifest.py"],
+)
+
+create_nonsupplement_manifest(
+    name = "nonsupplement_manfest.dat",
+    srcs_remapped = SUSI_SRCS_REMAPPED,
+    srcs_renamed = {value: key for key, value in SUSI_SRCS_RENAMED.items()},
+)
+
+SRCS_RENAMED = {
+    "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
+    "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
+    "cleanuprealm.dat": "//av/products/installer:cleanuprealm.dat",
+    "files/plugins/av/bin/avscanner": "//av/products/filewalker:avscanner",
+    "files/plugins/av/chroot/lib64/libsusi.so.2": "//imports/internal/susi:libsusi",
+    "files/plugins/av/chroot/lib64/libz.so.1": "@zlib//:libz.so.1",
+    "files/plugins/av/chroot/susi/update_source/nonsupplement_manifest.txt": ":nonsupplement_manfest.dat",
+    "files/plugins/av/lib64/libsophos_threat_detector_impl.so": "//av/products/sophos_threat_detector:sophos_threat_detector_impl_shared",
+    "files/plugins/av/lib64/libsafestore.so.2": "//common/safestore:libsafestore",
+    "files/plugins/av/lib64/libgcc_s.so.1": "@gcc//:libgcc_s",
+    "files/plugins/av/lib64/libstdc++.so.6.0.29": "@gcc//:libstdc++",
+    "files/plugins/av/sbin/av": "//av/products/plugin:av",
+    "files/plugins/av/sbin/safestore": "//av/products/safestore",
+    "files/plugins/av/sbin/scheduled_file_walker_launcher": "//av/products/filewalker:scheduled_file_walker_launcher",
+    "files/plugins/av/sbin/soapd": "//av/products/sophos_on_access_process:soapd",
+    "files/plugins/av/sbin/sophos_threat_detector": "//av/products/sophos_threat_detector:sophos_threat_detector",
+    "files/plugins/av/sbin/sophos_threat_detector_launcher": "//av/products/sophos_threat_detector:sophos_threat_detector_launcher",
+    "files/plugins/av/sbin/ssr": "//common/safestore:ssr",
+    "files/plugins/av/sbin/sync_versioned_files": "//av/products/installer/sync_versioned_files",
+    "files/plugins/av/sbin/uninstall.sh": "//av/products/installer:uninstall_sh",
+    "files/base/pluginRegistry/av.json": "//av/products/installer:plugin_json",
+    "files/base/pluginRegistry/on_access_process.json": "//av/products/installer:on_access_process_json",
+    "files/base/pluginRegistry/safestore.json": "//av/products/installer:safestore_json",
+    "files/base/pluginRegistry/threat_detector.json": "//av/products/installer:threat_detector_json",
+    "install.sh": "//av/products/installer:install_sh",
+    "setCapabilities.sh": "//av/products/installer:setCapabilities_sh",
+} | SUSI_SRCS_RENAMED
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = AV_BASE_VERSION,
+    component_name = AV_PRODUCT_NAME,
+    correct_rpaths = True,
+    line_id = AV_LINE_ID,
+    rpath_exceptions = {
+        "sophos_threat_detector": "$ORIGIN/../lib64:$ORIGIN/../chroot/lib64",
+        "libsusicore.so.2": "$ORIGIN",
+    },
+    spv_features = ["AV"],
+    spv_platforms = ["LINUX_INTEL_LIBC6"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    srcs_remapped = SUSI_SRCS_REMAPPED,
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in SRCS_RENAMED.items()},
+    symbols_strip_prefix = "av/products/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/av/VERSION.ini",
+    ],
+    versioning_component_name = AV_VERSIONING_COMPONENT_NAME,
+    visibility = [
+        "//av:__pkg__",
+    ],
+)

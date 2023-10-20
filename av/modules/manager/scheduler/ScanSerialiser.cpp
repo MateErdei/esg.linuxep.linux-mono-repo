@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ScanSerialiser.h"
 
-#include <NamedScan.capnp.h>
+#include "scan_messages/NamedScan.capnp.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>

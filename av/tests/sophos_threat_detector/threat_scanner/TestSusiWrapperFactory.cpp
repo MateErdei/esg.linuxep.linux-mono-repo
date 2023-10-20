@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "../../common/LogInitializedTests.h"
+#include "tests/common/LogInitializedTests.h"
 
 // Include the .cpp to get static functions...
 #include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp" // NOLINT

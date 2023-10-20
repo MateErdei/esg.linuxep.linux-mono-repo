@@ -3,29 +3,83 @@ set -e
 [[ -d /vagrant ]]
 (( UID == 0 )) || exec sudo -H "$0" "$@"
 
-STASH_PATH="/vagrant/sspl-plugin-anti-virus"
-GITHUB_PATH="/vagrant/esg.linuxep.linux-mono-repo/av"
+LMONO_PATH="/vagrant/esg.linuxep.linux-mono-repo"
+GITHUB_PATH="${LMONO_PATH}/av"
+
+function failure()
+{
+    local EXIT=$1
+    shift
+    echo "$@"
+
+}
 
 if [ -d "$GITHUB_PATH" ]
 then
   AV_PATH="$GITHUB_PATH"
-elif [ -d "$STASH_PATH" ]
-then
-  AV_PATH="$STASH_PATH"
 else
-  echo "Failed to find AV path"
-  exit 1
+  failure 1 "Failed to find AV path"
 fi
 
-mkdir -p /opt/test/inputs/av/
-ln -snf "${AV_PATH}/TA/" /opt/test/inputs/test_scripts
-ln -snf "${AV_PATH}/output/SDDS-COMPONENT/" /opt/test/inputs/av/SDDS-COMPONENT
-ln -snf "${AV_PATH}/output/test-resources/" /opt/test/inputs/av/test-resources
-ln -snf "${AV_PATH}/output/base-sdds/" /opt/test/inputs/av/base-sdds
-ln -snf "${AV_PATH}/output/" /opt/test/inputs/tap_test_output_from_build
+apt -y install unzip
+
+TEST_INPUTS=/opt/test/inputs
+
+mkdir -p ${TEST_INPUTS}/av/
+ln -snf "${AV_PATH}/TA/" ${TEST_INPUTS}/test_scripts
+
+if [[ -d "$LMONO_PATH/.output/av" ]]
+then
+    AV_BUILD_PATH="$LMONO_PATH/.output/av/linux_x64_dbg"
+    [[ -d "${AV_BUILD_PATH}" ]] || AV_BUILD_PATH="$LMONO_PATH/.output/av/linux_x64_rel"
+    BASE_PATH="$LMONO_PATH/.output/base/linux_x64_dbg"
+    [[ -d "${BASE_PATH}" ]] || BASE_PATH="$LMONO_PATH/.output/base/linux_x64_dbg"
+
+    if [[ -d "$AV_BUILD_PATH/installer" ]]
+    then
+        ln -snf "$AV_BUILD_PATH/installer" ${TEST_INPUTS}/av/SDDS-COMPONENT
+    elif [[ -f "$AV_BUILD_PATH/installer.zip" ]]
+    then
+        rm -rf "${TEST_INPUTS}/av/SDDS-COMPONENT"
+        mkdir -p "${TEST_INPUTS}/av/SDDS-COMPONENT"
+        pushd "${TEST_INPUTS}/av/SDDS-COMPONENT"
+        unzip "$AV_BUILD_PATH/installer.zip"
+        popd
+    else
+        failure 3 "Can't find AV installer"
+    fi
+
+    if [[ -d "$BASE_PATH/installer" ]]
+    then
+        ln -snf "$BASE_PATH/installer" "${TEST_INPUTS}/av/base-sdds"
+    elif [[ -f "$BASE_PATH/installer.zip" ]]
+    then
+        rm -rf "${TEST_INPUTS}/av/base-sdds"
+        mkdir -p "${TEST_INPUTS}/av/base-sdds"
+        pushd "${TEST_INPUTS}/av/base-sdds"
+        unzip "$BASE_PATH/installer.zip"
+        popd
+    else
+        failure 4 "Can't find Base installer"
+    fi
+
+    mkdir -p ${TEST_INPUTS}/tap_test_output
+    pushd ${TEST_INPUTS}/tap_test_output
+    unzip -o "$AV_BUILD_PATH/tap_test_output.zip"
+    popd
+elif [[ -d "${AV_PATH}/output/SDDS-COMPONENT" ]]
+then
+    ln -snf "${AV_PATH}/output/SDDS-COMPONENT/" /opt/test/inputs/av/SDDS-COMPONENT
+    ln -snf "${AV_PATH}/output/test-resources/" /opt/test/inputs/av/test-resources
+    ln -snf "${AV_PATH}/output/base-sdds/" /opt/test/inputs/av/base-sdds
+    ln -snf "${AV_PATH}/output/" /opt/test/inputs/tap_test_output_from_build
+else
+    failure 2 "Can't find SPL-AV build!"
+fi
 
 apt-get -y install python3 python3-pip python3-pkgconfig
 apt-get -y install nfs-kernel-server samba p7zip-full gdb
+cd ${AV_PATH}/TA
 python3 -m pip install -r requirements.txt
 
 # Stop samba related services as they both start up on install

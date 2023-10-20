@@ -1,0 +1,74 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "OnAccessConfigurationUtils",
+    srcs = ["OnAccessConfigurationUtils.cpp"],
+    hdrs = ["OnAccessConfigurationUtils.h"],
+    implementation_deps = [
+        ":Logger",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//imports/thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//av/modules/mount_monitor/mount_monitor:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/common:Exclusion",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/sophos_on_access_process/local_settings",
+        "//base/modules/Common/SystemCallWrapper",
+    ],
+)
+
+soph_cc_library(
+    name = "soapd_bootstrap",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//av:AutoVersion",
+        "//av/modules/common:PluginUtils",
+        "//av/modules/common:SaferStrerror",
+        "//av/modules/common/signals",
+        "//av/modules/sophos_on_access_process/OnAccessTelemetryFields",
+        "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteClientSocketThread",
+        "//base/modules/Common/Logging",
+        "//imports/thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//av/products/sophos_on_access_process:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:IPidLockFile",
+        "//av/modules/common:PidLockFile",
+        "//av/modules/common:StatusFile",
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/mount_monitor/mount_monitor",
+        "//av/modules/mount_monitor/mountinfoimpl",
+        "//av/modules/sophos_on_access_process/IOnAccessTelemetryUtility",
+        "//av/modules/sophos_on_access_process/ScanRequestQueue",
+        "//av/modules/sophos_on_access_process/onaccessimpl",
+        "//av/modules/sophos_threat_detector/threat_scanner:IUpdateCompleteCallback",
+        "//av/modules/unixsocket/processControllerSocket:IProcessControlMessageCallback",
+        "//av/modules/unixsocket/processControllerSocket:ProcessControllerServerSocket",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/PluginApiImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+    ],
+)

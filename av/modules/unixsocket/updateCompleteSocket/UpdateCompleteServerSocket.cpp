@@ -2,7 +2,7 @@
 
 #include "UpdateCompleteServerSocket.h"
 
-#include "../Logger.h"
+#include "unixsocket/Logger.h"
 
 using namespace unixsocket::updateCompleteSocket;
 

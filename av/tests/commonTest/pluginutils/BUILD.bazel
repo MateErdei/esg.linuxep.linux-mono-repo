@@ -1,0 +1,27 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+
+soph_cc_library(
+    name = "TestAbstractThreadImpl",
+    hdrs = ["TestAbstractThreadImpl.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/common:AbstractThreadPluginInterface",
+        "//av/modules/common:Logger",
+    ],
+)
+
+soph_cc_test(
+    name = "TestPluginUtils",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        ":TestAbstractThreadImpl",
+        "//av/modules/common:ThreadRunner",
+        "//av/tests/common",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

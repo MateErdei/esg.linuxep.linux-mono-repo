@@ -1,10 +1,9 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // Product code
 #include "common/AbortScanException.h"
 #include "common/ThreadRunner.h"
 #include "unixsocket/Logger.h"
-#include "unixsocket/SocketUtils.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 // Test code
 #include "FakeScanningServer.h"

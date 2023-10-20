@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
+#include "sophos_threat_detector/threat_scanner/IScanNotification.h"
 
 #include <gmock/gmock.h>
 

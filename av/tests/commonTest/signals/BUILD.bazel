@@ -1,0 +1,17 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestCommonSignals",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//av/modules/common:FDUtils",
+        "//av/modules/common/signals",
+        "//av/tests/common",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

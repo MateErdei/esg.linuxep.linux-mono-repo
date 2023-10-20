@@ -4,6 +4,7 @@
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Obfuscation/ICipherException.h"
+#include "Common/ObfuscationImpl/Base64.h"
 #include "Common/ObfuscationImpl/Cipher.h"
 #include "Common/ObfuscationImpl/Obscurity.h"
 #include <gmock/gmock.h>
@@ -20,7 +21,7 @@ public:
     }
     void TearDown() override { Common::ObfuscationImpl::restoreEvpCipherWrapper(); }
 
-    MockEvpCipherWrapper* m_mockEvpCipherWrapperPtr = nullptr;
+    MockEvpCipherWrapper* m_mockEvpCipherWrapperPtr = nullptr; // Borrowed pointer
     Common::ObfuscationImpl::SecureDynamicBuffer m_password;
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
@@ -28,7 +29,7 @@ public:
 // ObfuscationImpl::SecureString Cipher::Decrypt(const ObfuscationImpl::SecureDynamicBuffer& cipherKey,
 // ObfuscationImpl::SecureDynamicBuffer& encrypted)
 
-TEST_F(CipherTest, DecryptThrowsIfSaltLengthIsWrong) // NOLINT
+TEST_F(CipherTest, DecryptThrowsIfSaltLengthIsWrong)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
     // First byte is treated as the salt length
@@ -44,7 +45,7 @@ TEST_F(CipherTest, DecryptThrowsIfSaltLengthIsWrong) // NOLINT
     }
 }
 
-TEST_F(CipherTest, DecryptThrowsWithEmptyKey) // NOLINT
+TEST_F(CipherTest, DecryptThrowsWithEmptyKey)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer encrypted(33, '*');
     // First byte is treated as the salt length
@@ -61,7 +62,7 @@ TEST_F(CipherTest, DecryptThrowsWithEmptyKey) // NOLINT
     }
 }
 
-TEST_F(CipherTest, DecryptThrowsWithEmptyEncryptedString) // NOLINT
+TEST_F(CipherTest, DecryptThrowsWithEmptyEncryptedString)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer cipherKey(33, '*');
     // First byte is treated as the salt length
@@ -78,7 +79,7 @@ TEST_F(CipherTest, DecryptThrowsWithEmptyEncryptedString) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailContextConstruction) // NOLINT
+TEST_F(CipherTest, FailContextConstruction)
 {
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(nullptr));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
@@ -96,7 +97,7 @@ TEST_F(CipherTest, FailContextConstruction) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailDecryptInit) // NOLINT
+TEST_F(CipherTest, FailDecryptInit)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -116,7 +117,7 @@ TEST_F(CipherTest, FailDecryptInit) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailDecryptUpdate) // NOLINT
+TEST_F(CipherTest, FailDecryptUpdate)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -137,12 +138,17 @@ TEST_F(CipherTest, FailDecryptUpdate) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailDecryptFinal) // NOLINT
+TEST_F(CipherTest, FailDecryptFinal)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(60), Return(1)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_, _, _, _, _))
+            .WillOnce(::testing::DoAll(
+                    SetArgPointee<2>(0), // Set len to positive value
+                    Return(1)
+            ))
+            ;
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptFinal_ex(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
@@ -159,7 +165,7 @@ TEST_F(CipherTest, FailDecryptFinal) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailDecryptOversizedPassword) // NOLINT
+TEST_F(CipherTest, FailDecryptOversizedPassword)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -181,7 +187,7 @@ TEST_F(CipherTest, FailDecryptOversizedPassword) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
+TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer key(5, '*');
     Common::ObfuscationImpl::SecureDynamicBuffer encrypted(200, '*');
@@ -198,7 +204,7 @@ TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
     }
 }
 
-TEST_F(CipherTest, EncryptWithoutKeyThrows) // NOLINT
+TEST_F(CipherTest, EncryptWithoutKeyThrows)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer;
     Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer(32, '*');
@@ -214,7 +220,7 @@ TEST_F(CipherTest, EncryptWithoutKeyThrows) // NOLINT
     }
 }
 
-TEST_F(CipherTest, EncryptWithoutSaltThrows) // NOLINT
+TEST_F(CipherTest, EncryptWithoutSaltThrows)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer(32, '*');
     Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer;
@@ -232,7 +238,7 @@ TEST_F(CipherTest, EncryptWithoutSaltThrows) // NOLINT
     }
 }
 
-TEST_F(CipherTest, EncryptWithoutPasswordThrows) // NOLINT
+TEST_F(CipherTest, EncryptWithoutPasswordThrows)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer(32, '*');
     Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer(32, '*');
@@ -250,7 +256,7 @@ TEST_F(CipherTest, EncryptWithoutPasswordThrows) // NOLINT
     }
 }
 
-TEST_F(CipherTest, BadEncryptSaltLength) // NOLINT
+TEST_F(CipherTest, BadEncryptSaltLength)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(31, '*');
     // First byte is treated as the salt length
@@ -267,7 +273,7 @@ TEST_F(CipherTest, BadEncryptSaltLength) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailEncryptInit) // NOLINT
+TEST_F(CipherTest, FailEncryptInit)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -288,7 +294,7 @@ TEST_F(CipherTest, FailEncryptInit) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailEncryptUpdate) // NOLINT
+TEST_F(CipherTest, FailEncryptUpdate)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -310,7 +316,7 @@ TEST_F(CipherTest, FailEncryptUpdate) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailEncryptFinal) // NOLINT
+TEST_F(CipherTest, FailEncryptFinal)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -333,7 +339,7 @@ TEST_F(CipherTest, FailEncryptFinal) // NOLINT
     }
 }
 
-TEST_F(CipherTest, FailEncryptOversizedPassword) // NOLINT
+TEST_F(CipherTest, FailEncryptOversizedPassword)
 {
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
@@ -354,4 +360,64 @@ TEST_F(CipherTest, FailEncryptOversizedPassword) // NOLINT
     {
         ASSERT_EQ(std::string(exception.what()), "SECObfuscation failed, Encrypted string of size: 256 Exceeds maximum length of: 160");
     }
+}
+
+namespace
+{
+    class TestObscurity : public Common::ObfuscationImpl::CObscurity
+    {
+    public:
+        [[nodiscard]] Common::ObfuscationImpl::SecureDynamicBuffer PublicGetPassword() const
+        {
+            return GetPassword();
+        }
+    };
+
+    class RealCipherTest : public ::testing::Test
+    {
+    public:
+        void SetUp() override
+        {
+            Common::ObfuscationImpl::restoreEvpCipherWrapper();
+            TestObscurity t;
+            m_password = t.PublicGetPassword();
+        }
+        void TearDown() override
+        {
+        }
+
+        Common::ObfuscationImpl::SecureDynamicBuffer m_password;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    };
+}
+
+
+TEST_F(RealCipherTest, SuccessfulDecrypt)
+{
+    using Common::ObfuscationImpl::SecureDynamicBuffer;
+    using Common::ObfuscationImpl::Base64;
+    Common::ObfuscationImpl::SecureDynamicBuffer& cipherKey = m_password;
+
+    std::string srcData = "CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E=";
+    std::string obscuredData = Base64::Decode(srcData);
+    SecureDynamicBuffer encrypted(begin(obscuredData) + 1, end(obscuredData));
+    auto actualResult = Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted);
+    EXPECT_NE(actualResult.size(), 0);
+    EXPECT_EQ(actualResult, "regrABC123pass");
+}
+
+
+TEST_F(RealCipherTest, TestBadSaltSize)
+{
+    using Common::ObfuscationImpl::SecureDynamicBuffer;
+    using Common::ObfuscationImpl::Base64;
+    Common::ObfuscationImpl::SecureDynamicBuffer& cipherKey = m_password;
+
+    std::string srcData = "CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E=";
+    std::string obscuredData = Base64::Decode(srcData);
+    obscuredData[1] = 33;
+    SecureDynamicBuffer encrypted(begin(obscuredData) + 1, end(obscuredData));
+    EXPECT_THROW(
+            Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted),
+            Common::Obfuscation::ICipherException);
 }

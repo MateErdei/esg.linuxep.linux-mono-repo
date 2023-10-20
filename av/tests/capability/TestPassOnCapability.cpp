@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "capability/PassOnCapability.h"
+#include "products/capability/PassOnCapability.h"
 
 #include "datatypes/Print.h"
 
@@ -12,7 +8,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 
-TEST(TestPassOnCapability, pass_on_capability_root_only) // NOLINT
+TEST(TestPassOnCapability, pass_on_capability_root_only)
 {
     if (::getuid() != 0)
     {
@@ -23,7 +19,11 @@ TEST(TestPassOnCapability, pass_on_capability_root_only) // NOLINT
     EXPECT_EQ(ret, 0);
 }
 
+#ifndef SPL_BAZEL
+# define DROP_ROOT
+#endif
 
+#ifdef DROP_ROOT
 static void drop_root()
 {
     PRINT("Drop root");
@@ -32,13 +32,17 @@ static void drop_root()
     ret = setreuid(1, 1);
     ASSERT_EQ(ret, 0);
 }
+#endif
 
-
-TEST(TestPassOnCapability, pass_on_capability_no_root) // NOLINT
+TEST(TestPassOnCapability, pass_on_capability_no_root)
 {
     if (::getuid() == 0)
     {
+#ifdef DROP_ROOT
         drop_root();
+#else
+        GTEST_SKIP() << "Unable to handle testing pass_on_capability_no_root as root under bazel";
+#endif
     }
 
     ASSERT_NE(::getuid(), 0);
@@ -52,7 +56,7 @@ TEST(TestPassOnCapability, pass_on_capability_no_root) // NOLINT
 //    EXPECT_EQ(ret, E_CAP_SET_PROC);
 }
 
-TEST(TestPassOnCapability, no_new_privs) // NOLINT
+TEST(TestPassOnCapability, no_new_privs)
 {
     set_no_new_privs();
 }

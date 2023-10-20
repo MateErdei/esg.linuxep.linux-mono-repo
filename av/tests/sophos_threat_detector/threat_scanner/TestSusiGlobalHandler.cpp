@@ -9,8 +9,8 @@
 
 #include "MockSusiApi.h"
 
-#include "../../common/LogInitializedTests.h"
-#include "common/TestSpecificDirectory.h"
+#include "tests/common/LogInitializedTests.h"
+#include "tests/common/TestSpecificDirectory.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"

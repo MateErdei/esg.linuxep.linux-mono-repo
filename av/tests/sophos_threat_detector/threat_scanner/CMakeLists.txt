@@ -35,3 +35,38 @@ SET_TARGET_PROPERTIES( AllowListTester
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN"
         )
+
+
+find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
+
+add_executable(explore_susi_install
+        explore_susi_install.cpp
+)
+target_link_libraries(explore_susi_install PUBLIC
+        ${STD_FILESYSTEM_IF_REQUIRED}
+        ${SUSI_LIB}
+)
+target_include_directories(explore_susi_install
+        PUBLIC
+        ${susi_include}
+)
+SET_TARGET_PROPERTIES( explore_susi_install
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/plugins/av/chroot/lib64"
+)
+
+add_executable(explore_susi_install_c
+        explore_susi_install.c
+)
+target_link_libraries(explore_susi_install_c PUBLIC
+        ${SUSI_LIB}
+)
+target_include_directories(explore_susi_install_c
+        PUBLIC
+        /usr/include/x86_64-linux-gnu
+        ${susi_include}
+)
+SET_TARGET_PROPERTIES(explore_susi_install_c
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/plugins/av/chroot/lib64"
+)

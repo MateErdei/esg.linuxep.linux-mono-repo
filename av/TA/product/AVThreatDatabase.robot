@@ -150,6 +150,7 @@ ThreatDatabase Test Setup
     register on fail dump logs
     register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
     register on fail  dump threads  ${PLUGIN_BINARY}
+    register on fail  List AV Plugin Path
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude MCS Router is dead

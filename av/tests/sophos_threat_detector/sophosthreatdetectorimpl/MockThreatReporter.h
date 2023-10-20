@@ -1,8 +1,8 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
+#include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
 
 #include <gmock/gmock.h>
 

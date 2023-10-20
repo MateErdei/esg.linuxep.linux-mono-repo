@@ -1,0 +1,67 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//av:substitutions.bzl", "SUBSTITUTIONS")
+
+expand_template(
+    name = "cleanuprealm.dat",
+    out = "cleanuprealm.dat.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "cleanuprealm.dat.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "on_access_process_json",
+    out = "on_access_process.json.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "on_access_process.json.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "plugin_json",
+    out = "plugin.json.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "safestore_json",
+    out = "safestore.json.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "safestore.json.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "setCapabilities_sh",
+    out = "setCapabilities.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "setCapabilities.sh.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "threat_detector_json",
+    out = "threat_detector.json.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "threat_detector.json.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+    visibility = ["//av/products/distribution:__pkg__"],
+)

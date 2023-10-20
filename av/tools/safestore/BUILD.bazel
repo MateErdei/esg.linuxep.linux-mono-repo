@@ -1,0 +1,17 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "safestore_print_tool",
+    srcs = ["SafeStoreDatabasePrintTool.cpp"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64:/opt/sophos-spl/plugins/av/lib64",
+    ],
+    visibility = ["//av/tests:__pkg__"],
+    deps = [
+        "//av/modules/common:StringUtils",
+        "//av/modules/safestore",
+        "//av/modules/safestore/SafeStoreWrapper",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+    ],
+)

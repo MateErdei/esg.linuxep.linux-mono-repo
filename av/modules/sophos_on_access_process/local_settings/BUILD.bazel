@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "OnAccessProductConfigDefaults",
+    hdrs = ["OnAccessProductConfigDefaults.h"],
+    visibility = [
+        "//av/modules/sophos_on_access_process/onaccessimpl:__pkg__",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "local_settings",
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//av/modules/sophos_on_access_process/onaccessimpl:__pkg__",
+        "//av/modules/sophos_on_access_process/soapd_bootstrap:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        ":OnAccessProductConfigDefaults",
+    ],
+)

@@ -1,0 +1,25 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestMountMonitor",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//av/modules/common:ThreadRunner",
+        "//av/modules/mount_monitor/mount_monitor",
+        "//av/modules/mount_monitor/mountinfo",
+        "//av/modules/mount_monitor/mountinfoimpl",
+        "//av/modules/sophos_on_access_process/local_settings",
+        "//av/tests/avscanner/avscannerimpl:MockMountPoint",
+        "//av/tests/common",
+        "//av/tests/sophos_on_access_process/fanotifyhandler:MockFanotifyHandler",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

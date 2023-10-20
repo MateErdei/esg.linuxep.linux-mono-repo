@@ -9,7 +9,7 @@
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
+#include "sophos_on_access_process/OnAccessTelemetryFields/OnAccessTelemetryFields.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"

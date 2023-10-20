@@ -102,6 +102,11 @@ def create_library_symlinks(p):
 def create_library_symlinks_from_glob(*p):
     p = os.path.join(*p)
     possible = glob.glob(p)
+
+    if len(possible) == 0:
+        # Bazel build has fewer shared libraries
+        return
+
     possible.sort()
     p = possible[-1]
     create_library_symlinks(p)

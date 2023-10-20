@@ -3,12 +3,14 @@
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
-#include "common/ExpectedFanotifyInitFlags.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+// test includes
+#include "tests/common/ExpectedFanotifyInitFlags.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockSysCalls.h"
 #include "Common/Helpers/MockFileSystem.h"

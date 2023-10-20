@@ -7,7 +7,7 @@
 #include "unixsocket/Logger.h"
 #include "scan_messages/ClientScanRequest.h"
 
-#include <ScanResponse.capnp.h>
+#include "scan_messages/ScanResponse.capnp.h"
 #include <capnp/serialize.h>
 
 #include <cassert>
@@ -47,7 +47,7 @@ namespace unixsocket
                 return false;
             }
         }
-        catch (const environmentInterruption& e)
+        catch (const EnvironmentInterruption& e)
         {
             LOGDEBUG("Failed to send request at " << e.where_ << " errno=" << errno);
             return false;

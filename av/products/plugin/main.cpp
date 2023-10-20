@@ -1,14 +1,16 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "../common/config.h"
+#include "common/config.h"
 
 #include "datatypes/sophos_filesystem.h"
 
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-
-// Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
+#ifdef SPL_BAZEL
+#    include "av/AutoVersion.h"
+#else
+#    include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Logging/PluginLoggingSetup.h"

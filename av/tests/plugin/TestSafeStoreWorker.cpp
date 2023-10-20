@@ -2,18 +2,23 @@
 
 #define PLUGIN_INTERNAL public
 
-#include "MockDetectionHandler.h"
-#include "PluginMemoryAppenderUsingTests.h"
-
+// product includes
 #include "common/ApplicationPaths.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "pluginimpl/DetectionQueue.h"
 #include "pluginimpl/SafeStoreWorker.h"
-#include "tests/common/SetupFakePluginDir.h"
-#include "tests/safestore/MockIQuarantineManager.h"
-#include "tests/scan_messages/SampleThreatDetected.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
+// Test includes
+#include "MockDetectionHandler.h"
+#include "PluginMemoryAppenderUsingTests.h"
+
+#include "tests/common/SetupFakePluginDir.h"
+#include "tests/safestore/MockIQuarantineManager.h"
+#include "tests/scan_messages/SampleThreatDetected.h"
 
 #include <gtest/gtest.h>
 
@@ -42,6 +47,20 @@ namespace
         MockDetectionHandler m_mockDetectionHandler;
         const std::string m_socketPath;
         std::shared_ptr<MockIQuarantineManager> m_mockQuarantineManager;
+
+        bool mountIsWritable(const std::string& filePath)
+        {
+            static auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
+            static auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(
+                    pathsFactory->createSystemPaths());
+            auto parentMount = mountInfo->getMountFromPath(filePath);
+            return !parentMount->isReadOnly();
+        }
+
+        void assertMountIsWritable(const std::string& filePath)
+        {
+            ASSERT_TRUE(mountIsWritable(filePath));
+        }
     };
 } // namespace
 
@@ -90,6 +109,14 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButCantConnectFinalisesDetection)
 
 TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
 {
+    const std::string filepath = "/file";
+    // Need to pass a real fd
+    auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
+    if (!mountIsWritable(threatDetected.filePath))
+    {
+        GTEST_SKIP() << "Can't test if / is read-only";
+    }
+
     {
         // We expect it to mark the detection, and then finalise it with failure
         InSequence seq;
@@ -111,9 +138,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };
     server.start();
 
-    // Need to pass a real fd
-    auto detection = createThreatDetectedWithRealFd({});
-    ASSERT_TRUE(m_detectionQueue->push(detection));
+    ASSERT_TRUE(m_detectionQueue->push(threatDetected));
 
     m_detectionQueue->requestStop();
     worker.join();
@@ -123,6 +148,14 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
 
 TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
 {
+    const std::string filepath = "/file";
+    // Need to pass a real fd
+    auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
+    if (!mountIsWritable(threatDetected.filePath))
+    {
+        GTEST_SKIP() << "Can't test if / is read-only";
+    }
+
     {
         // We expect it to mark the detection, and then finalise it with success
         InSequence seq;
@@ -144,9 +177,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };
     server.start();
 
-    // Need to pass a real fd
-    auto detection = createThreatDetectedWithRealFd({});
-    ASSERT_TRUE(m_detectionQueue->push(detection));
+    ASSERT_TRUE(m_detectionQueue->push(threatDetected));
 
     m_detectionQueue->requestStop();
     worker.join();
@@ -156,6 +187,14 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
 
 TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesFailureFromSafeStore)
 {
+    const std::string filepath = "/file";
+    // Need to pass a real fd
+    auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
+    if (!mountIsWritable(threatDetected.filePath))
+    {
+        GTEST_SKIP() << "Can't test if / is read-only";
+    }
+
     {
         // We expect it to mark the detection, and then finalise it with failure
         InSequence seq;
@@ -177,9 +216,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesFailureFromSafeStore)
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };
     server.start();
 
-    // Need to pass a real fd
-    auto detection = createThreatDetectedWithRealFd({});
-    ASSERT_TRUE(m_detectionQueue->push(detection));
+    ASSERT_TRUE(m_detectionQueue->push(threatDetected));
 
     m_detectionQueue->requestStop();
     worker.join();

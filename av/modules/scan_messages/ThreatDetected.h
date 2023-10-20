@@ -3,7 +3,7 @@
 #pragma once
 
 #include "ScanType.h"
-#include "ThreatDetected.capnp.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 
 #include "common/CentralEnums.h"
 #include "datatypes/AutoFd.h"

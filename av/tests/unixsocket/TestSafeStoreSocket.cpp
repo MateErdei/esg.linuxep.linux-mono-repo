@@ -1,20 +1,21 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "SafeStoreSocketMemoryAppenderUsingTests.h"
-#include "UnixSocketMemoryAppenderUsingTests.h"
-
 #include "common/ApplicationPaths.h"
 #include "common/NotifyPipeSleeper.h"
-#include "safestore/MockIQuarantineManager.h"
 #include "safestore/SafeStoreServiceCallback.h"
 #include "scan_messages/ThreatDetected.h"
-#include "tests/common/Common.h"
-#include "tests/common/WaitForEvent.h"
-#include "tests/scan_messages/SampleThreatDetected.h"
 #include "unixsocket/safeStoreSocket/SafeStoreClient.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
+
+#include "SafeStoreSocketMemoryAppenderUsingTests.h"
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
+#include "tests/common/Common.h"
+#include "tests/common/WaitForEvent.h"
+#include "tests/safestore/MockIQuarantineManager.h"
+#include "tests/scan_messages/SampleThreatDetected.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 

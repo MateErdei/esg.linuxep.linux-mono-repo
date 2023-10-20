@@ -160,9 +160,6 @@ function generate_susi_package_manifest()
     lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
     echo "reputation ${lrdata_hash}" >> ${temp_manifest}
 
-    libupdater_hash=$(sha256sum ${SUSI_UPDATE_SRC}/libupdater/libupdater.so | awk '{print $1}')
-    echo "libupdater ${libupdater_hash}" >> ${temp_manifest}
-
     manifest_hash=$(sha256sum ${temp_manifest} | awk '{print $1}')
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
@@ -419,6 +416,22 @@ function add_user()
   fi
 }
 
+function copy_or_link()
+{
+    local SRCFILE="$1"
+    local DESTDIR="$2"
+    if [[ ! -f $SRCFILE ]]
+    then
+        return
+    fi
+    if ln -f "$SRCFILE" "$DESTDIR/"
+    then
+        # managed to create hard-link
+        return
+    fi
+    cp -a "$SRCFILE" "$DESTDIR/"
+}
+
 function install_product()
 {
     GETENT=/usr/bin/getent
@@ -479,9 +492,28 @@ function install_product()
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
     cp -arfv $DIST/files/plugins/av/chroot/susi/* "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
 
+    # Delete any old copies of libupdater in lib64, then link the copy from update_source
+    rm -f "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libupdater.so*"
+    ln -nf "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/libupdater/libupdater.so.2" "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libupdater.so.2.0" \
+      || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy libupdater.so.2 to lib64"
+    ln -snf "libupdater.so.2.0" "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libupdater.so.2"
+
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
+
+    # TODO: LINUXDAR-???? remove if we fix boost to not require iconv
+    # TODO: Handle ARM64
+    for LIBDIR in "/usr/lib/x86_64-linux-gnu/gconv" "/usr/lib64/gconv"
+    do
+        [[ -d "$LIBDIR" ]] || continue
+        mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot${LIBDIR}"
+        for LIB in EUC-JP.so SJIS.so libJIS.so ISO8859-1.so UTF-32.so
+        do
+            copy_or_link "${LIBDIR}/${LIB}" "$SOPHOS_INSTALL/plugins/av/chroot${LIBDIR}/"
+        done
+    done
+    chmod -R a+rx "$SOPHOS_INSTALL/plugins/av/chroot/usr"
 
     local dest_dir="${SUSI_UPDATE_SRC}/mllib"
     rm -rf "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed mllib files"

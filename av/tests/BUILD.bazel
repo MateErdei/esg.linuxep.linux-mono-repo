@@ -1,0 +1,13 @@
+load("//tools/config:zip.bzl", "zip_asset")
+
+zip_asset(
+    name = "tap_test_output",
+    srcs = [
+        "//av/modules/scan_messages:all_capnp",
+        "//av/tests/safestore:SafeStoreTapTests",
+        "//av/tests/unixsocket/SendThreatDetectedExecutable:SendDataToSocket",
+        "//av/tests/unixsocket/SendThreatDetectedExecutable:SendThreatDetectedEvent",
+        "//av/tools/safestore:safestore_print_tool",
+    ],
+    visibility = ["//av:__pkg__"],
+)

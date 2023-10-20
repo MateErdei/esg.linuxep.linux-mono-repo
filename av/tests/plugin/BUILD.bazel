@@ -1,0 +1,97 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestPlugin",
+    srcs = [
+        "MockDetectionHandler.h",
+        "PluginMemoryAppenderUsingTests.h",
+        "TestActionUtils.cpp",
+        "TestDetectionQueue.cpp",
+        "TestHealthStatus.cpp",
+        "TestOnAccessStatusMonitor.cpp",
+        "TestPlugin.cpp",
+        "TestPluginAdapter.cpp",
+        "TestPluginAdapterDetections.cpp",
+        "TestPluginCallback.cpp",
+        "TestPolicyProcessor.cpp",
+        "TestPolicyProcessor.h",
+        "TestPolicyProcessor_ALC_policy.cpp",
+        "TestPolicyProcessor_CORC_policy.cpp",
+        "TestPolicyProcessor_CORE_policy.cpp",
+        "TestPolicyProcessor_FLAGS_policy.cpp",
+        "TestPolicyProcessor_SAV_policy.cpp",
+        "TestPolicyWaiter.cpp",
+        "TestStringUtils.cpp",
+        "TestTaskQueue.cpp",
+        "TestTelemetry.cpp",
+        "TestThreatDatabase.cpp",
+    ],
+    deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:FailedToInitializeSusiException",
+        "//av/modules/common:StatusFile",
+        "//av/modules/datatypes:UuidGeneratorImpl",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/pluginimpl",
+        "//av/modules/sophos_on_access_process/fanotifyhandler",
+        "//av/modules/sophos_threat_detector/threat_scanner:IThreatScannerFactory",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreClient",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
+        "//av/modules/unixsocket/threatDetectorSocket:ScanningServerSocket",
+        "//av/tests/common",
+        "//av/tests/datatypes:MockUuidGenerator",
+        "//av/tests/safestore:MockIQuarantineManager",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestSafeStoreWorker",
+    srcs = [
+        "MockDetectionHandler.h",
+        "PluginMemoryAppenderUsingTests.h",
+        "TestSafeStoreWorker.cpp",
+    ],
+    deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/mount_monitor/mountinfoimpl",
+        "//av/modules/pluginimpl",
+        "//av/modules/safestore/QuarantineManager:IQuarantineManager",
+        "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
+        "//av/tests/common",
+        "//av/tests/safestore:MockIQuarantineManager",
+        "//av/tests/scan_messages:SampleThreatDetected",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_binary(
+    name = "CorcPolicyProcessorFuzzer",
+    srcs = [
+        "CorcPolicyProcessorFuzzer.cpp",
+    ],
+    deps = [
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/pluginimpl",
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_binary(
+    name = "CorePolicyProcessorFuzzer",
+    srcs = [
+        "CorePolicyProcessorFuzzer.cpp",
+    ],
+    deps = [
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/pluginimpl",
+        "//base/modules/Common/Logging",
+    ],
+)

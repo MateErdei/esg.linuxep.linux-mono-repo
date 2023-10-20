@@ -52,7 +52,7 @@ namespace
                     throw Common::Exceptions::IException(LOCATION, errMsg.str());
                 }
             }
-            catch (const unixsocket::environmentInterruption& e)
+            catch (const unixsocket::EnvironmentInterruption& e)
             {
                 std::cerr << "Failed to write to socket. Exception caught: " << e.what()
                           << " at " << e.where_ << '\n';
@@ -76,7 +76,7 @@ namespace
                     throw SendFDException(LOCATION, errMsg.str(), error);
                 }
             }
-            catch (const unixsocket::environmentInterruption& e)
+            catch (const unixsocket::EnvironmentInterruption& e)
             {
                 std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what()
                         << " at " << e.where_ << '\n';

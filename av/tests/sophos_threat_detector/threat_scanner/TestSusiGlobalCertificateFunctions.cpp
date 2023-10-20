@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "../../common/LogInitializedTests.h"
+#include "tests/common/LogInitializedTests.h"
 #include "sophos_threat_detector/threat_scanner/SusiCertificateFunctions.h"
 
 #include <gtest/gtest.h>

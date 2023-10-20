@@ -5,15 +5,14 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/AutoFd.h"
+#include "pluginimpl/HealthStatus.h"
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/TaskQueue.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 
 #include "common/ApplicationPaths.h"
-#include "common/ExpectedFanotifyInitFlags.h"
 #include "common/FailedToInitializeSusiException.h"
-#include "common/MockScanner.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -22,8 +21,10 @@
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Helpers/MockSysCalls.h"
 
+#include "tests/common/ExpectedFanotifyInitFlags.h"
+#include "tests/common/MockScanner.h"
+
 #include <gtest/gtest.h>
-#include "pluginimpl/HealthStatus.h"
 #include <nlohmann/json.hpp>
 
 using namespace Plugin;
@@ -57,7 +58,6 @@ namespace
             versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
-            versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
             versionFileStream.close();
 
             // create var directories for PID files

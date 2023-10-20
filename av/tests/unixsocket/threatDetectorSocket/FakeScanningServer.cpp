@@ -6,11 +6,14 @@
 #include "common/StringUtils.h"
 #include "scan_messages/ScanRequest.h"
 #include "scan_messages/ScanResponse.h"
+#include "unixsocket/EnvironmentInterruption.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/threatDetectorSocket/ThreatDetectedMessageUtils.h"
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
+#include <cassert>
 
 #include <poll.h>
 
@@ -178,7 +181,7 @@ bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, cons
             return false;
         }
     }
-    catch (unixsocket::environmentInterruption& e)
+    catch (unixsocket::EnvironmentInterruption& e)
     {
         LOGWARN("Exiting Scanning Connection Thread: " << e.what());
         return false;

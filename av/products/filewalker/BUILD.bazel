@@ -1,0 +1,27 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "avscanner",
+    srcs = ["cmd_scanner.cpp"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/datatypes:Print",
+    ],
+)
+
+soph_cc_binary(
+    name = "scheduled_file_walker_launcher",
+    srcs = ["scheduled_file_walker_launcher.c"],
+    linkopts = [
+        "-Wl,-rpath,$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        "//av/products/capability",
+    ],
+)

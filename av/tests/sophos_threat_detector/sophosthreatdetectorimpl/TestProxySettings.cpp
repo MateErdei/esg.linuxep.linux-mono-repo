@@ -1,13 +1,17 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ProxySettings.h"
 
-#include "common/TestSpecificDirectory.h"
 // SPL Test
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
+
+// test headers
+#include "tests/common/TestSpecificDirectory.h"
+
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+
 // 3rd party
 #include <gtest/gtest.h>
 

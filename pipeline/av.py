@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 import os
 from typing import Dict
 
@@ -162,21 +163,12 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False, bazel=True) -> Dict[str, Input]:
     supplement_branch = "released"
-    output = 'output'
-    # override the av input and get the bullseye coverage build instead
-
-    if coverage:
-        output = 'coverage'
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./av/TA'),
         bullseye_files=context.artifact.from_folder('./av/build/bullseye'),  # used for robot upload
-        av=build / output,
-        # tapartifact upload-file
-        # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
-        # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
         local_rep=context.artifact.from_component('ssplav-localrep', supplement_branch, None) / 'reputation',
         ml_model=context.artifact.from_component('ssplav-mlmodel3-x86_64', supplement_branch, None) / 'model',
         dataseta=context.artifact.from_component('ssplav-dataseta', supplement_branch, None) / 'dataseta',
@@ -184,10 +176,19 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     test_inputs['sdds3_utils'] = unified_artifact(context, 'winep.sau', 'develop', 'build/Linux-x64/SDDS3-Utils')
 
     if coverage:
+        # override the av input and get the bullseye coverage build instead
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
         test_inputs['tap_test_output_from_build'] = build / "coverage_tap_test_output"
+        test_inputs["av/SDDS-COMPONENT"] = build / 'coverage/SDDS-COMPONENT'
+        test_inputs["av/base-sdds"] = build / 'coverage/base_sdds'
+    elif bazel:
+        test_inputs['tap_test_output'] = build / "av/linux_x64_rel/tap_test_output"
+        test_inputs["av/SDDS-COMPONENT"] = build / 'av/linux_x64_rel/installer'
+        test_inputs["av/base-sdds"] = build / 'base/linux_x64_rel/installer'
     else:
         test_inputs['tap_test_output_from_build'] = build / "tap_test_output"
+        test_inputs["av/SDDS-COMPONENT"] = build / 'output/SDDS-COMPONENT'
+        test_inputs["av/base-sdds"] = build / 'output/base_sdds'
 
     return test_inputs
 
@@ -363,7 +364,7 @@ def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
 
     with stage.parallel('av_coverage'):
         with stage.parallel('coverage'):
-            coverage_inputs = get_inputs(context, av_coverage_build, coverage=True)
+            coverage_inputs = get_inputs(context, av_coverage_build, coverage=True, bazel=False)
 
             with stage.parallel('pytest'):
                 machine_bullseye_pytest = tap.Machine(av_coverage_machine,
@@ -399,7 +400,7 @@ def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
                        branch_name=context.branch)
 
 
-def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None):
+def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None, bazel=True):
     # run_tests: bool = parameters.run_tests != 'false'
 
     robot_args = get_robot_args(parameters)
@@ -410,7 +411,7 @@ def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None
     with stage.parallel('av_test'):
         with stage.parallel('TA'):
             test_inputs = {
-                "x64": get_inputs(context, av_build)
+                "x64": get_inputs(context, av_build, bazel=bazel)
             }
             # Robot before pytest, since pytest is quick
             with stage.parallel('robot'):

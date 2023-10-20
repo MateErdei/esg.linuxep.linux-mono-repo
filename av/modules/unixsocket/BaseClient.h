@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "datatypes/AutoFd.h"
+#include "BaseClientDefaultSleepTime.h"
 
-#include "common/StoppableSleeper.h"
+#include "datatypes/AutoFd.h"
 
 #include <memory>
 #include <string>
@@ -14,10 +14,10 @@ namespace unixsocket
     class BaseClient
     {
     public:
-        using IStoppableSleeper = common::StoppableSleeper;
-        using IStoppableSleeperSharedPtr = common::IStoppableSleeperSharedPtr;
-        using duration_t = IStoppableSleeper::duration_t;
-        static constexpr duration_t DEFAULT_SLEEP_TIME = std::chrono::seconds{1};
+        using IStoppableSleeper = unixsocket::IStoppableSleeper;
+        using IStoppableSleeperSharedPtr = unixsocket::IStoppableSleeperSharedPtr;
+        using duration_t = unixsocket::duration_t;
+        static constexpr duration_t DEFAULT_SLEEP_TIME = unixsocket::DEFAULT_CLIENT_SLEEP_TIME;
         static constexpr int DEFAULT_MAX_RETRIES = 10;
 
         BaseClient& operator=(const BaseClient&) = delete;

@@ -229,9 +229,27 @@ def create_library_symlinks(directory):
             file = mo.group(1)
 
 
+def recursive_create_library_symlinks(directory):
+    LIB_RE = re.compile(r"^(lib.*\.so.*?)(\.\d+)$")
+    for (base, dirs, files) in os.walk(directory):
+        for file in files:
+            f = os.path.join(base, file)
+            if os.path.islink(f):
+                continue
+            while True:
+                mo = LIB_RE.match(file)
+                if not mo:
+                    break
+                try:
+                    os.symlink(file, os.path.join(base, mo.group(1)))
+                except EnvironmentError:
+                    pass
+                file = mo.group(1)
+
+
 def __main(argv):
     src = argv[1]
-    create_library_symlinks(src)
+    recursive_create_library_symlinks(src)
     return 0
 
 

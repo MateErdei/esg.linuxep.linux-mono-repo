@@ -2,6 +2,12 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
+    name = "ISystemCallWrapper",
+    hdrs = ["ISystemCallWrapper.h"],
+    visibility = ["//common:spl_packages"],
+)
+
+soph_cc_library(
     name = "SystemCallWrapper",
     srcs = glob([
         "*.cpp",
@@ -10,6 +16,7 @@ soph_cc_library(
     hdrs = glob(["*.h"]),
     visibility = ["//common:spl_packages"],
     deps = [
+        ":ISystemCallWrapper",
         "//common:libcap",
     ],
 )

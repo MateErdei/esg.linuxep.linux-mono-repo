@@ -6,16 +6,58 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
             <development-version branch="develop"/>
+            <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
             <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
             <include artifact-path="sophlib/linux_arm64_rel/lib" dest-dir="common/sophlib/linux_arm64_release/lib"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
-            <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="common/journal/linux_x64_rel/libs" dest-dir="common/journal/linux_x64_release"/>
             <include artifact-path="common/journal/linux_x64_rel/tools" dest-dir="common/journal/linux_x64_release"/>
             <include artifact-path="common/journal/linux_arm64_rel/libs" dest-dir="common/journal/linux_arm64_release"/>
             <include artifact-path="common/journal/linux_arm64_rel/tools" dest-dir="common/journal/linux_arm64_release"/>
+            <include artifact-path="common/safestore/linux_x64_rel/safestore" dest-dir="common/safestore/linux_x64_rel"/>
+            <include artifact-path="common/safestore/linux_arm64_rel/safestore" dest-dir="common/safestore/linux_arm64_rel"/>
+        </build-asset>
+
+        <!-- SUSI imports -->
+        <build-asset project="core" repo="engine">
+            <release-version branch="release--3.89.0" build-id="20230915145859-a4679b8647d3831c5b46549ca893aa4a209cd9eb-5zKA9B"/>
+            <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="imports/internal/susi/x86_64/libsavi"/>
+        </build-asset>
+        <!-- Once a new engine build is released, this block should be merged with the above -->
+        <build-asset project="core" repo="engine">
+            <release-version branch="release--sophtainer-1.6.1" build-id="20230516124421-ef8a1e891d8b0f0d14a66f5bb6edbeeffd7213d9-uJpaAr"/>
+            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="imports/internal/susi/x86_64/libsophtainer"/>
+        </build-asset>
+        <build-asset project="core" repo="liblocalrep">
+            <release-version branch="release/2.5" build-id="20230330092449-994f1a1c8286d86eb47ffa224f3d1cf12e63a04e-NTDWhc"/>
+            <include artifact-path="release/linux64/bin" dest-dir="imports/internal/susi/x86_64/lrlib"/>
+        </build-asset>
+        <build-asset project="core" repo="susi">
+<!--            <release-version branch="release/2.3" build-id="20230516162702-8c64c09abddf3fceedcc1d384902f20d4f762bec-5kNL5w"/>-->
+            <development-version branch="develop"/>
+            <include artifact-path="release/linux/libsusi" dest-dir="imports/internal/susi/x86_64/lib"/>
+            <include artifact-path="release/linux/interface" dest-dir="imports/internal/susi/include"/>
+            <include artifact-path="release/linux/updater" dest-dir="imports/internal/susi/x86_64/lib"/>
+            <include artifact-path="release/rules" dest-dir="imports/internal/susi/rules"/>
+        </build-asset>
+        <build-asset project="core" repo="httpsrequester">
+            <release-version branch="release--1.5" build-id="20230927085338-fabb7dc78797d8ebc055a26f0161c9016e1a16ab-4Wfkv7"/>
+            <include artifact-path="release/linux/libglobalrep" dest-dir="imports/internal/susi/x86_64/grlib"/>
+        </build-asset>
+        <!-- external dependencies -->
+        <build-asset project="thirdparty" repo="icu">
+            <release-version branch="release--sophos--susi--70.1" build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2" />
+            <include artifact-path="linux-x64/lib" dest-dir="imports/internal/susi/x86_64/icu/lib"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="libarchive">
+            <release-version branch="release--sophos--core--3.5.2" build-id="20220830091606-26250850af1ca762e02788c56d5b4a8c4c13c5e6-8fcn7J"/>
+            <include artifact-path="release/linux-x64/lib" dest-dir="imports/internal/susi/x86_64/libarchive/lib"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="luajit">
+            <release-version branch="release--sophos--susi--2.1.0" build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83"/>
+            <include artifact-path="linux-x64/lib" dest-dir="imports/internal/susi/x86_64/luajit/lib"/>
         </build-asset>
 
         <build-asset project="winep" repo="liveterminal">
@@ -147,7 +189,10 @@
                 --profile=linuxep_spl_lx64r_build
                 build
                 --config=linux_arm64_rel
-                --target_pattern_file=build/linuxep_spl_build_targets.txt
+                <!-- TODO LINUXDAR-4123: Revert back once AV can build on ARM64 (blocked on SUSI) -->
+<!--                &#45;&#45;target_pattern_file=build/linuxep_spl_build_targets_arm64.txt-->
+                --
+                //... -//av/... //products:export_assets
             </args>
         </command>
         <command mode="all_la64r">
@@ -168,7 +213,10 @@
                 --profile=linuxep_spl_lx64d_build
                 build
                 --config=linux_arm64_dbg
-                --target_pattern_file=build/linuxep_spl_build_targets.txt
+                <!-- TODO LINUXDAR-4123: Revert back once AV can build on ARM64 (blocked on SUSI) -->
+<!--                &#45;&#45;target_pattern_file=build/linuxep_spl_build_targets.txt-->
+                --
+                //... -//av/... //products:export_assets
             </args>
         </command>
         <command mode="all_la64d">
@@ -201,6 +249,14 @@
         <logs name="test_logs" source-dir="bazel-testlogs">
             <include glob="**"/>
         </logs>
+
+        <!-- AV -->
+        <release-asset artifact-path="av/linux_x64_rel/installer" source-dir=".output/av/linux_x64_rel/installer" manifest-path=".output/av/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="av/linux_x64_rel/installer" source-zip=".output/av/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="av/linux_x64_rel/installer_symbols" source-zip=".output/av/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="av/linux_x64_rel/tap_test_output" source-zip=".output/av/linux_x64_rel/tap_test_output.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="av/linux_x64_dbg/installer" source-zip=".output/av/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="av/linux_x64_dbg/tap_test_output" source-zip=".output/av/linux_x64_dbg/tap_test_output.zip" mode="all_lx64d"/>
 
         <!-- Base -->
         <release-asset artifact-path="base/linux_x64_rel/installer" source-dir=".output/base/linux_x64_rel/installer" manifest-path=".output/base/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>

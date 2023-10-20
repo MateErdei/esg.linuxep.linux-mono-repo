@@ -4,6 +4,12 @@
 
 #define TEST_PUBLIC public
 
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorControlCallback.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h"
+
+// test headers
 #include "MockMetadataRescanServerSocket.h"
 #include "MockScanningServerSocket.h"
 #include "MockShutdownTimer.h"
@@ -11,17 +17,14 @@
 #include "MockThreatReporter.h"
 #include "MockUpdateCompleteServerSocket.h"
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorControlCallback.h"
-#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h"
-#include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
+#include "tests/sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
 
-#include "common/MockPidLock.h"
-#include "common/MockSignalHandler.h"
+#include "tests/common/MockPidLock.h"
+#include "tests/common/MockSignalHandler.h"
 
 #include "Common/Helpers/MockSysCalls.h"
 
 #include <gmock/gmock.h>
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 
 using namespace testing;
 using namespace sspl::sophosthreatdetectorimpl;

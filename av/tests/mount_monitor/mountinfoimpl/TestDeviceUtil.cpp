@@ -330,6 +330,12 @@ class uncachableFilesystems
 {
 };
 
+// The constant is not defined for the kernel version we use in crosstool-ng
+// Therefore we define it ourselves. Matches the constant from Ubuntu 20.04
+#ifndef OVERLAYFS_SUPER_MAGIC
+# define OVERLAYFS_SUPER_MAGIC        0x794c7630
+#endif
+
 auto uncachableTypes = ::testing::Values(
     NFS_SUPER_MAGIC,
     SMB_SUPER_MAGIC,

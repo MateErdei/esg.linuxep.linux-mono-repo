@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessControlSerialiser.h"
 
 #include "Logger.h"
-#include "ProcessControl.capnp.h"
+#include "scan_messages/ProcessControl.capnp.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>

@@ -1,10 +1,10 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // Tests for the various helper functions within the SafeStoreWrapper.
 // Most of the wrapper code calls into the safestore library so all those tests cannot be done as unit tests, they
 // are covered in SafeStoreTapTest.cpp which produces a gtest binary that is run at TAP test time by robot.
 
-#include "../common/LogInitializedTests.h"
+#include "tests/common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include <gtest/gtest.h>

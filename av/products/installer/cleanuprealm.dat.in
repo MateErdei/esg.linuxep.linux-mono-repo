@@ -1,2 +1,3 @@
 +plugins/av
 -plugins/av/chroot/susi
+-plugins/av/chroot/lib64

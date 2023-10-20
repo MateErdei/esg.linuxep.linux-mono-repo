@@ -3,8 +3,8 @@
 #include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorException.h"
 
-#include "common/LogInitializedTests.h"
-#include "common/MockScanner.h"
+#include "tests/common/LogInitializedTests.h"
+#include "tests/common/MockScanner.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

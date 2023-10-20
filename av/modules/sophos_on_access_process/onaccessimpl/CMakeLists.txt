@@ -4,14 +4,19 @@ add_library(onaccessimpl SHARED
         ClientSocketWrapper.h
         Logger.cpp
         Logger.h
-        OnAccessScanRequest.cpp
-        OnAccessScanRequest.h
-        OnAccessTelemetryUtility.cpp
-        OnAccessTelemetryUtility.h
+        ../ScanRequestQueue/OnAccessScanRequest.cpp
+        ../ScanRequestQueue/OnAccessScanRequest.h
+        ../OnAccessTelemetryUtility/Logger.cpp
+        ../OnAccessTelemetryUtility/Logger.h
+        ../OnAccessTelemetryUtility/OnAccessTelemetryUtility.cpp
+        ../OnAccessTelemetryUtility/OnAccessTelemetryUtility.h
         ScanRequestHandler.cpp
         ScanRequestHandler.h
-        ScanRequestQueue.cpp
-        ScanRequestQueue.h)
+        ../ScanRequestQueue/Logger.cpp
+        ../ScanRequestQueue/Logger.h
+        ../ScanRequestQueue/ScanRequestQueue.cpp
+        ../ScanRequestQueue/ScanRequestQueue.h
+)
 
 target_link_libraries(onaccessimpl PUBLIC
         common
