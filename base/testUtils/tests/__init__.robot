@@ -130,7 +130,9 @@ Global Setup Tasks
 
 
 
-    Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3
+    Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
+    Set Global Variable    ${VUT_LAUNCH_DARKLY}                  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly
+    Set Global Variable    ${VUT_LAUNCH_DARKLY_999}              ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999
     Set Global Variable    ${DOGFOOD_WAREHOUSE_ROOT}             ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood
     Set Global Variable    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping
 

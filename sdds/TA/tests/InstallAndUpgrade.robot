@@ -2,22 +2,22 @@
 Library    Collections
 Library    OperatingSystem
 
-Library    ${LIB_FILES}/FullInstallerUtils.py
-Library    ${LIB_FILES}/LiveQueryUtils.py
-Library    ${LIB_FILES}/LogUtils.py
-Library    ${LIB_FILES}/MCSRouter.py
-Library    ${LIB_FILES}/OSUtils.py
-Library    ${LIB_FILES}/SafeStoreUtils.py
-Library    ${LIB_FILES}/ThinInstallerUtils.py
-Library    ${LIB_FILES}/UpdateSchedulerHelper.py
-Library    ${LIB_FILES}/UpgradeUtils.py
-Library    ${LIB_FILES}/WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/LiveQueryUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/SafeStoreUtils.py
+Library    ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/UpgradeUtils.py
+Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
-Resource    BaseProcessesResources.robot
-Resource    GeneralUtilsResources.robot
 Resource    PluginResources.robot
 Resource    ProductResources.robot
-Resource    UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
@@ -55,7 +55,7 @@ Sul Downloader fails update if expected product missing from SUS
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
-    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     start_local_cloud_server
     # Enable OnAccess
@@ -199,7 +199,7 @@ Install VUT and Check RPATH of Every Binary
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
-    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
     start_local_cloud_server
@@ -323,7 +323,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
-    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
     start_local_cloud_server
     # Enable OnAccess
@@ -417,7 +417,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
-    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_REPO_ROOT}
+    &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
     start_local_cloud_server
@@ -685,13 +685,13 @@ SPL Can Be Installed To A Custom Location
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    Check MCS Router Running    ${CUSTOM_INSTALL_DIRECTORY}/logs/base
+    Check MCS Router Running    ${CUSTOM_INSTALL_DIRECTORY}
 
     # Checks for AV Plugin
     File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
     ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
     Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
     Enable On Access Via Policy
     Check On Access Detects Threats
     SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
@@ -758,7 +758,7 @@ Installing New Plugins Respects Custom Installation Location
     File Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
     ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
     Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-    Check AV Plugin Can Scan Files    CLSPath=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
+    Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
     Enable On Access Via Policy
     Check On Access Detects Threats
     SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml

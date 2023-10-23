@@ -2,19 +2,19 @@
 Library    Collections
 Library    OperatingSystem
 
-Library    ${LIB_FILES}/CentralUtils.py
-Library    ${LIB_FILES}/FullInstallerUtils.py
-Library    ${LIB_FILES}/LogUtils.py
-Library    ${LIB_FILES}/MCSRouter.py
-Library    ${LIB_FILES}/OSUtils.py
-Library    ${LIB_FILES}/SafeStoreUtils.py
-Library    ${LIB_FILES}/TelemetryUtils.py
-Library    ${LIB_FILES}/ThinInstallerUtils.py
-Library    ${LIB_FILES}/UpdateSchedulerHelper.py
-Library    ${LIB_FILES}/WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/CentralUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/SafeStoreUtils.py
+Library    ${COMMON_TEST_LIBS}/TelemetryUtils.py
+Library    ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
-Resource    BaseProcessesResources.robot
-Resource    GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    PluginResources.robot
 Resource    ProductResources.robot
 Resource    UpgradeResources.robot
@@ -57,7 +57,7 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
+        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
         Should Be Equal As Strings   ${result.rc}  0
@@ -75,7 +75,7 @@ Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
     @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIB_FILES}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
+        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
         Should Be Equal As Strings   ${result.rc}  0

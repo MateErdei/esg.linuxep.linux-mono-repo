@@ -5,7 +5,7 @@ Suite Teardown   EDR Suite Teardown
 Test Setup       EDR Test Setup
 Test Teardown    EDR Test Teardown
 
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py

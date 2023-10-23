@@ -1,6 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/TeardownTools.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource   InstallerResources.robot
 
@@ -9,6 +10,9 @@ Resource   InstallerResources.robot
 *** Keywords ***
 Dump All Logs
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    Dump Thininstaller Log
+    Dump Cloud Server Log
+    
     Dump Teardown Log    ${installDir}/logs/base/sophosspl/updatescheduler.log
 
     Dump Teardown Log    ${installDir}/logs/base/wdctl.log
@@ -99,7 +103,6 @@ Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
     Log  ${result.stdout}
 
-
 Log Status Of Sophos Spl
     ${result} =  Run Process    systemctl  status  sophos-spl
     Log  ${result.stdout}
@@ -123,14 +126,13 @@ Check Journalctl
 Check and Dump Journalctl
     Analyse Journalctl   print_always=True
 
-
 General Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Require No Unhandled Exception
     Check For Coredumps  ${TEST NAME}
     Check Dmesg For Segfaults
     Run Keyword If Test Failed    Dump All Logs    ${installDir}
-    Remove File          /tmp/sdds3_server.log
+    Remove File                   /tmp/sdds3_server.log
     Run Keyword If Test Failed    Check and Dump Journalctl
     Run Keyword If Test Passed    Check Journalctl
     Run Keyword If Test Failed    Log Status Of Rsyslog

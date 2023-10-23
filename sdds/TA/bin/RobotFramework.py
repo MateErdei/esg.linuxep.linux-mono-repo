@@ -1,7 +1,8 @@
+from dirsync import sync
+import distro
 import json
 import os
 import shutil
-import tarfile
 
 import robot
 import sys
@@ -21,8 +22,44 @@ def copy_supplements(src, dest):
                     shutil.copy(os.path.join(src_package_path, package), os.path.join(dest_package_path, package))
 
 
+def get_platform_exclusions():
+    id = distro.id()
+    pretty_name = distro.name(pretty=True)
+    print(f"Pretty name to be matched for exclusions: {pretty_name}")
+    exclusions = []
+    if id == "amazon":
+        exclusions.append("EXCLUDE_AMAZON")
+        if pretty_name.startswith("Amazon Linux 2023"):
+            exclusions.append("EXCLUDE_AMAZON_LINUX2023")
+        elif pretty_name.startswith("Amazon Linux 2"):
+            exclusions.append("EXCLUDE_AMAZON_LINUX2")
+    elif id == "centos":
+        exclusions.append("EXCLUDE_CENTOS")
+    elif id == "debian":
+        exclusions.append("EXCLUDE_DEBIAN")
+    elif id == "rhel":
+        exclusions.append("EXCLUDE_RHEL")
+    elif id == "sles":
+        exclusions.append("EXCLUDE_SLES")
+        if pretty_name.startswith("SUSE Linux Enterprise Server 12"):
+            exclusions.append("EXCLUDE_SLES12")
+        elif pretty_name.startswith("SUSE Linux Enterprise Server 15"):
+            exclusions.append("EXCLUDE_SLES15")
+    elif id == "ubuntu":
+        exclusions.append("EXCLUDE_UBUNTU")
+        if pretty_name.startswith("Ubuntu 18.04"):
+            exclusions.append("EXCLUDE_UBUNTU18")
+        elif pretty_name.startswith("Ubuntu 20.04"):
+            exclusions.append("EXCLUDE_UBUNTU20")
+        elif pretty_name.startswith("Ubuntu 22.04"):
+            exclusions.append("EXCLUDE_UBUNTU22")
+    else:
+        print(f"Unhandled id {id}. Please extend platform exclusions to handle it")
+    return exclusions
+
 def main(argv):
     exclude = argv
+    exclude.extend(get_platform_exclusions())
     tags = {"include": [], "exclude": exclude}
 
     os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
@@ -47,16 +84,29 @@ def main(argv):
 
     os.environ["SUPPORT_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "SupportFiles")
     os.environ["LIB_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "libs")
+    os.environ['BASE_DIST'] = os.path.join(os.environ["INPUT_DIRECTORY"], "base")
+    os.environ['SSPL_ANTI_VIRUS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "av")
+    os.environ['SSPL_EDR_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "edr")
+    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej")
+    os.environ['SSPL_LIVERESPONSE_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "lr")
+    os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "rtd")
+    os.environ['SSPL_RA_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ra")
+    os.environ['THIN_INSTALLER_OVERRIDE'] = os.path.join(os.environ["INPUT_DIRECTORY"], "thin_installer")
+    os.environ['SYSTEMPRODUCT_TEST_INPUT'] = os.environ["INPUT_DIRECTORY"]
+    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej_manual_tools", "JournalReader")
+    shutil.copytree(os.path.join(os.environ["INPUT_DIRECTORY"], "rtd_content_rules"), os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"))
 
     # TODO LINUXDAR-7079 supplements are not published for release branches
     try:
-        os.environ["VUT_WAREHOUSE_REPO_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "repo")
+        os.environ["VUT_WAREHOUSE_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "repo")
+        os.environ["VUT_WAREHOUSE_ROOT_999"] = os.path.join(os.environ["INPUT_DIRECTORY"], "repo999")
+        sync(os.environ["VUT_WAREHOUSE_ROOT_999"], os.environ["VUT_WAREHOUSE_ROOT"], "sync")
 
         os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "dogfood_repo")
         os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "current_shipping_repo")
 
-        copy_supplements(os.environ["VUT_WAREHOUSE_REPO_ROOT"], os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"])
-        copy_supplements(os.environ["VUT_WAREHOUSE_REPO_ROOT"], os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"])
+        copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"])
+        copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"])
     except Exception as ex:
         print(f"Failed to copy supplements for dogfood/current_shipping: {ex}")
 

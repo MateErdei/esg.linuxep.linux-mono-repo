@@ -8,7 +8,7 @@ Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
-Library   ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library   ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
 
 Suite Setup     Run keywords

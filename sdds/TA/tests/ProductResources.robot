@@ -3,13 +3,13 @@ Library    Collections
 Library    OperatingSystem
 Library    Process
 
-Library    ${LIB_FILES}/FullInstallerUtils.py
-Library    ${LIB_FILES}/LogUtils.py
-Library    ${LIB_FILES}/MCSRouter.py
-Library    ${LIB_FILES}/WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
-Resource    BaseProcessesResources.robot
 Resource    PluginResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 
 
 *** Variables ***
@@ -102,16 +102,6 @@ Wait For Version Files to Update
     ...  5 secs
     ...  version_number_in_ini_file_should_be    ${InstalledRTDPluginVersionFile}    ${expectedVersions["rtdVersion"]}
 
-Check Installed Correctly
-    Should Exist    ${SOPHOS_INSTALL}
-    check_correct_mcs_password_and_id_for_local_cloud_saved
-
-    ${result}=  Run Process  stat  -c  "%A"  /opt
-    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
-    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    ${version_number} =  get_version_number_from_ini_file    ${InstalledBaseVersionFile}
-    Check Expected Base Processes Except SDU Are Running
-
 Check EAP Release Installed Correctly
     Check Installed Correctly
 
@@ -155,52 +145,3 @@ Check Update Reports Have Been Processed
     Should Contain    ${filesInProcessedDir}[0]    update_report
     Should Not Contain    ${filesInProcessedDir}[0]    update_report.json
     Should Contain    ${filesInUpdateVar}    ${filesInProcessedDir}[0]
-
-Override LogConf File as Global Level
-    [Arguments]  ${logLevel}  ${key}=VERBOSITY
-    ${loggerConfPath} =  get_logger_conf_path
-    Create File  ${loggerConfPath}  [global]\n${key} = ${logLevel}\n
-
-Display All SSPL Files Installed
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
-    ${handle}=  Start Process  find ${installDir}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/logs -not -type d | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/bin -not -type d | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/var -not -type d | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  find ${installDir}/etc -not -type d | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-
-Display All SSPL Plugins Files Installed
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
-    ${handle}=  Start Process  find ${installDir}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/liveresponse -not -type d | grep -v lenses | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/eventjournaler | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/rtd | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    ${handle}=  Start Process  find ${installDir}/plugins/responseactions | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}

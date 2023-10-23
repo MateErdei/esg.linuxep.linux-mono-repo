@@ -5,7 +5,7 @@ Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library     ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 
 Suite Setup     Require Installed
 Suite Teardown  Require Uninstalled

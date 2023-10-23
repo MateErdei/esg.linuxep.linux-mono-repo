@@ -176,6 +176,7 @@ def get_os_packages(machine: tap.Machine):
         "git",
         "openssl",
         "rsync",
+        "unzip",
     ]
     if machine.template == "amzlinux2_x64_server_en_us":
         return common

@@ -134,6 +134,11 @@
             <workingdir>./sdds/SystemProductTestOutput/testUtils</workingdir>
         </command>
         <command mode="dev,999">
+            <program>cp</program>
+            <args>fileInfo.py readVersion.py generateManifestDat.py generateSDDSImport.py generateSDDSImportAndManifestDat.py ../TA/libs/</args>
+            <workingdir>./sdds/SystemProductTestOutput</workingdir>
+        </command>
+        <command mode="dev,999">
             <program>rsync</program>
             <args>-avh SystemProductTestOutput/libs/ TA/libs/</args>
             <workingdir>./sdds</workingdir>
@@ -162,8 +167,15 @@
 
   <publish>
       <!--sdds3-->
-      <build-asset artifact-path="test-scripts" source-dir="sdds/TA" mode="dev"/>
-      <build-asset artifact-path="test-thininstaller" source-dir="sdds/thinstaller" mode="dev"/>
+      <build-asset artifact-path="sdds/test-scripts" source-dir="sdds/TA" mode="dev"/>
+      <build-asset artifact-path="sdds/test-thininstaller" source-dir="sdds/thinstaller" mode="dev"/>
+      <build-asset artifact-path="sdds/base-sdds" source-dir="sdds/redist/base/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/av-sdds" source-dir="sdds/redist/av/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/edr-sdds" source-dir="sdds/redist/edr/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/ej-sdds" source-dir="sdds/redist/event-journaler/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/lr-sdds" source-dir="sdds/redist/liveresponse/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/rtd-sdds" source-dir="sdds/redist/runtimedetections/latest/x64" mode="dev"/>
+      <build-asset artifact-path="sdds/ra-sdds" source-dir="sdds/redist/responseactions/latest/x64" mode="dev"/>
       <!--dev version-->
       <build-asset artifact-path="sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="dev">
           <include glob="package/**"/>

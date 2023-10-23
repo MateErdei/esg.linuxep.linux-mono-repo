@@ -112,8 +112,10 @@ class WarehouseUtils(object):
             logger.error(f"Can't list warehouse_root: {warehouse_package_path}")
             raise
         for package in packages:
+            logger.info(f"Checking package: {package}")
             if package.startswith(product_name):
                 version = package[len(product_name)+1:-15]
+                logger.info(f"Found matching product with version: {version}")
                 if not re.match(r"^((?:(9+)\.)?){3}(\*|\d+)$", version):
                     return version
         raise AssertionError(f"Did not find {rigidname} in {warehouse_package_path}")

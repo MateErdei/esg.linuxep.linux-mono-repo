@@ -1,6 +1,6 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    GeneralUtilsResources.robot
 Resource    UpgradeResources.robot
@@ -149,10 +149,12 @@ EDR Suite Setup
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}/repo  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}/repo  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${result}=  Run Process    ls -lR ${VUT_WAREHOUSE_ROOT}     shell=True
+    Log  ${result.stdout}
     Set Suite Variable    ${GL_handle}    ${handle}
 
 EDR Suite Teardown
@@ -163,38 +165,38 @@ EDR Suite Teardown
 Setup SUS all develop
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
 
 
 Setup SUS all 999
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
 
 Setup SUS only edr 999
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
 
 Setup SUS only base 999
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
 
 Setup SUS all non-base plugins 999
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
 
 EDR Test Setup
     Upgrade Resources Test Setup

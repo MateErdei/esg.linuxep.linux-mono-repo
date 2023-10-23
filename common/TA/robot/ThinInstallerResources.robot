@@ -1,6 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
 
+Resource    McsRouterResources.robot
 Resource    SDDS3Resources.robot
 
 *** Variables ***

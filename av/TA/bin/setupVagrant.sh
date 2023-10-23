@@ -5,6 +5,7 @@ set -e
 
 LMONO_PATH="/vagrant/esg.linuxep.linux-mono-repo"
 GITHUB_PATH="${LMONO_PATH}/av"
+COMMON_PATH="${LMONO_PATH}/common"
 
 function failure()
 {
@@ -73,6 +74,8 @@ then
     ln -snf "${AV_PATH}/output/test-resources/" /opt/test/inputs/av/test-resources
     ln -snf "${AV_PATH}/output/base-sdds/" /opt/test/inputs/av/base-sdds
     ln -snf "${AV_PATH}/output/" /opt/test/inputs/tap_test_output_from_build
+    ln -snf "${COMMON_PATH}/TA/libs" /opt/test/inputs/common_test_libs
+    ln -snf "${COMMON_PATH}/TA/robot" /opt/test/inputs/common_test_robot
 else
     failure 2 "Can't find SPL-AV build!"
 fi

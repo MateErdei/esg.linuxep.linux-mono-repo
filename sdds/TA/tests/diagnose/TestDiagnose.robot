@@ -1,12 +1,12 @@
 *** Settings ***
 
-Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
-
 Library     Process
 Library     OperatingSystem
 Library     Collections
+
+Library     ${COMMON_TEST_LIBS}/DiagnoseUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot

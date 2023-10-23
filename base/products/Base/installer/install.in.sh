@@ -1045,8 +1045,6 @@ then
     fi
 fi
 
-
-
 copy_manifests "${DIST}" ${PRODUCT_LINE_ID}
 echo "managementagent,${PRODUCT_LINE_ID}" >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
 

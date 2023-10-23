@@ -24,7 +24,7 @@ Setup Dev Certs for sdds3
 Setup Install SDDS3 Base
     Require Fresh Install
     Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini  ${SOPHOS_INSTALL}/base/VERSION.ini.0
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/base/VERSION.ini  ${SOPHOS_INSTALL}/base/VERSION.ini.0
     Setup Dev Certs for sdds3
 
 Wait For Suldownloader To Finish

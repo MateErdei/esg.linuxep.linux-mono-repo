@@ -10,6 +10,9 @@ from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import get_test_machines, pip_install, get_os_packages, python
 
+SYSTEM_TEST_TIMEOUT = 9000
+SYSTEM_TEST_TASK_TIMEOUT = 150
+
 def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel_20230512"):
     component = tap.Component(name="sdds3-warehouse-" + mode, base_version="1.0.0")
     return stage.artisan_build(name=mode,
@@ -18,8 +21,8 @@ def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel
                                release_package="./sdds/build/dev.xml",
                                mode=mode)
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
-    print(f"Build directory: {str(build)}")
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, build999: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
+    print(f"Build: {str(build)} and 999 build: {str(build999)}")
 
     previous_dogfood_branch = parameters.previous_dogfood_branch
     current_shipping_branch = parameters.current_shipping_branch
@@ -33,10 +36,27 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
     current_shipping_branch = current_shipping_branch.replace("/", "--")
 
     test_inputs = dict(
-        test_scripts=build / "test-scripts",
+        test_scripts=build / "sdds/test-scripts",
         repo=build / "sdds3-repo",
         launchdarkly=build / "sdds3-launchdarkly",
-        thin_installer=build / "test-thininstaller",
+        thin_installer=build / "sdds/test-thininstaller",
+        static_suites=build / "prod-sdds3-static-suites",
+        base=build / "sdds/base-sdds",
+        av=build / "sdds/av-sdds",
+        edr=build / "sdds/edr-sdds",
+        ej=build / "sdds/ej-sdds",
+        lr=build / "sdds/lr-sdds",
+        rtd=build / "sdds/rtd-sdds",
+        ra=build / "sdds/ra-sdds",
+        rtd_content_rules=context.artifact.from_component("linuxep.runtimedetections", "develop", None, org="",
+                                                          storage="esg-build-tested") / "build/sspl-rdrules",
+        local_rep=context.artifact.from_component('ssplav-localrep', "released", None) / 'reputation',
+        ml_model=context.artifact.from_component('ssplav-mlmodel3-x86_64', "released", None) / 'model',
+        vdl=context.artifact.from_component('ssplav-dataseta', "released", None) / 'dataseta',
+        ej_manual_tools=context.artifact.from_component("em.esg", "develop", None, org="",
+                                                        storage="esg-build-tested") / "build/common/journal/linux_x64_rel/tools",
+        liveterminal_test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                                  storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
         dogfood_launch_darkly=context.artifact.from_component("linuxep.sspl-warehouse", previous_dogfood_branch, None,
                                                               org="",
                                                               storage="esg-build-tested") / "build/prod-sdds3-launchdarkly",
@@ -49,8 +69,14 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: ta
                                                               current_shipping_branch, None, org="",
                                                               storage="esg-build-tested") / "build/prod-sdds3-repo",
         safestore_tools=context.artifact.from_component("core.safestore", "develop", None, org="",
-                                                        storage="esg-build-tested") / "build/release/linux-x64/safestore"
+                                                        storage="esg-build-tested") / "build/release/linux-x64/safestore",
+        sdds3=context.artifact.from_component("em.esg", "develop", None, org="",
+                                              storage="esg-build-tested") / "build/sophlib/linux_x64_rel/sdds3_tools",
     )
+    if build999:
+        test_inputs["repo999"] = build999 / "sdds3-repo-999"
+        test_inputs["launchdarkly999"] = build999 / "sdds3-launchdarkly-999"
+        test_inputs["static_suites999"] = build999 / "prod-sdds3-static-suites-999"
     return test_inputs
 
 def install_requirements(machine: tap.Machine):
@@ -76,6 +102,7 @@ def install_requirements(machine: tap.Machine):
         print(f"On adding installing requirements: {ex}")
 
 
+@tap.timeout(task_timeout=SYSTEM_TEST_TASK_TIMEOUT)
 def robot_task(machine: tap.Machine, parameters_json: str):
     try:
         parameters = json.loads(parameters_json)
@@ -99,16 +126,16 @@ def robot_task(machine: tap.Machine, parameters_json: str):
                     machine.inputs.test_scripts / "bin/RobotFramework.py",
                     *robot_exclusion_tags,
                     environment=environment,
-                    timeout=3600)
+                    timeout=SYSTEM_TEST_TIMEOUT)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / "bin/move_robot_results.py")
         machine.output_artifact("/opt/test/logs", "logs")
         machine.output_artifact("/opt/test/results", "results")
 
 
-def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build):
+def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build, build999):
     test_inputs = {
-        "x64": get_inputs(context, build, parameters)
+        "x64": get_inputs(context, build, build999, parameters)
     }
     machines = get_test_machines(test_inputs, parameters, x64_only=True, system_tests=True)
 
@@ -122,6 +149,8 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
 def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     run_tests = parameters.run_system_tests != "false"
 
+    build = None
+    build999 = None
     with stage.parallel("sdds"):
         branch = context.branch
 
@@ -134,13 +163,12 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
             do_dev = not parameters.sdds_selection or parameters.sdds_selection == "dev"
             do_prod = parameters.sdds_selection == "prod"
 
-        build = None
         if do_prod:
             build_sdds3_warehouse(stage=stage, mode="prod")
         if do_dev:
             build = build_sdds3_warehouse(stage=stage, mode="dev")
-            build_sdds3_warehouse(stage=stage, mode="999")
+            build999 = build_sdds3_warehouse(stage=stage, mode="999")
 
     with stage.parallel("system_testing"):
         if run_tests and build:
-            run_tap_tests(stage, context, parameters, build)
+            run_tap_tests(stage, context, parameters, build, build999)

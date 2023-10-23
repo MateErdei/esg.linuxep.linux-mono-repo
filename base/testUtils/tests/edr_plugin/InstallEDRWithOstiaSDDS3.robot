@@ -7,7 +7,7 @@ Test Teardown    EDR Test Teardown
 
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 

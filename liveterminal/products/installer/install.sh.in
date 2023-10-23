@@ -72,7 +72,6 @@ do
     $SOPHOS_INSTALL/base/bin/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
 
-
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"

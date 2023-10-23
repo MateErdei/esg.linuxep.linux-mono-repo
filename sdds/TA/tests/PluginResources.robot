@@ -4,172 +4,19 @@ Library    OperatingSystem
 Library    Process
 Library    String
 
-Library    ${LIB_FILES}/LogUtils.py
-Library    ${LIB_FILES}/MCSRouter.py
-Library    ${LIB_FILES}/OSUtils.py
-Library    ${LIB_FILES}/SafeStoreUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/SafeStoreUtils.py
 
-Resource    GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 
 *** Variables ***
-${avBin}                    ${AV_DIR}/sbin/av
-${safeStoreBin}             ${AV_DIR}/sbin/safestore
-${CLS_PATH}                  ${AV_DIR}/bin/avscanner
-
-${cleanString}                    I am not a virus
-${eicarString}                    X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
-${virusDetectedResult}            ${24}
-
 ${rtdBin}     ${RTD_DIR}/bin/runtimedetections
 
 
 *** Keywords ***
-Check AV Plugin Permissions
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_DIR} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
-    Should Be Empty  ${output}
-
-Check AV Plugin Installed
-    check_suldownloader_log_should_not_contain    Failed to install as setcap is not installed
-    File Should Exist   ${CLS_PATH}
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check AV Plugin Running
-    Check AV Plugin Permissions
-    Check SafeStore Installed Correctly
-
-Check AV Plugin Running
-    ${result} =    Run Process    pgrep    -f    ${avBin}
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Should Be Equal As Integers    ${result.rc}    0
-
-Enable On Access Via Policy
-    ${mark} =  get_on_access_log_mark
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-    wait_for_on_access_log_contains_after_mark   On-access scanning enabled  mark=${mark}  timeout=${15}
-
-Check AV Plugin Can Scan Files
-    [Arguments]    ${CLSPath}=${CLS_PATH}
-    Create Temporary File    /tmp/clean_file    ${cleanString}
-    Create Temporary File    /tmp/dirty_excluded_file    ${eicarString}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLSPath} /tmp/clean_file /tmp/dirty_excluded_file
-    Should Be Equal As Integers  ${rc}  ${virusDetectedResult}
-
-Check On Access Detects Threats
-    ${threatPath} =  Set Variable  /tmp/eicar.com
-    ${mark} =  get_on_access_log_mark
-    Create Temporary File     ${threatPath}    ${eicarString}
-
-    wait for on access log contains after mark  detected "${threatPath}" is infected with EICAR-AV-Test  mark=${mark}
-
-Wait Until Threat Detector Running
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  2 secs
-    ...  Threat Detector Log Contains    Starting USR1 monitor
-
-Check SafeStore Running
-    ${result} =    Run Process    pgrep    safestore
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Should Be Equal As Integers    ${result.rc}    ${0}
-
-Get SafeStore PID
-    ${pid} =     Run Process    pgrep    safestore
-    [Return]    ${pid.stdout}
-
-Check SafeStore Database Exists
-    Directory Should Exist    ${SAFESTORE_DB_DIR}
-    File Exists With Permissions    ${SAFESTORE_DB_PATH}    root    root    -rw-------
-    File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    root    -rw-------
-
-Check SafeStore Database Has Not Changed
-    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
-    ${currentDatabaseDirectory} =    List Files In Directory    ${SAFESTORE_DB_DIR}
-    ${currentPassword} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
-
-    # Removing tmp file: https://www.sqlite.org/tempfiles.html
-    Remove Values From List    ${oldDatabaseDirectory}    safestore.db-journal
-    Should Be Equal    ${oldDatabaseDirectory}    ${currentDatabaseDirectory}
-
-    ${currentDatabaseContent} =    get_contents_of_safestore_database
-
-    Should Be Equal As Strings    ${oldDatabaseContent}    ${currentDatabaseContent}
-    Should Be Equal As Strings    ${oldPassword}    ${currentPassword}
-
-Check SafeStore Permissions And Owner
-    ${safeStorePid} =    Get SafeStore PID
-    ${watchdogPid} =    Run Process    pgrep    sophos_watchdog
-
-    ${user} =    Run Process    ps    -o    user    -p    ${safeStorePid}
-    ${group} =    Run Process    ps    -o    group    -p    ${safeStorePid}
-    ${watchdogChildPids} =    Run Process    pgrep    -P    ${watchdogPid.stdout}
-
-    Should Contain    ${user.stdout}    root
-    Should Contain    ${group.stdout}    root
-    Should Contain    ${watchdogChildPids.stdout}    ${safeStorePid}
-
-Check SafeStore Installed Correctly
-    File Should Exist    ${safeStoreBin}
-    Wait Until Keyword Succeeds
-    ...    15 secs
-    ...    1 secs
-    ...    Check SafeStore Running
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    2 secs
-    ...    check_safestore_log_contains    Quarantine Manager initialised OK
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    2 secs
-    ...    check_safestore_log_contains    SafeStore started
-    Check SafeStore Database Exists
-    Check SafeStore Permissions And Owner
-
-Threat Detector Log Contains
-    [Arguments]    ${input}
-    ${fileContent}=  Get File  ${AV_DIR}/chroot/log/sophos_threat_detector.log
-    Should Contain  ${fileContent}    ${input}
-
-
-EDR Plugin Is Running
-    ${result} =    Run Process  pgrep  edr
-    Should Be Equal As Integers    ${result.rc}    0
-
-Check EDR Osquery Executable Running
-    #Check both osquery instances are running
-    ${result} =    Run Process  pgrep -a osquery | grep plugins/edr | wc -l  shell=true
-    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-
-Check Event Journaler Executable Running
-    ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-
-Check Live Response Plugin Running
-    ${result} =    Run Process  pgrep  liveresponse
-    Should Be Equal As Integers    ${result.rc}    0
-
-
-Check Response Actions Executable Running
-    ${result} =    Run Process  pgrep responseactions | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-Simulate Response Action
-    [Arguments]    ${action_json_file}    ${id_suffix}=id1    ${sophosInstall}=${SOPHOS_INSTALL}
-    ${tmp_action_file} =   Set Variable  ${sophosInstall}/tmp/action.json
-
-    Copy File   ${action_json_file}  ${tmp_action_file}
-    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${tmp_action_file}   shell=True
-    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${tmp_action_file}  ${sophosInstall}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
-
-
 Runtime Detections Plugin Is Running
     ${result} =    Run Process  pgrep  -f  ${rtdBin}
     Should Be Equal As Integers    ${result.rc}    0    RuntimeDetections Plugin not running

@@ -2,3 +2,6 @@ pytest-html
 robotframework
 artifactory
 psutil
+dirsync
+distro
+sseclient

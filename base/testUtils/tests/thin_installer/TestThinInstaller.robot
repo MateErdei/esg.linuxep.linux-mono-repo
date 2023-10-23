@@ -34,7 +34,7 @@ Teardown With Large Group Creation
 
 Setup TSL server 1_1
     Stop Local SDDS3 Server
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${VUT_WAREHOUSE_ROOT}/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}/repo --protocol tls1_1  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${VUT_LAUNCH_DARKLY} --sdds3 ${VUT_WAREHOUSE_ROOT} --protocol tls1_1  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Thininstaller Test
 

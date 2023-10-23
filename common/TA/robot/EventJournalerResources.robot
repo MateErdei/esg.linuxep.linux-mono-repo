@@ -1,8 +1,8 @@
 *** Settings ***
 Library     Process
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    GeneralTeardownResource.robot
 
@@ -85,6 +85,10 @@ Check Event Journaler Installed
 Read First Event From Journal
     ${result1} =   Run Process  chmod  +x  ${EVENT_READER_TOOL}
     Should Be Equal As Integers  ${result1.rc}  0    Chmod failed with: ${result1.rc}
+    ${result}=    Run Process  ls -l /opt/test/inputs/  shell=True
+    Log  ${result.stdout}
+    ${result}=    Run Process  ls -l /opt/test/inputs/ej_manual_tools/  shell=True
+    Log  ${result.stdout}
     ${result2} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable  -c  1
     log to console   ${result2.stdout}
     log  ${result2.stdout}

@@ -1,10 +1,10 @@
 *** Settings ***
 Library     Process
 Library     ${LIBS_DIRECTORY}/DownloadAVSupplements.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    GeneralTeardownResource.robot
 

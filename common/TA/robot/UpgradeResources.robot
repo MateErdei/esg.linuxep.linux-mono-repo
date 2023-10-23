@@ -5,10 +5,10 @@ Library    Process
 Library    String
 
 Library    ${LIBS_DIRECTORY}/CentralUtils.py
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
@@ -100,7 +100,7 @@ Create Local SDDS3 Override
     Create File    ${SDDS3_OVERRIDE_FILE}    content=${override_file_contents}
 
 Start Local SDDS3 Server
-    [Arguments]    ${launchdarklyPath}=${VUT_WAREHOUSE_ROOT}/launchdarkly    ${sdds3repoPath}=${VUT_WAREHOUSE_ROOT}/repo
+    [Arguments]    ${launchdarklyPath}=${VUT_LAUNCH_DARKLY}    ${sdds3repoPath}=${VUT_WAREHOUSE_ROOT}
     ...  ${port}=8080
     ${handle}=  Start Process
     ...  bash  -x
@@ -117,6 +117,12 @@ Start Local SDDS3 Server
     ...  1 secs
     ...  Can Curl Url    https://localhost:${port}
     [Return]  ${handle}
+
+Start Local Dogfood SDDS3 Server
+    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/dogfood_launch_darkly    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
+
+Start Local Current Shipping SDDS3 Server
+    Start Local SDDS3 Server    ${INPUT_DIRECTORY}/current_shipping_launch_darkly    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
 
 Start Local SDDS3 Server With Empty Repo
     Create Directory  /tmp/FakeFlags
@@ -147,6 +153,36 @@ Stop Local SDDS3 Server
     Dump Teardown Log    ${sdds3_server_log}
     Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
+
+Send ALC Policy And Prepare For Upgrade
+    [Arguments]    ${policyPath}
+    Prepare Installation For Upgrade Using Policy    ${policyPath}
+    send_policy_file    alc    ${policyPath}    wait_for_policy=${True}
+
+Prepare Installation For Upgrade Using Policy
+    [Arguments]    ${policyPath}
+    install_upgrade_certs_for_policy  ${policyPath}
+
+Check For downgraded logs
+    # AV logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
+
+    # Liveresponse logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/eventjournaler/log/downgrade-backup/eventjournaler.log
+    # Edr
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/downgrade-backup/edr.log
+
+    # Response actions logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/responseactions/log/downgrade-backup/responseactions.log
+
+    # RTD logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 
 Check Current Release With AV Installed Correctly
     Check MCS Router Running
@@ -179,33 +215,33 @@ Check Installed Correctly
 
 Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-EDR
+    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-EDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-liveresponse
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-liveresponse
     Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-EventJournaler
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-EventJournaler
     Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}/repo    ServerProtectionLinux-Plugin-RuntimeDetections
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-RuntimeDetections
     Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
 
 Setup SUS static
     Remove Directory   ${tmpLaunchDarkly}   recursive=True
     Create Directory   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static/linuxep.json   ${tmpLaunchDarkly}
+    Copy File  ${STATIC_SUITES}/linuxep.json   ${tmpLaunchDarkly}
 
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
 
 
 Setup SUS static 999
     Remove Directory   ${tmpLaunchDarkly}   recursive=True
     Create Directory   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-static-999/linuxep.json   ${tmpLaunchDarkly}
+    Copy File  ${STATIC_SUITES_999}/linuxep.json   ${tmpLaunchDarkly}
 
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
-    Copy File  ${VUT_WAREHOUSE_ROOT}/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Base.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-AV.json   ${tmpLaunchDarkly}
+    Copy File  ${VUT_LAUNCH_DARKLY_999}/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  ${tmpLaunchDarkly}
