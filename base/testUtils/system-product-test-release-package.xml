@@ -30,7 +30,7 @@
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
 
             <!-- AV -->
-            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="av/linux_x64_rel/installer" dest-dir="sspl-plugin-anti-virus"/>
 
             <!-- LIVETERMINAL -->
             <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage" artifact-path="liveterminal/linux_x64_rel/installer" dest-dir="liveterminal" />
