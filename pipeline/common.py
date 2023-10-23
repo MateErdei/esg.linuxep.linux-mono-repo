@@ -178,6 +178,7 @@ def get_os_packages(machine: tap.Machine):
         "rsync",
         "unzip",
     ]
+    # X64
     if machine.template == "amzlinux2_x64_server_en_us":
         return common
     elif machine.template == "amzlinux2023_x64_server_en_us":
@@ -211,6 +212,31 @@ def get_os_packages(machine: tap.Machine):
     elif machine.template == "ubuntu2004_x64_aws_server_en_us":
         return common
     elif machine.template == "ubuntu2204_x64_aws_server_en_us":
+        return common
+    # ARM64
+    elif machine.template == "amzlinux2_arm64_server_en_us":
+            return common
+    elif machine.template == "amzlinux2023_arm64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos8stream_arm64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "centos9stream_arm64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "debian10_arm64_server_en_us":
+        return common
+    elif machine.template == "debian11_arm64_server_en_us":
+        return common
+    elif machine.template == "rhel87_arm64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "rhel91_arm64_server_en_us":
+        return common + ["openssl-perl"]
+    elif machine.template == "sles15_arm64_sp4_server_en_us":
+        return common + ["libcap-progs"]
+    elif machine.template == "ubuntu1804_arm64_server_en_us":
+        return common
+    elif machine.template == "ubuntu2004_arm64_server_en_us":
+        return common
+    elif machine.template == "ubuntu2204_arm64_server_en_us":
         return common
     else:
         raise Exception(f"Unknown template {machine.template}")
