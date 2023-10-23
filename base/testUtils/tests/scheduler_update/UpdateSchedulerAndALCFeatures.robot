@@ -15,14 +15,12 @@ Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
-
-Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
-Force Tags  LOAD6
+Force Tags   SULDOWNLOADER  UPDATE_SCHEDULER  TAP_PARALLEL3
 
 *** Test Cases ***
 #TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Delayed Updating
-    [Tags]  UPDATE_SCHEDULER  TESTFAILURE
+    [Tags]   TESTFAILURE
     #Removed [Setup]  Setup For Test With Warehouse Containing Base
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Send Policy To UpdateScheduler  ALC_policy_delayed_updating.xml

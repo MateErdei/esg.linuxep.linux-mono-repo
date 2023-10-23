@@ -5,7 +5,6 @@ Suite Teardown   Upgrade Resources Suite Teardown
 Test Setup       Require Uninstalled
 Test Teardown    UC Error Test Teardown
 
-Force Tags  LOAD6
 Test Timeout  10 mins
 
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
@@ -21,14 +20,14 @@ Library     Process
 Library     OperatingSystem
 Library     String
 
-
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  SULDOWNLOADER  sdds3updatecache_error_cases
+Force Tags  LOAD6  SULDOWNLOADER  sdds3updatecache_error_cases
+
 *** Keywords ***
 UC Error Test Teardown
     run keyword if  "${GL_UC_handle}" != "${EMPTY}"  terminate process  ${GL_UC_handle}  True

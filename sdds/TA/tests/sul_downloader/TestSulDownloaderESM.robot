@@ -69,7 +69,7 @@ Valid ESM Entry Is Requested By Suldownloader
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 
-we install flags correctly for static suites
+We Install Flags Correctly For Static Suites
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}

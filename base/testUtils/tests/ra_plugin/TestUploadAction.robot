@@ -14,8 +14,7 @@ Suite Teardown  RA Suite Teardown
 Test Setup  RA Test Setup
 Test Teardown  RA Test Teardown
 
-Force Tags  LOAD5
-Default Tags   RESPONSE_ACTIONS_PLUGIN
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL1
 
 *** Test Cases ***
 RA Plugin uploads a file successfully
@@ -65,7 +64,7 @@ RA Plugin uploads a file successfully with compression
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
     Register Cleanup  Remove Directory  /tmp/unpackzip/    recursive=${True}
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${unzipTool} =  Set Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/unzipTool
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
     Log  ${result.stderr}
     Log  ${result.stdout}
@@ -85,7 +84,7 @@ RA Plugin uploads a folder successfully with compression
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
     Register Cleanup  Remove Directory  /tmp/unpackzip/    recursive=${True}
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${unzipTool} =  Set Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/unzipTool
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
     Log  ${result.stderr}
     Log  ${result.stdout}

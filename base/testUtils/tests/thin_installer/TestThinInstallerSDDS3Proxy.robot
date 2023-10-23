@@ -24,7 +24,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER
 
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log

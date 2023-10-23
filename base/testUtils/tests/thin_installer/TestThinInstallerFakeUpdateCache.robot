@@ -22,7 +22,7 @@ Test Teardown   Teardown
 Suite Setup  sdds3 suite setup with fakewarehouse with real base
 Suite Teardown   SDDS3 Suite Fake Warehouse Teardown
 
-Default Tags  THIN_INSTALLER  UPDATE_CACHE
+Force Tags  THIN_INSTALLER  UPDATE_CACHE
 
 *** Keywords ***
 Teardown

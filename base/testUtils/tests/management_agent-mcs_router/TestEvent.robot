@@ -7,9 +7,10 @@ Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
+Force Tags    MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL2
+
 *** Test Case ***
 Verify Event Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
-    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL2
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

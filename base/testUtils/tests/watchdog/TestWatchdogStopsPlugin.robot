@@ -10,11 +10,13 @@ Library    ${LIBS_DIRECTORY}/Watchdog.py
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
+Force Tags    TAP_PARALLEL2    WATCHDOG    WDCTL
+
 Test Setup  Require Fresh Install
 
 *** Test Cases ***
 Test wdctl can ask watchdog to stop a process
-    [Tags]    WATCHDOG  WDCTL   SMOKE
+    [Tags]    SMOKE
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   Check Management Agent Running And Ready
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   managementagent
     Log    "stdout = ${result.stdout}"
@@ -22,11 +24,11 @@ Test wdctl can ask watchdog to stop a process
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   check managementagent not running
 
 Test wdctl will block on removing a plugin
-    [Tags]    WATCHDOG  WDCTL   SMOKE
+    [Tags]    SMOKE
 
     ${result} =    Run Process   systemctl  stop  sophos-spl
 
-    setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
+    setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
     ${result} =    Run Process   systemctl  start  sophos-spl
     Wait Until Keyword Succeeds
     ...  10s
@@ -43,9 +45,7 @@ Test wdctl will block on removing a plugin
     # Output now only present if plugin has output
 
 Test watchdog logs plugin output during system shutdown
-    [Tags]    WATCHDOG
-
-    setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
+    setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   fakePlugin
     Wait Until Keyword Succeeds
     ...  10s
@@ -55,4 +55,3 @@ Test watchdog logs plugin output during system shutdown
     ${result} =    Run Process   systemctl  stop  sophos-spl
     check_marked_watchdog_log_contains  Killing process
     # Output now only present if plugin has output
-*** Keywords ***

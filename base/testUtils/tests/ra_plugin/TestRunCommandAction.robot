@@ -14,7 +14,7 @@ Suite Teardown  RA Suite Teardown
 Test Setup         RA Run Command Test Setup
 Test Teardown      RA Run Command Test Teardown
 
-Force Tags  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL4
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL2
 
 *** Test Cases ***
 

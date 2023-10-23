@@ -9,7 +9,7 @@ Suite Teardown   Cleanup Telemetry Scheduler Tests
 Test Setup       Telemetry Scheduler Plugin Test Setup
 Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
-Default Tags  TELEMETRY SCHEDULER
+Force Tags  TELEMETRY  SCHEDULER  TAP_PARALLEL5
 
 *** Keywords ***
 ### Suite Cleanup
@@ -27,7 +27,7 @@ Telemetry Scheduler Plugin Test Teardown
 
 *** Test Cases ***
 Check Telemetry Scheduler Plugin Is Started by Watchdog
-    [Tags]  SMOKE  TELEMETRY SCHEDULER  TAP_PARALLEL5
+    [Tags]  SMOKE
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   Check Telemetry Scheduler Is Running
 
 

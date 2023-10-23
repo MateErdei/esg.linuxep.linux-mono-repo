@@ -17,7 +17,7 @@ Test Teardown     Plugin Action Test Teardown
 
 *** Test Cases ***
 Verify Management Agent Sends Action When Action Received
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL5
+    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
 
     # make sure no previous event xml file exists.
     Remove Action Xml Files

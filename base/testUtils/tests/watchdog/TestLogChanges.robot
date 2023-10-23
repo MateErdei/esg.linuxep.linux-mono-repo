@@ -12,6 +12,8 @@ Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
+Force Tags    TAP_PARALLEL1
+
 Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown
 *** Variables ***

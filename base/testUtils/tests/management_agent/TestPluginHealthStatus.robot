@@ -12,7 +12,7 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
-Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS  TAP_PARALLEL5
+Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS  TAP_PARALLEL1
 
 *** Test Cases ***
 Verify Management Agent Can Check Good Plugin Health Status

@@ -233,13 +233,13 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
             elif mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
-    
+
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
-    
+
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
                     run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters)
-    
+
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
                     run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
 

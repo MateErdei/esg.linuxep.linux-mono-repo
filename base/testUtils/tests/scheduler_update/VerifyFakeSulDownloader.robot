@@ -13,8 +13,7 @@ Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags  SULDOWNLOADER  TAP_PARALLEL1
 
 *** Test Cases ***
 FakeSulDownloader Setup Done File

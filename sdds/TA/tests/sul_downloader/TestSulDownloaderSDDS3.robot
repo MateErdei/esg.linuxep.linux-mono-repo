@@ -23,8 +23,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD9
+Force Tags  SULDOWNLOADER  LOAD6
 
 *** Variables ***
 ${sdds3_server_output}                      ${sdds3_server_log}

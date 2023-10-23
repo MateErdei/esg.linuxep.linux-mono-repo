@@ -16,9 +16,6 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-*** Variables ***
-
-
 *** Test Cases ***
 Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     Cleanup Telemetry Server

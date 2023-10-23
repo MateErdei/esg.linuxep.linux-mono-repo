@@ -10,6 +10,7 @@ Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
+Force Tags    TAP_PARALLEL1
 
 *** Test Cases ***
 
@@ -47,7 +48,7 @@ Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     Require Fresh Install
 
-   setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
+   setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
     ## call wdctl to copy configuration
 
 

@@ -13,7 +13,8 @@ Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown
 
-Default Tags  WDCTL
+Force Tags  WDCTL    TAP_PARALLEL6
+
 *** Test Cases ***
 Test Wdctl can remove a plugin
     Should Exist   ${SOPHOS_INSTALL}/base/pluginRegistry/managementagent.json
@@ -33,7 +34,7 @@ Test Wdctl can remove a plugin
 
 
 Test Wdctl can stop a plugin
-    [Tags]  WDCTL  MANAGEMENT_AGENT
+    [Tags]  MANAGEMENT_AGENT
     Should Exist   ${SOPHOS_INSTALL}/base/pluginRegistry/managementagent.json
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   Check Management Agent Running And Ready
 
@@ -48,8 +49,6 @@ Test Wdctl can stop a plugin
     Report Wdctl Log
 
 Test Wdctl Reports Error When Stopping A Plugin Which Does Not Exist
-    [Tags]  WDCTL
-
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   thisPluginDoesNotExist
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -60,7 +59,7 @@ Test Wdctl Reports Error When Stopping A Plugin Which Does Not Exist
     Should Contain  ${wdctl_log}  Plugin "thisPluginDoesNotExist" not in registry
 
 Test Wdctl reports error removing a plugin that does not exist
-    [Tags]  WDCTL  MANAGEMENT_AGENT
+    [Tags]  MANAGEMENT_AGENT
     Should Exist   ${SOPHOS_INSTALL}/base/pluginRegistry/managementagent.json
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   Check Management Agent Running And Ready
 
@@ -140,10 +139,10 @@ Test wdctl should print error message when starting plugin with junk content plu
     Should Fail Start  NotJsonFile
 
 Test wdctl should not print error message with incorrect json content plugin registration file
-    Copy Plugin Registry Should Succeed  tests/mcs_router/installfiles/sav.json
+    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/mcs_router/installfiles/sav.json
 
 Test wdctl should print error message when starting plugin with incorrect json content plugin registration
-    Copy Plugin Registry Should Succeed  tests/mcs_router/installfiles/sav.json
+    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/mcs_router/installfiles/sav.json
     Should Fail Start  sav
 
 

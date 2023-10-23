@@ -13,8 +13,8 @@ Suite Teardown  RA Suite Teardown
 
 Test Setup  RA Test Setup
 Test Teardown  RA Upload Proxy Test Teardown
-Force Tags  LOAD5
-Default Tags   RESPONSE_ACTIONS_PLUGIN
+
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL5
 
 *** Test Cases ***
 RA Plugin uploads a file successfully with proxy

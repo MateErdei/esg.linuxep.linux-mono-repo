@@ -24,8 +24,6 @@ Verify that the response actions installer works correctly
 ## fileset.
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
-    # TODO LINUXDAR-7870: Remove coverage exclusion
-    [Tags]   EXCLUDE_ON_COVERAGE
     [Teardown]  Response Actions Tests Teardown With Installed File Replacement
     Install Response Actions Directly
     Wait Until Keyword Succeeds

@@ -8,8 +8,8 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Test Teardown  Upgrade Resources Test Teardown
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags  SULDOWNLOADER  LOAD6
+
 *** Test Cases ***
 
 Give invalid update config to Suldownloader running in sdds3 mode
@@ -22,7 +22,6 @@ Give invalid update config to Suldownloader running in sdds3 mode
     wait_for_log_contains_from_mark  ${mark}   Update failed, with code: 121  timeout=${10}
     wait_for_log_contains_from_mark  ${mark}   Failed to process json message with error: INVALID_ARGUMENT  timeout=${10}
     Log File  ${UPDATE_CONFIG}
-
 
 SUS Fault Injection Server Down
     Upgrade Resources Suite Setup

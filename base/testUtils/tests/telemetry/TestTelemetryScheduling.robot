@@ -12,7 +12,7 @@ Suite Teardown   Cleanup TelemetryScheduling Tests
 Test Setup       Telemetry Scheduler Plugin Test Setup
 Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
-Default Tags  TELEMETRY SCHEDULER
+Force Tags  TELEMETRY SCHEDULER    TAP_PARALLEL6
 
 *** Keywords ***
 ### Suite Setup
@@ -21,11 +21,9 @@ Setup TelemetryScheduling Tests
     Copy File  ${TELEMETRY_CONFIG_FILE_SOURCE}  ${TELEMETRY_CONFIG_FILE}
     Override LogConf File as Global Level  DEBUG
 
-
 ### Suite Cleanup
 Cleanup TelemetryScheduling Tests
     Uninstall SSPL
-
 
 Telemetry Scheduler Plugin Test Setup
     Simulate Send Policy    ALC_policy_direct.xml

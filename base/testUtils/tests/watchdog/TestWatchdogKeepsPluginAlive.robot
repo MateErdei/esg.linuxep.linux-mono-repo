@@ -9,13 +9,15 @@ Library    ${LIBS_DIRECTORY}/Watchdog.py
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
+Force Tags    TAP_PARALLEL2    WATCHDOG
+
 Test Setup  Require Fresh Install
 Test Teardown  Run Keywords  Kill Manual Watchdog  AND
 ...                          General Test Teardown
 
 *** Test Cases ***
 Test watchdog restarts child after normal exit
-    [Tags]    WATCHDOG  SMOKE  TAP_PARALLEL2
+    [Tags]    SMOKE
     Remove File  /tmp/TestWatchdogRestartsChildAfterNormalExit
     Setup Test Plugin Config  echo "Plugin startedat $(date)" >>/tmp/TestWatchdogRestartsChildAfterNormalExit
     Manually Start Watchdog
@@ -24,7 +26,6 @@ Test watchdog restarts child after normal exit
     Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterNormalExit  30
 
 Test watchdog restarts child after kill
-    [Tags]    WATCHDOG
     Remove File  /tmp/TestWatchdogRestartsChildAfterKill
     Setup Test Plugin Config  echo "$$" >>/tmp/TestWatchdogRestartsChildAfterKill ; sleep 60
     Manually Start Watchdog
@@ -39,7 +40,6 @@ Test watchdog restarts child after kill
     Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterKill  30
 
 Test watchdog restarts child quickly after restart 77 exit
-    [Tags]    WATCHDOG   TAP_PARALLEL2
     Remove File  /tmp/TestWatchdogRestartsChildAfterRestartExit
     Setup Test Plugin Config  echo "Plugin startedat $(date)" >>/tmp/TestWatchdogRestartsChildAfterRestartExit ; sleep 1 ; exit 77
     Manually Start Watchdog

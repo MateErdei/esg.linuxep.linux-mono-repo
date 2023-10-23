@@ -21,8 +21,7 @@ Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
-Default Tags  UPDATE_SCHEDULER
-Force Tags  LOAD5
+Force Tags  UPDATE_SCHEDULER  TAP_PARALLEL3
 
 *** Variables ***
 ${TELEMETRY_SUCCESS}    0
@@ -30,7 +29,7 @@ ${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemet
 
 *** Test Cases ***
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
-    [Tags]  SMOKE  UPDATE_SCHEDULER  TAP_PARALLEL5
+    [Tags]  SMOKE
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     ${File}=  Get File   ${UPDATE_CONFIG}
     Should Contain   ${File}  "sophosSusURL": "https://sustest.sophosupd.com"

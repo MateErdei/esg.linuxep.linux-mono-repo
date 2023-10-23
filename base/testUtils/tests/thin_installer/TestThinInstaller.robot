@@ -24,7 +24,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER
 
 *** Keywords ***
 Teardown With Large Group Creation
@@ -101,9 +101,10 @@ ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
 ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE
 
     Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
@@ -121,7 +122,7 @@ Thin Installer Cannot Connect to Central timeout
     Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
@@ -147,20 +148,20 @@ Thin Installer With Space In Name Works
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Cannot Connect to Central
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains   SPL installation will fail as a connection to Sophos Central could not be established
 
 Thin Installer handles broken jwt
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server  --force-break-jwt
     Run Default Thininstaller    52    https://localhost:4443/mcs  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains  Failed to get JWT from Sophos Central
 
 Thin Installer Registers Existing Installation
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Tags]  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
     Setup base Install
     Start Local Cloud Server
@@ -173,7 +174,7 @@ Thin Installer Registers Existing Installation
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Thin Installer Doesnt Remove Existing Files In Installation Directory
-    [Tags]  SMOKE  THIN_INSTALLER
+    [Tags]  SMOKE
     ${testfile} =    Set Variable    testfile
     ${content} =    Set Variable    content
 
@@ -189,7 +190,7 @@ Thin Installer Doesnt Remove Existing Files In Installation Directory
     Should Be Equal As Strings    ${filecontents}    ${content}
 
 Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Tags]  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
     Setup base Install
     Start Local Cloud Server
@@ -206,7 +207,7 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
 
 
 Thin Installer Registers Existing Installation With Product Args
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Tags]  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
     Setup base Install
     Start Local Cloud Server
@@ -270,7 +271,6 @@ Thin Installer Repairs Broken Existing Installation
     #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Check Expected Base Processes Are Running
-
 
 
 Thin Installer Force Works

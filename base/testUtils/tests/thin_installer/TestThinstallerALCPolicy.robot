@@ -17,11 +17,13 @@ Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER
+
 *** Keywords ***
 Test Setup
     Setup HostFile
     Setup Thininstaller Test
+
 Test Teardown
     Thininstaller Test Teardown
     Revert HostFile
@@ -34,7 +36,6 @@ Setup HostFile
 
 Revert HostFile
     Move File    /etc/hosts.bk    /etc/hosts
-
 
 *** Test Case ***
 Thin Installer uses url from policy

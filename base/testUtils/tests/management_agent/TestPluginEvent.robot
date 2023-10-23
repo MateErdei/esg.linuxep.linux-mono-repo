@@ -16,7 +16,7 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
-Force Tags     MANAGEMENT_AGENT    TAP_PARALLEL5
+Force Tags     MANAGEMENT_AGENT    TAP_PARALLEL1
 
 *** Test Cases ***
 Verify Management Agent Creates New Event File When Plugin Raises A New Event

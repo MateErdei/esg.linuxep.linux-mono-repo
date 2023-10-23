@@ -14,7 +14,7 @@ Suite Teardown  Run Keywords
 ...             Ensure Uninstalled  AND
 ...             Cleanup Certificates
 
-Default Tags    TAP_TESTS    TAP_PARALLEL4
+Default Tags    TAP_PARALLEL4
 
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log

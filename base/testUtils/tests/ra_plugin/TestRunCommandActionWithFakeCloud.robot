@@ -14,8 +14,7 @@ Suite Teardown  RA Suite Teardown
 Test Setup         RA Run Command With Fake Cloud Test Setup
 Test Teardown      RA Run Command Test Teardown
 
-Force Tags  LOAD5
-Default Tags   RESPONSE_ACTIONS_PLUGIN
+Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL2
 
 *** Test Cases ***
 Test Run Command Action End To End With Fake Cloud
@@ -93,7 +92,6 @@ Test Run Command Action With 400 response
 
 
 *** Keywords ***
-
 RA Run Command With Fake Cloud Test Setup
     Override LogConf File as Global Level  DEBUG
 

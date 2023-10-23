@@ -14,8 +14,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags  SULDOWNLOADER  LOAD6
 
 *** Test Cases ***
 Sul Downloader Installs does Force reinstall
