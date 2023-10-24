@@ -27,6 +27,8 @@ for arg in $escaped_args; do
         echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
         echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
         echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
+        echo -e "--test\t\t\tOnly run pre-installation checks and do not install SPL"
+        echo -e "--notest\t\t\tDon't run any pre-installation checks and proceed with installing SPL"
         exit 0
     fi
 
@@ -366,6 +368,16 @@ function pre_install_checks() {
     echo
 }
 
+function make_tmp_dir()
+{
+    # Create Sophos temp directory (unless overridden with an existing dir)
+    if [ -z "${SOPHOS_TEMP_DIRECTORY}" ]; then
+        SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp folder in /tmp"
+    fi
+
+    mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
+}
+
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
 check_for_duplicate_arguments "$@"
@@ -434,14 +446,36 @@ for i in "$@"; do
         # Handled later in the code
         shift
         ;;
+    --test)
+        echo "Found '--test' is used, will only do pre-install checks and will not install SPL"
+        PRE_INSTALL_TEST_ONLY=1
+        ;;
+    --notest)
+        echo "Found '--notest' is used, will not perform pre-install checks but will proceed with installing SPL"
+        NO_PRE_INSTALL_TESTS=1
+        ;;
     *)
         failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $i --- aborting install. Please see '--help' output for list of valid arguments"
         ;;
     esac
 done
 
-pre_install_checks
-verify_install_directory
+if [[ ${NO_PRE_INSTALL_TESTS} != 1 ]]
+then
+    pre_install_checks
+    verify_install_directory
+fi
+
+make_tmp_dir
+# Check that the tmp directory we're using allows execution
+echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
+$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+
+if [[ -n ${PRE_INSTALL_TEST_ONLY} ]]
+then
+    cleanup_and_exit ${EXITCODE_SUCCESS}
+fi
+
 echo "Installing to ${SOPHOS_INSTALL}"
 
 # Check if SAV is installed.
@@ -456,17 +490,6 @@ check_SAV_installed '/usr/bin/sweep'
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
-
-# Create Sophos temp directory (unless overridden with an existing dir)
-if [ -z "${SOPHOS_TEMP_DIRECTORY}" ]; then
-    SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp folder in /tmp"
-fi
-
-mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
-
-# Check that the tmp directory we're using allows execution
-echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
-$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
 # Get line numbers for the each of the sections
 MIDDLEBIT=$(awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' "${INSTALL_FILE}")

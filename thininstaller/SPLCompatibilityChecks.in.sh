@@ -69,7 +69,7 @@ function print_help_text() {
 }
 
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
-echo "This script performs pre-installation checks for Sophos Protection for Linus (SPL)"
+echo "This script performs pre-installation checks for Sophos Protection for Linux (SPL)"
 echo -e "To view the minimum requirements for SPL, please refer to the release notes: https://docs.sophos.com/releasenotes/output/en-us/esg/linux_protection_rn.html\n"
 for arg in "$@"; do
     case "${arg}" in

@@ -211,9 +211,6 @@ function verify_system_requirements() {
     # Check kernel supports GLIBC version 2.17 or later
     verify_compatible_glibc_version
 
-    # Check /tmp is not mounted to a partition with noexec
-    [[ $(mount | grep "$(df -P "${TMPDIR}" | tail -1 | cut -d' ' -f 1)") =~ "noexec" ]] && failure ${EXITCODE_NOEXEC_TMP} "ERROR: SPL installation will fail as ${TMPDIR} is mounted to a partition with noexec"
-
     # Check server has capabilities
     [[ (-z $(which getcap)) || (-z $(which setcap)) ]] && log_warn "SPL requires capabilities for the AV and RTD plugins to be installed. The base installation will succeed but these plugins will not be operational"
 
