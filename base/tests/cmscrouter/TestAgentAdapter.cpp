@@ -1,5 +1,7 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
+#define TEST_PUBLIC public
+
 // Product
 #include "cmcsrouter/AgentAdapter.h"
 // Test helpers
@@ -7,6 +9,8 @@
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockPlatformUtils.h"
 #include "tests/Common/OSUtilitiesImpl/MockILocalIP.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 // 3rd party
 #include <gtest/gtest.h>
 // C++ standard
@@ -187,7 +191,7 @@ public:
 
 };
 
-TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithNoOptions) // NOLINT
+TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithNoOptions)
 {
     auto mockPlatformUtil = std::make_shared<StrictMock<MockPlatformUtils>>();
     auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
@@ -223,7 +227,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithNoOptions) // NO
     EXPECT_THAT(actualStatusXml, HasSubstr(expectedXmlBody));
 }
 
-TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) // NOLINT
+TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV)
 {
     auto mockPlatformUtil = std::make_shared<StrictMock<MockPlatformUtils>>();
     auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
@@ -262,7 +266,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) 
     EXPECT_THAT(actualStatusXml, HasSubstr("<migratedFromSAV>1</migratedFromSAV></posixPlatformDetails>"));
 }
 
-TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions) // NOLINT
+TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions)
 {
     auto mockPlatformUtil = std::make_shared<StrictMock<MockPlatformUtils>>();
     auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
@@ -296,7 +300,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions) // NOLI
     EXPECT_THAT(actualStatusXml, HasSubstr(expectedXmlBody));
 }
 
-TEST_F(AgentAdapterTests, testGetStatusXmlReturnsOsName255charsOrLess) // NOLINT
+TEST_F(AgentAdapterTests, testGetStatusXmlReturnsOsName255charsOrLess)
 {
     auto mockPlatformUtil = std::make_shared<StrictMock<MockPlatformUtils>>();
     auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
@@ -330,4 +334,227 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsOsName255charsOrLess) // NOLINT
     auto attributes = xmlMap.lookup("ns:computerStatus/posixPlatformDetails/osName");
     std::string actualOsName = attributes.contents();
     EXPECT_EQ(actualOsName, expectedTruncatedOsName);
+}
+
+TEST_F(AgentAdapterTests, osReleaseDoesNotExistSoUnknownIsUsedForOSVersion)
+{
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(false));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileEmptySoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {};
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+    
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileDoesNotContainExpectedFieldsSoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+                                                  "ID=ubuntu",
+                                                  "ID_LIKE=debian",
+                                                  "HOME_URL=\"https://www.ubuntu.com/\"",
+                                                  "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+                                                  "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+                                                  "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+                                                  "VERSION_CODENAME=focal",
+                                                  "UBUNTU_CODENAME=focal",
+            // Expected fields that are missing:
+            // "NAME=\"Ubuntu\"",
+            // "PRETTY_NAME=\"Ubuntu 20.04.6 LTS\"",
+            // "VERSION_ID=20.04",
+    };
+    
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+    
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileContainsDuplicateFieldsSoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+                                                  "ID=ubuntu",
+                                                  "ID_LIKE=debian",
+                                                  "HOME_URL=\"https://www.ubuntu.com/\"",
+                                                  "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+                                                  "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+                                                  "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+                                                  "VERSION_CODENAME=focal",
+                                                  "UBUNTU_CODENAME=focal",
+                                                  "NAME=\"Ubuntu\"",
+                                                  "NAME=\"CentOS\"",
+                                                  "NAME=\"Amazon Linux\"",
+                                                  "PRETTY_NAME=\"Ubuntu 20.04.6 LTS\"",
+                                                  "PRETTY_NAME=\"Ubuntu 22.07 LTS\"",
+                                                  "PRETTY_NAME=\"Ubuntu 18.01.9 LTS\"",
+                                                  "VERSION_ID=20.04",
+                                                  "VERSION_ID=22.07",
+                                                  "VERSION_ID=18.01",
+    };
+    
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+    
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileExpectedFieldsAreEmptySoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+                                                  "ID=ubuntu",
+                                                  "ID_LIKE=debian",
+                                                  "HOME_URL=\"https://www.ubuntu.com/\"",
+                                                  "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+                                                  "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+                                                  "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+                                                  "VERSION_CODENAME=focal",
+                                                  "UBUNTU_CODENAME=focal",
+                                                  "NAME=",
+                                                  "PRETTY_NAME=",
+                                                  "VERSION_ID=",
+    };
+    
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+    
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileFieldsAreVeryLargeSoFieldsAreTruncatedForOSVersion)
+{
+    std::string junk(1000, 'a');
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+                                                  "ID=ubuntu",
+                                                  "ID_LIKE=debian",
+                                                  "HOME_URL=\"https://www.ubuntu.com/\"",
+                                                  "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+                                                  "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+                                                  "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+                                                  "VERSION_CODENAME=focal",
+                                                  "UBUNTU_CODENAME=focal",
+                                                  "NAME=\"Ubuntu" + junk + "\"",
+                                                  "PRETTY_NAME=\"Ubuntu 20.04.6 LTS" + junk + "\"",
+                                                  "VERSION_ID=20.04" + junk,
+    };
+    
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+    
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+
+    // osInfoLengthLimit_ in PlatformUtils.h is 255
+    // So the value in <vendor></vendor> should be 255 characters long
+    // <length of "ubuntu"> = 6, so value in <vendor></vendor> is "ubuntu<substring of junk of length 255 - 6>"
+    EXPECT_NE(platformStatus.find("<vendor>ubuntu" + junk.substr(0, 255 - 6) + "</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>Ubuntu</osName>"), std::string::npos);
+    
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileContainsWrongKeyValuePairFormatSoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+                                                  "ID=ubuntu",
+                                                  "ID_LIKE=debian",
+                                                  "HOME_URL=\"https://www.ubuntu.com/\"",
+                                                  "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+                                                  "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+                                                  "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+                                                  "VERSION_CODENAME=focal",
+                                                  "UBUNTU_CODENAME=focal",
+                                                  "NAME : \"Ubuntu\"",
+                                                  "PRETTY_NAME : \"Ubuntu 20.04.6 LTS\"",
+                                                  "VERSION_ID : 20.04",
+    };
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+
+    scopedReplaceFileSystem.reset();
+}
+
+TEST_F(AgentAdapterTests, osReleaseFileContainsDuplicateValuesPerFieldSoUnknownIsUsedForOSVersion)
+{
+    std::vector<std::string> osReleaseContents = {"VERSION=\"20.04.6 LTS (Focal Fossa)\"",
+        "ID=ubuntu",
+        "ID_LIKE=debian",
+        "HOME_URL=\"https://www.ubuntu.com/\"",
+        "SUPPORT_URL=\"https://help.ubuntu.com/\"",
+        "BUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"",
+        "PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"",
+        "VERSION_CODENAME=focal",
+        "UBUNTU_CODENAME=focal",
+        "NAME=\"Ubuntu\"=\"CentOS\"",
+        "PRETTY_NAME=\"Ubuntu 20.04.6 LTS\"=\"CentOS\"",
+        "VERSION_ID=20.04",
+    };
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/os-release")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/os-release")).WillRepeatedly(Return(osReleaseContents));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
+
+    MCS::AgentAdapter adapter;
+    std::string platformStatus = adapter.getPlatformStatus();
+
+    EXPECT_NE(platformStatus.find("<vendor>unknown</vendor>"), std::string::npos);
+    EXPECT_NE(platformStatus.find("<osName>unknown</osName>"), std::string::npos);
+
+    scopedReplaceFileSystem.reset();
 }

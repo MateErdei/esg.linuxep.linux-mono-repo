@@ -1,13 +1,14 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SystemTelemetryReporter.h"
-
 #include "SystemTelemetryCollectorImpl.h"
+#include "SystemTelemetryConsts.h"
 #include "TelemetryProcessor.h"
 #include "TelemetryUtils.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Common/OSUtilitiesImpl/PlatformUtils.h"
 #include "Telemetry/LoggerImpl/Logger.h"
 
 namespace Telemetry
@@ -24,24 +25,34 @@ namespace Telemetry
 
     std::string SystemTelemetryReporter::getTelemetry()
     {
-        Common::Telemetry::TelemetryHelper jsonConverter;
+        Common::Telemetry::TelemetryHelper telemetry;
+        Common::OSUtilitiesImpl::PlatformUtils platformUtils;
 
         auto systemTelemetryObjects = m_systemTelemetryCollector->collectObjects();
-        getSimpleTelemetry(jsonConverter, systemTelemetryObjects);
+        getSimpleTelemetry(telemetry, systemTelemetryObjects);
 
         auto systemTelemetryArrays = m_systemTelemetryCollector->collectArraysOfObjects();
-        getArraysTelemetry(jsonConverter, systemTelemetryArrays);
+        getArraysTelemetry(telemetry, systemTelemetryArrays);
 
         std::string cloudPlatform = TelemetryUtils::getCloudPlatform();
         if (!cloudPlatform.empty())
         {
-            jsonConverter.set("cloud-platform", cloudPlatform);
+            telemetry.set(Telemetry::SystemTelemetryConsts::cloudPlatform, cloudPlatform);
         }
 
-        std::string mcsProxy = TelemetryUtils::getMCSProxy();
-        jsonConverter.set("mcs-connection", mcsProxy);
+        telemetry.set(Telemetry::SystemTelemetryConsts::osName, platformUtils.getVendor());
 
-        return jsonConverter.serialise();
+        std::string majorMinorOsVersion = platformUtils.getOsMajorVersion();
+        if (!platformUtils.getOsMinorVersion().empty())
+        {
+            majorMinorOsVersion += '.' + platformUtils.getOsMinorVersion();
+        }
+        telemetry.set(Telemetry::SystemTelemetryConsts::osVersion, majorMinorOsVersion);
+
+        std::string mcsProxy = TelemetryUtils::getMCSProxy();
+        telemetry.set(Telemetry::SystemTelemetryConsts::mcsConnection, mcsProxy);
+
+        return telemetry.serialise();
     }
 
     void SystemTelemetryReporter::getSimpleTelemetry(

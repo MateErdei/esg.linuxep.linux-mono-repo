@@ -20,7 +20,8 @@
 
 namespace Common::OSUtilitiesImpl
 {
-    PlatformUtils::PlatformUtils() : m_vendor("UNKNOWN"), m_osName(""), m_osMajorVersion(""), m_osMinorVersion("")
+    PlatformUtils::PlatformUtils() :
+        m_vendor("unknown"), m_osName("unknown"), m_osMajorVersion(""), m_osMinorVersion("")
     {
         populateVendorDetails();
     }
@@ -28,131 +29,69 @@ namespace Common::OSUtilitiesImpl
     void PlatformUtils::populateVendorDetails()
     {
         ::OSUtilitiesImpl::SystemUtils systemUtils;
-        std::string lsbReleasePath = systemUtils.getEnvironmentVariable("LSB_ETC_LSB_RELEASE");
-        if (lsbReleasePath.empty())
-        {
-            lsbReleasePath = "/etc/lsb-release";
-        }
-
-        const std::array<std::string, 7> distroCheckFiles = { "/etc/issue",          "/etc/centos-release",
-                                                              "/etc/oracle-release", "/etc/redhat-release",
-                                                              "/etc/system-release", "/etc/miraclelinux-release",
-                                                              "/etc/SUSE-brand" };
-
+        std::string osReleasePath = "/etc/os-release";
         auto* fs = FileSystem::fileSystem();
 
-        if (fs->isFile(lsbReleasePath))
+        if (fs->isFile(osReleasePath))
         {
-            std::string distro = extractDistroFromFile(lsbReleasePath);
-            if (!distro.empty())
+            std::string vendor = getValueFromOSReleaseFile(osReleasePath, "NAME");
+            if (!vendor.empty())
             {
-                m_vendor = distro;
+                checkValueLengthAndTruncate(vendor);
+                m_vendor = UtilityImpl::StringUtils::toLower(vendor);
             }
-            m_osName = Common::UtilityImpl::StringUtils::replaceAll(
-                UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_DESCRIPTION"), "\"", "");
-            std::string version =
-                UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_RELEASE");
-            std::vector<std::string> majorAndMinor = UtilityImpl::StringUtils::splitString(version, ".");
-            if (majorAndMinor.size() >= 2)
-            {
-                m_osMajorVersion = majorAndMinor[0];
-                m_osMinorVersion = majorAndMinor[1];
-            }
-            return;
-        }
 
-        for (const auto& path : distroCheckFiles)
-        {
-            if (fs->isFile(path))
+            std::string osName = getValueFromOSReleaseFile(osReleasePath, "PRETTY_NAME");
+            if (!osName.empty())
             {
-                std::string distro = extractDistroFromFile(path);
-                if (!distro.empty())
+                checkValueLengthAndTruncate(osName);
+                m_osName = osName;
+            }
+
+            std::string version = getValueFromOSReleaseFile(osReleasePath, "VERSION_ID");
+            if (!version.empty())
+            {
+                version = version.substr(0, osInfoLengthLimit_);
+                std::vector<std::string> majorAndMinor = UtilityImpl::StringUtils::splitString(version, ".");
+                if (majorAndMinor.size() >= 1)
                 {
-                    m_vendor = distro;
-                    break;
+                    m_osMajorVersion = majorAndMinor[0];
                 }
-            }
-        }
-
-        if (m_vendor == "UNKNOWN")
-        {
-            std::string distro = extractDistroFromOSFile();
-            if (!distro.empty())
-            {
-                m_vendor = distro;
+                if (majorAndMinor.size() >= 2)
+                {
+                    std::vector<std::string> minorAndOther = UtilityImpl::StringUtils::splitString(majorAndMinor[1], ".");
+                    m_osMinorVersion = minorAndOther[0];
+                }
             }
         }
     }
 
-    std::string PlatformUtils::extractDistroFromOSFile()
+    void PlatformUtils::checkValueLengthAndTruncate(std::string& value)
     {
-        std::map<std::string, std::string> distroNames = {
-            std::make_pair("redhat", "redhat"), std::make_pair("ubuntu", "ubuntu"),
-            std::make_pair("centos", "centos"), std::make_pair("amazonlinux", "amazon"),
-            std::make_pair("oracle", "oracle"), std::make_pair("miracle", "miracle"),
-            std::make_pair("suse", "suse")
-        };
-
-        auto* fs = FileSystem::fileSystem();
-        std::string distro;
-        std::string path = "/etc/os-release";
-        if (fs->isFile(path))
+        if (value.size() > osInfoLengthLimit_)
         {
-            std::string pretty_name = UtilityImpl::StringUtils::extractValueFromConfigFile(path, "PRETTY_NAME");
-            if (!pretty_name.empty())
-            {
-                pretty_name = UtilityImpl::StringUtils::replaceAll(pretty_name, " ", "");
-                pretty_name = UtilityImpl::StringUtils::replaceAll(pretty_name, "/", "_");
+            // Value is too large so just try to get the first word and see if it fits the limit
+            value = UtilityImpl::StringUtils::splitString(value, " ")[0];
 
-                UtilityImpl::StringUtils::toLower(pretty_name);
-
-                for (const auto& [key, value] : distroNames)
-                {
-                    if (UtilityImpl::StringUtils::isSubstring(pretty_name, key))
-                    {
-                        return value;
-                    }
-                }
-            }
+            // If value is till too large, it will be truncated otherwise nothing changes
+            value = value.substr(0, osInfoLengthLimit_);
         }
-        return "";
     }
 
-    std::string PlatformUtils::extractDistroFromFile(const std::string& filePath)
+    std::string PlatformUtils::getValueFromOSReleaseFile(const std::string& osReleasePath, const std::string& key)
     {
-        std::map<std::string, std::string> distroNames = {
-            std::make_pair("redhat", "redhat"), std::make_pair("ubuntu", "ubuntu"),
-            std::make_pair("centos", "centos"), std::make_pair("amazonlinux", "amazon"),
-            std::make_pair("oracle", "oracle"), std::make_pair("miracle", "miracle"),
-            std::make_pair("sle", "suse")
-        };
-
-        auto* fs = FileSystem::fileSystem();
-        std::string distro;
-        std::vector<std::string> fileContents = fs->readLines(filePath);
-        if (!fileContents.empty())
+        std::vector<std::string> matchedValues =
+            UtilityImpl::StringUtils::extractAllMatchingValuesFromConfigFile(osReleasePath, key);
+        if (matchedValues.size() != 1)
         {
-            distro = fileContents[0];
-            distro = UtilityImpl::StringUtils::replaceAll(distro, " ", "");
-            distro = UtilityImpl::StringUtils::replaceAll(distro, "/", "_");
-
-            std::vector<std::string> distroParts = Common::UtilityImpl::StringUtils::splitString(distro, "=");
-            if (distroParts.size() == 2)
-            {
-                distro = distroParts[1];
-            }
-
-            UtilityImpl::StringUtils::toLower(distro);
-
-            for (const auto& [key, value] : distroNames)
-            {
-                if (UtilityImpl::StringUtils::isSubstring(distro, key))
-                {
-                    return value;
-                }
-            }
+            return "";
         }
-        return "";
+        if (matchedValues[0].find('=') != std::string::npos)
+        {
+            return "";
+        }
+        std::string value = UtilityImpl::StringUtils::replaceAll(matchedValues[0], "\"", "");
+        return value;
     }
 
     std::string PlatformUtils::getHostname() const

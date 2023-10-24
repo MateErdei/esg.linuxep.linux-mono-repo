@@ -10,6 +10,10 @@
 #include <memory>
 #include <vector>
 
+#ifndef TEST_PUBLIC
+#   define TEST_PUBLIC private
+#endif
+
 namespace MCS
 {
     class AgentAdapter : public IAdapter
@@ -26,6 +30,9 @@ namespace MCS
             std::map<std::string, std::string>& configOptions,
             const std::shared_ptr<Common::HttpRequests::IHttpRequester>& ptr) const override;
 
+    TEST_PUBLIC:
+        [[nodiscard]] std::string getPlatformStatus() const;
+
     private:
         [[nodiscard]] std::string getStatusHeader(const std::map<std::string, std::string>& configOptions) const;
         [[nodiscard]] std::string getCommonStatusXml(const std::map<std::string, std::string>& configOptions) const;
@@ -35,7 +42,6 @@ namespace MCS
             const std::vector<std::string>& ip6Addresses) const;
         [[nodiscard]] std::string getCloudPlatformsStatus(const std::shared_ptr<Common::HttpRequests::IHttpRequester>&
                                                               ptr) const; // Empty string if not cloud platform
-        [[nodiscard]] std::string getPlatformStatus() const;
         [[nodiscard]] std::string getStatusFooter() const;
 
         std::shared_ptr<Common::OSUtilities::IPlatformUtils> m_platformUtils;

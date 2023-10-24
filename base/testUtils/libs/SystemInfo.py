@@ -55,7 +55,7 @@ def get_kernel_version():
 
 
 def get_os_name():
-    return get_value_after_line_starts_with_prefix(["cat", "/etc/os-release"], "NAME=")
+    return get_value_after_line_starts_with_prefix(["cat", "/etc/os-release"], "NAME=").lower()
 
 
 def get_os_version():

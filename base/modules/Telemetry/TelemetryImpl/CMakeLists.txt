@@ -39,6 +39,7 @@ target_link_libraries(telemetryimpl PUBLIC
         threads
         xmlutilities
         curlwrapper
+        osutilitiesimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl

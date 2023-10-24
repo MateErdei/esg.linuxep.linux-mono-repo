@@ -9,7 +9,7 @@
 
 using namespace Common::UtilityImpl;
 
-TEST(TestStringUtils, endswith) // NOLINT
+TEST(TestStringUtils, endswith)
 {
     EXPECT_TRUE(StringUtils::endswith("FOOBAR", "BAR"));
     EXPECT_TRUE(StringUtils::endswith("BAR", "BAR"));
@@ -23,7 +23,7 @@ TEST(TestStringUtils, endswith) // NOLINT
     EXPECT_FALSE(StringUtils::endswith("stuff.json.other", ".json"));
 }
 
-TEST(TestStringUtils, splitString) // NOLINT
+TEST(TestStringUtils, splitString)
 {
     std::vector<std::pair<std::string, std::vector<std::string>>> expectedResults{ { "a;b;c", { "a", "b", "c" } },
                                                                                    { "a;b;c;", { "a", "b", "c", "" } },
@@ -39,7 +39,23 @@ TEST(TestStringUtils, splitString) // NOLINT
     }
 }
 
-TEST(TestStringUtils, startswith) // NOLINT
+TEST(TestStringUtils, splitStringOnFirstMatch)
+{
+    std::vector<std::pair<std::string, std::vector<std::string>>> expectedResults{ { "a;b;c", { "a", "b;c" } },
+                                                                                   { "a;b;c;", { "a", "b;c;" } },
+                                                                                   { "pear;apple", { "pear", "apple" } },
+                                                                                   { "pear apple", { "pear apple" } },
+                                                                                   { "", { "" } } };
+
+    for (auto& entry : expectedResults)
+    {
+        std::string& inputString = entry.first;
+        std::vector<std::string>& expectedSplitted = entry.second;
+        EXPECT_EQ(expectedSplitted, StringUtils::splitStringOnFirstMatch(inputString, ";"));
+    }
+}
+
+TEST(TestStringUtils, startswith)
 {
     EXPECT_TRUE(StringUtils::startswith("FOOBAR", "FOO"));
     EXPECT_TRUE(StringUtils::startswith("FOOBAR", ""));
@@ -48,7 +64,7 @@ TEST(TestStringUtils, startswith) // NOLINT
     EXPECT_FALSE(StringUtils::startswith("FOOBAR", "BAR"));
 }
 
-TEST(TestStringUtils, replace) // NOLINT
+TEST(TestStringUtils, replace)
 {
     EXPECT_EQ(StringUtils::replaceAll("FOO", "FOO", "BAR"), "BAR");
     EXPECT_EQ(StringUtils::replaceAll("FOO", "", ""), "FOO");
@@ -61,7 +77,7 @@ TEST(TestStringUtils, replace) // NOLINT
     EXPECT_EQ(StringUtils::replaceAll("", "", ""), "");
 }
 
-TEST(TestStringUtils, orderedStringReplace) // NOLINT
+TEST(TestStringUtils, orderedStringReplace)
 {
     EXPECT_EQ(StringUtils::orderedStringReplace("Hello @@name@@", { { "@@name@@", "sophos" } }), "Hello sophos");
     EXPECT_EQ(
@@ -84,13 +100,13 @@ TEST(TestStringUtils, orderedStringReplace) // NOLINT
     EXPECT_EQ(StringUtils::orderedStringReplace("", { { "@a@", "first" }, { "@a@", "other" } }), "");
 }
 
-TEST(TestStringUtils, enforceUTF8) // NOLINT
+TEST(TestStringUtils, enforceUTF8)
 {
     EXPECT_THROW(StringUtils::enforceUTF8("\257"),std::invalid_argument);
     EXPECT_NO_THROW(StringUtils::enforceUTF8("FOOBAR"));
 }
 
-TEST(TestStringUtils, extractValueFromIniFileCanGetKeyValue) // NOLINT
+TEST(TestStringUtils, extractValueFromIniFileCanGetKeyValue)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -106,7 +122,7 @@ TEST(TestStringUtils, extractValueFromIniFileCanGetKeyValue) // NOLINT
 
 }
 
-TEST(TestStringUtils, extractValueFromIniFileThrowsIfFiledoesntExist) // NOLINT
+TEST(TestStringUtils, extractValueFromIniFileThrowsIfFiledoesntExist)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -116,7 +132,7 @@ TEST(TestStringUtils, extractValueFromIniFileThrowsIfFiledoesntExist) // NOLINT
 
     EXPECT_THROW(StringUtils::extractValueFromIniFile(filePath1,"KEY"),std::runtime_error);
 }
-TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
+TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -131,7 +147,7 @@ TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
     EXPECT_EQ(StringUtils::extractValueFromIniFile(filePath,"KEY"),"");
 }
 
-TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValue) // NOLINT
+TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValue)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -147,7 +163,7 @@ TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValue) // NOLINT
 
 }
 
-TEST(TestStringUtils, extractValueFromConfigFileThrowsIfFiledoesntExist) // NOLINT
+TEST(TestStringUtils, extractValueFromConfigFileThrowsIfFiledoesntExist)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -157,7 +173,7 @@ TEST(TestStringUtils, extractValueFromConfigFileThrowsIfFiledoesntExist) // NOLI
 
     EXPECT_THROW(StringUtils::extractValueFromConfigFile(filePath1,"KEY"),std::runtime_error);
 }
-TEST(TestStringUtils, extractValueFromConfigFileKeyDoesNotexist) // NOLINT
+TEST(TestStringUtils, extractValueFromConfigFileKeyDoesNotexist)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -173,7 +189,7 @@ TEST(TestStringUtils, extractValueFromConfigFileKeyDoesNotexist) // NOLINT
 
 }
 
-TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValueWhenKeyIsDefinedMoreThanOnce) // NOLINT
+TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValueWhenKeyIsDefinedMoreThanOnce)
 {
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -188,7 +204,7 @@ TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValueWhenKeyIsDefinedMo
     EXPECT_EQ(StringUtils::extractValueFromConfigFile(filePath,"KEY"),"stuff");
 
 }
-TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
+TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData)
 {
     EXPECT_THROW(StringUtils::isVersionOlder("1.2","1.a"),std::invalid_argument);
     EXPECT_THROW(StringUtils::isVersionOlder("1.a","1.2"),std::invalid_argument);
@@ -198,7 +214,7 @@ TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
 
 }
 
-TEST(TestStringUtils, isVersionOlder) // NOLINT
+TEST(TestStringUtils, isVersionOlder)
 {
     EXPECT_EQ(StringUtils::isVersionOlder("1.2","1.2"),false);
     EXPECT_EQ(StringUtils::isVersionOlder("1.2","1.2.3"),false);
@@ -239,7 +255,7 @@ TEST(TestStringUtils, isVersionOlder) // NOLINT
 
 }
 
-TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrectlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrectlyWithoutError)
 {
     std::pair<int, std::string> result;
 
@@ -251,7 +267,7 @@ TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrectlyWithoutError) // N
     EXPECT_EQ(result.second, "");
     EXPECT_EQ(result.first, INT_LEAST32_MAX);
 }
-TEST(TestStringUtils, stringToInt_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+TEST(TestStringUtils, stringToInt_StringStartingWithNumberReturnsNumberWithoutError)
 {
     std::pair<int, std::string> result;
 
@@ -261,7 +277,7 @@ TEST(TestStringUtils, stringToInt_StringStartingWithNumberReturnsNumberWithoutEr
     EXPECT_EQ(result.first, 123);
 }
 
-TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrectlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrectlyWithoutError)
 {
     std::pair<int, std::string> result;
 
@@ -274,7 +290,7 @@ TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrectlyWithoutError) // N
     EXPECT_EQ(result.first, INT_LEAST32_MIN);
 }
 
-TEST(TestStringUtils, stringToInt_StringValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToInt_StringValuesReturnCorrectlyWithError)
 {
     std::pair<int, std::string> result;
 
@@ -287,7 +303,7 @@ TEST(TestStringUtils, stringToInt_StringValuesReturnCorrectlyWithError) // NOLIN
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrectlyWithError)
 {
     std::pair<int, std::string> result;
 
@@ -296,7 +312,7 @@ TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrectlyWithError) // N
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrectlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrectlyWithoutError)
 {
     std::pair<long, std::string> result;
 
@@ -308,7 +324,7 @@ TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrectlyWithoutError) // 
     EXPECT_EQ(result.second, "");
     EXPECT_EQ(result.first, INT_LEAST64_MAX);
 }
-TEST(TestStringUtils, stringToLong_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+TEST(TestStringUtils, stringToLong_StringStartingWithNumberReturnsNumberWithoutError)
 {
     std::pair<long, std::string> result;
 
@@ -318,7 +334,7 @@ TEST(TestStringUtils, stringToLong_StringStartingWithNumberReturnsNumberWithoutE
     EXPECT_EQ(result.first, 123);
 }
 
-TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrectlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrectlyWithoutError)
 {
     std::pair<long, std::string> result;
 
@@ -331,7 +347,7 @@ TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrectlyWithoutError) // 
     EXPECT_EQ(result.first, INT_LEAST64_MIN);
 }
 
-TEST(TestStringUtils, stringToLong_StringValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToLong_StringValuesReturnCorrectlyWithError)
 {
     std::pair<long, std::string> result;
 
@@ -344,7 +360,7 @@ TEST(TestStringUtils, stringToLong_StringValuesReturnCorrectlyWithError) // NOLI
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrectlyWithError)
 {
     std::pair<int, std::string> result;
 
@@ -353,7 +369,7 @@ TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrectlyWithError) // 
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToULongReturnCorrectlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToULongReturnCorrectlyWithoutError)
 {
     unsigned long result;
     
@@ -364,7 +380,7 @@ TEST(TestStringUtils, stringToULongReturnCorrectlyWithoutError) // NOLINT
     EXPECT_EQ(result, ULONG_MAX);
 }
 
-TEST(TestStringUtils, stringToULong_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+TEST(TestStringUtils, stringToULong_StringStartingWithNumberReturnsNumberWithoutError)
 {
     unsigned long result;
 
@@ -373,17 +389,17 @@ TEST(TestStringUtils, stringToULong_StringStartingWithNumberReturnsNumberWithout
     EXPECT_EQ(result, 123);
 }
 
-TEST(TestStringUtils, stringToULong_StringValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToULong_StringValuesReturnCorrectlyWithError)
 {
     EXPECT_THROW(StringUtils::stringToULong("hello"), std::runtime_error);
 }
 
-TEST(TestStringUtils, stringToULong_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
+TEST(TestStringUtils, stringToULong_OutofRangeValuesReturnCorrectlyWithError)
 {
     EXPECT_THROW(StringUtils::stringToULong("999999999999999999999999999999999999"), std::runtime_error);
 }
 
-TEST(TestStringUtils, rTrimRemovesWhiteSpaceFromRightSideOfString) // NOLINT
+TEST(TestStringUtils, rTrimRemovesWhiteSpaceFromRightSideOfString)
 {
     std::string result = StringUtils::rTrim("1 space after ");
     ASSERT_EQ(result, "1 space after");
@@ -392,7 +408,7 @@ TEST(TestStringUtils, rTrimRemovesWhiteSpaceFromRightSideOfString) // NOLINT
     ASSERT_EQ(result, "   3 spaces before 3 spaces after");
 }
 
-TEST(TestStringUtils, lTrimRemovesWhiteSpaceFromLeftSideOfString) // NOLINT
+TEST(TestStringUtils, lTrimRemovesWhiteSpaceFromLeftSideOfString)
 {
     std::string result = StringUtils::lTrim(" 1 space before");
     ASSERT_EQ(result, "1 space before");
@@ -401,7 +417,7 @@ TEST(TestStringUtils, lTrimRemovesWhiteSpaceFromLeftSideOfString) // NOLINT
     ASSERT_EQ(result, "3 spaces before 3 spaces after   ");
 }
 
-TEST(TestStringUtils, trimRemovesWhiteSpaceFromBothSidesOfString) // NOLINT
+TEST(TestStringUtils, trimRemovesWhiteSpaceFromBothSidesOfString)
 {
     std::string result = StringUtils::trim(" 1 space before");
     ASSERT_EQ(result, "1 space before");
@@ -413,25 +429,25 @@ TEST(TestStringUtils, trimRemovesWhiteSpaceFromBothSidesOfString) // NOLINT
     ASSERT_EQ(result, "3 spaces before 3 spaces after");
 }
 
-TEST(TestStringUtils, rTrimRemovesCustomCharFromRightSideOfString) // NOLINT
+TEST(TestStringUtils, rTrimRemovesCustomCharFromRightSideOfString)
 {
     std::string result = StringUtils::rTrim("aaababaaa", [](char c) { return c == 'a'; });
     ASSERT_EQ(result, "aaabab");
 }
 
-TEST(TestStringUtils, lTrimRemovesCustomCharFromLeftSideOfString) // NOLINT
+TEST(TestStringUtils, lTrimRemovesCustomCharFromLeftSideOfString)
 {
     std::string result = StringUtils::lTrim("aaababaaa", [](char c) { return c == 'a'; });
     ASSERT_EQ(result, "babaaa");
 }
 
-TEST(TestStringUtils, trimRemovesCustomCharFromBothSidesOfString) // NOLINT
+TEST(TestStringUtils, trimRemovesCustomCharFromBothSidesOfString)
 {
     std::string result = StringUtils::trim("aaababaaa", [](char c) { return c == 'a'; });
     ASSERT_EQ(result, "bab");
 }
 
-TEST(TestStringUtils, toLowerMakesAllCharsLowerCase) // NOLINT
+TEST(TestStringUtils, toLowerMakesAllCharsLowerCase)
 {
     std::string testStringMixed = "aSdFgHjK";
     std::string testStringMixedLowered = "asdfghjk";

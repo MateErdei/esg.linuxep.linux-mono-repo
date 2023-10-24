@@ -1,5 +1,5 @@
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 # -*- coding: utf-8 -*-
-# Copyright 2018-2020 Sophos Plc, Oxford, England.
 
 
 """
@@ -24,16 +24,6 @@ from .utils import get_ids
 from .utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
-# Keys must never be a sub-set of another key
-DISTRIBUTION_NAME_MAP = {
-    'redhat': 'redhat',
-    'ubuntu': 'ubuntu',
-    'centos': 'centos',
-    'amazonlinux': 'amazon',
-    'oracle': 'oracle',
-    'miracle': 'miracle',
-    'SUSE': 'suse'
-}
 
 #-----------------------------------------------------------------------------
 # class TargetSystem
@@ -51,7 +41,7 @@ class TargetSystem:
         """
         self._save_uname()
         self.m_install_dir = install_dir
-        self.m_description, self.m_distributor_id, self.m_release = _collect_lsb_release()
+        self.m_description, self.m_distributor_id, self.m_release = _collect_os_release()
         self.m_vendor = self._get_vendor()
 
     def _save_uname(self):
@@ -60,11 +50,7 @@ class TargetSystem:
 
     def _get_vendor(self):
         if self.m_distributor_id:
-            vendor = self.m_distributor_id.lower().replace(" ", "").replace("/", "_")
-            for key in DISTRIBUTION_NAME_MAP:
-                if vendor.startswith(key):
-                    vendor = DISTRIBUTION_NAME_MAP[key]
-                    break
+            vendor = self.m_distributor_id.lower()
             return vendor
         return None
 
@@ -101,53 +87,6 @@ class TargetSystem:
             return kernel_trio[:3]
 
         return "", "", ""
-
-    def _detect_distro(self):
-        distro_check_files = ['/etc/lsb-release',
-                              '/etc/issue',
-                              '/etc/centos-release',
-                              '/etc/oracle-release',
-                              '/etc/redhat-release',
-                              '/etc/system-release',
-                              '/etc/miraclelinux-release']
-        for distro_file in distro_check_files:
-            distro_identified = self._check_distro_file(distro_file)
-            if distro_identified:
-                return distro_identified
-
-        distro_identified_from_os_file = self._check_os_file()
-        if distro_identified_from_os_file:
-            return distro_identified_from_os_file
-
-        self.m_description = 'unknown'
-        return 'unknown'
-
-    def _check_distro_file(self, distro_file):
-        contents = filesystem_utils.read_file_if_exists(distro_file)
-        if contents:
-            check_contents = contents.lower().replace(" ", "")
-
-            # conversion mapping between string at start of file and distro name
-            for distro_string in DISTRIBUTION_NAME_MAP:
-                if check_contents.startswith(distro_string):
-                    # For SUSE use the brand file to identify distro but os-release to get description
-                    if distro_file == '/etc/SUSE-brand':
-                        self._check_os_file()
-                    else:
-                        self.m_description = contents.strip()
-                    return DISTRIBUTION_NAME_MAP[distro_string]
-        return None
-
-    def _check_os_file(self):
-        pretty_name = filesystem_utils.return_line_from_file('/etc/os-release', "PRETTY_NAME")
-        if pretty_name:
-            pretty_name = pretty_name.split("=")[-1].strip().strip('\"')
-            # conversion mapping between string at start of file and distro name
-            for distro_string in DISTRIBUTION_NAME_MAP:
-                if pretty_name.startswith(distro_string):
-                    self.m_description = pretty_name.strip()
-                    return DISTRIBUTION_NAME_MAP[distro_string]
-        return None
 
     def detect_instance_info(self):
         """
@@ -218,6 +157,7 @@ class TargetSystem:
         except:  # pylint: disable=bare-except
             pass
         return None
+
     def get_oracle_info(self):
         try:
             proxy_handler = urllib.request.ProxyHandler({})
@@ -316,7 +256,7 @@ class TargetSystem:
         """
         if self.m_vendor:
             return self.m_vendor
-        return self._detect_distro()
+        return "unknown"
 
     def os_version(self):
         """
@@ -334,8 +274,10 @@ class TargetSystem:
             return self.m_description
         return "unknown"
 
+
 def _read_uname():
     return [platform.node(), platform.release(), platform.machine()]
+
 
 def _run_command(command, shell=False):
     try:
@@ -352,43 +294,42 @@ def _run_command(command, shell=False):
         stdout = ""
     return ret_code, stdout
 
-def _collect_lsb_release():
-    description = None
-    distributor_id = None
-    release = None
 
-    path = os.environ.get("PATH", "")
-    lsb_release_exes = []
-    for split_path_element in path.split(":"):
-        lsb_release_bin = os.path.join(split_path_element, "lsb_release")
-        if os.path.isfile(lsb_release_bin):
-            lsb_release_exes.append(lsb_release_bin)
+def _collect_os_release(os_info_length_limit=255):
+    os_release_file_info = filesystem_utils.return_lines_from_file('/etc/os-release',
+                                                                   ["NAME", "PRETTY_NAME", "VERSION_ID"])
+    if os_release_file_info is None:
+        return None, None, None
 
-    if "/usr/bin/lsb_release" not in lsb_release_exes \
-            and os.path.isfile("/usr/bin/lsb_release"):
-        lsb_release_exes.append("/usr/bin/lsb_release")
+    for key, value in os_release_file_info.items():
+        if len(value) != 1:
+            os_release_file_info[key] = None  # Duplicate field found
+            continue
 
-    ret_code = -2
-    for lsb_release_exe in lsb_release_exes:
-        (ret_code, stdout) = _run_command([lsb_release_exe, '-a'])
-        if ret_code == 0:
-            break
+        if not value[0].startswith(key + '='):
+            os_release_file_info[key] = None  # Key/value is not in correct format
+            continue
 
-    if ret_code == 0:
-        lines = stdout.split("\n")
-        # Each line consists of "Key:<whitespace>*<value>"
-        matcher = re.compile(r"([^:]+):\s*(.+)$")
-        for line in lines:
-            line_matched = matcher.match(line)
-            if line_matched:
-                if "Description" in line:
-                    description = line_matched.group(2)
-                elif "Distributor ID" in line:
-                    distributor_id = line_matched.group(2)
-                elif "Release" in line:
-                    release = line_matched.group(2)
+        split_line = value[0].split(key + '=')[1]
+        if '=' in split_line:
+            os_release_file_info[key] = None
+            continue  # Format is key=<value1>=<value2>..., which is incorrect
+
+        os_release_file_info[key] = split_line.strip().strip('\"')
+        if len(os_release_file_info[key]) > os_info_length_limit:
+            # Value is too large so just try to get the first word and see if it fits the limit
+            os_release_file_info[key] = os_release_file_info[key].split(' ')[0]
+        if len(os_release_file_info[key]) > os_info_length_limit:
+            # Still too large so now truncate it
+            os_release_file_info[key] = os_release_file_info[key][:os_info_length_limit]
+
+    # If corresponding values were found then assign them, otherwise assign default value of None
+    description = os_release_file_info.get("PRETTY_NAME", None)
+    distributor_id = os_release_file_info.get("NAME", None)
+    release = os_release_file_info.get("VERSION_ID", None)
 
     return description, distributor_id, release
+
 
 def _find_case_insensitive_string_in_file(file_to_read, string_to_find):
     try:
@@ -400,6 +341,7 @@ def _find_case_insensitive_string_in_file(file_to_read, string_to_find):
         pass
     return False
 
+
 def write_info_to_metadata_json(metaDataAsJson):
     instance_metadata_json_filepath = path_manager.instance_metadata_config()
     tmp_path = os.path.join(path_manager.temp_dir(),"temp.json")
@@ -410,6 +352,7 @@ def write_info_to_metadata_json(metaDataAsJson):
             os.chown(instance_metadata_json_filepath, get_ids.get_uid("sophos-spl-local"), get_ids.get_gid("sophos-spl-group"))
     except PermissionError as e:
         LOGGER.warning(f"Cannot update file {instance_metadata_json_filepath} with error : {e}")
+
 
 if __name__ == '__main__':
     ts = TargetSystem()

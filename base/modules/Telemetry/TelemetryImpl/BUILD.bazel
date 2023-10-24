@@ -23,6 +23,7 @@ soph_cc_library(
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/CurlWrapper",
         "//base/modules/Common/HttpRequestsImpl",
+        "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/PluginCommunicationImpl",
         "//base/modules/Common/PluginRegistryImpl",
         "//base/modules/Common/Process",

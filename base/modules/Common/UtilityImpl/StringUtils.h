@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "StringUtilsException.h"
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <algorithm>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace Common::UtilityImpl
 {
@@ -123,6 +125,34 @@ namespace Common::UtilityImpl
             return result;
         }
 
+        static std::vector<std::string> splitStringOnFirstMatch(
+            const std::string& originalstring,
+            const std::string& separator)
+        {
+            std::vector<std::string> result;
+            if (originalstring.empty())
+            {
+                result.push_back(std::string{});
+                return result;
+            }
+            if (separator.empty())
+            {
+                result.emplace_back(originalstring);
+                return result;
+            }
+
+            size_t pos = originalstring.find(separator, 0);
+            result.emplace_back(originalstring.substr(0, pos ));
+            if (pos != std::string::npos)
+            {
+                // If separator doesn't exist in originalString then
+                // this would cause result to contain the originalString twice which we don't want
+                result.emplace_back(originalstring.substr(pos + separator.length()));                
+            }
+
+            return result;
+        }
+
         // coverity [ +tainted_string_sanitize_content : arg-0 ]
         static std::string checkAndConstruct(const char* untaintedCString, size_t maxLen = 10000)
         {
@@ -158,8 +188,9 @@ namespace Common::UtilityImpl
                 }
                 return "";
             }
-            throw std::runtime_error("File doesn't exist :" + filePath);
+            throw StringUtilsException("File doesn't exist: " + filePath);
         }
+
         static std::string extractValueFromConfigFile(const std::string& filePath, const std::string& key)
         {
             auto fs = Common::FileSystem::fileSystem();
@@ -170,13 +201,35 @@ namespace Common::UtilityImpl
                 {
                     if (startswith(line, key + "="))
                     {
-                        std::vector<std::string> list = splitString(line, "=");
+                        std::vector<std::string> list = splitStringOnFirstMatch(line, "=");
                         return list[1];
                     }
                 }
                 return "";
             }
-            throw std::runtime_error("File doesn't exist :" + filePath);
+            throw StringUtilsException("File doesn't exist :" + filePath);
+        }
+
+        static std::vector<std::string> extractAllMatchingValuesFromConfigFile(
+            const std::string& filePath,
+            const std::string& key)
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            if (fs->isFile(filePath))
+            {
+                std::vector<std::string> matchedValues;
+                std::vector<std::string> contents = fs->readLines(filePath);
+                for (auto const& line : contents)
+                {
+                    if (startswith(line, key + "="))
+                    {
+                        std::vector<std::string> list = splitStringOnFirstMatch(line, "=");
+                        matchedValues.emplace_back(list[1]);
+                    }
+                }
+                return matchedValues;
+            }
+            throw StringUtilsException("File doesn't exist :" + filePath);
         }
 
         static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
@@ -316,12 +369,12 @@ namespace Common::UtilityImpl
             }
             catch (const std::invalid_argument& e)
             {
-                throw std::runtime_error(
+                throw StringUtilsException(
                     "Failed to find unsigned long from output :" + stringToConvert + ". Error message: " + e.what());
             }
             catch (const std::out_of_range& e)
             {
-                throw std::runtime_error("Value is out of range :" + stringToConvert + ". Error message: " + e.what());
+                throw StringUtilsException("Value is out of range :" + stringToConvert + ". Error message: " + e.what());
             }
         }
 

@@ -74,7 +74,10 @@ soph_cc_library(
 soph_cc_library(
     name = "StringUtils",
     srcs = ["StringUtils.cpp"],
-    hdrs = ["StringUtils.h"],
+    hdrs = [
+        "StringUtils.h",
+        "StringUtilsException.h",
+    ],
     visibility = ["//common:spl_packages"],
     deps = [
         "//base/modules/Common/FileSystem",

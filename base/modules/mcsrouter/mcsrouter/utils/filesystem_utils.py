@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Sophos Plc, Oxford, England.
+# Copyright 2023 Sophos Limited. All rights reserved.
 
 """
 filesystem_utils Module
@@ -57,6 +57,32 @@ def read_file_if_exists(file_path):
     except OSError as exception:
         LOGGER.warning(f"Could not read contents of {file_path} with error : {exception}")
         return None
+
+
+# beginning_of_lines_to_find is a list of strings
+def return_lines_from_file(file_path, beginning_of_lines_to_find):
+    try:
+        if not os.path.exists(file_path):
+            return None
+
+        matched_lines = {}
+        with open(file_path) as check_file:
+            for line in check_file.readlines():
+                line = line.strip()
+
+                for beginning_of_line_to_find in beginning_of_lines_to_find:
+                    if line.startswith(beginning_of_line_to_find):
+                        matched_lines.setdefault(beginning_of_line_to_find, []).append(line)
+                        break
+
+            return matched_lines
+    except PermissionError as exception:
+        LOGGER.warning(f"Could not access {file_path} with error : {exception}")
+    except OSError as exception:
+        LOGGER.warning(f"Could not read contents of {file_path} with error : {exception}")
+
+    return None
+
 
 def return_line_from_file(file_path, beginning_of_line_to_find):
     try:

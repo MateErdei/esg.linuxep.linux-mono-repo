@@ -52,8 +52,8 @@ namespace Common::OSUtilitiesImpl
          */
         [[nodiscard]] utsname getUtsname() const;
         void populateVendorDetails();
-        [[nodiscard]] static std::string extractDistroFromFile(const std::string& filePath);
-        [[nodiscard]] static std::string extractDistroFromOSFile();
+        std::string getValueFromOSReleaseFile(const std::string& osReleasePath, const std::string& key);
+        void checkValueLengthAndTruncate(std::string& value);
         [[nodiscard]] static InterfaceCharacteristic getInterfaceCharacteristic(
             const Common::OSUtilities::Interface& interface);
         [[nodiscard]] std::string getAwsMetadata(
@@ -71,6 +71,7 @@ namespace Common::OSUtilitiesImpl
         std::string m_osName;
         std::string m_osMajorVersion;
         std::string m_osMinorVersion;
+        static constexpr unsigned int osInfoLengthLimit_ = 255;
     };
 
 } // namespace  Common::OSUtilitiesImpl

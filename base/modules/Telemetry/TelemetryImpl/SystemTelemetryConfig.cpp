@@ -1,10 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SystemTelemetryConfig.h"
+#include "SystemTelemetryConsts.h"
 
 namespace Telemetry
 {
@@ -14,16 +11,6 @@ namespace Telemetry
             { "kernel",
               SystemTelemetryTuple{
                   "hostnamectl", {}, R"(^\s*Kernel:\s*(.*)$)", { { "", TelemetryValueType::STRING } } } },
-            { "os-name",
-              SystemTelemetryTuple{ "head",
-                                    { "-100", "/etc/os-release" }, // only first dozen or so lines needed or expected
-                                    R"(^NAME="([^"]*).*$)",
-                                    { { "", TelemetryValueType::STRING } } } },
-            { "os-version",
-              SystemTelemetryTuple{ "head",
-                                    { "-100", "/etc/os-release" }, // only first dozen or so lines needed or expected
-                                    R"(^VERSION_ID="([^"]*).*$)",
-                                    { { "", TelemetryValueType::STRING } } } },
             { "cpu-cores",
               SystemTelemetryTuple{ "lscpu", {}, R"(^CPU\(s\):\s*(\d+)$)", { { "", TelemetryValueType::INTEGER } } } },
             { "memory-total",
