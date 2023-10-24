@@ -215,7 +215,7 @@ def get_os_packages(machine: tap.Machine):
         return common
     # ARM64
     elif machine.template == "amzlinux2_arm64_server_en_us":
-            return common
+        return common
     elif machine.template == "amzlinux2023_arm64_server_en_us":
         return common + ["openssl-perl"]
     elif machine.template == "centos8stream_arm64_server_en_us":
