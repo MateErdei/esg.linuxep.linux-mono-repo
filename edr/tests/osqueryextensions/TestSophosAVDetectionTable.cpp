@@ -2,13 +2,19 @@
 #include "MockJournalReaderWrapper.h"
 #include "MockQueryContext.h"
 
+#include "EventJournalWrapperImpl/EventJournalReaderWrapper.h"
 #include "osqueryextensions/SophosAVDetectionTable.h"
+#include "osqueryextensions/SophosAVDetectionTableGenerator.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/TempDir.h>
-#include <modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h>
-#include <osqueryextensions/SophosAVDetectionTableGenerator.h>
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/TempDir.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/TempDir.h"
+#endif
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <gtest/gtest.h>
 

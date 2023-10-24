@@ -2,12 +2,11 @@
 
 #include "livequery_main.h"
 
-#include <modules/livequery/config.h>
-#include "modules/livequery/IQueryProcessor.h"
-#include <modules/osqueryclient/OsqueryProcessor.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-
-#include <Common/Logging/PluginLoggingSetup.h>
+#include "Common/Logging/PluginLoggingSetup.h"
+#include "EdrCommon/ApplicationPaths.h"
+#include "livequery/IQueryProcessor.h"
+#include "livequery/config.h"
+#include "osqueryclient/OsqueryProcessor.h"
 
 #include <iostream>
 

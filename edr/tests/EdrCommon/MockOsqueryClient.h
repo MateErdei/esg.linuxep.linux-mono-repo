@@ -7,7 +7,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include "gmock/gmock.h"
 
-#include <modules/osqueryclient/IOsqueryClient.h>
+#include "osqueryclient/IOsqueryClient.h"
 
 #include <string>
 

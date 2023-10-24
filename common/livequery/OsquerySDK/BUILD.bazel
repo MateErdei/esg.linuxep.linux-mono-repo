@@ -1,0 +1,13 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+alias(
+    name = "OsquerySDK",
+    actual = "//common/livequery:OsquerySDK",
+    visibility = ["//visibility:public"],
+)
+
+#alias(
+#    name = "gen-cpp",
+#    actual = "//common/livequery/OsquerySDK:gen-cpp",
+#    visibility = ["//visibility:public"],
+#)

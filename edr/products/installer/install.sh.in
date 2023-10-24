@@ -133,7 +133,6 @@ chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
 chmod 0700 -R "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions"
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl"
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl_tracker"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/lib64"
 
 
 chown -R "${USER_NAME}":"${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"

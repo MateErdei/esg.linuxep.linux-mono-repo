@@ -7,6 +7,12 @@ soph_cc_binary(
         "*.cpp",
         "*.h",
     ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
     visibility = [
         "//eventjournaler/products/installer:__pkg__",
     ],

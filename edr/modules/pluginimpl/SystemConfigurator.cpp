@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
+#include "Logger.h"
 #include "SystemConfigurator.h"
 
-#include "ApplicationPaths.h"
-#include "Logger.h"
+#include "EdrCommon/ApplicationPaths.h"
 
-#include <Common/Process/IProcess.h>
+#include "Common/Process/IProcess.h"
 
 #include <thread>
 

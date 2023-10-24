@@ -1,11 +1,8 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "liveexecutable/livequery_main.h"
 
-******************************************************************************************************/
-
-#include <Common/UtilityImpl/Main.h>
-#include <modules/liveexecutable/livequery_main.h>
+#include "Common/UtilityImpl/Main.h"
 
 static int query_runner_main(int argc, char* argv[])
 {

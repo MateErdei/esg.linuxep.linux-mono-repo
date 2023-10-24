@@ -1,0 +1,27 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "edr",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = [
+        "//edr/products/installer:__pkg__",
+    ],
+    deps = [
+        "//common/livequery/OsquerySDK",
+        "//edr/modules/EventJournalWrapperImpl",
+        "//edr/modules/livequery",
+        "//edr/modules/pluginimpl",
+        "@sqlite",
+        "@thrift",
+    ],
+)

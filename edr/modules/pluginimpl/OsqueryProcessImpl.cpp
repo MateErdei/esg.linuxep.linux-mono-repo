@@ -1,21 +1,17 @@
-/******************************************************************************************************
-
-Copyright 2019-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #include "OsqueryProcessImpl.h"
 
-#include "ApplicationPaths.h"
+#include "EdrCommon/ApplicationPaths.h"
 #include "Logger.h"
 #include "OsqueryLogIngest.h"
 #include "PluginAdapter.h"
 #include "PluginUtils.h"
-#include "TelemetryConsts.h"
+#include "EdrCommon/TelemetryConsts.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ProcUtilImpl/ProcUtilities.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ProcUtilImpl/ProcUtilities.h"
 
 #include <iterator>
 #include <unistd.h>

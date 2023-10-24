@@ -13,11 +13,18 @@ soph_cc_binary(
 soph_cc_binary(
     name = "EventJournalWriter",
     srcs = ["EventJournalWriter.cpp"],
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//eventjournaler/modules/EventJournal",
+        "@xzutils//:lzma",
     ],
 )
 

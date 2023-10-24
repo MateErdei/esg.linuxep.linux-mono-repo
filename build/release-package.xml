@@ -16,6 +16,9 @@
             <include artifact-path="common/journal/linux_x64_rel/tools" dest-dir="common/journal/linux_x64_release"/>
             <include artifact-path="common/journal/linux_arm64_rel/libs" dest-dir="common/journal/linux_arm64_release"/>
             <include artifact-path="common/journal/linux_arm64_rel/tools" dest-dir="common/journal/linux_arm64_release"/>
+            <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="common/livequery/linux_x64_release"/>
+            <include artifact-path="common/livequery/linux_arm64_rel/lib" dest-dir="common/livequery/linux_arm64_release"/>
+            <include artifact-path="common/livequery/include" dest-dir="common/livequery/include"/>
             <include artifact-path="common/safestore/linux_x64_rel/safestore" dest-dir="common/safestore/linux_x64_rel"/>
             <include artifact-path="common/safestore/linux_arm64_rel/safestore" dest-dir="common/safestore/linux_arm64_rel"/>
         </build-asset>
@@ -35,7 +38,7 @@
             <include artifact-path="release/linux64/bin" dest-dir="imports/internal/susi/x86_64/lrlib"/>
         </build-asset>
         <build-asset project="core" repo="susi">
-<!--            <release-version branch="release/2.3" build-id="20230516162702-8c64c09abddf3fceedcc1d384902f20d4f762bec-5kNL5w"/>-->
+            <!--            <release-version branch="release/2.3" build-id="20230516162702-8c64c09abddf3fceedcc1d384902f20d4f762bec-5kNL5w"/>-->
             <development-version branch="develop"/>
             <include artifact-path="release/linux/libsusi" dest-dir="imports/internal/susi/x86_64/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="imports/internal/susi/include"/>
@@ -69,6 +72,8 @@
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
+        <trusted-asset artifact-path="com.osquery/osquery/5.8.2/osquery-5.8.2-linux" dest-dir="imports/thirdparty/osquery/linux_x64_rel"/>
+        <trusted-asset artifact-path="com.osquery/osquery/5.8.2/osquery-5.8.2_1.linux_aarch64" dest-dir="imports/thirdparty/osquery/linux_arm64_rel"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="thininstaller/certs"/>
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-x86_64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-aarch64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
@@ -266,7 +271,7 @@
         <release-asset artifact-path="base/linux_arm64_rel/installer" source-dir=".output/base/linux_arm64_rel/installer" manifest-path=".output/base/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_rel/installer" source-zip=".output/base/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_rel/installer_symbols" source-zip=".output/base/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
-        <build-asset artifact-path="base/linux_arm64_dbg/installer" source-zip=".output/base/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="base/linux_arm64_dbg/installer" source-zip=".output/base/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="base/fake_management" source-zip=".output/base/fake_management.zip" mode="all_lx64r"/>
 
         <!-- Response Actions -->
@@ -277,7 +282,21 @@
         <release-asset artifact-path="response_actions/linux_arm64_rel/installer" source-dir=".output/response_actions/linux_arm64_rel/installer" manifest-path=".output/response_actions/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer" source-zip=".output/response_actions/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer_symbols" source-zip=".output/response_actions/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
-        <build-asset artifact-path="response_actions/linux_arm64_dbg/installer" source-zip=".output/response_actions/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="response_actions/linux_arm64_dbg/installer" source-zip=".output/response_actions/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+
+        <!-- EDR -->
+        <release-asset artifact-path="edr/linux_x64_rel/installer" source-dir=".output/edr/linux_x64_rel/installer" manifest-path=".output/edr/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="edr/linux_x64_rel/installer" source-zip=".output/edr/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="edr/linux_x64_rel/installer_symbols" source-zip=".output/edr/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="edr/linux_x64_rel/componenttests" source-zip=".output/edr/linux_x64_rel/componenttests.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="edr/linux_x64_dbg/installer" source-zip=".output/edr/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="edr/linux_x64_dbg/componenttests" source-zip=".output/edr/linux_x64_dbg/componenttests.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="edr/linux_arm64_rel/installer" source-dir=".output/edr/linux_arm64_rel/installer" manifest-path=".output/edr/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="edr/linux_arm64_rel/installer" source-zip=".output/edr/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="edr/linux_arm64_rel/installer_symbols" source-zip=".output/edr/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="edr/linux_arm64_rel/componenttests" source-zip=".output/edr/linux_arm64_rel/componenttests.zip" mode="all_la64r"/>
+        <build-asset artifact-path="edr/linux_arm64_dbg/installer" source-zip=".output/edr/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="edr/linux_arm64_dbg/componenttests" source-zip=".output/edr/linux_arm64_dbg/componenttests.zip" mode="all_la64d"/>
 
         <!-- Live Response -->
         <release-asset artifact-path="liveterminal/linux_x64_rel/installer" source-dir=".output/liveterminal/linux_x64_rel/installer" manifest-path=".output/liveterminal/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -287,7 +306,7 @@
         <release-asset artifact-path="liveterminal/linux_arm64_rel/installer" source-dir=".output/liveterminal/linux_arm64_rel/installer" manifest-path=".output/liveterminal/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
         <build-asset artifact-path="liveterminal/linux_arm64_rel/installer" source-zip=".output/liveterminal/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="liveterminal/linux_arm64_rel/installer_symbols" source-zip=".output/liveterminal/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
-        <build-asset artifact-path="liveterminal/linux_arm64_dbg/installer" source-zip=".output/liveterminal/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="liveterminal/linux_arm64_dbg/installer" source-zip=".output/liveterminal/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
 
         <!-- Event Journaler -->
         <release-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-dir=".output/eventjournaler/linux_x64_rel/installer" manifest-path=".output/eventjournaler/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -305,7 +324,9 @@
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="base/linux_x64_dbg/system_test" source-zip=".output/base/linux_x64_dbg/system_test.zip" mode="all_lx64d"/>
         <build-asset artifact-path="base/linux_arm64_rel/system_test" source-zip=".output/base/linux_arm64_rel/system_test.zip" mode="all_la64r"/>
+        <build-asset artifact-path="base/linux_arm64_dbg/system_test" source-zip=".output/base/linux_arm64_dbg/system_test.zip" mode="all_la64d"/>
 
         <!-- ThinInstaller Output -->
         <release-asset artifact-path="thininstaller/thininstaller" source-dir=".output/thininstaller/thininstaller" manifest-path=".output/thininstaller/thininstaller.manifest.json" mode="all_lx64r"/>

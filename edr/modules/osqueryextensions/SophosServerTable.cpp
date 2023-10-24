@@ -9,7 +9,7 @@
 #include "Common/UtilityImpl/FileUtils.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include <iostream>
 

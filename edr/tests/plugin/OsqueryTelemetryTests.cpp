@@ -1,15 +1,18 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "pluginimpl/OsqueryLogIngest.h"
+#include "EdrCommon/TelemetryConsts.h"
 
-******************************************************************************************************/
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/pluginimpl/OsqueryLogIngest.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <gtest/gtest.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
+
 
 class OsqueryTelemetryTests : public LogOffInitializedTests{};
 

@@ -32,7 +32,9 @@ soph_cc_library(
     name = "TimeUtils",
     srcs = ["TimeUtils.cpp"],
     hdrs = ["TimeUtils.h"],
-    visibility = ["//common:spl_packages"],
+    visibility = [
+        "//common:spl_packages",
+    ],
 )
 
 expand_template(
@@ -124,9 +126,7 @@ soph_cc_library(
 soph_cc_library(
     name = "Factory",
     hdrs = ["Factory.h"],
-    visibility = [
-        "//base/modules:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )
 
 soph_cc_library(
@@ -137,8 +137,5 @@ soph_cc_library(
         "//base/modules/Common/FileSystem",
         "@boost//:property_tree",
     ],
-    visibility = [
-        "//base/modules:__subpackages__",
-        "//liveterminal:__subpackages__",
-    ],
+    visibility = ["//common:spl_packages"],
 )

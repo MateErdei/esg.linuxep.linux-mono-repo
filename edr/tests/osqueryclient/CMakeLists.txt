@@ -2,11 +2,11 @@ message("testheaderinclude: ${testhelpersinclude}")
 
 SophosAddTest(TestOsqueryProcessor
         OsqueryProcessorTests.cpp
-        OsqueryProcessorTestsWithMock.cpp        
-        MockOsqueryClient.h
+        OsqueryProcessorTestsWithMock.cpp
+        ../EdrCommon/MockOsqueryClient.h
         PROJECTS osqueryclient
         LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} ${GFLAG_LIBRARY} pthread
-        INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
+        INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/.. ${testhelpersinclude}
         )
 message("show ${log4cpluslib}")
 target_compile_definitions(TestOsqueryProcessor PRIVATE -DOSQUERYBIN="${INPUT}/osquery/opt/osquery/bin/osqueryd")

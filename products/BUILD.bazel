@@ -9,6 +9,8 @@ COMMON_DEPS = [
     "//eventjournaler:manualTools",
     "//response_actions:installer",
     "//liveterminal:installer",
+    "//edr:installer",
+    "//edr:componenttests",
 ]
 
 RELEASE_DEPS = [
@@ -16,6 +18,7 @@ RELEASE_DEPS = [
     "//eventjournaler:installer_symbols",
     "//response_actions:installer_symbols",
     "//liveterminal:installer_symbols",
+    "//edr:installer_symbols",
 ]
 
 soph_export_assets(

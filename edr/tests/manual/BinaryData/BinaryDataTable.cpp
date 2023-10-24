@@ -6,8 +6,6 @@ Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 #include "BinaryDataTable.h"
 
-#include <OsquerySDK/OsquerySDK.h>
-
 #include <iostream>
 #include <fstream>
 #include <sstream>

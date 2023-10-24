@@ -15,7 +15,7 @@ sophos_add_library(livequeryimpl SHARED
         Logger.cpp
         EXTRA_PROJECTS queryrunnerimpl
         EXTRA_LIBS ${log4cpluslib} ${protobuflib} ${JSONCPP_LIBRARY} ${GFLAG_LIBRARY}
-        EXTRA_INCLUDES ${LIVEQUERY_INCLUDE} ${AUTOVERSION_INCLUDE} ${NLOHMANN_JSON_INCLUDE_DIR}
+        EXTRA_INCLUDES ${LIVEQUERY_INCLUDE} ${AUTOVERSION_INCLUDE} ${NLOHMANN_JSON_INCLUDE_DIR}/nlohmann
         osquerysdk_library
         sqlite_library
         )

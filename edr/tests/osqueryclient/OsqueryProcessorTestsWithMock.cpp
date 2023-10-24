@@ -1,13 +1,15 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "edr/tests/EdrCommon/MockOsqueryClient.h"
 
-******************************************************************************************************/
+#include "osqueryclient/OsqueryProcessor.h"
 
-#include "MockOsqueryClient.h"
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
-#include <Common/Helpers/LogInitializedTests.h>
-#include <modules/osqueryclient/OsqueryProcessor.h>
 #include <thrift/transport/TTransportException.h>
 
 #include <gtest/gtest.h>

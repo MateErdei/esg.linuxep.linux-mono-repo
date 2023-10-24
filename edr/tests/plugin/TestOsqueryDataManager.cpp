@@ -1,23 +1,38 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "pluginimpl/OsqueryDataManager.h"
 
-******************************************************************************************************/
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/TempDir.h"
+#else
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/TempDir.h"
+#endif
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/TempDir.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <modules/pluginimpl/OsqueryDataManager.h>
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <gtest/gtest.h>
 
+#include <memory>
+
+using namespace ::testing;
+
 class TestOsqueryDataManager : public LogOffInitializedTests
 {
-protected:
-    std::string createExcpetedOSqueryConfString(const std::string timeInSeconds)
+public:
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
+
+    std::string createExpectedOSqueryConfString(const std::string timeInSeconds)
     {
         std::stringstream content;
         content << R"(
@@ -55,14 +70,13 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetCorrectlyWhenOld
 {
     OsqueryDataManager dataManager;
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-
     std::string timeString("10000");
-    std::string expectedContent = createExcpetedOSqueryConfString("6000");
+    std::string expectedContent = createExpectedOSqueryConfString("6000");
 
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, writeFile(_, expectedContent));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     // simulate oldest time returned by query.
     dataManager.reconfigureDataRetentionParameters(10000, 4000);
@@ -72,14 +86,13 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
 {
     OsqueryDataManager dataManager;
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-
     std::string timeString("604800");
-    std::string expectedContent = createExcpetedOSqueryConfString("604800");
+    std::string expectedContent = createExpectedOSqueryConfString("604800");
 
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, writeFile(_, expectedContent));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     // simulate oldest time returned by query.
     dataManager.reconfigureDataRetentionParameters(604801, 604800);
@@ -89,14 +102,13 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
 {
     OsqueryDataManager dataManager;
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-
     std::string timeString("604800");
-    std::string expectedContent = createExcpetedOSqueryConfString("604800");
+    std::string expectedContent = createExpectedOSqueryConfString("604800");
 
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, writeFile(_, expectedContent));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     // simulate oldest time returned by query.
     // ensure values which would result in a negative outcome, actually result in default time being set, and no throws.
@@ -107,14 +119,13 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
 {
     OsqueryDataManager dataManager;
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-
     std::string timeString("604800");
-    std::string expectedContent = createExcpetedOSqueryConfString("604800");
+    std::string expectedContent = createExpectedOSqueryConfString("604800");
 
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, writeFile(_, expectedContent));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     // simulate oldest time returned by query.
     dataManager.reconfigureDataRetentionParameters((604800 * 4), 604801);
@@ -124,22 +135,22 @@ TEST_F(TestOsqueryDataManager, getOldestAllowedTimeForCurre_ThrowsOnFailure) // 
 {
     OsqueryDataManager dataManager;
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
     EXPECT_THROW(dataManager.getOldestAllowedTimeForCurrentEventedData(), std::runtime_error);
 }
 
 TEST_F(TestOsqueryDataManager, purgeDatabase_willRemoveAllFilesInDirectory) // NOLINT
 {
     OsqueryDataManager dataManager;
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> filelist{"hello", "world"};
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(filelist));
     EXPECT_CALL(*mockFileSystem, isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFile(filelist[0])).Times(1);
     EXPECT_CALL(*mockFileSystem, removeFile(filelist[1])).Times(1);
+    Tests::replaceFileSystem(std::move(mockFileSystem));
     dataManager.purgeDatabase();
 }
 

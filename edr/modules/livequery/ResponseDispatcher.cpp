@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019-2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "ResponseDispatcher.h"
 
@@ -16,7 +12,7 @@ Copyright 2019-2020 Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/StringUtils.h"
 
 // Thirdparty
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 // System
 #include <sstream>

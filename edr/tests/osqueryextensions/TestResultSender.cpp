@@ -1,12 +1,22 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFilePermissions.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/livequery/ResponseData.h>
-#include <modules/osqueryextensions/ResultsSender.h>
+#include "livequery/ResponseData.h"
+#include "osqueryextensions/ResultsSender.h"
+
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#endif
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <gtest/gtest.h>
 

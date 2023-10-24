@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #ifdef SPL_BAZEL
-#include "common/journal/linux_x64_release/headers/cpp_lib/Event.capnp.h"
+#include "cpp_lib/Event.capnp.h"
 #else
 #include "Event.capnp.h"
 #endif

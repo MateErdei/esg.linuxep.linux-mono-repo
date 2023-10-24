@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "EdrCommon",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//edr/modules:__subpackages__",
+    ],
+    deps = [
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:FileUtils",
+    ],
+)

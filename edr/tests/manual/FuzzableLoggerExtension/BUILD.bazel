@@ -1,0 +1,23 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "FuzzableLoggerExtension",
+    srcs = glob([
+        "FuzzableResultSender.cpp",
+    ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = [
+        "//edr/tests/manual:__subpackages__",
+    ],
+    deps = [
+        "//edr/modules/osqueryextensions",
+        "@com_github_gflags_gflags//:gflags",
+        "@sqlite",
+    ],
+)

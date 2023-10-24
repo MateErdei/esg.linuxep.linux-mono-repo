@@ -1,0 +1,13 @@
+load("//tools/config:zip.bzl", "zip_asset")
+
+zip_asset(
+    name = "componenttests",
+    srcs = [
+        "//edr/tests/manual/BinaryData:BinaryDataTable",
+        "//edr/tests/manual/DelayControlled:DelayControlledTable",
+        "//edr/tests/manual/FuzzableLoggerExtension",
+        "//edr/tests/manual/LiveQueryReport",
+        "//edr/tests/manual/MemoryCrash:MemoryCrashTable",
+    ],
+    visibility = ["//edr:__pkg__"],
+)

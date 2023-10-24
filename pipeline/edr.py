@@ -26,14 +26,15 @@ INPUTS_DIR = '/opt/test/inputs'
 NAME = "edr"
 
 
-def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str):
+def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str, arch: str):
     test_inputs = None
     if mode == 'release':
+        config = f"linux_{arch}_rel"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./edr/TA'),
-            edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
-            base_sdds=edr_build / 'edr/base/base-sdds',
-            componenttests=edr_build / 'edr/componenttests',
+            edr_sdds=edr_build / f'edr/{config}/installer',
+            base_sdds=edr_build / f'base/{config}/installer',
+            componenttests=edr_build / f'edr/{config}/componenttests',
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
             lp=unified_artifact(context, 'em.esg', 'develop', 'build/endpoint-query-pack')
@@ -190,9 +191,10 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
 
     test_inputs = {
-        "x64": get_inputs(context, edr_build, mode)
+        "x64": get_inputs(context, edr_build, mode, "x64"),
+        "arm64": get_inputs(context, edr_build, mode, "arm64")
     }
-    test_machines = get_test_machines(test_inputs, parameters, x64_only=True)
+    test_machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 
     with stage.parallel('edr_test'):
@@ -217,5 +219,5 @@ def run_edr_tests(stage, context, edr_build, mode, parameters):
                                        include_tag=include)
 
         with stage.parallel('component'):
-            for template_name, machine in get_test_machines(test_inputs, parameters, x64_only=True):
+            for template_name, machine in get_test_machines(test_inputs, parameters):
                 stage.task(task_name=template_name, func=pytest_task, machine=machine)

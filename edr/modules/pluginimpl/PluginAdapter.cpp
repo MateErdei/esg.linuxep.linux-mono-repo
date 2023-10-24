@@ -2,23 +2,23 @@
 
 #include "PluginAdapter.h"
 
-#include "ApplicationPaths.h"
+#include "EdrCommon/ApplicationPaths.h"
 #include "IOsqueryProcess.h"
 #include "LiveQueryPolicyParser.h"
 #include "Logger.h"
 #include "PluginUtils.h"
-#include "TelemetryConsts.h"
-#include "EdrConstants.h"
+#include "EdrCommon/TelemetryConsts.h"
+#include "EdrCommon/EdrConstants.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FlagUtils/FlagUtils.h>
-#include <Common/PluginApi/NoPolicyAvailableException.h>
-#include <Common/ProcUtilImpl/ProcUtilities.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/ZeroMQWrapper/IIPCException.h>
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FlagUtils/FlagUtils.h"
+#include "Common/PluginApi/NoPolicyAvailableException.h"
+#include "Common/ProcUtilImpl/ProcUtilities.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
 
 #include <cmath>
 #include <fstream>

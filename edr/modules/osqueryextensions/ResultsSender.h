@@ -1,10 +1,19 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/PersistentValue/PersistentValue.h>
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/PersistentValue/PersistentValue.h"
+
+#ifdef SPL_BAZEL
+#include "common/livequery/include/LoggerPlugin/ResultsSenderInterface.h"
+#else
+#include "LoggerPlugin/ResultsSenderInterface.h"
+#endif
+
+
+
 #include <json/value.h>
-#include <LoggerPlugin/ResultsSenderInterface.h>
+
 #include <functional>
 
 struct ScheduledQuery

@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "OsqueryLogStringUtil.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(const std::string& logLine)
 {

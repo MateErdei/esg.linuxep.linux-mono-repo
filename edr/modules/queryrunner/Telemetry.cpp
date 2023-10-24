@@ -1,13 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "Telemetry.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+#include "EdrCommon/TelemetryConsts.h"
+
 namespace queryrunner{
 void Telemetry::processLiveQueryResponseStats(const queryrunner::QueryRunnerStatus& response)
 {

@@ -2,14 +2,23 @@
 
 #include "MockQueryContext.h"
 
+#include "osqueryextensions/SophosServerTable.h"
+
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/TempDir.h"
+#else
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/LogInitializedTests.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Helpers/TempDir.h"
-#include "modules/osqueryextensions/SophosServerTable.h"
+#endif
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <gtest/gtest.h>
 
 class TestSophosServerTable : public LogOffInitializedTests

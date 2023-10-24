@@ -1,0 +1,20 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "BinaryDataTable",
+    srcs = glob([
+        "BinaryDataTable.cpp",
+        "BinaryDataTable.h",
+    ]),
+    visibility = [
+        "//edr/tests/manual:__subpackages__",
+    ],
+    deps =
+        [
+            "//common/livequery/OsquerySDK",
+            "@com_github_gflags_gflags//:gflags",
+            "@jsoncpp",
+            "@sqlite",
+        ],
+)

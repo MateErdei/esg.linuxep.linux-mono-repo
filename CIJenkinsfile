@@ -33,7 +33,7 @@ def params = [
  string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
 
  booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
- booleanParam(name: 'build_debug_bazel', defaultValue: true, description: 'Do the Bazel linux_dbg build'),
+ booleanParam(name: 'build_debug_bazel', defaultValue: false, description: 'Do the Bazel linux_dbg build'),
 
 ]
 

@@ -5,7 +5,6 @@ o700, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d
 o700, root, root, /opt/sophos-spl/plugins/edr/etc/query_packs
 o700, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs
 o700, root, root, /opt/sophos-spl/plugins/edr/extensions
-o700, root, root, /opt/sophos-spl/plugins/edr/lib64
 o700, root, root, /opt/sophos-spl/plugins/edr/log
 o700, root, root, /opt/sophos-spl/plugins/edr/osquery
 o700, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses

@@ -1,14 +1,12 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/Process/IProcess.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <Common/TelemetryHelperImpl/TelemetryJsonToMap.h>
 #include "Logger.h"
 #include "QueryRunnerImpl.h"
+
+#include "EdrCommon/ApplicationPaths.h"
+
+#include "Common/Process/IProcess.h"
+#include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
 
 #define SECONDS_UNTIL_SIGKILL 3
 

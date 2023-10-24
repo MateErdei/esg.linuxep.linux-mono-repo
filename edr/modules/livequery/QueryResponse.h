@@ -1,15 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2019-2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "ResponseData.h"
 #include "ResponseMetaData.h"
-#include "modules/queryrunner/ResponseStatus.h"
+
+#include "queryrunner/ResponseStatus.h"
 
 #include <string>
+
 namespace livequery
 {
     class QueryResponse

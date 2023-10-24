@@ -1,10 +1,6 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <modules/pluginimpl/QueueTask.h>
+#include "pluginimpl/QueueTask.h"
 
 #include <gtest/gtest.h>
 #include <future>

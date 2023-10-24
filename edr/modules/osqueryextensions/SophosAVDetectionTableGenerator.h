@@ -2,9 +2,14 @@
 
 #pragma once
 
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
 #include "OsquerySDK/OsquerySDK.h"
+#endif
 
-#include <modules/EventJournalWrapperImpl/IEventJournalReaderWrapper.h>
+#include "EventJournalWrapperImpl/IEventJournalReaderWrapper.h"
+
 namespace OsquerySDK
 {
     class SophosAVDetectionTableGenerator

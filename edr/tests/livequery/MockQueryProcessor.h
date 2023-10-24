@@ -1,11 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <modules/livequery/IQueryProcessor.h>
+#include "livequery/IQueryProcessor.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

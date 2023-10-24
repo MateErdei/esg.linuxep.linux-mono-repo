@@ -106,18 +106,6 @@
     </buildcommands>
     <publish>
         <workingdir>edr</workingdir>
-        <!-- new unified pipeline -->
-        <!-- change edr/sdds to a release asset -->
-        <release-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-
-        <build-asset artifact-path="edr/symbols" source-dir="output/symbols" mode="release"/>
-        <build-asset artifact-path="edr/schema" source-dir="output/schema" mode="release"/>
-        <build-asset artifact-path="edr/base/base-sdds" source-dir="output/base-sdds" mode="release"/>
-        <build-asset artifact-path="edr/componenttests" source-dir="output/componenttests" mode="release"/>
-        <build-asset artifact-path="edr/build_log" source-dir="output" mode="release">
-            <include glob="./build.log"/>
-        </build-asset>
-
         <build-asset artifact-path="sspl-edr-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
         <build-asset artifact-path="sspl-edr-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-edr-unittest" mode="coverage"/>
         <build-asset artifact-path="sspl-edr-coverage/symbols" source-dir="output/symbols" mode="coverage"/>

@@ -4,11 +4,15 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
-#include <modules/EventJournalWrapperImpl/EventJournalTimeUtils.h>
+#include "EventJournalWrapperImpl/EventJournalTimeUtils.h"
+
+#ifdef SPL_BAZEL
+#include "journallib/Journal.h"
+#else
+#include "Journal.h"
+#endif
 
 #include <gmock/gmock.h>
-
-#include <Journal.h>
 
 class MockJournalHelperInterface : public Sophos::Journal::HelperInterface
 {
@@ -41,9 +45,22 @@ public:
     MOCK_METHOD(self_type&, PrefixIncrement, (), (override));
     MOCK_METHOD(pointer, Address, (), (override));
     MOCK_METHOD(Sophos::Journal::JRL, GetJournalResourceLocator, (), (const, override));
-    MOCK_METHOD(bool, Equals, ());
+
     MOCK_METHOD(self_type&, Assign, ());
 
+    #ifdef SPL_BAZEL
+    MOCK_METHOD(bool, Equals, (), (const));
+    bool operator==([[maybe_unused]] const self_type& rhs) const override
+    {
+        return Equals();
+    }
+
+    bool operator!=([[maybe_unused]] const self_type& rhs) const override
+    {
+        return !Equals();
+    }
+    #else
+    MOCK_METHOD(bool, Equals, ());
     bool operator==([[maybe_unused]] const self_type& rhs) override
     {
         return Equals();
@@ -53,6 +70,7 @@ public:
     {
         return !Equals();
     }
+    #endif
 
     self_type& operator=([[maybe_unused]] const self_type& rhs) override
     {

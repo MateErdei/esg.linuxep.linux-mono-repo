@@ -5,15 +5,17 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Threads/LockableData.h"
 
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
 #include "Common/Helpers/LogInitializedTests.h"
+#endif
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include <atomic>
 #include <iostream>
 #include <memory>
-#include <utility>
 
 using namespace ::testing;
 

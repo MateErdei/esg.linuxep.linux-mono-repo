@@ -1,16 +1,16 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "OsqueryConfigurator.h"
 
-#include "ApplicationPaths.h"
+#include "EdrCommon/ApplicationPaths.h"
 #include "Logger.h"
 #include "PluginUtils.h"
-#include "TelemetryConsts.h"
+#include "EdrCommon/TelemetryConsts.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/FileUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/FileUtils.h"
 
 #include <thread>
 #include <iterator>

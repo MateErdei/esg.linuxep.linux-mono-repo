@@ -16,10 +16,17 @@ soph_cc_library(
 spl_independent_cc_tests(
     name = "TestHeartbeat",
     srcs = ["TestHeartbeat.cpp"],
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         ":FakeTimeutils",
         "//eventjournaler/modules/EventWriterWorkerLib",
         "//eventjournaler/modules/SubscriberLib",
         "@com_google_googletest//:gtest_main",
+        "@xzutils//:lzma",
     ],
 )

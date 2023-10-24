@@ -1,17 +1,18 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
-#include "ApplicationPaths.h"
-#include "LiveQueryPolicyParser.h"
-#include "Logger.h"
-#include "OsqueryConfigurator.h"
-#include "PluginUtils.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/FileUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "EdrCommon/ApplicationPaths.h"
+#include "pluginimpl/LiveQueryPolicyParser.h"
+#include "pluginimpl/Logger.h"
+#include "pluginimpl/OsqueryConfigurator.h"
+#include "pluginimpl/PluginUtils.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/FileUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 namespace Plugin
 {

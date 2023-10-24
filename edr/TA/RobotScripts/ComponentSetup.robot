@@ -38,7 +38,6 @@ Setup Component For Testing
     Create Directory   ${SOPHOS_INSTALL}/plugins/edr/var
     Create Directory   ${SOPHOS_INSTALL}/plugins/edr/etc
     Create Directory   ${SOPHOS_INSTALL}/plugins/edr/log
-    Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   chmod +x ${COMPONENT_BIN_PATH}  shell=True
 
 Uninstall All

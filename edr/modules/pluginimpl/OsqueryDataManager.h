@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <OsquerySDK/OsquerySDK.h>
-#include <osqueryclient/IOsqueryClient.h>
 #include "PluginUtils.h"
+
+#include "osqueryclient/IOsqueryClient.h"
+
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
+#include "OsquerySDK/OsquerySDK.h"
+#endif
+
+#include "Common/UtilityImpl/TimeUtils.h"
+
 #include <future>
 #include <stdexcept>
 #include <thread>

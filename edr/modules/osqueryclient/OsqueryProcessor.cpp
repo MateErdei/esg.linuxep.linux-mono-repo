@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "OsqueryProcessor.h"
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "IOsqueryClient.h"
 #include "Logger.h"
+#include "OsqueryProcessor.h"
 
-#include <livequery/ResponseData.h>
-#include <modules/queryrunner/ResponseStatus.h>
+#include "livequery/ResponseData.h"
+#include "queryrunner/ResponseStatus.h"
+
 #include <thrift/transport/TTransportException.h>
 
 #include <iostream>

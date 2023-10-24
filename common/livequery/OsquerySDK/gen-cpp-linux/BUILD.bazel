@@ -1,0 +1,7 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+alias(
+    name = "gen-cpp-linux",
+    actual = "//common/livequery:gen-cpp-linux",
+    visibility = ["//visibility:public"],
+)

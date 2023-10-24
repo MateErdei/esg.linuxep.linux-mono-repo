@@ -1,12 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2019-2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "QueryResponse.h"
 #include "ResponseDispatcher.h"
+
 #include <memory>
 
 namespace livequery
@@ -28,5 +25,4 @@ namespace livequery
     const int INVALIDREQUESTERROR = 2;
     const int INVALIDQUERYERROR = 3;
     const int FAILEDTOEXECUTEERROR = 4;
-
 } // namespace livequery

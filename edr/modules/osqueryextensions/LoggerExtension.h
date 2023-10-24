@@ -8,7 +8,12 @@
 
 #include "Common/Threads/LockableData.h"
 
-#include <OsquerySDK/OsquerySDK.h>
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
+#include "OsquerySDK/OsquerySDK.h"
+#endif
+
 #include <boost/thread.hpp>
 
 class LoggerExtension : public IServiceExtension

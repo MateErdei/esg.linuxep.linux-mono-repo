@@ -2,7 +2,7 @@ add_executable(${plugin_name}
         main.cpp)
 target_link_libraries(${plugin_name} PUBLIC pluginimpl dl)
 
-target_include_directories(${plugin_name} PUBLIC ${AUTOVERSION_INCLUDE})
+target_include_directories(${plugin_name} PUBLIC ${AUTOVERSION_INCLUDE} ${CMAKE_BINARY_DIR}/modules)
 
 SET_TARGET_PROPERTIES( ${plugin_name}
         PROPERTIES

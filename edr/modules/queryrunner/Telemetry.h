@@ -1,12 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 #include "IQueryRunner.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryObject.h>
+#include "Common/TelemetryHelperImpl/TelemetryObject.h"
+
 namespace queryrunner
 {
     class Telemetry

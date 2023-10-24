@@ -5,10 +5,10 @@
 #include "Logger.h"
 #include "PluginUtils.h"
 
-#include "pluginimpl/ApplicationPaths.h"
+#include "EdrCommon/ApplicationPaths.h"
 
 #include <json/json.h>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include <string>
 

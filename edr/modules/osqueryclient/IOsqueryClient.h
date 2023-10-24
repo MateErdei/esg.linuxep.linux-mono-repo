@@ -1,13 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <OsquerySDK/OsquerySDK.h>
-#include <Common/UtilityImpl/Factory.h>
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
+#include "OsquerySDK/OsquerySDK.h"
+#endif
+
+#include "Common/UtilityImpl/Factory.h"
 
 #include <stdexcept>
 

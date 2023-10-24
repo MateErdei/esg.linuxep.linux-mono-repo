@@ -34,7 +34,6 @@ def install_component(sophos_install):
 
     shutil.copytree(os.path.join(sdds(), 'files/plugins'), os.path.join(sophos_install, 'plugins'))
     component_tests_dir = os.path.join(sophos_install, 'componenttests')
-    plugin_lib64_path = os.path.join(plugin_dir_path, 'lib64')
     plugin_executable = os.path.join(plugin_dir_path, 'bin/edr')
     livequery_executable = os.path.join(plugin_dir_path, 'bin/sophos_livequery')
     osquery_executable = os.path.join(plugin_dir_path, 'bin/osqueryd')
@@ -48,7 +47,6 @@ def install_component(sophos_install):
     BinaryData = 'BinaryDataTable'
     shutil.copy(os.path.join(component_tests_dir, BinaryData), os.path.join(extensions_dir, BinaryData))
 
-    run_shell(['ldconfig', '-lN', '*.so.*'], cwd=plugin_lib64_path)
     for path in [plugin_executable, osquery_executable, livequery_executable]:
         run_shell(['chmod', '+x', path])
     run_shell(['chmod', '+x', os.path.join(component_tests_dir, '*')])

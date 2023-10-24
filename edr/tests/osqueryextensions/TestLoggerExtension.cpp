@@ -1,8 +1,12 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
-#include <Common/Helpers/LogInitializedTests.h>
-#include <osqueryextensions/LoggerExtension.h>
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
+
+#include "osqueryextensions/LoggerExtension.h"
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
 #include <gtest/gtest.h>
 

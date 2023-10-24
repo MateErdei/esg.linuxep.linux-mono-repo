@@ -1,11 +1,8 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+#include "OsqueryStarted.h"
 
 #include <boost/assert.hpp>
-#include "OsqueryStarted.h"
 
 namespace Plugin{
 

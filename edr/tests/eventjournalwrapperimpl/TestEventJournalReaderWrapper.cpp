@@ -1,15 +1,22 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/MockFileSystem.h>
 #include "MockSophosJournal.h"
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
+#ifdef SPL_BAZEL
+#include "base/tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "base/tests/Common/Helpers/MockFileSystem.h"
+#else
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+#endif
+
+#include "EventJournalWrapperImpl/EventJournalReaderWrapper.h"
+
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h>
-#include <modules/EventJournalWrapperImpl/Logger.h>
 
 using namespace ::testing;
 

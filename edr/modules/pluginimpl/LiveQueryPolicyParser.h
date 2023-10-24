@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -12,13 +8,14 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "QueueTask.h"
 
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/Process/IProcess.h>
-#include <modules/osqueryextensions/LoggerExtension.h>
-#include <modules/osqueryextensions/SophosExtension.h>
-#include <queryrunner/IQueryRunner.h>
-#include <queryrunner/ParallelQueryProcessor.h>
+#include "osqueryextensions/LoggerExtension.h"
+#include "osqueryextensions/SophosExtension.h"
+#include "queryrunner/IQueryRunner.h"
+#include "queryrunner/ParallelQueryProcessor.h"
+
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/Process/IProcess.h"
 
 #include <future>
 #include <list>

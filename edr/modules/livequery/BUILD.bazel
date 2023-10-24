@@ -1,0 +1,45 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+load("//edr:substitutions.bzl", "SUBSTITUTIONS")
+load("//tools/config:expand_template.bzl", "expand_template")
+
+soph_cc_library(
+    name = "livequery",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]) + [
+        ":config",
+    ],
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/Process",
+    ],
+    visibility = [
+        "//edr/modules/liveexecutable:__pkg__",
+        "//edr/modules/osqueryclient:__pkg__",
+        "//edr/modules/pluginimpl:__pkg__",
+        "//edr/products/livequery:__pkg__",
+        "//edr/products/plugin:__pkg__",
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:__pkg__",
+        "//edr/tests/livequery:__pkg__",
+        "//edr/tests/manual/LiveQueryReport:__pkg__",
+        "//edr/tests/osqueryclient:__pkg__",
+        "//edr/tests/osqueryextensions:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/ApplicationConfigurationImpl",
+        "//common/livequery/OsquerySDK",
+        "//edr:AutoVersion",
+        "//edr/modules/queryrunner",
+        "//imports/thirdparty/nlohmann-json",
+    ],
+)
+
+expand_template(
+    name = "config",
+    out = "config.h",
+    substitutions = SUBSTITUTIONS,
+    template = "config.h.in",
+)

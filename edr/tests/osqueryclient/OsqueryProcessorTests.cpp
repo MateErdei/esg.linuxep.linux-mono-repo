@@ -1,15 +1,17 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/TempDir.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/TempDir.h"
+#endif
 
-******************************************************************************************************/
-
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/TempDir.h>
-#include <Common/Process/IProcess.h>
-#include <modules/livequery/Logger.h>
-#include <modules/osqueryclient/OsqueryProcessor.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Process/IProcess.h"
+#include "livequery/Logger.h"
+#include "osqueryclient/OsqueryProcessor.h"
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
@@ -19,9 +21,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <stdlib.h>
 using namespace ::testing;
-#ifndef OSQUERYBIN
-#    define OSOSQUERYBIN ""
-#endif
+//#ifndef OSQUERYBIN
+//#    define OSOSQUERYBIN ""
+//#endif
 
 class TestOSQueryProcessor : public  LogOffInitializedTests
 {
@@ -44,11 +46,11 @@ public:
         {
             return std::string { OSQ_ENV_PATH };
         }
-        std::string COMPILED_DEFINED_PATH { OSQUERYBIN };
-        if (Common::FileSystem::fileSystem()->exists(COMPILED_DEFINED_PATH))
-        {
-            return COMPILED_DEFINED_PATH;
-        }
+//        std::string COMPILED_DEFINED_PATH { OSQUERYBIN };
+//        if (Common::FileSystem::fileSystem()->exists(COMPILED_DEFINED_PATH))
+//        {
+//            return COMPILED_DEFINED_PATH;
+//        }
         throw std::logic_error("Osquery path not found. Please, set environment variable OVERRIDE_OSQUERY_BIN");
     }
 

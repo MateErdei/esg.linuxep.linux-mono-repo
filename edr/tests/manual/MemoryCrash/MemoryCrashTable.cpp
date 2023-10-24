@@ -5,8 +5,6 @@ Copyright 2020-2022 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "MemoryCrashTable.h"
 
-#include <OsquerySDK/OsquerySDK.h>
-
 #include <iostream>
 #include <sstream>
 #include <thread>

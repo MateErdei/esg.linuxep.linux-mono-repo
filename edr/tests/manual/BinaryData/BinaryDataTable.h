@@ -1,12 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
 #include "OsquerySDK/OsquerySDK.h"
+#endif
 
 namespace OsquerySDK
 {

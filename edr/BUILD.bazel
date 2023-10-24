@@ -1,0 +1,43 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load("//tools/config:expand_template.bzl", "expand_template")
+load(":version_info.bzl", "EDR_BASE_VERSION")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+expand_template(
+    name = "AutoVersion_h",
+    out = "AutoVersion.h",
+    substitutions = {"@VERSION@": EDR_BASE_VERSION},
+    template = "//common:AutoVersion.h.in",
+)
+
+soph_cc_library(
+    name = "AutoVersion",
+    hdrs = [":AutoVersion_h"],
+    include_prefix = "AutoVersioningHeaders",
+    visibility = ["//edr:__subpackages__"],
+)
+
+soph_release_asset(
+    name = "installer",
+    asset = "//edr/products/installer:installer_sdds2",
+    asset_type = select({
+        "//tools/config:linux_x64_rel": "release",
+        "//tools/config:linux_arm64_rel": "release",
+        "//tools/config:linux_x64_dbg": "build",
+        "//tools/config:linux_arm64_dbg": "build",
+    }),
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset(
+    name = "installer_symbols",
+    asset = "//edr/products/installer:installer_symbols",
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset(
+    name = "componenttests",
+    asset = "//edr/tests/manual:componenttests",
+    visibility = ["//products:__pkg__"],
+)

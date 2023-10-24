@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
+
+soph_cc_binary(
+    name = "sophos_livequery",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    visibility = [
+        "//edr/products/installer:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/UtilityImpl:Main",
+        "//edr/modules/liveexecutable",
+        "//edr/modules/livequery",
+        "@com_github_gflags_gflags//:gflags",
+        "@jsoncpp",
+        "@sqlite",
+    ],
+)

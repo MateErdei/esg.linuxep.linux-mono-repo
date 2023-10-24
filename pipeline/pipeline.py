@@ -43,8 +43,10 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                      image=BUILD_TEMPLATE_BAZEL,
                                      mode="san_lsnty,all_lx64r,all_la64r",
                                      release_package=PACKAGE_PATH)
+    linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", False)
+    print(f"parameters.mode = {parameters.mode}; MODE = {mode}; linux_debug = {linux_dbg} - {parameters.build_debug_bazel}")
 
-    if parameters.build_debug_bazel != False:
+    if linux_dbg:
         stage.artisan_build(name="linux_dbg",
                             component=component,
                             image=BUILD_TEMPLATE_BAZEL,
@@ -62,6 +64,9 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
                     run_ej_tests(stage, context, build, mode, parameters)
+
+                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
+                    run_edr_tests(stage, context, build, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_tests(stage, context, build, mode, parameters)
@@ -155,14 +160,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     av_component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_package_version(PACKAGE_PATH_AV))
     liveterminal_component = tap.Component(name='liveterminal_linux', base_version=get_package_version(PACKAGE_PATH_LIVETERMINAL))
     with stage.parallel('plugins'):
-        if mode == INDEPENDENT_MODE:
-            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                edr_build = stage.artisan_build(name=f"edr_{mode}",
-                                                component=edr_component,
-                                                image=BUILD_TEMPLATE,
-                                                mode=mode,
-                                                release_package=PACKAGE_PATH_EDR)
-        elif mode == RELEASE_MODE:
+        if mode == RELEASE_MODE:
             # EDR
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                 edr_build = stage.artisan_build(name=f"edr_{RELEASE_MODE}",
@@ -225,12 +223,7 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
     with stage.parallel('testing'):
         # run_tests can be None when tap runs locally, this needs to be "!= False" instead of "if parameters.run_tests:"
-        if parameters.run_tests != False:
-            if mode == RELEASE_MODE:
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                    run_edr_tests(stage, context, edr_build, mode, parameters)
-
-            elif mode == COVERAGE_MODE:
+        if parameters.run_tests != False and mode == COVERAGE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
                     run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
 

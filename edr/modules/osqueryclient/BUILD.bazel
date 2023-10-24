@@ -1,0 +1,29 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "osqueryclient",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "IOsqueryClient.h",
+        "OsqueryProcessor.h",
+    ],
+    visibility = [
+        "//edr/modules/liveexecutable:__pkg__",
+        "//edr/modules/pluginimpl:__pkg__",
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:__pkg__",
+        "//edr/tests/manual/LiveQueryReport:__pkg__",
+        "//edr/tests/osqueryclient:__pkg__",
+        "//edr/tests/plugin:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:Factory",
+        "//common/livequery/OsquerySDK",
+        "//edr/modules/livequery",
+        "@thrift",
+    ],
+)

@@ -1,18 +1,19 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationPaths.h"
 #include "Logger.h"
-#include "TelemetryConsts.h"
 #include "Telemetry.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "EdrCommon/ApplicationPaths.h"
+#include "EdrCommon/TelemetryConsts.h"
 
-#include <nlohmann/json.hpp>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <json.hpp>
 
 #include <time.h>
 namespace

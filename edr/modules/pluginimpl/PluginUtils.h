@@ -1,9 +1,9 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystemException.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include <optional>
 
 namespace Plugin

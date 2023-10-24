@@ -6,6 +6,7 @@ Copyright 2019-2021, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+
 namespace Plugin
 {
     std::string osqueryBinaryName();

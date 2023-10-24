@@ -1,22 +1,31 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "ALCPoliciesExample.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MemoryAppender.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/MockFilePermissions.h>
-#include <Common/Helpers/MockApiBaseServices.h>
-#include <Common/Helpers/TempDir.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
+#include "pluginimpl/PluginUtils.h"
+#include "EdrCommon/ApplicationPaths.h"
+#include "pluginimpl/PluginAdapter.h"
+#include "pluginimpl/LiveQueryPolicyParser.h"
 
-#include <pluginimpl/PluginUtils.h>
-#include <pluginimpl/ApplicationPaths.h>
-#include <pluginimpl/PluginAdapter.h>
-#include <pluginimpl/LiveQueryPolicyParser.h>
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockApiBaseServices.h"
+#else
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MemoryAppender.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockApiBaseServices.h"
+#endif
+
+
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
@@ -791,6 +800,7 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
     EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
 }
 
+
 TEST_F(PluginAdapterWithMockFileSystem, processPolicyIgnoresDuplicates)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -819,4 +829,5 @@ TEST_F(PluginAdapterWithMockFileSystem, processPolicyIgnoresDuplicates)
     EXPECT_TRUE(appenderContains("Processing LiveQuery Policy", 1));
     EXPECT_TRUE(appenderContains("Policy with app id LiveQuery unchanged, will not be processed", 1));
 }
+
 

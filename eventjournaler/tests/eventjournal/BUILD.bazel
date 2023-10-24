@@ -9,11 +9,18 @@ spl_independent_cc_tests(
             "*.h",
         ],
     ),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/tests/Common/Helpers",
         "//eventjournaler/modules/EventJournal",
         "@com_google_googletest//:gtest_main",
+        "@xzutils//:lzma",
     ],
 )

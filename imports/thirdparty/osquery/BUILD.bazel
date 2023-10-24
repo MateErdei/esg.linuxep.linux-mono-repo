@@ -1,0 +1,28 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+alias(
+    name = "osqueryd",
+    actual = select({
+        "//tools/config:linux_x64": "linux_x64_rel/osquery/opt/osquery/bin/osqueryd",
+        "//tools/config:linux_arm64": "linux_arm64_rel/osquery/opt/osquery/bin/osqueryd",
+    }),
+    visibility = [
+        "//edr:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "lenses",
+    srcs = select({
+        "//tools/config:linux_x64": glob([
+            "linux_x64_rel/osquery/opt/osquery/share/osquery/lenses/*aug",
+        ]),
+        "//tools/config:linux_arm64": glob([
+            "linux_arm64_rel/osquery/opt/osquery/share/osquery/lenses/*aug",
+        ]),
+    }),
+    visibility = [
+        "//edr:__subpackages__",
+    ],
+)

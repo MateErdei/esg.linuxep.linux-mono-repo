@@ -7,11 +7,18 @@ soph_cc_binary(
         "*.cpp",
         "*.h",
     ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         "//base/modules/Common/Logging",
         "//base/modules/Common/ZMQWrapperApi",
         "//base/modules/Common/ZeroMQWrapper",
         "//eventjournaler/modules/EventWriterWorkerLib",
         "//eventjournaler/modules/SubscriberLib",
+        "@xzutils//:lzma",
     ],
 )

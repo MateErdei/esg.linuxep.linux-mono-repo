@@ -1,16 +1,15 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-#include <modules/livequery/Logger.h>
 #include "MockQueryProcessor.h"
 #include "MockResponseDispatcher.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "livequery/Logger.h"
+
+
+#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace ::testing;
 

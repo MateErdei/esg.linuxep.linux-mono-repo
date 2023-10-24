@@ -1,0 +1,23 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "osqueryclienttests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+    ),
+    deps = [
+        "//base/modules/Common/FileSystemImpl",
+        "//base/tests/Common/Helpers",
+        "//edr/modules/livequery",
+        "//edr/modules/osqueryclient",
+        "//edr/tests/EdrCommon:EdrCommonTests",
+        "@com_github_gflags_gflags//:gflags",
+        "@com_google_googletest//:gtest_main",
+        "@jsoncpp",
+        "@sqlite",
+    ],
+)

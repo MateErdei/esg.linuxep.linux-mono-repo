@@ -1,11 +1,13 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+#include "pluginimpl/OsqueryLogStringUtil.h"
 
-******************************************************************************************************/
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
-#include <Common/Helpers/LogInitializedTests.h>
-#include <modules/pluginimpl/OsqueryLogStringUtil.h>
 #include <gtest/gtest.h>
 
 class TestOsqueryLogStringUtil : public LogOffInitializedTests{};

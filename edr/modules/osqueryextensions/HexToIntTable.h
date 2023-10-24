@@ -3,7 +3,11 @@
 #pragma once
 #include "TablePluginMacros.h"
 
-#include "common/livequery/OsquerySDK/OsquerySDK.h"
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
+#include "OsquerySDK/OsquerySDK.h"
+#endif
 
 namespace OsquerySDK
 {

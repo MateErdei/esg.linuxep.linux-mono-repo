@@ -1,0 +1,36 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "osqueryextensions",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Threads",
+        "//edr/modules/EventJournalWrapperImpl",
+        "//imports/thirdparty/nlohmann-json:nlohmann-json",
+    ],
+    visibility = [
+        "//edr/manual/FuzzableLoggerExtension:__pkg__",
+        "//edr/modules/liveexecutable:__pkg__",
+        "//edr/modules/pluginimpl:__pkg__",
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:__pkg__",
+        "//edr/tests/manual/FuzzableLoggerExtension:__pkg__",
+        "//edr/tests/osqueryextensions:__pkg__",
+        "//edr/tests/plugin:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PersistentValue",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//common/livequery/LoggerPlugin",
+        "//common/livequery/OsquerySDK",
+        "//edr/modules/EdrCommon",
+        "@boost//:thread",
+        "@jsoncpp",
+    ],
+)

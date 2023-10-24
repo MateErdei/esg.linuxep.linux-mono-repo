@@ -1,12 +1,8 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "osqueryextensions/ResultsSender.h"
 
-******************************************************************************************************/
-
-#include "../../../modules/osqueryextensions/ResultsSender.h"
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <iostream>
 

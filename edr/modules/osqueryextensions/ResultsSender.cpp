@@ -3,12 +3,14 @@
 #include "ResultsSender.h"
 
 #include "Logger.h"
-#include "EdrConstants.h"
-#include <Common/FileSystem/IFileSystemException.h>
+#include "EdrCommon/EdrConstants.h"
+#include "EdrCommon/ApplicationPaths.h"
 
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+
 #include <json/json.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
+
 
 
 #include <iostream>

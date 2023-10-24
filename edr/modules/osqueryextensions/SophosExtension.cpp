@@ -7,7 +7,7 @@
 #include "GrepTable.h"
 #include "HexToIntTable.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <functional>
 

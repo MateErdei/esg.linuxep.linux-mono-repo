@@ -1,12 +1,10 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019-2021, Sophos Limited.  All rights reserved.
+#include "EdrCommon/ApplicationPaths.h"
 
-******************************************************************************************************/
-#include "ApplicationPaths.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
 namespace
 {
     std::string fromRelative(const std::string& relative)

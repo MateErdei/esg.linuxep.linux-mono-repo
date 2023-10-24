@@ -1,13 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 #include "MockQueryContext.h"
 
-#include <modules/osqueryextensions/ConstraintHelpers.h>
+#include "osqueryextensions/ConstraintHelpers.h"
 
 #include <gtest/gtest.h>
+
 using namespace ::testing;
 
 class TestTimeConstraintHelpers : public ::testing::Test

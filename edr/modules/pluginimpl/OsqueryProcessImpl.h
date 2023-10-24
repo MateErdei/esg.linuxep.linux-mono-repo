@@ -1,14 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2019-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "IOsqueryProcess.h"
-
-#include <Common/Process/IProcess.h>
 #include "OsqueryStarted.h"
+
+#include "Common/Process/IProcess.h"
+
 #include <functional>
 #include <future>
 

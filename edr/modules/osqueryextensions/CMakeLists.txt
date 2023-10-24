@@ -45,8 +45,9 @@ sophos_add_library(OsqueryExtensions SHARED
                 ${BOOST_INCLUDE_DIR}
                 ${JOURNAL_INCLUDE_DIR}
                 ${LIVEQUERY_INCLUDE}
+                ${CMAKE_SOURCE_DIR}/modules
                 ${CMAKE_SOURCE_DIR}/modules/EdrCommon
-                ${NLOHMANN_JSON_INCLUDE_DIR}
+                ${NLOHMANN_JSON_INCLUDE_DIR}/nlohmann
         )
 
 set(TABLE_PLUGIN_HDRS

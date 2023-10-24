@@ -4,21 +4,26 @@
 #include "EventJournalTimeUtils.h"
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/FileUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/FileUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
+
+#ifdef SPL_BAZEL
+#include "journallib/Journal.h"
+#include "cpp_lib/Event.capnp.h"
+#else
+#include "Event.capnp.h"
+#include "Journal.h"
+#endif
+
+
 #include <cstring>
 #include <fstream>
-
-
-#include <Event.capnp.h>
-#include <Journal.h>
 
 namespace Common
 {
@@ -274,4 +279,4 @@ namespace Common
         }
 
     } // namespace EventJournalWrapper
-} // namespace Common
+} // namespace EdrCommon

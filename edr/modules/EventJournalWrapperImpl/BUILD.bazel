@@ -1,0 +1,26 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "EventJournalWrapperImpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//edr/modules/osqueryextensions:__pkg__",
+        "//edr/products/plugin:__pkg__",
+        "//edr/tests/eventjournalwrapperimpl:__pkg__",
+        "//edr/tests/osqueryextensions:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:FileUtils",
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//common/journal/protocol:cpp_lib",
+        "//edr/modules/EdrCommon",
+        "@capnproto//:capnp",
+        "@xzutils//:lzma",
+    ],
+)

@@ -1,0 +1,27 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "osqueryextensionstests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "//base/tests/Common/Helpers",
+        "//common/livequery:OsquerySDK",
+        "//edr/modules/EventJournalWrapperImpl",
+        "//edr/modules/livequery",
+        "//edr/modules/osqueryextensions",
+        "@com_github_gflags_gflags//:gflags",
+        "@com_google_googletest//:gtest_main",
+        "@sqlite",
+        "@thrift",
+    ],
+)

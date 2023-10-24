@@ -1,15 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "PluginCallback.h"
-
 #include "Logger.h"
-#include "Telemetry.h"
-#include "TelemetryConsts.h"
+#include "PluginCallback.h"
 #include "PluginUtils.h"
+#include "Telemetry.h"
+
+#include "EdrCommon/TelemetryConsts.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 #include <unistd.h>
 
 namespace Plugin

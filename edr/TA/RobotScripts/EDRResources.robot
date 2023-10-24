@@ -170,6 +170,10 @@ Install Base For Component Tests
 
 Install EDR Directly from SDDS
     [Arguments]  ${interval}=5  ${debug}=
+    Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf
+    Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf
+    Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf
+    Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf

@@ -4,5 +4,5 @@ sophos_add_library(livemain SHARED
         Logger.cpp
         Logger.h
         EXTRA_LIBS ${log4cpluslib} ${zmqlib} osqueryclient livequeryimpl ${JSONCPP_LIBRARY}
-        EXTRA_INCLUDES ${CMAKE_BINARY_DIR}
+        EXTRA_INCLUDES ${CMAKE_BINARY_DIR}/modules
         )

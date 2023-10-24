@@ -1,12 +1,16 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
-#include <modules/pluginimpl/LiveQueryPolicyParser.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
+#include "EdrCommon/ApplicationPaths.h"
+#include "pluginimpl/LiveQueryPolicyParser.h"
 
-#include <Common/Helpers/LogInitializedTests.h>
+#include "Common/FileSystem/IFileSystem.h"
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 class TestLiveQueryPolicyParser: public LogInitializedTests{};
 

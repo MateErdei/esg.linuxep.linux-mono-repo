@@ -1,15 +1,15 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "OsqueryDataManager.h"
-
-#include "ApplicationPaths.h"
 #include "Logger.h"
 #include "OsqueryConfigurator.h"
+#include "OsqueryDataManager.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/WaitForUtils.h>
+#include "EdrCommon/ApplicationPaths.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/WaitForUtils.h"
 
 void OsqueryDataManager::cleanUpOsqueryLogs()
 {

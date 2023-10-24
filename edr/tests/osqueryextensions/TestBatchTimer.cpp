@@ -1,16 +1,19 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "modules/osqueryextensions/BatchTimer.h"
+#include "osqueryextensions/BatchTimer.h"
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
 #include "Common/Exceptions/Print.h"
 
-#include <chrono>
-#include <memory>
-#include <thread>
-
-#include "Common/Helpers/LogInitializedTests.h"
-
 #include <gtest/gtest.h>
+
+#include <chrono>
+#include <thread>
 
 namespace
 {

@@ -1,12 +1,16 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include <modules/livequery/config.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/PluginAdapter.h>
+#include "livequery/config.h"
+#include "EdrCommon/ApplicationPaths.h"
+#include "pluginimpl/Logger.h"
+#include "pluginimpl/PluginAdapter.h"
 
 // Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
+#ifdef SPL_BAZEL
+#    include "edr/AutoVersion.h"
+#else
+#    include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 
 #include "Common/FileSystem/IPidLockFileUtils.h"
 #include "Common/Logging/PluginLoggingSetup.h"

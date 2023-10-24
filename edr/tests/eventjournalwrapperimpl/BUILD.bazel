@@ -1,0 +1,21 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "eventjournalwrapperimpltests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lstdc++fs",
+        ],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "//base/tests/Common/Helpers",
+        "//edr/modules/EventJournalWrapperImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

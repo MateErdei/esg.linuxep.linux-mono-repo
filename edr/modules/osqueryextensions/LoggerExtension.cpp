@@ -3,9 +3,14 @@
 #include "LoggerExtension.h"
 #include "Logger.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <LoggerPlugin/SophosLoggerPlugin.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/FileSystem/IFileSystemException.h"
+
+#ifdef SPL_BAZEL
+#include "common/livequery/include/LoggerPlugin/SophosLoggerPlugin.h"
+#else
+#include "LoggerPlugin/SophosLoggerPlugin.h"
+#endif
 
 #include <cassert>
 #include <functional>

@@ -5,7 +5,11 @@
 #include "ResponseDispatcher.h"
 
 // Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
+#ifdef SPL_BAZEL
+#    include "edr/AutoVersion.h"
+#else
+#    include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 
 #include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
 

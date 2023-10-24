@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 log4cplus::Logger& getLoggerPluginLogger();
 

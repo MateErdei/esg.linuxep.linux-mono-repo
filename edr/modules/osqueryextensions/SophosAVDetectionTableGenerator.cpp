@@ -6,11 +6,10 @@
 #include "Logger.h"
 #include "ThreatTypes.h"
 
-#include "OsquerySDK/OsquerySDK.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 namespace OsquerySDK
 {

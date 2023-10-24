@@ -5,12 +5,13 @@
 #include "Logger.h"
 #include "OsqueryLogger.h"
 #include  "ScheduledQueryLogger.h"
-#include "TelemetryConsts.h"
+#include "EdrCommon/TelemetryConsts.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
-#include <nlohmann/json.hpp>
+#include <json.hpp>
+
 void OsqueryLogIngest::ingestOutput(const std::string& output)
 {
     // splitString always returns an empty string if the last char is the deliminator, i.e. a new line in this case.

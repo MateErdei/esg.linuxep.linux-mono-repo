@@ -1,14 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "OsqueryClientImpl.h"
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
+#include "OsqueryClientImpl.h"
 
-#include <OsquerySDK/OsquerySDK.h>
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
+#include "OsquerySDK/OsquerySDK.h"
+#endif
+
 #include <thrift/transport/TTransportException.h>
 
 #include<thread>
@@ -17,7 +17,6 @@ namespace osquery
 {
     std::unique_ptr<OsquerySDK::OsqueryClientInterface> makeClient(const std::string& socket)
     {
-
         for (int i = 0; i < 15; i++)
         {
             try

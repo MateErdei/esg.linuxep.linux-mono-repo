@@ -18,7 +18,7 @@
         <intermediate artifact-path="base/linux_x64_rel/system_test" dest-dir="sdds"/>
         <intermediate artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sdds/redist/responseactions/latest/x64" mode="dev,prod,999"/>
         <!-- EDR -->
-        <intermediate artifact-path="edr/SDDS-COMPONENT" dest-dir="sdds/redist/edr/latest/x64" mode="dev,prod,999"/>
+        <intermediate artifact-path="edr/linux_x64_rel/installer" dest-dir="sdds/redist/edr/latest/x64" mode="dev,prod,999"/>
         <!-- Event Journaler -->
         <intermediate artifact-path="eventjournaler/linux_x64_rel/installer" dest-dir="sdds/redist/event-journaler/latest/x64" mode="dev,prod,999"/>
         <!-- AV -->

@@ -18,7 +18,7 @@
             <include mode="system-test,base-coverage,ej-coverage,no-suite,edr-coverage,lr-coverage" artifact-path="thininstaller/thininstaller" dest-dir="sspl-thininstaller" />
 
             <!-- EDR -->
-            <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
+            <include mode="system-test,base-coverage,ej-coverage,no-suite,lr-coverage" artifact-path="edr/linux_x64_rel/installer" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
 

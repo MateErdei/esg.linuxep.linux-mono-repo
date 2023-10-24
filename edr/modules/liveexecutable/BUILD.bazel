@@ -1,0 +1,19 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "liveexecutable",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = ["livequery_main.h"],
+    visibility = [
+        "//edr/products/livequery:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//edr/modules/livequery",
+        "//edr/modules/osqueryclient",
+    ],
+)

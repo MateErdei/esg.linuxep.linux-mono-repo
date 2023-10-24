@@ -1,21 +1,76 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//tools/config:capnproto.bzl", "soph_capnp_cpp_fileset", "soph_capnp_library")
+load("//tools/config:capnproto_defs.bzl", "SOPH_CAPNP_CPP_DEPS")
 
 cc_library(
     name = "journal",
     srcs = select({
-        "@bazel_tools//src/conditions:linux_x86_64": ["linux_x64_release/lib/libcpp_lib.a"],
-        "@bazel_tools//src/conditions:linux_aarch64": ["linux_arm64_release/lib/libcpp_lib.a"],
+        "//tools/config:linux_x64": [
+            "linux_x64_release/lib/libjournallib.a",
+            "linux_x64_release/lib/libcpp_lib.a",
+        ],
+        "//tools/config:linux_arm64": [
+            "linux_arm64_release/lib/libjournallib.a",
+            "linux_arm64_release/lib/libcpp_lib.a",
+        ],
     }),
-    hdrs = glob(["linux_x64_release/headers/cpp_lib/*.h"]),
+    hdrs = select({
+        "//tools/config:linux_x64": glob([
+            "linux_x64_release/headers/cpp_lib/*.h",
+            "linux_x64_release/headers/journallib/*.h",
+        ]),
+        "//tools/config:linux_arm64": glob([
+            "linux_arm64_release/headers/cpp_lib/*.h",
+            "linux_arm64_release/headers/journallib/*.h",
+        ]),
+    }),
+    strip_include_prefix =
+        select({
+            "//tools/config:linux_x64": "linux_x64_release/headers",
+            "//tools/config:linux_arm64": "linux_arm64_release/headers",
+        }),
     visibility = ["//common/journal/protocol:__pkg__"],
+    deps = [
+        ":EventCapnp",
+    ],
 )
 
 filegroup(
     name = "JournalReader",
     srcs = select({
-        "@bazel_tools//src/conditions:linux_x86_64": ["linux_x64_release/JournalReader/JournalReader"],
-        "@bazel_tools//src/conditions:linux_aarch64": ["linux_arm64_release/JournalReader/JournalReader"],
+        "//tools/config:linux_x64": ["linux_x64_release/JournalReader/JournalReader"],
+        "//tools/config:linux_arm64": ["linux_arm64_release/JournalReader/JournalReader"],
     }),
     visibility = ["//common/journal/tools/JournalReader:__pkg__"],
+)
+
+soph_capnp_library(
+    name = "Event_capnp",
+    srcs = select({
+        "//tools/config:linux_x64": glob(["linux_x64_release/capnp/*.capnp"]),
+        "//tools/config:linux_arm64": glob(["linux_arm64_release/capnp/*.capnp"]),
+    }),
+    deps = SOPH_CAPNP_CPP_DEPS,
+)
+
+soph_capnp_cpp_fileset(
+    name = "Event_capnp_cpp_fileset",
+    capnp = ":Event_capnp",
+)
+
+cc_library(
+    name = "EventCapnp",
+    strip_include_prefix =
+        select({
+            "//tools/config:linux_x64": "linux_x64_release/headers",
+            "//tools/config:linux_arm64": "linux_arm64_release/headers",
+        }),
+    visibility = [
+        "//edr/modules/EventJournalWrapperImpl:__pkg__",
+        "//eventjournaler/modules/EventJournal:__pkg__",
+    ],
+    deps = [
+        ":Event_capnp_cpp_fileset",
+    ],
 )

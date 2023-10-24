@@ -1,22 +1,18 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "SophosAVDetectionTable.h"
 #include "SophosAVDetectionTableGenerator.h"
 #include "Logger.h"
 #include "ThreatTypes.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/FileUtils.h>
+#include "EventJournalWrapperImpl/IEventJournalReaderWrapper.h"
+#include "EventJournalWrapperImpl/EventJournalReaderWrapper.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/FileUtils.h"
+
 #include <json/value.h>
-#include <modules/EventJournalWrapperImpl/IEventJournalReaderWrapper.h>
-#include <modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h>
-
-
 #include <iostream>
 
 namespace OsquerySDK

@@ -8,13 +8,22 @@
 #include "Common/FileSystem/IFileSystem.h"
 
 // 3rd party production
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 // Sophos test
-#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#else
 #include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
+#endif
+
 
 // Third party test
 #include <gmock/gmock-matchers.h>

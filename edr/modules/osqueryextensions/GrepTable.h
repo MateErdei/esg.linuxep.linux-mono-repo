@@ -4,7 +4,11 @@
 
 #include "TablePluginMacros.h"
 
+#ifdef SPL_BAZEL
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+#else
 #include "OsquerySDK/OsquerySDK.h"
+#endif
 
 
 namespace

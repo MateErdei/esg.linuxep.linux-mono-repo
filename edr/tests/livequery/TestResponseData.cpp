@@ -1,12 +1,14 @@
-/******************************************************************************************************
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+#include "livequery/ResponseData.h"
 
-******************************************************************************************************/
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
 
 #include <gtest/gtest.h>
-#include <modules/livequery/ResponseData.h>
-#include <Common/Helpers/LogInitializedTests.h>
 
 using namespace ::testing;
 

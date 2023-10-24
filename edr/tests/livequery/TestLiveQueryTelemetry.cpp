@@ -1,12 +1,19 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/livequery/ResponseData.h>
-#include <modules/queryrunner/Telemetry.h>
-#include <modules/livequery/QueryResponse.h>
 
-#include <nlohmann/json.hpp>
+#include "livequery/ResponseData.h"
+#include "queryrunner/Telemetry.h"
+#include "livequery/QueryResponse.h"
+
+#ifdef SPL_BAZEL
+#include "tests/Common/Helpers/LogInitializedTests.h"
+#else
+#include "Common/Helpers/LogInitializedTests.h"
+#endif
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+#include <json.hpp>
 
 #include <gtest/gtest.h>
 

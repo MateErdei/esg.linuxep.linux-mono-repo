@@ -1,0 +1,62 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//edr:version_info.bzl", "EDR_BASE_VERSION", "EDR_LINE_ID", "EDR_PRODUCT_NAME", "EDR_VERSIONING_COMPONENT_NAME")
+load("//edr:substitutions.bzl", "SUBSTITUTIONS")
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+)
+
+expand_template(
+    name = "plugin_json",
+    out = "plugin.json",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+)
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = EDR_BASE_VERSION,
+    component_name = EDR_PRODUCT_NAME,
+    line_id = EDR_LINE_ID,
+    spv_features = ["LIVEQUERY"],
+    spv_platforms = ["LINUX_INTEL_LIBC6"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    srcs_remapped = {
+        "//imports/thirdparty/osquery:lenses": "imports/thirdparty/osquery/linux_x64_rel/osquery/opt/osquery/share -> files/plugins/edr,imports/thirdparty/osquery/linux_arm64_rel/osquery/opt/osquery/share -> files/plugins/edr",
+    },
+
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in {
+        "files/plugins/edr/bin/edr": "//edr/products/plugin:edr",
+        "files/plugins/edr/bin/sophos_livequery": "//edr/products/livequery:sophos_livequery",
+        "files/plugins/edr/bin/osqueryd": "//imports/thirdparty/osquery:osqueryd",
+        "files/plugins/edr/bin/uninstall.sh": ":uninstall_sh",
+        "files/base/pluginRegistry/edr.json": ":plugin_json",
+        "install.sh": ":install_sh",
+        "cleanuprealm.dat": "cleanuprealm.dat.in",
+        "files/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf": "syslog_configs/rsyslog_sophos-spl.conf",
+        "files/plugins/edr/extensions/extensions.load": "extensions.load",
+    }.items()},
+    symbols_strip_prefix = "edr/products/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/edr/VERSION.ini",
+    ],
+    versioning_component_name = EDR_VERSIONING_COMPONENT_NAME,
+    visibility = [
+        "//edr:__pkg__",
+    ],
+)

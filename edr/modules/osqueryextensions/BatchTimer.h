@@ -2,7 +2,11 @@
 
 #pragma once
 
+#ifdef SPL_BAZEL
+#include "common/livequery/include/LoggerPlugin/BatchTimerInterface.h"
+#else
 #include "LoggerPlugin/BatchTimerInterface.h"
+#endif
 
 #include <condition_variable>
 #include <future>
