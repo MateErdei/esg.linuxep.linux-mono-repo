@@ -1,9 +1,12 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
-
 #include "Logger.h"
 #include "PluginUtils.h"
+
+#ifdef SPL_BAZEL
+#include "AutoVersioningHeaders/AutoVersion.h"
+#endif
 
 namespace ResponsePlugin
 {
@@ -22,6 +25,9 @@ namespace ResponsePlugin
     void PluginAdapter::mainLoop()
     {
         m_callback->setRunning(true);
+#ifdef SPL_BAZEL
+        LOGINFO("Response Actions " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+#endif
         LOGINFO("Entering the main loop");
 
         while (true)

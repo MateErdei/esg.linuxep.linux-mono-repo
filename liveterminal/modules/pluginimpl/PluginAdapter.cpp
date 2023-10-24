@@ -10,6 +10,7 @@
 
 // Bazel wants <json.hpp> but CMake wants <nlohmann/json.hpp>
 #ifdef SPL_BAZEL
+#include "AutoVersioningHeaders/AutoVersion.h"
 #include <json.hpp>
 #else
 #include <nlohmann/json.hpp>
@@ -32,6 +33,9 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         m_callback->setRunning(true);
+        #ifdef SPL_BAZEL
+        LOGINFO("Live Response " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+        #endif
         LOGINFO("Entering the main loop");
         Plugin::Telemetry::initialiseTelemetry();
 

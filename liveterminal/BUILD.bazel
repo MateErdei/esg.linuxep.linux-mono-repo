@@ -1,5 +1,27 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load(":version_info.bzl", "LIVE_RESPONSE_BASE_VERSION")
+
+expand_template(
+    name = "AutoVersion_h",
+    out = "AutoVersion.h",
+    substitutions = {"@VERSION@": LIVE_RESPONSE_BASE_VERSION},
+    template = "//common:AutoVersion.h.in",
+    visibility = [
+        "//liveterminal/modules:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "AutoVersion",
+    hdrs = [":AutoVersion_h"],
+    include_prefix = "AutoVersioningHeaders",
+    visibility = [
+        "//liveterminal:__subpackages__",
+    ],
+)
 
 soph_release_asset(
     name = "installer",

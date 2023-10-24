@@ -21,6 +21,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/XmlUtilities",
         "//imports/thirdparty/nlohmann-json",
+        "//liveterminal:AutoVersion",
     ],
     visibility = [
         "//liveterminal/products/plugin:__pkg__",
