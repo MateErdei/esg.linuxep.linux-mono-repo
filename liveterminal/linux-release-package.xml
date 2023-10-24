@@ -9,7 +9,7 @@
         <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
+            <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
 
@@ -17,7 +17,7 @@
         </build-asset>
         
         <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/SPRINT-2023.37" build-id="20230831140213-af97a782aef02e11f317f420f5dca5de2bb5d20b-0Egr1t"/>
+            <release-version branch="release/2023.43" build-id="20231020090717-4ca26ab0027d91883cda9ebcdc51f7fb5260dd94-QCAhfl"/>
             <development-version branch="develop"/>
             <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl"/>
         </build-asset>

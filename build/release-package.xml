@@ -4,7 +4,7 @@
         <workingdir>.</workingdir>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.40" build-id="20231002094530-65dfcfc380bfc7fb5e0d2ce92e7663276ec7e31c-DShMup"/>
+            <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
@@ -64,8 +64,7 @@
         </build-asset>
 
         <build-asset project="winep" repo="liveterminal">
-            <!-- TODO: uncomment release-version once new rust binary for it exists? -->
-            <!-- <release-version branch="release/2023-40-linux" build-id="20231003073741-0078e534766984feb591ce11d7197d67e7eb2f7e-UYx5sa"/>-->
+             <release-version branch="release/2023-43-linux" build-id="20231023081639-220516888f5f376e1d91320254483e3901569bf1-7KBVB8"/>
             <development-version branch="develop" />
             <include artifact-path="sspl-liveterminal/rust_binary_x64" dest-dir="liveterminal/products/installer/rust-liveterminal-x64" />
             <include artifact-path="sspl-liveterminal/rust_binary_arm64" dest-dir="liveterminal/products/installer/rust-liveterminal-arm64" />
