@@ -14,5 +14,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #define E_CAP_SET_PROC 62
 #define E_CAP_FREE 63
 #define E_CAP_SET_AMBIENT 64
+#define E_SOPHOS_INSTALL_NO_SET 68
 
 #endif // SSPL_PLUGIN_MAV_ERRORCODESC_H

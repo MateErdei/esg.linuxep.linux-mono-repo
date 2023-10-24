@@ -1,7 +1,7 @@
 
 *** Settings ***
 Documentation   Component tests for SOAP
-Force Tags      COMPONENT  PRODUCT  SOAP  onaccess  oa_alternative
+Force Tags      COMPONENT  PRODUCT  SOAP  onaccess  oa_alternative  TAP_PARALLEL1
 
 Library    OperatingSystem
 Library    ../Libs/OnFail.py

@@ -4,7 +4,7 @@
 
 *** Settings ***
 Documentation   Product tests for SOAP
-Force Tags      PRODUCT  SOAP  oa_alternative
+Force Tags      PRODUCT  SOAP  oa_alternative  TAP_PARALLEL5
 
 Library     ../Libs/BaseInteractionTools/PolicyUtils.py
 Library     ../Libs/FakeManagement.py

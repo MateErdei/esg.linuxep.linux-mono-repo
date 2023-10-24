@@ -1,5 +1,5 @@
 *** Settings ***
-Default Tags    INTEGRATION    CUSTOM_INSTALL_PATH
+Default Tags    INTEGRATION    CUSTOM_INSTALL_PATH  TAP_PARALLEL4
 
 Library    OperatingSystem
 Library    Process
@@ -186,7 +186,8 @@ Custom Install Test Teardown
     check_all_product_logs_do_not_contain_error
     run_failure_functions_if_failed
 
-    Remove Environment Variable    SOPHOS_INSTALL
+    Set Environment Variable  SOPHOS_INSTALL                /opt/sophos-spl
+
     uninstall_sspl_from_custom_location_if_installed    ${CUSTOM_INSTALL_LOCATION}
 
 Configure Scan Now for Custom Install

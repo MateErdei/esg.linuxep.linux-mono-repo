@@ -150,7 +150,7 @@ Install Tests Setup With Custom Install Location
     Set Environment Variable    SOPHOS_INSTALL    ${CUSTOM_INSTALL_DIRECTORY}
 
 Install Tests Teardown With Custom Install Location
-    Remove Environment Variable    SOPHOS_INSTALL    ${CUSTOM_INSTALL_DIRECTORY}
+    Set Environment Variable     SOPHOS_INSTALL    /opt/sophos-spl
     Remove Environment Variable    https_proxy
     Remove Environment Variable    HTTPS_PROXY
     Run Keyword If Test Failed     dump_all_processes

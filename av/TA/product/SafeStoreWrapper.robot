@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Tests for SafeStore wrapper, runs a gtest binary
-Force Tags      PRODUCT  SAFESTORE
+Force Tags      PRODUCT  SAFESTORE  TAP_PARALLEL1
 
 Resource    ../shared/AVResources.robot
 

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for sophos_threat_detector
-Force Tags      PRODUCT  THREAT_DETECTOR
+Force Tags      PRODUCT  THREAT_DETECTOR    TAP_PARALLEL4
 
 Library         Process
 Library         OperatingSystem
@@ -72,6 +72,8 @@ Start Threat Detector As Root
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     ...  stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    register on fail  dump log  /tmp/threat_detector.stdout
+    register on fail  dump log  /tmp/threat_detector.stderr
     Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
 
 Start AV Plugin
@@ -89,7 +91,10 @@ Start AV
 
 Stop Threat Detector
     return from keyword if  ${THREAT_DETECTOR_PLUGIN_HANDLE} == ${None}
-    Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    ${result} =    Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    Log    ${result.rc}
+    Log    ${result.stdout}
+    Log    ${result.stderr}
 
 Stop AV Plugin
     return from keyword if  ${AV_PLUGIN_HANDLE} == ${None}

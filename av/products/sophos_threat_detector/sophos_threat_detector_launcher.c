@@ -1,5 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+#include "modules/common/ErrorCodesC.h"
 #include "products/capability/PassOnCapability.h"
 
 #include <signal.h>
@@ -16,16 +17,20 @@ static int pass_on_chroot_capability()
 
 int main(int argc, char* argv[])
 {
-    (void)argc;
+    (void) argc;
     int ret = pass_on_chroot_capability();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         return ret;
     }
     set_no_new_privs();
     prctl(PR_SET_PDEATHSIG, SIGTERM);
 
-    char* installPath = getenv("SOPHOS_INSTALL");
+    char *installPath = getenv("SOPHOS_INSTALL");
+    if (installPath == NULL)
+    {
+        return E_SOPHOS_INSTALL_NO_SET;
+    }
+
 
     char* ldPathPrefix = "LD_LIBRARY_PATH=";
     char* susiPath = "/plugins/av/chroot/susi/distribution_version:";

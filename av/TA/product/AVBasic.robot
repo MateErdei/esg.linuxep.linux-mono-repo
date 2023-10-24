@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for AVP
-Force Tags      PRODUCT  AV_BASIC
+Force Tags      PRODUCT  AV_BASIC    TAP_PARALLEL2
 Library         Collections
 Library         DateTime
 Library         Process
@@ -86,7 +86,7 @@ AV Plugin Can Receive Actions
 
 
 AV plugin Can Send Status
-    [Tags]    PRODUCT  AV_BASIC_STATUS
+    [Tags]    AV_BASIC_STATUS
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
 
     ${status}=  Get Plugin Status  av  SAV

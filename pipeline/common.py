@@ -53,74 +53,188 @@ def get_package_version(release_pkg: str) -> str:
 
 
 def get_test_machines(test_inputs, parameters, x64_only=False, system_tests=False):
-    if parameters.run_tests == "false" and not system_tests:
+    available_x64_environments = {
+        'amazonlinux2': 'amzlinux2_x64_server_en_us',
+        'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
+        'centos79': 'centos7_x64_aws_server_en_us',
+        'centos8stream': 'centos8stream_x64_aws_server_en_us',
+        'centos9stream': 'centos9stream_x64_aws_server_en_us',
+        'debian10': 'debian10_x64_aws_server_en_us',
+        'debian11': 'debian11_x64_aws_server_en_us',
+        'oracle7': 'oracle79_x64_aws_server_en_us',
+        'oracle8': 'oracle87_x64_aws_server_en_us',
+        'rhel7': 'rhel79_x64_aws_server_en_us',
+        'rhel8': 'rhel87_x64_aws_server_en_us',
+        'rhel9': 'rhel91_x64_aws_server_en_us',
+        'sles12': 'sles12_x64_sp5_aws_server_en_us',
+        'sles15': 'sles15_x64_sp4_aws_server_en_us',
+        'ubuntu1804': 'ubuntu1804_x64_aws_server_en_us',
+        'ubuntu2004': 'ubuntu2004_x64_aws_server_en_us',
+        'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us'}
+
+    available_arm64_environments = {
+        'amazonlinux2': 'amzlinux2_arm64_server_en_us',
+        'amazonlinux2023': 'amzlinux2023_arm64_server_en_us',
+        'centos8stream': 'centos8stream_arm64_server_en_us',
+        'centos9stream': 'centos9stream_arm64_server_en_us',
+        'debian10': 'debian10_arm64_server_en_us',
+        'debian11': 'debian11_arm64_server_en_us',
+        'rhel8': 'rhel87_arm64_server_en_us',
+        'rhel9': 'rhel91_arm64_server_en_us',
+        'sles15': 'sles15_arm64_sp4_server_en_us',
+        'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
+        'ubuntu2004': 'ubuntu2004_arm64_server_en_us',
+        'ubuntu2204': 'ubuntu2204_arm64_server_en_us'}
+
+    #Process test_platform_coverage
+    test_environments = {"x64": {}, "arm64": {}}
+    if parameters.test_platform_coverage == "run_all":
+        test_environments["x64"] = available_x64_environments
+        test_environments["arm64"] = available_arm64_environments
+    else:
+        default_platforms = []
+        if parameters.test_platform_coverage == "run_single":
+            default_platforms = ['centos8stream']
+        elif parameters.test_platform_coverage == "run_four":
+            default_platforms = ['centos8stream', 'ubuntu2004', 'amazonlinux2', 'sles15']
+
+        for default_platform in default_platforms:
+            test_environments["x64"][default_platform] = available_x64_environments.get(default_platform)
+            arm_platform = available_arm64_environments.get(default_platform)
+            if arm_platform is not None:
+                test_environments["arm64"][default_platform] = arm_platform
+
+    platform = 'amazonlinux2'
+    if parameters.run_amazon_2 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_amazon_2 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'amazonlinux2023'
+    if parameters.run_amazon_2023 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_amazon_2023 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'centos79'
+    if parameters.run_centos_7 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+    elif parameters.run_centos_7 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+
+    platform = 'centos8stream'
+    if parameters.run_centos_stream_8 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_centos_stream_8 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'centos9stream'
+    if parameters.run_centos_stream_9 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_centos_stream_9 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'debian10'
+    if parameters.run_debian_10 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_debian_10 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'debian11'
+    if parameters.run_debian_11 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_debian_11 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'oracle7'
+    if parameters.run_oracle_7 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+    elif parameters.run_oracle_7 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+
+    platform = 'oracle8'
+    if parameters.run_oracle_8 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+    elif parameters.run_oracle_8 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+
+    platform = 'rhel7'
+    if parameters.run_rhel_7 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+    elif parameters.run_rhel_7 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+
+    platform = 'rhel8'
+    if parameters.run_rhel_8 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_rhel_8 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'rhel9'
+    if parameters.run_rhel_9 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_rhel_9 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'sles12'
+    if parameters.run_sles_12 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+    elif parameters.run_sles_12 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+
+    platform = 'sles15'
+    if parameters.run_sles_15 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_sles_15 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'ubuntu1804'
+    if parameters.run_ubuntu_18_04 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_ubuntu_18_04 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'ubuntu2004'
+    if parameters.run_ubuntu_20_04 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_ubuntu_20_04 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    # TODO: LINUXDAR-7306 set CIJenkins to ['default', 'force_run', 'dont_run'] once python3.10 issues are resolved
+    platform = 'ubuntu2204'
+    if parameters.run_ubuntu_22_04 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_ubuntu_22_04 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    if len(test_environments) == 0 and not system_tests:
         return []
 
-    test_environments = {"x64": {}, "arm64": {}}
-
-    if parameters.run_amazon_2 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["amazonlinux2"] = "amzlinux2_x64_server_en_us"
-        test_environments["arm64"]["amazonlinux2"] = "amzlinux2_arm64_server_en_us"
-
-    if parameters.run_amazon_2023 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["amazonlinux2023"] = "amzlinux2023_x64_server_en_us"
-        test_environments["arm64"]["amazonlinux2023"] = "amzlinux2023_arm64_server_en_us"
-
-    if parameters.run_centos_7 != "false":
-        test_environments["x64"]["centos79"] = "centos7_x64_aws_server_en_us"
-
-    if parameters.run_centos_stream_8 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["centos8stream"] = "centos8stream_x64_aws_server_en_us"
-        test_environments["arm64"]["centos8stream"] = "centos8stream_arm64_server_en_us"
-
-    if parameters.run_centos_stream_9 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["centos9stream"] = "centos9stream_x64_aws_server_en_us"
-        test_environments["arm64"]["centos9stream"] = "centos9stream_arm64_server_en_us"
-
-    if parameters.run_debian_10 != "false":
-        test_environments["x64"]["debian10"] = "debian10_x64_aws_server_en_us"
-        test_environments["arm64"]["debian10"] = "debian10_arm64_server_en_us"
-
-    if parameters.run_debian_11 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["debian11"] = "debian11_x64_aws_server_en_us"
-        test_environments["arm64"]["debian11"] = "debian11_arm64_server_en_us"
-
-    if parameters.run_oracle_7 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["oracle7"] = "oracle79_x64_aws_server_en_us"
-
-    if parameters.run_oracle_8 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["oracle8"] = "oracle87_x64_aws_server_en_us"
-
-    if parameters.run_rhel_7 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["rhel7"] = "rhel79_x64_aws_server_en_us"
-
-    if parameters.run_rhel_8 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["rhel8"] = "rhel87_x64_aws_server_en_us"
-        test_environments["arm64"]["rhel8"] = "rhel87_arm64_server_en_us"
-
-    if parameters.run_rhel_9 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["rhel9"] = "rhel91_x64_aws_server_en_us"
-        test_environments["arm64"]["rhel9"] = "rhel91_arm64_server_en_us"
-
-    if parameters.run_sles_12 != "false":
-        test_environments["x64"]["sles12"] = "sles12_x64_sp5_aws_server_en_us"
-
-    if parameters.run_sles_15 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["sles15"] = "sles15_x64_sp4_aws_server_en_us"
-        test_environments["arm64"]["sles15"] = "sles15_arm64_sp4_server_en_us"
-
-    if parameters.run_ubuntu_18_04 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["ubuntu1804"] = "ubuntu1804_x64_aws_server_en_us"
-        test_environments["arm64"]["ubuntu1804"] = "ubuntu1804_arm64_server_en_us"
-
-    if parameters.run_ubuntu_20_04 != "false" and parameters.run_all_tests == "run_all":
-        test_environments["x64"]["ubuntu2004"] = "ubuntu2004_x64_aws_server_en_us"
-        test_environments["arm64"]["ubuntu2004"] = "ubuntu2004_arm64_server_en_us"
-
-    # TODO: LINUXDAR-7306 set CIJenkins to default=true once python3.10 issues are resolved
-    if parameters.run_ubuntu_22_04 != "false":
-        test_environments["x64"]["ubuntu2204"] = "ubuntu2204_x64_aws_server_en_us"
-        test_environments["arm64"]["ubuntu2204"] = "ubuntu2204_arm64_server_en_us"
+    print(test_environments)
 
     ret = []
     for arch, environments in test_environments.items():

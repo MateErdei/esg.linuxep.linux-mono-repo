@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests for AVP and Base
-Force Tags      INTEGRATION  AVBASE
+Force Tags      INTEGRATION  AVBASE  TAP_PARALLEL1
 Library         Collections
 Library         OperatingSystem
 Library         Process
@@ -25,7 +25,7 @@ Suite Teardown  AVAndBase Suite Teardown
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
-Default Tags    TAP_PARALLEL4
+Default Tags    TAP_TESTS
 
 *** Keywords ***
 AVAndBase Suite Setup

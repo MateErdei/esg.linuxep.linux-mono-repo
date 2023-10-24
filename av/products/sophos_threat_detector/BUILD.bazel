@@ -73,6 +73,7 @@ soph_cc_binary(
     ],
     visibility = ["//av/products/distribution:__pkg__"],
     deps = [
+        "//av/modules/common:ErrorCodes",
         "//av/products/capability",
     ],
 )

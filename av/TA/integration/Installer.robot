@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests of Installer
-Force Tags       INTEGRATION  INSTALLER
+Force Tags       INTEGRATION  INSTALLER  TAP_PARALLEL3
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
@@ -27,8 +27,6 @@ Suite Teardown  Installer Suite TearDown
 
 Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
-
-Default Tags    TAP_PARALLEL4
 
 *** Variables ***
 

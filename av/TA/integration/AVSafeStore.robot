@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Product tests of SafeStore
-Force Tags       INTEGRATION  SAFESTORE
+Force Tags       INTEGRATION  SAFESTORE  TAP_PARALLEL3
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
@@ -23,8 +23,6 @@ Library         Collections
 
 Test Setup      SafeStore Test Setup
 Test Teardown   SafeStore Test TearDown
-
-Default Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${CLEAN_STRING}                      not an eicar

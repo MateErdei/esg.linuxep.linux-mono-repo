@@ -1,7 +1,7 @@
 
 *** Settings ***
 Documentation   Component tests for SophosThreatDetector
-Force Tags      COMPONENT  PRODUCT  THREAT_DETECTOR
+Force Tags      COMPONENT  PRODUCT  THREAT_DETECTOR  TAP_PARALLEL5
 
 Library    OperatingSystem
 Library    Process

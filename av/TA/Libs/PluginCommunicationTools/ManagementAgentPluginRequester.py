@@ -73,6 +73,8 @@ class ManagementAgentPluginRequester(object):
             filename = "CORE-36_Policy.xml"
         elif app_id_upper == "FLAGS":
             filename = "flags.json"
+        elif app_id_upper == "CORC":
+            filename = "CORC_Policy.xml"
         else:
             self.logger.fatal("Failed to determine policy type")
             raise Exception("Failed to determine policy type")

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests of sophos_threat_detector
-Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR
+Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR  TAP_PARALLEL3
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
@@ -19,8 +19,6 @@ Suite Teardown  AVSophosThreatDetector Suite TearDown
 
 Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
-
-Default Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${CLEAN_STRING}     not an eicar

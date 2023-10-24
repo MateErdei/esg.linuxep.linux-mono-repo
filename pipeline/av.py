@@ -101,12 +101,8 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str
         machine.run('mkdir', '-p', '/opt/test/coredumps', timeout=5)
 
         if include_tag:
-            include, *exclude = include_tag.split("NOT")
-            include = include.split("AND")
-            robot_exclusion_tags.extend(exclude)
-
             machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                        '--include', *include,
+                        '--include', include_tag,
                         '--exclude', *robot_exclusion_tags,
                         environment=environment,
                         timeout=ROBOT_TEST_TIMEOUT)
@@ -356,8 +352,8 @@ def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.Pipe
 def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
 
     # robot_task_with_env will parse this string
-    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
-                                            "integrationNOTavbaseNOTav_health avbase av_health"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+    include_tag = parameters.include_tag or default_include_tags
 
     # Not sure why it's different to all the other plugins?
     av_coverage_machine = "ubuntu1804_x64_server_en_us"
@@ -406,8 +402,9 @@ def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None
     robot_args = get_robot_args(parameters)
 
     # robot_task_with_env will parse this string
-    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
-                                            "integrationNOTavbaseNOTav_health avbase av_health"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+    include_tag = parameters.include_tag or default_include_tags
+
     with stage.parallel('av_test'):
         with stage.parallel('TA'):
             test_inputs = {
@@ -422,7 +419,7 @@ def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None
                                        robot_args=robot_args, include_tag="", branch_name=context.branch,
                                        machine_name=name)
                 else:
-                    for include in include_tag.split():
+                    for include in include_tag.split(","):
                         with stage.parallel(include):
                             for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
                                 stage.task(task_name=name, func=robot_task, machine=machine,

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for sophos_threat_detector
-Force Tags      PRODUCT  THREAT_DETECTOR
+Force Tags      PRODUCT  THREAT_DETECTOR  TAP_PARALLEL1
 
 Library         Process
 Library         OperatingSystem

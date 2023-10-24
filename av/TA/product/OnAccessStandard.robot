@@ -4,7 +4,7 @@
 
 *** Settings ***
 Documentation   Product tests for SOAP
-Force Tags      PRODUCT  SOAP  oa_standard  on_access_standard  on_access
+Force Tags      PRODUCT  SOAP  oa_standard  on_access_standard  on_access  TAP_PARALLEL1
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ComponentSetup.robot
@@ -23,9 +23,7 @@ Test Setup     On Access Test Setup
 Test Teardown  On Access Test Teardown
 
 *** Variables ***
-
 ${TESTTMP}  /tmp_test/SSPLAVTests
-
 
 *** Keywords ***
 On Access Suite Setup

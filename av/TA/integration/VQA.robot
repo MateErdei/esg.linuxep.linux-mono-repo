@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests of VQA
-Force Tags       INTEGRATION  VQA
+Force Tags       INTEGRATION  VQA  TAP_PARALLEL4
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -17,8 +17,6 @@ Suite Teardown  VQA Suite TearDown
 
 Test Setup      VQA Test Setup
 Test Teardown   VQA Test TearDown
-
-Default Tags    TAP_PARALLEL2
 
 *** Test Cases ***
 

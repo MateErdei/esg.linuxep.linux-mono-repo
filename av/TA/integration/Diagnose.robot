@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests if SSPL-AV diagnose
-Force Tags      INTEGRATION  DIAGNOSE
+Force Tags      INTEGRATION  DIAGNOSE  TAP_PARALLEL4
 Library         OperatingSystem
 Library         Process
 Library         String
@@ -20,8 +20,6 @@ Suite Teardown   Uninstall All
 
 Test Setup      Diagnose Test Setup
 Test Teardown   Diagnose Test TearDown
-
-Default Tags    TAP_PARALLEL4
 
 *** Keywords ***
 

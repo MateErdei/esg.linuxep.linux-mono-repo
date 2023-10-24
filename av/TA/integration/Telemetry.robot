@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Telemetry tests
-Force Tags      INTEGRATION  AVBASE  TELEMETRY
+Force Tags      INTEGRATION  AVBASE  TELEMETRY  TAP_PARALLEL5
 Library         Collections
 Library         OperatingSystem
 Library         Process
@@ -23,8 +23,6 @@ Suite Teardown  Telemetry Suite Teardown
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
-
-Default Tags    TAP_PARALLEL2
 
 *** Keywords ***
 Telemetry Suite Setup

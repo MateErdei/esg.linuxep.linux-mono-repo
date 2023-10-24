@@ -26,6 +26,7 @@ namespace common
         E_CAP_SET_PROC_C    = E_CAP_SET_PROC,   // 62
         E_CAP_FREE_C        = E_CAP_FREE,       // 63
         E_CAP_SET_AMBIENT_C = E_CAP_SET_AMBIENT,// 64
+        E_SOPHOS_INSTALL_NO_SET_C =  E_SOPHOS_INSTALL_NO_SET, //68
         E_QUICK_RESTART_SUCCESS = 77,
         E_NON_EXCEPTION_AT_TOP_LEVEL = 80,
         E_STD_EXCEPTION_AT_TOP_LEVEL = 81,
@@ -37,6 +38,5 @@ namespace common
         E_THREAT_SCANNER_EXCEPTION = 87,
         E_UNIX_SOCKET_EXCEPTION = 88,
         E_AV_EXCEPTION = 89
-
     };
 }
