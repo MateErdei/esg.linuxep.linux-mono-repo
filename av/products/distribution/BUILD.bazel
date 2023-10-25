@@ -72,7 +72,6 @@ spl_sdds_packages(
         "libsusicore.so.2": "$ORIGIN",
     },
     spv_features = ["AV"],
-    spv_platforms = ["LINUX_INTEL_LIBC6"],
     spv_roles = ["SAU"],
     spv_target_types = ["ENDPOINT"],
     srcs_remapped = SUSI_SRCS_REMAPPED,

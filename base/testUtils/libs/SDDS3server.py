@@ -422,6 +422,16 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         reason = ""
         code = ""
 
+        if 'platform_token' not in doc:
+            self.send_error(HTTPStatus.BAD_REQUEST, 'Missing platform_token')
+            return
+        else:
+            platform = doc['platform_token']
+            if not platform:
+                self.send_error(HTTPStatus.BAD_REQUEST, 'Empty platform_token')
+
+            self.log_message(f"Package requested for {platform}")
+
         if 'subscriptions' not in doc:
             self.send_error(HTTPStatus.BAD_REQUEST, 'Missing subscriptions')
             return

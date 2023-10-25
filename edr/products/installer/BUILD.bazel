@@ -31,7 +31,6 @@ spl_sdds_packages(
     component_name = EDR_PRODUCT_NAME,
     line_id = EDR_LINE_ID,
     spv_features = ["LIVEQUERY"],
-    spv_platforms = ["LINUX_INTEL_LIBC6"],
     spv_roles = ["SAU"],
     spv_target_types = ["ENDPOINT"],
     srcs_remapped = {

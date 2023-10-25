@@ -188,7 +188,7 @@ namespace SulDownloader
         {
             SUSRequestParameters requestParameters;
             requestParameters.product = "linuxep";
-            requestParameters.platformToken = "LINUX_INTEL_LIBC6";
+            requestParameters.platformToken = Common::Policy::machineArchitecture_;
             requestParameters.subscriptions = updateSettings.getProductsSubscription();
             requestParameters.subscriptions.insert(
                 requestParameters.subscriptions.begin(), updateSettings.getPrimarySubscription());

@@ -29,3 +29,25 @@ instances:
               - vdl
               - dataseta
               - mlmodel
+      - platforms:
+          - LINUX_ARM64
+        component: BaseComponentSuite.latest
+        subcomponents:
+          base.latest.arm64:
+            supplements:
+              - ssplflags
+          event-journaler.latest.arm64:
+          liveresponse.latest.arm64:
+          responseactions.latest.arm64:
+          runtimedetections.latest.arm64:
+            supplements:
+              - rdrules
+          edr.latest.arm64:
+            supplements:
+              - scheduledquerypack
+              - scheduledquerypacknext
+          av.latest.arm64:
+            supplements:
+              - vdl
+              - dataseta
+              - mlmodel

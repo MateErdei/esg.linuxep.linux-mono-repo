@@ -54,6 +54,12 @@ bool UpdateSettings::verifySettingsAreValid()
         return false;
     }
 
+    if (machineArchitecture_ == "")
+    {
+        LOGERROR("Invalid Settings: Unknown architecture");
+        return false;
+    }
+
     if (!isProductSubscriptionValid(getPrimarySubscription()))
     {
         LOGERROR("Invalid Settings: No primary product provided.");

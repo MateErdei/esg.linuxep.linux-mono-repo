@@ -29,6 +29,28 @@ Force Tags  SULDOWNLOADER  LOAD6
 ${sdds3_server_output}                      ${sdds3_server_log}
 
 *** Test Cases ***
+Sul Downloader Requests Correct Package For Machine Architecture
+    ${platform} =    machine_architecture
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   File Should Contain    ${sdds3_server_output}     Package requested for ${platform}
+    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
+
 Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
     ${handle}=  Start Local SDDS3 Server With Empty Repo

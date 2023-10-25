@@ -46,7 +46,6 @@ spl_sdds_packages(
     component_name = LIVE_RESPONSE_PRODUCT_NAME,
     line_id = LIVE_RESPONSE_LINE_ID,
     spv_features = ["MDR"],
-    spv_platforms = ["LINUX_INTEL_LIBC6"],
     spv_roles = ["SAU"],
     spv_target_types = ["ENDPOINT"],
     # Inverted for better clarity of the package structure

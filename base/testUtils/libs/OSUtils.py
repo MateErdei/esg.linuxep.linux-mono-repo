@@ -717,3 +717,11 @@ def get_hostname() -> str:
 
 def directory_exists(path) -> bool:
     return os.path.isdir(path)
+
+def machine_architecture() -> str:
+    architecture = os.uname().machine
+    if architecture == "x86_64":
+        return "LINUX_INTEL_LIBC6"
+    elif architecture == "aarch64":
+        return "LINUX_ARM"
+    return ""

@@ -19,10 +19,10 @@ def rehash(d,f):
     h = lines[0].strip()
     fingerprint = lines[1].strip()
 
-    dest = os.path.join(d,h+".0")
+    dest = os.path.join(d, h.decode("utf8")+".0")
     if os.path.isfile(dest):
         os.unlink(dest)
-    os.symlink(f,dest)
+    os.symlink(f, dest)
 
 def main(argv):
     d = argv[1]

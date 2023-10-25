@@ -15,9 +15,9 @@ def _generate_spv_template_impl(ctx):
     if len(ctx.attr.spv_features) > 0:
         args.add("--features")
         args.add_all(ctx.attr.spv_features)
-    if len(ctx.attr.spv_platforms) > 0:
+    if len(ctx.attr.spv_platform) > 0:
         args.add("--platforms")
-        args.add_all(ctx.attr.spv_platforms)
+        args.add_all(ctx.attr.spv_platform)
     if len(ctx.attr.spv_roles) > 0:
         args.add("--roles")
         args.add_all(ctx.attr.spv_roles)
@@ -49,7 +49,7 @@ _generate_spv_template = rule(
             mandatory = True,
         ),
         "spv_features": attr.string_list(),
-        "spv_platforms": attr.string_list(),
+        "spv_platform": attr.string_list(),
         "spv_roles": attr.string_list(),
         "spv_target_types": attr.string_list(),
         "_generate_spv_template": attr.label(
@@ -70,7 +70,6 @@ def spl_sdds_packages(
         srcs_renamed = {},
         version_ini_locations = [],
         spv_features = [],
-        spv_platforms = [],
         spv_roles = [],
         spv_target_types = [],
         symbols_strip_prefix = [],
@@ -110,7 +109,12 @@ def spl_sdds_packages(
         product_line_id = line_id,
         product_line_canonical_name = component_name,
         spv_features = spv_features,
-        spv_platforms = spv_platforms,
+        spv_platform = select({
+                                     "//tools/config:linux_arm64_dbg": ["LINUX_ARM64"],
+                                     "//tools/config:linux_arm64_rel": ["LINUX_ARM64"],
+                                     "//tools/config:linux_x64_dbg": ["LINUX_INTEL_LIBC6"],
+                                     "//tools/config:linux_x64_rel": ["LINUX_INTEL_LIBC6"],
+                                 }),
         spv_roles = spv_roles,
         spv_target_types = spv_target_types,
     )

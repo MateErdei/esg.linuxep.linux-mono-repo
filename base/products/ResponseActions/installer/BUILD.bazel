@@ -31,7 +31,6 @@ spl_sdds_packages(
     component_name = RESPONSE_ACTIONS_PRODUCT_NAME,
     line_id = RESPONSE_ACTIONS_LINE_ID,
     spv_features = ["MDR"],
-    spv_platforms = ["LINUX_INTEL_LIBC6"],
     spv_roles = ["SAU"],
     spv_target_types = ["ENDPOINT"],
     # Inverted for better clarity of the package structure

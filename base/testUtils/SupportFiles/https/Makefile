@@ -3,19 +3,16 @@ TARGETS = \
 	ca \
 	server-fullchain.pem server-chain.pem server-private.pem server-private-chain.pem \
 	server-out_of_date-private.pem \
-	server-md5-private.pem \
 	server-sha1-private.pem
 
 all : $(TARGETS)
 
 out-of-date : ca server-out_of_date-private.pem
 
-md5 : ca server-md5-private.pem
-
 sha1 : ca server-sha1-private.pem
 
 
-.PHONY : all out-of-date md5 sha1
+.PHONY : all out-of-date sha1
 
 private/cakey.pem :
 	mkdir -p $(dir $@)
@@ -41,16 +38,6 @@ localhost.csr.pem : localhost.privkey.pem
 	  -config ./openssl.cnf \
 	  -key "$<" \
 	  -out "$@" \
-	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost"
-	[ -s $@ ]
-
-localhost.md5.csr.pem : localhost.privkey.pem
-	which openssl
-	openssl req -new \
-	  -config ./openssl.cnf \
-	  -key "$<" \
-	  -out "$@" \
-	  -md5 \
 	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost"
 	[ -s $@ ]
 
@@ -132,7 +119,7 @@ ca/root-ca.crt.pem : root-ca.crt.pem
 	cp $< $@
 
 ca : ca/root-ca.crt.pem
-	python2 c_rehash.py ca || c_rehash ca
+	python3 c_rehash.py ca || c_rehash ca
 
 .PHONY : ca
 

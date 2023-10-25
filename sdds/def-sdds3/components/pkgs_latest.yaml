@@ -6,6 +6,7 @@
 #   (b) update an existing package's prod-artifact for inclusion in the next production warehouse.
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
+# X86_64
 edr.latest.x64:
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
@@ -22,9 +23,33 @@ liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-40/20230928222423-cacb41961565c52e19025f8cdf77c748cd1ac6f9-amkUxE/SDDS-COMPONENT/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231024052821-35175435e58b1eb9b9039ada245dc6a465555ba2-pS6WQ3/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
+  line-id: ServerProtectionLinux-Plugin-responseactions
+  mountpoint: ServerProtectionLinux-Plugin-responseactions
+
+#  ARM64
+edr.latest.arm64:
+  line-id: ServerProtectionLinux-Plugin-EDR
+  mountpoint: ServerProtectionLinux-Plugin-EDR
+av.latest.arm64:
+  line-id: ServerProtectionLinux-Plugin-AV
+  mountpoint: ServerProtectionLinux-Plugin-AV
+base.latest.arm64:
+  line-id: ServerProtectionLinux-Base-component
+  mountpoint: ServerProtectionLinux-Base-component
+event-journaler.latest.arm64:
+  line-id: ServerProtectionLinux-Plugin-EventJournaler
+  mountpoint: ServerProtectionLinux-Plugin-EventJournaler
+liveresponse.latest.arm64:
+  line-id: ServerProtectionLinux-Plugin-liveresponse
+  mountpoint: ServerProtectionLinux-Plugin-liveresponse
+runtimedetections.latest.arm64:
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231024052821-35175435e58b1eb9b9039ada245dc6a465555ba2-pS6WQ3/SDDS-COMPONENT-arm64/
+  line-id: ServerProtectionLinux-Plugin-RuntimeDetections
+  mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
+responseactions.latest.arm64:
   line-id: ServerProtectionLinux-Plugin-responseactions
   mountpoint: ServerProtectionLinux-Plugin-responseactions

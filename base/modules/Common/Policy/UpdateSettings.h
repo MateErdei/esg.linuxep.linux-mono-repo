@@ -11,8 +11,18 @@
 #include <utility>
 #include <vector>
 
+#if defined(__aarch64__)
+#define MACHINEARCHITECTURE "LINUX_ARM"
+#elif defined(__x86_64__)
+#define MACHINEARCHITECTURE "LINUX_INTEL_LIBC6"
+#else
+#define MACHINEARCHITECTURE ""
+#endif
+
 namespace Common::Policy
 {
+    const std::string machineArchitecture_ {MACHINEARCHITECTURE};
+
     class UpdateSettings
     {
     public:

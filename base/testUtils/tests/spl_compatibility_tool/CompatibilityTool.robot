@@ -16,8 +16,7 @@ Suite Teardown    Compatibility Tool Suite Teardown
 
 Test Teardown    Compatibility Tool Test Teardown
 
-# TODO LINUXDAR-4130: Enable for ARM64
-Force Tags    TAP_PARALLEL6    EXCLUDE_ARM64
+Force Tags    TAP_PARALLEL6
 
 *** Variables ***
 ${susUrl}    https://sus.sophosupd.com
@@ -69,12 +68,14 @@ SPL Compatibility Script Passes Without Path To ThinInstaller
 SPL Compatibility Script Passes
     Setup ThinInstaller
     ${rc}   ${output} =    Run And Return Rc And Output    /bin/bash ${compatibilityScript} --installer-path=${defaultThinInstallerPath}
+    Log    ${output}
     Should Be Equal As Integers  ${rc}  ${0}
     Verify Expected Log Lines    ${output}
 
 SPL Compatibility Script Passes With Valid Custom Install Location
     Setup ThinInstaller
     ${rc}   ${output} =    Run And Return Rc And Output    /bin/bash ${compatibilityScript} --installer-path=${defaultThinInstallerPath} --install-dir=/home
+    Log    ${output}
     Should Be Equal As Integers  ${rc}  ${0}
     Verify Expected Log Lines    ${output}
 
