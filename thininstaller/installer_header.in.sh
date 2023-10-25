@@ -27,7 +27,7 @@ for arg in $escaped_args; do
         echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
         echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
         echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
-        echo -e "--test\t\t\tOnly run pre-installation checks and do not install SPL"
+        echo -e "--test\t\t\t\tOnly run pre-installation checks and do not install SPL"
         echo -e "--notest\t\t\tDon't run any pre-installation checks and proceed with installing SPL"
         exit 0
     fi
@@ -463,8 +463,17 @@ done
 if [[ ${NO_PRE_INSTALL_TESTS} != 1 ]]
 then
     pre_install_checks
-    verify_install_directory
+else
+    # Check machine architecture
+    if [[ $(uname -m) = "x86_64" || $(uname -m) = "aarch64" ]]
+    then
+        BIN="bin"
+    else
+        failure ${EXITCODE_NOT_64_BIT} "ERROR: SPL installation will fail as it can only be installed on a x86_64 or aarch64 system"
+    fi
 fi
+
+verify_install_directory
 
 make_tmp_dir
 # Check that the tmp directory we're using allows execution
