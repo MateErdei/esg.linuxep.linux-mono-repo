@@ -264,8 +264,6 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
     if len(test_environments) == 0 and not system_tests:
         return []
 
-    print(test_environments)
-
     if test_inputs.get("arm64", None) is None or not arm64_enabled(parameters):
         test_environments.pop("arm64", None)
     else:

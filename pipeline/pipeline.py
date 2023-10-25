@@ -16,7 +16,6 @@ from pipeline.liveterminal import run_liveterminal_tests, run_liveterminal_cover
 from pipeline.sdds import sdds
 from pipeline import common
 
-
 PACKAGE_PATH = "build/release-package.xml"
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
 BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230512'
@@ -35,7 +34,8 @@ BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
 
 
-def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
+def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str,
+                   build_selection: str):
     print("Running bazel pipeline")
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
@@ -61,7 +61,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
     # Default to true here so that local builds work.
     linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", True)
-    print(f"parameters.mode = {parameters.mode}; MODE = {mode}; linux_debug = {linux_dbg} - {parameters.build_debug_bazel}")
+    print(f"parameters.build_debug_bazel = {parameters.build_debug_bazel}; Defaulting to linux_debug = {linux_dbg}")
 
     if linux_dbg:
         for arch, modes in dbg_build.items():
@@ -95,7 +95,10 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     # In CI parameters.mode will be set
     mode = parameters.mode or RELEASE_MODE
     cmake = truthy(parameters.build_with_cmake, "build_with_cmake", True)
-    print(f"parameters.mode = {parameters.mode}; MODE = {mode}; cmake = {cmake} - {parameters.build_with_cmake}")
+    system_tests = truthy(parameters.run_system_tests, "run_system_tests", True)
+    print(f"parameters.mode = {parameters.mode}; Defaulting to mode = {mode}")
+    print(f"parameters.build_with_cmake = {parameters.build_with_cmake}; Defaulting to cmake = {cmake}")
+    print(f"parameters.system_tests = {parameters.system_tests}; Defaulting to system_tests = {system_tests}")
 
     build_selection = parameters.build_selection or BUILD_SELECTION_ALL
 
@@ -107,15 +110,12 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
             with stage.parallel("cmake"):
                 cmake_pipeline(stage, context, parameters, mode, build_selection)
 
-            if (
-                build_selection == BUILD_SELECTION_ALL and
-                truthy(parameters.run_system_tests, "run_system_tests", True) and
-                mode == RELEASE_MODE
-            ):
-                sdds(stage, context, parameters)
+            if build_selection == BUILD_SELECTION_ALL and mode == RELEASE_MODE:
+                sdds(stage, context, parameters, system_tests)
 
 
-def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):
+def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str,
+                   build_selection: str):
     assert (os.path.exists(base.PACKAGE_PATH))
     assert (os.path.exists(PACKAGE_PATH_EDR))
     assert (os.path.exists(PACKAGE_PATH_AV))
@@ -164,7 +164,8 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     edr_component = tap.Component(name="edr", base_version=get_package_version(PACKAGE_PATH_EDR))
     ej_component = tap.Component(name='sspl-event-journaler-plugin', base_version=get_package_version(PACKAGE_PATH_EJ))
     av_component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_package_version(PACKAGE_PATH_AV))
-    liveterminal_component = tap.Component(name='liveterminal_linux', base_version=get_package_version(PACKAGE_PATH_LIVETERMINAL))
+    liveterminal_component = tap.Component(name='liveterminal_linux',
+                                           base_version=get_package_version(PACKAGE_PATH_LIVETERMINAL))
     with stage.parallel('plugins'):
         if mode == RELEASE_MODE:
             # EDR
@@ -222,25 +223,25 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                                                         release_package=PACKAGE_PATH_AV)
             if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                 liveterminal_coverage_build = stage.artisan_build(name=f"liveterminal_{COVERAGE_MODE}",
-                                                        component=liveterminal_component,
-                                                        image=BUILD_TEMPLATE,
-                                                        mode=COVERAGE_MODE,
-                                                        release_package=PACKAGE_PATH_LIVETERMINAL)
+                                                                  component=liveterminal_component,
+                                                                  image=BUILD_TEMPLATE,
+                                                                  mode=COVERAGE_MODE,
+                                                                  release_package=PACKAGE_PATH_LIVETERMINAL)
 
     with stage.parallel('testing'):
         # run_tests can be None when tap runs locally, this needs to be "!= False" instead of "if parameters.run_tests:"
         if parameters.run_tests != False and mode == COVERAGE_MODE:
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                    run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
+                run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters)
 
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                    run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
+                run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
 
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-                    run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
+                run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters)
 
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                    run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
+                run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters)
 
-                if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-                    run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)
+            if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build, mode, parameters)

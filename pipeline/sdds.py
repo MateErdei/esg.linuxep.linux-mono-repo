@@ -13,6 +13,7 @@ from pipeline.common import get_test_machines, pip_install, get_os_packages, pyt
 SYSTEM_TEST_TIMEOUT = 9000
 SYSTEM_TEST_TASK_TIMEOUT = 150
 
+
 def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel_20230512"):
     component = tap.Component(name="sdds3-warehouse-" + mode, base_version="1.0.0")
     return stage.artisan_build(name=mode,
@@ -21,9 +22,9 @@ def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel
                                release_package="./sdds/build/dev.xml",
                                mode=mode)
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, build999: ArtisanInput, parameters: tap.Parameters) -> Dict[str, Input]:
-    print(f"Build: {str(build)} and 999 build: {str(build999)}")
 
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, build999: ArtisanInput, parameters: tap.Parameters) -> \
+Dict[str, Input]:
     previous_dogfood_branch = parameters.previous_dogfood_branch
     current_shipping_branch = parameters.current_shipping_branch
 
@@ -78,6 +79,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, build999: Arti
         test_inputs["launchdarkly999"] = build999 / "sdds3-launchdarkly-999"
         test_inputs["static_suites999"] = build999 / "prod-sdds3-static-suites-999"
     return test_inputs
+
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
@@ -146,9 +148,7 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     return
 
 
-def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    run_tests = parameters.run_system_tests != "false"
-
+def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, run_system_tests):
     build = None
     build999 = None
     with stage.parallel("sdds"):
@@ -170,5 +170,5 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
             build999 = build_sdds3_warehouse(stage=stage, mode="999")
 
     with stage.parallel("system_testing"):
-        if run_tests and build:
+        if run_system_tests and build:
             run_tap_tests(stage, context, parameters, build, build999)
