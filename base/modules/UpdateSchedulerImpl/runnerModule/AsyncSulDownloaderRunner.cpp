@@ -1,9 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "AsyncSulDownloaderRunner.h"
+
+static constexpr int SULDOWNLOADER_TIMEOUT_MINS = 30;
 
 namespace UpdateSchedulerImpl::runnerModule
 {
@@ -36,7 +34,7 @@ namespace UpdateSchedulerImpl::runnerModule
         m_sulDownloaderRunnerStartTime = std::chrono::system_clock::now();
 
         m_sulDownloaderRunner.reset(
-            new SulDownloaderRunner(m_taskQueue, m_dirPath, "update_report.json", std::chrono::minutes(10)));
+            new SulDownloaderRunner(m_taskQueue, m_dirPath, "update_report.json", std::chrono::minutes(SULDOWNLOADER_TIMEOUT_MINS)));
         m_sulDownloaderExecHandle = std::async(std::launch::async, [this]() { m_sulDownloaderRunner->run(); });
     }
 
@@ -65,7 +63,7 @@ namespace UpdateSchedulerImpl::runnerModule
 
         std::chrono::duration<double> elapsed_seconds = m_sulDownloaderRunnerStartTime - currentTime;
 
-        if (elapsed_seconds < std::chrono::seconds(600))
+        if (elapsed_seconds < std::chrono::minutes(SULDOWNLOADER_TIMEOUT_MINS))
         {
             return false;
         }
