@@ -27,40 +27,60 @@
         <build-asset project="core" repo="engine">
             <release-version branch="release--3.89.0" build-id="20230915145859-a4679b8647d3831c5b46549ca893aa4a209cd9eb-5zKA9B"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="imports/internal/susi/x86_64/libsavi"/>
+            <include artifact-path="libsavi_linuxarm64_release_gcc9-4-0glibc2-17" dest-dir="imports/internal/susi/arm64/libsavi"/>
         </build-asset>
         <!-- Once a new engine build is released, this block should be merged with the above -->
         <build-asset project="core" repo="engine">
             <release-version branch="release--sophtainer-1.6.1" build-id="20230516124421-ef8a1e891d8b0f0d14a66f5bb6edbeeffd7213d9-uJpaAr"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="imports/internal/susi/x86_64/libsophtainer"/>
+            <include artifact-path="sophtainer_linuxarm64_release_gcc9-4-0glibc2-17" dest-dir="imports/internal/susi/arm64/libsophtainer"/>
         </build-asset>
         <build-asset project="core" repo="liblocalrep">
             <release-version branch="release/2.5" build-id="20230330092449-994f1a1c8286d86eb47ffa224f3d1cf12e63a04e-NTDWhc"/>
             <include artifact-path="release/linux64/bin" dest-dir="imports/internal/susi/x86_64/lrlib"/>
+            <include artifact-path="release/linuxarm64/bin" dest-dir="imports/internal/susi/arm64/lrlib"/>
         </build-asset>
         <build-asset project="core" repo="susi">
-            <!--            <release-version branch="release/2.3" build-id="20230516162702-8c64c09abddf3fceedcc1d384902f20d4f762bec-5kNL5w"/>-->
-            <development-version branch="develop"/>
+            <release-version branch="release/2.4" build-id="20231006085540-f5623c8fbdf8b2cb2a0eda9bc2d3d4addb84c039-AfQt2A"/>
+<!--            <development-version branch="develop"/>-->
             <include artifact-path="release/linux/libsusi" dest-dir="imports/internal/susi/x86_64/lib"/>
-            <include artifact-path="release/linux/interface" dest-dir="imports/internal/susi/include"/>
             <include artifact-path="release/linux/updater" dest-dir="imports/internal/susi/x86_64/lib"/>
+        </build-asset>
+        <build-asset project="core" repo="susi">
+            <release-version branch="release/2.4" build-id="20231024100347-f6ce268182629de7b2b884c2376ea28c138f79f0-MYa4oR"/>
+<!--            <development-version branch="develop"/>-->
+            <include artifact-path="release/linux/interface" dest-dir="imports/internal/susi/include"/>
             <include artifact-path="release/rules" dest-dir="imports/internal/susi/rules"/>
+            <include artifact-path="release/linux-arm64/libsusi" dest-dir="imports/internal/susi/arm64/lib"/>
+            <include artifact-path="release/linux-arm64/updater" dest-dir="imports/internal/susi/arm64/lib"/>
         </build-asset>
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release--1.5" build-id="20230927085338-fabb7dc78797d8ebc055a26f0161c9016e1a16ab-4Wfkv7"/>
+            <release-version branch="release--1.5" build-id="20231019124458-4ca0fcb44d53532d9d8363928af42fd0b982a115-uPHoTv"/>
             <include artifact-path="release/linux/libglobalrep" dest-dir="imports/internal/susi/x86_64/grlib"/>
+            <include artifact-path="release/linux-arm64/libglobalrep" dest-dir="imports/internal/susi/arm64/grlib"/>
         </build-asset>
         <!-- external dependencies -->
         <build-asset project="thirdparty" repo="icu">
             <release-version branch="release--sophos--susi--70.1" build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2" />
             <include artifact-path="linux-x64/lib" dest-dir="imports/internal/susi/x86_64/icu/lib"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="icu">
+            <release-version branch="release--sophos--susi--70.1" build-id="20220722153742-1e1ca0c9aa4a6c8c4635d28425fca7f5fbf5860c-bm19h8" />
+            <include artifact-path="linux-arm64/lib" dest-dir="imports/internal/susi/arm64/icu/lib"/>
+        </build-asset>
         <build-asset project="thirdparty" repo="libarchive">
             <release-version branch="release--sophos--core--3.5.2" build-id="20220830091606-26250850af1ca762e02788c56d5b4a8c4c13c5e6-8fcn7J"/>
             <include artifact-path="release/linux-x64/lib" dest-dir="imports/internal/susi/x86_64/libarchive/lib"/>
+            <include artifact-path="release/linux-arm64/lib" dest-dir="imports/internal/susi/arm64/libarchive/lib"/>
         </build-asset>
         <build-asset project="thirdparty" repo="luajit">
             <release-version branch="release--sophos--susi--2.1.0" build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83"/>
             <include artifact-path="linux-x64/lib" dest-dir="imports/internal/susi/x86_64/luajit/lib"/>
+        </build-asset>
+
+        <build-asset project="thirdparty" repo="luajit">
+            <release-version branch="release--sophos--susi--2.1.0" build-id="20220727135014-9cbc27524fe49a6bbca55b78406657ace2cd384a-YBhu0T"/>
+            <include artifact-path="linux-arm64/lib" dest-dir="imports/internal/susi/arm64/luajit/lib"/>
         </build-asset>
 
         <build-asset project="winep" repo="liveterminal">
@@ -78,6 +98,10 @@
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-aarch64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
     </inputs>
     <buildcommands>
+        <command>
+            <program>df</program>
+            <args>-hl</args>
+        </command>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->
         <command>
             <program>./build/python.sh</program>
@@ -105,6 +129,10 @@
         <command>
             <program>bash</program>
             <args>-c 'git rev-parse HEAD > build/COMMIT_HASH'</args>
+        </command>
+        <command>
+            <program>df</program>
+            <args>-hl</args>
         </command>
 
         <!-- Linux Sanity: lsnty -->
@@ -193,10 +221,7 @@
                 --profile=linuxep_spl_lx64r_build
                 build
                 --config=linux_arm64_rel
-                <!-- TODO LINUXDAR-4123: Revert back once AV can build on ARM64 (blocked on SUSI) -->
-<!--                &#45;&#45;target_pattern_file=build/linuxep_spl_build_targets_arm64.txt-->
-                --
-                //... -//av/... //products:export_assets
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
             </args>
         </command>
         <command mode="all_la64r">
@@ -217,10 +242,7 @@
                 --profile=linuxep_spl_lx64d_build
                 build
                 --config=linux_arm64_dbg
-                <!-- TODO LINUXDAR-4123: Revert back once AV can build on ARM64 (blocked on SUSI) -->
-<!--                &#45;&#45;target_pattern_file=build/linuxep_spl_build_targets.txt-->
-                --
-                //... -//av/... //products:export_assets
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
             </args>
         </command>
         <command mode="all_la64d">
@@ -246,6 +268,11 @@
 <!--            <args>./build.sh &#45;&#45;no-build &#45;&#45;analysis</args>-->
 <!--            <workingdir>.</workingdir>-->
 <!--        </command>-->
+
+        <command>
+            <program>df</program>
+            <args>-hl</args>
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
@@ -261,6 +288,13 @@
         <build-asset artifact-path="av/linux_x64_rel/tap_test_output" source-zip=".output/av/linux_x64_rel/tap_test_output.zip" mode="all_lx64r"/>
         <build-asset artifact-path="av/linux_x64_dbg/installer" source-zip=".output/av/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="av/linux_x64_dbg/tap_test_output" source-zip=".output/av/linux_x64_dbg/tap_test_output.zip" mode="all_lx64d"/>
+
+        <release-asset artifact-path="av/linux_arm64_rel/installer" source-dir=".output/av/linux_arm64_rel/installer" manifest-path=".output/av/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="av/linux_arm64_rel/installer" source-zip=".output/av/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="av/linux_arm64_rel/installer_symbols" source-zip=".output/av/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="av/linux_arm64_rel/tap_test_output" source-zip=".output/av/linux_arm64_rel/tap_test_output.zip" mode="all_la64r"/>
+        <build-asset artifact-path="av/linux_arm64_dbg/installer" source-zip=".output/av/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="av/linux_arm64_dbg/tap_test_output" source-zip=".output/av/linux_arm64_dbg/tap_test_output.zip" mode="all_la64d"/>
 
         <!-- Base -->
         <release-asset artifact-path="base/linux_x64_rel/installer" source-dir=".output/base/linux_x64_rel/installer" manifest-path=".output/base/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -318,8 +352,8 @@
         <build-asset artifact-path="eventjournaler/linux_arm64_rel/installer" source-zip=".output/eventjournaler/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="eventjournaler/linux_arm64_rel/installer_symbols" source-zip=".output/eventjournaler/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="eventjournaler/linux_arm64_rel/manualTools" source-zip=".output/eventjournaler/linux_arm64_rel/manualTools.zip" mode="all_la64r"/>
-        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/installer" source-zip=".output/eventjournaler/linux_arm64_dbg/installer.zip" mode="all_lx64d"/>
-        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/manualTools" source-zip=".output/eventjournaler/linux_arm64_dbg/manualTools.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/installer" source-zip=".output/eventjournaler/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="eventjournaler/linux_arm64_dbg/manualTools" source-zip=".output/eventjournaler/linux_arm64_dbg/manualTools.zip" mode="all_la64d"/>
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>

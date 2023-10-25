@@ -7,13 +7,15 @@ Resource    ../shared/AVResources.robot
 Library         OperatingSystem
 Library         Process
 Library         ../Libs/OnFail.py
+Library         ../Libs/TapTestOutput.py
 
 Test Setup      No Operation
 Test Teardown   OnFail.run_teardown_functions
 
 *** Test Cases ***
 SafeStoreWrapper Tests
-    register on fail  List Files in AV Test Tools
+    ${AV_TEST_TOOLS} =  TapTestOutput.Extract Tap Test Output
+    register on fail  List Files in AV Test Tools  ${AV_TEST_TOOLS}
     ${safestore_tests_binary} =   Set Variable  ${AV_TEST_TOOLS}/SafeStoreTapTests
     ${result} =   Run Process   ${safestore_tests_binary}
     ...  env:LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/lib64:${COMPONENT_SDDS_COMPONENT}/files/plugins/av/lib64
@@ -23,5 +25,6 @@ SafeStoreWrapper Tests
 
 *** Keywords ***
 List Files in AV Test Tools
+    [Arguments]  ${AV_TEST_TOOLS}
     ${Files} =  List Files In Directory  ${AV_TEST_TOOLS}
     log  ${Files}

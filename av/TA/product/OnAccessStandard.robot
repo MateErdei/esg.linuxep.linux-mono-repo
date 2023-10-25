@@ -196,6 +196,8 @@ On Access Scans A File When It Is Opened
 
 
 On-Access Scans A File On Execute
+    # LINUXDAR-8247: Can't run x86 binary on ARM64, and need new exe and IDE before we can make the test handle ARM64
+    [Tags]  exclude_arm64
     On-access Scan On Execute
 
 

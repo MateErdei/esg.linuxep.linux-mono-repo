@@ -3,6 +3,7 @@ Documentation   Fault injection test for the AV threat ingestion socket
 Force Tags      PRODUCT  TAP_PARALLEL6
 
 Library         ../Libs/LogUtils.py
+Library         ../Libs/TapTestOutput.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
@@ -43,6 +44,7 @@ Dump and Reset Logs
 
 Send Threat Object To AV
     [Arguments]  ${file_path}=/tmp/testfile  ${threat_name}=ThreatName  ${sha}=sha256    ${report_source}=vdl    ${threat_type}=virus    ${userid}=userid
+    ${SEND_THREAT_DETECTED_TOOL} =  TapTestOutput.get_send_threat_detected_tool
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/chroot/var/threat_report_socket --filepath "${file_path}" --threatname "${threat_name}" --threattype "${threat_type}" --sha "${sha}" --reportsource "${report_source}" --userid "${userid}"    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
 
 Create File With Automatic Cleanup

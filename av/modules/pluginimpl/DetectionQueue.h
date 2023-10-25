@@ -4,6 +4,8 @@
 
 #include "scan_messages/ThreatDetected.h"
 
+#include "Common/Threads/LockableBool.h"
+
 #include <atomic>
 #include <condition_variable>
 #include <list>
@@ -20,7 +22,10 @@ namespace Plugin
         std::mutex m_mutex;
         std::condition_variable m_cond;
         std::queue<scan_messages::ThreatDetected> m_list;
-        std::atomic_bool m_stopRequested = false;
+        Common::Threads::LockableBool m_stopRequested{false};
+    private:
+        bool isFullLocked(std::unique_lock<std::mutex>&);
+        bool isEmptyLocked(std::unique_lock<std::mutex>&);
 
     public:
         void setMaxSize(uint);

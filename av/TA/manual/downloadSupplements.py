@@ -145,14 +145,17 @@ def process(baseurl, filename, dirname):
     return zip_updated
 
 
-def run(destination):
+def run(destination, args):
     global DEST
     DEST = ensure_binary(destination)
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
 
     updated = False
-    updated = process(artifactory_base_url + "ssplav-mlmodel3-x86_64/released", "model.zip", b"ml_model") or updated
+    if args.arm64:
+        updated = process(artifactory_base_url + "ssplav-mlmodel3-arm64/released", "model.zip", b"ml_model") or updated
+    else:
+        updated = process(artifactory_base_url + "ssplav-mlmodel3-x86_64/released", "model.zip", b"ml_model") or updated
     updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep") or updated
     updated = process(artifactory_base_url + "ssplav-dataseta/released", "dataseta.zip", b"dataseta") or updated
     return updated
@@ -161,9 +164,10 @@ def run(destination):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("destination", help="Destination directory to download supplements to")
+    parser.add_argument("--arm64", "--arm", default=False, action="store_true")
     args = parser.parse_args()
 
-    run(args.destination)
+    run(args.destination, args)
     return 0
 
 

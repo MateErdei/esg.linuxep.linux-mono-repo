@@ -189,3 +189,4 @@ def copy_or_link_iconv_libraries(chroot):
     """
     _copy_or_link_iconv_libraries_from_lib(chroot, "usr/lib/x86_64-linux-gnu/gconv")
     _copy_or_link_iconv_libraries_from_lib(chroot, "usr/lib64/gconv")
+    _copy_or_link_iconv_libraries_from_lib(chroot, "usr/lib/aarch64-linux-gnu/gconv")

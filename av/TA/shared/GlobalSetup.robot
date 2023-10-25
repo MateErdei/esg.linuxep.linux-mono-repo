@@ -45,8 +45,6 @@ Global Setup Tasks
 
     Set Global Variable  ${COMPONENT_SDDS_COMPONENT}        ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_INSTALL_SET}           ${TEST_INPUT_PATH}/${COMPONENT_NAME}/INSTALL-SET
-    Set Global Variable  ${SEND_THREAT_DETECTED_TOOL}       ${TEST_INPUT_PATH}/tap_test_output/SendThreatDetectedEvent
-    Set Global Variable  ${SEND_DATA_TO_SOCKET_TOOL}        ${TEST_INPUT_PATH}/tap_test_output/SendDataToSocket
     Set Global Variable  ${COMPONENT_ROOT_PATH}             ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_SBIN_DIR}              ${COMPONENT_ROOT_PATH}/sbin
     Set Global Variable  ${COMPONENT_VAR_DIR}               ${COMPONENT_ROOT_PATH}/var
@@ -71,7 +69,6 @@ Global Setup Tasks
     CoreDumps.Enable Core Files
 
     Create test user and group
-    InstallSet.extract_tap_test_output
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
@@ -92,6 +89,3 @@ Create test user and group
 Remove test user and group
     Run Process  /usr/sbin/userdel   ${TESTUSER}
     Run Process  /usr/sbin/groupdel   ${TESTGROUP}
-
-Unpack TAP Tools
-    InstallSet.extract_tap_test_output

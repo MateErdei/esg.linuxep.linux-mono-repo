@@ -68,6 +68,11 @@ def change_rpath(path, result, patchelf, rpath_exceptions):
         print(f"Failed to set RPATH for {path} to {rpath} from '{existing_rpath}'")
 
 
+def check_disk_space():
+    print("df -hl:")
+    subprocess.run(["df", "-hl"])
+
+
 def main(argv):
     assert argv[1][0] == "@", "Expecting a parameter file"
 
@@ -119,6 +124,8 @@ def main(argv):
 
         if patchelf is not None and mode in ["strip", "rename"]:
             change_rpath(dest, result, patchelf, rpath_exceptions)
+
+    check_disk_space()
 
     return 0
 

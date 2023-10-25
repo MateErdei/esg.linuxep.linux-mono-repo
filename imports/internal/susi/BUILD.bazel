@@ -3,9 +3,17 @@ package(
     default_visibility = ["//av:__subpackages__"],
 )
 
+alias(
+    name = "libsusi",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libsusi.so.2",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libsusi.so.2",
+    }),
+)
+
 cc_import(
     name = "susi_lib",
-    shared_library = "x86_64/lib/libsusi.so.2",
+    shared_library = ":libsusi",
 )
 
 cc_library(
@@ -16,58 +24,83 @@ cc_library(
 )
 
 alias(
-    name = "libsusi",
-    actual = "x86_64/lib/libsusi.so.2",
-)
-
-alias(
     name = "libsusicore",
-    actual = "x86_64/lib/libsusicore.so.2",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libsusicore.so.2",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libsusicore.so.2",
+    }),
 )
 
 alias(
     name = "libupdater",
-    actual = "x86_64/lib/libupdater.so.2",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libupdater.so.2",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libupdater.so.2",
+    }),
 )
 
 alias(
     name = "liblocalreputation",
-    actual = "x86_64/lrlib/liblocalreputation.so",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lrlib/liblocalreputation.so",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lrlib/liblocalreputation.so",
+    }),
 )
 
 alias(
     name = "libglobalrep",
-    actual = "x86_64/grlib/libglobalrep.so",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/grlib/libglobalrep.so",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/grlib/libglobalrep.so",
+    }),
 )
 
 alias(
     name = "libicuuc",
-    actual = "x86_64/icu/lib/libicuuc.so.70",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/icu/lib/libicuuc.so.70",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/icu/lib/libicuuc.so.70",
+    }),
 )
 
 alias(
     name = "libicui18n",
-    actual = "x86_64/icu/lib/libicui18n.so.70",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/icu/lib/libicui18n.so.70",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/icu/lib/libicui18n.so.70",
+    }),
 )
 
 alias(
     name = "libicudata",
-    actual = "x86_64/icu/lib/libicudata.so.70",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/icu/lib/libicudata.so.70",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/icu/lib/libicudata.so.70",
+    }),
 )
 
 alias(
     name = "libluajit",
-    actual = "x86_64/luajit/lib/libluajit-5.1.so.2",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/luajit/lib/libluajit-5.1.so.2",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/luajit/lib/libluajit-5.1.so.2",
+    }),
 )
 
 alias(
     name = "libsavi",
-    actual = "x86_64/libsavi/release/libsavi.so.3.2.07.389.0",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/libsavi/release/libsavi.so.3.2.07.389.0",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/libsavi/release/libsavi.so.3.2.07.389.0",
+    }),
 )
 
 alias(
     name = "libsophtainer",
-    actual = "x86_64/libsophtainer/release/libsophtainer.so",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/libsophtainer/release/libsophtainer.so",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/libsophtainer/release/libsophtainer.so",
+    }),
 )
 
 filegroup(

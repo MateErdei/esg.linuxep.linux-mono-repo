@@ -8,6 +8,7 @@ from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, \
     python, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+from pipeline import common
 
 
 INPUTS_DIR = '/opt/test/inputs'
@@ -65,6 +66,8 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str
     if machine_name is None:
         machine_name = machine.template
 
+    arch, platform = machine_name.split("_")
+
     assert include_tag or robot_args
 
     try:
@@ -72,7 +75,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str
         # Exclude MANUAL on TAP
         # Exclude DISABLED on TAP
         # Exclude STRESS on TAP; as some tests here will not be appropriate
-        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
+        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS',
+                                f"exclude_{platform.lower()}", f"exclude_{arch.lower()}",
+                                f"exclude_{machine_name.lower()}"]
         if machine_name.endswith('centos9stream'):
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
@@ -159,14 +164,18 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False, bazel=True) -> Dict[str, Input]:
+def get_inputs(context: tap.PipelineContext,
+               build: ArtisanInput,
+               coverage: bool = False,
+               bazel: bool = True,
+               arch: str = "x86_64") -> Dict[str, Input]:
     supplement_branch = "released"
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./av/TA'),
         bullseye_files=context.artifact.from_folder('./av/build/bullseye'),  # used for robot upload
         local_rep=context.artifact.from_component('ssplav-localrep', supplement_branch, None) / 'reputation',
-        ml_model=context.artifact.from_component('ssplav-mlmodel3-x86_64', supplement_branch, None) / 'model',
+        ml_model=context.artifact.from_component('ssplav-mlmodel3-'+arch, supplement_branch, None) / 'model',
         dataseta=context.artifact.from_component('ssplav-dataseta', supplement_branch, None) / 'dataseta',
     )
     test_inputs['sdds3_utils'] = unified_artifact(context, 'winep.sau', 'develop', 'build/Linux-x64/SDDS3-Utils')
@@ -178,9 +187,15 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         test_inputs["av/SDDS-COMPONENT"] = build / 'coverage/SDDS-COMPONENT'
         test_inputs["av/base-sdds"] = build / 'coverage/base_sdds'
     elif bazel:
-        test_inputs['tap_test_output'] = build / "av/linux_x64_rel/tap_test_output"
-        test_inputs["av/SDDS-COMPONENT"] = build / 'av/linux_x64_rel/installer'
-        test_inputs["av/base-sdds"] = build / 'base/linux_x64_rel/installer'
+        if arch == "x86_64":
+            build_arch = "x64"
+        elif arch == "arm64":
+            build_arch = "arm64"
+
+        test_inputs['tap_test_output'] = build / f"av/linux_{build_arch}_rel/tap_test_output"
+        test_inputs["av/SDDS-COMPONENT"] = build / f'av/linux_{build_arch}_rel/installer'
+        test_inputs["av/base-sdds"] = build / f'base/linux_{build_arch}_rel/installer'
+
     else:
         test_inputs['tap_test_output_from_build'] = build / "tap_test_output"
         test_inputs["av/SDDS-COMPONENT"] = build / 'output/SDDS-COMPONENT'
@@ -396,7 +411,7 @@ def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
                        branch_name=context.branch)
 
 
-def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None, bazel=True):
+def run_av_tests(stage, context, builds, mode, parameters, coverage_build=None, bazel=True):
     # run_tests: bool = parameters.run_tests != 'false'
 
     robot_args = get_robot_args(parameters)
@@ -407,26 +422,28 @@ def run_av_tests(stage, context, av_build, mode, parameters, coverage_build=None
 
     with stage.parallel('av_test'):
         with stage.parallel('TA'):
-            test_inputs = {
-                "x64": get_inputs(context, av_build, bazel=bazel)
-            }
+            test_inputs = {}
+            for arch, build in builds.items():
+                test_arch = common.test_arch(arch)
+                test_inputs[test_arch] = get_inputs(context, build, bazel=bazel, arch=arch)
+
             # Robot before pytest, since pytest is quick
             with stage.parallel('robot'):
                 if robot_args:
                     with stage.parallel("integration"):
-                        for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
+                        for (name, machine) in get_test_machines(test_inputs, parameters):
                             stage.task(task_name=name, func=robot_task, machine=machine,
                                        robot_args=robot_args, include_tag="", branch_name=context.branch,
                                        machine_name=name)
                 else:
                     for include in include_tag.split(","):
                         with stage.parallel(include):
-                            for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
+                            for (name, machine) in get_test_machines(test_inputs, parameters):
                                 stage.task(task_name=name, func=robot_task, machine=machine,
                                            include_tag=include, branch_name=context.branch, robot_args="",
                                            machine_name=name)
 
             with stage.parallel('pytest'):
                 with stage.parallel('component'):
-                    for (name, machine) in get_test_machines(test_inputs, parameters, x64_only=True):
+                    for (name, machine) in get_test_machines(test_inputs, parameters):
                         stage.task(task_name=name, func=pytest_task, machine=machine)

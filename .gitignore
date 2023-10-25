@@ -18,6 +18,9 @@
 # Import locations
 /common/sophlib/
 /common/journal/*
+/common/livequery/include/
+/common/livequery/linux_arm64_release/
+/common/livequery/linux_x64_release/
 !/common/journal/BUILD.bazel
 !/common/journal/protocol/BUILD.bazel
 !/common/journal/tools/JournalReader/BUILD.bazel
@@ -28,6 +31,8 @@
 !/imports/internal/susi/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*
 !/imports/thirdparty/nlohmann-json/BUILD.bazel
+/imports/thirdparty/osquery/linux_arm64_rel/
+/imports/thirdparty/osquery/linux_x64_rel/
 /liveterminal/products/installer/rust-liveterminal-*
 
 # bazel-tools from ESG monorepo

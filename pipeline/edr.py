@@ -27,6 +27,9 @@ NAME = "edr"
 
 
 def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str, arch: str):
+    if edr_build is None:
+        return None
+
     test_inputs = None
     if mode == 'release':
         config = f"linux_{arch}_rel"
@@ -186,13 +189,13 @@ def run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
                    robot_args=robot_args)
 
 
-def run_edr_tests(stage, context, edr_build, mode, parameters):
+def run_edr_tests(stage, context, builds, mode, parameters):
     #exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
 
     test_inputs = {
-        "x64": get_inputs(context, edr_build, mode, "x64"),
-        "arm64": get_inputs(context, edr_build, mode, "arm64")
+        "x64": get_inputs(context, builds["x86_64"], mode, "x64"),
+        "arm64": get_inputs(context, builds["arm64"], mode, "arm64")
     }
     test_machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)

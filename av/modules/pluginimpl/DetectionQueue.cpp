@@ -13,8 +13,8 @@ namespace Plugin
 
     bool DetectionQueue::push(scan_messages::ThreatDetected& task)
     {
-        std::lock_guard<std::mutex> lck(m_mutex);
-        if (!isFull())
+        std::unique_lock<std::mutex> lck(m_mutex);
+        if (!isFullLocked(lck))
         {
             m_list.push(std::move(task));
             m_cond.notify_one();
@@ -27,8 +27,8 @@ namespace Plugin
     std::optional<scan_messages::ThreatDetected> DetectionQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
-        m_cond.wait(lck, [this] { return (!isEmpty() || m_stopRequested.load()); });
-        if (m_list.empty())
+        m_cond.wait(lck, [&lck, this] { return (!isEmptyLocked(lck) || m_stopRequested.load()); });
+        if (isEmptyLocked(lck))
         {
             return std::nullopt;
         }
@@ -39,18 +39,31 @@ namespace Plugin
 
     bool DetectionQueue::isEmpty()
     {
+        std::unique_lock<std::mutex> lck(m_mutex);
+        return isEmptyLocked(lck);
+    }
+
+    bool DetectionQueue::isEmptyLocked(std::unique_lock<std::mutex> &)
+    {
         return m_list.empty();
     }
 
     bool DetectionQueue::isFull()
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+        return isFullLocked(lck);
+    }
+
+    bool DetectionQueue::isFullLocked(std::unique_lock<std::mutex> &)
     {
         return m_list.size() >= m_maxSize;
     }
 
     void DetectionQueue::requestStop()
     {
-        m_stopRequested = true;
+        m_stopRequested.store(true);
         m_cond.notify_all();
     }
+
 
 } // namespace Plugin

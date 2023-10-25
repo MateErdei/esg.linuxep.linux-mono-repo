@@ -11,6 +11,8 @@ COMMON_DEPS = [
     "//liveterminal:installer",
     "//edr:installer",
     "//edr:componenttests",
+    "//av:installer",
+    "//av:tap_test_output",
 ]
 
 RELEASE_DEPS = [
@@ -19,6 +21,7 @@ RELEASE_DEPS = [
     "//response_actions:installer_symbols",
     "//liveterminal:installer_symbols",
     "//edr:installer_symbols",
+    "//av:installer_symbols",
 ]
 
 soph_export_assets(
@@ -29,17 +32,9 @@ soph_export_assets(
         "//tools/config:linux_x64_rel": COMMON_DEPS + RELEASE_DEPS + [
             "//base:fake_management",
             "//thininstaller",
-            # TODO LINUXDAR-4123: Move back once AV can build on ARM64 (blocked on SUSI)
-            "//av:installer",
-            "//av:tap_test_output",
-            "//av:installer_symbols",
         ],
         "//tools/config:linux_arm64_rel": COMMON_DEPS + RELEASE_DEPS,
-        "//tools/config:linux_x64_dbg": COMMON_DEPS + [
-            # TODO LINUXDAR-4123: Move back once AV can build on ARM64 (blocked on SUSI)
-            "//av:installer",
-            "//av:tap_test_output",
-        ],
+        "//tools/config:linux_x64_dbg": COMMON_DEPS,
         "//tools/config:linux_arm64_dbg": COMMON_DEPS,
     }),
 )

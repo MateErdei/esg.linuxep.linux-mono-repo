@@ -3,7 +3,6 @@ import pwd
 import grp
 import subprocess
 import sys
-import psutil
 import pathlib
 
 from robot.api import logger
@@ -58,6 +57,7 @@ def get_amount_written_to_disk(path):
 
 
 def find_sdiskpart(path):
+    import psutil
     while not os.path.ismount(path):
         path = os.path.dirname(path)
 

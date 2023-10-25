@@ -137,7 +137,7 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     test_inputs = {
         "x64": get_inputs(context, build, build999, parameters)
     }
-    machines = get_test_machines(test_inputs, parameters, x64_only=True, system_tests=True)
+    machines = get_test_machines(test_inputs, parameters, system_tests=True)
 
     parameters_json = json.dumps(parameters)
 

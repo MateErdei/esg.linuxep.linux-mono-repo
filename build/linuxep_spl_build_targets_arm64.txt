@@ -1,3 +1,0 @@
-# This is the list of 'bazel build' targets for the 'linuxep_spl' build.
-//... -//av/...
-//products:export_assets

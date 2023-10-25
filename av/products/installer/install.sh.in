@@ -503,8 +503,7 @@ function install_product()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
 
     # TODO: LINUXDAR-???? remove if we fix boost to not require iconv
-    # TODO: Handle ARM64
-    for LIBDIR in "/usr/lib/x86_64-linux-gnu/gconv" "/usr/lib64/gconv"
+    for LIBDIR in "/usr/lib/x86_64-linux-gnu/gconv" "/usr/lib64/gconv" "/usr/lib/aarch64-linux-gnu/gconv"
     do
         [[ -d "$LIBDIR" ]] || continue
         mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot${LIBDIR}"

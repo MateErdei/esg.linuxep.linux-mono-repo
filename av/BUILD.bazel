@@ -24,6 +24,8 @@ soph_release_asset(
     asset_type = select({
         "//tools/config:linux_x64_rel": "release",
         "//tools/config:linux_x64_dbg": "build",
+        "//tools/config:linux_arm64_rel": "release",
+        "//tools/config:linux_arm64_dbg": "build",
     }),
     visibility = ["//products:__pkg__"],
 )

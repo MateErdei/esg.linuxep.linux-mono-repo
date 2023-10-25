@@ -68,15 +68,20 @@ BASE=$(pwd)
 echo BASE=$BASE
 INPUTS_ROOT=$BASE/../..
 AV_ROOT=/opt/test/inputs/av
-[[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/av
-[[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/output
-[[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
 TEST_SUITE=${BASE}/..
 
-# Dev and QA regions combined, avoids having to override for each.
-export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-and-qa-combined.pem}
+function unpack_zip_if_required()
+{
+    local ZIP="$1"
+    local DEST="$2"
+    [[ -f "$ZIP" ]] || return
+    [[ -d "$DEST" && "$DEST" -nt "$ZIP" ]] && return
+    unzip "$ZIP" -d "$DEST"
+}
 
 SDDS_BASE=${AV_ROOT}/base-sdds
+unpack_zip_if_required "${AV_ROOT}/base_sdds.zip" "$SDDS_BASE"
+
 [[ -d $SDDS_BASE ]] || failure 1 "Can't find SDDS_BASE: $SDDS_BASE"
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 
@@ -84,8 +89,13 @@ SDDS_AV=${AV_ROOT}/INSTALL-SET
 PYTHON=${PYTHON:-python3}
 if [[ -z "$NO_CREATE_INSTALL_SET" || ! -d "$SDDS_AV" ]]
 then
+    unpack_zip_if_required "${AV_ROOT}/av_sdds.zip" "${AV_ROOT}/SDDS-COMPONENT"
+    [[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/av
+    [[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/output
+    [[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
     ${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
 fi
+
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
 # Check supplements are present:
@@ -113,6 +123,9 @@ then
   # Need to enable feature with warehouse-flags
   cp ${TEST_SUITE}/resources/flags_policy/flags-warehouse.json ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 fi
+
+# Dev and QA regions combined, avoids having to override for each.
+export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-and-qa-combined.pem}
 
 # If not registering with Central, copy policies over
 if [[ -z $MCS_URL ]]

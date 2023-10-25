@@ -13,6 +13,11 @@ ensure_unicode = downloadSupplements.ensure_unicode
 
 LOGGER = None
 
+
+class Args:
+    pass
+
+
 def log(*x):
     global LOGGER
     if LOGGER is None:
@@ -26,7 +31,9 @@ def download_supplements(dest):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
 
-    updated = downloadSupplements.run(ensure_unicode(dest))
+    args = Args()
+    args.arm64 = True
+    updated = downloadSupplements.run(ensure_unicode(dest), args)
     return updated
 
 
@@ -58,10 +65,11 @@ def verify_install_set(install_set, sdds_component=None):
     # Compare manifest.dat inside sdds_component
     if sdds_component is not None:
         sdds_component = ensure_binary(sdds_component)
-        sdds_manifest = os.path.join(sdds_component, b"manifest.dat")
-        install_manifest = os.path.join(install_set, b"manifest.dat")
-        if not is_same(sdds_manifest, install_manifest):
-            return False
+        if os.path.isdir(sdds_component):
+            sdds_manifest = os.path.join(sdds_component, b"manifest.dat")
+            install_manifest = os.path.join(install_set, b"manifest.dat")
+            if not is_same(sdds_manifest, install_manifest):
+                return False
 
     return True
 

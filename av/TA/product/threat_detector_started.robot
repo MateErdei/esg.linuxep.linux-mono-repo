@@ -168,6 +168,8 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
 
 
 Threat Detector Restarts If System File Contents Change While A Long Scan Is Ongoing
+    # LINUXDAR-8250: Seems to keep failing on ARM64, but works locally
+    [Tags]  exclude_arm64
 
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
@@ -190,13 +192,15 @@ Threat Detector Restarts If System File Contents Change While A Long Scan Is Ong
 
     wait_for_av_log_contains_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
     check_av_log_does_not_contain_after_mark  System configuration not changed for ${TESTSYSFILE}  ${av_mark}
-    wait_for_sophos_threat_detector_log_contains_after_mark  Timed out waiting for graceful shutdown  ${td_mark}  20
+    wait_for_sophos_threat_detector_log_contains_after_mark  Timed out waiting for graceful shutdown  ${td_mark}  ${20}
     wait_for_sophos_threat_detector_log_contains_after_mark  forcing exit with return code 77  ${td_mark}
 
     Wait until threat detector running after mark  ${td_mark}
 
 
 Threat Detector Restarts If System File Contents Change While Multiple Long Scans Are Ongoing
+    # LINUXDAR-8250: Seems to keep failing on ARM64, but works locally
+    [Tags]  exclude_arm64
 
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original

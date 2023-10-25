@@ -6,6 +6,13 @@ import time
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
 
+X86_64 = "x86_64"
+x86_64 = X86_64
+x64    = X86_64
+
+ARM64 = "arm64"
+arm64 = ARM64
+
 INDEPENDENT_MODE = 'independent'
 RELEASE_MODE = 'release'
 ANALYSIS_MODE = 'analysis'
@@ -52,7 +59,30 @@ def get_package_version(release_pkg: str) -> str:
     return package_node.attrib['version']
 
 
-def get_test_machines(test_inputs, parameters, x64_only=False, system_tests=False):
+def truthy(value, parameter_name, default_value):
+    if value in (True, "true", 1, "1", "T", "True"):
+        return True
+    if value in (False, "false", 0, "0", "F", "False"):
+        return False
+    if value is None:
+        return default_value
+    print(f"{parameter_name} is not a good truthy value: {value}, assuming {default_value}")
+    return default_value
+
+
+def x86_64_enabled(parameters):
+    return truthy(parameters.build_x86_64_bazel, "build_x86_64_bazel", True)
+
+
+def arm64_enabled(parameters):
+    return truthy(parameters.build_arm64_bazel, "build_arm64_bazel", True)
+
+
+def get_test_machines(test_inputs, parameters, system_tests=False):
+    run_tests = truthy(parameters.run_tests, "run_tests", True)
+    if not run_tests and not system_tests:
+        return []
+
     available_x64_environments = {
         'amazonlinux2': 'amzlinux2_x64_server_en_us',
         'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
@@ -86,7 +116,7 @@ def get_test_machines(test_inputs, parameters, x64_only=False, system_tests=Fals
         'ubuntu2004': 'ubuntu2004_arm64_server_en_us',
         'ubuntu2204': 'ubuntu2204_arm64_server_en_us'}
 
-    #Process test_platform_coverage
+    # Process test_platform_coverage
     test_environments = {"x64": {}, "arm64": {}}
     if parameters.test_platform_coverage == "run_all":
         test_environments["x64"] = available_x64_environments
@@ -236,10 +266,24 @@ def get_test_machines(test_inputs, parameters, x64_only=False, system_tests=Fals
 
     print(test_environments)
 
+    if test_inputs.get("arm64", None) is None or not arm64_enabled(parameters):
+        test_environments.pop("arm64", None)
+    else:
+        assert "arm64" in test_inputs
+        assert test_inputs["arm64"] is not None
+
+    if test_inputs.get("x64", None) is None or not x86_64_enabled(parameters):
+        test_environments.pop("x64", None)
+    else:
+        assert "x64" in test_inputs
+        assert test_inputs["x64"] is not None
+
     ret = []
     for arch, environments in test_environments.items():
-        if x64_only and arch != "x64":
+        if test_inputs[arch] is None:
+            print(f"No test_input for {arch}")
             continue
+
         for name, image in environments.items():
             ret.append((
                 f"{arch}_{name}",
@@ -284,6 +328,12 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def python(machine: tap.Machine):
     return "python3"
+
+
+def test_arch(arch):
+    return {
+        "x86_64": "x64"
+    }.get(arch, arch)
 
 def get_os_packages(machine: tap.Machine):
     common = [

@@ -9,11 +9,12 @@ from pipeline.base import run_base_tests, run_base_coverage_tests
 
 from pipeline.common import get_package_version, \
     INDEPENDENT_MODE, RELEASE_MODE, ANALYSIS_MODE, NINE_NINE_NINE_MODE, \
-    ZERO_SIX_ZERO_MODE, COVERAGE_MODE
+    ZERO_SIX_ZERO_MODE, COVERAGE_MODE, truthy
 from pipeline.edr import run_edr_tests, run_edr_coverage_tests
 from pipeline.eventjournaler import run_ej_tests, run_ej_coverage_tests
 from pipeline.liveterminal import run_liveterminal_tests, run_liveterminal_coverage_tests
 from pipeline.sdds import sdds
+from pipeline import common
 
 
 PACKAGE_PATH = "build/release-package.xml"
@@ -38,49 +39,55 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     print("Running bazel pipeline")
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
-    build = stage.artisan_build(name="linux_rel",
-                                     component=component,
-                                     image=BUILD_TEMPLATE_BAZEL,
-                                     mode="san_lsnty,all_lx64r,all_la64r",
-                                     release_package=PACKAGE_PATH)
-    linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", False)
+    rel_build = {}
+    dbg_build = {}
+    if common.x86_64_enabled(parameters):
+        rel_build[common.X86_64] = ["san_lsnty", "all_lx64r"]
+        dbg_build[common.X86_64] = ["all_lx64d"]
+    if common.arm64_enabled(parameters):
+        rel_build[common.arm64] = ["all_la64r"]
+        dbg_build[common.arm64] = ["all_la64d"]
+
+    builds = {
+        common.X86_64: None,
+        common.arm64: None
+    }
+    for arch, modes in rel_build.items():
+        builds[arch] = stage.artisan_build(name=f"linux_rel_{arch}",
+                                           component=component,
+                                           image=BUILD_TEMPLATE_BAZEL,
+                                           mode=",".join(modes),
+                                           release_package=PACKAGE_PATH)
+
+    # Default to true here so that local builds work.
+    linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", True)
     print(f"parameters.mode = {parameters.mode}; MODE = {mode}; linux_debug = {linux_dbg} - {parameters.build_debug_bazel}")
 
     if linux_dbg:
-        stage.artisan_build(name="linux_dbg",
-                            component=component,
-                            image=BUILD_TEMPLATE_BAZEL,
-                            mode="all_lx64d,all_la64d",
-                            release_package=PACKAGE_PATH)
+        for arch, modes in dbg_build.items():
+            stage.artisan_build(name=f"linux_dbg_{arch}",
+                                component=component,
+                                image=BUILD_TEMPLATE_BAZEL,
+                                mode=",".join(modes),
+                                release_package=PACKAGE_PATH)
 
-    if parameters.run_tests != False:
+    if truthy(parameters.run_tests, "run_tests", True):
         with stage.parallel('testing'):
             if mode == RELEASE_MODE:
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                    run_av_tests(stage, context, build, mode, parameters, bazel=True)
+                    run_av_tests(stage, context, builds, mode, parameters, bazel=True)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                    run_base_tests(stage, context, build, mode, parameters)
+                    run_base_tests(stage, context, builds, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-                    run_ej_tests(stage, context, build, mode, parameters)
+                    run_ej_tests(stage, context, builds, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                    run_edr_tests(stage, context, build, mode, parameters)
+                    run_edr_tests(stage, context, builds, mode, parameters)
 
                 if build_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-                    run_liveterminal_tests(stage, context, build, mode, parameters)
-
-
-def truthy(value, parameterName, defaultValue):
-    if value in (True, "true", 1, "1", "T", "True"):
-        return True
-    if value in (False, "false", 0, "0", "F", "False"):
-        return False
-    if value is None:
-        return defaultValue
-    print(f"{parameterName} is not a good truthy value: {value}, assuming {defaultValue}")
-    return defaultValue
+                    run_liveterminal_tests(stage, context, builds, mode, parameters)
 
 
 @tap.pipeline(version=1, component='linux-mono-repo')
@@ -100,13 +107,12 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
             with stage.parallel("cmake"):
                 cmake_pipeline(stage, context, parameters, mode, build_selection)
 
-        if (
+            if (
                 build_selection == BUILD_SELECTION_ALL and
-                parameters.run_system_tests != "false" and
-                mode == RELEASE_MODE and
-                cmake
-        ):
-            sdds(stage, context, parameters)
+                truthy(parameters.run_system_tests, "run_system_tests", True) and
+                mode == RELEASE_MODE
+            ):
+                sdds(stage, context, parameters)
 
 
 def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str, build_selection: str):

@@ -21,7 +21,12 @@ INPUTS_DIR = '/opt/test/inputs'
 NAME = "event_journaler"
 
 
-def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str, arch: str):
+def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, ej_x86_64_build: ArtisanInput, mode: str, arch: str):
+    if ej_build is None:
+        return None
+    if ej_x86_64_build is None:
+        return None
+
     test_inputs = None
     if mode == 'release':
         config = f"linux_{arch}_rel"
@@ -30,7 +35,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str, 
             event_journaler_sdds=ej_build / f'eventjournaler/{config}/installer',
             manual_tools=ej_build / f'eventjournaler/{config}/manualTools',
             base_sdds=ej_build / f'base/{config}/installer',
-            fake_management=ej_build / 'base/fake_management',
+            fake_management=ej_x86_64_build / 'base/fake_management',
         )
     if mode == 'coverage':
         test_inputs = dict(  # TODO check this by setting mode and tap ls
@@ -41,7 +46,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str, 
             coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
             coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
             base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
-            fake_management=ej_build / 'sspl-plugin-eventjournaler-coverage/base/fake-management',
+            fake_management=ej_x86_64_build / 'sspl-plugin-eventjournaler-coverage/base/fake-management',
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
         )
     return test_inputs
@@ -139,14 +144,14 @@ def run_ej_coverage_tests(stage, context, ej_coverage_build, mode, parameters):
                    robot_args=robot_args)
 
 
-def run_ej_tests(stage, context, ej_build, mode, parameters):
+def run_ej_tests(stage, context, builds, mode, parameters):
     # # Modes where we do not want to run TAP tests.
     # if mode in [ANALYSIS_MODE]:
     #     return
 
     test_inputs = {
-        "x64": get_inputs(context, ej_build, mode, "x64"),
-        "arm64": get_inputs(context, ej_build, mode, "arm64")
+        "x64": get_inputs(context, builds["x86_64"], builds["x86_64"], mode, "x64"),
+        "arm64": get_inputs(context, builds["arm64"], builds["x86_64"], mode, "arm64")
     }
     machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)

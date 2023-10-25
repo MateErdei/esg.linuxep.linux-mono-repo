@@ -7,6 +7,7 @@ from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
     COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages, python
+from pipeline import common
 
 PACKAGE_PATH = "./base/build/release-package.xml"
 INPUTS_DIR = '/opt/test/inputs'
@@ -24,7 +25,12 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
 
-def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str, arch: str):
+def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, x86_64_base_build: ArtisanInput, mode: str, arch: str):
+    if base_build is None:
+        return None
+    if x86_64_base_build is None:
+        return None
+
     thirdparty_all = unified_artifact(context, "thirdparty.all",
                                       "develop", "build")
     openssl = None
@@ -45,7 +51,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             common_test_robot=context.artifact.from_folder('./common/TA/robot'),
-            thininstaller=base_build / f"thininstaller/thininstaller",
+            thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
             sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
     if mode == 'debug':
@@ -58,7 +64,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             openssl=openssl,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            thininstaller=base_build / f"thininstaller/thininstaller",
+            thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
             sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
     if mode == 'coverage':
@@ -237,13 +243,13 @@ def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameter
                    robot_args=robot_args)
 
 
-def run_base_tests(stage, context, base_build, mode, parameters):
+def run_base_tests(stage, context, builds, mode, parameters):
     # exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
 
     base_test_inputs = {
-        "x64": get_base_test_inputs(context, base_build, mode, "x64"),
-        "arm64": get_base_test_inputs(context, base_build, mode, "arm64")
+        "x64": get_base_test_inputs(context, builds[common.x86_64], builds[common.x86_64], mode, "x64"),
+        "arm64": get_base_test_inputs(context, builds[common.arm64], builds[common.x86_64], mode, "arm64")
     }
     base_test_machines = get_test_machines(base_test_inputs, parameters)
     robot_args = get_robot_args(parameters)

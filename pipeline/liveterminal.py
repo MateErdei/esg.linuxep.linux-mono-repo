@@ -23,6 +23,8 @@ INPUTS_DIR = '/opt/test/inputs'
 
 def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, mode: str, arch: str = "x64"):
     test_inputs = None
+    if liveterminal_build is None:
+        return None
 
     if mode == 'coverage':
         test_inputs = dict(
@@ -198,14 +200,14 @@ def run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build,
                    robot_args=robot_args)
 
 
-def run_liveterminal_tests(stage, context, liveterminal_build, mode, parameters):
+def run_liveterminal_tests(stage, context, builds, mode, parameters):
     # # Modes where we do not want to run TAP tests.
     # if mode in [ANALYSIS_MODE]:
     #     return
 
     test_inputs = {
-        "x64": get_inputs(context, liveterminal_build, mode, "x64"),
-        "arm64": get_inputs(context, liveterminal_build, mode, "arm64")
+        "x64": get_inputs(context, builds["x86_64"], mode, "x64"),
+        "arm64": get_inputs(context, builds["arm64"], mode, "arm64")
     }
     machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)

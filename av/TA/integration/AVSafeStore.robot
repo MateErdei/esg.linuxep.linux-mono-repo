@@ -17,9 +17,12 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SafeStoreUtils.py
+Library         ../Libs/TapTestOutput.py
 
 Library         OperatingSystem
 Library         Collections
+
+Suite Setup     SafeStore Suite Setup
 
 Test Setup      SafeStore Test Setup
 Test Teardown   SafeStore Test TearDown
@@ -56,8 +59,7 @@ SafeStore Can Reinitialise Database Containing Threats
     Check avscanner can detect eicar
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
 
-    ${filesInSafeStoreDb1} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb1.stdout}
+    ${filesInSafeStoreDb1} =  Run safestore print tool
 
     Stop SafeStore
     Check Safestore Not Running
@@ -72,8 +74,7 @@ SafeStore Can Reinitialise Database Containing Threats
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     Should Be Equal As Strings    ${ssPassword1}    ${ssPassword2}
 
-    ${filesInSafeStoreDb2} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb2.stdout}
+    ${filesInSafeStoreDb2} =  Run safestore print tool
 
     Should Be Equal    ${filesInSafeStoreDb1.stdout}    ${filesInSafeStoreDb2.stdout}
 
@@ -421,8 +422,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${SCAN_DIRECTORY}/${eicar1} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
@@ -434,8 +434,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -448,8 +447,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar3} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
@@ -486,8 +484,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar1} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
@@ -499,8 +496,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -513,8 +509,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar3} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
@@ -619,8 +614,7 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${filesInSafeStoreDb.stdout}
+    ${filesInSafeStoreDb} =  Run safestore print tool
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -1009,8 +1003,7 @@ AV Plugin Does Not Quarantine File When SafeStore Is Disabled
 
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${print_tool_result.stdout}
+    ${print_tool_result} =  Run safestore print tool
     Should Not Contain  ${print_tool_result.stdout}  eicar.com
 
 
@@ -1046,8 +1039,7 @@ SafeStore Does Not Quarantine Ml Detection By Default
 
     File Should Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${print_tool_result.stdout}
+    ${print_tool_result} =  Run safestore print tool
     Should Not Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
 
@@ -1084,11 +1076,13 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
     ...  result=0
     ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${print_tool_result.stdout}
+    ${print_tool_result} =  Run safestore print tool
     Should Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
 Safestore Quarantines On Access Execute Detection
+    # LINUXDAR-8247: Can't run x86 binary on ARM64, and need new exe and IDE before we can make the test handle ARM64
+    [Tags]  exclude_arm64
+
     ${oa_mark} =  get_on_access_log_mark
     ${ss_mark} =  Get SafeStore Log Mark
 
@@ -1129,8 +1123,7 @@ SafeStore Quarantines Pua Detection
 
     File Should Not Exist  ${threat_path}
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
-    Log  ${print_tool_result.stdout}
+    ${print_tool_result} =  Run safestore print tool
     Should Contain  ${print_tool_result.stdout}  eicar_pua
 
 Threat Can Be Restored From Persisted SafeStore Database
@@ -1545,6 +1538,11 @@ Safestore does not quarantine immutable files
 
 
 *** Keywords ***
+
+SafeStore Suite Setup
+    ${AV_TEST_TOOLS} =  TapTestOutput.Extract Tap Test Output
+    set suite variable   \${AV_TEST_TOOLS}  ${AV_TEST_TOOLS}
+
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
     LogUtils.save_log_marks_at_start_of_test
@@ -1645,3 +1643,8 @@ Start On Access And SafeStore
 
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
     wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+
+Run safestore print tool
+    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    Log  ${print_tool_result.stdout}
+    [Return]  ${print_tool_result}
