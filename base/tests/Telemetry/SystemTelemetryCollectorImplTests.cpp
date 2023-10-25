@@ -70,6 +70,15 @@ namespace {
         };
     }
 
+    Telemetry::SystemTelemetryConfig archTelemetryConfig()
+    {
+        return
+                {
+                        {"architecture",
+                         Telemetry::systemTelemetryObjectsConfig().at("architecture")}
+                };
+    }
+
 } // namespace
 
 class SystemTelemetryCollectorImplTests : public ::testing::Test
@@ -159,6 +168,45 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
 
     auto intValue = systemTelemetryCollectorImpl.collectObjects();
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
+}
+
+
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsArchitecture)
+{
+    setupMockProcesses(1);
+    auto& mockProcess_ = mockProcesses_[0];
+
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(archTelemetryConfig(), {});
+
+    EXPECT_CALL(*mockProcess_, exec(_, _));
+    EXPECT_CALL(*mockProcess_, setOutputLimit(_));
+    EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return("x86_64\n"));
+    EXPECT_CALL(*mockProcess_, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
+
+    auto intValue = systemTelemetryCollectorImpl.collectObjects();
+    auto architecture = intValue.find("architecture");
+    ASSERT_NE(architecture, intValue.cend());
+    ASSERT_EQ(std::get<std::string>(architecture->second[0].second), "x86_64");
+}
+
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsArchitectureReturnsNothingWhenOutputIsMalformed)
+{
+    setupMockProcesses(1);
+    auto& mockProcess_ = mockProcesses_[0];
+
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(archTelemetryConfig(), {});
+
+    EXPECT_CALL(*mockProcess_, exec(_, _));
+    EXPECT_CALL(*mockProcess_, setOutputLimit(_));
+    EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return("?x86_64\n"));
+    EXPECT_CALL(*mockProcess_, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
+
+    auto intValue = systemTelemetryCollectorImpl.collectObjects();
+
+    ASSERT_EQ(intValue.find("architecture"), intValue.end());
+
 }
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues)

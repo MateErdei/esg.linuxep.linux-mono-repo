@@ -49,7 +49,6 @@ namespace Telemetry
 
         std::string getTelemetryItem(const std::string& command, std::vector<std::string> args) const;
         std::vector<std::string> matchSingleLine(std::istringstream& stream, const std::regex& re) const;
-        std::string getSystemCommandExecutablePath(const std::string& executableName) const;
 
         Telemetry::SystemTelemetryConfig m_objectsConfig;
         Telemetry::SystemTelemetryConfig m_arraysConfig;

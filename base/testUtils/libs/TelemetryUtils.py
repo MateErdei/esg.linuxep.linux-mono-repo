@@ -85,6 +85,7 @@ class TelemetryUtils:
         update_system_telemetry_dict(telemetry, "selinux", system_info.get_selinux_status)
         update_system_telemetry_dict(telemetry, "apparmor", system_info.get_apparmor_status)
         update_system_telemetry_dict(telemetry, "auditd", system_info.get_auditd_status)
+        update_system_telemetry_dict(telemetry, "architecture", system_info.get_arch)
         telemetry["mcs-connection"] = MCSProxy
         return telemetry
 

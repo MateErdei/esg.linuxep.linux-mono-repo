@@ -33,7 +33,10 @@ namespace Telemetry
                   "systemctl", { "is-active", "apparmor" }, R"(^(\w+)$)", { { "", TelemetryValueType::STRING } } } },
             { "auditd",
               SystemTelemetryTuple{
-                  "systemctl", { "is-active", "auditd" }, R"(^(\w+)$)", { { "", TelemetryValueType::STRING } } } }
+                  "systemctl", { "is-active", "auditd" }, R"(^(\w+)$)", { { "", TelemetryValueType::STRING } } } },
+            { "architecture",
+                    SystemTelemetryTuple{
+                            "uname", { "-m"}, R"(^(\w+)$)", { { "", TelemetryValueType::STRING } } } }
         };
     }
 

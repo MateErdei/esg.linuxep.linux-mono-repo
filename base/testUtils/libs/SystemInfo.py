@@ -63,7 +63,7 @@ def get_os_version():
 
 
 def get_arch():
-    return get_value_after_prefix_from_command(["/usr/bin/hostnamectl"], "Architecture:")
+    return get_value_from_command(["uname", "-m"])
 
 
 def get_number_of_cpu_cores():
