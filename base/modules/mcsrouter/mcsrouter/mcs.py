@@ -445,6 +445,8 @@ class MCS:
                 self.__m_computer.add_adapter(
                     liveresponse_adapter.LiveResponseAdapter(app, path_manager.install_dir())
                 )
+            elif app == "MCS":
+                LOGGER.debug("Do nothing here as we don't want to override MCS adapter with Generic adapter")
             else:
                 LOGGER.debug( "Add Generic adapter for app {}".format(app))
                 self.__m_computer.add_adapter(

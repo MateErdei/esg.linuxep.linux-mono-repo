@@ -206,6 +206,40 @@ Sul Downloader Installs SDDS3 Through update cache
     ...    5s
     ...    Check MCS Envelope Contains Event with Update cache   1
 
+Sul Downloader Installs SDDS3 Through message relay
+    Start Simple Proxy Server    3333
+
+    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_proxy.xml    --initial-alc-policy  /tmp/ALC_policy.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8081
+
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    File Should Contain  ${UPDATE_CONFIG}     "JWToken"
+
+    wait_for_log_contains_from_mark    ${sul_mark}    Trying SUS request (https://localhost:8080) with proxy: localhost:3333   timeout=20
+    wait_for_log_contains_from_mark    ${sul_mark}    SUS Request was successful    timeout=20
+    wait_for_log_contains_from_mark    ${sul_mark}    Trying update via update cache: https://localhost:8080     timeout=20
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success     timeout=60
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check MCS Envelope Contains Event with Update cache   1
+
+    check_suldownloader_log_should_not_contain     Trying SUS request (https://localhost:8080) without proxy
+
+
 
 Sul Downloader falls back to direct when proxy and UC do not work
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem

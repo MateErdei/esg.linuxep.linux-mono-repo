@@ -719,6 +719,9 @@ class LogUtils(object):
         self.check_log_contains(string_to_contain, self.mcs_router_log, "MCS Router")
         logger.info(self.mcs_router_log)
 
+    def check_mcsrouter_log_contains_pattern(self, pattern_to_contain):
+        self.check_string_matching_regex_in_file(self.mcs_router_log, pattern_to_contain)
+
     def check_mcsrouter_log_contains_in_order(self, *args):
         log_contains_in_order(self.mcs_router_log, "MCS Router", args)
 

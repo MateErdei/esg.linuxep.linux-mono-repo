@@ -9,7 +9,7 @@
             <server>https://localhost:4443/mcs</server>
         </servers>
         <messageRelays>
-           <messageRelay priority="0" port="3333" address="localhost" id="9124628d-f986-48cb-a961-ca622ff6cb4f"/>
+           <messageRelay priority="1" port="3333" address="localhost" id="9124628d-f986-48cb-a961-ca622ff6cb4f"/>
            <messageRelay priority="0" port="8190" address="broken.sophos.com" id="10d66d25-9657-449d-9f82-e03d5b1bcdbe"/>
          </messageRelays>
         <useSystemProxy>true</useSystemProxy>

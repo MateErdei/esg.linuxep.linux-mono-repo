@@ -7,6 +7,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include "Common/Policy/ALCPolicy.h"
+#include "Common/Policy/MCSPolicy.h"
 #include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "cmcsrouter/Config.h"
@@ -496,6 +497,7 @@ int main(int argc, char** argv)
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
 
         std::optional<std::string> alcPolicyXml;
+        std::optional<std::string> mcsPolicyXml;
         try
         {
             alcPolicyXml = mcsCalls.getPolicy(httpClient, "ALC", 1, std::chrono::seconds{900}, std::chrono::seconds{20});
@@ -505,6 +507,18 @@ int main(int argc, char** argv)
             logError("Failed to get ALC policy");
             return 53;
         }
+        try
+        {
+            mcsPolicyXml = mcsCalls.getPolicy(httpClient, "MCS", 25, std::chrono::seconds{900}, std::chrono::seconds{20});
+        }
+        catch(...)
+        {
+            logError("Failed to get MCS policy");
+            return 53;
+        }
+
+        Common::Policy::UpdateSettings updateSettings;
+
         if (alcPolicyXml.has_value())
         {
             try
@@ -512,7 +526,7 @@ int main(int argc, char** argv)
                 logDebug("ALC policy: " + alcPolicyXml.value());
                 auto alcPolicy = std::make_shared<Common::Policy::ALCPolicy>(alcPolicyXml.value());
 
-                auto updateSettings = alcPolicy->getUpdateSettings();
+                updateSettings = alcPolicy->getUpdateSettings();
                 updateSettings.setJWToken(jwt[MCS::JWT_TOKEN]);
                 updateSettings.setDeviceId(jwt[MCS::DEVICE_ID]);
                 updateSettings.setTenantId(jwt[MCS::TENANT_ID]);
@@ -567,19 +581,73 @@ int main(int argc, char** argv)
                     }
                 }
 
-                auto updateConfigJson = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
-                logDebug("Writing to update config: " + updateConfigJson);
-                fs->writeFile("./update_config.json", updateConfigJson);
             }
             catch (...)
             {
-                logError("Failed to write to update config from translated ALC policy");
+                logError("Failure: ALC policy is empty");
                 return 53;
             }
         }
         else
         {
             logError("Failure: ALC policy is empty");
+            return 53;
+        }
+
+        if (mcsPolicyXml.has_value())
+        {
+            try
+            {
+                logDebug("MCS policy: " + mcsPolicyXml.value());
+                auto mcsPolicy = std::make_shared<Common::Policy::MCSPolicy>(mcsPolicyXml.value());
+
+                updateSettings.setLocalMessageRelayHosts(mcsPolicy->getMessageRelaysHostNames());
+
+                std::string messageRelayOverride;
+                auto val = std::getenv("MESSAGE_RELAY_OVERRIDE");
+                if (val != nullptr)
+                {
+                    messageRelayOverride = std::string(val);
+                }
+
+                if (messageRelayOverride == "none")
+                {
+                    updateSettings.setLocalMessageRelayHosts({});
+                }
+                else
+                {
+                    if (!relays.empty())
+                    {
+                        // override policy message relays with the ones from the thinstaller
+                        std::vector<std::string> messageRelays;
+                        for (const auto& relay: relays)
+                        {
+                            std::string fullAddress = relay.address+":"+relay.port;
+                            messageRelays.push_back(fullAddress);
+                        }
+                        updateSettings.setLocalMessageRelayHosts(messageRelays);
+                    }
+                }
+
+
+            }
+            catch(...)
+            {
+                logError("Failure: Error with MCS policy");
+                return 53;
+            }
+        }
+
+        // writing to update config
+        try
+        {
+            auto updateConfigJson = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
+            logDebug("Writing to update config: " + updateConfigJson);
+            fs->writeFile("./update_config.json", updateConfigJson);
+        }
+        catch(...)
+        {
+            logError("Failed to write to update config from translated ALC/MCS Policy");
             return 53;
         }
 

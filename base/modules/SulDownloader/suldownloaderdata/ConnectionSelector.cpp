@@ -128,11 +128,12 @@ std::pair<std::vector<ConnectionSetup>, std::vector<ConnectionSetup>> Connection
 {
     std::vector<Proxy> proxies = SulDownloader::suldownloaderdata::ConfigurationData::proxiesList(updateSettings);
     std::vector<std::string> UpdateCaches = updateSettings.getLocalUpdateCacheHosts();
+    std::vector<std::string> MessageRelays = updateSettings.getLocalMessageRelayHosts();
 
     std::vector<std::string> susUrl = { updateSettings.getSophosSusURL() };
     std::vector<std::string> cdnUrls = updateSettings.getSophosCDNURLs();
 
-    std::vector<ConnectionSetup> susCandidates = getSDDS3Candidates(proxies, susUrl, "URLS", UpdateCaches);
+    std::vector<ConnectionSetup> susCandidates = getSDDS3Candidates(proxies, susUrl, "URLS", MessageRelays);
     std::vector<ConnectionSetup> cdnCandidates = getSDDS3Candidates(proxies, cdnUrls, "CDN_URL", UpdateCaches);
 
     return std::make_pair(susCandidates, cdnCandidates);

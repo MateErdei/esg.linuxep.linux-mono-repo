@@ -1,5 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "Logger.h"
 #include "SerialiseUpdateSettings.h"
 
 #include "Common/Policy/ConfigurationSettings.pb.h"
@@ -65,6 +66,10 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     auto updateCacheUrls = settings.updatecache();
     std::vector<std::string> updateCaches(std::begin(updateCacheUrls), std::end(updateCacheUrls));
     updateSettings.setLocalUpdateCacheHosts(updateCaches);
+
+    auto messageRelayUrls = settings.messagerelay();
+    std::vector<std::string> messageRelays(std::begin(messageRelayUrls), std::end(messageRelayUrls));
+    updateSettings.setLocalMessageRelayHosts(messageRelays);
 
     Proxy proxy(
         settings.proxy().url(),
@@ -142,6 +147,11 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     for (const auto& cacheUrl : updateSettings.getLocalUpdateCacheHosts())
     {
         settings.add_updatecache()->assign(cacheUrl);
+    }
+
+    for (const auto& relayUrl : updateSettings.getLocalMessageRelayHosts())
+    {
+        settings.add_messagerelay()->assign(relayUrl);
     }
 
     settings.mutable_sophossusurl()->assign(updateSettings.getSophosSusURL());

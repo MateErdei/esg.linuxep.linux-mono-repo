@@ -6,6 +6,7 @@ message ConfigurationSettings
 {
     repeated string sophosCdnURLs = 1;
     repeated string updateCache = 2;
+    repeated string messageRelay = 25;
 
     message ProxyCredentialT
     {

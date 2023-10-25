@@ -26,6 +26,9 @@ public:
                                "updateCache": [
                                "https://cache.sophos.com/latest/warehouse"
                                ],
+                               "messageRelay": [
+                               "localhost"
+                               ],
                                "proxy": {
                                "url": "noproxy:",
                                "credential": {

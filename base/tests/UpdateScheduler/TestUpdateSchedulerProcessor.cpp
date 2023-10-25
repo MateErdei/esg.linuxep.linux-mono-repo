@@ -54,6 +54,40 @@ static const std::string updatePolicy{ R"sophos(<?xml version="1.0"?>
 </AUConfigurations>
 )sophos" };
 
+static std::string createMCSPolicy()
+{
+    std::string mcspolicy = R"(<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+    <meta protocolVersion="1.1"/>
+    <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
+        <deviceId>example-device-id</deviceId>
+        <registrationToken>PolicyRegToken</registrationToken>
+        <servers>
+            <server>https://localhost:4443/mcs</server>
+        </servers>
+        <messageRelays>
+            <messageRelay priority="1" address="1.1.1.1.1" port="90" id="2.2.2.2.1"/>
+        </messageRelays>
+        <useSystemProxy>true</useSystemProxy>
+        <useAutomaticProxy>true</useAutomaticProxy>
+        <useDirect>true</useDirect>
+        <randomSkewFactor>1</randomSkewFactor>
+        <commandPollingDelay default="5"/>
+        <flagsPollingInterval default="14400"/>
+        <diagnosticTrailEnabled>true</diagnosticTrailEnabled>
+        <policyChangeServers/>
+        <pushServers/>
+        <presignedUrlService>
+            <url>https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep/presignedurls</url>
+            <credentials>CCDmhj1cKco2P5YfLRaVBmF3zlDDaum+OsQ8tsmZCmEH4rzKvK2tm0P9Bl9plrQtGHoeBsno2Jal7bCsnnVVK4HEnhK2xNDA2UkJnrrBvYwINrgI0AytwyHvhYXvjYYJymQ=</credentials>
+        </presignedUrlService>
+    </configuration>
+</policy>)";
+
+    return mcspolicy;
+}
+
 std::string jsonString = R"({
                                "sophosURLs": [
                                "https://sophosupdate.sophos.com/latest/warehouse"
@@ -195,6 +229,7 @@ TEST_F(TestUpdateSchedulerProcessor, NoUpdateTriggeredIfpolicyIsSameAsExistingCo
 
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, updatePolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
     taskQueue_->pushStop();
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
@@ -222,6 +257,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeature)
 
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
     scopedReplaceFileSystem.reset();
@@ -256,6 +292,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeatureEvenWhe
         R"(<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>)");
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
     scopedReplaceFileSystem.reset();
@@ -286,6 +323,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEv
         );
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
     scopedReplaceFileSystem.reset();
@@ -318,6 +356,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewFeatureEvenWhe
 
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
     scopedReplaceFileSystem.reset();
@@ -348,6 +387,7 @@ TEST_F(TestUpdateSchedulerProcessor, UpdateTriggeredIfPolicyHasNewSubscriptionEv
         );
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, ALCPolicy ,"ALC"});
     taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, {} ,"MCS"});
 
     EXPECT_NO_THROW(updateScheduler.mainLoop());
     scopedReplaceFileSystem.reset();
@@ -406,4 +446,43 @@ TEST_F(TestUpdateSchedulerProcessor, TelemetryWithoutScheduledUpdatingEnabled)
     EXPECT_EQ(telemetry[UpdateSchedulerImpl::Telemetry::scheduledUpdatingTime], nullptr);
 
     scopedReplaceFileSystem.reset();
+}
+
+TEST_F(TestUpdateSchedulerProcessor, processMCSPolicySuccess)
+{
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("mcs.config"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*fileSystemMock_, exists(HasSubstr("update_config.json"))).WillRepeatedly(Return(true));
+    EXPECT_CALL(*fileSystemMock_, exists(HasSubstr("/opt/sophos-spl/base/update/var/updatescheduler/installed_features.json"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*fileSystemMock_, exists(HasSubstr("flags-mcs.json"))).WillRepeatedly(Return(true));
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return(true));
+    EXPECT_CALL(*fileSystemMock_, readFile(HasSubstr("machine_id.txt"))).WillRepeatedly(Return("id"));
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_config.json"))).WillOnce(Return(false)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*fileSystemMock_, readFile(HasSubstr("update_config.json"))).WillRepeatedly(Return(jsonString));
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("upgrade_marker_file"))).WillRepeatedly(Return(false));
+    EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
+    if (false)
+    {
+        EXPECT_CALL(*fileSystemMock_, removeFile(HasSubstr("supplement_only.marker"),true));
+    }
+    EXPECT_CALL(*fileSystemMock_, listFiles(_)).WillRepeatedly(Return(std::vector<std::string>{}));
+    EXPECT_CALL(*fileSystemMock_, writeFileAtomically(_,HasSubstr(R"sophos("messageRelay": [
+  "1.1.1.1.1:90")sophos"),_)).Times(AnyNumber());
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(fileSystemMock_));
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+            taskQueue_,
+            std::move(baseServiceMock_),
+            sharedPluginCallBack_,
+            std::move(cronThread_),
+            std::move(downloaderRunnerMock_));
+
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, updatePolicy ,"ALC"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, "{}" ,"FLAGS"});
+    taskQueue_->push(UpdateScheduler::SchedulerTask{ policy_, createMCSPolicy() ,"MCS"});
+    taskQueue_->pushStop();
+
+    EXPECT_NO_THROW(updateScheduler.mainLoop());
+    scopedReplaceFileSystem.reset();
+
 }

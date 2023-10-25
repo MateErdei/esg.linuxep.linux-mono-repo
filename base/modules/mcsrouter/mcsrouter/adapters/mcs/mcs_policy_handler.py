@@ -7,6 +7,7 @@ mcs_policy_handler Module
 
 import logging
 import os
+import stat
 import xml.dom.minidom
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
@@ -75,6 +76,7 @@ class MCSPolicyHandler:
 
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), self.policy_base_name())
         mcsrouter.utils.filesystem_utils.utf8_write(policy_path_tmp, policy_xml)
+        os.chmod(policy_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP)
 
     def __load_policy(self):
         """

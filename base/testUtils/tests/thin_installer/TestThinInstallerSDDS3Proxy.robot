@@ -113,6 +113,9 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
+    Check suldownloader log contains   Trying SUS request (https://localhost:8080) with proxy: localhost:20000
+    check_suldownloader_log_should_not_contain  Trying SUS request (https://localhost:8080) without proxy
+
 SDDS3 Thin Installer Digest Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean

@@ -36,7 +36,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidates)
 
     EXPECT_FALSE(susCandidates[0].isCacheUpdate());
     EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "localhost");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
     EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
@@ -121,11 +121,11 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesWithOverride)
 
     EXPECT_FALSE(susCandidates[0].isCacheUpdate());
     EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://localhost:8081");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "localhost");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
     EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://localhost2:8081");
-    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[1].getProxy().getUrl(), "localhost");
 
     EXPECT_FALSE(susCandidates[2].isCacheUpdate());
     EXPECT_STREQ(susCandidates[2].getUpdateLocationURL().c_str(), "https://localhost:8081");
@@ -158,7 +158,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesHandlesEnvProxy)
 
     EXPECT_FALSE(susCandidates[0].isCacheUpdate());
     EXPECT_STREQ(susCandidates[0].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");
-    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_EQ(susCandidates[0].getProxy().getUrl(), "localhost");
 
     EXPECT_FALSE(susCandidates[1].isCacheUpdate());
     EXPECT_STREQ(susCandidates[1].getUpdateLocationURL().c_str(), "https://sus.sophosupd.com");

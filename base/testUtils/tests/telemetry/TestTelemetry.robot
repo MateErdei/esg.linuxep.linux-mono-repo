@@ -53,7 +53,7 @@ Cleanup Telemetry Tests
 ### Test setup
 
 Create Empty SulDownloader Config
-    Create File    ${UPDATE_CONFIG}
+    Create File    ${UPDATE_CONFIG}      {}
 
 Telemetry Test Setup
     Prepare To Run Telemetry Executable
@@ -164,11 +164,16 @@ Telemetry Executable Generates Update Scheduler Telemetry
     Cleanup Telemetry Server
     Require Fresh Install
 
-    Create Empty SulDownloader Config
+    Override LogConf File as Global Level  DEBUG
+
+    Restart Update Scheduler
+
+    Create File    ${UPDATE_CONFIG}    {}
     setup mcs config with JWT token
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy Into Place
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    Drop MCS Policy Into Place
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing MCSPolicy    ${10}
 
     Prepare To Run Telemetry Executable
 
@@ -186,11 +191,17 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
     Cleanup Telemetry Server
     Require Fresh Install
 
+    Override LogConf File as Global Level  DEBUG
+
+    Restart Update Scheduler
+
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy With Fixed Version Into Place
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    Drop MCS Policy Into Place
+
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing MCSPolicy    ${10}
 
     Prepare To Run Telemetry Executable
 
@@ -232,11 +243,16 @@ Telemetry Executable Generates Update Scheduler Telemetry With ESM Set In Policy
     Cleanup Telemetry Server
     Require Fresh Install
 
+    Override LogConf File as Global Level  DEBUG
+
+    Restart Update Scheduler
+
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy With ESM Into Place     ${esmname}    f4d41a16-b751-4195-a7b2-1f109d49469d
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    Drop MCS Policy Into Place
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing MCSPolicy    ${10}
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -493,13 +509,19 @@ Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
     Cleanup Telemetry Server
     Require Fresh Install
 
+    Override LogConf File as Global Level  DEBUG
+
+    Restart Update Scheduler
+
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy Into Place
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    Drop MCS Policy Into Place
+
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing MCSPolicy    ${10}
 
     Prepare To Run Telemetry Executable
 
@@ -527,13 +549,19 @@ Telemetry Executable Moves ESM to Top Level When ESM Enabled
     Cleanup Telemetry Server
     Require Fresh Install
 
+    Override LogConf File as Global Level  DEBUG
+
+    Restart Update Scheduler
+
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Drop ALC Policy With ESM Into Place     ${esmname}    ${esmtoken}
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing Flags    ${10}
+    Drop MCS Policy Into Place
+
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Processing MCSPolicy    ${10}
 
     Prepare To Run Telemetry Executable
 

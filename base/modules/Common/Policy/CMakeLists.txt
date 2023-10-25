@@ -19,6 +19,10 @@ add_library(policyobject OBJECT
         ESMVersion.h
         Logger.cpp
         Logger.h
+        MCSPolicy.cpp
+        MCSPolicy.h
+        PolicyHelper.h
+        PolicyHelper.cpp
         PolicyParseException.h
         ProductSubscription.h
         Proxy.cpp
@@ -32,7 +36,7 @@ add_library(policyobject OBJECT
         WeekDayAndTimeForDelay.h
         ${CONFIG_SETTINGS_PROTO_SRC}
         ${CONFIG_SETTINGS_PROTO_H}
-        )
+)
 
 
 include_directories(policyobject BEFORE ${CMAKE_BINARY_DIR}/modules ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ${SOPHLIB_INCLUDE})

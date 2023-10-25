@@ -83,7 +83,8 @@ Systemctl Can Detect SulDownloader Service Runs Without Error After Error Report
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
     Should Be Equal As Integers  ${result.rc}  ${0}  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
-    Replace Original Sul Downloader
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
 
     ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service

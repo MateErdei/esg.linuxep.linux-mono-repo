@@ -13,6 +13,7 @@
 #include "Common/OSUtilitiesImpl/SXLMachineID.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"
+#include "Common/Policy/MCSPolicy.h"
 #include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UpdateUtilities/ConfigurationDataUtil.h"
@@ -103,6 +104,7 @@ namespace UpdateSchedulerImpl
         m_policyReceived(false),
         m_pendingUpdate(false),
         m_flagsPolicyProcessed(false),
+        mcsPolicyProcessed_(false),
         m_forceUpdate(false),
         m_forcePausedUpdate(false),
         m_useSDDS3DeltaV2(false),
@@ -268,6 +270,10 @@ namespace UpdateSchedulerImpl
         {
             processFlags(policyXml);
         }
+        else if (appId == UpdateSchedulerProcessor::MCS_API)
+        {
+            processMCSPolicy(policyXml);
+        }
         else
         {
             LOGWARN("Received " << appId << " policy unexpectedly");
@@ -293,10 +299,18 @@ namespace UpdateSchedulerImpl
             processFlags(flagsPolicy);
         }
 
+        if (!mcsPolicyProcessed_)
+        {
+            // Waiting for MCS policy to attempt to get the latest central MCS policy
+            std::string mcsPolicy = waitForPolicy(*m_queueTask, 5, UpdateSchedulerProcessor::MCS_API);
+            processMCSPolicy(mcsPolicy);
+
+        }
+
         try
         {
             auto updateSettings = m_policyTranslator.translatePolicy(policyXml);
-
+            updateSettings.configurationData.setLocalMessageRelayHosts(messageRelay_);
             if (!updateSettings.updateCacheCertificatesContent.empty())
             {
                 saveUpdateCacheCertificate(updateSettings.updateCacheCertificatesContent);
@@ -507,6 +521,33 @@ namespace UpdateSchedulerImpl
             currentConfigData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             currentConfigData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             writeConfigurationData(currentConfigData);
+        }
+    }
+
+    void UpdateSchedulerProcessor::processMCSPolicy(const std::string& policyXml)
+    {
+
+        mcsPolicyProcessed_ = true;
+
+        LOGINFO("Processing MCSPolicy");
+        LOGDEBUG("MCSPolicy: " << policyXml);
+        if (policyXml.empty())
+        {
+            return;
+        }
+
+        Common::Policy::MCSPolicy mcsPolicy(policyXml);
+
+        messageRelay_ = mcsPolicy.getMessageRelaysHostNames();
+
+        if (Common::FileSystem::fileSystem()->exists(m_configfilePath))
+        {
+            auto config = UpdateSchedulerUtils::getCurrentConfigurationData();
+            if (config.has_value()) {
+                auto currentConfigData = config.value();
+                currentConfigData.setLocalMessageRelayHosts(mcsPolicy.getMessageRelaysHostNames());
+                writeConfigurationData(currentConfigData);
+            }
         }
     }
 

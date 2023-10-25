@@ -19,6 +19,7 @@ namespace Common::Policy
         static const std::vector<std::string> DefaultSophosCDNUrls;
         static const std::string DefaultSophosSusUrl;
         using UpdateCacheHosts_t = std::vector<std::string>;
+        using MessageRelayHosts_t = std::vector<std::string>;
 
         enum class LogLevel
         {
@@ -36,6 +37,18 @@ namespace Common::Policy
         }
 
         [[nodiscard]] UpdateCacheHosts_t getLocalUpdateCacheHosts() const { return localUpdateCacheHosts_; }
+
+        /**
+         * Sets the list of hostnames for the local cache warehouse repositories
+         * @param list of MessageRelay hostnames
+         */
+        void setLocalMessageRelayHosts(const MessageRelayHosts_t& localMessageRelayHosts)
+        {
+            localMessageRelayHosts_ = localMessageRelayHosts;
+
+        }
+
+        [[nodiscard]] MessageRelayHosts_t getLocalMessageRelayHosts() const {return localMessageRelayHosts_;}
 
         /**
          * Sets the configured update proxy
@@ -283,6 +296,7 @@ namespace Common::Policy
     protected:
         ESMVersion esmVersion_;
         UpdateCacheHosts_t localUpdateCacheHosts_;
+        MessageRelayHosts_t localMessageRelayHosts_;
         ProductSubscription primarySubscription_;
         std::vector<ProductSubscription> productSubscriptions_;
         url_list_t sophosCDNURLs_;

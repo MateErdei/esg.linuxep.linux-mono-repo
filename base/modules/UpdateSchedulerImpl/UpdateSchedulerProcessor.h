@@ -50,6 +50,7 @@ namespace UpdateSchedulerImpl
         inline static const std::string ALC_API = "ALC";
         inline static const std::string VERSIONID = "1";
         inline static const std::string FLAGS_API = "FLAGS";
+        inline static const std::string MCS_API = "MCS";
 
     public:
         UpdateSchedulerProcessor(
@@ -71,6 +72,7 @@ namespace UpdateSchedulerImpl
         void waitForSulDownloaderToFinish(int numberOfSecondsToWait);
         void processALCPolicy(const std::string& policyXml);
         void processFlags(const std::string& flagsContent);
+        void processMCSPolicy(const std::string& policyXml);
 
         void processUpdateNow(const std::string& actionXml);
         void processScheduleUpdate(bool UpdateNow = false);
@@ -101,6 +103,7 @@ namespace UpdateSchedulerImpl
         bool m_policyReceived;
         bool m_pendingUpdate;
         bool m_flagsPolicyProcessed;
+        bool mcsPolicyProcessed_;
         bool m_forceUpdate;
         bool m_forcePausedUpdate;
         bool m_useSDDS3DeltaV2;
@@ -109,5 +112,6 @@ namespace UpdateSchedulerImpl
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;
         inline static int QUEUE_TIMEOUT = 5;
         std::map<std::string, std::string> m_currentPolicies{};
+        std::vector<std::string> messageRelay_;
     };
 } // namespace UpdateSchedulerImpl

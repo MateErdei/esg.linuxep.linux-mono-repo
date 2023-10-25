@@ -47,6 +47,8 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
     Start MCSRouter
     Set Fake Plugin App Id   LiveTerminal
     Setup Plugin Registry
+    # removing the registry file means MA doesnt know about the US plugin so it wont try to send anything to it
+    remove file  /opt/sophos-spl/base/pluginRegistry/updatescheduler.json
     Start Management Agent
     Start Plugin
     Check Cloud Server Log For Command Poll
