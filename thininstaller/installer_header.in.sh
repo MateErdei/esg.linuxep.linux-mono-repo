@@ -355,8 +355,25 @@ function pre_install_checks() {
         done
     fi
 
+    # Read SDDS3 SUS URL from credentials file, e.g. SDDS3_SUS_URL=sus.sophosupd.com
+    EXTRACTED_SUS_URL=$(sed -n -e "/^SDDS3_SUS_URL=/ s/.*\= *//p" "${INSTALL_FILE}")
+    if [[ "$EXTRACTED_SUS_URL" != "" && $EXTRACTED_SUS_URL != https://* ]]
+    then
+        EXTRACTED_SUS_URL="https://${EXTRACTED_SUS_URL}"
+    fi
+    # Read SDDS3 CDN URLs from credentials file, e.g. SDDS3_CONTENT_URLS=sdds3.sophosupd.com;sdds3.sophosupd.net
+    cdn_urls="$(sed -n -e "/^SDDS3_CONTENT_URLS=[^$]/ s/.*\= *//p" "${INSTALL_FILE}")"
+    IFS=';' read -ra cdn_urls_array <<<"${cdn_urls}"
+    for cdn_url in "${cdn_urls_array[@]}"; do
+         if [[ $cdn_url != https://* ]]
+        then
+            cdn_url="https://${cdn_url}"
+        fi
+        EXTRACTED_CDN_URLS+=("${cdn_url%%,*}")
+    done
+
     # Verify network connections made during installation to Central, SUS and CDN servers
-    verify_network_connections "${MESSAGE_RELAYS[*]}" "${UPDATE_CACHES[*]}"
+    verify_network_connections "${MESSAGE_RELAYS[*]}" "${UPDATE_CACHES[*]}" "${EXTRACTED_CDN_URLS[*]}" "$EXTRACTED_SUS_URL"
 
     if [[ -n "${COMPATIBILITY_ERROR_FOUND}" ]]; then
         failure ${EXITCODE_COMPATIBILITY_CHECKS_FAILED} "SPL cannot be installed on this system, the pre-installation checks found some critical issues. Please review the logs and address the issues before attempting to reinstall"
@@ -577,6 +594,7 @@ else
     CLOUD_URL=${OVERRIDE_CLOUD_URL}
 fi
 
+# Read Message Relays from credentials file.
 MESSAGE_RELAYS=$(grep 'MESSAGE_RELAYS=' credentials.txt | sed 's/MESSAGE_RELAYS=//')
 if [[ -n "${MESSAGE_RELAYS}" ]]; then
     [[ -n "$DEBUG_THIN_INSTALLER" ]] && echo "Message Relays: ${MESSAGE_RELAYS}"

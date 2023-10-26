@@ -65,7 +65,7 @@ class ThinInstallerUtils(object):
             logger.info(f"using {source} as source")
             return source
 
-        local_dir = "/vagrant/esg.linuxep.linux-mono-repo/.output/thininstaller/linux_x64_rel/thininstaller"
+        local_dir = "/vagrant/esg.linuxep.linux-mono-repo/.output/thininstaller/thininstaller"
         if os.path.isdir(local_dir):
             logger.info("Thin Installer source: " + local_dir)
             return local_dir
@@ -120,7 +120,7 @@ class ThinInstallerUtils(object):
         os.system(f"tar xzf {installer_tar_gz} -C {self.installer_files}")
 
     def create_credentials_file(self, token, url, update_creds, customer_token, message_relays, location,
-                                update_caches):
+                                update_caches, sus_url, cdn_urls):
         new_line = '\n'
         with open(location, 'w') as fh:
             fh.write("TOKEN=" + token + new_line)
@@ -135,6 +135,10 @@ class ThinInstallerUtils(object):
                 fh.write("__UPDATE_CACHE_CERTS__" + new_line)
                 with open(os.path.join(self.https_certs_dir, "root-ca.crt.pem"), "r") as f:
                     fh.write(f.read())
+            if sus_url:
+                fh.write("SDDS3_SUS_URL=" + sus_url + new_line)
+            if cdn_urls:
+                fh.write("SDDS3_CONTENT_URLS=" + cdn_urls + new_line)
         with open(location, 'r') as fh:
             robot.api.logger.info(fh.read())
 
@@ -144,9 +148,11 @@ class ThinInstallerUtils(object):
                                         update_creds="9539d7d1f36a71bbac1259db9e868231",
                                         customer_token="ThisIsACustomerToken",
                                         message_relays=None,
-                                        update_caches=None):
+                                        update_caches=None,
+                                        sus_url=None,
+                                        cdn_urls=None):
         self.create_credentials_file(token, url, update_creds, customer_token, message_relays,
-                                     self.default_credentials_file_location, update_caches)
+                                     self.default_credentials_file_location, update_caches, sus_url, cdn_urls)
 
     def build_thininstaller_from_sections(self, credentials_file, target_path=None):
         if target_path is None:
@@ -212,6 +218,23 @@ class ThinInstallerUtils(object):
                 raise AssertionError(
                     f"Thin Installer exited with exit code: {str(rc)} but was expecting: {str(expected_return_code)}")
 
+    def run_thininstaller_with_localhost_sdds_urls(self,command,
+                                                 expected_return_code=0,
+                                                 mcsurl=None,
+                                                 mcs_ca=None,
+                                                 proxy=None,
+                                                 override_path=None,
+                                                 certs_dir=None,
+                                                 force_certs_dir=None,
+                                                 cleanup=True,
+                                                 temp_dir_to_unpack_to=None,
+                                                 force_legacy_install=False):
+
+        sus_url = "https://localhost:8080"
+        cdn_url = "https://localhost:8080"
+        self.run_thininstaller(command, expected_return_code, mcsurl, mcs_ca, proxy, override_path, certs_dir, force_certs_dir, cleanup, temp_dir_to_unpack_to, sus_url, cdn_url, force_legacy_install)
+
+
     def run_thininstaller(self,
                           command,
                           expected_return_code=0,
@@ -223,8 +246,8 @@ class ThinInstallerUtils(object):
                           force_certs_dir=None,
                           cleanup=True,
                           temp_dir_to_unpack_to=None,
-                          sus_url="https://localhost:8080",
-                          cdn_url="https://localhost:8080",
+                          sus_url=None,
+                          cdn_url=None,
                           force_legacy_install=False):
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
@@ -301,7 +324,9 @@ class ThinInstallerUtils(object):
                                   proxy=None,
                                   installsh_path=None,
                                   cleanup=True,
-                                  thininstaller_args=[]):
+                                  thininstaller_args=[],
+                                  sus_url="https://localhost:8080",
+                                  cdn_url="https://localhost:8080",):
 
         if not installsh_path:
             installsh_path = self.default_installsh_path
@@ -312,7 +337,9 @@ class ThinInstallerUtils(object):
                                force_certs_dir=force_certs_dir,
                                certs_dir=certs_dir,
                                proxy=proxy,
-                               cleanup=cleanup)
+                               cleanup=cleanup,
+                               sus_url=sus_url,
+                               cdn_url=cdn_url)
 
     def run_default_thininstaller_with_different_name(self, new_filename, *args, **kwargs):
         new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)
@@ -322,7 +349,7 @@ class ThinInstallerUtils(object):
 
     def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None,
                                                  force_certs_dir=None):
-        self.run_thininstaller([self.default_installsh_path],
+        self.run_thininstaller_with_localhost_sdds_urls([self.default_installsh_path],
                                expected_return_code,
                                override_path=override_path,
                                mcsurl=mcsurl,
@@ -391,7 +418,7 @@ exit 0""")
         for arg in args:
             command.append(arg)
 
-        self.run_thininstaller(command, expectedReturnCode, force_certs_dir=force_certs_dir)
+        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, force_certs_dir=force_certs_dir)
 
     def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, force_certs_dir,
                                                                product_argument="", mcsurl=None):
@@ -399,7 +426,7 @@ exit 0""")
         if product_argument != "":
             command.append(product_argument)
 
-        self.run_thininstaller(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
+        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
 
     def check_if_unwanted_strings_are_in_thininstaller(self, strings_to_check_for):
         # this is used for checking the content of the thininstaller header

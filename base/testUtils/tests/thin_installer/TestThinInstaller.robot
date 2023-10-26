@@ -87,7 +87,7 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
     ${install_location}=  get_default_install_script_path
     ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    run_thininstaller_with_localhost_sdds_urls  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options

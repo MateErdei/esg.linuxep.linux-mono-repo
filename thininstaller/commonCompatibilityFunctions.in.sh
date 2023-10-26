@@ -1,18 +1,5 @@
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 
-SUS_URL="https://sus.sophosupd.com"
-if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
-    echo "WARN: Using SUS URL override: $OVERRIDE_SUS_LOCATION"
-    SUS_URL=$OVERRIDE_SUS_LOCATION
-fi
-SDDS3_COM_URL="https://sdds3.sophosupd.com:443"
-SDDS3_NET_URL="https://sdds3.sophosupd.net:443"
-if [[ -n $OVERRIDE_CDN_LOCATION ]]; then
-    echo "WARN: Using CDN URL override: $OVERRIDE_CDN_LOCATION"
-    SDDS3_COM_URL=$OVERRIDE_CDN_LOCATION
-    SDDS3_NET_URL=$OVERRIDE_CDN_LOCATION
-fi
-
 DAT_FILES=("supplement/sdds3.ScheduledQueryPack.dat"
     "supplement/sdds3.ML_MODEL3_LINUX_X86_64.dat"
     "supplement/sdds3.DataSetA.dat"
@@ -319,6 +306,8 @@ function verify_connection_to_cdn() {
 function verify_network_connections() {
     IFS=' ' read -ra MESSAGE_RELAYS <<<"${1}"
     IFS=' ' read -ra UPDATE_CACHES <<<"${2}"
+    IFS=' ' read -ra cdn_urls_arg <<<"${3}"
+    sus_url_arg="${4}"
 
     [[ ${#UPDATE_CACHES[@]} != 0 ]] && log_info "Verifying connections to configured Update Caches"
     local curl_output
@@ -356,6 +345,16 @@ function verify_network_connections() {
 
     # Check connection to SUS
     log_info "Verifying connections to Sophos Update Service (SUS) server"
+    if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
+        SUS_URL="$OVERRIDE_SUS_LOCATION"
+        echo "Using SUS URL override: $OVERRIDE_SUS_LOCATION"
+    elif [[ -n $sus_url_arg ]]; then
+        SUS_URL="$sus_url_arg"
+        log_debug "Using SUS URL from Central"
+    else
+        SUS_URL="https://sus.sophosupd.com"
+        log_debug "Using default SUS URL"
+    fi
     verify_connection_to_sus
     [[ -n "${PROXY}" ]] && verify_connection_to_sus "${PROXY}"
     for message_relay in "${MESSAGE_RELAYS[@]}"; do
@@ -365,14 +364,29 @@ function verify_network_connections() {
 
     # Check connection to CDN
     log_info "Verifying connections to the CDN server"
-    CDN_URL=""
-    if curl --tlsv1.2 --noproxy '*' -is ${SDDS3_COM_URL} -m 60; then
-        log_info "Server can connect to .com CDN address (${SDDS3_COM_URL}) directly"
-        CDN_URL="${SDDS3_COM_URL}"
-    elif curl --tlsv1.2 --noproxy '*' -is ${SDDS3_NET_URL} -m 60; then
-        log_info "Server can connect to .net CDN address (${SDDS3_NET_URL}) directly"
-        CDN_URL="${SDDS3_NET_URL}"
+    if [[ -n $OVERRIDE_CDN_LOCATION ]]; then
+        CDN_URLS=("$OVERRIDE_CDN_LOCATION")
+        echo "Using CDN URL override: $OVERRIDE_CDN_LOCATION"
+    elif [[ ${#cdn_urls_arg[@]} != 0 ]]
+    then
+        CDN_URLS=("${cdn_urls_arg[@]}")
+        log_debug "Using CDN URLs from Central"
     else
+        CDN_URLS=("https://sdds3.sophosupd.com:443" "https://sdds3.sophosupd.net:443")
+        log_debug "Using default CDN URLs"
+    fi
+    CDN_URL=""
+    for url in "${CDN_URLS[@]}"; do
+        if curl --tlsv1.2 --noproxy '*' -is ${url} -m 60 >/dev/null 2>&1; then
+            CDN_URL="${url}"
+            log_info "Server can connect to CDN address (${CDN_URL}) directly"
+            break
+        else
+            log_debug "Server cannot connect to CDN address (${url}) directly"
+        fi
+    done
+    if [[ -z "$CDN_URL" ]]
+    then
         if [[ -z "${PROXY}" ]]; then
             if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 1 ]]; then
                 log_warn "A direct connection to a CDN server could not be established"
@@ -380,16 +394,16 @@ function verify_network_connections() {
                 log_error "SPL installation will fail as a connection to a CDN server could not be established"
             fi
         else
-            if curl --tlsv1.2 --proxy "${PROXY}" -is ${SDDS3_COM_URL} -m 60; then
-                log_debug "Server can connect to .com CDN address (${SDDS3_COM_URL}) via ${PROXY}"
-                CDN_URL="${SDDS3_COM_URL}"
-            elif curl --tlsv1.2 --proxy "${PROXY}" -is ${SDDS3_NET_URL} -m 60; then
-                log_debug "Server can connect to .net CDN address (${SDDS3_NET_URL}) via ${PROXY}"
-                CDN_URL="${SDDS3_NET_URL}"
-            else
-                log_warn "Server cannot connect to either the .com or .net CDN address via ${PROXY}"
-            fi
-            [[ -z "${CDN_URL}" ]] && log_error "SPL installation will fail as the server cannot connect to either the .com or .net CDN server directly or via a proxy"
+            for url in "${CDN_URLS[@]}"; do
+               if curl --tlsv1.2 --proxy "${PROXY}" -is ${url} -m 60 >/dev/null 2>&1; then
+                   log_debug "Server can connect to CDN address (${url}) via ${PROXY}"
+                   CDN_URL="${url}"
+                   break
+               else
+                   log_warn "Server cannot connect to any CDN address via ${PROXY}"
+               fi
+            done
+            [[ -z "${CDN_URL}" ]] && log_error "SPL installation will fail as the server cannot connect to any CDN server directly or via a proxy"
         fi
     fi
 

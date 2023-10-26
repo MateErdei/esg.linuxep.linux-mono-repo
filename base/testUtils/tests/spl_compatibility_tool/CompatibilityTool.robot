@@ -52,7 +52,7 @@ Verify Expected Log Lines
     [Arguments]    ${output}
     Should Contain    ${output}    INFO: Server can connect to Sophos Central directly
     Should Contain    ${output}    INFO: Server can connect to the SUS server (${susUrl}) directly
-    Should Contain    ${output}    INFO: Server can connect to .com CDN address (${cdnUrl}) directly
+    Should Contain    ${output}    INFO: Server can connect to CDN address (${cdnUrl}) directly
     Should Contain    ${output}    INFO: Connection verified to CDN server, server was able to download all SPL packages directly
     Should Contain    ${output}    SPL can be installed on this system based on the pre-installation checks
 

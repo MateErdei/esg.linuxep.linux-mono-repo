@@ -71,8 +71,8 @@ ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{UNINSTALL_SAV_ARGUMENT} =  --uninstall-sav
+${BaseVUTPolicy}    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 
-${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 *** Test Case ***
 Thin Installer fails to install on system without enough memory
     Run Default Thininstaller With Fake Memory Amount    234
@@ -424,3 +424,15 @@ Thin Installer With Duplicate Message Relays Argument Fails
 Thin Installer With Duplicate Update Caches Argument Fails
     Run Default Thininstaller With Args  ${32}  --update-caches=localhost:1000,localhost:1000
     Check Thininstaller Log Contains     Error: Duplicate update cache given: localhost:1000 --- aborting install.
+
+Thin Installer Uses Baked In SUS and CDN URLs For Install Checks
+    create_default_credentials_file  sus_url=localhost/sus    cdn_urls=localhost/cdn1;localhost/cdn2
+    build_default_creds_thininstaller_from_sections
+    run_default_thininstaller    ${33}    force_certs_dir=${SDDS3_DEVCERTS}    sus_url=    cdn_url=
+    Check Thininstaller Log Contains    Server cannot connect to the SUS server (https://localhost/sus) directly
+    Check Thininstaller Log Contains    SPL installation will fail as a connection to the SUS server could not be established
+    Check Thininstaller Log Contains    Server cannot connect to CDN address (https://localhost/cdn1) directly
+    Check Thininstaller Log Contains    Server cannot connect to CDN address (https://localhost/cdn2) directly
+    Check Thininstaller Log Contains    SPL installation will fail as a connection to a CDN server could not be established
+    Check Thininstaller Log Does Not Contain    https://sdds3.sophosupd.com
+    Check Thininstaller Log Does Not Contain    https://sdds3.sophosupd.net
