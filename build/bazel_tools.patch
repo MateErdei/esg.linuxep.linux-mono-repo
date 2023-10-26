@@ -20,3 +20,70 @@
              ],
              supports_start_end_lib = False,  # Disabled as the default linker does not support this, and gold is not available
              target_libc = "local",
+--- a/tools/config/sophos_sdds_package.bzl
++++ b/tools/config/sophos_sdds_package.bzl
+@@ -333,6 +333,12 @@
+         deps = manifest_path_map.keys(),
+         token = spv_version_token,
+         base_version_str = base_version_str,
++
++        # TODO <TICKET NUMBER> Remove this select once all customers are on Base 1.2.6 or higher.
++        arch = select({
++            "//tools/config:linux_arm64": "arm64",
++            "//tools/config:linux_x64": "x86_64",
++        }),
+         component_name = versioning_component_name,
+         template_file = spv_template,
+         target_compatible_with = target_compatible_with,
+--- a/tools/config/sophos_versioning.bzl
++++ b/tools/config/sophos_versioning.bzl
+@@ -21,6 +21,7 @@
+     args.add("--input", ctx.file.template_file)
+     args.add("--token", ctx.attr.token)
+     args.add("--out", output_file)
++    args.add("--arch", ctx.attr.arch)
+
+     if ctx.attr.base_version_str:
+         if ctx.attr.base_version_file:
+@@ -48,7 +49,6 @@
+         },
+         arguments = [args],
+     )
+-
+     return [
+         DefaultInfo(files = depset([output_file])),
+     ]
+@@ -92,5 +92,8 @@
+         "out": attr.string(
+             doc = "Output file name. If not provided, the rule name is used.",
+         ),
++        "arch": attr.string(
++            doc = "arm64 or x86_64 or none",
++        ),
+     },
+ )
+
+--- a/tools/src/versioning_client/apply_version_template.py
++++ b/tools/src/versioning_client/apply_version_template.py
+@@ -19,6 +19,13 @@
+         encoding="UTF8",
+     )
+     version = res.stdout.strip()
++
++    # Turn 1.1.10.9999 into 1.1.10.0.9999 for ARM64, so that it is lower than the x86_64 versions
++    if args.arch == "arm64":
++        version = ".".join(version.split(".")[:-1] + ["0"] + [version.split(".")[-1]])
++    elif args.arch == "x86_64":
++        version = ".".join(version.split(".")[:-1] + ["1"] + [version.split(".")[-1]])
++
+     for line in args.input:
+         replaced = line.replace(args.token, version)
+         args.output.writelines([replaced])
+@@ -33,6 +40,7 @@
+     parser.add_argument("--input", type=open, required=True)
+     parser.add_argument("--output", type=argparse.FileType("w"), required=True)
+     parser.add_argument("--token", required=True)
++    parser.add_argument("--arch", required=True)
+     args = parser.parse_args()
+     run(args)
+

@@ -17,7 +17,8 @@ def main(argv):
 
     doc = xml.dom.minidom.parse("installer/SDDS-Import.xml")
     version = doc.getElementsByTagName("Version")[0].firstChild.data
-
+    # TODO <TICKET NUMBER> Change this back to compare the entire number once all customers are on Base 1.2.6 or higher.
+    version = ".".join(version.split(".")[:-2] + [version.split(".")[-1]])
     for file in glob.glob("installer/**/VERSION.ini", recursive=True):
         with open(file) as f:
             lines = f.read().split("\n")

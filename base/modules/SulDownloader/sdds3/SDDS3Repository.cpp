@@ -395,9 +395,11 @@ namespace SulDownloader
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
                 m_oldConfig = SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
-                // Config load code sets platform_filter to an empty string even if it was saved without a value
-                // Hence we need to unset it here
-                m_oldConfig.platform_filter = std::nullopt;
+
+                // The SUS response contains all packages in the suite (for all platforms) so we need to tell the SDDS3
+                // code what our platform is, so it can filter out the packages that won't run on this architecture.
+                m_oldConfig.platform_filter = Common::Policy::machineArchitecture_;
+
                 // Base the new config on the old config so that the suites are preserved from the last SUS request
                 m_config = m_oldConfig;
 

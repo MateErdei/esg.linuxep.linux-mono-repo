@@ -110,11 +110,11 @@ def spl_sdds_packages(
         product_line_canonical_name = component_name,
         spv_features = spv_features,
         spv_platform = select({
-                                     "//tools/config:linux_arm64_dbg": ["LINUX_ARM64"],
-                                     "//tools/config:linux_arm64_rel": ["LINUX_ARM64"],
-                                     "//tools/config:linux_x64_dbg": ["LINUX_INTEL_LIBC6"],
-                                     "//tools/config:linux_x64_rel": ["LINUX_INTEL_LIBC6"],
-                                 }),
+            "//tools/config:linux_arm64_dbg": ["LINUX_ARM64"],
+            "//tools/config:linux_arm64_rel": ["LINUX_ARM64"],
+            "//tools/config:linux_x64_dbg": ["LINUX_INTEL_LIBC6"],
+            "//tools/config:linux_x64_rel": ["LINUX_INTEL_LIBC6"],
+        }),
         spv_roles = spv_roles,
         spv_target_types = spv_target_types,
     )
