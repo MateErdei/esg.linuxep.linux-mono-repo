@@ -39,7 +39,7 @@ Test wdctl will block on removing a plugin
     ${date1} =	Get Current Date
     ${TimeDiff} =	Subtract Date From Date  ${date1}  ${date}
     IF    ${TimeDiff} < 4.5
-        Fail
+        Fail  "Time difference of ${TimeDiff} is less than 4.5"
     END
     check_watchdog_log_contains  Killing process
     # Output now only present if plugin has output
