@@ -151,17 +151,18 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
 def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, run_system_tests):
     build = None
     build999 = None
+
     with stage.parallel("sdds"):
         branch = context.branch
-
         is_release_branch = branch.startswith("release-") or branch.startswith("hotfix-")
 
-        if is_release_branch:
-            do_dev = False
+        do_prod = False
+        do_dev = False
+
+        if is_release_branch or parameters.sdds_options == "build_prod":
             do_prod = True
         else:
-            do_dev = not parameters.sdds_selection or parameters.sdds_selection == "dev"
-            do_prod = parameters.sdds_selection == "prod"
+            do_dev = True
 
         if do_prod:
             build_sdds3_warehouse(stage=stage, mode="prod")
@@ -169,6 +170,6 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
             build = build_sdds3_warehouse(stage=stage, mode="dev")
             build999 = build_sdds3_warehouse(stage=stage, mode="999")
 
-    with stage.parallel("system_testing"):
-        if run_system_tests and build:
+    if run_system_tests and build:
+        with stage.parallel("system_testing"):
             run_tap_tests(stage, context, parameters, build, build999)

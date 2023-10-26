@@ -5,6 +5,7 @@ import time
 
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
+import random
 
 X86_64 = "x86_64"
 x86_64 = X86_64
@@ -78,6 +79,28 @@ def arm64_enabled(parameters):
     return truthy(parameters.build_arm64_bazel, "build_arm64_bazel", True)
 
 
+def get_random_machines(machines_no: int, x64platforms: dict, arm64platforms: dict) -> dict:
+    assert(machines_no <= len(x64platforms)/2)
+    assert(machines_no <= len(arm64platforms)/2)
+
+    test_machines = {"x64": {}, "arm64": {}}
+    for machine in range(machines_no):
+        x64_machine_found = False
+        arm64_machine_found = False
+
+        while not x64_machine_found:
+            x64machine = random.choice(list(x64platforms.keys()))
+            if test_machines["x64"].get(x64machine) is None and test_machines["arm64"].get(x64machine) is None:
+                test_machines["x64"][x64machine] = x64platforms.get(x64machine)
+                x64_machine_found = True
+
+        while not arm64_machine_found:
+            arm64machine = random.choice(list(arm64platforms.keys()))
+            if test_machines["x64"].get(arm64machine) is None and test_machines["arm64"].get(arm64machine) is None:
+                test_machines["arm64"][arm64machine] = arm64platforms.get(arm64machine)
+                arm64_machine_found = True
+    return test_machines
+
 def get_test_machines(test_inputs, parameters, system_tests=False):
     run_tests = truthy(parameters.run_tests, "run_tests", True)
     if not run_tests and not system_tests:
@@ -116,23 +139,19 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
         'ubuntu2004': 'ubuntu2004_arm64_server_en_us',
         'ubuntu2204': 'ubuntu2204_arm64_server_en_us'}
 
-    # Process test_platform_coverage
+    #Process test_platform
     test_environments = {"x64": {}, "arm64": {}}
-    if parameters.test_platform_coverage == "run_all":
+    if parameters.test_platform == "run_all":
         test_environments["x64"] = available_x64_environments
         test_environments["arm64"] = available_arm64_environments
-    else:
-        default_platforms = []
-        if parameters.test_platform_coverage == "run_single":
-            default_platforms = ['centos8stream']
-        elif parameters.test_platform_coverage == "run_four":
-            default_platforms = ['centos8stream', 'ubuntu2004', 'amazonlinux2', 'sles15']
+    elif parameters.test_platform != "run_none":
+        platform_count = 0
+        if parameters.test_platform == "run_single":
+            platform_count = 1
+        elif parameters.test_platform == "run_four":
+            platform_count = 4
+        test_environments = get_random_machines(platform_count, available_x64_environments, available_arm64_environments)
 
-        for default_platform in default_platforms:
-            test_environments["x64"][default_platform] = available_x64_environments.get(default_platform)
-            arm_platform = available_arm64_environments.get(default_platform)
-            if arm_platform is not None:
-                test_environments["arm64"][default_platform] = arm_platform
 
     platform = 'amazonlinux2'
     if parameters.run_amazon_2 == "force_run":

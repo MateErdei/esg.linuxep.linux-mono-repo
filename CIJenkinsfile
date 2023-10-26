@@ -1,16 +1,15 @@
 @Library("tap-pipe")
 
 def params = [
-    choice(name: 'test_platform_coverage',
+    choice(name: 'TEST_PLATFORM',
         choices: ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ /^release.+/ ) ?
         [ 'run_all', 'run_none', 'run_four'] : ['run_single', 'run_none', 'run_four', 'run_all']),
         description: 'Number of TAP test platforms: select none, single, four or all. This is overriden by non-default platform choices below'),
+ choice(name: 'TEST_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all',
+ description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
+
  choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], description: 'Build mode'),
- choice(name: 'BUILD_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all'),
-
- booleanParam(name: 'RUN_SYSTEM_TESTS', defaultValue: false, description: 'Run System Test Automation in TAP'),
-
- choice(name: 'SDDS_SELECTION', choices: ['dev', 'prod'], description: 'If RUN_SYSTEM_TESTS, build dev/prod SDDS3?'),
+ choice(name: 'SDDS_OPTIONS', choices: ['build_dev_system_tests', 'build_dev_no_system_tests', 'build_prod', 'build_none'], description: 'Select sdds option'),
 
  choice(name: 'run_amazon_2', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2'),
  choice(name: 'run_amazon_2023', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2023'),
@@ -28,7 +27,7 @@ def params = [
  choice(name: 'run_sles_15', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on SLES 15'),
  choice(name: 'run_ubuntu_18_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 18.04'),
  choice(name: 'run_ubuntu_20_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 20.04'),
- choice(name: 'run_ubuntu_22_04', choices: ['dont_run', 'default', 'force_run'], description: 'Run TAP on Ubuntu 22.04'),
+ choice(name: 'run_ubuntu_22_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 22.04'),
 
  string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
  string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
