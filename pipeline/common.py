@@ -278,7 +278,6 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
-    # TODO: LINUXDAR-7306 set CIJenkins to ['default', 'force_run', 'dont_run'] once python3.10 issues are resolved
     platform = 'ubuntu2204'
     if parameters.run_ubuntu_22_04 == "force_run":
         test_environments["x64"][platform] = available_x64_environments.get(platform)
