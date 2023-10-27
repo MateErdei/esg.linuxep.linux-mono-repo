@@ -16,7 +16,7 @@
 #include <modules/livequery/IQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 #include <OsquerySDK/OsquerySDK.h>
 #include <future>
 #include <string>

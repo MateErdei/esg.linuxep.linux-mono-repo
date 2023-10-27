@@ -9,7 +9,7 @@
 
 #include <livequery/IQueryProcessor.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/EdrCommon/ApplicationPaths.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 
 #include <Common/Helpers/TempDir.h>
@@ -21,7 +21,7 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 #include "google/protobuf/text_format.h"
 
 #include <future>
