@@ -224,15 +224,23 @@ On Access Scans File Created By non-root User
 
 On Access Scans File Created Under A Long Path
     ${mark} =  get_on_access_log_mark
-    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
-    Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
+    Create Directory   /home/vagrant/long_path
+    Register Cleanup   Remove Directory   /home/vagrant/long_path   recursive=True
 
-    wait_for_on_access_log_contains_after_mark  long_dir_eicar" is infected with EICAR-AV-Test  mark=${mark}
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${38}  /home/vagrant/long_path  long_dir_eicar  ${EICAR_STRING}
+
+    wait_for_on_access_log_contains_after_mark  long_dir_eicar" is infected with EICAR-AV-Test  mark=${mark}  timeout=${5}
 
     ${mark} =  get_on_access_log_mark
-    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/long_path  silly_long_dir_eicar  ${EICAR_STRING}
+    Log  Too long path is ${long_path}
+    # CentOS 8 Stream ARM64 reports a truncated path rather than failing to get the too-long name
+    ${truncated_long_path} =  truncate long path  ${long_path}  ${4095}
 
-    wait_for_on_access_log_contains_after_mark  Failed to get path from fd: File name too long  mark=${mark}
+    Wait For Log Contains Any  ${mark}
+    ...  Failed to get path from fd: File name too long
+    ...  On-open event for ${truncated_long_path} from Process
+    ...  timeout=${5}
     check_on_access_log_does_not_contain_after_mark   silly_long_dir_eicar  mark=${mark}
 
 

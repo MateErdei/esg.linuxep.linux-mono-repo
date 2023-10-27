@@ -169,6 +169,9 @@ def get_inputs(context: tap.PipelineContext,
                coverage: bool = False,
                bazel: bool = True,
                arch: str = "x86_64") -> Dict[str, Input]:
+    if build is None:
+        return None
+
     supplement_branch = "released"
 
     test_inputs = dict(
@@ -424,8 +427,10 @@ def run_av_tests(stage, context, builds, mode, parameters, coverage_build=None, 
         with stage.parallel('TA'):
             test_inputs = {}
             for arch, build in builds.items():
-                test_arch = common.test_arch(arch)
-                test_inputs[test_arch] = get_inputs(context, build, bazel=bazel, arch=arch)
+                if build is not None:
+                    print("Running tests for", arch, "from build", build.arch, "type", build.build_type)
+                    test_arch = common.test_arch(arch)
+                    test_inputs[test_arch] = get_inputs(context, build, bazel=bazel, arch=arch)
 
             # Robot before pytest, since pytest is quick
             with stage.parallel('robot'):

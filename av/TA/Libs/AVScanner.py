@@ -20,11 +20,15 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
 
     try:
         for i in range(depth):
-            if not os.path.exists(dirname):
-                os.mkdir(dirname)
-            os.chdir(dirname)
-    except Exception as e:
-        sys.exit(2)
+            name = str(i) + dirname
+            name = name[:len(dirname)]
+            try:
+                os.mkdir(name)
+            except EnvironmentError:
+                pass
+            os.chdir(name)
+    except EnvironmentError as ex:
+        raise AssertionError("Unable to create long path! " + str(ex))
 
     with open(file, 'w') as file:
         file.write(file_contents)
@@ -34,6 +38,10 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
     os.chdir(directory_to_return_process_to)
 
     return directory_to_return
+
+
+def truncate_long_path(path, size):
+    return path[:size]
 
 
 def get_exclusion_list_for_everything_else(inclusion):

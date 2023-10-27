@@ -18,7 +18,7 @@ from pipeline import common
 
 PACKAGE_PATH = "build/release-package.xml"
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
-BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230512'
+BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230808'
 
 PACKAGE_PATH_EDR = "./edr/build-files/release-package.xml"
 PACKAGE_PATH_AV = "./av/build-files/release-package.xml"
@@ -34,6 +34,51 @@ BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
 
 
+def builds_unified(stage: tap.Root, component, build_type: str, build_modes: dict):
+    print("Build architectures unified")
+    modes = build_modes.get(common.X86_64, []) + build_modes.get(common.arm64, [])
+    if len(modes) > 0:
+        build = stage.artisan_build(name=f"linux_{build_type}",
+                                    component=component,
+                                    image=BUILD_TEMPLATE_BAZEL,
+                                    mode=",".join(modes),
+                                    release_package=PACKAGE_PATH)
+        build.arch = "unified"
+        build.build_type = build_type
+    else:
+        build = None
+
+    return {
+        common.X86_64: build,
+        common.arm64: build
+    }
+
+
+def builds_separate(stage: tap.Root, component, build_type: str, build_modes: dict):
+    print("Build architectures separately")
+    builds = {
+        common.X86_64: None,
+        common.arm64: None
+    }
+    for arch, modes in build_modes.items():
+        if modes and len(modes) > 0:
+            builds[arch] = stage.artisan_build(name=f"linux_{build_type}_{arch}",
+                                               component=component,
+                                               image=BUILD_TEMPLATE_BAZEL,
+                                               mode=",".join(modes),
+                                               release_package=PACKAGE_PATH)
+            builds[arch].arch = arch
+            builds[arch].build_type = build_type
+    return builds
+
+
+def do_builds(stage: tap.Root, component, parameters: tap.Parameters, build_type: str, build_modes: dict):
+    if common.do_unified_build(parameters):
+        return builds_unified(stage, component, build_type, build_modes)
+    else:
+        return builds_separate(stage, component, build_type, build_modes)
+
+
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str
                    , test_selection: str):
     print("Running bazel pipeline")
@@ -42,34 +87,22 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     rel_build = {}
     dbg_build = {}
     if common.x86_64_enabled(parameters):
+        print("x86_64 build enabled")
         rel_build[common.X86_64] = ["san_lsnty", "all_lx64r"]
         dbg_build[common.X86_64] = ["all_lx64d"]
     if common.arm64_enabled(parameters):
+        print("arm64 build enabled")
         rel_build[common.arm64] = ["all_la64r"]
         dbg_build[common.arm64] = ["all_la64d"]
 
-    builds = {
-        common.X86_64: None,
-        common.arm64: None
-    }
-    for arch, modes in rel_build.items():
-        builds[arch] = stage.artisan_build(name=f"linux_rel_{arch}",
-                                           component=component,
-                                           image=BUILD_TEMPLATE_BAZEL,
-                                           mode=",".join(modes),
-                                           release_package=PACKAGE_PATH)
+    builds = do_builds(stage, component, parameters, "rel", rel_build)
 
     # Default to true here so that local builds work.
     linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", True)
     print(f"parameters.build_debug_bazel = {parameters.build_debug_bazel}; Defaulting to linux_debug = {linux_dbg}")
 
     if linux_dbg:
-        for arch, modes in dbg_build.items():
-            stage.artisan_build(name=f"linux_dbg_{arch}",
-                                component=component,
-                                image=BUILD_TEMPLATE_BAZEL,
-                                mode=",".join(modes),
-                                release_package=PACKAGE_PATH)
+        do_builds(stage, component, parameters, "dbg", dbg_build)
 
     if parameters.test_platform != "run_none":
         with stage.parallel('testing'):

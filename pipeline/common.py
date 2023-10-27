@@ -72,11 +72,18 @@ def truthy(value, parameter_name, default_value):
 
 
 def x86_64_enabled(parameters):
-    return truthy(parameters.build_x86_64_bazel, "build_x86_64_bazel", True)
+    arch = parameters.architectures
+    return arch in ('both separately', 'both unified', 'x86_64 only')
 
 
 def arm64_enabled(parameters):
-    return truthy(parameters.build_arm64_bazel, "build_arm64_bazel", True)
+    arch = parameters.architectures
+    return arch in ('both separately', 'both unified', 'arm64 only')
+
+
+def do_unified_build(parameters):
+    arch = parameters.architectures
+    return arch in ('both unified',)
 
 
 def get_random_machines(machines_no: int, x64platforms: dict, arm64platforms: dict) -> dict:

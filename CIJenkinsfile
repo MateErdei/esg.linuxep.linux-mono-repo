@@ -35,9 +35,7 @@ def params = [
 
  booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
  booleanParam(name: 'build_debug_bazel', defaultValue: false, description: 'Do the Bazel linux_dbg build'),
- booleanParam(name: 'build_x86_64_bazel', defaultValue: true, description: 'Do the Bazel x86_64 build'),
- booleanParam(name: 'build_arm64_bazel', defaultValue: true, description: 'Do the Bazel arm64 build'),
-
+ choice(name: 'architectures', choices: ['both separately', 'both unified', 'x86_64 only', 'arm64 only'], description: 'Which architectures to build and how to build them'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';

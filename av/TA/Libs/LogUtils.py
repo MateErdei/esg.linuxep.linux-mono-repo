@@ -969,6 +969,17 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
+    def wait_for_log_contains_any(self,
+                                  mark: LogHandler.LogMark,
+                                  *expected,
+                                  timeout=10) -> LogHandler.LogMark:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(expected, tuple)
+        assert isinstance(mark, LogHandler.LogMark), ("mark is not an instance of LogMark in "
+                                                      "wait_for_log_contains_from_mark")
+        return mark.wait_for_log_contains_from_mark(list(expected), timeout)
+
     def wait_for_log_contains_n_times_from_mark(self,
                                                 mark: LogHandler.LogMark,
                                                 expected: typing.Union[list, str, bytes],
@@ -983,7 +994,7 @@ File Log Contains
                                          logpath: typing.Union[str, bytes],
                                          expected: typing.Union[list, str, bytes],
                                          mark: LogHandler.LogMark,
-                                         timeout=10) -> LogHandler.LogMark:
+                                         timeout: float = 10) -> LogHandler.LogMark:
         if mark is None:
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
@@ -1133,8 +1144,12 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_on_access_log_after_mark"
         self.dump_marked_log(self.oa_log, mark)
 
-    def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: float = 10):
-        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_on_access_log_contains_after_mark"
+    def wait_for_on_access_log_contains_after_mark(self,
+                                                   expected: typing.Union[list, str, bytes],
+                                                   mark: LogHandler.LogMark,
+                                                   timeout: float = 10):
+        assert isinstance(mark, LogHandler.LogMark), ("mark is not an instance of LogMark in "
+                                                      "wait_for_on_access_log_contains_after_mark")
         return self.wait_for_log_contains_after_mark(self.oa_log, expected, mark, timeout=timeout)
 
     def check_on_access_log_contains_after_mark(self, expected, mark):
