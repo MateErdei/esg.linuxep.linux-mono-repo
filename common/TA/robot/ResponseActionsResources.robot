@@ -112,11 +112,12 @@ RA Run Command Suite Setup
     Start Local Cloud Server
     Regenerate Certificates
     Set Local CA Environment Variable
+    ${ma_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Full Installer
     Install Response Actions Directly
     Create File  ${MCS_DIR}/certs/ca_env_override_flag
     Register With Local Cloud Server
-
+    wait_for_log_contains_from_mark   ${ma_mark}  Policy ALC-1_policy.xml applied to
 
 Simulate Response Action
     [Arguments]    ${action_json_file}    ${id_suffix}=id1    ${sophosInstall}=${SOPHOS_INSTALL}

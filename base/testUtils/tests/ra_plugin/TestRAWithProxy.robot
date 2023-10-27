@@ -52,6 +52,8 @@ RA Plugin uploads a file successfully with message relay
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${mcs_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    # wait for initial policy to be sent so delete for initial policy doesnt affect second mcs policy
+    Wait Until Created  ${MCS_DIR}/policy/MCS-25_policy.xml
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
 
     wait_for_log_contains_from_mark  ${mcs_mark}  Successfully connected to localhost:4443 via localhost:3000   25
@@ -100,6 +102,8 @@ RA Plugin uploads a folder successfully with message relay
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${mcs_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    # wait for initial policy to be sent so delete for initial policy doesnt affect second mcs policy
+    Wait Until Created  ${MCS_DIR}/policy/MCS-25_policy.xml
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
 
     wait_for_log_contains_from_mark  ${mcs_mark}  Successfully connected to localhost:4443 via localhost:3000   25
