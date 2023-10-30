@@ -9,7 +9,7 @@ def params = [
  description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
 
  choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], description: 'Build mode'),
- choice(name: 'SDDS_OPTIONS', choices: ['build_dev_system_tests', 'build_dev_no_system_tests', 'build_prod', 'build_none'], description: 'Select sdds option'),
+ choice(name: 'SDDS_OPTIONS', choices: ['build_dev_no_system_tests', 'build_dev_system_tests', 'build_prod', 'build_none'], description: 'Select sdds option'),
 
  choice(name: 'run_amazon_2', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2'),
  choice(name: 'run_amazon_2023', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2023'),
