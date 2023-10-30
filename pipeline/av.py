@@ -78,8 +78,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS',
                                 f"exclude_{platform.lower()}", f"exclude_{arch.lower()}",
                                 f"exclude_{machine_name.lower()}"]
-        if machine_name.endswith('centos9stream'):
+        if platform in ('centos9stream', 'ubuntu2204'):
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
+            #  As of 2023-10-27 Ubuntu 22.04 doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
         cifs = getattr(machine, "cifs_supported", 1)
