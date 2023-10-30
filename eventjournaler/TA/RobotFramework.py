@@ -16,6 +16,7 @@ def main():
     if os.environ.get('COVFILE'):
         tags['exclude'].append('EXCLUDE_ON_COVERAGE')
 
+    open("/opt/test/inputs/testUtilsMarker", 'a').close()
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts',
         'name': 'integration',
@@ -40,6 +41,7 @@ def main():
     if listener is not None:
         robot_args['listener'] = listener
 
+    sys.path.append('/opt/test/inputs/common_test_libs')
     sys.exit(robot.run(robot_args['path'], **robot_args))
 
 if __name__ == '__main__':

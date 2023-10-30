@@ -16,8 +16,12 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
+Force Tags    TAP_PARALLEL3
+
 *** Test Cases ***
 Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Cleanup Telemetry Server
 
     Setup SUS static
@@ -31,10 +35,10 @@ Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
 

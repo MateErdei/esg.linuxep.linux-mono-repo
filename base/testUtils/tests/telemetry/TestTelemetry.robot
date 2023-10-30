@@ -3,14 +3,14 @@ Documentation     Test the Telemetry executable
 
 Library    OperatingSystem
 
-Library    ${LIBS_DIRECTORY}/ActionUtils.py
-Library    ${LIBS_DIRECTORY}/CentralUtils.py
-Library    ${LIBS_DIRECTORY}/EventUtils.py
-Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library    ${COMMON_TEST_LIBS}/ActionUtils.py
+Library    ${COMMON_TEST_LIBS}/CentralUtils.py
+Library    ${COMMON_TEST_LIBS}/EventUtils.py
+Library    ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/OnFail.py
-Library    ${LIBS_DIRECTORY}/SystemInfo.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
+Library    ${COMMON_TEST_LIBS}/SystemInfo.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot

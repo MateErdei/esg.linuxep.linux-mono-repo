@@ -8,13 +8,13 @@ Test Teardown    UC Error Test Teardown
 Test Timeout  10 mins
 
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/TeardownTools.py
-Library     ${LIBS_DIRECTORY}/UpgradeUtils.py
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/TeardownTools.py
+Library     ${COMMON_TEST_LIBS}/UpgradeUtils.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
 
 Library     Process
 Library     OperatingSystem
@@ -26,7 +26,8 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags  LOAD6  SULDOWNLOADER  sdds3updatecache_error_cases
+# TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+Force Tags  TAP_PARALLEL1  SULDOWNLOADER  DISABLED  sdds3updatecache_error_cases
 
 *** Keywords ***
 UC Error Test Teardown

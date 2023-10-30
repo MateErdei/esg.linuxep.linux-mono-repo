@@ -8,17 +8,16 @@ Library    Process
 Library    OperatingSystem
 Library    DateTime
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/FakeSulDownloader.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
-Default Tags  SLOW  UPDATE_SCHEDULER
-Force Tags  LOAD8
+Force Tags  TAP_PARALLEL3  SLOW  UPDATE_SCHEDULER
 
 *** Test Cases ***
 UpdateScheduler Periodically Run SulDownloader

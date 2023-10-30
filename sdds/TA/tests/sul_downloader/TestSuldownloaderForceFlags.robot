@@ -6,7 +6,7 @@ Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Library    DateTime
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
@@ -14,7 +14,8 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags  SULDOWNLOADER  LOAD6
+# TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+Force Tags  SULDOWNLOADER  TAP_PARALLEL1  DISABLED
 
 *** Test Cases ***
 Sul Downloader Installs does Force reinstall

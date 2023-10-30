@@ -1,7 +1,8 @@
 *** Settings ***
-Resource  EventJournalerResources.robot
-Library         ../Libs/EventjournalerUtils.py
+Library     ../Libs/EventjournalerUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
+Resource    EventJournalerResources.robot
 
 Test Setup  Setup
 Test Teardown   Event Journaler Teardown
@@ -203,6 +204,10 @@ Event Journaler Restarts Subscriber After Socket Removed
     ...  20 secs
     ...  2 secs
     ...  Check Marked Event Journaler Log Contains  Subscriber restart called   ${mark}
+
+Event Journaler Plugin Installs With Version Ini File
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini   SPL-Event-Journaler-Plugin
 
 
 *** Keywords ***

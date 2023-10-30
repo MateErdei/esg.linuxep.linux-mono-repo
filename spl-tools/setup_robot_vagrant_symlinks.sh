@@ -52,6 +52,15 @@ then
   make_links
 fi
 
+# Live Terminal
+if [ -d  "$LINUX_MONO_REPO/liveterminal" ]
+then
+  cd "$LINUX_MONO_REPO/liveterminal"
+  make_links
+  cd "$LINUX_MONO_REPO/liveterminal/TA"
+  make_links
+fi
+
 # Warehouse
 if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-warehouse ]
 then

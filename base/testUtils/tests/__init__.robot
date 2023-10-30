@@ -4,14 +4,14 @@ Suite Teardown   Global Cleanup Tasks
 
 Library    OperatingSystem
 Library    Process
-Library    ../libs/CentralUtils.py
-Library    ../libs/FullInstallerUtils.py
-Library    ../libs/OSUtils.py
-Library    ../libs/PathManager.py
-Library    ../libs/SystemProductTestOutputInstall.py
-Library    ../libs/TemporaryDirectoryManager.py
-Library    ../libs/UpdateServer.py
-Library    ../libs/WarehouseUtils.py
+Library    CentralUtils.py
+Library    FullInstallerUtils.py
+Library    OSUtils.py
+Library    PathManager.py
+Library    SystemProductTestOutputInstall.py
+Library    TemporaryDirectoryManager.py
+Library    UpdateServer.py
+Library    WarehouseUtils.py
 
 Resource    ../../common_test_robot/GeneralTeardownResource.robot
 
@@ -109,12 +109,9 @@ Global Setup Tasks
     Set Global Variable  ${TEMPORARY_DIRECTORIES}       /tmp
     Set Global Variable  ${TEST_TEMP_DIR}       ${CURDIR}/temp
 
-    ${placeholder} =  PathManager.get_support_file_path
-    Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
-    ${placeholder} =  PathManager.get_robot_tests_path
-    Set Global Variable  ${ROBOT_TESTS_DIR}     ${placeholder}
-    ${placeholder}=  PathManager.get_libs_path
-    Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
+    Set Global Variable  ${SUPPORT_FILES}     ${TEST_INPUT_PATH}/SupportFiles
+    Set Global Variable  ${ROBOT_TESTS_DIR}   ${TEST_INPUT_PATH}/test_scripts
+    Set Global Variable  ${LIBS_DIRECTORY}    ${COMMON_TEST_LIBS}
 
     ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}

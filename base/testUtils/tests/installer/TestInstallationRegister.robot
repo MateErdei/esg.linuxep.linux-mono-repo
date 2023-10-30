@@ -1,11 +1,13 @@
 *** Settings ***
 Documentation    Test registering with Central with full installer
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+
+Force Tags  TAP_PARALLEL5
 
 *** Test Cases ***
 Register with Central with invalid arguments

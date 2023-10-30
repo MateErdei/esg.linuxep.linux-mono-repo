@@ -1,9 +1,9 @@
 *** Settings ***
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/ProxyUtils.py
+Library    ${COMMON_TEST_LIBS}/FilesystemWatcher.py
+Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/ProxyUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 

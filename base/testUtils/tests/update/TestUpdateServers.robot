@@ -1,8 +1,8 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
-Default Tags    MANUAL
+Force Tags    MANUAL
 Test Timeout    NONE
 
 *** Test Case ***

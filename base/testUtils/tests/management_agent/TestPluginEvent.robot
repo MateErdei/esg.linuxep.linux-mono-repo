@@ -7,11 +7,11 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${LIBS_DIRECTORY}/ActionUtils.py
-Library     ${LIBS_DIRECTORY}/EventUtils.py
+Library     ${COMMON_TEST_LIBS}/ActionUtils.py
+Library     ${COMMON_TEST_LIBS}/EventUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/OnFail.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot

@@ -1,9 +1,11 @@
 *** Settings ***
 Documentation    Suite description
-Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
+
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/LiveResponseUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
-Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/WebsocketWrapper.py
 
 Library     String
 Library     OperatingSystem
@@ -21,7 +23,8 @@ Test Teardown  Liveresponse Test Teardown
 Suite Setup   Liveresponse Suite Setup
 Suite Teardown   Liveresponse Suite Teardown
 
-Default Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  MCSROUTER  SMOKE
+# TODO: SLES does not have "root@" in the command prompt so difficult to confirm live terminal session is working
+Force Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  MCSROUTER  SMOKE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
 *** Variables ***
 ${Thumbprint}               F00ADD36235CD85DF8CA4A98DE979BDD3C48537EBEB4ADB1B31F9292105A5CA0

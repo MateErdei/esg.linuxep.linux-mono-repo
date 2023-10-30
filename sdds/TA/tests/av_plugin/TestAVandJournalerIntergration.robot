@@ -33,8 +33,7 @@ Test Teardown  Run Keywords
 ...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND
 ...            General Test Teardown
 
-Force Tags  LOAD4
-Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN   EDR_PLUGIN
+Force Tags  TAP_PARALLEL2  EVENT_JOURNALER_PLUGIN  AV_PLUGIN  EDR_PLUGIN
 
 *** Test Cases ***
 Test av can publish events and that journaler can receive them

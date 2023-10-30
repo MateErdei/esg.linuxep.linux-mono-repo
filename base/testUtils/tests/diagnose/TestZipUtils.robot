@@ -1,9 +1,9 @@
 *** Settings ***
 Library     Process
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource   ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
@@ -14,7 +14,7 @@ Suite Teardown  Run Keywords
 ...             Ensure Uninstalled  AND
 ...             Cleanup Certificates
 
-Default Tags    TAP_PARALLEL4
+Force Tags    TAP_PARALLEL4
 
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log

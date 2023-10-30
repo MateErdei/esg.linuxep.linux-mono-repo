@@ -3,7 +3,7 @@ Library     OperatingSystem
 
 Library     ${COMMON_TEST_LIBS}/FaultInjectionTools.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/SafeStoreUtils.py
+Library     ${COMMON_TEST_LIBS}/SafeStoreUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    AVResources.robot

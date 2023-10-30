@@ -51,6 +51,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
             thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
             sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
@@ -64,6 +65,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             openssl=openssl,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
             thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
             sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
         )
@@ -76,6 +79,8 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
             openssl=openssl,
             bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
             coverage=base_build / 'sspl-base-coverage/covfile',
             coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')

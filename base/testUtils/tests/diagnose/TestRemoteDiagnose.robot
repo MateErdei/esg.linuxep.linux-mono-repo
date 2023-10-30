@@ -3,9 +3,9 @@ Library     Collections
 Library     OperatingSystem
 Library     Process
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
-Library     ${LIBS_DIRECTORY}/HttpsServer.py
-Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library     ${COMMON_TEST_LIBS}/DiagnoseUtils.py
+Library     ${COMMON_TEST_LIBS}/HttpsServer.py
+Library     ${COMMON_TEST_LIBS}/TelemetryUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
@@ -18,7 +18,7 @@ Suite Teardown  Run Keywords
 Test Teardown   Teardown
 
 Test Setup   Setup Fake Cloud
-Default Tags  DIAGNOSE    TAP_PARALLEL2
+Force Tags  DIAGNOSE    TAP_PARALLEL2
 
 *** Variables ***
 ${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log

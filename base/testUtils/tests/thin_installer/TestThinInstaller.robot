@@ -5,14 +5,14 @@ Test Teardown   Thininstaller Test Teardown
 Suite Setup      Setup sdds3 Update Tests
 Suite Teardown   Cleanup sdds3 Update Tests
 
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 Library     Process
 Library     DateTime
 Library     OperatingSystem
@@ -34,7 +34,7 @@ Teardown With Large Group Creation
 
 Setup TSL server 1_1
     Stop Local SDDS3 Server
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${VUT_LAUNCH_DARKLY} --sdds3 ${VUT_WAREHOUSE_ROOT} --protocol tls1_1  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${VUT_LAUNCH_DARKLY} --sdds3 ${VUT_WAREHOUSE_ROOT} --protocol tls1_1  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Thininstaller Test
 

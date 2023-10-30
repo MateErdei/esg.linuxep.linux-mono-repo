@@ -2,9 +2,9 @@
 Documentation    Test suite for end to end XDR datafeed tests
 Library   OperatingSystem
 Library   Process
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/ProcessUtils.py
+Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/ProcessUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
@@ -18,7 +18,7 @@ Suite Setup   Run Keywords
 Suite Teardown    Run Keywords
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  DATAFEED  TAP_PARALLEL6
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  DATAFEED  TAP_PARALLEL6
 
 *** Test Cases ***
 Basic XDR Datafeed Sent

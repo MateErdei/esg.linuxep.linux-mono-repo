@@ -8,7 +8,7 @@ import tap.v1 as tap
 from tap._backend import Input
 from tap._pipeline.tasks import ArtisanInput
 
-from pipeline.common import get_test_machines, pip_install, get_os_packages, python
+from pipeline.common import get_test_machines, pip_install, get_os_packages, get_robot_args, python
 
 SYSTEM_TEST_TIMEOUT = 9000
 SYSTEM_TEST_TASK_TIMEOUT = 150
@@ -49,8 +49,13 @@ Dict[str, Input]:
         lr=build / "sdds/lr-sdds",
         rtd=build / "sdds/rtd-sdds",
         ra=build / "sdds/ra-sdds",
+        common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+        common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+        SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
         rtd_content_rules=context.artifact.from_component("linuxep.runtimedetections", "develop", None, org="",
                                                           storage="esg-build-tested") / "build/sspl-rdrules",
+        websocket_server=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                          storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
         local_rep=context.artifact.from_component('ssplav-localrep', "released", None) / 'reputation',
         ml_model=context.artifact.from_component('ssplav-mlmodel3-x86_64', "released", None) / 'model',
         vdl=context.artifact.from_component('ssplav-dataseta', "released", None) / 'dataseta',
@@ -105,7 +110,10 @@ def install_requirements(machine: tap.Machine):
 
 
 @tap.timeout(task_timeout=SYSTEM_TEST_TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, parameters_json: str):
+def robot_task(machine: tap.Machine, parameters_json: str, robot_args: str, include_tag: str):
+    print(f"test scripts: {machine.inputs.test_scripts}")
+    print(f"robot_args: {robot_args}")
+    print(f"include_tag: {include_tag}")
     try:
         parameters = json.loads(parameters_json)
 
@@ -119,16 +127,24 @@ def robot_task(machine: tap.Machine, parameters_json: str):
         if parameters.get("robot_test"):
             environment["TEST"] = parameters["robot_test"]
 
-        robot_exclusion_tags = ["MANUAL", "FAIL"]
+        robot_exclusion_tags = ["MANUAL", "FAIL", "DISABLED"]
         if "CENTRAL_API_CLIENT_ID" not in environment or "CENTRAL_API_CLIENT_SECRET" not in environment:
             robot_exclusion_tags.append("FIXED_VERSIONS")
 
         install_requirements(machine)
-        machine.run(python(machine),
-                    machine.inputs.test_scripts / "bin/RobotFramework.py",
-                    *robot_exclusion_tags,
-                    environment=environment,
-                    timeout=SYSTEM_TEST_TIMEOUT)
+        if include_tag:
+            machine.run(*robot_args.split(), 'python3', machine.inputs.test_scripts / 'bin/RobotFramework.py',
+                        '--include', include_tag,
+                        '--exclude', *robot_exclusion_tags,
+                        environment=environment,
+                        timeout=SYSTEM_TEST_TIMEOUT)
+        else:
+            machine.run(*robot_args.split(),
+                        python(machine),
+                        machine.inputs.test_scripts / 'bin/RobotFramework.py',
+                        '--exclude', *robot_exclusion_tags,
+                        environment=environment,
+                        timeout=SYSTEM_TEST_TIMEOUT)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / "bin/move_robot_results.py")
         machine.output_artifact("/opt/test/logs", "logs")
@@ -136,15 +152,34 @@ def robot_task(machine: tap.Machine, parameters_json: str):
 
 
 def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build, build999):
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4"
     test_inputs = {
         "x64": get_inputs(context, build, build999, parameters)
     }
-    machines = get_test_machines(test_inputs, parameters, system_tests=True)
+    test_machines = get_test_machines(test_inputs, parameters, system_tests=True)
+    robot_args = get_robot_args(parameters)
 
     parameters_json = json.dumps(parameters)
 
-    for template_name, machine in machines:
-        stage.task(task_name=template_name, func=robot_task, machine=machine, parameters_json=parameters_json)
+    if robot_args:
+        for template_name, machine in test_machines:
+            stage.task(task_name=template_name,
+                       func=robot_task,
+                       machine=machine,
+                       parameters_json=parameters_json,
+                       robot_args=robot_args,
+                       include_tag="")
+    else:
+        includedtags = parameters.include_tags or default_include_tags
+        for include in includedtags.split(","):
+            with stage.parallel(include):
+                for template_name, machine in test_machines:
+                    stage.task(task_name=template_name,
+                               func=robot_task,
+                               machine=machine,
+                               parameters_json=parameters_json,
+                               robot_args="",
+                               include_tag=include)
     return
 
 

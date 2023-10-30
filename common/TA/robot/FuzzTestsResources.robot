@@ -2,8 +2,8 @@
 Documentation    Resource file for fuzz tests
 
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
-Library    ${LIBS_DIRECTORY}/PathManager.py
+Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
+Library    ${COMMON_TEST_LIBS}/PathManager.py
 
 
 *** Keywords ***

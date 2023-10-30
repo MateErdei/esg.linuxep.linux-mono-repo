@@ -6,7 +6,7 @@ Library           OperatingSystem
 Library           Collections
 
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 

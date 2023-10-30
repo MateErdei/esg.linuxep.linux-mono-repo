@@ -1,5 +1,5 @@
 *** Settings ***
-Library    ${LIBS_DIRECTORY}/OnFail.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot

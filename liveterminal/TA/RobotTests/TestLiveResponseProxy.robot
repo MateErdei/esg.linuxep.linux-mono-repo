@@ -1,9 +1,11 @@
 *** Settings ***
 Documentation    Suite description
+
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
-Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
+Library     ${COMMON_TEST_LIBS}/WebsocketWrapper.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/LiveResponseUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot

@@ -36,16 +36,16 @@ Verify that the response actions installer works correctly
     Set Test Variable  ${SymbolicLinkInfo}
     ## Check Directory Structure
     Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/DirectoryInfo
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/DirectoryInfo
     Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
 
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/FileInfo
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/FileInfo
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
 Verify That Response Actions Logging Can Be Set Individually
@@ -71,9 +71,9 @@ Response Actions Tests Teardown With Installed File Replacement
     RA Teardown
 
 Save Current Response Actions InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/ra_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
 RA Teardown
     Uninstall Response Actions

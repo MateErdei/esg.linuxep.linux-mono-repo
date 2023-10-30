@@ -1,11 +1,11 @@
 *** Settings ***
 Documentation    Suite description
 
-Default Tags  FUZZ
+Force Tags  FUZZ
 
 Library           OperatingSystem
 
-Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
+Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
 
 Resource   ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot

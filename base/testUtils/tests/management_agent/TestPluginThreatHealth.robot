@@ -6,11 +6,11 @@ Library           OperatingSystem
 Library           Collections
 
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
-Default Tags    MANAGEMENT_AGENT  TAP_PARALLEL6
+Force Tags    MANAGEMENT_AGENT  TAP_PARALLEL6
 
 *** Test Cases ***
 Management Agent Can Receive Plugin Threat Health And It Updates

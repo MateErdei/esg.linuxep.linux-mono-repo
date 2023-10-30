@@ -2,7 +2,7 @@
 Documentation    Port tests related to mcs policies and fake cloud that were originally present for SAV. [LINUXEP-7787]
 
 Library   String
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 

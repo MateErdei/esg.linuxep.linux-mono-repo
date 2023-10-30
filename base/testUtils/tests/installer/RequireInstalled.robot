@@ -1,11 +1,11 @@
 *** Settings ***
 Documentation    Setup an installation
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource   ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Default Tags  MANUAL  INSTALLER
+Force Tags  MANUAL  INSTALLER
 
 *** Test Cases ***
 Run Require Fresh Install

@@ -4,8 +4,8 @@ Documentation   Test wdctl can ask watchdog to stop a process
 Library    Process
 Library    DateTime
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot

@@ -2,11 +2,11 @@
 Library     OperatingSystem
 Library     Process
 
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot

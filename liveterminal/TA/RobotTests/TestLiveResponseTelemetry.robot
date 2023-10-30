@@ -1,8 +1,9 @@
 *** Settings ***
 Documentation    Suite description
 
-Library     ${LIBS_DIRECTORY}/ActionUtils.py
-Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
+Library     ${COMMON_TEST_LIBS}/ActionUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/LiveResponseUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot

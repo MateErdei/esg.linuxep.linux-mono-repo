@@ -1,5 +1,5 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 Library   OperatingSystem
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
@@ -7,7 +7,7 @@ Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
-Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  LOAD9
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL4
 
 Test Setup    Run Keyword and Ignore Error   Remove File   	${SOPHOS_INSTALL}/base/etc/mcs.config
 
@@ -19,12 +19,12 @@ Fail Register with TLS1_2 Bad Certificate
     Fail Register With HTTPS Server Certificate Verify Failed
 
 Test Register With TLS Below Minimum Accepted of TLSv1_2 Fails
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20  EXCLUDE_UBUNTU22  EXCLUDE_RHEL9
+    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU2004  EXCLUDE_UBUNTU2204  EXCLUDE_RHEL9
     Start HTTPS Server    --tls1
     Fail Register With HTTPS Server   [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]
     
 Fail Register If TLS1_1
-    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20  EXCLUDE_UBUNTU22  EXCLUDE_RHEL9
+    [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU2004  EXCLUDE_UBUNTU2204  EXCLUDE_RHEL9
     Start HTTPS Server    --tls1_1
     Fail Register With HTTPS Server   [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]
 

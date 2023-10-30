@@ -1,7 +1,7 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/OnFail.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot

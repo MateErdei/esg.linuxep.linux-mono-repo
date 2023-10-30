@@ -1,12 +1,12 @@
 *** Settings ***
 
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
 
 Library     Process
 Library     OperatingSystem

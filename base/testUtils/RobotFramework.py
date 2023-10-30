@@ -31,6 +31,7 @@ def main():
         tags["exclude"].append(f"EXCLUDE_{platform}")
     log_files = ['log.html', 'output.xml', 'report.html']
 
+    open("/opt/test/inputs/testUtilsMarker", 'a').close()
     path = r'/opt/test/inputs/test_scripts'
     robot_args = {
         'name': 'integration',
@@ -69,6 +70,8 @@ def main():
     if listener is not None:
         robot_args['listener'] = listener
 
+    sys.path.append('/opt/test/inputs/common_test_libs')
+    sys.path.append('/opt/test/inputs/SupportFiles')
     sys.exit(robot.run(path, **robot_args))
 
 

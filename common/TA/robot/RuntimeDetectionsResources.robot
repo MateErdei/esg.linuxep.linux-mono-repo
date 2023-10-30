@@ -1,5 +1,5 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource    UpgradeResources.robot
 

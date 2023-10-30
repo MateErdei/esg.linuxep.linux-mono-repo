@@ -27,7 +27,7 @@ os.environ.setdefault("TMPROOT", "/tmp")
 
 import PathManager
 
-PathManager.addPathToSysPath(PathManager.SUPPORTFILEPATH)
+PathManager.addPathToSysPath(PathManager.get_support_file_path())
 
 import CloudAutomation.cloudClient
 import CloudAutomation.SendToFakeCloud

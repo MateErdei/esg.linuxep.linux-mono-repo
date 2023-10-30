@@ -1,3 +1,4 @@
+import argparse
 from dirsync import sync
 import distro
 import json
@@ -58,9 +59,18 @@ def get_platform_exclusions():
     return exclusions
 
 def main(argv):
-    exclude = argv
-    exclude.extend(get_platform_exclusions())
-    tags = {"include": [], "exclude": exclude}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--include', nargs='+', help='keywords to include')
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    args = parser.parse_args()
+
+    tags = {'include': [], 'exclude': []}
+    if args.include is not None:
+        tags['include'] = args.include
+
+    tags['exclude'] = get_platform_exclusions()
+    if args.exclude is not None:
+        tags['exclude'].extend(args.exclude)
 
     os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
     os.environ["TEST_SCRIPT_PATH"] = fr"{os.environ['INPUT_DIRECTORY']}/test_scripts/"
@@ -82,7 +92,7 @@ def main(argv):
     if os.environ.get("SUITE"):
         robot_args["suite"] = os.environ.get("SUITE")
 
-    os.environ["SUPPORT_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "SupportFiles")
+    os.environ["SUPPORT_FILES"] = os.path.join(os.environ["INPUT_DIRECTORY"], "SupportFiles")
     os.environ["LIB_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "libs")
     os.environ['BASE_DIST'] = os.path.join(os.environ["INPUT_DIRECTORY"], "base")
     os.environ['SSPL_ANTI_VIRUS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "av")
@@ -92,6 +102,7 @@ def main(argv):
     os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "rtd")
     os.environ['SSPL_RA_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ra")
     os.environ['THIN_INSTALLER_OVERRIDE'] = os.path.join(os.environ["INPUT_DIRECTORY"], "thin_installer")
+    os.environ['WEBSOCKET_SERVER'] = os.path.join(os.environ["INPUT_DIRECTORY"], "websocket_server")
     os.environ['SYSTEMPRODUCT_TEST_INPUT'] = os.environ["INPUT_DIRECTORY"]
     os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej_manual_tools", "JournalReader")
     shutil.copytree(os.path.join(os.environ["INPUT_DIRECTORY"], "rtd_content_rules"), os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"))
@@ -121,6 +132,7 @@ def main(argv):
         # When running locally you can not initialise the TAP Results Listener
         pass
 
+    sys.path.append(os.path.join(os.environ["INPUT_DIRECTORY"], 'common_test_libs'))
     return robot.run(robot_args["path"], **robot_args)
 
 

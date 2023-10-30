@@ -14,13 +14,13 @@ Global Setup Tasks
     Set Global Variable  ${INPUT_DIRECTORY}     ${placeholder}
     ${placeholder} =  Get Environment Variable    TEST_SCRIPT_PATH    default=${INPUT_DIRECTORY}/test_scripts
     Set Global Variable  ${TEST_SCRIPT_PATH}     ${placeholder}
-    ${placeholder} =  Get Environment Variable    SUPPORT_FILES    default=${TEST_SCRIPT_PATH}/SupportFiles
+    ${placeholder} =  Get Environment Variable    SUPPORT_FILES    default=${INPUT_DIRECTORY}/SupportFiles
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
-    ${placeholder} =  Get Environment Variable    COMMON_TEST_LIBS    default=${TEST_SCRIPT_PATH}/libs
+    ${placeholder} =  Get Environment Variable    COMMON_TEST_LIBS    default=${INPUT_DIRECTORY}/common_test_libs
     Set Global Variable  ${COMMON_TEST_LIBS}     ${placeholder}
     Set Global Variable  ${LIBS_DIRECTORY}     ${placeholder}
-    Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}     ${placeholder}
-    ${placeholder} =  Get Environment Variable    COMMON_TEST_ROBOT    default=${TEST_SCRIPT_PATH}/robot
+    Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}     ${TEST_SCRIPT_PATH}/libs
+    ${placeholder} =  Get Environment Variable    COMMON_TEST_ROBOT    default=${INPUT_DIRECTORY}/common_test_robot
     Set Global Variable  ${COMMON_TEST_ROBOT}     ${placeholder}
     ${placeholder} =  Get Environment Variable    SOPHOS_INSTALL    default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}

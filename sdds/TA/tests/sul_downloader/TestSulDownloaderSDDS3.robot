@@ -13,8 +13,8 @@ Test Teardown    Run Keywords
 ...                Upgrade Resources SDDS3 Test Teardown
 
 Library     DateTime
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
-Library     ${LIBS_DIRECTORY}/PolicyUtils.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/PolicyUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
@@ -23,7 +23,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags  SULDOWNLOADER  LOAD6
+Force Tags  SULDOWNLOADER  TAP_PARALLEL1
 
 *** Variables ***
 ${sdds3_server_output}                      ${sdds3_server_log}
@@ -144,6 +144,8 @@ Sul Downloader Uses Current Proxy File for SUS Requests
 
 
 Sul Downloader Installs SDDS3 Through Proxy
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Start Simple Proxy Server    1235
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
     Generate Warehouse From Local Base Input
@@ -173,6 +175,8 @@ Sul Downloader Installs SDDS3 Through Proxy
     Log File  ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
 
 SDDS3 updates supplements
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
@@ -199,6 +203,8 @@ SDDS3 updates supplements
 
 
 Sul Downloader Installs SDDS3 Through update cache
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
@@ -229,6 +235,8 @@ Sul Downloader Installs SDDS3 Through update cache
     ...    Check MCS Envelope Contains Event with Update cache   1
 
 Sul Downloader Installs SDDS3 Through message relay
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Start Simple Proxy Server    3333
 
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
@@ -264,6 +272,8 @@ Sul Downloader Installs SDDS3 Through message relay
 
 
 Sul Downloader falls back to direct when proxy and UC do not work
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
@@ -303,6 +313,8 @@ Sul Downloader falls back to direct when proxy and UC do not work
     Check SulDownloader Log Contains    Connecting to update source directly
 
 Sul Downloader sets sdds3 v2 delta if flag present
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
     Generate Warehouse From Local Base Input  {"sdds3.delta-versioning.enabled": "true"}
     ${handle}=  Start Local SDDS3 server with fake files

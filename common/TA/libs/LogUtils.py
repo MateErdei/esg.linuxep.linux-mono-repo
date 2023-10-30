@@ -54,7 +54,7 @@ def log_contains_in_order(log_location, log_name, args, log_finds=True):
 
 def get_variable(var_name, default_value=None):
     try:
-        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % var_name)
+        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % var_name, default_value)
     except robot.libraries.BuiltIn.RobotNotRunningError:
         return os.environ.get(var_name, default_value)
 
@@ -968,6 +968,9 @@ class LogUtils(object):
                 f"{expected_occurrence} times")
 
     # Event Journaler Log Utils
+    def get_event_journaler_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.ej_log)
+        
     def check_event_journaler_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.ej_log, "Journaler")
 

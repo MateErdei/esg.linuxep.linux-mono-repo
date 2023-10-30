@@ -10,12 +10,12 @@ import sys
 
 try:
     from testUtils.libs.BaseInfo import get_install
-except ModuleNotFoundError as exception:
+except ImportError as exception:
     from BaseInfo import get_install
 
 try:
     from testUtils.libs.OSUtils import get_file_owner_id, get_file_group_id
-except ModuleNotFoundError as exception:
+except ImportError as exception:
     from OSUtils import get_file_owner_id, get_file_group_id
 
 

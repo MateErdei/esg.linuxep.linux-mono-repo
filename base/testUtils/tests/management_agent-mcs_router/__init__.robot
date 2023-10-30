@@ -3,7 +3,7 @@
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 
 Suite Setup      Setup MCS And Management Agent Tests
 Suite Teardown   Cleanup MCS And Management Agent Tests

@@ -3,8 +3,8 @@ Documentation    Test Wdctl can remove a plugin
 
 Library    Process
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/Watchdog.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
@@ -139,10 +139,10 @@ Test wdctl should print error message when starting plugin with junk content plu
     Should Fail Start  NotJsonFile
 
 Test wdctl should not print error message with incorrect json content plugin registration file
-    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/mcs_router/installfiles/sav.json
+    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json
 
 Test wdctl should print error message when starting plugin with incorrect json content plugin registration
-    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/mcs_router/installfiles/sav.json
+    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json
     Should Fail Start  sav
 
 

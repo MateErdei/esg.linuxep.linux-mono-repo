@@ -1,9 +1,9 @@
 *** Settings ***
 Documentation    Fuzz Tests
 
-Default Tags  FUZZ
+Force Tags  FUZZ
 
-Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
+Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
 
 Resource  ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot

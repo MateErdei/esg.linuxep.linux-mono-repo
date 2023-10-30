@@ -4,16 +4,16 @@ Library    OperatingSystem
 Library    Process
 Library    String
 
-Library    ${LIBS_DIRECTORY}/CentralUtils.py
+Library    ${COMMON_TEST_LIBS}/CentralUtils.py
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 Library    ${COMMON_TEST_LIBS}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/ProcessUtils.py
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/ProcessUtils.py
+Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library    ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/UpdateServer.py
+Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
 Resource    AVResources.robot
 Resource    InstallerResources.robot
@@ -105,7 +105,7 @@ Start Local SDDS3 Server
     ${handle}=  Start Process
     ...  bash  -x
     ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
-    ...  python3  ${LIBS_DIRECTORY}/SDDS3server.py
+    ...  python3  ${COMMON_TEST_LIBS}/SDDS3server.py
     ...  --launchdarkly  ${launchdarklyPath}
     ...  --sdds3  ${sdds3repoPath}
     ...  --port   ${port}

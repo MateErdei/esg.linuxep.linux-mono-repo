@@ -2,7 +2,7 @@
 Library    OperatingSystem
 Library    Process
 
-Library    ${LIBS_DIRECTORY}/OnFail.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 *** Keywords ***
 Run Shell Process

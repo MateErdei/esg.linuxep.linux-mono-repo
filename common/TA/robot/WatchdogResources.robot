@@ -1,9 +1,9 @@
 *** Settings ***
 Library    OperatingSystem
 Library    Process
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    GeneralTeardownResource.robot
 Resource    ManagementAgentResources.robot

@@ -5,7 +5,7 @@ import requests
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
-from pipeline.common import ANALYSIS_MODE, unified_artifact, get_test_machines, COVERAGE_MODE, pip_install, \
+from pipeline.common import get_test_machines, pip_install, python, get_os_packages, \
     get_robot_args, COVERAGE_TEMPLATE
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
@@ -28,8 +28,13 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
 
     if mode == 'coverage':
         test_inputs = dict(
-            test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+            test_scripts=context.artifact.from_folder('./liveterminal/TA'),
+            pytest_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             liveresponse=liveterminal_build / "sspl-liveterminal-coverage/sdds",
             base=liveterminal_build / "sspl-liveterminal-coverage/base_sdds",
             coverage=liveterminal_build /'sspl-liveterminal-coverage/covfile',
@@ -39,10 +44,15 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
 
     if mode == 'release':
         test_inputs = dict(
-            test_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+            test_scripts=context.artifact.from_folder('./liveterminal/TA'),
+            pytest_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             liveresponse=liveterminal_build / f"liveterminal/linux_{arch}_rel/installer",
-            base=liveterminal_build / f"base/linux_{arch}_rel/installer"
+            base=liveterminal_build / f"base/linux_{arch}_rel/installer",
         )
 
     return test_inputs
@@ -50,13 +60,34 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    pip_install(machine, '-r', machine.inputs.test_scripts / 'sspl_requirements.txt')
+    machine.run("which", python(machine))
+    machine.run(python(machine), "-V")
+    
+    try:
+        # Check if python2 is python on this machine
+        machine.run("which", "python")
+        machine.run("python", "-V")
+    except Exception:
+        pass
+    
+    try:
+        pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
+    
+        os_packages = get_os_packages(machine)
+        install_command = ["bash", machine.inputs.SupportFiles / "SupportFiles/install_os_packages.sh"] + os_packages
+        machine.run(*install_command)
+    except Exception as ex:
+        # the previous command will fail if user already exists. But this is not an error
+        print(f"On adding installing requirements: {ex}")
 
 
-def robot_task(machine: tap.Machine, robot_args: str):
+def robot_task(machine: tap.Machine, robot_args: str, machine_name: str):
+    arch, platform = machine_name.split("_")
+    default_exclude_tags = [f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}"]
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                    '--exclude', *default_exclude_tags, timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -93,7 +124,7 @@ def run_pytests(machine: tap.Machine):
         if machine.inputs.get("coverage", None):
             machine.run(
                 python,
-                machine.inputs.test_scripts / "utils" / "bullseye.py",
+                machine.inputs.pytest_scripts / "utils" / "bullseye.py",
                 machine.inputs["coverage"] / "covfile" / "liveterminal_empty.cov",
                 environment=env,
                 )
@@ -116,8 +147,8 @@ def run_pytests(machine: tap.Machine):
                             ]
 
         if machine.template in exclude_proxy_test:
-            machine.run("rm", "-rf", machine.inputs.test_scripts / "tests/functional/test_proxy_connection.py")
-        args = test_args(python, machine.inputs.test_scripts / "tests/functional")
+            machine.run("rm", "-rf", machine.inputs.pytest_scripts / "tests/functional/test_proxy_connection.py")
+        args = test_args(python, machine.inputs.pytest_scripts / "tests/functional")
         machine.run(*args, timeout=3600, environment=env)
 
     finally:
@@ -160,7 +191,7 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # run component pytest and tap-tests
 
-        args = test_args('python3', machine.inputs.test_scripts / "tests/functional")
+        args = test_args('python3', machine.inputs.pytest_scripts / "tests/functional")
         machine.run(*args, timeout=3600, environment=env)
 
 
@@ -212,7 +243,11 @@ def run_liveterminal_tests(stage, context, builds, mode, parameters):
     machines = get_test_machines(test_inputs, parameters)
     robot_args = get_robot_args(parameters)
 
+    with stage.parallel('liveterminal_pytests'):
+        for template_name, machine in machines:
+            stage.task(task_name=template_name, func=run_pytests, machine=machine)
+
     with stage.parallel('liveterminal_integration'):
         for template_name, machine in machines:
-            #stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
-            stage.task(task_name=template_name, func=run_pytests, machine=machine)
+            stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args,
+                       machine_name=template_name)

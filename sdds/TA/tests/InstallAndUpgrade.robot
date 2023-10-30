@@ -26,7 +26,7 @@ Test Setup       require_uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
-Force Tags    PACKAGE
+Force Tags    TAP_PARALLEL4
 
 
 *** Variables ***
@@ -54,6 +54,8 @@ Sul Downloader fails update if expected product missing from SUS
     check_thininstaller_log_contains    Failed to connect to repository: Product doesn't match any suite: ServerProtectionLinux-Plugin-Fake
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
@@ -159,6 +161,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 Install VUT and Check RPATH of Every Binary
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     [Timeout]    3 minutes
 
     start_local_cloud_server
@@ -198,6 +202,8 @@ Install VUT and Check RPATH of Every Binary
     END
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     &{expectedDogfoodVersions} =    Get Expected Versions    ${DOGFOOD_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
@@ -322,6 +328,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
 We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
 
@@ -416,6 +424,8 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     &{expectedReleaseVersions} =    Get Expected Versions    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}
     &{expectedVUTVersions} =    Get Expected Versions    ${VUT_WAREHOUSE_ROOT}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
@@ -525,6 +535,8 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 SDDS3 updating respects ALC feature codes
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -566,6 +578,8 @@ SDDS3 updating respects ALC feature codes
     Directory Should Exist   ${RTD_DIR}
 
 SDDS3 updating with changed unused feature codes do not change version
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -586,6 +600,8 @@ SDDS3 updating with changed unused feature codes do not change version
     Dictionaries Should Be Equal    ${installedVersionsBeforeUpdate}    ${installedVersionsAfterUpdate}
 
 Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -614,6 +630,8 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     start_local_cloud_server
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -646,7 +664,8 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
 
 
 SPL Can Be Installed To A Custom Location
-    [Tags]    CUSTOM_INSTALL_PATH
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED  CUSTOM_INSTALL_PATH
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
@@ -711,7 +730,8 @@ SPL Can Be Installed To A Custom Location
     check_all_product_logs_do_not_contain_critical
 
 Installing New Plugins Respects Custom Installation Location
-    [Tags]    CUSTOM_INSTALL_PATH
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED  CUSTOM_INSTALL_PATH
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 

@@ -21,8 +21,12 @@ def main():
 
     log_files = ['log.html', 'output.xml', 'report.html']
 
+    os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
+    os.environ['WEBSOCKET_SERVER'] = os.path.join(os.environ["INPUT_DIRECTORY"], "websocket_server/utils/websocket_server")
+    os.environ['SSPL_EDR_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "edr_sdds")
+    open(os.path.join(os.environ["INPUT_DIRECTORY"], "testUtilsMarker"), 'a').close()
     robot_args = {
-        'path':  r'/opt/test/inputs/test_scripts',
+        'path':  os.path.join(os.environ["INPUT_DIRECTORY"], "test_scripts"),
         'name': 'integration',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
@@ -50,6 +54,7 @@ def main():
     if listener is not None:
         robot_args['listener'] = listener
 
+    sys.path.append(os.path.join(os.environ["INPUT_DIRECTORY"], 'common_test_libs'))
     sys.exit(robot.run(robot_args['path'], **robot_args))
 
 if __name__ == '__main__':

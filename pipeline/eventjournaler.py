@@ -32,6 +32,9 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, ej_x86_64_b
         config = f"linux_{arch}_rel"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./eventjournaler/TA'),
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             event_journaler_sdds=ej_build / f'eventjournaler/{config}/installer',
             manual_tools=ej_build / f'eventjournaler/{config}/manualTools',
             base_sdds=ej_build / f'base/{config}/installer',
@@ -40,6 +43,9 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, ej_x86_64_b
     if mode == 'coverage':
         test_inputs = dict(  # TODO check this by setting mode and tap ls
             test_scripts=context.artifact.from_folder('./eventjournaler/TA'),
+            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             event_journaler_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT',
             manual_tools=ej_build / 'sspl-plugin-eventjournaler-coverage/manualTools',
             bullseye_files=context.artifact.from_folder('./eventjournaler/build/bullseye'),

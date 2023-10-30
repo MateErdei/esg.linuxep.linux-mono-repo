@@ -1,10 +1,10 @@
 *** Settings ***
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
-Library    ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library    ${COMMON_TEST_LIBS}/UpdateServer.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FakePluginWrapper.py
+Library    ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot

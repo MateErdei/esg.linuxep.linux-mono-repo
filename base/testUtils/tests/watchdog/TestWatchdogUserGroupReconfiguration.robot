@@ -3,10 +3,10 @@ Documentation   Tests that check WD will reconfigure the products user and group
 
 Library    OperatingSystem
 Library    Process
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/UserAndGroupReconfigurationUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/UserAndGroupReconfigurationUtils.py
+Library    ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
@@ -20,7 +20,7 @@ Suite Setup    Suite Setup
 Test Setup       Watchdog User Group Test Setup
 Test Teardown       Watchdog User Group Test Teardown
 
-Default Tags    TAP_PARALLEL1  EXCLUDE_ON_COVERAGE
+Force Tags    TAP_PARALLEL1  EXCLUDE_ON_COVERAGE
 
 *** Test Cases ***
 Watchdog Actual User And Group Config Has Correct Ids After Installation

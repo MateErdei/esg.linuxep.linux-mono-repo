@@ -5,14 +5,14 @@ Test Teardown   Thininstaller Test Teardown
 Suite Setup  sdds3 suite setup with fakewarehouse with real base
 Suite Teardown   SDDS3 Suite Fake Warehouse Teardown
 
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 Library     Process
 Library     DateTime
 Library     OperatingSystem

@@ -28,6 +28,7 @@ ln -snf "$JOURNALER_PATH/output/fake-management"  /opt/test/inputs/fake_manageme
 ln -snf "$BASE_PATH/output/SDDS-COMPONENT" /opt/test/inputs/base_sdds
 ln -snf "$COMMON_PATH/TA/libs" /opt/test/inputs/common_test_libs
 ln -snf "$COMMON_PATH/TA/robot" /opt/test/inputs/common_test_robot
+ln -snf "$BASE_PATH/testUtils/SupportFiles" /opt/test/inputs/SupportFiles
 
 apt-get -y install python3 python3-pip
 python3 -m pip install -r "$JOURNALER_PATH/TA/requirements.txt"

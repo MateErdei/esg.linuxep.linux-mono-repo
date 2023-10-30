@@ -12,10 +12,10 @@ Test Teardown    Run Keywords
 ...                Upgrade Resources SDDS3 Test Teardown
 
 Library     DateTime
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
-Library     ${LIBS_DIRECTORY}/PolicyUtils.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/PolicyUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
@@ -25,8 +25,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  SULDOWNLOADER
-Force Tags  LOAD6
+Force Tags  TAP_PARALLEL1  SULDOWNLOADER
 
 *** Variables ***
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
@@ -70,6 +69,8 @@ Valid ESM Entry Is Requested By Suldownloader
 
 
 We Install Flags Correctly For Static Suites
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  DISABLED
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -80,7 +81,7 @@ We Install Flags Correctly For Static Suites
     ${sul_mark} =  mark_log_size    ${SULDownloaderLog}
 
     Start Local Cloud Server    --initial-alc-policy  ${tmpPolicy}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
 
     Setup Install SDDS3 Base
@@ -158,7 +159,8 @@ Absent ESM Field Does Not Appear In Update Config
 
 
 New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -169,10 +171,10 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -198,7 +200,8 @@ New Fixed Version Token Doesnt Trigger Immediate Update When Scheduled Updates A
 
 
 New Fixed Version Token Does Trigger Immediate Update With Update Now When Scheduled Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -209,10 +212,10 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -241,7 +244,8 @@ New Fixed Version Token Does Trigger Immediate Update With Update Now When Sched
 
 
 New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are Enabled
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -252,10 +256,10 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -283,7 +287,8 @@ New Fixed Version Token Does Trigger Immediate Update When Paused Updates Are En
 
 
 New Fixed Version Token Does Trigger Immediate Update
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS all develop
     Remove File  ${tmpPolicy}
@@ -294,10 +299,10 @@ New Fixed Version Token Does Trigger Immediate Update
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -324,7 +329,8 @@ New Fixed Version Token Does Trigger Immediate Update
 
 
 Install all plugins static-999 then downgrade to all plugins static
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -336,10 +342,10 @@ Install all plugins static-999 then downgrade to all plugins static
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
@@ -413,7 +419,8 @@ Install all plugins static-999 then downgrade to all plugins static
 
 
 Install all plugins static then upgrade to all plugins static-999
-    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
+    [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER  DISABLED
 
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -426,10 +433,10 @@ Install all plugins static then upgrade to all plugins static-999
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
 
     Set Suite Variable    ${GL_handle}    ${handle}
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}

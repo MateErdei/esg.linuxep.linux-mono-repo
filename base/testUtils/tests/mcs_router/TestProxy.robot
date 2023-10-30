@@ -1,6 +1,6 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
-Library     ${LIBS_DIRECTORY}/ProxyUtils.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/ProxyUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 

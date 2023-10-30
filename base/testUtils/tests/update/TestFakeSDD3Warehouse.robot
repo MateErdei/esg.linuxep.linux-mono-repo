@@ -1,6 +1,6 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
@@ -9,7 +9,7 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Test Setup   Generate Fake sdds3 warehouse
 Test Teardown  sdds3 Teardown
 
-Default Tags    MANUAL
+Force Tags    MANUAL
 Test Timeout    NONE
 
 *** Keywords ***

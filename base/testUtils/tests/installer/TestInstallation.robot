@@ -5,9 +5,10 @@ Suite Setup  Local Suite Setup
 
 Documentation    Test Installation
 
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 Library    Collections
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
@@ -62,25 +63,25 @@ Verify that the full installer works correctly
     Set Test Variable  ${SymbolicLinkInfo}
     ## Check Directory Structure
     Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/DirectoryInfo
     Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
 
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/FileInfo
     ${ExpectedFileInfo} =    Adjust Base Install Set Expected File Info For Platform    ${ExpectedFileInfo}
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/SymbolicLinkInfo
     ${ExpectedSymbolicLinkInfo} =    Adjust Base Install Set Expected Symbolic Link Info For Platform    ${ExpectedSymbolicLinkInfo}
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files
     ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}  Run Keyword If  not os.path.isdir("/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo_withoutLibSystemd
-    ...  ELSE IF    not os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo_withoutUsrLibSystemd
-    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo
+    ${ExpectedSystemdInfo}  Run Keyword If  not os.path.isdir("/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/SystemdInfo_withoutLibSystemd
+    ...  ELSE IF    not os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/SystemdInfo_withoutUsrLibSystemd
+    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 Verify Sockets Have Correct Permissions
@@ -343,9 +344,9 @@ Check Installer Not Running
     Should Not Be Equal As Integers    ${result.rc}   0   install.sh still running
 
 Save Current InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_TESTS_DIR}/tests/installer/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
 VersionCopy Teardown
     Run Keyword If Test Failed   Display List Files Dash L In Directory   /tmp/testVersionCopy/files

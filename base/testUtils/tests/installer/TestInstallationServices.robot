@@ -2,11 +2,13 @@
 Documentation    Test correct services are started when installer is run
 
 Library    String
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
+
+Force Tags  TAP_PARALLEL5
 
 *** Test Cases ***
 Verify Watchdog Service Installed And Uninstalled Correctly

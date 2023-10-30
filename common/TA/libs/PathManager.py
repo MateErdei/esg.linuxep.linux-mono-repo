@@ -70,7 +70,7 @@ def find_local_mtr_dir_path():
 
 
 def libs_supportfiles_and_tests_are_here(dir_path):
-    return are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests", "testUtilsMarker"])
+    return are_basenames_in_directory(dir_path, ["testUtilsMarker"])
 
 
 def get_testUtils_dir():
@@ -78,8 +78,11 @@ def get_testUtils_dir():
     # go up the directory structure until we have the right directory
     while not libs_supportfiles_and_tests_are_here(dir_path):
         dir_path = os.path.dirname(dir_path)
+        logger.info(f"Checking {dir_path} for testUtilsMarker")
         if dir_path == "/":
-            raise AssertionError("Failed to find testUtils dir, recursed till reached root")
+            dir_path = "/opt/test/inputs"
+            logger.warn(f"Failed to find testUtils dir, recursed till reached root. Using default of {dir_path}")
+            break
     return dir_path
 
 
@@ -92,21 +95,15 @@ def get_repo_root_path():
     return REPO_ROOT_PATH
 
 
-SUPPORTFILEPATH = os.path.join(ROBOT_ROOT_PATH, "SupportFiles")
-
-
 def get_support_file_path():
-    return SUPPORTFILEPATH
-
-
-LIBS_PATH = os.path.join(ROBOT_ROOT_PATH, "libs")
+    return "/opt/test/inputs/SupportFiles"
 
 
 def get_libs_path():
-    return LIBS_PATH
+    return "/opt/test/inputs/common_test_libs"
 
 
-ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "tests")
+ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "test_scripts")
 
 
 def get_robot_tests_path():

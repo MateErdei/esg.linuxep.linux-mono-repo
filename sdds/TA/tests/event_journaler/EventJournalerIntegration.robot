@@ -12,8 +12,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  General Test Teardown
 
-Force Tags  LOAD4
-Default Tags   EVENT_JOURNALER_PLUGIN    EDR_PLUGIN
+Force Tags  TAP_PARALLEL2  EVENT_JOURNALER_PLUGIN  EDR_PLUGIN
 
 
 *** Test Cases ***

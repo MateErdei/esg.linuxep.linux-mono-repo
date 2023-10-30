@@ -1,10 +1,10 @@
 *** Settings ***
 
 Library     String
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/LiveResponseUtils.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/LiveResponseUtils.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot

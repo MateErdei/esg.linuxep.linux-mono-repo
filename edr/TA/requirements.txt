@@ -2,3 +2,4 @@ pyzmq
 protobuf
 pytest-html
 datetime
+sseclient

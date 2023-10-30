@@ -1,8 +1,8 @@
 *** Settings ***
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/UpdateServer.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
@@ -14,7 +14,7 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  LOAD9
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL4
 
 *** Test Case ***
 Command Poll Sent

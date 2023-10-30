@@ -5,8 +5,8 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${LIBS_DIRECTORY}/FakeMultiSubscriber.py
-Library     ${LIBS_DIRECTORY}/FakeMultiPublisher.py
+Library     ${COMMON_TEST_LIBS}/FakeMultiSubscriber.py
+Library     ${COMMON_TEST_LIBS}/FakeMultiPublisher.py
 
 Test Teardown   Test Teardown For Suite
 
@@ -16,7 +16,7 @@ Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Test Timeout    4 minutes
 
-Default Tags    MANAGEMENT_AGENT  PUB_SUB
+Force Tags    MANAGEMENT_AGENT  PUB_SUB
 
 *** Test Cases ***
 Verify Can Send Message Via Management Agent Pub Sub Data Channel

@@ -20,6 +20,7 @@ def get_websocket_server_path():
     return os.path.join(dir_path, "utils", "websocket_server")
 
 
+PathManager.addPathToSysPath("/opt/test/inputs/pytest_scripts/utils/websocket_server")  # TAP location
 PathManager.addPathToSysPath(get_websocket_server_path())
 
 

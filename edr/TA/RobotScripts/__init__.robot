@@ -17,9 +17,20 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${MCS_DIR}                 ${SOPHOS_INSTALL}/base/mcs
     Set Global Variable  ${BASE_LOGS_DIR}           ${SOPHOS_INSTALL}/logs/base
+    Set Global Variable  ${MANAGEMENT_AGENT}        ${SOPHOS_INSTALL}/base/bin/sophos_managementagent
+    Set Global Variable  ${UPDATE_DIR}              ${SOPHOS_INSTALL}/base/update
+    Set Global Variable  ${REGISTER_CENTRAL}        ${SOPHOS_INSTALL}/base/bin/registerCentral
+    Set Global Variable  ${EDR_DIR}                 ${SOPHOS_INSTALL}/plugins/edr
+    Set Global Variable  ${ETC_DIR}                 ${SOPHOS_INSTALL}/base/etc
+    Set Global Variable  ${MCS_TMP_DIR}             ${MCS_DIR}/tmp
+    Set Global Variable  ${MCS_CONFIG}              ${ETC_DIR}/sophosspl/mcs.config
+    Set Global Variable  ${MCS_POLICY_CONFIG}       ${ETC_DIR}/sophosspl/mcs_policy.config
+    Set Global Variable  ${UPDATE_CONFIG}           ${UPDATE_DIR}/var/updatescheduler/update_config.json
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
+    Set Global Variable  ${SUPPORT_FILES}           ${TEST_INPUT_PATH}/SupportFiles
     Set Global Variable  ${COMMON_TEST_LIBS}        ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_ROBOT}       ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
     Set Global Variable  ${INSTALL_SET_PATH}        ${ROBOT_SCRIPTS_PATH}/InstallSet
     Set Global Variable  ${COMPONENT_NAME}          edr
@@ -29,8 +40,11 @@ Global Setup Tasks
     Set Global variable  ${EDR_LOG_FILE}            ${COMPONENT_ROOT_PATH}/log/edr.log
     Set Global variable  ${SCHEDULEDQUERY_LOG_FILE}    ${COMPONENT_ROOT_PATH}/log/scheduledquery.log
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  /tmp/fake_management_agent.log
+    Set Global Variable  ${WEBSOCKET_SERVER}        ${TEST_INPUT_PATH}/websocket_server/utils/websocket_server
+    Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}     ${TEST_INPUT_PATH}/common_test_libs
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
+    evaluate    sys.path.append("${COMMON_TEST_LIBS}")    modules=sys
 
 Global Teardown Tasks
     Uninstall All

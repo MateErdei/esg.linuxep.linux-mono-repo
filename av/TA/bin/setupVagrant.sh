@@ -76,6 +76,7 @@ then
     ln -snf "${AV_PATH}/output/" /opt/test/inputs/tap_test_output_from_build
     ln -snf "${COMMON_PATH}/TA/libs" /opt/test/inputs/common_test_libs
     ln -snf "${COMMON_PATH}/TA/robot" /opt/test/inputs/common_test_robot
+    ln -snf "${BASE_PATH}/testUtils/SupportFiles" /opt/test/inputs/SupportFiles
 else
     failure 2 "Can't find SPL-AV build!"
 fi

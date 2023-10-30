@@ -55,11 +55,10 @@ soph_build_asset_pkg(
         [
             "testUtils/SupportFiles/FakeManagement/**",
         ],
-    ) + ["testUtils/libs/ActionUtils.py"],
+    ),
     platform_neutral = True,
     remap_paths = {
         "base/testUtils/SupportFiles/FakeManagement": "",
-        "base/testUtils/libs": "",
     },
     strip_prefix = "/",
     visibility = ["//products:__pkg__"],

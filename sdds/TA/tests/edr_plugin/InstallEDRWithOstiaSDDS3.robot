@@ -5,11 +5,11 @@ Suite Teardown   EDR Suite Teardown
 Test Setup       Require Uninstalled
 Test Teardown    EDR Test Teardown
 
-Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/WarehouseUtils.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
 
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
@@ -23,9 +23,7 @@ Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
-Default Tags   EDR_PLUGIN  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
-Force Tags  LOAD4
-
+Force Tags   EDR_PLUGIN  FAKE_CLOUD   THIN_INSTALLER  INSTALLER  LOAD4
 
 *** Variables ***
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml

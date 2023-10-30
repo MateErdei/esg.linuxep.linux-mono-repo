@@ -7,15 +7,15 @@ Test Teardown    EDR Test Teardown
 
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/LiveQueryUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
 
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 Default Tags   EDR_PLUGIN  FAKE_CLOUD
-Force Tags  LOAD1
+Force Tags  TAP_PARALLEL3
 
 *** Test Cases ***
 EDR disables curl tables when network available flag becomes false

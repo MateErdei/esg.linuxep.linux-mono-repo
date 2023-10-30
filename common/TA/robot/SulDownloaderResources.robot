@@ -1,8 +1,8 @@
 *** Settings ***
 Library    OperatingSystem
 Library    Process
-Library    ${LIBS_DIRECTORY}/SulDownloader.py
-Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${COMMON_TEST_LIBS}/SulDownloader.py
+Library    ${COMMON_TEST_LIBS}/UpdateServer.py
 
 Resource    LogControlResources.robot
 

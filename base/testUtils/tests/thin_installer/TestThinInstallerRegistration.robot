@@ -9,14 +9,14 @@ Suite Teardown   Thininstaller Suite Teardown
 Library     DateTime
 Library     OperatingSystem
 Library     Process
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
@@ -25,7 +25,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Default Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER
 
 *** Keywords ***
 Thininstaller Suite Setup

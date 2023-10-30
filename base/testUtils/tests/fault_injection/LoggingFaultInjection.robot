@@ -2,7 +2,7 @@
 Documentation    Suite description
 
 
-Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
@@ -12,11 +12,10 @@ Test Teardown  Local Test Teardown
 Suite Setup   Local Suite Setup
 Suite Teardown   Local Suite Teardown
 
-Default Tags   FAULTINJECTION
+Force Tags   FAULTINJECTION    TAP_PARALLEL4
 
 *** Variables ***
-${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger
-${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger
+${FakeLogger}                   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/FaultInjectionLogger
 ${StockLoggerConfLocation}      /opt/sophos-spl/base/etc/logger.conf.0
 ${LowPrivilegeLogLocation}      /tmp/test.log
 ${HighPrivilegeDirectory}       /tmp/HighPrivilegeDirectory

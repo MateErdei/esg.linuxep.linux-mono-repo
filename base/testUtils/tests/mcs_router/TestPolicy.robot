@@ -93,7 +93,7 @@ Only One Policy Is Distributed When Receiving Multiple ALC Policies On Command P
 
 SAV Policy with Chinese characters is written to File
     [Documentation]  Demonstrate error found in LINUXEP-6757
-    Copy File  ${ROBOT_TESTS_DIR}/mcs_router/installfiles/sav.json        ${SOPHOS_INSTALL}/base/pluginRegistry
+    Copy File  ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json        ${SOPHOS_INSTALL}/base/pluginRegistry
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter

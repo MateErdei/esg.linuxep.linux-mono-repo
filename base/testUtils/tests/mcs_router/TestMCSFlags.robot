@@ -1,7 +1,7 @@
 *** Settings ***
 
 Library   String
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 

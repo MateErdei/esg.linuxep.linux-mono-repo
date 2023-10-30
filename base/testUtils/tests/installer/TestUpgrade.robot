@@ -1,9 +1,9 @@
 *** Settings ***
 Library    DateTime
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
 
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
@@ -15,7 +15,7 @@ Suite Setup     Create 060 Install Set
 Suite Teardown    Remove Directory    /opt/tmp/0-6-0/    recursive=True
 Test Teardown  Upgrade Test Teardown
 
-Default Tags    INSTALLER    TAP_PARALLEL5
+Force Tags    INSTALLER    TAP_PARALLEL5
 
 *** Variables ***
 ${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat

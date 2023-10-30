@@ -8,7 +8,7 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Test Teardown  Upgrade Resources Test Teardown
 
-Force Tags  SULDOWNLOADER  LOAD6
+Force Tags  SULDOWNLOADER  TAP_PARALLEL1
 
 *** Test Cases ***
 

@@ -3,7 +3,7 @@ Documentation    Test that wdctl start operation
 
 Library    String
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot

@@ -17,6 +17,7 @@ import re
 import configparser
 import time
 import psutil
+import platform
 
 import PathManager
 import OSUtils
@@ -79,7 +80,7 @@ def newer_file(*files: str) -> str:
 
 def get_full_installer():
     OUTPUT = os.environ.get("OUTPUT")
-    BASE_DIST = os.environ.get("BASE_DIST")
+    BASE_DIST = os.environ.get("BASE_DIST", "/opt/test/inputs/base_sdds")
 
     logger.debug("Getting installer BASE_DIST: {}, OUTPUT: {}".format(BASE_DIST, OUTPUT))
 
@@ -146,6 +147,7 @@ def get_sspl_live_response_plugin_sdds():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("esg.winep.liveterminal")
     if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin))
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     candidates.append(os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "liveterminal"))
@@ -153,8 +155,9 @@ def get_sspl_live_response_plugin_sdds():
 
 def get_sspl_edr_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("edr")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("edr_sdds")
     if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin))
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL EDR Plugin", "SSPL_EDR_PLUGIN_SDDS", candidates)
@@ -163,6 +166,7 @@ def get_sspl_runtimedetections_plugin_sdds():
     candidates = [os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "sspl-runtimedetections-plugin")]
     local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-runtimedetections-component")
     if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin))
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL Runtime Detections Plugin", "SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS", candidates)
@@ -171,6 +175,7 @@ def get_sspl_event_journaler_plugin_sdds():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("eventjournaler")
     if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin))
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "output/SDDS-COMPONENT"))
@@ -616,18 +621,20 @@ def get_file_info_for_installation(plugin=None):
 
     :return:
     """
+    exclusions = []
     SOPHOS_INSTALL = get_sophos_install()
-    exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "installer/InstallSet/ExcludeFiles")).readlines()
-    exclusions = set(( e.strip() for e in exclusions ))
-
     # Allows the overriding of this function to work for specific plugins
     if plugin:
         plugin = plugin.lower()
         plugin_dir = "plugins/{}".format(plugin)
         SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, plugin_dir)
-        if plugin == "liveresponse":
-            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "liveresponse_plugin/InstallSet/ExcludeFiles")).readlines()
-        exclusions = set(( e.strip() for e in exclusions ))
+        if plugin == "liveresponse" or plugin == "eventjournaler":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "RobotTests/InstallSet/ExcludeFiles")).readlines()
+        elif plugin == "edr":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "RobotScripts/InstallSet/ExcludeFiles")).readlines()
+    else:
+        exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "tests/installer/InstallSet/ExcludeFiles")).readlines()
+    exclusions = set(( e.strip() for e in exclusions ))
 
     fullFiles = set()
     fullDirectories = [SOPHOS_INSTALL]
@@ -879,3 +886,33 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
 def file_info_with_custom_install_directory(file_info_path, custom_install_dir):
     with open(file_info_path) as file:
         return file.read().replace("/opt/sophos-spl", custom_install_dir)
+
+
+def adjust_base_install_set_expected_file_info_for_platform(expected, install_dir="/opt/sophos-spl"):
+    arch = platform.uname()[4]
+    if arch == "x86_64":
+        expected = expected.split("\n")
+        for i, line in enumerate(expected[:]):
+            # These libraries are not present on the ARM64 distribution of pycryptodome
+            if line.endswith("_raw_aes.abi3.so.0"):
+                expected.insert(i + 1, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aesni.abi3.so.0")
+            if line.endswith("_BLAKE2s.abi3.so.0"):
+                expected.insert(i + 2, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_clmul.abi3.so.0")
+                break
+        expected = "\n".join(expected)
+    return expected
+
+
+def adjust_base_install_set_expected_symbolic_link_info_for_platform(expected, install_dir="/opt/sophos-spl"):
+    arch = platform.uname()[4]
+    if arch == "x86_64":
+        expected = expected.split("\n")
+        for i, line in enumerate(expected[:]):
+            # These libraries are not present on the ARM64 distribution of pycryptodome
+            if line.endswith("_raw_aes.abi3.so"):
+                expected.insert(i + 1, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aesni.abi3.so")
+            if line.endswith("_BLAKE2s.abi3.so"):
+                expected.insert(i + 2, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_clmul.abi3.so")
+                break
+        expected = "\n".join(expected)
+    return expected

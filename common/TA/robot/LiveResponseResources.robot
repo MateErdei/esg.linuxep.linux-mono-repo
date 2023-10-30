@@ -1,6 +1,9 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
-Library     ${LIBS_DIRECTORY}/WebsocketWrapper.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/WebsocketWrapper.py
+
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 *** Variables ***
 ${LIVE_RESPONSE_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/liveresponse
@@ -64,6 +67,7 @@ Liveresponse Test Setup
     Empty Directory  ${LIVE_RESPONSE_PLUGIN_PATH}/var/
 
 Liveresponse Test Teardown
+    General Test Teardown    ${SOPHOS_INSTALL}
     Stop Websocket Server
     ${files} =  List Directory   ${MCS_DIR}/action/
     ${liveterminal_server_log} =  Liveterminal Server Log File
@@ -72,7 +76,7 @@ Liveresponse Test Teardown
 
 Liveresponse Suite Setup
     Generate Local Fake Cloud Certificates
-    Setup Suite Tmp Dir   ./tmp
+    Setup Suite Tmp Dir   /tmp/liveterminal
     Setup Base FakeCloud And FakeCentral-LT Servers
     Install Live Response Directly
 

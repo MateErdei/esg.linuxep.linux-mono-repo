@@ -6,15 +6,15 @@ Test Teardown   Run Keywords
 ...  Deregister From Central  AND
 ...  Uninstall_SSPL    ${SOPHOS_INSTALL}
 
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
+Force Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini

@@ -1,14 +1,14 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/ProcessUtils.py
-Library     ${LIBS_DIRECTORY}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/ProcessUtils.py
+Library     ${COMMON_TEST_LIBS}/UpdateServer.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Suite Setup      Local Suite Setup
 Suite Teardown   Local Suite Teardown
 
-Default Tags  TAP_PARALLEL2
+Force Tags  TAP_PARALLEL2
 
 *** Keywords ***
 Local Suite Setup

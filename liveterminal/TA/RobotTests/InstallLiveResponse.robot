@@ -33,16 +33,16 @@ Verify that the live response installer works correctly
     Set Test Variable  ${SymbolicLinkInfo}
     ## Check Directory Structure
     Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/DirectoryInfo
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/DirectoryInfo
     Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
 
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/FileInfo
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/FileInfo
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
 Verify That Live Response Logging Can Be Set Individually
@@ -68,6 +68,6 @@ Live Response Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current Live Response InstalledFiles To Local Path
 
 Save Current Live Response InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+    Create File  ${ROBOT_TESTS_DIR}/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_TESTS_DIR}/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_TESTS_DIR}/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}

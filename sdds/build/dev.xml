@@ -142,18 +142,18 @@
         </command>
         <command mode="dev,999">
             <program>cp</program>
-            <args>-r libs SupportFiles ../../TA/</args>
+            <args>-r SupportFiles ../../TA/</args>
             <workingdir>./sdds/SystemProductTestOutput/testUtils</workingdir>
+        </command>
+        <command mode="dev,999">
+            <program>cp</program>
+            <args>-r SystemProductTestOutput/libs/ TA/libs/</args>
+            <workingdir>./sdds</workingdir>
         </command>
         <command mode="dev,999">
             <program>cp</program>
             <args>fileInfo.py readVersion.py generateManifestDat.py generateSDDSImport.py generateSDDSImportAndManifestDat.py ../TA/libs/</args>
             <workingdir>./sdds/SystemProductTestOutput</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>rsync</program>
-            <args>-avh SystemProductTestOutput/libs/ TA/libs/</args>
-            <workingdir>./sdds</workingdir>
         </command>
         <command mode="dev,999">
             <program>rsync</program>

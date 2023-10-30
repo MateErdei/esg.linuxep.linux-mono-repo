@@ -28,8 +28,9 @@ import logging
 import logging.handlers
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'libs'))
-sys.path.insert(1, libs_dir)
+libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, os.pardir, os.pardir, 'common', 'TA', 'libs'))
+sys.path.append(libs_dir)
+sys.path.append('/opt/test/inputs/common_test_libs')
 
 import ArgParserUtils
 

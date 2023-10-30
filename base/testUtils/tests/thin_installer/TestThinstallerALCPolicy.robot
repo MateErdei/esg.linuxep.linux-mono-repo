@@ -8,9 +8,9 @@ Suite Teardown   Cleanup sdds3 Update Tests
 Library     DateTime
 Library     OperatingSystem
 Library     Process
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/CentralUtils.py
+Library     ${COMMON_TEST_LIBS}/MCSRouter.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot

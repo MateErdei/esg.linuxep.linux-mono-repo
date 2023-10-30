@@ -6,15 +6,19 @@ import glob
 
 MONO_REPO = "esg.linuxep.linux-mono-repo"
 BASE_DIR_NAME = "base"
+COMMON_DIR_NAME = "common"
 SPL_TOOLS_DIR_NAME = "spl-tools"
 AV_DIR_NAME = "av"
 EDR_DIR_NAME = "edr"
 EVENT_JOURNALER_DIR_NAME = "eventjournaler"
+LIVETERMINAL_DIR_NAME = "liveterminal"
 
 BASE_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, BASE_DIR_NAME)
+COMMON_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, COMMON_DIR_NAME)
 AV_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, AV_DIR_NAME)
 EDR_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EDR_DIR_NAME)
 EJ_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EVENT_JOURNALER_DIR_NAME)
+LT_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, LIVETERMINAL_DIR_NAME)
 TOOLS_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, SPL_TOOLS_DIR_NAME)
 
 
@@ -64,6 +68,11 @@ def get_plugin_names():
             'name': 'sspl-plugin-event-journaler',
             'dir': 'eventjournaler',
             'envName': 'SSPL_PLUGIN_EVENT_JOURNALER_SDDS'
+        },
+        {
+            'name': 'sspl-plugin-liveterminal',
+            'dir': 'liveterminal',
+            'envName': 'SSPL_PLUGIN_LIVETERMINAL_SDDS'
         },
     ]
     return plugins
@@ -145,13 +154,13 @@ def copy_file_from_vagrant_machine_to_host(vagrant_wrapper_dir: str, src: str, d
 
 
 # Create the temp file that will be executed inside the vagrant machine for Base tests
-def generate_base_test_script(remote_dir: str, base_folder_vagrant: str, env_variables: str, quoted_args: [str]) -> str:
+def generate_base_test_script(remote_dir: str, base_folder_vagrant: str, common_folder_vagrant: str, env_variables: str, quoted_args: [str]) -> str:
     if os.environ.get("NO_GATHER"):
         gather = ""
         av = ""
     else:
         gather = f"TEST_UTILS={base_folder_vagrant}/testUtils  sudo -HE {base_folder_vagrant}/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
-        av = f"sudo -E {base_folder_vagrant}/testUtils/libs/DownloadAVSupplements.py"
+        av = f"sudo -E {common_folder_vagrant}/TA/libs/DownloadAVSupplements.py"
     temp_file_content = f"""#!/bin/bash
 set -ex
 cd {remote_dir}
@@ -162,10 +171,14 @@ export BASE_DIST={base_folder_vagrant}
 {av}
 # Env vars
 {env_variables}
-# Set python path
-export PYTHONPATH={base_folder_vagrant}/testUtils/libs:{base_folder_vagrant}/testUtils/SupportFiles:$PYTHONPATH
+# Create symlinks
+sudo ln -snf "{common_folder_vagrant}/TA/libs" /opt/test/inputs/common_test_libs
+sudo ln -snf "{common_folder_vagrant}/TA/robot" /opt/test/inputs/common_test_robot
+sudo ln -snf "{base_folder_vagrant}/testUtils/SupportFiles" /opt/test/inputs/SupportFiles
+# Create testUtilsMarker
+sudo touch /opt/test/inputs/testUtilsMarker
 # Run robot
-sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
+sudo -E /usr/bin/python3 -m robot --pythonpath=/opt/test/inputs/common_test_libs {' '.join(quoted_args)}
 """
     return temp_file_content
 
@@ -187,6 +200,8 @@ then
 fi
 # Env vars
 {env_variables}
+# Set python path
+export PYTHONPATH=/opt/test/inputs/common_test_libs
 # Run robot
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
@@ -208,6 +223,8 @@ then
 fi
 # Env vars
 {env_variables}
+# Set python path
+export PYTHONPATH=/opt/test/inputs/common_test_libs
 # Run robot
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
@@ -230,6 +247,31 @@ then
 fi
 # Env vars
 {env_variables}
+# Set python path
+export PYTHONPATH=/opt/test/inputs/common_test_libs
+# Run robot
+sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
+"""
+    return temp_file_content
+
+
+def generate_liveterminal_test_script(remote_dir: str, liveterminal_folder_vagrant: str, env_variables: str,
+                                         quoted_args: [str]) -> str:
+    temp_file_content = f"""#!/bin/bash
+set -ex
+cd {remote_dir}
+if [[ ! -f "/tmp/ran_liveterminal_setup_vagrant_script" ]]
+then
+    echo "Running Live Terminal vagrant setup script"
+    pushd "{liveterminal_folder_vagrant}/TA"
+        chmod +x bin/setupVagrant.sh
+        sudo bin/setupVagrant.sh
+    popd
+fi
+# Env vars
+{env_variables}
+# Set python path
+export PYTHONPATH=/opt/test/inputs/common_test_libs
 # Run robot
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
@@ -250,6 +292,8 @@ def main():
         current_repo = EDR_DIR_NAME
     elif os.path.join(MONO_REPO, EVENT_JOURNALER_DIR_NAME) in current_dir:
         current_repo = EVENT_JOURNALER_DIR_NAME
+    elif os.path.join(MONO_REPO, LIVETERMINAL_DIR_NAME) in current_dir:
+        current_repo = LIVETERMINAL_DIR_NAME
 
     mono_repo_path = find_mono_repo_root_dir(current_dir)
     print(f"Linux mono repo dir: {mono_repo_path}")
@@ -274,10 +318,8 @@ def main():
         else:
             print("Cannot find folder for everest-base")
             exit(1)
-        # base_folder_vagrant = os.path.join("/vagrant/base", base_folder[len(vagrant_shared_dir):])
-        base_folder_vagrant = f"/vagrant/{MONO_REPO}/base"
         print(f"Base folder = {base_folder}")
-        print(f"Base folder on vagrant = {base_folder_vagrant}")
+        print(f"Base folder on vagrant = {BASE_ON_VAGRANT}")
 
     def get_plugin_info():
         plugins_info = get_plugin_names()
@@ -344,7 +386,7 @@ def main():
 
     # Create the temp file that will be executed inside the vagrant machine
     if current_repo == BASE_DIR_NAME:
-        temp_file_content = generate_base_test_script(remote_dir, base_folder_vagrant, env_variables, quoted_args)
+        temp_file_content = generate_base_test_script(remote_dir, BASE_ON_VAGRANT, COMMON_ON_VAGRANT, env_variables, quoted_args)
 
     elif current_repo == AV_DIR_NAME:
         # AV needs to run tests from TA dir so hard code the remote_dir
@@ -369,6 +411,14 @@ def main():
         quoted_args[-1] = add_quote(test_dir_absolute)
         remote_dir = f"{EJ_ON_VAGRANT}/TA"
         temp_file_content = generate_event_journaler_test_script(remote_dir, EJ_ON_VAGRANT, env_variables, quoted_args)
+
+    elif current_repo == LIVETERMINAL_DIR_NAME:
+        # Event Journaler also needs to run tests from TA dir so hard code the remote_dir
+        # remap test location arg, assuming last arg is the dir of the tests we want to run
+        test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
+        quoted_args[-1] = add_quote(test_dir_absolute)
+        remote_dir = f"{LT_ON_VAGRANT}/TA"
+        temp_file_content = generate_liveterminal_test_script(remote_dir, LT_ON_VAGRANT, env_variables, quoted_args)
     else:
         raise AssertionError("Unknown Repo")
 

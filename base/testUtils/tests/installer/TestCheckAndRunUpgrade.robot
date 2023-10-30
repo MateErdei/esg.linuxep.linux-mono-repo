@@ -1,6 +1,6 @@
 *** Settings ***
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
@@ -11,7 +11,7 @@ Suite Setup    Require Fresh Install
 Suite Teardown    Require Uninstalled
 Test Teardown  Upgrade Test Teardown
 
-Default Tags  INSTALLER  TAP_PARALLEL2  RA_PLUGIN
+Force Tags  INSTALLER  TAP_PARALLEL2  RA_PLUGIN
 *** Test Cases ***
 Test TestCheckAndRunUpgrade with huge version.ini
     Require Fresh Install

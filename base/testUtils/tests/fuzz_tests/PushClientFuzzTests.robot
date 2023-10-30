@@ -1,12 +1,12 @@
 *** Settings ***
 Documentation    Fuzzer tests for MCS
 
-Default Tags  MCS_FUZZ
+Force Tags  MCS_FUZZ
 
 Library    Process
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
 
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource   ${COMMON_TEST_ROBOT}/LogControlResources.robot

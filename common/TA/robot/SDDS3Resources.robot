@@ -1,7 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
 Library    Process
-Library    ${LIBS_DIRECTORY}/FakeSDDS3WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/FakeSDDS3WarehouseUtils.py
 
 *** Variables ***
 ${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py
@@ -149,5 +149,5 @@ Clean up fake warehouse
 
 Start Local SDDS3 server with fake files
     [Arguments]  ${port}=8080  ${cert}=${SUPPORT_FILES}/https/server-private.pem
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SDDS3_FAKEFLAGS} --sdds3 ${SDDS3_FAKEREPO} --port ${port} --cert ${cert}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${SDDS3_FAKEFLAGS} --sdds3 ${SDDS3_FAKEREPO} --port ${port} --cert ${cert}  shell=true
     [Return]  ${handle}

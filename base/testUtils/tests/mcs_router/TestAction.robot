@@ -1,6 +1,6 @@
 *** Settings ***
 Library  OperatingSystem
-Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
+Library    ${COMMON_TEST_LIBS}/FilesystemWatcher.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
@@ -12,7 +12,7 @@ Suite Teardown  Run Keywords
 ...             Stop Local Cloud Server  AND
 ...             Uninstall SSPL Unless Cleanup Disabled
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL5
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_PARALLEL5
 
 *** Variables ***
 ${FileSystemWatcherLog}  /tmp/fsw.log

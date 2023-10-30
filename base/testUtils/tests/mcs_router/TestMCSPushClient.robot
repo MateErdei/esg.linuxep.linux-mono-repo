@@ -1,7 +1,7 @@
 *** Settings ***
 
 Library     String
-Library     ${LIBS_DIRECTORY}/PushServerUtils.py
+Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
@@ -15,7 +15,7 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
 Test Teardown    Test Teardown
 
-Force Tags  FAKE_CLOUD  MCS  MCS_ROUTER   LOAD9
+Force Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_PARALLEL4
 
 *** Test Case ***
 

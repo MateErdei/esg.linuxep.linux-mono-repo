@@ -1,14 +1,14 @@
 *** Settings ***
 Library    OperatingSystem
-Library    ${libs_directory}/PushServerUtils.py
-Library    ${libs_directory}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/PushServerUtils.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Test Teardown  Push Server Test Teardown
 
-Force Tags  FAKE_CLOUD  LOAD9
+Force Tags  FAKE_CLOUD  TAP_PARALLEL4
 
 *** Test Case ***
 MCSPushServer Can Be Used To Send Push Server Message
@@ -32,7 +32,8 @@ Client Should Detect Push Server Disconnection
     Check Server Stops Connection
 
 Client Should Detect Push Server Goes Away
-    [Tags]    EXCLUDE_DEBIAN12
+    # TODO: LINUXDAR-8285: Fix use of openssl on TAP templates so that this test can run
+    [Tags]    TESTFAILURE
     Start MCS Push Server
     Start SSE Client
     Check MCS Push Message Sent    Single Message

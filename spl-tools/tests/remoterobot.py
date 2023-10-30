@@ -59,8 +59,8 @@ def newer_folder(folder_one, folder_two):
 
 
 def get_base_folder():
-    baseDebugBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-debug/distribution/base")
-    baseReleaseBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-release/distribution/base")
+    baseDebugBuild = os.path.join(VAGRANTROOT, "esg.linuxep.linux-mono-repo/base/cmake-build-debug/distribution/base")
+    baseReleaseBuild = os.path.join(VAGRANTROOT, "esg.linuxep.linux-mono-repo/base/cmake-build-release/distribution/base")
     return newer_folder(baseReleaseBuild, baseDebugBuild)
 
 
@@ -84,7 +84,7 @@ base_folder = get_base_folder()
 if base_folder:
     print("Using {} folder for base".format(base_folder))
 else:
-    print("Cannot find folder for everest-base")
+    print("Cannot find folder for esg.linuxep.linux-mono-repo/base")
 base_folder = "/vagrant" + base_folder[len(VAGRANTROOT):]
 
 plugins = get_plugin_names()
@@ -138,8 +138,8 @@ if os.environ.get("NO_GATHER"):
     gather = ""
     av = ""
 else:
-    gather = "TEST_UTILS=/vagrant/everest-base/testUtils  sudo -E /vagrant/everest-base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
-    av = "sudo -E /vagrant/everest-base/testUtils/libs/DownloadAVSupplements.py"
+    gather = "TEST_UTILS=/vagrant/esg.linuxep.linux-mono-repo/base/testUtils  sudo -E /vagrant/esg.linuxep.linux-mono-repo/base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
+    av = "sudo -E /vagrant/esg.linuxep.linux-mono-repo/base/testUtils/libs/DownloadAVSupplements.py"
 
 tempfileContent = f"""#!/bin/bash
 pushd {remotedir}
@@ -147,7 +147,7 @@ export BASE_DIST={base_folder}
 {gather}
 {av}
 {env_variables}
-export PYTHONPATH=/vagrant/everest-base/testUtils/libs/:/vagrant/everest-base/testUtils/SupportFiles/:$PYTHONPATH
+export PYTHONPATH=/vagrant/esg.linuxep.linux-mono-repo/base/testUtils/SupportFiles/:$PYTHONPATH
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 popd
 """

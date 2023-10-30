@@ -5,10 +5,10 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${LIBS_DIRECTORY}/ActionUtils.py
+Library     ${COMMON_TEST_LIBS}/ActionUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 

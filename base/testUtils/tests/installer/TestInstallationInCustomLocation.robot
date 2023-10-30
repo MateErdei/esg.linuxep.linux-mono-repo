@@ -5,9 +5,9 @@ Library    Collections
 Library    OperatingSystem
 Library    Process
 
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/Watchdog.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
@@ -18,7 +18,7 @@ Test Teardown    Install Tests Teardown With Custom Install Location
 
 *** Variables ***
 ${CUSTOM_INSTALL_DIRECTORY}    /opt/etc/sophos-spl
-${INSTALL_SET_DIRECTORY}    ${ROBOT_TESTS_DIR}/installer/InstallSet
+${INSTALL_SET_DIRECTORY}    ${ROBOT_TESTS_DIR}/tests/installer/InstallSet
 
 
 *** Test Cases ***

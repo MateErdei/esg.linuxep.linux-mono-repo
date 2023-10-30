@@ -2,15 +2,15 @@
 Documentation    Test installation on different filsystems
 
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
-Default Tags  INSTALLER
-
 Test Teardown   XFS Install Tests Teardown
 Test Setup      XFS Install Tests Setup
+
+Force Tags  INSTALLER    TAP_PARALLEL5
 
 *** Test Cases ***
 Install On XFS With ftype Disabled

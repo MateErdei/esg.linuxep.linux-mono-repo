@@ -20,7 +20,7 @@ Suite Teardown  Ensure Uninstalled
 Test Setup      Should Exist  ${SOPHOS_INSTALL}/bin/sophos_diagnose
 Test Teardown   Teardown
 
-Force Tags  DIAGNOSE
+Force Tags  TAP_PARALLEL3    DIAGNOSE
 
 *** Test Cases ***
 

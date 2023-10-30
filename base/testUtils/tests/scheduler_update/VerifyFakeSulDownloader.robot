@@ -8,7 +8,7 @@ Test Teardown   Fake SulDownloader TearDown
 
 Library    Process
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
+Library    ${COMMON_TEST_LIBS}/FakeSulDownloader.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot

@@ -4,6 +4,8 @@ Documentation    Tests around Watchdog and process spawning
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 
+Force Tags  TAP_PARALLEL5
+
 *** Test Cases ***
 
 Test File Descriptors Are Closed When WD Spawns Process

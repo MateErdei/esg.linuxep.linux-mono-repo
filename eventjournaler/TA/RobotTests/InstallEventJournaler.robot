@@ -1,9 +1,10 @@
 *** Settings ***
 Documentation   Suite description
 
-Resource        EventJournalerResources.robot
-Library         ../Libs/InstallerUtils.py
-Library         Collections
+Resource    EventJournalerResources.robot
+Library     ../Libs/InstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     Collections
 
 Suite Setup     Setup
 Suite Teardown  Uninstall Base
@@ -68,6 +69,12 @@ Check For Insecure Permissions
     Sort List   ${items}
     Log List   ${items}
     Should Be Empty   ${items}
+
+Verify That Event Journaler Logging Can Be Set Individually
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [eventjournaler]\nVERBOSITY=DEBUG\n
+    ${ej_mark} =    Get Event Journaler Log Mark
+    Install Event Journaler Directly from SDDS
+    Wait For Log Contains From Mark    ${ej_mark}    Logger eventjournaler configured for level: DEBUG
 
 *** Keywords ***
 Event Journaler Tests Teardown With Installed File Replacement

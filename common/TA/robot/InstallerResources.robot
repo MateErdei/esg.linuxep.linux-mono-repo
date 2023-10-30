@@ -3,9 +3,9 @@ Library     OperatingSystem
 Library     Process
 Library     String
 
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/UpgradeUtils.py
-Library     ${LIBS_DIRECTORY}/Watchdog.py
+Library     FullInstallerUtils.py
+Library     UpgradeUtils.py
+Library     Watchdog.py
 
 Resource    GeneralTeardownResource.robot
 

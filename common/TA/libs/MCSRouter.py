@@ -213,7 +213,7 @@ def _update_xml_revid(xmlcontent):
 
 def get_variable(varName, defaultValue=None):
     try:
-        return BuiltIn().get_variable_value("${%s}" % varName)
+        return BuiltIn().get_variable_value("${%s}" % varName, defaultValue)
     except robot.libraries.BuiltIn.RobotNotRunningError:
         return os.environ.get(varName, defaultValue)
 
@@ -315,7 +315,12 @@ class MCSRouter(object):
         time.sleep(1)
         poll_return = self.cloud_server_process.poll()
         if poll_return:
-            raise AssertionError("Failed to start server {}.".format(poll_return))
+            try:
+                with open(self.cloud_std_err) as f:
+                    logger.error(f.read())
+            except FileNotFoundError:
+                logger.info(f"Log file does not exist: {self.cloud_std_err}")
+            raise AssertionError(f"Failed to start server {poll_return}")
 
     def stop_local_cloud_server(self):
         logger.info(self.cloud_server_process)

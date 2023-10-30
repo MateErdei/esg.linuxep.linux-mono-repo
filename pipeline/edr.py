@@ -35,16 +35,23 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str,
         config = f"linux_{arch}_rel"
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./edr/TA'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             edr_sdds=edr_build / f'edr/{config}/installer',
             base_sdds=edr_build / f'base/{config}/installer',
             componenttests=edr_build / f'edr/{config}/componenttests',
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            websocket_server=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
             lp=unified_artifact(context, 'em.esg', 'develop', 'build/endpoint-query-pack')
         )
     if mode == 'coverage':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./edr/TA'),
+            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+            tests=context.artifact.from_folder('./base/testUtils/tests'),
             edr_sdds=edr_build / 'sspl-edr-coverage/SDDS-COMPONENT',
             bullseye_files=context.artifact.from_folder('./edr/build/bullseye'),
             coverage=edr_build / 'sspl-edr-coverage/covfile',
@@ -52,6 +59,9 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str,
             base_sdds=edr_build / 'sspl-edr-coverage/base/base-sdds',
             componenttests=edr_build / 'sspl-edr-coverage/componenttests',
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+            websocket_server=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
             lp=unified_artifact(context, 'em.esg', 'develop', 'build/endpoint-query-pack'),
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
@@ -136,8 +146,9 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, robot_args: str, include_tag: str):
-    default_exclude_tags = ["TESTFAILURE"]
+def robot_task(machine: tap.Machine, robot_args: str, include_tag: str, machine_name: str):
+    arch, platform = machine_name.split("_")
+    default_exclude_tags = ["TESTFAILURE", "DISABLED", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}"]
 
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
@@ -208,7 +219,8 @@ def run_edr_tests(stage, context, builds, mode, parameters):
                                func=robot_task,
                                machine=machine,
                                robot_args=robot_args,
-                               include_tag="")
+                               include_tag="",
+                               machine_name=template_name)
 
             else:
                 includedtags = parameters.include_tags or default_include_tags
@@ -219,7 +231,8 @@ def run_edr_tests(stage, context, builds, mode, parameters):
                                        func=robot_task,
                                        machine=machine,
                                        robot_args="",
-                                       include_tag=include)
+                                       include_tag=include,
+                                       machine_name=template_name)
 
         with stage.parallel('component'):
             for template_name, machine in get_test_machines(test_inputs, parameters):

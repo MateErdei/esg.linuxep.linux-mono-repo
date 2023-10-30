@@ -1,8 +1,8 @@
 *** Settings ***
 Library    Process
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/SulDownloader.py
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/SulDownloader.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 

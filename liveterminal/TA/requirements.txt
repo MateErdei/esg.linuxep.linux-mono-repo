@@ -1,0 +1,11 @@
+#https://github.com/aio-libs/aiohttp/issues/6719
+aiohttp==3.8.1
+aiohttp_sse
+asyncio
+datetime
+#https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+protobuf==3.14.0
+proxy.py
+pyzmq
+sseclient
+websockets

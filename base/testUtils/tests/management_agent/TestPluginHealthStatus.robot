@@ -5,9 +5,9 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
-Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/FakePluginWrapper.py
 
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot

@@ -6,12 +6,12 @@ Library    Process
 Library    String
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/HttpsServer.py
+Library    ${COMMON_TEST_LIBS}/HttpsServer.py
 Library    ${COMMON_TEST_LIBS}/OSUtils.py
-Library    ${LIBS_DIRECTORY}/PolicyUtils.py
-Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/PolicyUtils.py
+Library    ${COMMON_TEST_LIBS}/TelemetryUtils.py
+Library    ${COMMON_TEST_LIBS}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
 
 Resource    InstallerResources.robot
 Resource    WatchdogResources.robot

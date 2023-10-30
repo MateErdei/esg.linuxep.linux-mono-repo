@@ -3,7 +3,7 @@ Documentation    Suite description
 Library   OperatingSystem
 Library   Process
 
-Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 

@@ -15,9 +15,9 @@ Test Teardown    Run Keywords
 ...                Upgrade Resources SDDS3 Test Teardown
 
 Library     DateTime
-Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/PolicyUtils.py
+Library     ${COMMON_TEST_LIBS}/PolicyUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
@@ -26,7 +26,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags    LOAD9    SULDOWNLOADER
+Force Tags    TAP_PARALLEL1    SULDOWNLOADER
 
 *** Test Cases ***
 Sul Downloader Report error correctly when it cannot connect to sdds3

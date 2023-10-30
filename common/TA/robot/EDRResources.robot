@@ -149,10 +149,10 @@ EDR Suite Setup
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
     ${result}=  Run Process    ls -lR ${VUT_WAREHOUSE_ROOT}     shell=True
     Log  ${result.stdout}
     Set Suite Variable    ${GL_handle}    ${handle}

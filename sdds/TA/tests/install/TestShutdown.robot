@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Test base uninstaller clean up all components
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource  ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
@@ -10,7 +10,7 @@ Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource  ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
-Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN
+Force Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL5
 
 *** Test Cases ***
 Test Components Shutdown Cleanly

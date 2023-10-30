@@ -9,10 +9,10 @@ Library    Process
 Library    OperatingSystem
 Library    DateTime
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
-Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
-Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library    ${COMMON_TEST_LIBS}/FakeSulDownloader.py
+Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
+Library    ${COMMON_TEST_LIBS}/MCSRouter.py
+Library    ${COMMON_TEST_LIBS}/TelemetryUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot

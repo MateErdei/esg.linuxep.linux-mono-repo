@@ -1,13 +1,13 @@
 *** Settings ***
 Documentation    Test base uninstaller clean up all components
 
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource   ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource   ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
-Default Tags  UNINSTALL
+Force Tags  UNINSTALL  TAP_PARALLEL5
 
 *** Test Cases ***
 Uninstallation of base removes all plugins cleanly

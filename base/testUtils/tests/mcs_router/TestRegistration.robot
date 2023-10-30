@@ -3,7 +3,7 @@ Documentation    Tests to verify we can register successfully with
 ...              fake cloud and save the ID and password we receive.
 ...              Also tests bad registrations, and deregistrations.
 
-Library     ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     String
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
