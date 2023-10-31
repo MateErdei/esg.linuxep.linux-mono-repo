@@ -165,6 +165,8 @@ def generate_base_test_script(remote_dir: str, base_folder_vagrant: str, common_
 set -ex
 cd {remote_dir}
 export BASE_DIST={base_folder_vagrant}
+sudo ln -snf {base_folder_vagrant}/testUtils /opt/test/inputs/testUtils
+sudo ln -snf {base_folder_vagrant}/testUtils/SupportFiles /opt/test/inputs/SupportFiles
 # Gather command
 {gather}
 # AV supplements command

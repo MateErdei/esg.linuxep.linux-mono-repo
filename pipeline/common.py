@@ -73,12 +73,12 @@ def truthy(value, parameter_name, default_value):
 
 def x86_64_enabled(parameters):
     arch = parameters.architectures
-    return arch in ('both separately', 'both unified', 'x86_64 only')
+    return arch in ('both separately', 'both unified', 'x86_64 only', None)
 
 
 def arm64_enabled(parameters):
     arch = parameters.architectures
-    return arch in ('both separately', 'both unified', 'arm64 only')
+    return arch in ('both separately', 'both unified', 'arm64 only', None)
 
 
 def do_unified_build(parameters):
