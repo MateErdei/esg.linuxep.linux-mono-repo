@@ -14,8 +14,7 @@ Resource    ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
-Default Tags   EDR_PLUGIN  FAKE_CLOUD
-Force Tags  TAP_PARALLEL3
+Force Tags  TAP_PARALLEL2  FAKE_CLOUD
 
 *** Test Cases ***
 EDR disables curl tables when network available flag becomes false

@@ -15,8 +15,7 @@ Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsPushClientResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
-Default Tags   EDR_PLUGIN   FAKE_CLOUD  INSTALLER
-Force Tags  TAP_PARALLEL3
+Force Tags  TAP_PARALLEL4  FAKE_CLOUD  INSTALLER
 
 
 *** Variables ***

@@ -17,7 +17,7 @@ Suite Teardown  Run Keywords
 Test Setup      Component Test Setup
 Test Teardown   Component Test TearDown
 
-Default Tags    TAP_PARALLEL1
+Force Tags    TAP_PARALLEL4
 
 *** Variables ***
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}

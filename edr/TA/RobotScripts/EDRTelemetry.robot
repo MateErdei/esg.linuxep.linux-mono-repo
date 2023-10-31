@@ -23,7 +23,7 @@ Test Teardown  EDR Telemetry Test Teardown
 Suite Setup   EDR Telemetry Suite Setup
 Suite Teardown   EDR Telemetry Suite Teardown
 
-Default Tags    TAP_PARALLEL3
+Force Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 EDR Plugin reports health correctly

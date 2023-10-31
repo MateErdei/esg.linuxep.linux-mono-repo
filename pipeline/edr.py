@@ -8,7 +8,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import ANALYSIS_MODE, unified_artifact, pip_install, get_test_machines, get_robot_args, \
-    COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+    get_os_packages, COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +73,9 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str,
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
-    # try:
-    #     machine.run('useradd', 'sophos-spl-user', timeout=5)
-    #     machine.run('useradd', 'sophos-spl-local', timeout=5)
-    #     machine.run('groupadd', 'sophos-spl-group', timeout=5)
-    # except Exception as ex:
-    #     # the previous command will fail if user already exists. But this is not an error
-    #     logger.warning("On adding user and group: {}".format(ex))
+    os_packages = get_os_packages(machine)
+    install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
+    machine.run(*install_command)
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
@@ -202,7 +198,7 @@ def run_edr_coverage_tests(stage, context, edr_coverage_build, mode, parameters)
 
 def run_edr_tests(stage, context, builds, mode, parameters):
     #exclude tags are in robot_task
-    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4"
 
     test_inputs = {
         "x64": get_inputs(context, builds["x86_64"], mode, "x64"),

@@ -359,8 +359,10 @@ def test_arch(arch):
     }.get(arch, arch)
 
 def get_os_packages(machine: tap.Machine):
+    # TODO: LINUXDAR-7234: Remove "make" from list once fixed
     common = [
         "git",
+        "make",
         "openssl",
         "rsync",
         "unzip",

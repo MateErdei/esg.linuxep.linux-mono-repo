@@ -19,7 +19,7 @@ Suite Teardown  Uninstall ALL
 Test Setup      Test Setup
 Test Teardown   Test Teardown
 
-Default Tags    TAP_PARALLEL2
+Force Tags    TAP_PARALLEL1
 
 *** Test Cases ***
 EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
