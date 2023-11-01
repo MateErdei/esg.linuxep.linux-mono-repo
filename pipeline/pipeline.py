@@ -132,7 +132,6 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     print(f"parameters.mode = {parameters.mode}; Defaulting to mode = {mode}")
     print(f"parameters.build_with_cmake = {parameters.build_with_cmake}; Defaulting to cmake = {cmake}")
     print(f"parameters.sdds_options = {parameters.sdds_options}; Defaulting to system_tests = {system_tests}")
-
     test_selection = parameters.test_selection or BUILD_SELECTION_ALL
 
     with stage.parallel("products"):
@@ -146,6 +145,8 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
         if (
             test_selection == BUILD_SELECTION_ALL and
             parameters.sdds_options != "build_none" and
+            parameters.architectures != "x86_64 only" and
+            parameters.architectures != "arm64 only" and
             mode == RELEASE_MODE
         ):
             sdds(stage, context, parameters, system_tests)
@@ -207,11 +208,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
         if mode == RELEASE_MODE:
             # EDR
             if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                edr_build = stage.artisan_build(name=f"edr_{RELEASE_MODE}",
-                                                component=edr_component,
-                                                image=BUILD_TEMPLATE,
-                                                mode=RELEASE_MODE,
-                                                release_package=PACKAGE_PATH_EDR)
                 if running_in_ci:
                     edr_analysis_build = stage.artisan_build(name=f"edr_{ANALYSIS_MODE}",
                                                              component=edr_component,
