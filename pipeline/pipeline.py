@@ -121,7 +121,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
                 if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
                     run_liveterminal_tests(stage, context, builds, mode, parameters)
-
+    return builds
 
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
@@ -134,9 +134,10 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
     print(f"parameters.sdds_options = {parameters.sdds_options}; Defaulting to system_tests = {system_tests}")
     test_selection = parameters.test_selection or BUILD_SELECTION_ALL
 
+    bazel_builds = {}
     with stage.parallel("products"):
         with stage.parallel("bazel"):
-            bazel_pipeline(stage, context, parameters, mode, test_selection)
+            bazel_builds = bazel_pipeline(stage, context, parameters, mode, test_selection)
 
         if cmake:
             with stage.parallel("cmake"):
@@ -149,7 +150,7 @@ def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: t
             parameters.architectures != "arm64 only" and
             mode == RELEASE_MODE
         ):
-            sdds(stage, context, parameters, system_tests)
+            sdds(stage, context, parameters, system_tests, bazel_builds)
 
 
 def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, mode: str,

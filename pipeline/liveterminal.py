@@ -62,19 +62,19 @@ def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     machine.run("which", python(machine))
     machine.run(python(machine), "-V")
-    
+
     try:
         # Check if python2 is python on this machine
         machine.run("which", "python")
         machine.run("python", "-V")
     except Exception:
         pass
-    
+
     try:
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
-    
+
         os_packages = get_os_packages(machine)
-        install_command = ["bash", machine.inputs.SupportFiles / "SupportFiles/install_os_packages.sh"] + os_packages
+        install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
         machine.run(*install_command)
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error

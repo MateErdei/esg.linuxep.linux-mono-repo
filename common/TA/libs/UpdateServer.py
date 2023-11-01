@@ -71,10 +71,14 @@ class UpdateServer(object):
         env["LD_LIBRARY_PATH"] = openssl_lib_path
 
         cert_dir=os.path.join(self.server_path, "https")
-        output = subprocess.check_output(["make", "clean"], shell=True, cwd=cert_dir, stderr=subprocess.STDOUT)
-        logger.info(f"Output: {output}")
-        output = subprocess.check_output(["make", "all"], shell=True, cwd=cert_dir, stderr=subprocess.STDOUT)
-        logger.info(f"Output: {output}")
+        p = subprocess.run(["make", "clean"], cwd=cert_dir, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        if p.returncode != 0:
+            logger.warning(p.stdout)
+            raise AssertionError("Failed make clean")
+        p = subprocess.run(["make", "all"], cwd=cert_dir, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        if p.returncode != 0:
+            logger.warning(p.stdout)
+            raise AssertionError("Failed make all")
         logger.info(f"Cert directory: {str(os.listdir(cert_dir))}")
 
     def stop_update_server(self):

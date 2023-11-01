@@ -8,7 +8,7 @@ import tap.v1 as tap
 from tap._backend import Input
 from tap._pipeline.tasks import ArtisanInput
 
-from pipeline.common import get_test_machines, pip_install, get_os_packages, get_robot_args, python
+from pipeline.common import get_test_machines, pip_install, get_os_packages, get_robot_args, python, X86_64
 
 SYSTEM_TEST_TIMEOUT = 9000
 SYSTEM_TEST_TASK_TIMEOUT = 150
@@ -23,7 +23,7 @@ def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel
                                mode=mode)
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, build999: ArtisanInput, parameters: tap.Parameters) -> \
+def get_inputs(context: tap.PipelineContext, sdds_build: ArtisanInput, sdds_build999: ArtisanInput, bazel_builds, parameters: tap.Parameters) -> \
 Dict[str, Input]:
     previous_dogfood_branch = parameters.previous_dogfood_branch
     current_shipping_branch = parameters.current_shipping_branch
@@ -36,22 +36,27 @@ Dict[str, Input]:
     previous_dogfood_branch = previous_dogfood_branch.replace("/", "--")
     current_shipping_branch = current_shipping_branch.replace("/", "--")
 
+    bazel_build = bazel_builds.get(X86_64)
+    if not bazel_build:
+        return None
+
     test_inputs = dict(
-        test_scripts=build / "sdds/test-scripts",
-        repo=build / "sdds3-repo",
-        launchdarkly=build / "sdds3-launchdarkly",
-        thin_installer=build / "sdds/test-thininstaller",
-        static_suites=build / "prod-sdds3-static-suites",
-        base=build / "sdds/base-sdds",
-        av=build / "sdds/av-sdds",
-        edr=build / "sdds/edr-sdds",
-        ej=build / "sdds/ej-sdds",
-        lr=build / "sdds/lr-sdds",
-        rtd=build / "sdds/rtd-sdds",
-        ra=build / "sdds/ra-sdds",
+        test_scripts=sdds_build / "sdds/test-scripts",
+        repo=sdds_build / "sdds3-repo",
+        launchdarkly=sdds_build / "sdds3-launchdarkly",
+        static_suites=sdds_build / "prod-sdds3-static-suites",
+        thin_installer=bazel_build / "thininstaller/thininstaller",
+        base=bazel_build / "base/linux_x64_rel/installer",
+        av=bazel_build / "av/linux_x64_rel/installer",
+        edr=bazel_build / "edr/linux_x64_rel/installer",
+        ej=bazel_build / "eventjournaler/linux_x64_rel/installer",
+        lr=bazel_build / "liveterminal/linux_x64_rel/installer",
+        ra=bazel_build / "response_actions/linux_x64_rel/installer",
         common_test_libs=context.artifact.from_folder('./common/TA/libs'),
         common_test_robot=context.artifact.from_folder('./common/TA/robot'),
         SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+        rtd=context.artifact.from_component("linuxep.runtimedetections", "develop", None, org="",
+                                            storage="esg-build-tested") / "build/SDDS-COMPONENT",
         rtd_content_rules=context.artifact.from_component("linuxep.runtimedetections", "develop", None, org="",
                                                           storage="esg-build-tested") / "build/sspl-rdrules",
         websocket_server=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
@@ -79,10 +84,10 @@ Dict[str, Input]:
         sdds3=context.artifact.from_component("em.esg", "develop", None, org="",
                                               storage="esg-build-tested") / "build/sophlib/linux_x64_rel/sdds3_tools",
     )
-    if build999:
-        test_inputs["repo999"] = build999 / "sdds3-repo-999"
-        test_inputs["launchdarkly999"] = build999 / "sdds3-launchdarkly-999"
-        test_inputs["static_suites999"] = build999 / "prod-sdds3-static-suites-999"
+    if sdds_build999:
+        test_inputs["repo999"] = sdds_build999 / "sdds3-repo-999"
+        test_inputs["launchdarkly999"] = sdds_build999 / "sdds3-launchdarkly-999"
+        test_inputs["static_suites999"] = sdds_build999 / "prod-sdds3-static-suites-999"
     return test_inputs
 
 
@@ -102,7 +107,7 @@ def install_requirements(machine: tap.Machine):
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
 
         os_packages = get_os_packages(machine)
-        install_command = ["bash", machine.inputs.test_scripts / "SupportFiles/install_os_packages.sh"] + os_packages
+        install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
         machine.run(*install_command)
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
@@ -151,10 +156,10 @@ def robot_task(machine: tap.Machine, parameters_json: str, robot_args: str, incl
         machine.output_artifact("/opt/test/results", "results")
 
 
-def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build, build999):
+def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build, build999, bazel_builds):
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4"
     test_inputs = {
-        "x64": get_inputs(context, build, build999, parameters)
+        "x64": get_inputs(context, build, build999, bazel_builds, parameters)
     }
     test_machines = get_test_machines(test_inputs, parameters, system_tests=True)
     robot_args = get_robot_args(parameters)
@@ -183,7 +188,7 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
     return
 
 
-def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, run_system_tests):
+def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, run_system_tests, bazel_builds):
     build = None
     build999 = None
 
@@ -207,4 +212,4 @@ def sdds(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Paramete
 
     if run_system_tests and build:
         with stage.parallel("system_testing"):
-            run_tap_tests(stage, context, parameters, build, build999)
+            run_tap_tests(stage, context, parameters, build, build999, bazel_builds)

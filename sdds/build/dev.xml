@@ -76,9 +76,6 @@
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="sdds/redist/gcc" mode="dev,999,prod"/>
         </build-asset>
-
-        <!-- test inputs only-->
-        <intermediate artifact-path="thininstaller/thininstaller" dest-dir="sdds/thinstaller" mode="dev"/>
     </inputs>
 
     <buildcommands>
@@ -180,14 +177,6 @@
   <publish>
       <!--sdds3-->
       <build-asset artifact-path="sdds/test-scripts" source-dir="sdds/TA" mode="dev"/>
-      <build-asset artifact-path="sdds/test-thininstaller" source-dir="sdds/thinstaller" mode="dev"/>
-      <build-asset artifact-path="sdds/base-sdds" source-dir="sdds/redist/base/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/av-sdds" source-dir="sdds/redist/av/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/edr-sdds" source-dir="sdds/redist/edr/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/ej-sdds" source-dir="sdds/redist/event-journaler/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/lr-sdds" source-dir="sdds/redist/liveresponse/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/rtd-sdds" source-dir="sdds/redist/runtimedetections/latest/x64" mode="dev"/>
-      <build-asset artifact-path="sdds/ra-sdds" source-dir="sdds/redist/responseactions/latest/x64" mode="dev"/>
       <!--dev version-->
       <build-asset artifact-path="sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="dev">
           <include glob="package/**"/>
