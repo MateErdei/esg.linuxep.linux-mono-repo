@@ -3,7 +3,7 @@
 def params = [
     choice(name: 'TEST_PLATFORM',
         choices: ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ /^release.+/ ) ?
-        [ 'run_all', 'run_none', 'run_four'] : ['run_single', 'run_none', 'run_four', 'run_all']),
+        [ 'run_four', 'run_all', 'run_none' ] : ['run_single', 'run_none', 'run_four', 'run_all']),
         description: 'Number of TAP test platforms: select none, single, four or all. This is overriden by non-default platform choices below'),
  choice(name: 'TEST_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all',
  description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
