@@ -279,7 +279,7 @@ RA Telemetry Test Setup
 RA Telemetry Test Teardown
     General Test Teardown
     Uninstall Response Actions
-    Run Keyword And Ignore Error   Remove File   ${SOPHOS_INSTALL}/base/telemetry/cache/era-telemetry.json
+    Run Keyword And Ignore Error   Remove File   ${SOPHOS_INSTALL}/base/telemetry/cache/ra-telemetry.json
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server And Remove Telemetry Output
     Remove File  ${EXE_CONFIG_FILE}

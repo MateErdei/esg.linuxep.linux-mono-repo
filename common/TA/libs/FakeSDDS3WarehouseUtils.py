@@ -15,6 +15,7 @@ BASE_SUITE_TEMPLATE="""
     </features>
     <platforms>
       <platform name="LINUX_INTEL_LIBC6" />
+      <platform name="LINUX_ARM64" />
     </platforms>
     <supplement-ref src="SSPLFLAGS" tag="2022-1" decode-path="sspl_flags/files/base/etc/sophosspl" />
   </package-ref>
