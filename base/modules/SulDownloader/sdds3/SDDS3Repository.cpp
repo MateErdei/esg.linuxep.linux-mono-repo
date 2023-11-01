@@ -56,6 +56,11 @@ namespace SulDownloader
     {
         m_supplementOnly = supplementOnly;
         populateConfigFromFile();
+        m_config.platform_filter = Common::Policy::machineArchitecture_;
+        std::stringstream  platformMessage;
+        platformMessage << "Platform filter set to: " << Common::Policy::machineArchitecture_;
+
+        LOGDEBUG(platformMessage.str());
         setFeatures(updateSetting.getFeatures());
 
         // If we are performing a supplement-only update, we want to avoid fetching and installing new non-supplement
@@ -354,6 +359,7 @@ namespace SulDownloader
         try
         {
             LOGINFO("Performing Sync using " << srcUrl);
+
             SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
             m_sourceUrl = srcUrl; // store which source was used - for reporting later.
             if (!ignoreFailedSupplementRefresh)
@@ -395,10 +401,6 @@ namespace SulDownloader
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
                 m_oldConfig = SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
-
-                // The SUS response contains all packages in the suite (for all platforms) so we need to tell the SDDS3
-                // code what our platform is, so it can filter out the packages that won't run on this architecture.
-                m_oldConfig.platform_filter = Common::Policy::machineArchitecture_;
 
                 // Base the new config on the old config so that the suites are preserved from the last SUS request
                 m_config = m_oldConfig;

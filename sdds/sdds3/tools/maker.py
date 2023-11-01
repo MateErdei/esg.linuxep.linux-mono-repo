@@ -377,6 +377,7 @@ def make_sdds3_suite(args):
             # If the platform list is empty, discard this entire pkgref!
             if pkgref.find('platforms') is None:
                 root.remove(pkgref)
+                print(" throwing away package")
                 continue
 
             _add_pkgref_supplements(pkgref, meta)

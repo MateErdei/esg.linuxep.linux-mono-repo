@@ -16,7 +16,7 @@ def copy_supplements(src, dest):
     dest_package_path = os.path.join(dest, "package")
     for (dir_path, dir_names, filenames) in os.walk(src_package_path):
         for package in filenames:
-            if package.startswith(("DataSetA", "LocalRepData", "ML_MODEL3_LINUX_X86_64",
+            if package.startswith(("DataSetA", "LocalRepData", "ML_MODEL3_LINUX_X86_64", "ML_MODEL3_LINUX_ARM64",
                                    "RuntimeDetectionRules", "ScheduledQueryPack", "SSPLFLAGS")):
                 if not os.path.isfile(os.path.join(dest_package_path, package)):
                     print(f"Copying Package: {package} from {src_package_path} to {dest_package_path}")

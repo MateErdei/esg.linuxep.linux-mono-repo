@@ -723,5 +723,5 @@ def machine_architecture() -> str:
     if architecture == "x86_64":
         return "LINUX_INTEL_LIBC6"
     elif architecture == "aarch64":
-        return "LINUX_ARM"
+        return "LINUX_ARM64"
     return ""

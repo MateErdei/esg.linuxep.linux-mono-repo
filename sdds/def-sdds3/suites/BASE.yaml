@@ -28,7 +28,7 @@ instances:
             supplements:
               - vdl
               - dataseta
-              - mlmodel
+              - mlmodelx64
       - platforms:
           - LINUX_ARM64
         component: BaseComponentSuite.latest
@@ -50,4 +50,4 @@ instances:
             supplements:
               - vdl
               - dataseta
-              - mlmodel
+              - mlmodelarm64

@@ -13,5 +13,6 @@ supplements:
   # It also parses the supplements to help verify all supplement-refs are valid.
   external_supplements:
     - ML_MODEL3_LINUX_X86_64
+    - ML_MODEL3_LINUX_ARM64
     - LocalRepData
     - DataSetA

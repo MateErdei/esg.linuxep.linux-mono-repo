@@ -58,7 +58,6 @@ def version_ini(name, out, component_name, versioning_component_name, base_versi
         name = "version_file",
         deps = deps,
         base_version_str = base_version,
-        arch = "none",
         component_name = versioning_component_name,
         template_file = ":version_file_in",
         token = COMPONENT_AUTO_VERSION_TOKEN,

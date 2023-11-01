@@ -23,7 +23,7 @@ liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231024052821-35175435e58b1eb9b9039ada245dc6a465555ba2-pS6WQ3/SDDS-COMPONENT/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231030130918-a992d3f6995910833b04b984025e511591f32970-KH60OV/SDDS-COMPONENT/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
@@ -47,7 +47,7 @@ liveresponse.latest.arm64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.arm64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231024052821-35175435e58b1eb9b9039ada245dc6a465555ba2-pS6WQ3/SDDS-COMPONENT-arm64/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-43/20231030130918-a992d3f6995910833b04b984025e511591f32970-KH60OV/SDDS-COMPONENT-arm64/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.arm64:

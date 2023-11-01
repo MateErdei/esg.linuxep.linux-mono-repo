@@ -28,7 +28,7 @@ import yaml
 
 from retry import retry
 from common import  set_inputs_mode, is_static_suite_instance
-from common import hash_file,change_version_to_999
+from common import hash_file,change_version_to_999, change_version_for_platform
 from auto_versioning import _generate_static_suite_flags, _expand_static_suites, _import_static_suite_flags
 
 ARTIFACTORY_URL = f'https://{os.environ["TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL"]}/artifactory' \
@@ -383,6 +383,9 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package', mode
     dist = os.path.join(BASE, compdef['fileset'])
     if mode == '999':
         change_version_to_999(dist)
+    # TODO LINUXDAR-8265 Remove this select once all customers are on Base 1.2.6 or higher.
+    else:
+        change_version_for_platform(dist)
     # if static flags create copy of component to insert in flags
     if 'static_suite_flags' in compdef:
         sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')

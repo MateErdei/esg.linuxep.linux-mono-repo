@@ -205,10 +205,12 @@ def change_version_to_999(dist):
             if file.endswith("VERSION.ini"):
                 VERSION_file = os.path.join(root, file)
 
+    version = '99.99.99'
+
     # change version to 99.99.99 in VERSION.ini files
     for line in fileinput.input([top_level_VERSION_file], inplace=True):
         if line.strip().startswith('PRODUCT_VERSION ='):
-            line = 'PRODUCT_VERSION = 99.99.99\n'
+            line = 'PRODUCT_VERSION = ' + version + '\n'
         sys.stdout.write(line)
 
     shutil.copy(top_level_VERSION_file, VERSION_file)
@@ -219,7 +221,7 @@ def change_version_to_999(dist):
     with open(sdds_import) as f:
         xml = ET.fromstring(f.read())
 
-    xml.find('Component/Version').text = '99.99.99'
+    xml.find('Component/Version').text = version
 
     sdds_import_filelist = xml.find('Component/FileList')
 
@@ -243,3 +245,23 @@ def change_version_to_999(dist):
         , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
         timeout=60
     )
+
+# TODO LINUXDAR-8265 Remove this select once all customers are on Base 1.2.6 or higher.
+def change_version_for_platform(dist):
+    sdds_import = os.path.join(dist, 'SDDS-Import.xml')
+
+    #update version ini files in sdds import
+    with open(sdds_import) as f:
+        xml = ET.fromstring(f.read())
+
+    version = xml.find('Component/Version').text
+
+    if len(version.split(".")) == 4:
+        if dist.endswith("arm64"):
+            version = ".".join(version.split(".")[:-1] + ["0"] + [version.split(".")[-1]])
+        elif dist.endswith("x64"):
+            version = ".".join(version.split(".")[:-1] + ["1"] + [version.split(".")[-1]])
+        xml.find('Component/Version').text = version
+
+        with open(os.path.join(sdds_import), 'wb') as f:
+            ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)

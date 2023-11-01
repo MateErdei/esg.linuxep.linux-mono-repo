@@ -12,7 +12,7 @@
 #include <vector>
 
 #if defined(__aarch64__)
-#define MACHINEARCHITECTURE "LINUX_ARM"
+#define MACHINEARCHITECTURE "LINUX_ARM64"
 #elif defined(__x86_64__)
 #define MACHINEARCHITECTURE "LINUX_INTEL_LIBC6"
 #else
