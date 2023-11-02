@@ -40,6 +40,8 @@ spl_sdds_packages(
         "files/base/pluginRegistry/eventjournaler.json": ":plugin_json",
         "install.sh": ":install_sh",
         "cleanuprealm.dat": "cleanuprealm.dat",
+        "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
+        "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
     }.items()},
     symbols_strip_prefix = "eventjournaler/products/installer",
     version_ini_locations = [
