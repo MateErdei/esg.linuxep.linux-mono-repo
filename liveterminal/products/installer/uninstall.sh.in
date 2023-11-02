@@ -2,8 +2,8 @@
 
 # Copyright 2018 Sophos Limited.  All rights reserved.
 
-# Find the location of where the script is running from
-# Allows the script to be called from anywhere either directly or via symlink
+#  Find the location of where the script is running from
+#  Allows the script to be called from anywhere either directly or via symlink
 
 PLUGIN_NAME=@LR_PLUGIN_NAME@
 PRODUCT_LINE_ID="@LR_PRODUCT_LINE_ID@"
