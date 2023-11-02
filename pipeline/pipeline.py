@@ -123,10 +123,13 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
                     run_liveterminal_tests(stage, context, builds, mode, parameters)
     return builds
 
+
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     # In CI parameters.mode will be set
     mode = parameters.mode or RELEASE_MODE
+    os.environ["BRANCH_NAME"] = context.branch
+
     cmake = truthy(parameters.build_with_cmake, "build_with_cmake", True)
     system_tests = (parameters.sdds_options == "build_dev_system_tests")
     print(f"parameters.mode = {parameters.mode}; Defaulting to mode = {mode}")
@@ -161,7 +164,6 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     assert (os.path.exists(PACKAGE_PATH_LIVETERMINAL))
     assert (os.path.exists(PACKAGE_PATH_EJ))
     print("Running cmake pipeline")
-    os.environ["BRANCH_NAME"] = context.branch
     running_in_ci = "CI" in os.environ and os.environ["CI"] == "true"
 
     if parameters.include_tags is None:

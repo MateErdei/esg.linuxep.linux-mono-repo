@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+import logging
 import time
 import subprocess
 import sys
@@ -5,7 +9,11 @@ import os
 import socket
 import shutil
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
-import robot.api.logger as logger
+try:
+    import robot.api.logger as logger
+    logger.warning = logger.warn
+except ImportError:
+    logger = logging.getLogger("UpdateServer")
 
 import PathManager
 

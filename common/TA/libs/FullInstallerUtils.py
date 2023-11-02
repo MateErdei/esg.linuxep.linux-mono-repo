@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
+
 import logging
 import os
 import shutil
@@ -23,7 +22,12 @@ import PathManager
 import OSUtils
 import tempfile
 
-from robot.api import logger
+try:
+    from robot.api import logger
+    logger.warning = logger.warn
+except ImportError:
+    logger = logging.getLogger("FullInstallUtils")
+
 from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 
@@ -830,7 +834,7 @@ def umount_with_retry(directory_path,timeout=30):
 def umount_with_retry_fallback_to_lazy(directory_path,timeout=30):
     ret = umount_with_retry(directory_path, timeout)
     if ret != 0:
-        logging.warning(f"Doing a lazy unmount as we could not do a normal umount on {directory_path} after {timeout} secs")
+        logger.warning(f"Doing a lazy unmount as we could not do a normal umount on {directory_path} after {timeout} secs")
         run_proc_with_safe_output(['umount', "-l", directory_path])
         # we want to fail the test if we need to fallback here
         return ret

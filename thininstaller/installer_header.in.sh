@@ -203,8 +203,8 @@ function sophos_mktempdir() {
     _mktemp=$(which mktemp 2>/dev/null)
     if [ -x "${_mktemp}" ]; then
         # mktemp exists - use it
-        _tmpdirTemplate="$TMPDIR/$1_XXXXXXX"
-        _tmpdir=$(${_mktemp} -d ${_tmpdirTemplate})
+        _tmpdirTemplate="${TMPDIR:-/tmp}/$1_XXXXXXX"
+        _tmpdir=$(${_mktemp} -d "${_tmpdirTemplate}")
         [ $? = 0 ] || {
             echo "Could not create temporary directory" 1>&2
             exit 1
@@ -215,16 +215,16 @@ function sophos_mktempdir() {
             # mktemp not available - use /dev/urandom, od and mkdir
             _random=/dev/urandom
             [ -f "${_random}" ] || _random=/dev/random
-            _tmpdir=$TMPDIR/$1_$(${_od} -An -N16 -tu2 ${_random} | tr -d " \t\r\n").$$
+            _tmpdir="${TMPDIR:-/tmp}"/$1_$("${_od}" -An -N16 -tu2 "${_random}" | tr -d " \t\r\n").$$
         else
             # mktemp not available - /dev/urandom not available - use $RANDOM and mkdir
-            _tmpdir=$TMPDIR/$1_${RANDOM-0}.${RANDOM-0}.${RANDOM-0}.$$
+            _tmpdir="${TMPDIR:-/tmp}"/$1_${RANDOM-0}.${RANDOM-0}.${RANDOM-0}.$$
         fi
-        [ -d ${_tmpdir} ] && {
+        [ -d "${_tmpdir}" ] && {
             echo "Temporary directory already exists" 1>&2
             exit 1
         }
-        (umask 077 && mkdir ${_tmpdir}) || {
+        (umask 077 && mkdir "${_tmpdir}") || {
             echo "Could not create temporary directory" 1>&2
             exit 1
         }
@@ -235,7 +235,7 @@ function sophos_mktempdir() {
         exit ${EXITCODE_CANNOT_MAKE_TEMP}
     fi
 
-    echo ${_tmpdir}
+    echo "${_tmpdir}"
 }
 
 function is_sspl_installed() {
@@ -389,7 +389,7 @@ function make_tmp_dir()
 {
     # Create Sophos temp directory (unless overridden with an existing dir)
     if [ -z "${SOPHOS_TEMP_DIRECTORY}" ]; then
-        SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp folder in /tmp"
+        SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp directory in ${TMPDIR:-/tmp}"
     fi
 
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
@@ -495,7 +495,7 @@ verify_install_directory
 make_tmp_dir
 # Check that the tmp directory we're using allows execution
 echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
-$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR:-/tmp} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
 mkdir -p "$SOPHOS_INSTALL"
 echo "exit 0" >"${SOPHOS_INSTALL}/exectest" 2>/dev/null && chmod +x "${SOPHOS_INSTALL}/exectest"
@@ -689,7 +689,7 @@ elif is_sspl_installed; then
     fi
 elif [ -d "${SOPHOS_INSTALL}" ]; then
     # sspl not installed
-    failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder." "Dont remove install directory"
+    failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory." "Don't remove install directory"
 fi
 
 tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"

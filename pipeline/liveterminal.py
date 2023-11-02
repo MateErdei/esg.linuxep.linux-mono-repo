@@ -103,6 +103,7 @@ def test_args(python, folder):
 
     return args
 
+
 def run_pytests(machine: tap.Machine):
 
     results_dir = "/opt/test/results"
@@ -118,7 +119,7 @@ def run_pytests(machine: tap.Machine):
         env = {
             "COVFILE": os.path.join(results_dir, f"liveterminal_functional_{machine.template}.cov"),
             "COVERR": os.path.join(results_dir, "bullseye.err"),
-            "BRANCH_NAME": os.environ["BRANCH_NAME"],
+            "BRANCH_NAME": os.environ.get("BRANCH_NAME", "unknown-branch"),
         }
 
         if machine.inputs.get("coverage", None):

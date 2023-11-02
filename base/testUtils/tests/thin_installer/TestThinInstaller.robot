@@ -183,7 +183,7 @@ Thin Installer Doesnt Remove Existing Files In Installation Directory
 
     Start Local Cloud Server
     Run Default Thininstaller    expected_return_code=19    force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains  The intended destination for Sophos Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder.
+    Check Thininstaller Log Contains  The intended destination for Sophos Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory.
 
     Directory Should Exist    ${SOPHOS_INSTALL}
     ${filecontents}  Get File  ${SOPHOS_INSTALL}/${testfile}
