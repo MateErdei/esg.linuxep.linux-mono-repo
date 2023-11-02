@@ -9,11 +9,36 @@
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
+#include "common/AbortScanException.h"
 #include "common/StringUtils.h"
 #include "filewalker/FileWalker.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+
 #include <fstream>
 #include <set>
+
+namespace
+{
+    void setPluginInstall()
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+
+        auto path = Common::FileSystem::join( appConfig.getData("SOPHOS_INSTALL"), "plugins/av");
+        if (fileSystem->isDirectory(path))
+        {
+            appConfig.setData("PLUGIN_INSTALL", path);
+            return;
+        }
+
+        if (!fileSystem->exists("/opt/sophos-spl/plugins/av"))
+        {
+            throw common::AbortScanException("Failed to set SOPHOS_INSTALL for custom install location");
+        }
+    }
+}
 
 namespace avscanner::avscannerimpl
 {
@@ -52,12 +77,14 @@ namespace avscanner::avscannerimpl
         m_config(configFromFile(configPath)), m_logger(m_config.m_scanName)
     {
         static_cast<void>(m_logger);
+        setPluginInstall();
     }
 
     NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig) :
         m_config(namedScanConfig), m_logger(m_config.m_scanName)
     {
         static_cast<void>(m_logger);
+        setPluginInstall();
     }
 
     mount_monitor::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(

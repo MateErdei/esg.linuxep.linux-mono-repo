@@ -42,6 +42,10 @@ CLS Can Detect Threats When SPL Is Installed In Custom Location
 
 Scheduled Scan Can Run When SPL Is Installed In Custom Location
     Configure Scan Now for Custom Install
+    ${file_name} =       Set Variable   TestScanNowCustomInstall
+    Create File  /tmp_test/${file_name}  ${EICAR_STRING}
+    Register Cleanup    Remove File  /tmp_test/${file_name}
+
     ${av_mark} =  mark_log_size    ${CUSTOM_AV_LOG_PATH}
 
     register_cleanup_if_unique    Empty Directory    ${CUSTOM_INSTALL_LOCATION}/base/mcs/action
@@ -52,6 +56,7 @@ Scheduled Scan Can Run When SPL Is Installed In Custom Location
     wait_for_log_contains_after_mark  ${CUSTOM_AV_LOG_PATH}    Starting scan Scan Now    ${av_mark}    ${40}
     wait_for_log_contains_after_mark  ${CUSTOM_AV_LOG_PATH}    Completed scan            ${av_mark}    ${180}
     wait_for_log_contains_after_mark  ${CUSTOM_AV_LOG_PATH}    Sending scan complete     ${av_mark}
+    wait_for_log_contains_after_mark  ${CUSTOM_AV_LOG_PATH}    Found 'EICAR-AV-Test' in '/tmp_test/${file_name}'             ${av_mark}
 
 On Access Excludes Binaries Within AV Plugin Directory When Scanning In Custom Location
     Enable OnAccess In Custom Install Location
