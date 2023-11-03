@@ -365,6 +365,12 @@
         <release-asset artifact-path="thininstaller/thininstaller" source-dir=".output/thininstaller/thininstaller" manifest-path=".output/thininstaller/thininstaller.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="thininstaller/thininstaller" source-zip=".output/thininstaller/thininstaller.zip" mode="all_lx64r"/>
 
+        <!-- SBOM -->
+        <build-asset artifact-path="products/linux_x64_rel/sbom" source-zip=".output/products/linux_x64_rel/sbom.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="products/linux_x64_dbg/sbom" source-zip=".output/products/linux_x64_dbg/sbom.zip" mode="all_lx64d"/>
+        <build-asset artifact-path="products/linux_arm64_rel/sbom" source-zip=".output/products/linux_arm64_rel/sbom.zip" mode="all_la64r"/>
+        <build-asset artifact-path="products/linux_arm64_dbg/sbom" source-zip=".output/products/linux_arm64_dbg/sbom.zip" mode="all_la64d"/>
+
 <!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
 <!--            <include glob="pluginapi.tar.gz"/>-->
 <!--        </build-asset>-->
