@@ -4,43 +4,9 @@ umask 077
 
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
 
-args="$*"
 VERSION=@PRODUCT_VERSION@
 PRODUCT_NAME="Sophos Protection for Linux"
 INSTALL_FILE=$0
-# Display help
-escaped_args=$(echo $args | sed s/--/x--/g)
-
-version_flag_set=false
-for arg in $escaped_args; do
-    if [[ "$arg" == "x--help" ]] || [[ "x$arg" == "x-h" ]]; then
-        echo "${PRODUCT_NAME} Installer, help:"
-        echo "Note: Please refer to https://docs.sophos.com/central/customer/help/en-us/index.html?contextId=protect-devices-server-CLI-Linux for advanced options"
-        echo "Usage: [options]"
-        echo "Valid options are:"
-        echo -e "--help [-h]\t\t\tDisplay this summary"
-        echo -e "--version [-v]\t\t\tDisplay version of installer"
-        echo -e "--force\t\t\t\tForce re-install"
-        echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
-        echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
-        echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
-        echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
-        echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
-        echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
-        echo -e "--test\t\t\t\tOnly run pre-installation checks and do not install SPL"
-        echo -e "--notest\t\t\tDon't run any pre-installation checks and proceed with installing SPL"
-        exit 0
-    fi
-
-    if [[ "$arg" == "x--version" ]] || [[ "x$arg" == "x-v" ]]; then
-        version_flag_set=true
-    fi
-done
-
-if $version_flag_set; then
-    echo "${PRODUCT_NAME} Installer, version: $VERSION"
-    exit 0
-fi
 
 EXITCODE_SUCCESS=0
 EXITCODE_NOT_LINUX=1
@@ -93,6 +59,25 @@ REQUEST_NO_PRODUCTS="none"
 unset ALLOW_OVERRIDE_MCS_CA
 
 CREATED_INSTALL_DIRECTORY=0
+
+function get_help_text() {
+  echo "${PRODUCT_NAME} Installer, help:"
+  echo "Note: Please refer to https://docs.sophos.com/central/customer/help/en-us/index.html?contextId=protect-devices-server-CLI-Linux for advanced options"
+  echo "Usage: [options]"
+  echo "Valid options are:"
+  echo -e "--help [-h]\t\t\tDisplay this summary"
+  echo -e "--version [-v]\t\t\tDisplay version of installer"
+  echo -e "--force\t\t\t\tForce re-install"
+  echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
+  echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
+  echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
+  echo -e "--uninstall-sav\t\t\tUninstall Sophos Anti-Virus if installed"
+  echo -e "--message-relays=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify message relays used for registration.\n\t\t\t\t To specify no message relays use --message-relays=none"
+  echo -e "--update-caches=<host1>:<port1>,<host2>:<port2>\n\t\t\t\tSpecify update caches used for install.\n\t\t\t\t To specify no update caches use --update-caches=none"
+  echo -e "--test\t\t\t\tOnly run pre-installation checks and do not install SPL"
+  echo -e "--notest\t\t\tDon't run any pre-installation checks and proceed with installing SPL"
+}
+
 
 function cleanup_and_exit() {
     code=$1
@@ -240,10 +225,6 @@ function sophos_mktempdir() {
 
 function is_sspl_installed() {
     systemctl list-unit-files | grep -q sophos-spl
-}
-
-function force_argument() {
-    echo "$args" | grep -q ".*--force"
 }
 
 function check_for_duplicate_arguments() {
@@ -399,6 +380,10 @@ declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
 check_for_duplicate_arguments "$@"
 FORCE_UNINSTALL_SAV=0
+FORCE_INSTALL=0
+UNEXPECTED_ARGUMENT=0
+HELP_FLAG=0
+VERSION_FLAG=0
 for i in "$@"; do
     case $i in
     --install-dir=*)
@@ -460,7 +445,7 @@ for i in "$@"; do
         FORCE_UNINSTALL_SAV=1
         ;;
     --force)
-        # Handled later in the code
+        FORCE_INSTALL=1
         shift
         ;;
     --test)
@@ -471,11 +456,35 @@ for i in "$@"; do
         echo "Found '--notest' is used, will not perform pre-install checks but will proceed with installing SPL"
         NO_PRE_INSTALL_TESTS=1
         ;;
+    --help|-h)
+        HELP_FLAG=1
+        ;;
+    --version|-v)
+        VERSION_FLAG=1
+        ;;
     *)
-        failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $i --- aborting install. Please see '--help' output for list of valid arguments"
+        UNEXPECTED_ARGUMENT=1
+        UNEXPECTED_ARG_VAL=$i
         ;;
     esac
 done
+
+if [[ ${HELP_FLAG} == 1 ]]
+then
+    get_help_text
+    exit 0
+fi
+
+if [[ ${VERSION_FLAG} == 1 ]]
+then
+    echo "${PRODUCT_NAME} Installer, version: $VERSION"
+    exit 0
+fi
+
+if [[ ${UNEXPECTED_ARGUMENT} == 1 ]]
+then
+  failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $UNEXPECTED_ARG_VAL --- aborting install. Please see '--help' output for list of valid arguments"
+fi
 
 if [[ ${NO_PRE_INSTALL_TESTS} != 1 ]]
 then
@@ -647,11 +656,8 @@ REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
 # Check if the sophos-spl service is installed, if it is find the install path.
 EXISTING_SSPL_PATH=
 
-if force_argument; then
+if [ ${FORCE_INSTALL} -eq 1 ]; then
     echo "Forcing install"
-
-    # Base installer will install sophos unit files even if they are already installed.
-    FORCE_INSTALL=1
 
     # Stop any possibly running services - may have a broken install and be wanting a re-install.
     systemctl stop sophos-spl 2>/dev/null

@@ -207,7 +207,7 @@ function verify_system_requirements() {
     verify_compatible_glibc_version
 
     # Check server has capabilities
-    [[ (-z $(which getcap)) || (-z $(which setcap)) ]] && log_warn "SPL requires capabilities for the AV and RTD plugins to be installed. The base installation will succeed but these plugins will not be operational"
+    [[ (-z $(which getcap)) || (-z $(which setcap)) ]] && log_warn "SPL requires capabilities for the AV plugin to be installed. The base installation will succeed but this plugin will not be operational"
 
     # Check Fanotify is enabled in kernel
     fanotify_config=$(cat /boot/config-"$(uname -r)" 2>/dev/null | grep FANOTIFY 2>/dev/null)

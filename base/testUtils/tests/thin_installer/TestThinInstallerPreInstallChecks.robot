@@ -151,6 +151,11 @@ Thin Installer Has Working Version Option Where Preceding Arguments Are Ignored
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
+Thin Installer Version Option Functions Even With Unexpected Arguments
+    Run Default Thininstaller With Args   ${0}     -e    \\c    --version
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
 Thin Installer Has Working short Version Option
     Run Default Thininstaller With Args   ${0}     -v
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
@@ -164,6 +169,31 @@ Thin Installer Has Working short Version Option With Other Arguments
 Thin Installer Has Working short Version Option Where Preceding Arguments Are Ignored
     Run Default Thininstaller With Args   ${0}     --other  -v
     Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Version Option As Second Arg Prints With Group Arg
+    Run Default Thininstaller With Args   ${0}     --group=foo  -v
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Version Option As First Arg Prints With Group Arg
+    Run Default Thininstaller With Args   ${0}     -v  --group=foo
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Version Option Functions Even With Unexpected Arguments
+    Run Default Thininstaller With Args   ${0}     -e    \\c    -v
+    Check Thininstaller Log Contains    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Version Doesn't Match With Enclosed Option
+    Run Default Thininstaller With Args   ${33}  --install-dir=/space/dash/vee/ -v
+    Check Thininstaller Log Does Not Contain    Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Version Doesn't Match With Jumbled Options
+    Run Default Thininstaller With Args   ${23}     -e   \\055v
+    Check Thininstaller Log Contains  Error: Unexpected argument given: \\055v --- aborting install. Please see '--help' output for list of valid arguments
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Check Installer Does Not Contain Todos Or Fixmes
@@ -236,6 +266,11 @@ Thin Installer Help Takes Precedent Over Version Option And Prints Correct Outpu
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
+Thin Installer Help Option Functions Even With Unexpected Arguments
+    Run Default Thininstaller With Args   ${0}     -e    \\c    --help
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
 Thin Installer Short Help Option Prints Correct Output
     Run Default Thininstaller With Args  ${0}  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
@@ -255,6 +290,21 @@ Thin Installer Short Help Option Takes Precedent Over Version Option And Prints 
     Run Default Thininstaller With Args  ${0}  --version  -h
     Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Check Thininstaller Log Does Not Contain  Sophos Protection for Linux Installer, version: 1.
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Help Option As Second Arg Prints With Group Arg
+    Run Default Thininstaller With Args  ${0}  --group=foo  -h
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Help Option As First Arg Prints With Group Arg
+    Run Default Thininstaller With Args  ${0}  -h  --group=foo
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
+    Directory Should Not Exist   ${SOPHOS_INSTALL}
+
+Thin Installer Short Help Option Functions Even With Unexpected Arguments
+    Run Default Thininstaller With Args   ${0}     -e    \\c    -h
+    Check Thininstaller Log Contains   Sophos Protection for Linux Installer, help:
     Directory Should Not Exist   ${SOPHOS_INSTALL}
 
 Thin Installer Fails With Unexpected Argument
