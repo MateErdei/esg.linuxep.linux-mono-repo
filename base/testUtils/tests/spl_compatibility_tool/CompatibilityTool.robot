@@ -39,6 +39,7 @@ Compatibility Tool Suite Teardown
     cleanup_local_cloud_server_logs
 
 Compatibility Tool Test Teardown
+    OnFail.run_teardown_functions
     Remove File    ${defaultThinInstallerPath}
     Remove File    ${credentialsPath}
 
@@ -85,6 +86,16 @@ SPL Compatibility Script Fails With Invalid Custom Install Location
     Log    ${output}
     Should Be Equal As Integers  ${rc}  ${4}
     Should Contain    ${output}    ERROR: SPL installation will fail, can not install to 'home' because it is a relative path. To install under this directory, please re-run with --install-dir=
+
+SPL Compatibility Script Fails With Invalid Custom Install Location when Location Is A File
+    Setup ThinInstaller
+    Create Directory     /testInstall
+    Create File     /testInstall/file
+    Register Cleanup  Remove Directory    /testInstall    true
+    ${rc}   ${output} =    Run And Return Rc And Output    /bin/bash ${compatibilityScript} --installer-path=${defaultThinInstallerPath} --install-dir=/testInstall/file
+    Log    ${output}
+    Should Be Equal As Integers  ${rc}  ${4}
+    Should Contain    ${output}    ERROR: SPL installation will fail, can not install to '/testInstall/file' as it is a file
 
 SPL Compatibility Script Passes but Logs Warning With Broken Message Relays
     Setup ThinInstaller    dummyhost1:10000,1,2;localhost:20000,2,4    ${None}

@@ -105,6 +105,7 @@ function verify_install_directory() {
     realPath=$(realpath -m "${SOPHOS_INSTALL}")
     [[ "${SOPHOS_INSTALL}" = /* ]] || failure ${EXITCODE_BAD_INSTALL_PATH} "ERROR: SPL installation will fail, can not install to '${SOPHOS_INSTALL}' because it is a relative path. To install under this directory, please re-run with --install-dir=${realPath}"
     [[ "${realPath}" != "${SOPHOS_INSTALL}" ]] && failure ${EXITCODE_BAD_INSTALL_PATH} "ERROR: SPL installation will fail, can not install to '${SOPHOS_INSTALL}'. To install under this directory, please re-run with --install-dir=${realPath}"
+    [[ -f "${SOPHOS_INSTALL}" ]] && failure ${EXITCODE_BAD_INSTALL_PATH} "ERROR: SPL installation will fail, can not install to '${SOPHOS_INSTALL}' as it is a file"
 
     # SOPHOS_INSTALL is custom dirname to contain sophos-spl
     export SOPHOS_INSTALL="$SOPHOS_INSTALL/sophos-spl"
