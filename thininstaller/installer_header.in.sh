@@ -497,13 +497,20 @@ make_tmp_dir
 echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
 $SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR:-/tmp} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
-mkdir -p "$SOPHOS_INSTALL"
-echo "exit 0" >"${SOPHOS_INSTALL}/exectest" 2>/dev/null && chmod +x "${SOPHOS_INSTALL}/exectest"
-$SOPHOS_INSTALL/exectest 2>/dev/null || {
-  rm -r "$SOPHOS_INSTALL"
-  failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${SOPHOS_INSTALL} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+function test_installation_executable()
+{
+    # Don't attempt execution test if install dir already exists
+    [[ -d "$SOPHOS_INSTALL" ]] && return
+    mkdir -p "$SOPHOS_INSTALL"
+    echo "exit 0" >"${SOPHOS_INSTALL}/exectest" 2>/dev/null && chmod +x "${SOPHOS_INSTALL}/exectest"
+    $SOPHOS_INSTALL/exectest 2>/dev/null || {
+      rm -r "$SOPHOS_INSTALL"
+      failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${SOPHOS_INSTALL} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+    }
+    rm -r "$SOPHOS_INSTALL"
 }
-rm -r "$SOPHOS_INSTALL"
+
+test_installation_executable
 
 if [[ -n ${PRE_INSTALL_TEST_ONLY} ]]
 then

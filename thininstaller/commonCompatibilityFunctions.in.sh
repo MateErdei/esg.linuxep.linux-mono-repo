@@ -42,9 +42,13 @@ function curl_debug() {
     log_debug "$curl_output"
 }
 
-function check_install_path_has_correct_permissions() {
+function check_install_path_has_correct_permissions()
+{
+    local sophos_install=${SOPHOS_INSTALL:-/opt/sophos-spl}
+    [[ "${sophos_install}" = /* ]] || return
+
     # loop through given install path from right to left to find the first directory that exists.
-    local install_path="${SOPHOS_INSTALL%/*}"
+    local install_path="${sophos_install%/*}"
 
     # Make sure that the install_path string is not empty, in the case of "/foo"
     if [[ -z "$install_path" ]]; then
@@ -65,7 +69,7 @@ function check_install_path_has_correct_permissions() {
     while [[ "${install_path}" != "/" ]]; do
         permissions=$(stat -c '%A' "${install_path}")
         if [[ ${permissions: -1} != "x" ]]; then
-            failure ${EXITCODE_BAD_INSTALL_PATH} "ERROR: SPL installation will fail, can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
+            failure ${EXITCODE_BAD_INSTALL_PATH} "ERROR: SPL installation will fail, can not install to ${sophos_install} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
         fi
 
         install_path="${install_path%/*}"
@@ -129,9 +133,12 @@ function verify_installed_packages() {
     done
 }
 
-function check_free_storage() {
+function check_free_storage()
+{
     local space="$1"
-    local install_path="${SOPHOS_INSTALL%/*}"
+    local sophos_install=${SOPHOS_INSTALL:-/opt/sophos-spl}
+    [[ "${sophos_install}" = /* ]] || return
+    local install_path="${sophos_install%/*}"
 
     # Loop through directory path from right to left, finding the first part of the path that exists.
     # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.

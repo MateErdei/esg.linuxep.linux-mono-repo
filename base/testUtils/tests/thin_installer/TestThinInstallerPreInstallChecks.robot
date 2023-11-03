@@ -18,7 +18,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER  thin_installer_pre_install_check
 
 Suite Setup      Setup sdds3 Update Tests
 
