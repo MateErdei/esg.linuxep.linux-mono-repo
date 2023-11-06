@@ -111,6 +111,7 @@ Global Setup Tasks
 
     Set Global Variable  ${SUPPORT_FILES}     ${TEST_INPUT_PATH}/SupportFiles
     Set Global Variable  ${ROBOT_TESTS_DIR}   ${TEST_INPUT_PATH}/test_scripts
+    Set Global Variable  ${BASE_SDDS_SCRIPTS}     ${TEST_INPUT_PATH}/base_sdds_scripts
     Set Global Variable  ${LIBS_DIRECTORY}    ${COMMON_TEST_LIBS}
 
     ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output

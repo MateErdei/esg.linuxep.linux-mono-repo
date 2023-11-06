@@ -39,52 +39,36 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
     elif arch == "arm64":
         openssl = thirdparty_all / "openssl_3" / "openssl_linux_arm64_gcc11-2glibc2-17"
 
-    test_inputs = None
-    if mode == 'release':
-        config = f"linux_{arch}_rel"
-        test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / f"base/{config}/installer",
-            ra_sdds=base_build / f"response_actions/{config}/installer",
-            system_test=base_build / f"base/{config}/system_test",
-            openssl=openssl,
-            bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
-            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
-            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
-            thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
-        )
-    if mode == 'debug':
-        config = f"linux_{arch}_dbg"
-        test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./base/testUtils'),
-            base_sdds=base_build / f"base/{config}/installer",
-            ra_sdds=base_build / "response_actions/{config}/installer",
-            system_test=base_build / f"base/{config}/system_test",
-            openssl=openssl,
-            bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
-            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
-            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
-            thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
-        )
+    test_inputs = dict(
+        test_scripts=context.artifact.from_folder('./base/testUtils'),
+        openssl=openssl,
+        bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
+        common_test_libs=context.artifact.from_folder('./common/TA/libs'),
+        common_test_robot=context.artifact.from_folder('./common/TA/robot'),
+        SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
+        base_sdds_scripts=context.artifact.from_folder('./base/products/distribution'),
+        thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
+    )
     if mode == 'coverage':
-        test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./base/testUtils'),
+        test_inputs.update(dict(
             base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
             ra_sdds=base_build / 'sspl-base-coverage/RA-SDDS-COMPONENT',
             system_test=base_build / 'sspl-base-coverage/system_test',
-            openssl=openssl,
-            bullseye_files=context.artifact.from_folder('./base/build/bullseye'),
-            common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-            common_test_robot=context.artifact.from_folder('./common/TA/robot'),
-            SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
             coverage=base_build / 'sspl-base-coverage/covfile',
             coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
-        )
+        ))
+    else:
+        config = f"linux_{arch}_rel"
+        if mode == 'debug':
+            config = f"linux_{arch}_dbg"
+        test_inputs.update(dict(
+            base_sdds=base_build / f"base/{config}/installer",
+            ra_sdds=base_build / f"response_actions/{config}/installer",
+            system_test=base_build / f"base/{config}/system_test",
+            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
+        ))
+
     return test_inputs
 
 
