@@ -23,7 +23,11 @@ UPLOAD_ROBOT_LOG_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadRobotLog.sh')
 
 
 def include_cifs_for_machine_name(name: str, template):
-    return True
+    no_samba = (
+        'ubuntu2204'
+    )
+    distro = name.split("_")[1]
+    return distro not in no_samba
 
 
 def include_ntfs_for_machine_name(name: str, template):
