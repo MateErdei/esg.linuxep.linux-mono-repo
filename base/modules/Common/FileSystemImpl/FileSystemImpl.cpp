@@ -1088,9 +1088,9 @@ namespace Common::FileSystem
         }
         throw IFileSystemException("Executable " + executableName + " is not installed.");
     }
-} // namespace Common::FileSystem
 
-Common::FileSystem::IFileSystem* Common::FileSystem::fileSystem()
-{
-    return Common::FileSystem::fileSystemStaticPointer().get();
-}
+    IFileSystem* fileSystem()
+    {
+        return fileSystemStaticPointer().get();
+    }
+} // namespace Common::FileSystem
