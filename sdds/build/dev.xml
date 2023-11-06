@@ -126,57 +126,9 @@
             <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
             <workingdir>./sdds</workingdir>
         </command>
-        <!-- Extracting SystemProductTestOutput for use in tests -->
-        <command mode="dev,999">
-            <program>rm</program>
-            <args>-rf TA/libs TA/SupportFiles</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>tar</program>
-            <args>-xf SystemProductTestOutput.tar.gz</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>cp</program>
-            <args>-r SupportFiles ../../TA/</args>
-            <workingdir>./sdds/SystemProductTestOutput/testUtils</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>cp</program>
-            <args>-r SystemProductTestOutput/libs/ TA/libs/</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>cp</program>
-            <args>fileInfo.py readVersion.py generateManifestDat.py generateSDDSImport.py generateSDDSImportAndManifestDat.py ../TA/libs/</args>
-            <workingdir>./sdds/SystemProductTestOutput</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>rsync</program>
-            <args>-avh SystemProductTestOutput/robot/ TA/robot/</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>mkdir -p</program>
-            <args>TA/SupportFiles/openssl</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>cp</program>
-            <args>-f libcrypto.so.3 libssl.so.3 openssl ../TA/SupportFiles/openssl</args>
-            <workingdir>./sdds/SystemProductTestOutput</workingdir>
-        </command>
-        <command mode="dev,999">
-            <program>rm</program>
-            <args>-rf SystemProductTestOutput</args>
-            <workingdir>./sdds</workingdir>
-        </command>
     </buildcommands>
 
   <publish>
-      <!--sdds3-->
-      <build-asset artifact-path="sdds/test-scripts" source-dir="sdds/TA" mode="dev"/>
       <!--dev version-->
       <build-asset artifact-path="sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="dev">
           <include glob="package/**"/>

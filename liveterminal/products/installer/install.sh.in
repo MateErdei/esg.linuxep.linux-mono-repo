@@ -38,6 +38,7 @@ failure()
     echo "$@" >&2
     exit $CODE
 }
+
 export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"

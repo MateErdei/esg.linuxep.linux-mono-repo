@@ -4,8 +4,8 @@ Library    Process
 Library    ${COMMON_TEST_LIBS}/FakeSDDS3WarehouseUtils.py
 
 *** Variables ***
-${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py
-${SDDS_IMPORT}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImport.py
+${SDDS_IMPORT_AND_MANIFEST}  ${BASE_SDDS_SCRIPTS}/generateSDDSImportAndManifestDat.py
+${SDDS_IMPORT}  ${BASE_SDDS_SCRIPTS}/generateSDDSImport.py
 ${SDDS3_LOCAL_BASE}   /tmp/sdds3LocalBase
 ${SDDS3_FAKEWAREHOUSE_DIR}   /tmp/sdds3FakeWarehouse
 ${SDDS3_FAKEBASE}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakebase

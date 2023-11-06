@@ -72,6 +72,7 @@ Global Setup Tasks
     Set Global Variable    ${INPUT_DIRECTORY}             ${placeholder}
     Set Global Variable    ${THIN_INSTALLER_DIRECTORY}    ${INPUT_DIRECTORY}/thin_installer
     Set Global Variable    ${SDDS3_Builder}               ${INPUT_DIRECTORY}/sdds3/sdds3-builder
+    Set Global Variable    ${BASE_SDDS_SCRIPTS}           ${INPUT_DIRECTORY}/base_sdds_scripts
 
     Run Process    chmod    +x
     ...    ${SUPPORT_FILES}/openssl/openssl

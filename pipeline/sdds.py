@@ -41,7 +41,7 @@ Dict[str, Input]:
         return None
 
     test_inputs = dict(
-        test_scripts=sdds_build / "sdds/test-scripts",
+        test_scripts=context.artifact.from_folder('./sdds/TA'),
         repo=sdds_build / "sdds3-repo",
         launchdarkly=sdds_build / "sdds3-launchdarkly",
         static_suites=sdds_build / "prod-sdds3-static-suites",
@@ -52,6 +52,7 @@ Dict[str, Input]:
         ej=bazel_build / "eventjournaler/linux_x64_rel/installer",
         lr=bazel_build / "liveterminal/linux_x64_rel/installer",
         ra=bazel_build / "response_actions/linux_x64_rel/installer",
+        base_sdds_scripts=context.artifact.from_folder('./base/products/distribution'),
         common_test_libs=context.artifact.from_folder('./common/TA/libs'),
         common_test_robot=context.artifact.from_folder('./common/TA/robot'),
         SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
