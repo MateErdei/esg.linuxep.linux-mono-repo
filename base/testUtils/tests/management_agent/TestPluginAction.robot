@@ -14,10 +14,10 @@ Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Test Teardown     Plugin Action Test Teardown
 
+Force Tags     MANAGEMENT_AGENT    TAP_PARALLEL1
 
 *** Test Cases ***
 Verify Management Agent Sends Action When Action Received
-    [Tags]    MANAGEMENT_AGENT  SMOKE  TAP_PARALLEL1
 
     # make sure no previous event xml file exists.
     Remove Action Xml Files
@@ -44,7 +44,6 @@ Verify Management Agent Sends Action When Action Received
 
 
 Verify Management Agent Sends LiveQuery To EDR Plugin
-    [Tags]    MANAGEMENT_AGENT  EDR_PLUGIN
     Set Fake Plugin App Id   LiveQuery
     Setup Plugin Registry
     Start Management Agent
@@ -71,7 +70,7 @@ Verify Management Agent Sends LiveQuery To EDR Plugin
     ...  30 secs
     ...  1 secs
     ...  Check Log Contains In Order
-         ...  tmp/fake_plugin.log
+         ...  /tmp/fake_plugin.log
          ...  APPID=LiveQuery
          ...  CorrelationId=correlation-id
 
@@ -79,7 +78,8 @@ Verify Management Agent Sends LiveQuery To EDR Plugin
 *** Keywords ***
 
 Plugin Action Test Teardown
-    Run Keyword If Test Failed     Log File   tmp/fake_plugin.log
+    Run Keyword If Test Failed     Log File   /tmp/fake_plugin.log
+    Run Keyword And Ignore Error   Remove File   /tmp/fake_plugin.log
     General Test Teardown
     Stop Plugin
     Stop Management Agent

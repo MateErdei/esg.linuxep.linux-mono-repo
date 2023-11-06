@@ -23,7 +23,7 @@ Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
-Force Tags   EDR_PLUGIN  FAKE_CLOUD   THIN_INSTALLER  INSTALLER  LOAD4
+Force Tags   FAKE_CLOUD   THIN_INSTALLER  INSTALLER  LOAD4
 
 *** Variables ***
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml

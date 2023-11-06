@@ -95,10 +95,6 @@ sudo -E robot \
     --exclude MANUAL \
     --exclude SLOW \
     --exclude CUSTOM_LOCATION \
-    --exclude EXAMPLE_PLUGIN \
-    --exclude EVENT_PLUGIN \
-    --exclude AUDIT_PLUGIN \
-    --exclude PUB_SUB \
     --loglevel TRACE \
     tests
 popd

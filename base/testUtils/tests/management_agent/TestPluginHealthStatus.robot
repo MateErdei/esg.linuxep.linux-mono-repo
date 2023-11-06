@@ -228,4 +228,6 @@ ${MANAGEMENT_AGENT_LOG}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_man
 Service Sleep Teardown
     Revert Service  sophos-spl-update.service
     Terminate All Processes  kill=True
+    Run Keyword If Test Failed     Log File   /tmp/fake_plugin.log
+    Run Keyword And Ignore Error   Remove File   /tmp/fake_plugin.log
     General Test Teardown

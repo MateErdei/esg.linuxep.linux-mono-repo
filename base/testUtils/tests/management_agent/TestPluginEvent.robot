@@ -99,6 +99,8 @@ Verify Management Agent Goes Into Outbreak Mode And Out After Clear Action
 *** Keywords ***
 Plugin Event Test Teardown
     run teardown functions
+    Run Keyword If Test Failed     Log File   /tmp/fake_plugin.log
+    Run Keyword And Ignore Error   Remove File   /tmp/fake_plugin.log
     General Test Teardown
     Stop Plugin
     Stop Management Agent

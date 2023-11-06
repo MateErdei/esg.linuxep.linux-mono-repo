@@ -195,6 +195,8 @@ Verify Management Agent Send Internal Plugin Policy When Requested By Plugin
 MA Fake Plugin Teardown
     Stop Plugin
     Stop Management Agent
+    Run Keyword If Test Failed     Log File   /tmp/fake_plugin.log
+    Run Keyword And Ignore Error   Remove File   /tmp/fake_plugin.log
     General Test Teardown
 
 Remove Policy Xml Files

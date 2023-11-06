@@ -65,7 +65,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * DIAGNOSE - Tests which exercise sophos_diagnose
 * EDR_PLUGIN - Tests focusing on EDR capabilities
 * EVENT_JOURNALER_PLUGIN - Tests which exercise the event journaler plugin
-* EXAMPLE_PLUGIN - Tests which exercise the example plugin 
 * EXCLUDE_AWS - Used to exclude the test from being run on AWS
 * EXCLUDE_ON_COVERAGE - excludes the test from coverage runs
 * EXCLUDE_RHEL8  excludes the test from running on rhel 8
@@ -81,7 +80,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * MCS - Tests which use the MCS pipeline
 * MCS_ROUTER - Tests which exercise the MCS Router component
 * MESSAGE_RELAY - Tests which include a Message Relay
-* PUB_SUB - Tests which use the protobuf pub sub pipeline
 * PLUGIN_DOWNGRADE - Test cases where a plugin is downgraded
 * OSTIA - Tests which use ostia
 * RESPONSE_ACTIONS_PLUGIN - Tests which exercise the ra plugin

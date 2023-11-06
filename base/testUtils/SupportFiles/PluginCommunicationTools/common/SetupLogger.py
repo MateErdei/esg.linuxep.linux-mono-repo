@@ -29,4 +29,4 @@ def setup_logging(filename, name):
     return logger
 
 def get_log_dir():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../tmp/"))
+    return "/tmp"
