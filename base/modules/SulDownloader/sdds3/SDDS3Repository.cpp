@@ -307,12 +307,12 @@ namespace SulDownloader
 
         if (updateSetting.getUseSdds3DeltaV2())
         {
-            m_session->deltaVersioningEnabled = true;
+            m_session->deltaVersion  = sophlib::sdds3::DeltaVersion::V2;
             LOGDEBUG("Enabling sdds3 delta V2 usage");
         }
         else
         {
-            m_session->deltaVersioningEnabled = false;
+            m_session->deltaVersion  = sophlib::sdds3::DeltaVersion::None;
         }
 
         if (connectionSetup.isCacheUpdate())
