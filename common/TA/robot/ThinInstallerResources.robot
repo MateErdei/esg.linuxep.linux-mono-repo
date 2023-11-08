@@ -4,6 +4,8 @@ Library    OperatingSystem
 Resource    McsRouterResources.robot
 Resource    SDDS3Resources.robot
 
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+
 *** Variables ***
 ${EtcGroupFilePath}  /etc/group
 ${EtcGroupFileBackupPath}  /etc/group.bak
@@ -80,6 +82,7 @@ Teardown With Temporary Directory Clean And Stopping Message Relays
     Stop Proxy If Running
 
 Thininstaller Test Teardown
+    Run Keyword If Test Failed   dump_df
     General Test Teardown
     Stop Update Server
     Stop Proxy Servers

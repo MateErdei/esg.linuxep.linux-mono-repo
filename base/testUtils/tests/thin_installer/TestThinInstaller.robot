@@ -24,7 +24,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ThinInstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-Force Tags  THIN_INSTALLER
+Force Tags  THIN_INSTALLER  thin_installer_main
 
 *** Keywords ***
 Teardown With Large Group Creation
@@ -108,6 +108,22 @@ Thin Installer can download test file from warehouse and execute it
 
     Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
+
+Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
+    [Documentation]  Created for LINUXDAR-2249
+    [Teardown]  Teardown With Large Group Creation
+    Setup Group File With Large Group Creation
+    Setup warehouse With sdds3 base
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Run Default Thininstaller  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
+
+    Check Expected Base Processes Are Running
+
+    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
+    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name
+
 
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
@@ -219,22 +235,6 @@ Thin Installer Registers Existing Installation With Product Args
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
 
-
-
-Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
-    [Documentation]  Created for LINUXDAR-2249
-    [Teardown]  Teardown With Large Group Creation
-    Setup Group File With Large Group Creation
-    Setup warehouse With sdds3 base
-
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Run Default Thininstaller  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
-
-    Check Expected Base Processes Are Running
-
-    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
-    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name
 
 
 Thin Installer Installs Product Successfully With Product Arguments

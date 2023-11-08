@@ -1,5 +1,11 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
 import os
 import hashlib
+import sys
+
+from robot.api import logger
+
 BASE_SUITE_TEMPLATE="""
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <suite name="ServerProtectionLinux-Base" version="2022.7.22.7" nonce="3b1805f739" marketing-version="2022.7.22.7 (develop)">
@@ -74,10 +80,16 @@ def write_sdds3_supplement_xml(package_path,output_path=default_output_path):
     version = filename[10:-15]
     print(version)
     suite_xml = SUPPLEMENT_XML.replace("@SIZE@", str(size)).replace("@SHA@", sha).replace("@FILENAME@", filename).replace("@VERSION@",version)
-    with open(os.path.join(output_path ,"supplement.xml"), "w") as f:
+    with open(os.path.join(output_path, "supplement.xml"), "w") as f:
         f.write(suite_xml)
 
 
 def write_sdds3_flag(output_path=default_flag_path):
-    with open(os.path.join(output_path ,"release.linuxep.ServerProtectionLinux-Base.json"), "w") as f:
+    with open(os.path.join(output_path, "release.linuxep.ServerProtectionLinux-Base.json"), "w") as f:
         f.write(FLAG_XML_TEMPLATE)
+
+
+def log_hash_of_file(path):
+    sha256_of_path = hashlib.sha256(open(path, "rb").read()).hexdigest()
+    logger.info(f"SHA256 of {path} = {sha256_of_path}")
+    return sha256_of_path

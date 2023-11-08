@@ -559,18 +559,35 @@ namespace SulDownloader
         {
             return;
         }
+        auto distributionDir = Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
         try
         {
             SulDownloader::sdds3Wrapper()->extractPackagesTo(
-                *m_session.get(),
+                *m_session,
                 m_repo,
                 m_config,
-                Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
+                distributionDir);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            std::ostringstream err;
+            err << "Failed to extract packages to "<< distributionDir << ": " << ex.what();
+            m_error.status = RepositoryStatus::DOWNLOADFAILED;
+            m_error.Description = err.str();
+        }
+        catch (const std::exception& ex)
+        {
+            std::ostringstream err;
+            err << "Failed to extract packages to "<< distributionDir << ": exception: " << ex.what();
+            m_error.status = RepositoryStatus::DOWNLOADFAILED;
+            m_error.Description = err.str();
         }
         catch (...)
         {
+            std::ostringstream err;
+            err << "Failed to extract packages to "<< distributionDir << ": non-runtime error";
             m_error.status = RepositoryStatus::DOWNLOADFAILED;
-            m_error.Description = "Failed to extract packages";
+            m_error.Description = err.str();
         }
     }
 

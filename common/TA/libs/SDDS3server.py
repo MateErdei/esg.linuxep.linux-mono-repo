@@ -272,13 +272,14 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.log_message("%s", "Headers:\n{}".format(self.headers))
         if self.path.startswith("/v3"):
             self.path = self.path[3:]
-        self.log_message("%s", "path:\n{}".format(self.path))
+        translated_path = self.translate_path(self.path)
+        self.log_message("%s", "path: {} -> {}".format(self.path, translated_path))
 
         # Workaround for the Python server not returning 'Last-Modified' when responding to 'If-Modified-Since'
         # This is needed for SDDS3 supplement caching to work
         if "If-Modified-Since" in self.headers:
             try:
-                fs = os.stat(self.translate_path(self.path))
+                fs = os.stat(translated_path)
 
                 requested_time = email.utils.parsedate_to_datetime(self.headers["If-Modified-Since"])
                 modified_time = datetime.datetime.fromtimestamp(fs.st_mtime, datetime.timezone.utc)
@@ -291,6 +292,12 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
                     return None
             except OSError:
                 pass  # Will be handled by do_GET below
+
+        try:
+            h = hash_file(translated_path)
+            self.log_message("SHA256: %s", h)
+        except EnvironmentError:
+            self.log_message("File path missing %s", translated_path)
 
         return SimpleHTTPRequestHandler.do_GET(self)
 

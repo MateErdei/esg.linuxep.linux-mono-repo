@@ -3,6 +3,7 @@
 import configparser
 import glob
 import os
+import re
 import shutil
 import subprocess
 import time
@@ -236,6 +237,7 @@ class LogUtils(object):
                 with open(filename, "r") as f:
                     logger.info(f"file: {str(filename)}")
                     logger.info(''.join(f.readlines()))
+                return True
             except UnicodeDecodeError as ex:
                 logger.error("Failed to decode {} as UTF-8: {}".format(filename, ex))
                 with open(filename, "rb") as f:
@@ -246,6 +248,7 @@ class LogUtils(object):
                 logger.info(f"Failed to read file: {e}")
         else:
             logger.info(f"File {filename} does not exist")
+        return False
 
     def dump_log_on_failure(self, filename):
         robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
@@ -504,7 +507,31 @@ class LogUtils(object):
 
     # ThinInstaller Log Utils
     def dump_thininstaller_log(self):
-        self.dump_log(self.thin_install_log)
+        available = self.dump_log(self.thin_install_log)
+        # Check for sync log
+        if not available:
+            return
+
+        try:
+            with open(self.thin_install_log) as f:
+                contents = f.read()
+        except EnvironmentError:
+            logger.info("Can't read contents if thin installer log")
+
+        matcher = re.compile(r"Copying SPL logs to (/tmp/SophosCentralInstall_[a-zA-Z0-9]+/logs)")
+        mo = matcher.search(contents)
+        if not mo:
+            logger.info("Failed to find installer tmp dir")
+            return
+
+        log_dir = mo.group(1)
+        logs = os.listdir(log_dir)
+        logger.info("Logs: %s" % str(logs))
+
+        for base, dirs, files in os.walk(log_dir):
+            logger.info("Logs: %s in %s" % (str(files), base))
+            for log in files:
+                self.dump_log(os.path.join(base, log))
 
     def remove_thininstaller_log(self):
         if os.path.isfile(self.thin_install_log):

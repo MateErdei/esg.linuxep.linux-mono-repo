@@ -13,12 +13,13 @@ import pwd
 import signal
 import time
 import subprocess
-from robot.api import logger
 import shutil
 import tarfile
 import psutil
 import platform
 import re
+
+from robot.api import logger
 
 import PathManager
 
@@ -725,3 +726,8 @@ def machine_architecture() -> str:
     elif architecture == "aarch64":
         return "LINUX_ARM64"
     return ""
+
+
+def dump_df():
+    df = subprocess.run(["df", "-hl"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    logger.info(f"df -hl {df.returncode}: {df.stdout}")

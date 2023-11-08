@@ -85,6 +85,8 @@ Generate Local Base SDDS3 Package
     ${Files} =  List Files In Directory   ${SDDS3_LOCAL_BASE}  *.zip
     ${base_package} =  Set Variable   ${SDDS3_LOCAL_BASE}/${Files}[0]
     File Should exist  ${base_package}
+    Log Hash of File  ${base_package}
+
     [Return]    ${base_package}
 
 Clean up local Base SDDS3 Package
