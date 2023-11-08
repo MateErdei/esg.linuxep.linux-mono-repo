@@ -45,7 +45,7 @@ def get_inputs(context: tap.PipelineContext, liveterminal_build: ArtisanInput, m
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./liveterminal/TA'),
-            pytest_scripts=context.artifact.from_component("winep.liveterminal", "develop", None, org="",
+            pytest_scripts=context.artifact.from_component("winep.liveterminal", "develop", "20231103050000-24b504abf94ec0a99e9180998f9cc56c3edcde4f-hKKQEI", org="",
                                                             storage="esg-build-tested") / "build/sspl-liveterminal/test-scripts",
             common_test_libs=context.artifact.from_folder('./common/TA/libs'),
             common_test_robot=context.artifact.from_folder('./common/TA/robot'),
