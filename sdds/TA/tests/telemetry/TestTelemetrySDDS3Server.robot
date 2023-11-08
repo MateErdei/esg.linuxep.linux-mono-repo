@@ -20,8 +20,6 @@ Force Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
-    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
-    [Tags]  DISABLED
     Cleanup Telemetry Server
 
     Setup SUS static
@@ -34,13 +32,7 @@ Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
 
     Start Local Cloud Server  --initial-alc-policy  ${tmpPolicy}
 
-    # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
-    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly ${tmpLaunchDarkly} --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true
-
-    Set Suite Variable    ${GL_handle}    ${handle}
+    Start Local SDDS3 Server    launchdarklyPath=${tmpLaunchDarkly}
 
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Wait Until Keyword Succeeds

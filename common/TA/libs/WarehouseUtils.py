@@ -10,6 +10,8 @@ import re
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
+import json
+import platform
 
 import requests
 import robot.api.logger as logger
@@ -27,6 +29,7 @@ SUPPORT_FILE_PATH = PathManager.get_support_file_path()
 
 
 SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
+SDDS3_BUILDER = os.environ.get("SDDS3_BUILDER")
 
 ENV_KEY = "env_key"
 
@@ -79,18 +82,6 @@ class WarehouseUtils(object):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
 
-    RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
-        "ServerProtectionLinux-Plugin-AV": "SPL-Anti-Virus-Plugin",
-        "ServerProtectionLinux-Plugin-liveresponse": "SPL-Live-Response-Plugin",
-        "ServerProtectionLinux-Plugin-MDR": "SPL-Managed-Threat-Response-Plugin",
-        "ServerProtectionLinux-Plugin-EventJournaler": "SPL-Event-Journaler-Plugin",
-        "ServerProtectionLinux-Base-component": "SPL-Base-Component",
-        "ServerProtectionLinux-Plugin-EDR": "SPL-Endpoint-Detection-and-Response-Plugin",
-        "ServerProtectionLinux-Plugin-RuntimeDetections": "SPL-Runtime-Detection-Plugin",
-        "ServerProtectionLinux-Plugin-Heartbeat": "Sophos Server Protection Linux - Heartbeat",
-        "ServerProtectionLinux-Plugin-responseactions": "SPL-Response-Actions-Plugin"
-    }
-
     update_server = UpdateServer.UpdateServer("ostia_update_server.log")
 
 
@@ -100,25 +91,51 @@ class WarehouseUtils(object):
         if not os.path.isfile(server_https_cert):
             self.update_server.generate_update_certs()
 
+    # TODO LINUXDAR-8265: Remove is_using_version_workaround
+    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_repo_root, launchdarkly_root, rigidname, is_using_version_workaround=False):
+        # Open LaunchDarkly file to get SUS response for the suite
+        with open(os.path.join(launchdarkly_root, "release.linuxep.ServerProtectionLinux-Base.json")) as f:
+            launchdarkly = json.loads(f.read())
 
+        suite = launchdarkly["RECOMMENDED"]["suite"]
+        suite_path = os.path.join(warehouse_repo_root, "suite", suite)
+        subprocess.run(["chmod", "+x", SDDS3_BUILDER], check=True)
+        args = [SDDS3_BUILDER, "--unpack-signed-file", suite_path]
+        result = subprocess.run(args, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise AssertionError(f"Failed to run '{args}': {result.stderr}")
 
-    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_repo_root, rigidname):
-        product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
+        arch = platform.machine()
 
-        warehouse_package_path = os.path.join(warehouse_repo_root, "package")
-        try:
-            packages = os.listdir(warehouse_package_path)
-        except EnvironmentError:
-            logger.error(f"Can't list warehouse_root: {warehouse_package_path}")
-            raise
-        for package in packages:
-            logger.info(f"Checking package: {package}")
-            if package.startswith(product_name):
-                version = package[len(product_name)+1:-15]
-                logger.info(f"Found matching product with version: {version}")
-                if not re.match(r"^((?:(9+)\.)?){3}(\*|\d+)$", version):
-                    return version
-        raise AssertionError(f"Did not find {rigidname} in {warehouse_package_path}")
+        suite_data = ET.fromstring(result.stdout)
+        for package_ref in suite_data.iter("package-ref"):
+            line_id = package_ref.find("line-id").text
+            logger.debug(f"Checking package: {line_id}")
+            if line_id != rigidname:
+                logger.debug(f"rigidname differs: {rigidname} != {line_id}")
+                continue
+            has_matching_platform = False
+            for platform_elem in package_ref.find("platforms").iter("platform"):
+                platform_name = platform_elem.get("name")
+                if arch == "x86_64" and platform_name == "LINUX_INTEL_LIBC6":
+                    has_matching_platform = True
+                    break
+                if arch == "aarch64" and platform_name == "LINUX_ARM64":
+                    has_matching_platform = True
+                    break
+            if not has_matching_platform:
+                logger.debug("Doesn't have platform matching current architecture")
+                continue
+
+            version = package_ref.find("version").text
+            logger.debug(f"Found matching product with version: {version}")
+            if is_using_version_workaround:
+                return ".".join(version.split(".")[:3] + version.split(".")[4:])
+            else:
+                return version
+
+        raise AssertionError(f"Did not find {rigidname} for {arch} in {result.stdout}")
+
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)

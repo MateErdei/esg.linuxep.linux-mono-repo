@@ -10,6 +10,7 @@ import sys
 
 
 def copy_supplements(src, dest):
+    shutil.rmtree(os.path.join(dest, "supplement"), ignore_errors=True)
     shutil.copytree(os.path.join(src, "supplement"), os.path.join(dest, "supplement"))
 
     src_package_path = os.path.join(src, "package")
@@ -105,7 +106,9 @@ def main(argv):
     os.environ['WEBSOCKET_SERVER'] = os.path.join(os.environ["INPUT_DIRECTORY"], "websocket_server")
     os.environ['SYSTEMPRODUCT_TEST_INPUT'] = os.environ["INPUT_DIRECTORY"]
     os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej_manual_tools", "JournalReader")
+    shutil.rmtree(os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"), ignore_errors=True)
     shutil.copytree(os.path.join(os.environ["INPUT_DIRECTORY"], "rtd_content_rules"), os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"))
+    os.environ["SDDS3_BUILDER"] = os.path.join(os.environ["INPUT_DIRECTORY"], "sdds3", "sdds3-builder")
 
     # TODO LINUXDAR-7079 supplements are not published for release branches
     try:

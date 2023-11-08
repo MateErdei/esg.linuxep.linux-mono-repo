@@ -109,6 +109,7 @@ Start Local SDDS3 Server
     ...  --launchdarkly  ${launchdarklyPath}
     ...  --sdds3  ${sdds3repoPath}
     ...  --port   ${port}
+    ...  --certpath   ${SUPPORT_FILES}/https/server-private.pem
     ...  stdout=${sdds3_server_std_output}
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
@@ -214,17 +215,18 @@ Check Installed Correctly
     Check Expected Base Processes Except SDU Are Running
 
 Check Installed Plugins Are VUT Versions
+    # TODO LINUXDAR-8265: Remove is_using_version_workaround
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-EDR
+    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-EDR    is_using_version_workaround=${True}
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-liveresponse
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-liveresponse    is_using_version_workaround=${True}
     Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-EventJournaler
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-EventJournaler    is_using_version_workaround=${True}
     Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ServerProtectionLinux-Plugin-RuntimeDetections
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-RuntimeDetections    is_using_version_workaround=${True}
     Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
 
 Setup SUS static

@@ -12,13 +12,11 @@ Suite Teardown   Upgrade Resources Suite Teardown
 Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
-# TODO LINUXDAR-7327: Fix and re-enable for SLES15
-Force Tags  TAP_PARALLEL2    SMOKE    EXCLUDE_SLES15
+Force Tags  TAP_PARALLEL2    SMOKE
 
 *** Test Cases ***
 Reconfigure All Sophos Users And Groups In Installed Product
-    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
-    [Tags]  WATCHDOG  DISABLED
+    [Tags]    WATCHDOG    RTD_CHECKED
 
     # Install VUT product
     Start Local Cloud Server
@@ -105,8 +103,7 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Verify Product is Running Without Error After ID Change
 
 Reconfigure All Sophos Users And Groups When Installing Product Using Thin Installer
-    # TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
-    [Tags]  THININSTALLER  DISABLED
+    [Tags]    THININSTALLER    RTD_CHECKED
 
     Start Local Cloud Server
     ${handle} =    Start Local SDDS3 Server

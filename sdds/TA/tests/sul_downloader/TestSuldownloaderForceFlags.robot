@@ -14,8 +14,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-# TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
-Force Tags  SULDOWNLOADER  TAP_PARALLEL1  DISABLED
+Force Tags  SULDOWNLOADER  TAP_PARALLEL1
 
 *** Test Cases ***
 Sul Downloader Installs does Force reinstall

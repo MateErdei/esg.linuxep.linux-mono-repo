@@ -26,8 +26,7 @@ Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
-# TODO: LINUXDAR-8281: Fix and re-enable local SDDS3 server system tests
-Force Tags  TAP_PARALLEL1  SULDOWNLOADER  DISABLED  sdds3updatecache_error_cases
+Force Tags  TAP_PARALLEL1  SULDOWNLOADER    sdds3updatecache_error_cases
 
 *** Keywords ***
 UC Error Test Teardown

@@ -41,15 +41,16 @@ Get Current Installed Versions
     ...    rtdVersion=${RTDReleaseVersion}
     [Return]    &{versions}
 
-Get Expected Versions
-    [Arguments]    ${warehouseRepoRoot}
-    ${ExpectedBaseReleaseVersion} =     get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Base-component
-    ${ExpectedAVReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedRAReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-responseactions
-    ${ExpectedRTDReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ServerProtectionLinux-Plugin-RuntimeDetections
+# TODO LINUXDAR-8265: Remove is_using_version_workaround
+Get Expected Versions For Recommended Tag
+    [Arguments]    ${warehouseRepoRoot}    ${launchdarkly_root}    ${is_using_version_workaround}=${False}
+    ${ExpectedBaseReleaseVersion} =     get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Base-component    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedAVReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-AV    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedEDRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-EDR    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedEJReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-EventJournaler    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedLRReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-liveresponse    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedRAReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-responseactions    is_using_version_workaround=${is_using_version_workaround}
+    ${ExpectedRTDReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-RuntimeDetections    is_using_version_workaround=${is_using_version_workaround}
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}

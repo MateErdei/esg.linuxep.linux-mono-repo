@@ -87,8 +87,9 @@ Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
 Check Upgrade From Fixed Version to VUT
     [Arguments]  ${fixedVersion}
     Require Uninstalled
-    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
+    # TODO LINUXDAR-7787: needs fixing to pull in the launchdarkly flags
+    &{expectedFixedVersions} =    Get Expected Versions For Recommended Tag    ${INPUT_DIRECTORY}/${fixedVersion}/repo    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly
+    &{expectedVUTVersions} =      Get Expected Versions For Recommended Tag    ${INPUT_DIRECTORY}/repo    ${INPUT_DIRECTORY}/launchdarkly
     ${sul_mark} =    Get Suldownloader Log Mark
 
     Start Local Cloud Server
@@ -200,8 +201,9 @@ Check Upgrade From Fixed Version to VUT
 Check Downgrade From VUT to Fixed Version
     [Arguments]  ${fixedVersion}
     Require Uninstalled
-    &{expectedFixedVersions} =    Get Expected Versions    ${INPUT_DIRECTORY}/${fixedVersion}/repo
-    &{expectedVUTVersions} =      Get Expected Versions    ${INPUT_DIRECTORY}/repo
+    # TODO LINUXDAR-7787: needs fixing to pull in the launchdarkly flags
+    &{expectedFixedVersions} =    Get Expected Versions For Recommended Tag    ${INPUT_DIRECTORY}/${fixedVersion}/repo    ${INPUT_DIRECTORY}/${fixedVersion}/launchdarkly
+    &{expectedVUTVersions} =      Get Expected Versions For Recommended Tag    ${INPUT_DIRECTORY}/repo    ${INPUT_DIRECTORY}/launchdarkly
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedFixedVersions["baseVersion"]}
     ${sul_mark} =    Get Suldownloader Log Mark
 

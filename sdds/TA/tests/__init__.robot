@@ -6,8 +6,6 @@ Suite Setup   Global Setup Tasks
 Library           OperatingSystem
 Library           Process
 
-Library    ../libs/WarehouseUtils.py
-
 *** Keywords ***
 Global Setup Tasks
     ${placeholder} =  Get Environment Variable    INPUT_DIRECTORY    default=/opt/test/inputs
