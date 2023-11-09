@@ -112,7 +112,7 @@ def get_test_inputs_from_base():
 
 
 def get_test_inputs_from_event_journaler():
-    fetch_artifacts("linuxep", "sspl-plugin-event-journaler", "eventjournaler/manualTools")
+    fetch_artifacts("linuxep", "linux-mono-repo", "eventjournaler/linux_x64_rel/manualTools")
 
     event_pub_sub_tool_path = os.path.join(SCRIPT_DIR, "EventPubSub")
     journal_reader_tool_path = os.path.join(SCRIPT_DIR, "JournalReader")
