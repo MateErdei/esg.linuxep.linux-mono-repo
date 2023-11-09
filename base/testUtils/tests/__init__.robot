@@ -13,7 +13,7 @@ Library    TemporaryDirectoryManager.py
 Library    UpdateServer.py
 Library    WarehouseUtils.py
 
-Resource    ../../common_test_robot/GeneralTeardownResource.robot
+Resource    /opt/test/inputs/common_test_robot/GeneralTeardownResource.robot
 
 Test Timeout    5 minutes
 Test Teardown   General Test Teardown
@@ -88,19 +88,8 @@ Global Setup Tasks
     ${isLocalTestRun}=     Directory Exists    ${LOCAL_TEST_LIBS}
     ${isJenkinsTestRun}=   Directory Exists    ${JENKINS_TEST_LIBS}
 
-    IF    ${isSystemTestRun}
-        Set Global Variable    ${COMMON_TEST_LIBS}    ${SYS_TEST_LIBS}
-        Set Global Variable    ${COMMON_TEST_ROBOT}   ${SYS_TEST_COMMON_ROBOT}
-    ELSE IF    ${isLocalTestRun}
-        Set Global Variable    ${COMMON_TEST_LIBS}    ${LOCAL_TEST_LIBS}
-        Set Global Variable    ${COMMON_TEST_ROBOT}   ${LOCAL_TEST_ROBOT}
-    ELSE IF    ${isJenkinsTestRun}
-        Set Global Variable    ${COMMON_TEST_LIBS}    ${JENKINS_TEST_LIBS}
-        Set Global Variable    ${COMMON_TEST_ROBOT}   ${JENKINS_TEST_ROBOT}
-    ELSE
-        Set Global Variable    ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
-        Set Global Variable    ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
-    END
+    Set Global Variable  ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

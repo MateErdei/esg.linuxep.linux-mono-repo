@@ -78,14 +78,20 @@ then
 fi
 
 export TEST_UTILS=$WORKSPACE/base/testUtils
-rsync -auv $WORKSPACE/common/TA/libs/ ${TEST_UTILS}/libs/
-cp -r $WORKSPACE/common/TA/robot ${TEST_UTILS}/
+INPUTS_DIR="/opt/test/inputs"
+
+${SUDO}mkdir -p /opt/test/inputs
+${SUDO}cp -r $WORKSPACE/common/TA/libs $INPUTS_DIR/common_test_libs
+${SUDO}cp -r $WORKSPACE/common/TA/robot $INPUTS_DIR/common_test_robot
+${SUDO}cp -r $WORKSPACE/base/testUtils/SupportFiles $INPUTS_DIR/SupportFiles
+${SUDO}touch $INPUTS_DIR/testUtilsMarker
+
 bash ${JENKINS_DIR}/install_dependencies.sh
 bash ${JENKINS_DIR}/install_setup_tools.sh
 [[ -n $NO_GATHER ]] || source $WORKSPACE/base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
 source $WORKSPACE/base/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/base/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
-python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py || fail "Error: failed to gather av supplements locations"
+python3 $INPUTS_DIR/common_test_libs/DownloadAVSupplements.py || fail "Error: failed to gather av supplements locations"
 #setup coverage inputs and exports
 COVERAGE_STAGING="$SYSTEMPRODUCT_TEST_INPUT/coverage"
 
@@ -148,7 +154,9 @@ SUDOE="sudo -E "
 [[ $(id -u) == 0 ]] && SUDOE=
 
 ${SUDOE} python3 -m pip install --upgrade robotframework
-ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot -x ${WORKSPACE}/base/testUtils/robot.xml --loglevel TRACE "
+VARIABLES="--variable COMMON_TEST_LIBS:/opt/test/inputs/common_test_libs --variable COMMON_TEST_ROBOT:/opt/test/inputs/common_test_robot"
+PYTHONPATH="--pythonpath /opt/test/inputs/common_test_libs --pythonpath /opt/test/inputs/common_test_robot"
+ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot ${VARIABLES} ${PYTHONPATH} -x ${WORKSPACE}/base/testUtils/robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
 HasFailure=false
 

@@ -15,9 +15,9 @@ from kitty.targets.server import  ServerTarget
 
 import sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'libs'))
-sys.path.insert(1, libs_dir)
+sys.path.append('../')
+import InstallPathFuzzer
+sys.path.insert(1, InstallPathFuzzer.LIBS_DIR)
 
 from LogUtils import LogUtils
 

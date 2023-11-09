@@ -5,6 +5,10 @@ import argparse
 import os
 import sys
 
+sys.path.append('../')
+import InstallPathFuzzer
+sys.path.insert(1, InstallPathFuzzer.LIBS_DIR)
+
 from kitty.interfaces import WebInterface
 from kitty.model import GraphModel
 from kitty.remote import RpcServer
@@ -14,9 +18,7 @@ from mcsrouter_client_fuzzer import McsRouterClientFuzzer
 from mcsrouter_client_controller import MCSFuzzerClientController
 from mcsrouter_client_target import McsRouterTarget
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'libs'))
-sys.path.insert(1, libs_dir)
+
 
 import ArgParserUtils
 
@@ -31,13 +33,11 @@ def run_mcs_fuzz_test(testsuite=None):
     fuzzer.set_max_failures(cloud_server_args.max_failures)
 
     target = McsRouterTarget('McsClientTarget')
-
     is_robot_run = not cloud_server_args.using_python
     controller = MCSFuzzerClientController(restart_mcs=False, robot_run=is_robot_run)
     target.set_controller(controller)
     target.set_mutation_server_timeout(cloud_server_args.mutation_server_timeout)
     target.set_post_fuzz_delay(cloud_server_args.delay_between_tests)
-
     model = GraphModel()
     suite = testsuite if testsuite else cloud_server_args.suite
     fuzzer.logger.info("Setting up mcs fuzzer for suite = " + suite)

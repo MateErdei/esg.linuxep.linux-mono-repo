@@ -5,6 +5,12 @@ import time
 from kitty.interfaces import WebInterface
 from kitty.model import GraphModel
 
+
+sys.path.append('../')
+import InstallPathFuzzer
+sys.path.insert(1, InstallPathFuzzer.LIBS_DIR)
+
+
 from local_process import LocalProcessController
 import livequery_command_template as lq_command_template
 import livequery_response_template as lq_response_template
@@ -13,10 +19,6 @@ from livequery_response_target import LiveQueryResponseTarget
 from kitty.fuzzers import ServerFuzzer
 import argparse
 import logging
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'libs'))
-sys.path.insert(1, libs_dir)
 
 
 from MCSRouter import MCSRouter

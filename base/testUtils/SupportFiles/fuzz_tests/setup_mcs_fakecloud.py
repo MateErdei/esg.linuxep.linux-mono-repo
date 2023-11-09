@@ -1,20 +1,14 @@
-import shutil
 import os
 import stat
 import sys
 import subprocess
-import time
-import threading
 import logging
 
 
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-libs_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir, 'libs'))
-cloud_auto_dir = os.path.abspath(os.path.join(current_dir, os.pardir, 'CloudAutomation'))
-sys_test_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
-
-sys.path.insert(1, libs_dir)
+sys.path.append('../')
+import InstallPathFuzzer
+sys.path.insert(1, InstallPathFuzzer.LIBS_DIR)
+cloud_auto_dir = os.path.join(InstallPathFuzzer.SUPPORT_FILES, 'CloudAutomation')
 
 from MCSRouter import MCSRouter, get_variable
 from FullInstallerUtils import *
@@ -44,7 +38,7 @@ def setup_logging(name):
 class SetupMCSAndFakeCloud(object):
     def __init__(self, robot_run, install_dir="/opt/sophos-spl", install_files_dir="tests/mcs_router/installfiles"):
         self._install_dir = install_dir
-        self.install_files_dir = os.path.join(sys_test_dir, install_files_dir)
+        self.install_files_dir = os.path.join(InstallPathFuzzer.INSTALL_PATH, install_files_dir)
         self._plugin_reg_dir = os.path.join(self._install_dir, )
         self._mcs_router = MCSRouter()
         self.logger = setup_logging("mcs-fuzz-controller")

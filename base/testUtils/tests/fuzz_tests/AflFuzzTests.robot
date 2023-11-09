@@ -3,12 +3,12 @@ Documentation    Suite description
 
 Force Tags  FUZZ
 
-Library           OperatingSystem
+Library     OperatingSystem
 
-Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
+Library     ${COMMON_TEST_LIBS}/FuzzerSupport.py
 
-Resource   ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
-Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/FuzzTestsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
 Suite Setup   Fuzzer Tests Global Setup
 Suite Teardown   Fuzzer Tests Global TearDown

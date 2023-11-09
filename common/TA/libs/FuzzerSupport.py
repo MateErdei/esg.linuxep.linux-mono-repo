@@ -16,8 +16,8 @@ import base64
 import shutil
 import time
 
-import PathManager
-
+fuzz_path = os.path.join('/opt', 'test', 'inputs', 'SupportFiles', 'fuzz_tests')
+base_path = os.path.join('/home', 'jenkins', 'workspace', 'ContinuousFuzzer', 'label', 'FuzzerTemplate', 'base')
 FuzzerRelativePath = "cmake-fuzz/tests/LibFuzzerTests"
 FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzTests"
 TIMEOUTMINUTES=1
@@ -42,8 +42,8 @@ class FuzzerSupport( object):
         return os.path.join(self._tmp_dir, 'mcs_fuzzer.log')
 
     def _verify_paths(self):
-        if not os.path.isdir(self._everest_path):
-            raise AssertionError("Invalid path to Base source Code: {}".format(self._everest_path))
+        if not os.path.isdir(base_path):
+            raise AssertionError("Invalid path to Base source Code: {}".format(base_path))
         if not os.path.isdir(self._input_root_dir):
             raise AssertionError("Invalid path to everest-systemtest/SupportFiles/base_data/fuzz directory: {}".format(self._input_root_dir))
 
@@ -62,7 +62,7 @@ class FuzzerSupport( object):
 
     def _check_is_fuzz_target_present(self):
         files = ["runFuzzerZMQTests.sh", "runFuzzerManagementAgentApiTest.sh", "ManagementAgentApiTest", "ZMQTests"]
-        expected_fuzzer_path = os.path.join(self._everest_path, FuzzerRelativePath)
+        expected_fuzzer_path = os.path.join(base_path, FuzzerRelativePath)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("Missing libfuzzer dir: {}".format(expected_fuzzer_path))
             return False
@@ -74,7 +74,7 @@ class FuzzerSupport( object):
         error_message = "Failed to build libFuzzer Targets."
         if self._check_is_fuzz_target_present():
             return
-        fuzzer_path = os.path.join(self._everest_path, "tests/LibFuzzerTests")
+        fuzzer_path = os.path.join(base_path, "tests/LibFuzzerTests")
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
             output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path, stderr=subprocess.STDOUT)
@@ -167,11 +167,12 @@ class FuzzerSupport( object):
         environment['ASAN_OPTIONS'] = 'detect_odr_violation=0'
         args = [sys.executable, mcs_fuzzer_path, "--suite", suite, "--range", str(range)]
         logger.info("Running: {}".format(args))
+
         #setup the tmp_dir
         self._set_temp_dir(tempfile.mkdtemp())
         self.mcs_fuzz_logger = open(self._mcs_fuzz_logger_path(), 'w')
         self.mcs_fuzz_runner_process = subprocess.Popen(args, stdout=self.mcs_fuzz_logger, stderr=self.mcs_fuzz_logger,
-                                                        env=environment)
+                                                        env=environment, cwd=fuzz_path)
         time.sleep(2)
         logger.info(self.mcs_fuzz_runner_process)
         pid = self.mcs_fuzz_runner_process.pid
@@ -238,7 +239,7 @@ class FuzzerSupport( object):
 
     def run_fuzzer_by_name(self, target_name):
         self._verify_paths()
-        expected_fuzzer_path = os.path.join(self._everest_path, FuzzerRelativePath, target_name)
+        expected_fuzzer_path = os.path.join(base_path, FuzzerRelativePath, target_name)
         expected_fuzzer_input = os.path.join(self._input_root_dir, target_name)
         if not os.path.isdir(expected_fuzzer_input):
             raise AssertionError("Input CORPUS not present. {}".format(expected_fuzzer_input))
@@ -271,7 +272,7 @@ class FuzzerSupport( object):
                  "parsealcpolicytests",
                  "suldownloaderconfigtests",
                  "downloadreporttests"]
-        expected_fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath)
+        expected_fuzzer_path = os.path.join(base_path, FuzzRelativePath)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("alc path does not exist: {}".format(expected_fuzzer_path))
             return False
@@ -289,22 +290,27 @@ class FuzzerSupport( object):
     def setup_base_build(self):
         logger.info("Setting up build")
 
+        unpack_inputs = os.path.join(base_path, 'unpack_build_inputs.sh')
+        setup_tools = os.path.join(base_path, 'setup_build_tools.sh')
         try:
-            output = subprocess.check_output(["testUtils/SupportFiles/jenkins/gatherBuildInputs.sh"],
-                                             cwd=self._everest_path)
+            output = subprocess.check_output(["/opt/test/inputs/SupportFiles/jenkins/gatherBuildInputs.sh"],
+                                             cwd=base_path)
             logger.debug(output)
-            output2 = subprocess.check_output(["CI=true", "./setup_build_tools.sh"], shell=True, cwd=self._everest_path)
-            if os.path.exists(os.path.join(self._everest_path, 'unpack_build_inputs.sh')):
+            logger.debug("**************************")
+            logger.debug(os.getcwd())
+            output2 = subprocess.check_output(["CI=true", setup_tools],
+                                              shell=True, cwd=base_path)
+            if os.path.exists(unpack_inputs):
                 my_env = os.environ.copy()
                 my_env["CI"] = 'true'
-                output2 = subprocess.check_output(["./unpack_build_inputs.sh"], shell=True, cwd=self._everest_path, env=my_env)
+                output2 = subprocess.check_output([unpack_inputs], shell=True, cwd=base_path, env=my_env)
                 logger.debug(output2)
-                output3 = subprocess.check_output(["chown", "-R", "jenkins", "/build/redist"], cwd=self._everest_path)
+                output3 = subprocess.check_output(["chown", "-R", "jenkins", "/build/redist"], cwd=base_path)
                 logger.debug(output3)
-                output4 = subprocess.check_output(["chown", "-R", "jenkins", "/build/input"], cwd=self._everest_path)
+                output4 = subprocess.check_output(["chown", "-R", "jenkins", "/build/input"], cwd=base_path)
                 logger.debug(output4)
             else:
-                logger.error("Cannot find ./unpack_build_inputs.sh")
+                logger.error(f'Cannot find {unpack_inputs}')
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
             logger.warning(str(ex))
@@ -315,13 +321,14 @@ class FuzzerSupport( object):
 
     def ensure_alf_fuzzer_targets_built(self):
         error_message = "Failed to build AFLFuzzer Targets."
+        build_fuzz = os.path.join(base_path, 'tests', 'FuzzTests', 'buildFuzzTests.sh')
         if self._check_is_alf_fuzz_target_present():
             return
-        fuzzer_path = os.path.join(self._everest_path, "tests/FuzzTests")
+        fuzzer_path = os.path.join(base_path, "tests/FuzzTests")
 
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
-            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path, stderr=subprocess.STDOUT)
+            output = subprocess.check_output([build_fuzz], shell=True, cwd=fuzzer_path, stderr=subprocess.STDOUT)
             logger.debug(output)
             if not self._check_is_alf_fuzz_target_present():
                 raise AssertionError(error_message)
@@ -332,12 +339,12 @@ class FuzzerSupport( object):
 
     def run_alf_fuzzer_by_name(self, target_name):
         self._verify_paths()
-        fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath, target_name)
-        afl_exec_path = os.path.join(self._everest_path, "..", "afl-2.52b/afl-fuzz")
+        fuzzer_path = os.path.join(base_path, FuzzRelativePath, target_name)
+        afl_exec_path = os.path.join(base_path, "..", "afl-2.52b/afl-fuzz")
         fuzzer_input = os.path.join(self._input_root_dir, target_name)
-        cmake_fuzz_dir = os.path.join(self._everest_path, FuzzRelativePath)
-        fuzzer_base_lib_path= os.path.join(self._everest_path, "libs")
-        finding_dir = os.path.join(self._everest_path, FuzzRelativePath, "findings_" + target_name)
+        cmake_fuzz_dir = os.path.join(base_path, FuzzRelativePath)
+        fuzzer_base_lib_path= os.path.join(base_path, "libs")
+        finding_dir = os.path.join(base_path, FuzzRelativePath, "findings_" + target_name)
 
         required_dir_to_run = "/tmp/base/etc"
 
@@ -396,8 +403,8 @@ class FuzzerSupport( object):
 
     def check_fuzz_results(self, target_name):
         logger.info("Fuzzer finished. Checking results of {}".format(target_name))
-        finding_dir = os.path.join(self._everest_path, FuzzRelativePath, "findings_" + target_name)
-        fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath, target_name)
+        finding_dir = os.path.join(base_path, FuzzRelativePath, "findings_" + target_name)
+        fuzzer_path = os.path.join(base_path, FuzzRelativePath, target_name)
         crash_dir = os.path.join(finding_dir,"crashes")
         hangs_dir = os.path.join(finding_dir,"hangs")
         if not os.path.exists(crash_dir) and not os.path.exists(hangs_dir) and os.path.exists(finding_dir):
