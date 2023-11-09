@@ -510,7 +510,10 @@ function test_installation_executable()
 {
     # Don't attempt execution test if install dir already exists
     [[ -d "$SOPHOS_INSTALL" ]] && return
+    # ensure parent directories of install dir have the correct permissions by setting umask
+    umask 066
     mkdir -p "$SOPHOS_INSTALL"
+    umask 077
     echo "exit 0" >"${SOPHOS_INSTALL}/exectest" 2>/dev/null && chmod +x "${SOPHOS_INSTALL}/exectest"
     $SOPHOS_INSTALL/exectest 2>/dev/null || {
       rm -r "$SOPHOS_INSTALL"

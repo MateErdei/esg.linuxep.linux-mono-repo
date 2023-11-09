@@ -41,8 +41,8 @@ ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
 
 # Thin installer appends sophos-spl to the argument
-${CUSTOM_INSTALL_DIRECTORY}    /home/sophos-spl
-${CUSTOM_INSTALL_DIRECTORY_ARG}    /home
+${CUSTOM_INSTALL_DIRECTORY}    /home/parent/sophos-spl
+${CUSTOM_INSTALL_DIRECTORY_ARG}    /home/parent
 ${RPATHCheckerLog}                          /tmp/rpath_checker.log
 
 *** Test Cases ***
