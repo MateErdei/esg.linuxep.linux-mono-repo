@@ -17,12 +17,17 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Force Tags  SULDOWNLOADER  TAP_PARALLEL1
 
 *** Test Cases ***
+
 Sul Downloader Installs does Force reinstall
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
     Generate Warehouse From Local Base Input  {"sdds3.force-update":"true"}
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Install SDDS3 Base
+
+    # Create override before register
+    Create Local SDDS3 Override
+
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json     {"sdds3.force-update":"true"}
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
@@ -30,7 +35,7 @@ Sul Downloader Installs does Force reinstall
 
     Register With Local Cloud Server
     Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
-    Create Local SDDS3 Override
+
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
