@@ -1,0 +1,55 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//deviceisolation:substitutions.bzl", "SUBSTITUTIONS")
+load("//deviceisolation:version_info.bzl", "DEVICEISOLATION_BASE_VERSION", "DEVICEISOLATION_LINE_ID", "DEVICEISOLATION_PRODUCT_NAME", "DEVICEISOLATION_VERSIONING_COMPONENT_NAME")
+load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
+
+expand_template(
+    name = "install_sh",
+    out = "install.sh.tmp",
+    substitutions = SUBSTITUTIONS,
+    template = "install.sh.in",
+)
+
+expand_template(
+    name = "plugin_json",
+    out = "plugin.json",
+    substitutions = SUBSTITUTIONS,
+    template = "plugin.json.in",
+)
+
+expand_template(
+    name = "uninstall_sh",
+    out = "uninstall.sh",
+    substitutions = SUBSTITUTIONS,
+    template = "uninstall.sh.in",
+)
+
+spl_sdds_packages(
+    name = "installer",
+    base_version = DEVICEISOLATION_BASE_VERSION,
+    component_name = DEVICEISOLATION_PRODUCT_NAME,
+    line_id = DEVICEISOLATION_LINE_ID,
+    spv_features = ["LIVETERMINAL"],
+    spv_roles = ["SAU"],
+    spv_target_types = ["ENDPOINT"],
+    # Inverted for better clarity of the package structure
+    srcs_renamed = {value: key for key, value in {
+        "files/plugins/deviceisolation/bin/deviceisolation": "//deviceisolation/products/plugin:deviceisolation",
+        "files/plugins/deviceisolation/bin/uninstall.sh": ":uninstall_sh",
+        "files/base/pluginRegistry/deviceisolation.json": ":plugin_json",
+        "install.sh": ":install_sh",
+        "cleanuprealm.dat": "cleanuprealm.dat",
+        "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
+        "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
+    }.items()},
+    symbols_strip_prefix = "deviceisolation/products/installer",
+    version_ini_locations = [
+        "VERSION.ini",
+        "files/plugins/deviceisolation/VERSION.ini",
+    ],
+    versioning_component_name = DEVICEISOLATION_VERSIONING_COMPONENT_NAME,
+    visibility = [
+        "//deviceisolation:__pkg__",
+    ],
+)

@@ -1,0 +1,15 @@
+Use these robot tests for Component Integration tests as defined in the wiki:
+
+https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
+
+In order to run these tests in tap do:
+ 1) activate the tap environment:
+    source tap/bin/activate
+ 2) tap run device_isolation.integration --debug-loop
+
+In order to run them in vagrant box:
+The robot tests require that your dev machine has been
+set up (https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine)
+and that the esg.linuxep.sspl-tools/setup_vagrant_wsl.sh script has been run.
+
+./robot -t "Check Health Telemetry Is Written" TA/

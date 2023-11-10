@@ -632,7 +632,7 @@ def get_file_info_for_installation(plugin=None):
         plugin = plugin.lower()
         plugin_dir = "plugins/{}".format(plugin)
         SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, plugin_dir)
-        if plugin == "liveresponse" or plugin == "eventjournaler":
+        if plugin == "liveresponse" or plugin == "eventjournaler" or plugin == "deviceisolation":
             exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "RobotTests/InstallSet/ExcludeFiles")).readlines()
         elif plugin == "edr":
             exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "RobotScripts/InstallSet/ExcludeFiles")).readlines()

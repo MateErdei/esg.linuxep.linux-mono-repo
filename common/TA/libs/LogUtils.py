@@ -81,6 +81,7 @@ class LogUtils(object):
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
         self.ej_log = os.path.join(self.install_path, "plugins", "eventjournaler", "log", "eventjournaler.log")
+        self.deviceisolation_log = os.path.join(self.install_path, "plugins", "deviceisolation", "log", "deviceisolation.log")
         self.liveresponse_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "liveresponse.log")
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
@@ -1000,6 +1001,13 @@ class LogUtils(object):
         
     def check_event_journaler_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.ej_log, "Journaler")
+
+    # Device Isolation Log Utils
+    def get_device_isolation_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.deviceisolation_log)
+
+    def check_device_isolation_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.deviceisolation_log, "Device Isolation")
 
     # Live Response Log Utils
     def check_liveresponse_log_contains(self, string_to_contain):

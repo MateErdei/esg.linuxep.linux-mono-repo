@@ -1,0 +1,20 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+
+soph_release_asset(
+    name = "installer",
+    asset = "//deviceisolation/products/installer:installer_sdds2",
+    asset_type = select({
+        "//tools/config:linux_x64_rel": "release",
+        "//tools/config:linux_arm64_rel": "release",
+        "//tools/config:linux_x64_dbg": "build",
+        "//tools/config:linux_arm64_dbg": "build",
+    }),
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset(
+    name = "installer_symbols",
+    asset = "//deviceisolation/products/installer:installer_symbols",
+    visibility = ["//products:__pkg__"],
+)

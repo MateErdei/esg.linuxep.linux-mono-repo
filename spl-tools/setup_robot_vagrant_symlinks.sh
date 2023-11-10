@@ -52,6 +52,15 @@ then
   make_links
 fi
 
+# Device Isolation
+if [ -d  "$LINUX_MONO_REPO/deviceisolation" ]
+then
+  cd "$LINUX_MONO_REPO/deviceisolation"
+  make_links
+  cd "$LINUX_MONO_REPO/deviceisolation/TA"
+  make_links
+fi
+
 # Live Terminal
 if [ -d  "$LINUX_MONO_REPO/liveterminal" ]
 then

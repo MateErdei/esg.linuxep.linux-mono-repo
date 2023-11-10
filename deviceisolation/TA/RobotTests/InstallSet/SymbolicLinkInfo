@@ -1,0 +1,3 @@
+o777, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation
+o777, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/bin/uninstall.sh
+o777, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/VERSION.ini

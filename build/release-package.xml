@@ -355,6 +355,16 @@
         <build-asset artifact-path="eventjournaler/linux_arm64_dbg/installer" source-zip=".output/eventjournaler/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="eventjournaler/linux_arm64_dbg/manualTools" source-zip=".output/eventjournaler/linux_arm64_dbg/manualTools.zip" mode="all_la64d"/>
 
+        <!-- Device Isolation -->
+        <release-asset artifact-path="deviceisolation/linux_x64_rel/installer" source-dir=".output/deviceisolation/linux_x64_rel/installer" manifest-path=".output/deviceisolation/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
+        <build-asset artifact-path="deviceisolation/linux_x64_rel/installer" source-zip=".output/deviceisolation/linux_x64_rel/installer.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="deviceisolation/linux_x64_rel/installer_symbols" source-zip=".output/deviceisolation/linux_x64_rel/installer_symbols.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="deviceisolation/linux_x64_dbg/installer" source-zip=".output/deviceisolation/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
+        <release-asset artifact-path="deviceisolation/linux_arm64_rel/installer" source-dir=".output/deviceisolation/linux_arm64_rel/installer" manifest-path=".output/deviceisolation/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
+        <build-asset artifact-path="deviceisolation/linux_arm64_rel/installer" source-zip=".output/deviceisolation/linux_arm64_rel/installer.zip" mode="all_la64r"/>
+        <build-asset artifact-path="deviceisolation/linux_arm64_rel/installer_symbols" source-zip=".output/deviceisolation/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
+        <build-asset artifact-path="deviceisolation/linux_arm64_dbg/installer" source-zip=".output/deviceisolation/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
         <build-asset artifact-path="base/linux_x64_dbg/system_test" source-zip=".output/base/linux_x64_dbg/system_test.zip" mode="all_lx64d"/>

@@ -1,0 +1,38 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+load("//deviceisolation:substitutions.bzl", "SUBSTITUTIONS")
+
+soph_cc_library(
+    name = "pluginimpl",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]) + [":config"],
+    hdrs = [
+        "ApplicationPaths.h",
+        "PluginAdapter.h",
+    ],
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+    ],
+    visibility = [
+        "//deviceisolation/products/plugin:__pkg__",
+        "//deviceisolation/tests/plugin:__pkg__",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi",
+    ],
+)
+
+expand_template(
+    name = "config",
+    out = "config.h",
+    substitutions = SUBSTITUTIONS,
+    template = "config.h.in",
+)

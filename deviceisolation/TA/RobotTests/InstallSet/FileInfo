@@ -1,0 +1,4 @@
+o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/deviceisolation/log/deviceisolation.log
+o700, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/bin/uninstall.sh.0
+o750, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation.0
+o750, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/VERSION.ini.0

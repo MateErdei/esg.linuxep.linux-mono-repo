@@ -12,6 +12,7 @@ from pipeline.common import get_package_version, \
     ZERO_SIX_ZERO_MODE, COVERAGE_MODE, truthy
 from pipeline.edr import run_edr_tests, run_edr_coverage_tests
 from pipeline.eventjournaler import run_ej_tests, run_ej_coverage_tests
+from pipeline.deviceisolation import run_di_tests
 from pipeline.liveterminal import run_liveterminal_tests, run_liveterminal_coverage_tests
 from pipeline.sdds import sdds
 from pipeline import common
@@ -24,6 +25,7 @@ PACKAGE_PATH_EDR = "./edr/build-files/release-package.xml"
 PACKAGE_PATH_AV = "./av/build-files/release-package.xml"
 PACKAGE_PATH_LIVETERMINAL = "./liveterminal/linux-release-package.xml"
 PACKAGE_PATH_EJ = "./eventjournaler/build-files/release-package.xml"
+PACKAGE_PATH_DI = "./deviceisolation/build-files/release-package.xml"
 PACKAGE_PATH_SDDS = "./sdds/build/dev.xml"
 
 BUILD_SELECTION_ALL = "all"
@@ -32,6 +34,7 @@ BUILD_SELECTION_AV = "av"
 BUILD_SELECTION_LIVETERMINAL = "liveterminal"
 BUILD_SELECTION_EDR = "edr"
 BUILD_SELECTION_EJ = "ej"
+BUILD_SELECTION_DI = "di"
 
 
 def builds_unified(stage: tap.Root, component, build_type: str, build_modes: dict):
@@ -115,6 +118,9 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
                 if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
                     run_ej_tests(stage, context, builds, mode, parameters)
+
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_DI]:
+                    run_di_tests(stage, context, builds, mode, parameters)
 
                 if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
                     run_edr_tests(stage, context, builds, mode, parameters)

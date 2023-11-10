@@ -6,6 +6,7 @@ load("//tools/config:sophos_asset.bzl", "soph_build_asset_pkg")
 
 RELEASEABLE_ASSETS = [
     "//base:installer",
+    "//deviceisolation:installer",
     "//eventjournaler:installer",
     "//response_actions:installer",
     "//liveterminal:installer",
@@ -22,6 +23,7 @@ RELEASEABLE_ASSETS = [
 
 RELEASE_MODE_DEPS = [
     "//base:installer_symbols",
+    "//deviceisolation:installer_symbols",
     "//eventjournaler:installer_symbols",
     "//response_actions:installer_symbols",
     "//liveterminal:installer_symbols",

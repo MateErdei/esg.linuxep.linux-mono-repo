@@ -11,6 +11,7 @@ SPL_TOOLS_DIR_NAME = "spl-tools"
 AV_DIR_NAME = "av"
 EDR_DIR_NAME = "edr"
 EVENT_JOURNALER_DIR_NAME = "eventjournaler"
+DEVICE_ISOLATION_DIR_NAME = "deviceisolation"
 LIVETERMINAL_DIR_NAME = "liveterminal"
 
 BASE_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, BASE_DIR_NAME)
@@ -18,6 +19,7 @@ COMMON_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, COMMON_DIR_NAME)
 AV_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, AV_DIR_NAME)
 EDR_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EDR_DIR_NAME)
 EJ_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, EVENT_JOURNALER_DIR_NAME)
+DI_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, DEVICE_ISOLATION_DIR_NAME)
 LT_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, LIVETERMINAL_DIR_NAME)
 TOOLS_ON_VAGRANT=os.path.join("/vagrant", MONO_REPO, SPL_TOOLS_DIR_NAME)
 
@@ -68,6 +70,11 @@ def get_plugin_names():
             'name': 'sspl-plugin-event-journaler',
             'dir': 'eventjournaler',
             'envName': 'SSPL_PLUGIN_EVENT_JOURNALER_SDDS'
+        },
+        {
+            'name': 'sspl-plugin-device-isolation',
+            'dir': 'deviceisolation',
+            'envName': 'SSPL_PLUGIN_DEVICE_ISOLATION_SDDS'
         },
         {
             'name': 'sspl-plugin-liveterminal',
@@ -257,6 +264,30 @@ sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
     return temp_file_content
 
 
+# Create the temp file that will be executed inside the vagrant machine for Event Journaler tests
+def generate_device_isolation_test_script(remote_dir: str, device_isolation_folder_vagrant: str, env_variables: str,
+                                         quoted_args: [str]) -> str:
+    temp_file_content = f"""#!/bin/bash
+set -ex
+cd {remote_dir}
+if [[ ! -f "/tmp/ran_device_isolation_setup_vagrant_script" ]]
+then
+    echo "Running Event Journaler vagrant setup script"
+    pushd "{device_isolation_folder_vagrant}/TA"
+        chmod +x bin/setupVagrant.sh
+        sudo bin/setupVagrant.sh
+    popd
+fi
+# Env vars
+{env_variables}
+# Set python path
+export PYTHONPATH=/opt/test/inputs/common_test_libs
+# Run robot
+sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
+"""
+    return temp_file_content
+
+
 def generate_liveterminal_test_script(remote_dir: str, liveterminal_folder_vagrant: str, env_variables: str,
                                          quoted_args: [str]) -> str:
     temp_file_content = f"""#!/bin/bash
@@ -294,6 +325,8 @@ def main():
         current_repo = EDR_DIR_NAME
     elif os.path.join(MONO_REPO, EVENT_JOURNALER_DIR_NAME) in current_dir:
         current_repo = EVENT_JOURNALER_DIR_NAME
+    elif os.path.join(MONO_REPO, DEVICE_ISOLATION_DIR_NAME) in current_dir:
+        current_repo = DEVICE_ISOLATION_DIR_NAME
     elif os.path.join(MONO_REPO, LIVETERMINAL_DIR_NAME) in current_dir:
         current_repo = LIVETERMINAL_DIR_NAME
 
@@ -413,6 +446,14 @@ def main():
         quoted_args[-1] = add_quote(test_dir_absolute)
         remote_dir = f"{EJ_ON_VAGRANT}/TA"
         temp_file_content = generate_event_journaler_test_script(remote_dir, EJ_ON_VAGRANT, env_variables, quoted_args)
+
+    elif current_repo == DEVICE_ISOLATION_DIR_NAME:
+        # Device Isolation also needs to run tests from TA dir so hard code the remote_dir
+        # remap test location arg, assuming last arg is the dir of the tests we want to run
+        test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
+        quoted_args[-1] = add_quote(test_dir_absolute)
+        remote_dir = f"{DI_ON_VAGRANT}/TA"
+        temp_file_content = generate_device_isolation_test_script(remote_dir, DI_ON_VAGRANT, env_variables, quoted_args)
 
     elif current_repo == LIVETERMINAL_DIR_NAME:
         # Event Journaler also needs to run tests from TA dir so hard code the remote_dir

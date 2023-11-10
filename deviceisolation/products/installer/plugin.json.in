@@ -1,0 +1,21 @@
+{
+  "policyAppIds": [
+  ],
+  "actionAppIds": [
+  ],
+  "statusAppIds": [
+  ],
+  "pluginName": "@PLUGIN_NAME@",
+  "executableFullPath": "plugins/@PLUGIN_NAME@/bin/@PLUGIN_NAME@",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    }
+  ],
+  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group",
+  "secondsToShutDown":10,
+  "displayPluginName": "@PRODUCT_PRETTY_NAME@"
+}
