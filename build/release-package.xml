@@ -306,6 +306,7 @@
         <build-asset artifact-path="base/linux_arm64_rel/installer_symbols" source-zip=".output/base/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_dbg/installer" source-zip=".output/base/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="base/fake_management" source-zip=".output/base/fake_management.zip" mode="all_lx64r"/>
+        <build-asset artifact-path="base/distribution_scripts" source-zip=".output/base/distribution_scripts.zip" mode="all_lx64r"/>
 
         <!-- Response Actions -->
         <release-asset artifact-path="response_actions/linux_x64_rel/installer" source-dir=".output/response_actions/linux_x64_rel/installer" manifest-path=".output/response_actions/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>

@@ -1,5 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
 exports_files([
     "cleanupinstall.sh",
     "VERSION.ini.in",
@@ -12,3 +14,18 @@ exports_files([
     "generateSDDSImport.py",
     "generateSDDSImportAndManifestDat.py",
 ])
+
+pkg_tar(
+    name = "distribution_scripts",
+    srcs = [
+        "checkAndRunExtraUpgrade.sh",
+        "cleanupinstall.sh",
+        "fileInfo.py",
+        "generateSDDSImport.py",
+        "getReleasePackageVersion.py",
+        "readVersion.py",
+    ],
+    extension = "tar.gz",
+    package_dir = "distribution_scripts",
+    visibility = ["//base:__pkg__"],
+)

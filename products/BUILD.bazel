@@ -54,6 +54,7 @@ soph_export_assets(
         "//eventjournaler:manualTools",
     ] + select({
         "//tools/config:linux_x64_rel": RELEASE_MODE_DEPS + [
+            "//base:distribution_scripts",
             "//base:fake_management",
         ],
         "//tools/config:linux_arm64_rel": RELEASE_MODE_DEPS,

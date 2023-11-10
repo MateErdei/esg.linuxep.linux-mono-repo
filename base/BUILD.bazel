@@ -65,6 +65,13 @@ soph_build_asset_pkg(
 )
 
 soph_build_asset_pkg(
+    name = "distribution_scripts",
+    srcs = ["//base/products/distribution:distribution_scripts"],
+    platform_neutral = True,
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset_pkg(
     name = "system_test",
     srcs = ["//base/products/SystemProductTestOutput"],
     visibility = ["//products:__pkg__"],
