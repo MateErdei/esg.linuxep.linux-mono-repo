@@ -34,13 +34,9 @@ namespace UpdateSchedulerImpl::configModule
     {
         UpdateStatus() = default;
 
-        std::string LastBootTime;
-        std::string LastStartTime;
-        std::string LastSyncTime;
         std::string LastInstallStartedTime;
-        std::string LastFinishdTime;
         int LastResult = 0;
-        std::string FirstFailedTime;
+
         bool LastUpdateWasSupplementOnly = false;
 
         std::vector<ProductStatus> Subscriptions;
@@ -52,7 +48,6 @@ namespace UpdateSchedulerImpl::configModule
         const std::string& revID,
         const std::string& versionId,
         const std::string& machineID,
-        const Common::UtilityImpl::IFormattedTime& iFormattedTime,
         const std::vector<std::string>& subscriptionsInPolicy,
         const std::vector<std::string>& features,
         const StateData::StateMachineData& stateMachineData);

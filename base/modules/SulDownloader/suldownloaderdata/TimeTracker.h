@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -23,17 +19,14 @@ namespace SulDownloader::suldownloaderdata
 
         std::string finishedTime() const;
 
-        std::string syncTime() const;
 
         void setStartTime(time_t m_startTime);
 
         void setFinishedTime(time_t m_finishedTime);
 
-        void setSyncTime();
 
     private:
         std::time_t m_startTime = -1;
         std::time_t m_finishedTime = -1;
-        bool m_syncTimeSet = false;
     };
 } // namespace SulDownloader::suldownloaderdata

@@ -132,20 +132,6 @@ namespace
         }
     }
 
-    // static void dump(const boost::property_tree::ptree& t, const std::string& indent="")
-    //{
-    //    if (!t.data().empty())
-    //    {
-    //        LOGDEBUG(indent << t.data());
-    //    }
-    //    BOOST_FOREACH(
-    //            const boost::property_tree::ptree::value_type &v,
-    //            t)
-    //    {
-    //        LOGDEBUG(indent << "." << v.first);
-    //        dump(v.second, indent+" ");
-    //    }
-    //}
 
 } // namespace
 
@@ -156,7 +142,6 @@ namespace UpdateSchedulerImpl::configModule
         const std::string& revID,
         const std::string& versionId,
         const std::string& machineId,
-        const Common::UtilityImpl::IFormattedTime& iFormattedTime,
         const std::vector<std::string>& subscriptionsInPolicy,
         const std::vector<std::string>& features,
         const StateData::StateMachineData& stateMachineData)
@@ -190,7 +175,6 @@ namespace UpdateSchedulerImpl::configModule
         namespace pt = boost::property_tree;
         pt::ptree tree = parseString(L_STATUS_TEMPLATE);
 
-        std::string bootTime = iFormattedTime.bootTime();
 
         auto& statusNode = tree.get_child("status"); // Needs to be a reference so that we mutate the actual tree!
 

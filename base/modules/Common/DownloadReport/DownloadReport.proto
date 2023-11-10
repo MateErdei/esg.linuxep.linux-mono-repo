@@ -36,7 +36,6 @@ message DownloadStatusReport
 {
    optional string startTime = 1;
    optional string finishTime = 2;
-   optional string syncTime = 3;
    optional string status =4;
    optional string sulError = 5;
    optional string errorDescription = 6;

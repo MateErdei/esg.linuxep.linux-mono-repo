@@ -79,22 +79,14 @@ namespace
 class TestSerializeStatus : public ::testing::Test
 {
 public:
-    void SetUp() override { m_formattedTime = formattedTime(); }
+    void SetUp() override { }
     void TearDown() override {}
-
-    std::unique_ptr<MockFormattedTime> formattedTime()
-    {
-        std::unique_ptr<MockFormattedTime> mockFormattedTime(new ::testing::StrictMock<MockFormattedTime>());
-        EXPECT_CALL(*mockFormattedTime, bootTime()).WillRepeatedly(Return("20180810 100000"));
-        return mockFormattedTime;
-    }
 
     void runTest(const std::string& expectedXML,
                 const UpdateStatus& status,
                 const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData,
                 const std::vector<std::string>& subscriptionsInPolicy );
 
-    std::unique_ptr<MockFormattedTime> m_formattedTime;
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
@@ -133,7 +125,7 @@ void TestSerializeStatus::runTest(const std::string& expectedXML,
     pt::ptree expectedTree = parseString(expectedXML);
 
     std::string actualOutput =
-        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, subscriptionsInPolicy, {}, stateMachineData);
+        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", subscriptionsInPolicy, {}, stateMachineData);
     pt::ptree actualTree = parseString(actualOutput);
 
     if (actualTree != expectedTree)
@@ -189,7 +181,6 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
                               "GivenRevId",
                               "GivenVersion",
                               "thisMachineID",
-                              *m_formattedTime,
                               {"BaseRigidName", "PluginRigidName"},
                               {"FeatureA"},
                               stateMachineData);

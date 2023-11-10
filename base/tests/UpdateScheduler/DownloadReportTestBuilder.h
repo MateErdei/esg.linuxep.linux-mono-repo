@@ -89,7 +89,7 @@
                     report.m_finishedTime = PreviousPreviousFinishTime;
                     break;
             }
-            report.m_sync_time = report.m_finishedTime;
+
             report.m_productReport = goodProducts();
             if (!upgraded)
             {
@@ -162,7 +162,6 @@
                 report.m_startTime = PreviousStartTime;
                 report.m_finishedTime = PreviousFinishTime;
             }
-            report.m_sync_time = report.m_finishedTime;
 
             if (status != Common::DownloadReport::RepositoryStatus::CONNECTIONERROR)
             {

@@ -403,7 +403,7 @@ namespace UpdateSchedulerImpl
                 // ensure that recent results 'if available' are processed.
                 // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
                 // there is no new results to be processed.
-                std::string lastUpdate = processSulDownloaderFinished("update_report.json");
+                processSulDownloaderFinished("update_report.json");
             }
 
             if (m_pendingUpdate)
@@ -679,7 +679,7 @@ namespace UpdateSchedulerImpl
         m_queueTask->pushStop();
     }
 
-    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(
+    void UpdateSchedulerProcessor::processSulDownloaderFinished(
         const std::string& /*reportFileLocation*/,
         const bool processLatestReport)
     {
@@ -702,10 +702,10 @@ namespace UpdateSchedulerImpl
         if (reportAndFiles.sortedFilePaths.empty())
         {
             LOGSUPPORT("No report to process");
-            return std::string();
+            return;
         }
 
-        // removed previous processed reports files, only need to store process reports files for the this run (last/
+        // removed previous processed reports files, only need to store process reports files for this run (last/
         // current run).
         iFileSystem->removeFilesInDirectory(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderProcessedReportPath());
@@ -742,12 +742,6 @@ namespace UpdateSchedulerImpl
 
         std::string lastInstallTime(reportAndFiles.reportCollectionResult.SchedulerStatus.LastInstallStartedTime);
 
-        if (lastInstallTime.empty())
-        {
-            // last install time come from the start time in the update report if an upgrade has happened.
-            // only need to set to LastStartTime if cannot get LastInstallStartedTime
-            lastInstallTime = reportAndFiles.reportCollectionResult.SchedulerStatus.LastStartTime;
-        }
 
         lastInstallTime = Common::UtilityImpl::TimeUtils::toEpochTime(lastInstallTime);
         int lastUpdateResult = reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult;
@@ -779,27 +773,13 @@ namespace UpdateSchedulerImpl
             m_policyTranslator.revID(),
             VERSIONID,
             m_machineID,
-            m_formattedTime,
             m_subscriptionRigidNamesInPolicy,
             m_featuresCurrentlyInstalled,
             stateMachineProcessor.getStateMachineData());
 
-        UpdateStatus copyStatus = reportAndFiles.reportCollectionResult.SchedulerStatus;
-        // blank the timestamp that changes for every report.
-        copyStatus.LastStartTime = "";
-        copyStatus.LastFinishdTime = "";
-        std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus,
-            m_policyTranslator.revID(),
-            VERSIONID,
-            m_machineID,
-            m_formattedTime,
-            m_subscriptionRigidNamesInPolicy,
-            m_featuresCurrentlyInstalled,
-            stateMachineProcessor.getStateMachineData());
         m_callback->setStateMachine(stateMachineProcessor.getStateMachineData());
-        m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
-        m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
+        m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusXML, ALC_API });
+        m_baseService->sendStatus(ALC_API, statusXML, statusXML);
         LOGINFO("Sending status to Central");
 
         for (auto& product : reportAndFiles.reportCollectionResult.SchedulerStatus.Products)
@@ -844,12 +824,11 @@ namespace UpdateSchedulerImpl
                 UpdateSupplementDecider::recordSuccessfulProductUpdate();
             }
 
-            return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
+            return;
         }
 
         Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, false);
         Common::Telemetry::TelemetryHelper::getInstance().increment(Telemetry::failedUpdateCount, 1UL);
-        return std::string();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)

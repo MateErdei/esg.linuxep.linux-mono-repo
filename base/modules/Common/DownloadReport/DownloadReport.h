@@ -88,8 +88,6 @@ namespace Common::DownloadReport
 
         const std::string& getFinishedTime() const;
 
-        const std::string& getSyncTime() const;
-
         const std::vector<ProductReport>& getProducts() const;
 
         const std::vector<ProductInfo>& getRepositoryComponents() const;
@@ -118,7 +116,6 @@ namespace Common::DownloadReport
                    m_sulError == other.m_sulError &&
                    m_startTime == other.m_startTime &&
                    m_finishedTime == other.m_finishedTime &&
-                   m_sync_time == other.m_sync_time &&
                    m_urlSource == other.m_urlSource &&
                    m_productReport == other.m_productReport &&
                    m_repositoryComponents == other.m_repositoryComponents &&
@@ -137,7 +134,6 @@ namespace Common::DownloadReport
         std::string m_sulError;
         std::string m_startTime;
         std::string m_finishedTime;
-        std::string m_sync_time;
         std::string m_urlSource;
 
         std::vector<ProductReport> m_productReport;

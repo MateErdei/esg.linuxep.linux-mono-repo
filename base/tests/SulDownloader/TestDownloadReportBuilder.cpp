@@ -108,9 +108,6 @@ public:
         valueToFind = "finishTime\": \"" + report.getFinishedTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-        valueToFind = "syncTime\": \"" + report.getSyncTime();
-        EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
-
         valueToFind = "status\": \"" + Common::DownloadReport::toString(report.getStatus());
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
@@ -164,9 +161,6 @@ public:
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "finishTime\": \"" + report.getFinishedTime();
-        EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
-
-        valueToFind = "syncTime\": \"" + report.getSyncTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "status\": \"" + Common::DownloadReport::toString(report.getStatus());
@@ -777,7 +771,6 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     "startTime": "20180822 121220",
     "errorDescription": "",
     "urlSource": "Sophos",
-    "syncTime": "20180821 121220"
 })sophos" };
     DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
     const std::vector<ProductInfo>& warehouseComponents = report.getRepositoryComponents();
@@ -935,7 +928,6 @@ TEST_F(DownloadReportTest, FromReportToReportGivesBackExpectedResults)
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(1));
     timeTracker.setFinishedTime(std::time_t(2));
-    timeTracker.setSyncTime();
 
     std::vector<DownloadedProduct> downloadedProducts{ baseProduct, edrProduct };
     std::vector<ProductInfo> components{ { "rigid name", "product name", "version", "installed version" } };

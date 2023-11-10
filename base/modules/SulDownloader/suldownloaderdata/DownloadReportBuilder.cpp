@@ -23,7 +23,6 @@ namespace SulDownloader::suldownloaderdata
     {
         DownloadReport report;
         report.m_startTime = timeTracker.startTime();
-        report.m_sync_time = timeTracker.syncTime();
         report.m_finishedTime = timeTracker.finishedTime();
         report.m_supplementOnly = false;
         if (repository.hasError())
@@ -99,13 +98,7 @@ namespace SulDownloader::suldownloaderdata
             }
         }
 
-        if (report.m_status == RepositoryStatus::SUCCESS)
-        {
-            timeTracker->setSyncTime();
-        }
-
         report.m_startTime = timeTracker->startTime();
-        report.m_sync_time = timeTracker->syncTime();
         report.m_finishedTime = timeTracker->finishedTime();
 
         report.m_repositoryComponents = updateRepositoryComponentInstalledVersion(components);
@@ -119,7 +112,6 @@ namespace SulDownloader::suldownloaderdata
         TimeTracker tt;
         tt.setStartTime(TimeUtils::getCurrTime());
         report.m_startTime = tt.startTime();
-        report.m_sync_time = tt.syncTime();
         report.m_finishedTime = tt.finishedTime();
         report.m_description = errorDescription;
         report.m_status = RepositoryStatus::UNSPECIFIED;

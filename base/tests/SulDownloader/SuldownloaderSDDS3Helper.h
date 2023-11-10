@@ -48,7 +48,6 @@ struct Sdds3SimplifiedDownloadReport {
   RepositoryStatus Status;
   std::string Description;
   std::vector<ProductReport> Products;
-  bool shouldContainSyncTime;
   std::vector<ProductInfo> WarehouseComponents;
 };
 namespace {
@@ -438,18 +437,6 @@ public:
              << "\n result: " << resultedProductsSerialized;
     }
 
-    if (expected.shouldContainSyncTime) {
-      if (resulted.getSyncTime().empty()) {
-        return ::testing::AssertionFailure()
-               << s.str() << " Expected SyncTime not empty. Found it empty. ";
-      }
-    } else {
-      if (!resulted.getSyncTime().empty()) {
-        return ::testing::AssertionFailure()
-               << s.str() << "Expected SyncTime to be empty, but found it: "
-               << resulted.getSyncTime();
-      }
-    }
 
     return listProductInfoIsEquivalent(m_expr, n_expr,
                                        expected.WarehouseComponents,

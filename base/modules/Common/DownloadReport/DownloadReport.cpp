@@ -96,10 +96,7 @@ namespace Common::DownloadReport
         return m_finishedTime;
     }
 
-    const std::string& DownloadReport::getSyncTime() const
-    {
-        return m_sync_time;
-    }
+
 
     const std::vector<ProductReport>& DownloadReport::getProducts() const
     {
@@ -152,7 +149,6 @@ namespace Common::DownloadReport
         SulDownloaderProto::DownloadStatusReport protoReport;
         protoReport.set_starttime(report.getStartTime());
         protoReport.set_finishtime(report.getFinishedTime());
-        protoReport.set_synctime(report.getSyncTime());
 
         protoReport.set_status(toString(report.getStatus()));
         protoReport.set_errordescription(report.getDescription());
@@ -203,7 +199,6 @@ namespace Common::DownloadReport
         DownloadReport report;
         report.m_startTime = protoReport.starttime();
         report.m_finishedTime = protoReport.finishtime();
-        report.m_sync_time = protoReport.synctime();
 
         fromString(protoReport.status(), &report.m_status);
 

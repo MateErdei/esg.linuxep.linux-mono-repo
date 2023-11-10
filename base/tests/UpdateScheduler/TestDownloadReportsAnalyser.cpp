@@ -140,28 +140,6 @@ public:
         std::stringstream s;
         s << m_expr << " and " << n_expr << " failed: ";
 
-        // ignore LastBootTime
-
-        if (expected.LastStartTime != resulted.LastStartTime)
-        {
-            return ::testing::AssertionFailure()
-                   << s.str() << "LastStartTime differ. Expected: " << expected.LastStartTime
-                   << ", received: " << resulted.LastStartTime;
-        }
-
-        if (expected.LastSyncTime != resulted.LastSyncTime)
-        {
-            return ::testing::AssertionFailure()
-                   << s.str() << "LastSyncTime differ. Expected: " << expected.LastSyncTime
-                   << ", received: " << resulted.LastSyncTime;
-        }
-
-        if (expected.LastFinishdTime != resulted.LastFinishdTime)
-        {
-            return ::testing::AssertionFailure()
-                   << s.str() << " LastFinishdTime differ. Expected: " << expected.LastFinishdTime
-                   << ", received: " << resulted.LastFinishdTime;
-        }
 
         if (expected.LastInstallStartedTime != resulted.LastInstallStartedTime)
         {
@@ -174,13 +152,6 @@ public:
         {
             return ::testing::AssertionFailure() << s.str() << "LastResult differ. Expected: " << expected.LastResult
                                                  << ", received: " << resulted.LastResult;
-        }
-
-        if (expected.FirstFailedTime != resulted.FirstFailedTime)
-        {
-            return ::testing::AssertionFailure()
-                   << s.str() << "FirstFailedTime differ. Expected: " << expected.FirstFailedTime
-                   << ", received: " << resulted.FirstFailedTime;
         }
 
         return productsAreEquivalent(m_expr, n_expr, expected.Subscriptions, resulted.Subscriptions);
@@ -198,13 +169,8 @@ public:
     UpdateStatus upgradeStatus()
     {
         UpdateStatus status;
-        status.LastBootTime = StartTimeTest;
-        status.LastStartTime = StartTimeTest;
-        status.LastSyncTime = FinishTimeTest;
-        status.LastFinishdTime = FinishTimeTest;
         status.LastInstallStartedTime = StartTimeTest;
         status.LastResult = 0;
-        status.FirstFailedTime.clear();
         status.Products = { {"BaseRigidName", "BaseName", "0.5.0", "0.5.0"},
                             { "PluginRigidName", "PluginName", "0.5.0", "0.5.0"} };
         // Products
@@ -325,9 +291,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
     expectedEvent.Messages.emplace_back("", "failed2connect");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
-    expectedStatus.LastSyncTime.clear();
-    expectedStatus.LastInstallStartedTime.clear();
-    expectedStatus.FirstFailedTime = StartTimeTest;
+
     expectedStatus.Subscriptions.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
@@ -350,9 +314,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
-    expectedStatus.LastSyncTime.clear();
-    expectedStatus.LastInstallStartedTime.clear();
-    expectedStatus.FirstFailedTime = StartTimeTest;
+
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -375,9 +337,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
-    expectedStatus.LastSyncTime = PreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousStartTime;
-    expectedStatus.FirstFailedTime = StartTimeTest;
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -401,9 +361,8 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
-    expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
-    expectedStatus.FirstFailedTime = PreviousStartTime;
+
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -455,9 +414,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = EventMessageNumber::INSTALLFAILED;
-    expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
-    expectedStatus.FirstFailedTime = PreviousStartTime;
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -502,7 +459,6 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = EventMessageNumber::INSTALLFAILED;
-    expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
 
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
@@ -519,9 +475,7 @@ TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionEr
 
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
-    expectedStatus.LastSyncTime = PreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousStartTime;
-    expectedStatus.FirstFailedTime = StartTimeTest;
 
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 }
@@ -554,9 +508,7 @@ TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) 
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
-    expectedStatus.LastSyncTime = PreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousStartTime;
-    expectedStatus.FirstFailedTime = StartTimeTest;
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -579,13 +531,11 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
     expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
-    expectedStatus.LastSyncTime = FinishTimeTest;
     expectedStatus.LastInstallStartedTime = StartTimeTest;
-    expectedStatus.FirstFailedTime.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
-    // keep only the later as the first is not necessary any more.
+    // keep only the latter as the first is not necessary anymore.
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
 
@@ -608,9 +558,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
     expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
-    expectedStatus.LastSyncTime = FinishTimeTest;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
-    expectedStatus.FirstFailedTime.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -641,9 +589,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     expectedEvent.UpdateSource = "cache1";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
-    expectedStatus.LastSyncTime = FinishTimeTest;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
-    expectedStatus.FirstFailedTime.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -672,9 +618,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     expectedEvent.UpdateSource = "cache2";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
-    expectedStatus.LastSyncTime = FinishTimeTest;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
-    expectedStatus.FirstFailedTime.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -724,11 +668,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 103;
-    expectedStatus.LastStartTime = "20180822 121220";
-    expectedStatus.LastFinishdTime = "20180822 121220";
-    expectedStatus.LastSyncTime.clear();
-    expectedStatus.LastInstallStartedTime.clear();
-    expectedStatus.FirstFailedTime = "20180822 121220";
+    expectedStatus.LastInstallStartedTime = "20180822 121220";
     expectedStatus.Subscriptions.emplace_back(
         "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
     expectedStatus.Subscriptions.emplace_back(
@@ -798,11 +738,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 0;
-    expectedStatus.LastStartTime = "20180822 121220";
-    expectedStatus.LastFinishdTime = "20180822 121220";
-    expectedStatus.LastSyncTime = "20180821 121220";
-    expectedStatus.LastInstallStartedTime.clear();
-    expectedStatus.FirstFailedTime.clear();
+    expectedStatus.LastInstallStartedTime = "20180822 121220";
     expectedStatus.Subscriptions.emplace_back(
         ProductStatus{ "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0" });
     expectedStatus.Subscriptions.emplace_back(
@@ -845,11 +781,7 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 0;
-    expectedStatus.LastStartTime = "20190604 144207";
-    expectedStatus.LastFinishdTime = "20190604 144207";
-    expectedStatus.LastSyncTime = "20190604 144207";
     expectedStatus.LastInstallStartedTime = "20190604 144145";
-    expectedStatus.FirstFailedTime.clear();
     expectedStatus.Subscriptions.emplace_back(ProductStatus{
         "ServerProtectionLinux-Base", "Sophos Linux Protection ServerProtectionLinux-Base v0.5.0", "0.5.0" });
     expectedStatus.Products.emplace_back(ProductStatus{

@@ -128,9 +128,7 @@ namespace
     UpdateStatus extractStatusFromSingleReport(const DownloadReport& report, const UpdateEvent& event)
     {
         UpdateStatus status;
-        status.LastBootTime = TimeUtils::getBootTime();
-        status.LastStartTime = report.getStartTime();
-        status.LastFinishdTime = report.getFinishedTime();
+        status.LastInstallStartedTime = report.getStartTime();
         status.LastResult = event.MessageNumber;
         status.LastUpdateWasSupplementOnly = report.isSupplementOnlyUpdate();
 
@@ -302,16 +300,9 @@ namespace UpdateSchedulerImpl::configModule
 
         collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
 
-        // the status produced does not handle the following members
-        // LastSyncTime
-        // LastInstallStartedTime;
-        // FirstFailedTime;
         collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
 
-        // given that is a success, it has synchronized successfully
-        collectionResult.SchedulerStatus.LastSyncTime = lastReport.getSyncTime();
-        // success does not report FirstFailedTime
-        collectionResult.SchedulerStatus.FirstFailedTime.clear();
+
 
         collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(
             reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport);
@@ -397,10 +388,7 @@ namespace UpdateSchedulerImpl::configModule
 
         collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
 
-        // the status produced does not handle the following members
-        // LastSyncTime
-        // LastInstallStartedTime;
-        // FirstFailedTime;
+
         collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
 
         collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(
@@ -420,20 +408,13 @@ namespace UpdateSchedulerImpl::configModule
 
         if (indexOfLastGoodSync != -1)
         {
-            collectionResult.SchedulerStatus.LastSyncTime = reportCollection.at(indexOfLastGoodSync).getSyncTime();
-            // indexOfLastGoodSync + 1 must exists and it must be the first time synchronization failed.
-            collectionResult.SchedulerStatus.FirstFailedTime =
-                reportCollection.at(indexOfLastGoodSync + 1).getStartTime();
 
             collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync] =
                 ReportCollectionResult::SignificantReportMark::MustKeepReport;
             collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync + 1] =
                 ReportCollectionResult::SignificantReportMark::MustKeepReport;
         }
-        else
-        {
-            collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(0).getStartTime();
-        }
+
 
         if (indexOfProductUpdateCheck != -1)
         {
@@ -453,7 +434,7 @@ namespace UpdateSchedulerImpl::configModule
             eventsAreDifferent(collectionResult.SchedulerEvent, previousEvent);
 
         // if the current report does not report products, we still need to list them, but we can do it only if
-        // there is at least one LastGoodSync
+        // we have successfully synced once
         if (collectionResult.SchedulerStatus.Subscriptions.empty() && indexOfLastGoodSync != -1)
         {
             auto statusWithProducts =

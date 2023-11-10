@@ -275,7 +275,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport downloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
@@ -341,7 +341,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport downloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
@@ -418,7 +418,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport downloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
@@ -495,7 +495,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport downloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
@@ -668,7 +668,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
-    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, {} };
 
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -704,7 +704,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
 
     std::string previousReportAsString{
         R"sophos({ "startTime": "20190604 144145", "finishTime": "20190604 144155",
@@ -728,7 +728,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
-    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, {} };
 
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -773,7 +773,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
-    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, {} };
 
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -825,7 +825,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, {} };
 
     auto configurationData = configData(defaultSettings());
     Common::Policy::UpdateSettings previousConfigurationData;
@@ -888,7 +888,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
+    Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, {} };
 
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini"))
         .WillRepeatedly(Return(false));
@@ -949,7 +949,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -958,7 +957,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
 
@@ -1034,7 +1033,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{
-        RepositoryStatus::INSTALLFAILED, "Update failed", productReports, false, {}
+        RepositoryStatus::INSTALLFAILED, "Update failed", productReports, {}
     };
 
     expectedDownloadReport.Products[1].errorDescription = "Product ServerProtectionLinux-Plugin-EDR failed signature verification";
@@ -1136,7 +1135,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::INSTALLFAILED,
                                                      "Update failed",
                                                      productReports,
-                                                     false,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1259,7 +1257,7 @@ TEST_F(
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator(
         [this]() { return std::move(mockSdds3Repo_); });
     Sdds3SimplifiedDownloadReport expectedDownloadReport{
-        RepositoryStatus::SUCCESS, "", productReports, true,
+        RepositoryStatus::SUCCESS, "", productReports,
         productsInfo({products[0], products[1]})};
 
     auto configurationData = configData(defaultSettings());
@@ -1393,7 +1391,6 @@ TEST_F(SULDownloaderSdds3Test,
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1493,7 +1490,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1601,7 +1597,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                           "",
                                                           productReports,
-                                                          true,
                                                           productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1720,7 +1715,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                           "",
                                                           productReports,
-                                                          true,
                                                           productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1829,7 +1823,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -1936,7 +1929,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -2040,7 +2032,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto copyProduct = expectedDownloadReport.Products[0];
@@ -2147,7 +2138,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(defaultSettings());
@@ -2158,7 +2148,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
 
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
@@ -2255,7 +2245,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(defaultSettings());
@@ -2266,7 +2255,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
 
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
@@ -2359,7 +2348,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(newSubscriptionSettings());
@@ -2370,7 +2358,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
 
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
@@ -2470,7 +2458,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto previousConfigurationData = configData(newFeatureSettings());
@@ -2481,7 +2468,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
 
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
@@ -2576,7 +2563,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -2635,7 +2621,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -2644,7 +2629,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
 
@@ -2697,7 +2682,6 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
-                                                     true,
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
@@ -2706,7 +2690,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport previousDownloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
 
@@ -2749,7 +2733,7 @@ TEST_F(
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
+    
     DownloadReport downloadReport =
         DownloadReportBuilder::Report("", products, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
