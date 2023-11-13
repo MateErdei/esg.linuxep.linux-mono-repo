@@ -44,17 +44,6 @@ namespace Plugin
         static std::pair<std::string, std::string> getRunningQueryPackFilePaths();
 
         /**
-        * Compares the running query packs and the next staging query packs and returns whether there is a difference
-        * @returns Whether the next query packs need to be reloaded
-        */
-        static bool nextQueryPacksShouldBeReloaded();
-
-        /**
-        * Overwrites the content of scheduled query packs with the correct contents based on the flag
-        * @param useNextQueryPack
-        */
-        static void setQueryPacksInPlace(const bool& useNextQueryPack);
-        /**
         * Removes all files in jrl folder
         */
         static void clearAllJRLMarkers();
@@ -111,9 +100,7 @@ namespace Plugin
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
-        inline static const std::string QUERY_PACK_NEXT_SETTING = "scheduled_queries_next";
         inline static const std::string XDR_FLAG = "xdr.enabled";
-        inline static const std::string QUERY_PACK_NEXT = "scheduled_queries.next";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
 
         inline static const unsigned long MAXIMUM_EVENTED_RECORDS_ALLOWED = 100000;

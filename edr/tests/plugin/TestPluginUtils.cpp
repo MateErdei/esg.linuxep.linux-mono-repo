@@ -275,66 +275,6 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDef
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
 
-TEST_F(TestPluginUtilsWithMockFileSystem, nextQueryPacksShouldBeReloadedReturnsFalseWhenQueryPacksAreTheSame)
-{
-    std::vector<std::string> files;
-    files.push_back(Plugin::osqueryMTRConfigFilePath());
-    files.push_back(Plugin::osqueryXDRConfigFilePath());
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, readFile(_)).WillRepeatedly(Return("content"));
-    EXPECT_FALSE(Plugin::PluginUtils::nextQueryPacksShouldBeReloaded());
-}
-
-TEST_F(TestPluginUtilsWithMockFileSystem, nextQueryPacksShouldBeReloadedReturnsTrueWhenMTRQueryPacksAreDifferent)
-{
-    std::vector<std::string> files;
-    files.push_back(Plugin::osqueryMTRConfigFilePath());
-    files.push_back(Plugin::osqueryXDRConfigFilePath());
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryMTRConfigFilePath())).WillOnce(Return("mtr_content1"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextMTRConfigStagingFilePath())).WillOnce(Return("mtr_content2"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryXDRConfigFilePath())).WillOnce(Return("xdr_content"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextXDRConfigStagingFilePath())).WillOnce(Return("xdr_content"));
-    EXPECT_TRUE(Plugin::PluginUtils::nextQueryPacksShouldBeReloaded());
-}
-
-TEST_F(TestPluginUtilsWithMockFileSystem, nextQueryPacksShouldBeReloadedReturnsTrueWhenXDRQueryPacksAreDifferent)
-{
-    std::vector<std::string> files;
-    files.push_back(Plugin::osqueryMTRConfigFilePath());
-    files.push_back(Plugin::osqueryXDRConfigFilePath());
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryMTRConfigFilePath())).WillOnce(Return("mtr_content"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextMTRConfigStagingFilePath())).WillOnce(Return("mtr_content"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryXDRConfigFilePath())).WillOnce(Return("xdr_content1"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextXDRConfigStagingFilePath())).WillOnce(Return("xdr_content2"));
-    EXPECT_TRUE(Plugin::PluginUtils::nextQueryPacksShouldBeReloaded());
-}
-
-TEST_F(TestPluginUtilsWithMockFileSystem, nextQueryPacksShouldBeReloadedReturnsTrueWhenAllQueryPacksAreDifferent)
-{
-    std::vector<std::string> files;
-    files.push_back(Plugin::osqueryMTRConfigFilePath());
-    files.push_back(Plugin::osqueryXDRConfigFilePath());
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryMTRConfigFilePath())).WillOnce(Return("mtr_content1"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextMTRConfigStagingFilePath())).WillOnce(Return("mtr_content2"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryXDRConfigFilePath())).WillOnce(Return("xdr_content1"));
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryNextXDRConfigStagingFilePath())).WillOnce(Return("xdr_content2"));
-    EXPECT_TRUE(Plugin::PluginUtils::nextQueryPacksShouldBeReloaded());
-}
-
-TEST_F(TestPluginUtilsWithMockFileSystem, nextQueryPacksShouldBeReloadedReturnsDefaultOfTrueWhenFileSystemExceptionIsThrown)
-{
-    Common::FileSystem::IFileSystemException e("test exception");
-    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryMTRConfigFilePath())).WillOnce(Throw(e));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
-    EXPECT_TRUE(Plugin::PluginUtils::nextQueryPacksShouldBeReloaded());
-}
 
 TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagDoesNotUpdateFileOrVariableIfValueHasNotChanged)
 {

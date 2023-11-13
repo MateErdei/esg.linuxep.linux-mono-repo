@@ -626,38 +626,6 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     all_products_in_update_report_are_up_to_date  ${latest_report_result.stdout.strip()}
     check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
 
-Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
-    start_local_cloud_server
-    Start Local SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   check_suldownloader_log_contains   Update success
-
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    Directory Should Not Be Empty    ${SDDS3Primary}
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    Directory Should Not Be Empty    ${SDDS3PrimaryRepository}
-
-    Wait Until Created    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR    timeout=300s
-    Wait Until Created    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack    timeout=120s
-    Wait Until Created    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next    timeout=120s
-
-    ${scheduled_query_pack} =             Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    ${scheduled_query_pack_next} =        Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Should Be Equal As Strings            ${scheduled_query_pack}    ${scheduled_query_pack_next}
-
-    ${scheduled_query_pack_mtr} =         Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    ${scheduled_query_pack_next_mtr} =    Get File    ${SDDS3Primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
-
-
 SPL Can Be Installed To A Custom Location
     [Tags]    CUSTOM_INSTALL_PATH
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}

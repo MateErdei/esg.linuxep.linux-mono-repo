@@ -175,15 +175,10 @@ Install EDR Directly from SDDS
     Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf
     Should Exist  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       ${interval}
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            ${interval}
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   ${interval}
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     ${result} =   Run Process  bash ${debug} ${EDR_SDDS}/install.sh   shell=${True}  timeout=120s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\noutput: \n${result.stdout}"
     [Return]  ${result.stdout}
@@ -191,19 +186,12 @@ Install EDR Directly from SDDS
 Install EDR Directly from SDDS With mocked scheduled queries
     [Arguments]  ${interval}=5
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       ${interval}
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            ${interval}
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   ${interval}
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
     Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
     Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Copy File  ${EXAMPLE_DATA_PATH}/testoptions.conf   ${EDR_SDDS}/etc/osquery.conf.d/testoptions.conf
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
@@ -212,8 +200,6 @@ Install EDR Directly from SDDS With mocked scheduled queries
 Install EDR Directly from SDDS With Latest And Next Marked
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2}}}
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
@@ -221,8 +207,6 @@ Install EDR Directly from SDDS With Latest And Next Marked
 Install EDR Directly from SDDS With Fixed Value Queries
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
 
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
@@ -230,8 +214,6 @@ Install EDR Directly from SDDS With Fixed Value Queries
 Install EDR Directly from SDDS With Random Queries
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf              { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf          { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf         { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf     { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
 
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"

@@ -591,44 +591,21 @@ namespace Plugin
         }
 
         bool flagsHaveChanged = false;
-        bool useNextQueryPack = Common::FlagUtils::isFlagSet(PluginUtils::QUERY_PACK_NEXT, flagsContent);
         bool networkTablesAvailable = Common::FlagUtils::isFlagSet(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
 
-        if (useNextQueryPack)
-        {
-            LOGSUPPORT("Flags scheduled query pack in policy is 'NEXT'");
-        }
-        else
-        {
-            LOGSUPPORT("Flags scheduled query pack in policy is 'LATEST'");
-        }
-
-        PluginUtils::updatePluginConfWithFlag(PluginUtils::QUERY_PACK_NEXT_SETTING, useNextQueryPack, flagsHaveChanged);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::NETWORK_TABLES_AVAILABLE,
             networkTablesAvailable, flagsHaveChanged);
 
         if (flagsHaveChanged)
         {
-            Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
             if (!firstTime)
             {
                 m_callback->setOsqueryShouldBeRunning(false);
                 m_queueTask->pushOsqueryRestart(
-                    "Query packs have been enabled or disabled. Restarting osquery to apply changes");
+                    "Network table flag has changed. Restarting osquery to apply changes");
             }
         }
-        else if (useNextQueryPack)
-        {
-            if (PluginUtils::nextQueryPacksShouldBeReloaded())
-            {
-                Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
-                if (!firstTime)
-                {
-                    m_callback->setOsqueryShouldBeRunning(false);
-                    m_queueTask->pushOsqueryRestart("Reloading 'Next' Scheduled Queries");
-                }
-            }
-        }
+
     }
 
 

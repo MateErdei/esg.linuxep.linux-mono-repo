@@ -678,7 +678,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, processFlagsIgoresEmptyInput)
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsIgnoresEmptyInput)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -691,7 +691,7 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsIgoresEmptyInput)
     EXPECT_NO_THROW(pluginAdapter.processFlags(""));
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOn)
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetworkTableFlagOn)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -702,12 +702,11 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOn
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=1\n"));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::QUERY_PACK_NEXT_SETTING + "=0\n"));
     std::string networkFlag = "{\"" + Plugin::PluginUtils::NETWORK_TABLES_FLAG + "\":true}";
     EXPECT_NO_THROW(pluginAdapter.processFlags(networkFlag));
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOff)
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetworkTableFlagOff)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -718,7 +717,6 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOf
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::QUERY_PACK_NEXT_SETTING + "=0\n"));
     std::string networkFlag = "{\"" + Plugin::PluginUtils::NETWORK_TABLES_FLAG + "\":false}";
     EXPECT_NO_THROW(pluginAdapter.processFlags(networkFlag));
 }
@@ -775,7 +773,6 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOn)
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=1\n"));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::QUERY_PACK_NEXT_SETTING + "=0\n"));
     std::string flags = "{\"" +
                               Plugin::PluginUtils::XDR_FLAG + "\":true, \"" +
                               Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":true}";
@@ -793,7 +790,6 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::QUERY_PACK_NEXT_SETTING + "=0\n"));
     std::string flags = "{\"" +
                               Plugin::PluginUtils::XDR_FLAG + "\":false, \"" +
                               Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":false}";

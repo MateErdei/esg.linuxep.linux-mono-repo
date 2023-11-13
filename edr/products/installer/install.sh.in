@@ -166,16 +166,7 @@ then
   chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED"
   chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf"
 fi
-if [[ -f  "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf" ]]
-then
-  cp "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf"
-  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf"
-fi
-if [[ -f  "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf" ]]
-then
-  cp "${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf" "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf"
-  chmod 600 "${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf"
-fi
+
 copy_manifests "${DIST}" "${PRODUCT_LINE_ID}"
 
 # Create config file to manage if AuditD should be stopped by the plugin

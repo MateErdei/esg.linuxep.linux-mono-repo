@@ -51,7 +51,7 @@ Send Mock Flags Policy
     Move File    /opt/NotARealFile  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
 
 Overwrite MCS Flags File
-    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "sdds3.enabled": true}
     Create File    /opt/NotARealFile    ${fileContents}
     Run Process  chown  sophos-spl-local:sophos-spl-group  /opt/NotARealFile
     Run Process  chmod  600  /opt/NotARealFile

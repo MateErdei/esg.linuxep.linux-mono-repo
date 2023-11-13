@@ -23,7 +23,6 @@ instances:
           edr.latest.x64:
             supplements:
               - scheduledquerypack
-              - scheduledquerypacknext
           av.latest.x64:
             supplements:
               - vdl
@@ -45,7 +44,6 @@ instances:
           edr.latest.arm64:
             supplements:
               - scheduledquerypack
-              - scheduledquerypacknext
           av.latest.arm64:
             supplements:
               - vdl

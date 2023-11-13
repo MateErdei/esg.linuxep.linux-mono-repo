@@ -2,8 +2,6 @@ o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/options.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.flags
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/plugin.conf
-o600, root, root, /opt/sophos-spl/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf
-o600, root, root, /opt/sophos-spl/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf.0

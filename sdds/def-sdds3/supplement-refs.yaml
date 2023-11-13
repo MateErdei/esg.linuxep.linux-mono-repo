@@ -3,7 +3,6 @@
 
 #edr
 scheduledquerypack: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: scheduled_query_pack }
-scheduledquerypacknext: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: scheduled_query_pack_next }
 
 #base
 ssplflags: { line-id: SSPLFLAGS, tag: 2023-4, decode-path: sspl_flags/files/base/etc/sophosspl }

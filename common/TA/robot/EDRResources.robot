@@ -319,8 +319,6 @@ Create Query Packs
     FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
         Create File   ${dir}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
         Create File   ${dir}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
-        Create File   ${dir}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
-        Create File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
     END
 
 Cleanup Query Packs
@@ -328,6 +326,4 @@ Cleanup Query Packs
     FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
         Remove File   ${dir}/sophos-scheduled-query-pack.conf
         Remove File   ${dir}/sophos-scheduled-query-pack.mtr.conf
-        Remove File   ${dir}/sophos-scheduled-query-pack-next.conf
-        Remove File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf
     END

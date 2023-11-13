@@ -91,14 +91,14 @@ EDR Plugin replaces flags file on startup
 
 EDR Plugin Ignores Flags Unrelated to Plugin
     [Setup]    Install With Base SDDS Debug
-    Send Mock Flags Policy  {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": false}
+    Send Mock Flags Policy  {"livequery.network-tables.available": true, "sdds3.enabled": false}
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
 
     Wait Until Keyword Succeeds
     ...    10 secs
     ...    1 secs
-    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": false}
+    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": true, "sdds3.enabled": false}
 
     Wait Until Keyword Succeeds
     ...    30 secs
@@ -107,14 +107,14 @@ EDR Plugin Ignores Flags Unrelated to Plugin
     ${startPid} =  Get Osquery Pid
     ${edrMark} =  Mark File  ${EDR_LOG_PATH}
 
-    Send Mock Flags Policy  {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    Send Mock Flags Policy  {"livequery.network-tables.available": true, "sdds3.enabled": true}
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    1 secs
-    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": true, "sdds3.enabled": true}
 
     Check Osquery Has Not Restarted    ${startPid}    30s
-    Marked File Does Not Contain    ${EDR_LOG_PATH}   Query packs have been enabled or disabled. Restarting osquery to apply changes  ${edrMark}
+    Marked File Does Not Contain    ${EDR_LOG_PATH}   Network table flag has changed. Restarting osquery to apply changes  ${edrMark}
 
 *** Keywords ***
 Check Osquery Has Restarted

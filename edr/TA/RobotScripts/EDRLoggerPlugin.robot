@@ -424,48 +424,6 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     ${scheduledQueryContents} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${scheduledQueryFilename}
     Should Contain  ${scheduledQueryContents}  "epoch":${currentEpochTimeMinus3Days}
 
-EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
-    [Setup]  Install EDR Directly from SDDS With Latest And Next Marked
-    Check EDR Plugin Installed With Base
-
-    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-
-    Enable XDR with MTR
-    ${sqMark} =    Mark Log Size    ${SCHEDULEDQUERY_LOG_FILE}
-
-    Wait For Log Contains From Mark    ${sqMark}    latest_xdr_query
-    Wait For Log Contains From Mark    ${sqMark}    latest_mtr_query
-
-    sleep  4s
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}    next_xdr_query    ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}    next_mtr_query    ${sqMark}
-
-    ${edrMark} =    Mark Log Size    ${EDR_LOG_PATH}
-    Change Next Query Packs Flag  true
-    Wait For Log Contains From Mark    ${edrMark}    Prepare system for running osquery
-
-    ${sqMark} =    Mark Log Size    ${SCHEDULEDQUERY_LOG_FILE}
-    Are Next Query Packs Enabled in Plugin Conf  1
-
-    wait_for_log_contains_from_mark    ${sqMark}    next_xdr_query
-    wait_for_log_contains_from_mark    ${sqMark}    next_mtr_query
-    sleep  4s
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_xdr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_mtr_query  ${sqMark}
-
-    ${edrMark} =    Mark Log Size    ${EDR_LOG_PATH}
-    Change Next Query Packs Flag  false
-    Wait For Log Contains From Mark    ${edrMark}    Prepare system for running osquery
-    ${sqMark} =  Mark Log Size    ${SCHEDULEDQUERY_LOG_FILE}
-    Are Next Query Packs Enabled in Plugin Conf  0
-
-    wait_for_log_contains_from_mark    ${sqMark}    latest_xdr_query
-    wait_for_log_contains_from_mark    ${sqMark}    latest_mtr_query
-
-    sleep  4s
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   next_xdr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   next_mtr_query  ${sqMark}
-
 EDR Plugin Hits Data Limit And Queries Resume After Period
     [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_50kB_limit_with_MTR.xml  180
     [Teardown]  Data Limit Test Teardown
@@ -729,55 +687,6 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     MTR Pack Should Be Disabled
     Custom Pack Should Be Disabled
 
-EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Already Set
-    Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-
-    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query configs, and change test accordingly if required.
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    Restart EDR
-    Enable XDR with MTR
-    Change Next Query Packs Flag  true
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Log Contains  Overwriting existing scheduled query packs with 'NEXT' query packs
-    ${sqMark} =    Mark Log Size    ${SCHEDULEDQUERY_LOG_FILE}
-    Are Next Query Packs Enabled in Plugin Conf  1
-
-    wait_for_log_contains_from_mark    ${sqMark}    next_xdr_query
-    wait_for_log_contains_from_mark    ${sqMark}    next_mtr_query
-    sleep  4s
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_xdr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_mtr_query  ${sqMark}
-
-    ${edrMark} =    Mark Log Size    ${EDR_LOG_FILE}
-
-    # Mimic update of the next query pack supplement
-    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query configs, and change test accordingly if required.
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_updated_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_updated_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
-    Restart EDR
-
-    wait_for_log_contains_from_mark    ${edrMark}    Overwriting existing scheduled query packs with 'NEXT' query packs
-
-    ${sqMark} =    Mark Log Size    ${SCHEDULEDQUERY_LOG_FILE}
-    Are Next Query Packs Enabled in Plugin Conf  1
-
-    wait_for_log_contains_from_mark    ${sqMark}    next_updated_xdr_query
-    wait_for_log_contains_from_mark    ${sqMark}    next_updated_mtr_query
-    sleep  4s
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   next_xdr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   next_mtr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_xdr_query  ${sqMark}
-    check_log_does_not_contain_after_mark  ${SCHEDULEDQUERY_LOG_FILE}   latest_mtr_query  ${sqMark}
-
 EDR Plugin Sends XDR Results After Batch Time
     Add Uptime Query to Scheduled Queries  60
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -913,23 +822,6 @@ Expect New Datalimit
     ...  5 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  Setting Data Limit to ${limit}
-
-Change Next Query Packs Flag
-    [Arguments]  ${flagValue}=false
-    Create File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  {"scheduled_queries.next": ${flagValue}}
-    ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json
-    Should Be Equal As Strings  0  ${result.rc}
-    Move File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
-
-Are Next Query Packs Enabled in Plugin Conf
-    [Arguments]  ${settingValue}=0
-    Wait Until Created  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  timeout=15 secs
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  EDR Plugin Log Contains   Updating running_mode flag setting
-    ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${EDR_CONFIG_CONTENT}   scheduled_queries_next=${settingValue}
 
 Add Uptime Query to Scheduled Queries
     [Arguments]  ${interval}=1

@@ -157,65 +157,6 @@ namespace Plugin
         return {targetMtrFilePath, targetXdrFilePath};
     }
 
-    bool PluginUtils::nextQueryPacksShouldBeReloaded()
-    {
-        auto* ifileSystem = Common::FileSystem::fileSystem();
-        std::pair<std::string, std::string> runningPaths = PluginUtils::getRunningQueryPackFilePaths();
-        try
-        {
-            bool mtrNextPackChanged = false;
-            bool xdrNextPackChanged = false;
-
-            std::string currentMTRFileContents = ifileSystem->readFile(runningPaths.first);
-            std::string stagingMTRFileContents = ifileSystem->readFile(Plugin::osqueryNextMTRConfigStagingFilePath());
-            if (currentMTRFileContents != stagingMTRFileContents)
-            {
-                mtrNextPackChanged = true;
-            }
-
-            std::string currentXDRFileContents = ifileSystem->readFile(runningPaths.second);
-            std::string stagingXDRFileContents = ifileSystem->readFile(Plugin::osqueryNextXDRConfigStagingFilePath());
-            if (currentXDRFileContents != stagingXDRFileContents)
-            {
-                xdrNextPackChanged = true;
-            }
-
-            return (mtrNextPackChanged || xdrNextPackChanged);
-        }
-        catch (Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR("Cannot compare query pack files due to exception: " << e.what() << ". Assuming difference.");
-        }
-
-        return true;
-    }
-
-    void PluginUtils::setQueryPacksInPlace(const bool& useNextQueryPack)
-    {
-        std::pair<std::string,std::string> targetFiles = getRunningQueryPackFilePaths();
-        auto* ifileSystem = Common::FileSystem::fileSystem();
-
-        try
-        {
-            if (useNextQueryPack)
-            {
-                LOGINFO("Overwriting existing scheduled query packs with 'NEXT' query packs");
-                ifileSystem->copyFile(Plugin::osqueryNextMTRConfigStagingFilePath(), targetFiles.first);
-                ifileSystem->copyFile(Plugin::osqueryNextXDRConfigStagingFilePath(), targetFiles.second);
-            }
-            else
-            {
-                LOGINFO("Reverting to existing scheduled query packs");
-                ifileSystem->copyFile(Plugin::osqueryMTRConfigStagingFilePath(), targetFiles.first);
-                ifileSystem->copyFile(Plugin::osqueryXDRConfigStagingFilePath(), targetFiles.second);
-            }
-        }
-        catch (Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR("Failed to set query packs to the correct version: " << e.what());
-        }
-    }
-
     void PluginUtils::updatePluginConfWithFlag(const std::string& flagName, const bool& flagSetting, bool& flagsHaveChanged)
     {
         try
