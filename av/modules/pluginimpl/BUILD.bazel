@@ -55,6 +55,7 @@ soph_cc_library(
         "//av/modules/datatypes:sophos_filesystem",
         "//av/modules/manager/scanprocessmonitor:ScanProcessMonitor",
         "//av/modules/manager/scheduler",
+        "//av/modules/mount_monitor/mountinfo",
         "//av/modules/scan_messages:ProcessControlSerialiser",
         "//av/modules/scan_messages:RestoreReport",
         "//av/modules/scan_messages:ThreatDetected",

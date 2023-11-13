@@ -41,6 +41,7 @@ soph_cc_test(
         "//av/modules/unixsocket/safeStoreSocket:SafeStoreServer",
         "//av/modules/unixsocket/threatDetectorSocket:ScanningServerSocket",
         "//av/tests/common",
+        "//av/tests/common:MockMountPoint",
         "//av/tests/datatypes:MockUuidGenerator",
         "//av/tests/safestore:MockIQuarantineManager",
         "//av/tests/scan_messages:SampleThreatDetected",

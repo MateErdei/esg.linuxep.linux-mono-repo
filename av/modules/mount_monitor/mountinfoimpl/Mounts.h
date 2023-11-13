@@ -48,7 +48,7 @@ namespace mount_monitor::mountinfoimpl
         /**
          * Get the mount point where the file at childPath is located
          */
-        mountinfo::IMountPointSharedPtr getMountFromPath(const std::string& childPath);
+        mountinfo::IMountPointSharedPtr getMountFromPath(const std::string& childPath) override;
 
     private:
         /**

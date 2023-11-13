@@ -1,11 +1,11 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "MockMountPoint.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
+#include "tests/common/MockMountPoint.h"
 #include "tests/common/RecordingMockSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"

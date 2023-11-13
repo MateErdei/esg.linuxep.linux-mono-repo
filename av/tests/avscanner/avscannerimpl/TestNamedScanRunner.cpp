@@ -1,14 +1,17 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "MockMountPoint.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/NamedScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
-#include "tests/common/RecordingMockSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+// Test includes
+#include "tests/common/MockMountPoint.h"
+#include "tests/common/RecordingMockSocket.h"
+
+// 3rd party includes
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <gmock/gmock-matchers.h>

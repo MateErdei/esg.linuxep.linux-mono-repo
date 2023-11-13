@@ -17,7 +17,7 @@
 #include "MountMonitorMemoryAppenderUsingTests.h"
 
 #include "tests/common/WaitForEvent.h"
-#include "tests/avscanner/avscannerimpl/MockMountPoint.h"
+#include "tests/common/MockMountPoint.h"
 #include "tests/sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
 #include "Common/Helpers/MockSysCalls.h"

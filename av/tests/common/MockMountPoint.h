@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -109,13 +105,25 @@ namespace
         }
     };
 
+    class MockMounts : public mount_monitor::mountinfo::IMountInfo
+    {
+    public:
+        MOCK_METHOD(mount_monitor::mountinfo::IMountPointSharedVector, mountPoints, (), (override));
+        MOCK_METHOD(mount_monitor::mountinfo::IMountPointSharedPtr, getMountFromPath, (const std::string&), (override));
+    };
+
     class FakeMountInfo : public mount_monitor::mountinfo::IMountInfo
     {
     public:
-        std::vector<std::shared_ptr<mount_monitor::mountinfo::IMountPoint>> m_mountPoints;
-        std::vector<std::shared_ptr<mount_monitor::mountinfo::IMountPoint>> mountPoints() override
+        mount_monitor::mountinfo::IMountPointSharedVector m_mountPoints;
+        mount_monitor::mountinfo::IMountPointSharedVector mountPoints() override
         {
             return m_mountPoints;
+        }
+
+        mount_monitor::mountinfo::IMountPointSharedPtr getMountFromPath(const std::string&) override
+        {
+            return {};
         }
     };
 }

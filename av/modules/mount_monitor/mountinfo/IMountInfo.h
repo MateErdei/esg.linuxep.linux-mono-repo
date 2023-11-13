@@ -27,6 +27,11 @@ namespace mount_monitor::mountinfo
          */
         virtual IMountPointSharedVector mountPoints() = 0;
 
+        /**
+         * Get the mount point where the file at childPath is located
+         */
+        virtual mountinfo::IMountPointSharedPtr getMountFromPath(const std::string& childPath) = 0;
+
     };
 
     using IMountInfoSharedPtr = std::shared_ptr<IMountInfo>;

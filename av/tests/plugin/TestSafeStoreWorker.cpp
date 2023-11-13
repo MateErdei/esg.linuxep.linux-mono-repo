@@ -2,6 +2,8 @@
 
 #define PLUGIN_INTERNAL public
 
+#define TEST_PUBLIC public
+
 // product includes
 #include "common/ApplicationPaths.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
@@ -17,8 +19,10 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "tests/common/SetupFakePluginDir.h"
+#include "tests/common/MockMountPoint.h"
 #include "tests/safestore/MockIQuarantineManager.h"
 #include "tests/scan_messages/SampleThreatDetected.h"
+#include "av/modules/mount_monitor/mountinfoimpl/MountFactory.h"
 
 #include <gtest/gtest.h>
 
@@ -29,10 +33,36 @@ using namespace common::CentralEnums;
 
 namespace
 {
-    class TestSafeStoreSocket : public PluginMemoryAppenderUsingTests
+    using namespace mount_monitor::mountinfo;
+
+    class FakeMountsFactory : public IMountFactory
+    {
+    public:
+        explicit FakeMountsFactory(IMountInfoSharedPtr mountInfo)
+                : mountInfo_(std::move(mountInfo))
+        {}
+        IMountInfoSharedPtr newMountInfo() override
+        {
+            assert(mountInfo_);
+            return mountInfo_;
+        }
+        IMountInfoSharedPtr mountInfo_;
+    };
+
+    IMountFactorySharedPtr localWritableFactory()
+    {
+        auto mockMounts = std::make_shared<StrictMock<MockMounts>>();
+        auto mockMountPoint = std::make_shared<StrictMock<MockMountPoint>>();
+        EXPECT_CALL(*mockMounts, getMountFromPath(_)).WillRepeatedly(Return(mockMountPoint));
+        EXPECT_CALL(*mockMountPoint, isNetwork()).WillRepeatedly(Return(false));
+        EXPECT_CALL(*mockMountPoint, isReadOnly()).WillRepeatedly(Return(false));
+        return std::make_shared<FakeMountsFactory>(mockMounts);
+    }
+
+    class TestSafeStoreWorker : public PluginMemoryAppenderUsingTests
     {
     protected:
-        TestSafeStoreSocket() :
+        TestSafeStoreWorker() :
             m_tempDir{ setupFakePluginDir() },
             m_detectionQueue{ std::make_shared<DetectionQueue>() },
             m_memoryAppenderHolder{ *this },
@@ -48,23 +78,10 @@ namespace
         const std::string m_socketPath;
         std::shared_ptr<MockIQuarantineManager> m_mockQuarantineManager;
 
-        bool mountIsWritable(const std::string& filePath)
-        {
-            static auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
-            static auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(
-                    pathsFactory->createSystemPaths());
-            auto parentMount = mountInfo->getMountFromPath(filePath);
-            return !parentMount->isReadOnly();
-        }
-
-        void assertMountIsWritable(const std::string& filePath)
-        {
-            ASSERT_TRUE(mountIsWritable(filePath));
-        }
     };
 } // namespace
 
-TEST_F(TestSafeStoreSocket, ExitsWhenEmptyQueueRequestedToStop)
+TEST_F(TestSafeStoreWorker, ExitsWhenEmptyQueueRequestedToStop)
 {
     SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
 
@@ -73,7 +90,7 @@ TEST_F(TestSafeStoreSocket, ExitsWhenEmptyQueueRequestedToStop)
     worker.join();
 }
 
-TEST_F(TestSafeStoreSocket, ExitsWhenThreadRequestedToStop)
+TEST_F(TestSafeStoreWorker, ExitsWhenThreadRequestedToStop)
 {
     SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
 
@@ -88,7 +105,7 @@ TEST_F(TestSafeStoreSocket, ExitsWhenThreadRequestedToStop)
 
 // The following tests are more complicated than expected due to being unable to mock the client response
 
-TEST_F(TestSafeStoreSocket, AttemptsQuarantineButCantConnectFinalisesDetection)
+TEST_F(TestSafeStoreWorker, AttemptsQuarantineButCantConnectFinalisesDetection)
 {
     EXPECT_CALL(m_mockDetectionHandler, markAsQuarantining(_)).Times(0);
     EXPECT_CALL(
@@ -107,32 +124,29 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButCantConnectFinalisesDetection)
     worker.join();
 }
 
-TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
+TEST_F(TestSafeStoreWorker, AttemptsQuarantineButFailsToReceiveResponse)
 {
     const std::string filepath = "/file";
     // Need to pass a real fd
     auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
-    if (!mountIsWritable(threatDetected.filePath))
-    {
-        GTEST_SKIP() << "Can't test if / is read-only";
-    }
 
     {
         // We expect it to mark the detection, and then finalise it with failure
         InSequence seq;
         EXPECT_CALL(m_mockDetectionHandler, markAsQuarantining(_)).Times(1);
         EXPECT_CALL(
-            m_mockDetectionHandler,
-            finaliseDetection(Field(
-                &ThreatDetected::quarantineResult, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE)))
-            .Times(1);
+                m_mockDetectionHandler,
+                finaliseDetection(Field(
+                        &ThreatDetected::quarantineResult, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE)))
+                .Times(1);
     }
 
     // Needed so SafeStore server connection doesn't send back response
     ON_CALL(*m_mockQuarantineManager, quarantineFile)
-        .WillByDefault(Throw(std::runtime_error{ "fail so no response is sent" }));
+            .WillByDefault(Throw(std::runtime_error{ "fail so no response is sent" }));
 
-    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
+    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath,
+                            localWritableFactory()};
     worker.start();
 
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };
@@ -146,15 +160,11 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
     server.join();
 }
 
-TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
+TEST_F(TestSafeStoreWorker, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
 {
     const std::string filepath = "/file";
     // Need to pass a real fd
     auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
-    if (!mountIsWritable(threatDetected.filePath))
-    {
-        GTEST_SKIP() << "Can't test if / is read-only";
-    }
 
     {
         // We expect it to mark the detection, and then finalise it with success
@@ -171,7 +181,8 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
     ON_CALL(*m_mockQuarantineManager, quarantineFile)
         .WillByDefault(Return(common::CentralEnums::QuarantineResult::SUCCESS));
 
-    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
+    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath,
+                            localWritableFactory()};
     worker.start();
 
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };
@@ -185,15 +196,11 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
     server.join();
 }
 
-TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesFailureFromSafeStore)
+TEST_F(TestSafeStoreWorker, AttemptsQuarantineAndReceivesFailureFromSafeStore)
 {
     const std::string filepath = "/file";
     // Need to pass a real fd
     auto threatDetected = createThreatDetectedWithRealFd({ .filePath=filepath });
-    if (!mountIsWritable(threatDetected.filePath))
-    {
-        GTEST_SKIP() << "Can't test if / is read-only";
-    }
 
     {
         // We expect it to mark the detection, and then finalise it with failure
@@ -210,7 +217,8 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesFailureFromSafeStore)
     ON_CALL(*m_mockQuarantineManager, quarantineFile)
         .WillByDefault(Return(common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
 
-    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
+    SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath,
+                            localWritableFactory()};
     worker.start();
 
     unixsocket::SafeStoreServerSocket server{ m_socketPath, m_mockQuarantineManager };

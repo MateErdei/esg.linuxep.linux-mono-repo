@@ -26,6 +26,16 @@ soph_cc_library(
 )
 
 soph_cc_library(
+    name = "MockMountPoint",
+    hdrs = ["MockMountPoint.h"],
+    visibility = ["//av/tests:__subpackages__"],
+    deps = [
+        "//av/modules/mount_monitor/mountinfo",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_library(
     name = "MockScanner",
     hdrs = ["MockScanner.h"],
     implementation_deps = [

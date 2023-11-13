@@ -6,7 +6,7 @@
 
 #include "common/NotifyPipeSleeper.h"
 #include "common/StringUtils.h"
-#include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/MountFactory.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
@@ -14,15 +14,27 @@
 
 using namespace Plugin;
 
+SafeStoreWorker::SafeStoreWorker(IDetectionHandler &detectionHandler,
+                                 std::shared_ptr<DetectionQueue> detectionQueue,
+                                 fs::path safeStoreSocket,
+                                 mount_monitor::mountinfo::IMountFactorySharedPtr mountFactory) :
+        m_detectionHandler(detectionHandler),
+        m_detectionQueue(std::move(detectionQueue)),
+        m_safeStoreSocket(std::move(safeStoreSocket)),
+        mountFactory_(mountFactory)
+{
+    LOGDEBUG("SafeStore socket path " << safeStoreSocket);
+}
+
 SafeStoreWorker::SafeStoreWorker(
     IDetectionHandler& detectionHandler,
     std::shared_ptr<DetectionQueue> detectionQueue,
-    const fs::path& safeStoreSocket) :
-    m_detectionHandler(detectionHandler),
-    m_detectionQueue(std::move(detectionQueue)),
-    m_safeStoreSocket(safeStoreSocket)
+    fs::path safeStoreSocket) :
+        SafeStoreWorker(detectionHandler, std::move(detectionQueue), std::move(safeStoreSocket),
+    std::make_shared<mount_monitor::mountinfoimpl::MountFactory>(
+            std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>()
+            ))
 {
-    LOGDEBUG("SafeStore socket path " << safeStoreSocket);
 }
 
 void SafeStoreWorker::run()
@@ -49,8 +61,7 @@ void SafeStoreWorker::run()
         bool tryQuarantine = true;
         try
         {
-            auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
-            auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+            auto mountInfo = mountFactory_->newMountInfo();
             auto parentMount = mountInfo->getMountFromPath(threatDetected.filePath);
             if (parentMount != nullptr)
             {

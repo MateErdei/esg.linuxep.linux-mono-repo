@@ -1,16 +1,24 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
+// We need to get setresuid and setresgid
+// If we ever need to support non-Linux then we'll have to re-evaluate
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
+
 #include "products/capability/PassOnCapability.h"
 
 #include "datatypes/Print.h"
 
 #include <gtest/gtest.h>
 
+#include <filesystem>
+
 #include <unistd.h>
 
 TEST(TestPassOnCapability, pass_on_capability_root_only)
 {
-    if (::getuid() != 0)
+    if (::geteuid() != 0)
     {
         return;
     }
@@ -19,32 +27,165 @@ TEST(TestPassOnCapability, pass_on_capability_root_only)
     EXPECT_EQ(ret, 0);
 }
 
-#ifndef SPL_BAZEL
-# define DROP_ROOT
-#endif
+#define DROP_ROOT
 
-#ifdef DROP_ROOT
-static void drop_root()
+namespace
 {
-    PRINT("Drop root");
-    int ret = setregid(1, 1);
-    ASSERT_EQ(ret, 0);
-    ret = setreuid(1, 1);
-    ASSERT_EQ(ret, 0);
-}
+    std::string perms_to_string(std::filesystem::perms p)
+    {
+        using std::filesystem::perms;
+        std::ostringstream ost;
+        auto show = [&](char op, perms perm)
+        {
+            ost << (perms::none == (perm & p) ? '-' : op);
+        };
+        show('r', perms::owner_read);
+        show('w', perms::owner_write);
+        show('x', perms::owner_exec);
+        show('r', perms::group_read);
+        show('w', perms::group_write);
+        show('x', perms::group_exec);
+        show('r', perms::others_read);
+        show('w', perms::others_write);
+        show('x', perms::others_exec);
+        return ost.str();
+    }
+
+    void ensureWritable(const std::filesystem::path& path)
+    {
+        using namespace std::filesystem;
+        PRINT("Ensure " << path.c_str() << " is writable");
+        std::error_code ec;
+        permissions(path,
+                    perms::others_read | perms::others_write | perms::group_read | perms::group_write,
+                    perm_options::add,
+                    ec
+                    );
+        if (ec)
+        {
+            PRINT("Failed to chmod "<< path << ": " << ec.category().name() << " " << ec.value());
+        }
+        auto permission = perms::all;
+        auto target = path;
+        while (true)
+        {
+            auto parent = target.parent_path();
+            if (parent == target)
+            {
+                break;
+            }
+            permissions(parent,
+                        permission,
+                        perm_options::add,
+                        ec
+            );
+            if (ec)
+            {
+                PRINT("Failed to chmod " << parent << ": " << ec.category().name() << " " << ec.value());
+            }
+            else
+            {
+                PRINT("chmod " << parent << " adding " << perms_to_string(permission));
+            }
+            permission = perms::others_exec | perms::group_exec;
+            target = std::move(parent);
+        }
+    }
+
+    void printPermissions(std::filesystem::path path)
+    {
+        if (path.empty())
+        {
+            return;
+        }
+        namespace fs = std::filesystem;
+        while (true)
+        {
+            auto status = fs::status(path);
+            if (status.type() == fs::file_type::not_found)
+            {
+                PRINT(path << " does not exist");
+            }
+            else
+            {
+                auto perm = status.permissions();
+                PRINT(path << " = " << perms_to_string(perm));
+            }
+            auto parent = path.parent_path();
+            if (parent == path || parent.empty())
+            {
+                break;
+            }
+            path = std::move(parent);
+        }
+    }
+
+    class RestoreRoot
+    {
+    public:
+        bool restoreRoot_{false};
+        std::string xmlOutputFile_;
+        RestoreRoot()
+        {
+            if (::geteuid() == 0)
+            {
+#ifdef DROP_ROOT
+                PRINT("Drop root fully");
+                char* XML_OUTPUT_FILE = getenv("XML_OUTPUT_FILE");
+                if (XML_OUTPUT_FILE)
+                {
+                    ensureWritable(XML_OUTPUT_FILE);
+                    xmlOutputFile_ = XML_OUTPUT_FILE;
+                }
+                else
+                {
+                    PRINT("XML_OUTPUT_FILE not defined!");
+
+                    for (char** env = environ; *env; ++env)
+                    {
+                        PRINT(*env);
+                    }
+                    PRINT("PWD:" << get_current_dir_name());
+
+                }
+
+                int ret = setresgid(1, 1, 1);
+                EXPECT_EQ(ret, 0);
+                ret = setresuid(1, 1, 1);
+                EXPECT_EQ(ret, 0);
+#else
+                PRINT("Restorably drop root");
+                int ret = setresgid(1, 1, 0);
+                EXPECT_EQ(ret, 0);
+                ret = setresuid(1, 1, 0);
+                EXPECT_EQ(ret, 0);
+                restoreRoot_ = true;
 #endif
+            }
+            printPermissions(xmlOutputFile_);
+        }
+
+        ~RestoreRoot()
+        {
+            if (restoreRoot_)
+            {
+                PRINT("Restore root");
+                int ret = setresuid(0, 0, 0);
+                EXPECT_EQ(ret, 0);
+                ret = setresgid(0, 0, 0);
+                EXPECT_EQ(ret, 0);
+            }
+
+            printPermissions(xmlOutputFile_);
+        }
+    };
+}
 
 TEST(TestPassOnCapability, pass_on_capability_no_root)
 {
-    if (::getuid() == 0)
-    {
-#ifdef DROP_ROOT
-        drop_root();
-#else
-        GTEST_SKIP() << "Unable to handle testing pass_on_capability_no_root as root under bazel";
-#endif
-    }
+    RestoreRoot restoreRoot;
 
+    ASSERT_NE(::geteuid(), 0);
     ASSERT_NE(::getuid(), 0);
 
     int ret = pass_on_capability(CAP_SYS_CHROOT);
