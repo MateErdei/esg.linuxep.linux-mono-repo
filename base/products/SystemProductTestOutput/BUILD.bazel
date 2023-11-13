@@ -13,7 +13,7 @@ pkg_tar(
 pkg_tar(
     name = "SystemProductTestOutput",
     srcs = [
-        "PluginAPIMessage_pb2.py",  # TODO LINUXDAR-8012: build in Bazel
+        "//base/modules/Common/PluginProtocol:PluginAPIMessage_py_pb2",
         "//base/modules/mcsrouter/engine:extra_mcs_rootca.crt",
         "//base/modules/mcsrouter/engine:nova_mcs_rootca.crt",
         "//base/modules/mcsrouter/engine:qa_mcs_rootca.crt",

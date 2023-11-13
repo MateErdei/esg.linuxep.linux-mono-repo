@@ -1,6 +1,6 @@
 pyzmq
 #https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
-protobuf==3.14.0
+protobuf==4.24.4
 pytest-html
 psutil
 sseclient

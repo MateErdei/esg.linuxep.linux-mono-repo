@@ -1,5 +1,6 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("@rules_python//python:proto.bzl", "py_proto_library")
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -29,4 +30,10 @@ cc_proto_library(
 proto_library(
     name = "PluginAPIMessage_proto",
     srcs = ["PluginAPIMessage.proto"],
+)
+
+py_proto_library(
+    name = "PluginAPIMessage_py_pb2",
+    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+    deps = [":PluginAPIMessage_proto"],
 )
