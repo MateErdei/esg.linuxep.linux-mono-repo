@@ -31,6 +31,7 @@ Dump All Logs
 
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Base-component_install.log
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-AV_install.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-DeviceIsolation_install.log
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-EDR_install.log
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-EventJournaler_install.log
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-RuntimeDetections_install.log
@@ -64,6 +65,7 @@ Dump All Logs
     Dump Teardown Log    ${installDir}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log
     Dump Teardown Log    ${installDir}/plugins/av/log/safestore.log
 
+    Dump Teardown Log    ${installDir}/plugins/deviceisolation/log/deviceisolation.log
     Dump Teardown Log    ${installDir}/plugins/eventjournaler/log/eventjournaler.log
 
     Dump Teardown Log    ${installDir}/plugins/responseactions/log/responseactions.log
@@ -89,6 +91,7 @@ Dump All Logs
 
     Dump Teardown Log    ${installDir}/base/VERSION.ini
     Dump Teardown Log    ${installDir}/plugins/av/VERSION.ini
+    Dump Teardown Log    ${installDir}/plugins/deviceisolation/VERSION.ini
     Dump Teardown Log    ${installDir}/plugins/edr/VERSION.ini
     Dump Teardown Log    ${installDir}/plugins/eventjournaler/VERSION.ini
     Dump Teardown Log    ${installDir}/plugins/liveresponse/VERSION.ini

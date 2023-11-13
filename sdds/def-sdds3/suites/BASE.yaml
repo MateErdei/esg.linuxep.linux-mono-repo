@@ -14,6 +14,7 @@ instances:
           base.latest.x64:
             supplements:
               - ssplflags
+          deviceisolation.latest.x64:
           event-journaler.latest.x64:
           liveresponse.latest.x64:
           responseactions.latest.x64:
@@ -35,6 +36,7 @@ instances:
           base.latest.arm64:
             supplements:
               - ssplflags
+          deviceisolation.latest.arm64:
           event-journaler.latest.arm64:
           liveresponse.latest.arm64:
           responseactions.latest.arm64:

@@ -126,6 +126,9 @@ Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${installDir}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
+    ${handle}=  Start Process  find ${installDir}/plugins/deviceisolation | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
     ${handle}=  Start Process  find ${installDir}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}

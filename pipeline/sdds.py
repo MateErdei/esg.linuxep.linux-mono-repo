@@ -56,6 +56,7 @@ def get_inputs(context: tap.PipelineContext, sdds_build: ArtisanInput, sdds_buil
         ej=bazel_build / f"eventjournaler/{build}/installer",
         lr=bazel_build / f"liveterminal/{build}/installer",
         ra=bazel_build / f"response_actions/{build}/installer",
+        di=bazel_build / f"deviceisolation/{build}/installer",
         base_sdds_scripts=context.artifact.from_folder('./base/products/distribution'),
         common_test_libs=context.artifact.from_folder('./common/TA/libs'),
         common_test_robot=context.artifact.from_folder('./common/TA/robot'),

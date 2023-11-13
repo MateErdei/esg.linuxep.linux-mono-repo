@@ -50,6 +50,10 @@ Test Components Shutdown Cleanly
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
+    ...  Check Log Contains   Plugin Finished   ${DEVICEISOLATION_DIR}/log/deviceisolation.log   device isolation log
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
     ...  Check Log Contains   Plugin Finished   ${SOPHOS_INSTALL}/plugins/liveresponse/log/liveresponse.log   LiveResponseLog
 
     Wait Until Keyword Succeeds

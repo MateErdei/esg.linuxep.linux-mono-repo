@@ -170,7 +170,9 @@ Check For downgraded logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
-
+    # Device Isolation logs
+    # TODO: LINUXDAR-8348: Uncomment device isolation log file check following release
+    # File Should Exist  ${SOPHOS_INSTALL}/plugins/deviceisolation/log/downgrade-backup/deviceisolation.log
     # Liveresponse logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
 
@@ -214,20 +216,19 @@ Check Installed Correctly
     ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
     Check Expected Base Processes Except SDU Are Running
 
+Check Installed Plugin Is VUT Version
+	# TODO LINUXDAR-8265: Remove is_using_version_workaround
+	[Arguments]  ${plugin_directory}  ${rigid_name}
+	${contents} =  Get File  ${plugin_directory}/VERSION.ini
+    ${plugin_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ${rigid_name}    is_using_version_workaround=${True}
+    Should Contain   ${contents}   PRODUCT_VERSION = ${plugin_vut_version}
+
 Check Installed Plugins Are VUT Versions
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    ${edr_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-EDR    is_using_version_workaround=${True}
-    Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
-    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    ${liveresponse_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-liveresponse    is_using_version_workaround=${True}
-    Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
-    ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-EventJournaler    is_using_version_workaround=${True}
-    Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
-    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
-    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ServerProtectionLinux-Plugin-RuntimeDetections    is_using_version_workaround=${True}
-    Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
+    Check Installed Plugin Is VUT Version  ${EDR_DIR}  ServerProtectionLinux-Plugin-EDR
+    Check Installed Plugin Is VUT Version  ${LIVERESPONSE_DIR}  ServerProtectionLinux-Plugin-liveresponse
+    Check Installed Plugin Is VUT Version  ${EVENTJOURNALER_DIR}  ServerProtectionLinux-Plugin-EventJournaler
+    Check Installed Plugin Is VUT Version  ${RUNTIMEDETECTIONS_DIR}  ServerProtectionLinux-Plugin-RuntimeDetections
+    Check Installed Plugin Is VUT Version  ${DEVICEISOLATION_DIR}  ServerProtectionLinux-Plugin-DeviceIsolation
 
 Setup SUS static
     Remove Directory   ${tmpLaunchDarkly}   recursive=True

@@ -37,6 +37,10 @@
         <intermediate artifact-path="liveterminal/linux_x64_rel/installer" dest-dir="sdds/redist/liveresponse/latest/x64" mode="dev,prod,999"/>
         <intermediate artifact-path="liveterminal/linux_arm64_rel/installer" dest-dir="sdds/redist/liveresponse/latest/arm64" mode="dev,prod,999"/>
 
+        <!-- Device Isolation -->
+        <intermediate artifact-path="deviceisolation/linux_x64_rel/installer" dest-dir="sdds/redist/deviceisolation/latest/x64" mode="dev,prod,999"/>
+        <intermediate artifact-path="deviceisolation/linux_arm64_rel/installer" dest-dir="sdds/redist/deviceisolation/latest/arm64" mode="dev,prod,999"/>
+
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
             <development-version branch="develop"/>
             <include artifact-path="SDDS-COMPONENT" dest-dir="sdds/redist/runtimedetections/latest/x64" mode="dev,999"/>

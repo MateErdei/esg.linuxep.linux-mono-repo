@@ -19,6 +19,9 @@ base.latest.x64:
 event-journaler.latest.x64:
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
+deviceisolation.latest.x64:
+  line-id: ServerProtectionLinux-Plugin-DeviceIsolation
+  mountpoint: ServerProtectionLinux-Plugin-DeviceIsolation
 liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
@@ -43,6 +46,9 @@ base.latest.arm64:
 event-journaler.latest.arm64:
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
+deviceisolation.latest.arm64:
+  line-id: ServerProtectionLinux-Plugin-DeviceIsolation
+  mountpoint: ServerProtectionLinux-Plugin-DeviceIsolation
 liveresponse.latest.arm64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse

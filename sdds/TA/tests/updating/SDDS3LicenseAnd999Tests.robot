@@ -45,6 +45,8 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Wait for first update
 
+    ${contents} =  Get File  ${DEVICESOLATION_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
@@ -71,6 +73,7 @@ Install all plugins 999 then downgrade to all plugins develop
     wait_for_log_contains_from_mark  ${sul_mark}  Preparing ServerProtectionLinux-Base-component for downgrade
 
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Base-component is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-DeviceIsolation is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-responseactions is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded
@@ -107,6 +110,10 @@ Install all plugins 999 then downgrade to all plugins develop
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/safestore.log
 
+
+    # Event journaler logs
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/deviceisolation/log/downgrade-backup/deviceisolation.log
+
     # Liveresponse logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/liveresponse.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/liveresponse/log/downgrade-backup/sessions.log
@@ -135,6 +142,7 @@ Upgrade VUT to 999
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-AV version: 99.99.99
+    check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-DeviceIsolation version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
     check_suldownloader_log_should_not_contain    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 99.99.99
@@ -160,6 +168,7 @@ Upgrade VUT to 999
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99             120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EDR version: 99.99.99                        120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-AV version: 99.99.99                         120
+    wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-DeviceIsolation version: 99.99.99             120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 99.99.99             120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 99.99.99     120
     wait_for_log_contains_from_mark  ${sul_mark}    Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.99.99        120
@@ -211,6 +220,8 @@ Upgrade VUT to 999
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 99.99.99
+    ${device_isolation_version_contents} =  Get File  ${DEVICEISOLATION_DIR}/VERSION.ini
+    Should contain   ${device_isolation_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 99.99.99
 
@@ -235,6 +246,11 @@ Upgrade VUT to 999
     ...  ${WATCHDOG_LOG_PATH}
     ...  Stopping /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler
     ...  Starting /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler
+
+    Check Log Contains In Order
+    ...  ${WATCHDOG_LOG_PATH}
+    ...  Stopping /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation
+    ...  Starting /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation
 
     Check Log Contains In Order
     ...  ${WATCHDOG_LOG_PATH}

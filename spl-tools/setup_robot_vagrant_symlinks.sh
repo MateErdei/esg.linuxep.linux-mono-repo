@@ -70,6 +70,15 @@ then
   make_links
 fi
 
+# SDDS
+if [ -d  "$LINUX_MONO_REPO/sdds" ]
+then
+  cd "$LINUX_MONO_REPO/sdds"
+  make_links
+  cd "$LINUX_MONO_REPO/sdds/TA"
+  make_links
+fi
+
 # Warehouse
 if [ -d  /home/$USER/gitrepos/esg.linuxep.sspl-warehouse ]
 then

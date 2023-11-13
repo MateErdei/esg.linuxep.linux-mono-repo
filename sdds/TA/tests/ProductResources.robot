@@ -15,6 +15,7 @@ Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 *** Variables ***
 ${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
 ${InstalledAVPluginVersionFile}                 ${AV_DIR}/VERSION.ini
+${InstalledDIPluginVersionFile}                 ${DEVICEISOLATION_DIR}/VERSION.ini
 ${InstalledEDRPluginVersionFile}                ${EDR_DIR}/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${EVENTJOURNALER_DIR}/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${LIVERESPONSE_DIR}/VERSION.ini
@@ -23,8 +24,10 @@ ${InstalledRTDPluginVersionFile}                ${RTD_DIR}/VERSION.ini
 
 *** Keywords ***
 Get Current Installed Versions
+    # TODO: LINUXDAR-8348: Uncomment device isolation version checks following release
     ${BaseReleaseVersion} =     get_version_number_from_ini_file        ${InstalledBaseVersionFile}
     ${AVReleaseVersion} =       get_version_number_from_ini_file        ${InstalledAVPluginVersionFile}
+    #${DIReleaseVersion} =       get_version_number_from_ini_file        ${InstalledDIPluginVersionFile}
     ${EDRReleaseVersion} =      get_version_number_from_ini_file        ${InstalledEDRPluginVersionFile}
     ${EJReleaseVersion} =       get_version_number_from_ini_file        ${InstalledEJPluginVersionFile}
     ${LRReleaseVersion} =       get_version_number_from_ini_file        ${InstalledLRPluginVersionFile}
@@ -34,6 +37,7 @@ Get Current Installed Versions
     &{versions} =    Create Dictionary
     ...    baseVersion=${BaseReleaseVersion}
     ...    avVersion=${AVReleaseVersion}
+    #...    diVersion=${DIReleaseVersion}
     ...    edrVersion=${EDRReleaseVersion}
     ...    ejVersion=${EJReleaseVersion}
     ...    lrVersion=${LRReleaseVersion}
@@ -46,6 +50,7 @@ Get Expected Versions For Recommended Tag
     [Arguments]    ${warehouseRepoRoot}    ${launchdarkly_root}    ${is_using_version_workaround}=${False}
     ${ExpectedBaseReleaseVersion} =     get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Base-component    is_using_version_workaround=${is_using_version_workaround}
     ${ExpectedAVReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-AV    is_using_version_workaround=${is_using_version_workaround}
+    #${ExpectedDIReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-DeviceIsolation    is_using_version_workaround=${is_using_version_workaround}
     ${ExpectedEDRReleaseVersion} =      get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-EDR    is_using_version_workaround=${is_using_version_workaround}
     ${ExpectedEJReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-EventJournaler    is_using_version_workaround=${is_using_version_workaround}
     ${ExpectedLRReleaseVersion} =       get_version_for_rigidname_in_sdds3_warehouse    ${warehouseRepoRoot}    ${launchdarkly_root}    ServerProtectionLinux-Plugin-liveresponse    is_using_version_workaround=${is_using_version_workaround}
@@ -54,6 +59,7 @@ Get Expected Versions For Recommended Tag
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}
+    #...    diVersion=${ExpectedDIReleaseVersion}
     ...    edrVersion=${ExpectedEDRReleaseVersion}
     ...    ejVersion=${ExpectedEJReleaseVersion}
     ...    lrVersion=${ExpectedLRReleaseVersion}
@@ -77,6 +83,11 @@ Wait For Version Files to Update
     ...  200 secs
     ...  5 secs
     ...  version_number_in_ini_file_should_be    ${InstalledAVPluginVersionFile}    ${expectedVersions["avVersion"]}
+
+#    Wait Until Keyword Succeeds
+#        ...  200 secs
+#        ...  5 secs
+#        ...  version_number_in_ini_file_should_be    ${InstalledDIPluginVersionFile}    ${expectedVersions["diVersion"]}
     
     Wait Until Keyword Succeeds
     ...  200 secs

@@ -314,6 +314,8 @@ Install all plugins static-999 then downgrade to all plugins static
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     Override LogConf File as Global Level  DEBUG
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
+    ${contents} =  Get File  ${DEVICEISOLATION_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
@@ -356,6 +358,7 @@ Install all plugins static-999 then downgrade to all plugins static
     wait_for_log_contains_from_mark  ${sul_mark}  Preparing ServerProtectionLinux-Base-component for downgrade    60
 
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Base-component is being downgraded
+    wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-DeviceIsolation is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-responseactions is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded
     wait_for_log_contains_from_mark  ${sul_mark}  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded
@@ -424,6 +427,8 @@ Install all plugins static then upgrade to all plugins static-999
     ...   File Should not exist   ${UPGRADING_MARKER_FILE}
 
 
+    ${contents} =  Get File  ${DEVICEISOLATION_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini

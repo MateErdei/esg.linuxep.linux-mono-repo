@@ -55,6 +55,7 @@ Global Setup Tasks
     Set Global Variable    ${WD_REQUESTED_USER_GROUP_IDS}    ${ETC_DIR}/user-group-ids-requested.conf
 
     Set Global Variable    ${AV_DIR}                      ${PLUGINS_DIR}/av
+    Set Global Variable    ${DEVICEISOLATION_DIR}         ${PLUGINS_DIR}/deviceisolation
     Set Global Variable    ${EDR_DIR}                     ${PLUGINS_DIR}/edr
     Set Global Variable    ${EVENTJOURNALER_DIR}          ${PLUGINS_DIR}/eventjournaler
     Set Global Variable    ${LIVERESPONSE_DIR}            ${PLUGINS_DIR}/liveresponse

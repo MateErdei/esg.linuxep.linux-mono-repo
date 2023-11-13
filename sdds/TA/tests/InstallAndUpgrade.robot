@@ -555,6 +555,7 @@ SDDS3 updating respects ALC feature codes
     Directory Should Exist   ${EVENTJOURNALER_DIR}
     # Other plugins should be uninstalled
     Directory Should Not Exist   ${AV_DIR}
+    Directory Should Not Exist   ${DEVICEISOLATION_DIR}
     Directory Should Not Exist   ${EDR_DIR}
     Directory Should Not Exist   ${LIVERESPONSE_DIR}
     Directory Should Not Exist   ${RTD_DIR}
@@ -621,6 +622,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
     wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
+    wait_for_log_contains_from_mark   ${sul_mark}    Downloaded Product line: 'ServerProtectionLinux-Plugin-DeviceIsolation' is up to date.
 
     ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
     all_products_in_update_report_are_up_to_date  ${latest_report_result.stdout.strip()}
@@ -717,6 +719,7 @@ Installing New Plugins Respects Custom Installation Location
     Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/eventjournaler
     #other plugins should be uninstalled
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
+    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/deviceisolation
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
