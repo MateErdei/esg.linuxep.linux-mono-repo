@@ -11,6 +11,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--include', nargs='+', help='keywords to include')
     parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
+    parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
+    parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
     args = parser.parse_args()
 
     tags = {'include': [], 'exclude': []}
@@ -20,8 +23,9 @@ def main():
     if args.exclude is not None:
         tags['exclude'] = args.exclude
 
-    if os.environ.get('DEBUG'):
+    if args.debug:
         tags['exclude'].append('BREAKS_DEBUG')
+
     if os.environ.get('COVERAGE'):
         tags['exclude'].append('EXCLUDE_ON_COVERAGE')
     if os.environ.get("BAZEL"):
@@ -45,10 +49,10 @@ def main():
         'suite': '*'
     }
 
-    if os.environ.get('TEST'):
-        robot_args['test'] = os.environ.get('TEST')
-    if os.environ.get('SUITE'):
-        robot_args['suite'] = os.environ.get('SUITE')
+    if args.test:
+        robot_args['test'] = args.test
+    if args.suite:
+        robot_args['suite'] = args.suite
 
     os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/system_test/'
     os.environ['BASE_DIST'] = '/opt/test/inputs/base_sdds'

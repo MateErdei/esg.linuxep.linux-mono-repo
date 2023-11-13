@@ -6,6 +6,7 @@ from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import ANALYSIS_MODE, unified_artifact, get_test_machines, COVERAGE_MODE, pip_install, \
     get_robot_args, COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+from pipeline import common
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 # For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
@@ -67,8 +68,9 @@ def install_requirements(machine: tap.Machine):
 def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3',
+        machine.run('python3',
                     machine.inputs.test_scripts / 'RobotFramework.py',
+                    *robot_args.split(","),
                     timeout=ROBOT_TEST_TIMEOUT)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
@@ -108,7 +110,9 @@ def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
 
         # run component pytest and tap-tests
         try:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT,
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=ROBOT_TEST_TIMEOUT,
+
+                        *robot_args.split(","),
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
@@ -160,7 +164,7 @@ def run_ej_tests(stage, context, builds, mode, parameters):
         "arm64": get_inputs(context, builds["arm64"], builds["x86_64"], mode, "arm64")
     }
     machines = get_test_machines(test_inputs, parameters)
-    robot_args = get_robot_args(parameters)
+    robot_args = ",".join(common.get_robot_args_list(parameters, False))
 
     with stage.parallel('eventjournaler_integration'):
         for template_name, machine in machines:

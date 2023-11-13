@@ -9,6 +9,7 @@ from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import ANALYSIS_MODE, unified_artifact, pip_install, get_test_machines, get_robot_args, \
     get_os_packages, COVERAGE_TEMPLATE, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
+from pipeline import common
 
 logger = logging.getLogger(__name__)
 
@@ -149,25 +150,26 @@ def robot_task(machine: tap.Machine, robot_args: str, include_tag: str, machine_
     print(f"test scripts: {machine.inputs.test_scripts}")
     print(f"robot_args: {robot_args}")
     print(f"include_tag: {include_tag}")
+    py = common.python(machine)
     try:
         install_requirements(machine)
 
         if include_tag:
-            machine.run(*robot_args.split(), 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run(py, machine.inputs.test_scripts / 'RobotFramework.py',
                         '--include', include_tag,
                         '--exclude', *default_exclude_tags,
+                        *(robot_args.split(",")),
                         timeout=ROBOT_TEST_TIMEOUT)
         else:
-            machine.run(*robot_args.split(),
-                        python(machine),
+            machine.run(py,
                         machine.inputs.test_scripts / 'RobotFramework.py',
+                        *(robot_args.split(",")),
                         timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
-        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
+        machine.run(py, machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
-
 
 
 def pytest_task(machine: tap.Machine):
@@ -205,7 +207,7 @@ def run_edr_tests(stage, context, builds, mode, parameters):
         "arm64": get_inputs(context, builds["arm64"], mode, "arm64")
     }
     test_machines = get_test_machines(test_inputs, parameters)
-    robot_args = get_robot_args(parameters)
+    robot_args = ",".join(common.get_robot_args_list(parameters, False))
 
     with stage.parallel('edr_test'):
         with stage.parallel('integration'):

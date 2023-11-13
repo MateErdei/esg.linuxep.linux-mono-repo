@@ -1,3 +1,4 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 import argparse
 from dirsync import sync
 import distro
@@ -63,6 +64,9 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--include', nargs='+', help='keywords to include')
     parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
+    parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
+    parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
     args = parser.parse_args()
 
     tags = {'include': [], 'exclude': []}
@@ -73,8 +77,9 @@ def main(argv):
     if args.exclude is not None:
         tags['exclude'].extend(args.exclude)
 
-    os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
-    os.environ["TEST_SCRIPT_PATH"] = fr"{os.environ['INPUT_DIRECTORY']}/test_scripts/"
+    INPUT_DIRECTORY = "/opt/test/inputs"
+    os.environ["INPUT_DIRECTORY"] = INPUT_DIRECTORY
+    os.environ["TEST_SCRIPT_PATH"] = f"{INPUT_DIRECTORY}/test_scripts/"
 
     robot_args = {
         "path":  os.environ["TEST_SCRIPT_PATH"],
@@ -88,36 +93,36 @@ def main(argv):
         "report": "/opt/test/logs/report.html",
     }
 
-    if os.environ.get("TEST"):
-        robot_args["test"] = os.environ.get("TEST")
-    if os.environ.get("SUITE"):
-        robot_args["suite"] = os.environ.get("SUITE")
+    if args.test:
+        robot_args['test'] = args.test
+    if args.suite:
+        robot_args['suite'] = args.suite
 
-    os.environ["SUPPORT_FILES"] = os.path.join(os.environ["INPUT_DIRECTORY"], "SupportFiles")
+    os.environ["SUPPORT_FILES"] = os.path.join(INPUT_DIRECTORY, "SupportFiles")
     os.environ["LIB_FILES"] = os.path.join(os.environ["TEST_SCRIPT_PATH"], "libs")
-    os.environ['BASE_DIST'] = os.path.join(os.environ["INPUT_DIRECTORY"], "base")
-    os.environ['SSPL_ANTI_VIRUS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "av")
-    os.environ['SSPL_EDR_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "edr")
-    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej")
-    os.environ['SSPL_LIVERESPONSE_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "lr")
-    os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "rtd")
-    os.environ['SSPL_RA_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ra")
-    os.environ['THIN_INSTALLER_OVERRIDE'] = os.path.join(os.environ["INPUT_DIRECTORY"], "thin_installer")
-    os.environ['WEBSOCKET_SERVER'] = os.path.join(os.environ["INPUT_DIRECTORY"], "websocket_server")
-    os.environ['SYSTEMPRODUCT_TEST_INPUT'] = os.environ["INPUT_DIRECTORY"]
-    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "ej_manual_tools", "JournalReader")
+    os.environ['BASE_DIST'] = os.path.join(INPUT_DIRECTORY, "base")
+    os.environ['SSPL_ANTI_VIRUS_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "av")
+    os.environ['SSPL_EDR_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "edr")
+    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "ej")
+    os.environ['SSPL_LIVERESPONSE_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "lr")
+    os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "rtd")
+    os.environ['SSPL_RA_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "ra")
+    os.environ['THIN_INSTALLER_OVERRIDE'] = os.path.join(INPUT_DIRECTORY, "thin_installer")
+    os.environ['WEBSOCKET_SERVER'] = os.path.join(INPUT_DIRECTORY, "websocket_server")
+    os.environ['SYSTEMPRODUCT_TEST_INPUT'] = INPUT_DIRECTORY
+    os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(INPUT_DIRECTORY, "ej_manual_tools", "JournalReader")
     shutil.rmtree(os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"), ignore_errors=True)
-    shutil.copytree(os.path.join(os.environ["INPUT_DIRECTORY"], "rtd_content_rules"), os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"))
+    shutil.copytree(os.path.join(INPUT_DIRECTORY, "rtd_content_rules"), os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"))
     os.environ["SDDS3_BUILDER"] = os.path.join(os.environ["INPUT_DIRECTORY"], "sdds3", "sdds3-builder")
 
     # TODO LINUXDAR-7079 supplements are not published for release branches
     try:
-        os.environ["VUT_WAREHOUSE_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "repo")
-        os.environ["VUT_WAREHOUSE_ROOT_999"] = os.path.join(os.environ["INPUT_DIRECTORY"], "repo999")
+        os.environ["VUT_WAREHOUSE_ROOT"] = os.path.join(INPUT_DIRECTORY, "repo")
+        os.environ["VUT_WAREHOUSE_ROOT_999"] = os.path.join(INPUT_DIRECTORY, "repo999")
         sync(os.environ["VUT_WAREHOUSE_ROOT_999"], os.environ["VUT_WAREHOUSE_ROOT"], "sync")
 
-        os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "dogfood_repo")
-        os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"] = os.path.join(os.environ["INPUT_DIRECTORY"], "current_shipping_repo")
+        os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"] = os.path.join(INPUT_DIRECTORY, "dogfood_repo")
+        os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"] = os.path.join(INPUT_DIRECTORY, "current_shipping_repo")
 
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"])
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"])
@@ -135,7 +140,7 @@ def main(argv):
         # When running locally you can not initialise the TAP Results Listener
         pass
 
-    sys.path.append(os.path.join(os.environ["INPUT_DIRECTORY"], 'common_test_libs'))
+    sys.path.append(os.path.join(INPUT_DIRECTORY, 'common_test_libs'))
     return robot.run(robot_args["path"], **robot_args)
 
 

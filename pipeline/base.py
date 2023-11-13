@@ -1,4 +1,5 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
+import json
 import os
 import requests
 
@@ -6,7 +7,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages, python
+    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args_list, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages, python
 from pipeline import common
 
 PACKAGE_PATH = "./base/build/release-package.xml"
@@ -73,7 +74,7 @@ def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput,
 
 
 @tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_tag: str, machine_name: str):
+def robot_task(machine: tap.Machine, branch_name: str, robot_args_json: str, include_tag: str, machine_name: str):
     arch, platform = machine_name.split("_")
     default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ", "SYSTEMPRODUCTTESTINPUT",
                             "EXCLUDE_BAZEL", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}",
@@ -81,8 +82,12 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
 
     machine_full_name = machine.template
     print(f"test scripts: {machine.inputs.test_scripts}")
-    print(f"robot_args: {robot_args}")
-    print(f"include_tag: {include_tag}")
+    robot_args_list = json.loads(robot_args_json)
+    if robot_args_list:
+        print(f"robot_args: {robot_args_list}")
+    else:
+        print(f"include_tag: {include_tag}")
+
     try:
         install_requirements(machine)
 
@@ -92,9 +97,10 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
                         '--exclude', *default_exclude_tags,
                         timeout=ROBOT_TEST_TIMEOUT)
         else:
-            machine.run(*robot_args.split(), python(machine), machine.inputs.test_scripts / 'RobotFramework.py'
-                        , timeout=ROBOT_TEST_TIMEOUT)
-
+            machine.run(python(machine),
+                        machine.inputs.test_scripts / 'RobotFramework.py',
+                        *robot_args_list,
+                        timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
@@ -106,10 +112,10 @@ def robot_task(machine: tap.Machine, branch_name: str, robot_args: str, include_
                         branch_name + "/base" + get_suffix(
                             branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html",
                         timeout=120)
-        elif robot_args:
+        elif robot_args_list:
             machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
                         branch_name + "/base" + get_suffix(
-                            branch_name) + "_" + machine_full_name + "_" + robot_args + "-log.html",
+                            branch_name) + "_" + machine_full_name + "_" + str(robot_args_list) + "-log.html",
                         timeout=120)
 
 
@@ -241,28 +247,29 @@ def run_base_tests(stage, context, builds, mode, parameters):
         "arm64": get_base_test_inputs(context, builds[common.arm64], builds[common.x86_64], mode, "arm64")
     }
     base_test_machines = get_test_machines(base_test_inputs, parameters)
-    robot_args = get_robot_args(parameters)
+    robot_args_list = get_robot_args_list(parameters, use_env_vars=False)
 
     with stage.parallel('base_integration'):
-        if robot_args:
+        if robot_args_list:
             for template_name, machine in base_test_machines:
                 stage.task(task_name=template_name,
                            func=robot_task,
                            machine=machine,
                            branch_name=context.branch,
-                           robot_args=robot_args,
+                           robot_args_json=json.dumps(robot_args_list),
                            include_tag="",
                            machine_name=template_name)
         else:
             includedtags = parameters.include_tags or default_include_tags
 
             for include in includedtags.split(","):
+                assert " " not in include, f"Can't include space in include tag: {include}!"
                 with stage.parallel(include):
                     for template_name, machine in base_test_machines:
                         stage.task(task_name=template_name,
                                    func=robot_task,
                                    machine=machine,
                                    branch_name=context.branch,
-                                   robot_args="",
+                                   robot_args_json=json.dumps(robot_args_list),
                                    include_tag=include,
                                    machine_name=template_name)

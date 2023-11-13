@@ -6,7 +6,7 @@ import tap.v1 as tap
 from tap._backend import Input, TaskOutput
 from tap._pipeline.tasks import ArtisanInput
 
-from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, get_robot_args, \
+from pipeline.common import unified_artifact, get_test_machines, pip_install, get_suffix, \
     python, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT
 from pipeline import common
 
@@ -117,8 +117,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, branch_name: str
                         environment=environment,
                         timeout=ROBOT_TEST_TIMEOUT)
         elif robot_args:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
                         '--exclude', *robot_exclusion_tags,
+                        *(robot_args.split(",")),
                         environment=environment, timeout=ROBOT_TEST_TIMEOUT)
 
     finally:
@@ -422,7 +423,7 @@ def run_av_coverage_tests(stage, context, av_coverage_build, mode, parameters):
 def run_av_tests(stage, context, builds, mode, parameters, coverage_build=None, bazel=True):
     # run_tests: bool = parameters.run_tests != 'false'
 
-    robot_args = get_robot_args(parameters)
+    robot_args = ",".join(common.get_robot_args_list(parameters, use_env_vars=False))
 
     # robot_task_with_env will parse this string
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"

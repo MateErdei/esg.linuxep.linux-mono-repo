@@ -26,17 +26,27 @@ TASK_TIMEOUT = 120
 COVERAGE_TEMPLATE = "centos7_x64_aws_server_en_us"
 
 
-def get_robot_args(parameters):
+def get_robot_args_list(parameters, use_env_vars):
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
     # if mode == DEBUG_MODE:
     #     robot_args_list.append("DEBUG=true")
     if parameters.robot_test:
-        robot_args_list.append("TEST=" + parameters.robot_test)
+        if use_env_vars:
+            robot_args_list.append("TEST=" + parameters.robot_test)
+        else:
+            robot_args_list.append("--test=" + parameters.robot_test)
     if parameters.robot_suite:
-        robot_args_list.append("SUITE=" + parameters.robot_suite)
-    robot_args = " ".join(robot_args_list)
-    return robot_args
+        if use_env_vars:
+            robot_args_list.append("SUITE=" + parameters.robot_suite)
+        else:
+            robot_args_list.append("--suite=" + parameters.robot_suite)
+
+    return robot_args_list
+
+
+def get_robot_args(parameters):
+    return " ".join(get_robot_args_list(parameters, use_env_vars=True))
 
 
 def get_suffix(branch_name: str):

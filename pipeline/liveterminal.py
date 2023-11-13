@@ -6,7 +6,8 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
 from pipeline.common import get_test_machines, pip_install, python, get_os_packages, \
-    get_robot_args, COVERAGE_TEMPLATE
+    COVERAGE_TEMPLATE
+from pipeline import common
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 # For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
@@ -86,11 +87,14 @@ def robot_task(machine: tap.Machine, robot_args: str, machine_name: str):
     default_exclude_tags = [f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}"]
     try:
         install_requirements(machine)
-        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                    '--exclude', *default_exclude_tags, timeout=3600)
+        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                    '--exclude', *default_exclude_tags,
+                    *robot_args.split(","),
+                    timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
+
 
 def test_args(python, folder):
     args = [python, "-u", "-m", "pytest", folder]
@@ -157,7 +161,7 @@ def run_pytests(machine: tap.Machine):
         machine.output_artifact(results_dir, "results")
         machine.output_artifact(dumps_dir, "crash_dumps")
 
-def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
+def coverage_task(machine: tap.Machine, branch: str):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -222,14 +226,12 @@ def run_liveterminal_coverage_tests(stage, context, liveterminal_coverage_build,
     #     return
 
     test_inputs = get_inputs(context, liveterminal_coverage_build, mode)
-    robot_args = get_robot_args(parameters)
 
     with stage.parallel('liveterminal_coverage'):
         stage.task(task_name="coverage",
                    func=coverage_task,
                    machine=tap.Machine(COVERAGE_TEMPLATE, inputs=test_inputs, platform=tap.Platform.Linux),
-                   branch=context.branch,
-                   robot_args=robot_args)
+                   branch=context.branch)
 
 
 def run_liveterminal_tests(stage, context, builds, mode, parameters):
@@ -242,7 +244,7 @@ def run_liveterminal_tests(stage, context, builds, mode, parameters):
         "arm64": get_inputs(context, builds["arm64"], mode, "arm64")
     }
     machines = get_test_machines(test_inputs, parameters)
-    robot_args = get_robot_args(parameters)
+    robot_args = ",".join(common.get_robot_args_list(parameters, use_env_vars=False))
 
     with stage.parallel('liveterminal_pytests'):
         for template_name, machine in machines:

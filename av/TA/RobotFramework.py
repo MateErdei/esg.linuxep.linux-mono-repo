@@ -1,4 +1,5 @@
 #!/bin/env python3
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 import argparse
 import json
@@ -17,6 +18,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--include', nargs='+', help='keywords to include')
     parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
+    parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
+    parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
     args = parser.parse_args()
 
     tags = {'include': [], 'exclude': []}
@@ -41,10 +45,14 @@ def main():
         'test': '*'
     }
 
-    if os.environ.get('TEST'):
-        robot_args['test'] = os.environ.get('TEST')
-    if os.environ.get('SUITE'):
-        robot_args['suite'] = os.environ.get('SUITE')
+    if args.test:
+        robot_args['test'] = args.test
+        print("Restricting to single test:", args.test)
+    if args.suite:
+        robot_args['suite'] = args.suite
+        print("Restricting to single suite:", args.suite)
+
+    print("AV robot args:", robot_args)
 
     try:
         # Create the TAP Robot result listener.
