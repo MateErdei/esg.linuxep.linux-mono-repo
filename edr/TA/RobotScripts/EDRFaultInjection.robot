@@ -44,6 +44,7 @@ EDR Plugin stops osquery when killed
     ...  Check Osquery Has Restarted  ${oldPid}
 
 EDR Plugin stops osquery when killed by segv
+    CoreDumps.Ignore Coredumps And Segfaults
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  10 secs

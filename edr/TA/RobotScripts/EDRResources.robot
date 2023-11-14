@@ -275,6 +275,8 @@ Log Status Of Sophos Spl
     Log  ${result.stdout}
 
 Common Teardown
+    CoreDumps.Check For Coredumps  ${TEST_NAME}
+    CoreDumps.Check Dmesg For Segfaults
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log Status Of Sophos Spl
     Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
     Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
