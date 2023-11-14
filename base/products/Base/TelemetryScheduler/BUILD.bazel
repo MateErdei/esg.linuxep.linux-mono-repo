@@ -13,8 +13,8 @@ soph_cc_binary(
         "//base/products/Base/installer:__pkg__",
     ],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/TelemetryScheduler/TelemetrySchedulerImpl",
+        "//common/modules/Common/Main",
     ],
 )
 

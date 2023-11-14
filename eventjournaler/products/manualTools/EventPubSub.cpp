@@ -1,9 +1,6 @@
-/***********************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
-
+#include "Common/Main/Main.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
@@ -27,15 +24,15 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 // Generate AV event
 //  EventPubSub -s /opt/sophos-spl/plugins/av/var/threatEventPublisherSocketPath send
 
-void printUsageAndExit(const std::string name)
+void printUsageAndExit(const std::string& name)
 {
     std::cout << "usage: " << name << " [-c <count> -s <socket path> -u <user> -d <data> -f <file path of data>] send | listen" << std::endl;
     exit(EXIT_FAILURE);
 }
 
-bool getUserGroupID(const std::string user, uid_t& owner_id, gid_t& group_id)
+bool getUserGroupID(const std::string& user, uid_t& owner_id, gid_t& group_id)
 {
-    struct passwd pwd;
+    struct passwd pwd{};
     struct passwd* result = nullptr;
     char buffer[4 * 1024];
     int error = getpwnam_r(user.c_str(), &pwd, buffer, sizeof(buffer), &result);
@@ -57,7 +54,7 @@ bool getUserGroupID(const std::string user, uid_t& owner_id, gid_t& group_id)
 }
 
 
-int main(int argc, char* argv[])
+static int inner_main(int argc, char* argv[])
 {
     if (argc < 2)
     {
@@ -195,3 +192,4 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+MAIN(inner_main(argc, argv))

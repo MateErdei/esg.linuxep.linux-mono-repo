@@ -22,5 +22,6 @@ soph_cc_binary(
         "//base/modules/Common/PluginApi",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/ZeroMQWrapper",
+        "//common/modules/Common/Main",
     ],
 )

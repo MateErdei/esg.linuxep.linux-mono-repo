@@ -408,7 +408,10 @@ message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE
 
 set(AUTOVERSION_INCLUDE ${CMAKE_SOURCE_DIR}/products/distribution/include)
 
-include_directories(modules)
+include_directories(
+        modules
+        ../common/modules
+)
 
 set(REL_DIST distribution)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")

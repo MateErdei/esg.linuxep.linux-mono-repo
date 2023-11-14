@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <iostream>
 #include <iomanip>
@@ -16,12 +12,13 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Main/Main.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include "EventJournal/EventJournalWriter.h"
 
-static void printUsageAndExit(const std::string name)
+static void printUsageAndExit(const std::string& name)
 {
     std::cout << "usage: " << name << " [-c <count> -l <location> -t <sub-type>] <JSON file>" << std::endl
               << "       " << name << " -i [-h -f] <Journal file>" << std::endl;
@@ -37,11 +34,11 @@ static std::string localTime(int64_t timestamp)
 
     time_t time = Common::UtilityImpl::TimeUtils::WindowsFileTimeToEpoch(timestamp);
 
-    struct tm tm;
+    struct tm tm{};
     char buffer[32];
     size_t length = strftime(buffer, sizeof(buffer), "%T %d %B %Y", localtime_r(&time, &tm));
 
-    return std::string(buffer, length);
+    return {buffer, length};
 }
 
 static void printFileInfo(const EventJournal::FileInfo& info, bool header)
@@ -71,7 +68,7 @@ static void printFileInfo(const EventJournal::FileInfo& info, bool header)
 }
 
 
-int main(int argc, char* argv[])
+static int inner_main(int argc, char* argv[])
 {
     if (argc < 2)
     {
@@ -186,3 +183,4 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+MAIN(inner_main(argc, argv))

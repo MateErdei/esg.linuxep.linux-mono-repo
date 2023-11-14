@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // This binary will print the details of objects in the SafeStore database, useful for manual testing and TAP tests.
 
@@ -8,6 +8,7 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/FileLoggingSetup.h"
+#include "Common/Main/Main.h"
 
 #include <iostream>
 
@@ -42,7 +43,7 @@ void printConfigOptions(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper)
     }
 }
 
-int main()
+static int inner_main()
 {
     Common::Logging::FileLoggingSetup loggerSetup("safestore_print_tool", false);
     // SafeStore wrapper to interact with SafeStore database.
@@ -187,3 +188,4 @@ int main()
 
     return 0;
 }
+MAIN(inner_main())

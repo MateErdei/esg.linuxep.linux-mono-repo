@@ -34,5 +34,6 @@ soph_cc_binary(
     ],
     deps = [
         ":versigimpl",
+        "//common/modules/Common/Main",
     ],
 )

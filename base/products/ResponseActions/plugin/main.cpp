@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
+
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/Main/Main.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
@@ -19,7 +21,7 @@ enum returnCode
     EXCEPTIONTHROWN = 40,
 };
 
-int main()
+static int inner_main()
 {
     using namespace ResponsePlugin;
     int ret = SUCCESS;
@@ -69,3 +71,5 @@ int main()
     LOGINFO("Plugin Finished.");
     return ret;
 }
+
+MAIN(inner_main())

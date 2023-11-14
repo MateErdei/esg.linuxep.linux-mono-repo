@@ -2,7 +2,7 @@
 
 #include "liveexecutable/livequery_main.h"
 
-#include "Common/UtilityImpl/Main.h"
+#include "Common/Main/Main.h"
 
 static int query_runner_main(int argc, char* argv[])
 {

@@ -14,6 +14,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/Main/Main.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
@@ -25,7 +26,7 @@ static const char* PluginName = PLUGIN_NAME; // NOLINT
 
 namespace fs = sophos_filesystem;
 
-int main()
+static int inner_main()
 {
     // PLUGIN_INSTALL
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -124,3 +125,5 @@ int main()
     sharedPluginCallBack->setRunning(false);
     return ret;
 }
+
+MAIN(inner_main())

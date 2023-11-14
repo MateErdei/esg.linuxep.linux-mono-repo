@@ -1,6 +1,6 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
-#include "Common/UtilityImpl/Main.h"
+#include "Common/Main/Main.h"
 
 #include "TelemetryScheduler/TelemetrySchedulerImpl/Scheduler.h"
 

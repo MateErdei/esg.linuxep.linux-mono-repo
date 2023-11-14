@@ -18,6 +18,7 @@ soph_cc_binary(
     ],
     deps = [
         "//common/livequery/OsquerySDK",
+        "//common/modules/Common/Main",
         "//edr/modules/EventJournalWrapperImpl",
         "//edr/modules/livequery",
         "//edr/modules/pluginimpl",

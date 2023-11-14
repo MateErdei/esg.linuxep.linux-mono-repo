@@ -12,6 +12,6 @@ soph_cc_binary(
     ],
     deps = [
         "//base/modules/CentralRegistration",
-        "//base/modules/Common/UtilityImpl:Main",
+        "//common/modules/Common/Main",
     ],
 )

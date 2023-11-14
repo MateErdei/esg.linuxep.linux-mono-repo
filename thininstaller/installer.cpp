@@ -1,3 +1,4 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "curl.h"
 #include "json.hpp"
 
@@ -6,6 +7,7 @@
 #include "Common/CurlWrapper/ICurlWrapper.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/Main/Main.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/Policy/MCSPolicy.h"
 #include "Common/Policy/SerialiseUpdateSettings.h"
@@ -38,7 +40,7 @@ const char* g_httpsProxy = getenv("https_proxy");
 #define BIGBUF 81920
 
 static char g_buf[BIGBUF];
-static int g_bufptr = 0;
+static size_t g_bufptr = 0;
 static std::string g_mcs_url;
 
 class ServerAddress
@@ -48,9 +50,9 @@ private:
     int m_priority;
 
 public:
-    std::string getAddress() const { return m_address; }
+    [[nodiscard]] std::string getAddress() const { return m_address; }
 
-    int getPriority() const { return m_priority; }
+    [[nodiscard]] int getPriority() const { return m_priority; }
 
     ServerAddress(std::string address, int priority);
 };
@@ -238,9 +240,6 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<MCS::MessageRelay
         }
     }
 
-
-
-
     return connected;
 }
 
@@ -318,7 +317,7 @@ static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminat
     return relays;
 }
 
-int main(int argc, char** argv)
+static int inner_main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
 
@@ -671,3 +670,4 @@ int main(int argc, char** argv)
     }
     return 0;
 }
+MAIN(inner_main(argc, argv))

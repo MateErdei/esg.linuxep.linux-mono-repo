@@ -11,7 +11,7 @@ soph_cc_binary(
         "//edr/products/installer:__pkg__",
     ],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
+        "//common/modules/Common/Main",
         "//edr/modules/liveexecutable",
         "//edr/modules/livequery",
         "@com_github_gflags_gflags//:gflags",

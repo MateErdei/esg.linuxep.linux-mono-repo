@@ -24,5 +24,6 @@ soph_cc_binary(
     visibility = ["//av/products:__subpackages__"],
     deps = [
         ":sync_versioned_files_lib",
+        "//common/modules/Common/Main",
     ],
 )

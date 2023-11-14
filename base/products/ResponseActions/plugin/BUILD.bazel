@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
 soph_cc_binary(
@@ -13,5 +14,6 @@ soph_cc_binary(
         "//base/modules/Common/Logging",
         "//base/modules/Common/PluginApi",
         "//base/modules/ResponseActions/ResponsePlugin",
+        "//common/modules/Common/Main",
     ],
 )

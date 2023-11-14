@@ -141,13 +141,14 @@ Threat Detector restarts if no scans requested within the configured timeout
 
     # No scans requested for ${timeout} seconds - shutting down.
     wait_for_log_contains_from_mark  ${td_mark}  No scans requested  timeout=20
-    wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector is exiting
+    ${td_mark2} =  wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector is exiting
 
     # TD should restart immediately:
-    wait_for_log_contains_from_mark  ${td_mark}  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=2
-    wait_for_log_contains_from_mark  ${td_mark}  Default shutdown timeout set to 15 seconds.
-    wait_for_log_contains_from_mark  ${td_mark}  Setting shutdown timeout to
-    Wait until threat detector running after mark  ${td_mark}
+    wait_for_log_contains_from_mark  ${td_mark2}  Logger av configured for level
+    wait_for_log_contains_from_mark  ${td_mark2}  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=${15}
+    wait_for_log_contains_from_mark  ${td_mark2}  Default shutdown timeout set to 15 seconds.
+    wait_for_log_contains_from_mark  ${td_mark2}  Setting shutdown timeout to
+    Wait until threat detector running after mark  ${td_mark2}
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}

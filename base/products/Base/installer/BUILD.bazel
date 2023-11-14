@@ -13,8 +13,8 @@ soph_cc_binary(
     name = "machineid",
     srcs = ["MachineIDMain.cpp"],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/Installer/MachineId",
+        "//common/modules/Common/Main",
     ],
 )
 
@@ -23,6 +23,7 @@ soph_cc_binary(
     srcs = ["ManifestDiffMain.cpp"],
     deps = [
         "//base/modules/Installer/ManifestDiff",
+        "//common/modules/Common/Main",
     ],
 )
 
@@ -31,6 +32,7 @@ soph_cc_binary(
     srcs = ["VersionedCopyMain.cpp"],
     deps = [
         "//base/modules/Installer/VersionedCopy",
+        "//common/modules/Common/Main",
     ],
 )
 

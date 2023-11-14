@@ -6,10 +6,11 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/Main/Main.h"
 
 namespace fs = sophos_filesystem;
 
-int main()
+static int inner_main()
 {
     Common::Logging::PluginLoggingSetup setupFileLoggingWithPath(PLUGIN_NAME, "soapd");
     // PLUGIN_INSTALL
@@ -20,3 +21,4 @@ int main()
 
     return sophos_on_access_process::soapd_bootstrap::SoapdBootstrap::runSoapd();
 }
+MAIN(inner_main())

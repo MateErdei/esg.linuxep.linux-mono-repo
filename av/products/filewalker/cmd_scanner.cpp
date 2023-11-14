@@ -8,13 +8,15 @@
 #include "datatypes/Print.h"
 #include "datatypes/sophos_filesystem.h"
 
+#include "Common/Main/Main.h"
+
 #include <memory>
 
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
 
 
-int main(int argc, char* argv[])
+static int inner_main(int argc, char* argv[])
 {
     enum E_ERROR_CODES: int
     {
@@ -76,3 +78,5 @@ int main(int argc, char* argv[])
         return E_GENERAL_ERROR;
     }
 }
+
+MAIN(inner_main(argc, argv))

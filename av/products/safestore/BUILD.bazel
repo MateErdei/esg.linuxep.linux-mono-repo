@@ -13,5 +13,6 @@ soph_cc_binary(
         "//av/modules/datatypes:sophos_filesystem",
         "//av/modules/safestore",
         "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//common/modules/Common/Main",
     ],
 )

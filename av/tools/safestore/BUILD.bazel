@@ -13,5 +13,6 @@ soph_cc_binary(
         "//av/modules/safestore",
         "//av/modules/safestore/SafeStoreWrapper",
         "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//common/modules/Common/Main",
     ],
 )

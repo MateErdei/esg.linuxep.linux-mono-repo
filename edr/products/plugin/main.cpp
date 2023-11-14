@@ -15,6 +15,7 @@
 #include "Common/FileSystem/IPidLockFileUtils.h"
 #include "Common/Logging/PluginLoggingSetup.h"
 #include "Common/Logging/PluginLoggingSetupEx.h"
+#include "Common/Main/Main.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
@@ -28,40 +29,6 @@
 #include <unistd.h>
 
 static const char* g_pluginName = PLUGIN_NAME;
-
-static void terminate_handler()
-{
-    void** buffer = new void*[15];
-    int count = backtrace(buffer, 15);
-    backtrace_symbols_fd(buffer, count, STDERR_FILENO);
-
-    //etc.
-    auto ptr = std::current_exception();
-    if (ptr)
-    {
-        try
-        {
-            std::rethrow_exception(ptr);
-        }
-        catch (const Common::Exceptions::IException& ex)
-        {
-            std::cerr << "IException thrown and not caught: " << ex.what_with_location() << '\n';
-        }
-        catch (const std::system_error& ex)
-        {
-            std::cerr << "std::system_error thrown and not caught: " << ex.code() << ": " << ex.what() << '\n';
-        }
-        catch (const std::exception& p)
-        {
-            std::cerr << "std::exception thrown and not caught: " << p.what() << '\n';
-        }
-        catch (...)
-        {
-            std::cerr << "Non-std::exception thrown and not caught\n";
-        }
-    }
-    std::abort();
-}
 
 static void checkCoreFileLimit()
 {
@@ -78,9 +45,8 @@ static void checkCoreFileLimit()
     }
 }
 
-int main()
+static int inner_main()
 {
-    std::set_terminate(terminate_handler);
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
@@ -181,3 +147,4 @@ int main()
     sharedPluginCallBack->setRunning(false);
     return ret;
 }
+MAIN(inner_main())

@@ -7,6 +7,7 @@ soph_cc_binary(
     srcs = ["EventPubSub.cpp"],
     deps = [
         "//base/modules/Common/ZMQWrapperApi",
+        "//common/modules/Common/Main",
     ],
 )
 
@@ -23,6 +24,7 @@ soph_cc_binary(
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
         "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//common/modules/Common/Main",
         "//eventjournaler/modules/EventJournal",
         "@xzutils//:lzma",
     ],

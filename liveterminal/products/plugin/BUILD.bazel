@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
 soph_cc_binary(
@@ -9,5 +10,8 @@ soph_cc_binary(
     visibility = [
         "//liveterminal/products/installer:__pkg__",
     ],
-    deps = ["//liveterminal/modules/pluginimpl"],
+    deps = [
+        "//common/modules/Common/Main",
+        "//liveterminal/modules/pluginimpl",
+    ],
 )

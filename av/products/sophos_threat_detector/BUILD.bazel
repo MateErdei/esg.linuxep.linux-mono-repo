@@ -61,7 +61,7 @@ soph_cc_binary(
     visibility = ["//av/products/distribution:__pkg__"],
     deps = [
         ":sophos_threat_detector_impl",
-        #        "//imports/internal/susi",
+        "//common/modules/Common/Main",
     ],
 )
 

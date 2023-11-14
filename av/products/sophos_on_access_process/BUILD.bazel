@@ -14,5 +14,6 @@ soph_cc_binary(
         "//av/modules/sophos_on_access_process/soapd_bootstrap",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/Logging",
+        "//common/modules/Common/Main",
     ],
 )

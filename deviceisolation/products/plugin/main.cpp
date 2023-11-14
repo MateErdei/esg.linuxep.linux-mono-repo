@@ -5,14 +5,15 @@
 #include "pluginimpl/PluginAdapter.h"
 
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/Main/Main.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
 
-const char* PluginName = PLUGIN_NAME;
+static const char* PluginName = PLUGIN_NAME;
 
-int main()
+static int inner_main()
 {
     using namespace Plugin;
     int ret = 0;
@@ -55,3 +56,5 @@ int main()
     LOGINFO("Plugin Finished.");
     return ret;
 }
+
+MAIN(inner_main())

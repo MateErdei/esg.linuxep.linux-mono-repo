@@ -1,18 +1,16 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "sync_versioned_files.h"
 
 #include "datatypes/Print.h"
 
+#include "Common/Main/Main.h"
+
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
-int main(int argc, char* argv[])
+static int inner_main(int argc, char* argv[])
 {
     po::positional_options_description positionalOptions;
     positionalOptions.add("source", 1);
@@ -61,3 +59,4 @@ int main(int argc, char* argv[])
         return sync_versioned_files::sync_versioned_files(source, destination, isVersioned);
     }
 }
+MAIN(inner_main(argc, argv))

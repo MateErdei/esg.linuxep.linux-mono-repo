@@ -2,7 +2,11 @@
 
 #include "Installer/ManifestDiff/ManifestDiff.h"
 
-int main(int argc, char* argv[])
+#include "Common/Main/Main.h"
+
+static int inner_main(int argc, char* argv[])
 {
     return Installer::ManifestDiff::ManifestDiff::manifestDiffMain(argc, argv);
 }
+
+MAIN(inner_main(argc, argv))

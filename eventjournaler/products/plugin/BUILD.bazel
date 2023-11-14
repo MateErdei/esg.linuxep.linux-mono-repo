@@ -18,6 +18,7 @@ soph_cc_binary(
     ],
     deps = [
         "//base/modules/Common/ZMQWrapperApi",
+        "//common/modules/Common/Main",
         "//eventjournaler/modules/pluginimpl",
     ],
 )

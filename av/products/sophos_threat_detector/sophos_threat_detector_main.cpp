@@ -2,7 +2,10 @@
 
 #include "sophos_threat_detector_inner_main.h"
 
-int main()
+#include "Common/Main/Main.h"
+
+static int outer_main()
 {
     return inner_main();
 }
+MAIN(outer_main())

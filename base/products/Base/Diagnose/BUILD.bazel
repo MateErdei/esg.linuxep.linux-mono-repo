@@ -15,7 +15,7 @@ soph_cc_binary(
         "//base/products/Base/installer:__pkg__",
     ],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/Diagnose/diagnose",
+        "//common/modules/Common/Main",
     ],
 )

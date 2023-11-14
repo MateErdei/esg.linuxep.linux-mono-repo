@@ -6,8 +6,8 @@
 #include "config.h"
 #endif
 
-#include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/Main/Main.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
@@ -15,9 +15,9 @@
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
 
-const char* PluginName = LR_PLUGIN_NAME;
+static const char* PluginName = LR_PLUGIN_NAME;
 
-int main()
+static int inner_main()
 {
     using namespace Plugin;
     int ret = 0;
@@ -56,3 +56,4 @@ int main()
     LOGINFO("Plugin Finished.");
     return ret;
 }
+MAIN(inner_main())

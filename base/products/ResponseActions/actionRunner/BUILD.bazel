@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary")
 
 soph_cc_binary(
@@ -10,7 +11,7 @@ soph_cc_binary(
         "//base/products/ResponseActions/installer:__pkg__",
     ],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/ResponseActions/ActionRunner",
+        "//common/modules/Common/Main",
     ],
 )

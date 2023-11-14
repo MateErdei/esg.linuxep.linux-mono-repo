@@ -11,7 +11,7 @@ soph_cc_binary(
         "//common:spl_packages",
     ],
     deps = [
-        "//base/modules/Common/UtilityImpl:Main",
         "//base/modules/SulDownloader",
+        "//common/modules/Common/Main",
     ],
 )

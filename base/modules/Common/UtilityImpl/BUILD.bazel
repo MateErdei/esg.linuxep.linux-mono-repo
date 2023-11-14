@@ -121,12 +121,6 @@ soph_cc_library(
 )
 
 soph_cc_library(
-    name = "Main",
-    hdrs = ["Main.h"],
-    visibility = ["//common:spl_packages"],
-)
-
-soph_cc_library(
     name = "Factory",
     hdrs = ["Factory.h"],
     visibility = ["//common:spl_packages"],
