@@ -45,6 +45,16 @@ Clear Environment Proxy
     Remove Environment Variable  http_proxy
 
 *** Test Case ***
+
+Thin Installer can install Directly and Fallback from broken update cache
+    Create Default Credentials File  update_caches=localhost:1235,1,1
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Check Suldownloader Log Contains In Order
+        ...  Trying update via update cache: https://localhost:1235
+        ...  Connecting to update source directly
+        ...  Update success
+
 Thin Installer can install via Update Cache and Fallback from broken update cache
     Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
