@@ -248,10 +248,12 @@ Sophos SafeStore Crashing Triggers Bad Health
 Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    GOOD
 
+    # On-access can detect the file immediately, so we need the AV mark before creating the file
+    ${av_mark} =  Get AV Log Mark
+
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
 
-    ${av_mark} =  Get AV Log Mark
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/naughty_eicar
@@ -259,6 +261,7 @@ Clean CLS Result Does Not Reset Threat Health
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Wait For Sophos Threat Detector Log Contains After Mark   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar  ${threat_detector_mark}
+    # Either from the OA scan or the OD scan:
     Wait For AV Log Contains After Mark  Threat health changed to suspicious  ${av_mark}
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS

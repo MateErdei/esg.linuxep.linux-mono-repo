@@ -193,6 +193,7 @@ Threat Detector Is Given Non-Permission EndpointId
     Stop sophos_threat_detector
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
+    Register Cleanup  Create Default Machine Id
     Register Cleanup  Remove File  ${MACHINEID_FILE}
     Register Cleanup    Stop Sophos_threat_detector
     Remove File  ${MACHINEID_CHROOT_FILE}
@@ -206,6 +207,7 @@ SUSI Is Given Non-Permission EndpointId
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Stop sophos_threat_detector
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
+    Register Cleanup  Create Default Machine Id
     Register Cleanup  Remove File  ${MACHINEID_FILE}
     Start AV Plugin
     Wait until threat detector running after mark  ${threat_detector_mark}
@@ -1056,13 +1058,19 @@ AVSophosThreatDetector Test Setup
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
 
+Create Default Machine Id
+    Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
+
+
 AVSophosThreatDetector Test TearDown
+    # restore machineID file - needs to be before cleanup functions
+    # since cleanup functions can restart threat detector
+    Create Default Machine Id
+
     #run teardown functions
     run cleanup functions
     run failure functions if failed
 
-    #restore machineID file
-    Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
