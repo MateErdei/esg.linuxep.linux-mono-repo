@@ -14,7 +14,7 @@ SYSTEM_TEST_TIMEOUT = 9000
 SYSTEM_TEST_TASK_TIMEOUT = 150
 
 
-def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="centos79_x64_bazel_20230512"):
+def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="ubuntu2004_x64_bazel_20231109"):
     component = tap.Component(name="sdds3-warehouse-" + mode, base_version="1.0.0")
     return stage.artisan_build(name=mode,
                                component=component,

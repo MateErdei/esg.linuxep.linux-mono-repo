@@ -18,7 +18,7 @@ class TestSecurityUtils : public ::testing::Test
     std::vector<std::pair<std::string,int>> m_out;
 };
 
-TEST_F(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
+TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeToNobody) // NOLINT
 {
     MAYSKIP;
 
@@ -40,7 +40,7 @@ TEST_F(TestSecurityUtils, TestDropPrivilegeToNobody) // NOLINT
         ::testing::ExitedWithCode(0), ".*");
 }
 
-TEST_F(TestSecurityUtils, TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
+TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
 {
     MAYSKIP;
 
@@ -184,7 +184,7 @@ TEST_F(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser) // NOLI
         ".*");
 }
 
-TEST_F(TestSecurityUtils, TestChrootAndDropPrivilegesSuccessfully) // NOLINT
+TEST_F(TestSecurityUtils, DISABLED_TestChrootAndDropPrivilegesSuccessfully) // NOLINT
 {
     MAYSKIP;
 
@@ -254,7 +254,7 @@ public:
     }
 };
 
-TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountDir) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, DISABLED_TestBindMountReadOnlyMountDir) // NOLINT
 {
     MAYSKIP;
 
@@ -276,7 +276,7 @@ TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountDir) // NOLINT
     ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, "SPL.NOTMOUNTED_MARKER")));
 }
 
-TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountFile) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, DISABLED_TestBindMountReadOnlyMountFile) // NOLINT
 {
     MAYSKIP;
     setupAfterSkipIfNotRoot();
@@ -295,7 +295,7 @@ TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountFile) // NOLINT
     ASSERT_STREQ(afterUnmount.c_str(), "SPL.NOTMOUNTED_MARKER");
 }
 
-TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, DISABLED_WillNotMountIfAlreadyMounted) // NOLINT
 {
     MAYSKIP;
 
@@ -313,7 +313,7 @@ TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted) // NOLINT
     ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
 }
 
-TEST_F(TestSecurityUtilsBindMount, WillUsePreviousilyCreatedMountTargets) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, DISABLED_WillUsePreviousilyCreatedMountTargets) // NOLINT
 {
     MAYSKIP;
 

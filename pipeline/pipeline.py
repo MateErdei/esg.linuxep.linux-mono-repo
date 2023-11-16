@@ -19,7 +19,7 @@ from pipeline import common
 
 PACKAGE_PATH = "build/release-package.xml"
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
-BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230808'
+BUILD_TEMPLATE_BAZEL = 'ubuntu2004_x64_bazel_20231109'
 
 PACKAGE_PATH_EDR = "./edr/build-files/release-package.xml"
 PACKAGE_PATH_AV = "./av/build-files/release-package.xml"

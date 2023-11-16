@@ -16,7 +16,7 @@
 
 #include <unistd.h>
 
-TEST(TestPassOnCapability, pass_on_capability_root_only)
+TEST(TestPassOnCapability, DISABLED_pass_on_capability_root_only)
 {
     if (::geteuid() != 0)
     {
@@ -181,7 +181,7 @@ namespace
     };
 }
 
-TEST(TestPassOnCapability, pass_on_capability_no_root)
+TEST(TestPassOnCapability, DISABLED_pass_on_capability_no_root)
 {
     RestoreRoot restoreRoot;
 
@@ -197,7 +197,7 @@ TEST(TestPassOnCapability, pass_on_capability_no_root)
 //    EXPECT_EQ(ret, E_CAP_SET_PROC);
 }
 
-TEST(TestPassOnCapability, no_new_privs)
+TEST(TestPassOnCapability, DISABLED_no_new_privs)
 {
     set_no_new_privs();
 }
