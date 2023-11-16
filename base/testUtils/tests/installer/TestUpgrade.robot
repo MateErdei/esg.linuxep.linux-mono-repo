@@ -132,7 +132,7 @@ Simple Upgrade Test with a Breaking Update for plugin
     Check All Product Logs Do Not Contain Critical
 
 Simple Downgrade Test
-    [Tags]  EXCLUDE_ON_COVERAGE    TAP_PARALLEL5
+    [Tags]    TAP_PARALLEL5
 
     Require Fresh Install
     ${distribution} =   Get Folder With Installer

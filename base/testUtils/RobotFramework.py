@@ -7,10 +7,18 @@ import os
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
+class ExtendAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--include', nargs='+', help='keywords to include')
-    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    parser.register('action', 'extend', ExtendAction)
+    parser.add_argument('--include', nargs='+', help='keywords to include', action="extend")
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude', action="extend")
     parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
     parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
     parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
@@ -25,14 +33,6 @@ def main():
 
     if args.debug:
         tags['exclude'].append('BREAKS_DEBUG')
-
-    if os.environ.get('COVERAGE'):
-        tags['exclude'].append('EXCLUDE_ON_COVERAGE')
-    if os.environ.get("BAZEL"):
-        tags["exclude"].append("EXCLUDE_BAZEL")
-    if os.environ.get("PLATFORM"):
-        platform = os.environ["PLATFORM"]
-        tags["exclude"].append(f"EXCLUDE_{platform}")
     log_files = ['log.html', 'output.xml', 'report.html']
 
     open("/opt/test/inputs/testUtilsMarker", 'a').close()
@@ -48,6 +48,10 @@ def main():
         'report': log_files[2],
         'suite': '*'
     }
+
+    if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):
+        # Disable failing the test run if coverage is enabled
+        robot_args["statusrc"] = False
 
     if args.test:
         robot_args['test'] = args.test

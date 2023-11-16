@@ -166,7 +166,6 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amount Of Time
-    [Tags]    EXCLUDE_ON_COVERAGE
     Override LogConf File as Global Level  DEBUG
 
     ${allowed_leeway} =    Set variable    0.5

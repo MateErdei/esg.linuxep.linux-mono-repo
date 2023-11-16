@@ -17,7 +17,6 @@ Default Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 Verify that the event journaler installer works correctly
-    [Tags]    EXCLUDE_ON_COVERAGE
 ## -------------------------------------READ----ME------------------------------------------------------
 ## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
 ## an install manually and run the generateFromInstallDir.sh from InstallSet directory.

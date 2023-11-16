@@ -5,7 +5,7 @@ Library         String
 Library         DateTime
 
 Library         ../Libs/CoreDumps.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/OSLibs.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/XDRLibs.py

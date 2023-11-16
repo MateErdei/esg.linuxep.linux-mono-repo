@@ -4,7 +4,7 @@ Documentation    Testing the Logger Plugin for XDR Behaviour
 Library         Process
 Library         OperatingSystem
 Library         Collections
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/InstallerUtils.py
 Library         ../Libs/FakeManagement.py

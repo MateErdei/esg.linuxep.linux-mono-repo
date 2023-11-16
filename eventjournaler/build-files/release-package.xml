@@ -13,9 +13,7 @@
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management" />
         </build-asset>
 
-        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
-        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
-        <intermediate artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management" mode="release,release-classic,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="analysis"/>
 
         <build-asset project="winep" repo="sed">
             <release-version branch="release--SED_2023.31_libs" build-id="20230728143107-0c6e1139a06e2bd7140098191196a279c6e33e95-iaDLhP"/>
@@ -42,11 +40,6 @@
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
     </inputs>
     <buildcommands>
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler --bullseye</args>
-            <workingdir>eventjournaler</workingdir>
-        </command>
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --name eventjournaler --analysis</args>
@@ -56,19 +49,6 @@
     <publish>
         <workingdir>eventjournaler</workingdir>
 
-        <!--   Coverage outputs   -->
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <release-asset artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" source-dir="output/manualTools" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-eventjournaler-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/fake-management" source-dir="output/fake-management" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/build_log" source-dir="output" mode="coverage">
-            <include glob="./build.log"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
         <destdir>sspl-plugin-event-journaler</destdir>
         <publishbranches>develop,release,feature</publishbranches>
     </publish>

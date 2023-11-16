@@ -6,7 +6,7 @@
 
     <inputs>
         <workingdir>.</workingdir>
-        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="analysis"/>
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>
@@ -35,48 +35,22 @@
         <build-asset project="winep" repo="liveterminal">
             <release-version branch="release/2023-40-linux" build-id="20231003073741-0078e534766984feb591ce11d7197d67e7eb2f7e-UYx5sa"/>
             <development-version branch="develop" />
-            <include artifact-path="sspl-liveterminal/rust_binary" dest-dir="/build/redist/rust-liveterminal" />
+            <include artifact-path="sspl-liveterminal/rust_binary_x64" dest-dir="/build/redist/rust-liveterminal" />
         </build-asset>
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="/build/redist/nlohmann-json"/>
     </inputs>
     <buildcommands>
-        <!--<command buildtype="prod">-->
-        <command mode="release">
-            <program>/bin/bash</program>
-            <args>build-files/build.sh --clean --name liveresponse</args>
-            <workingdir>liveterminal</workingdir>
-        </command>
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>build-files/build.sh --clean --name liveresponse --debug --bullseye</args>
-            <workingdir>liveterminal</workingdir>
-        </command>
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>build-files/build.sh --no-build --analysis</args>
             <workingdir>liveterminal</workingdir>
         </command>
-
     </buildcommands>
     <publish>
         <workingdir>liveterminal</workingdir>
 
-        <!-- change to release-asset-->
-        <release-asset artifact-path="liveterminal/sdds" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <build-asset artifact-path="sspl-liveterminal-coverage/sdds" source-dir="output/SDDS-COMPONENT"
-                     mode="coverage"/>
-        <build-asset artifact-path="liveterminal/symbols" source-dir="output/symbols" mode="release">
-        </build-asset>
-        <build-asset artifact-path="sspl-liveterminal-coverage/base_sdds" source-dir="output/base-sdds"
-                     mode="coverage">
-
-        </build-asset>
-        <!--logs name="build_log"  pattern="log/**" /-->
-        <build-asset artifact-path="sspl-liveterminal-coverage/unittest-htmlreport" source-dir="output/coverage/bullseye_report" mode="coverage"/>
-        <build-asset artifact-path="sspl-liveterminal-coverage/covfile" source-dir="output/coverage/covfile" mode="coverage"/>
-        <build-asset artifact-path="linux/analysis" source-dir="output/analysis/cppcheck" mode="linux-analysis"/>
-
+        <build-asset artifact-path="linux/analysis" source-dir="output/analysis/cppcheck" mode="analysis"/>
 
         <!-- while all the products are not moved to unified pipeline, we will probably still need to run a artisan build (production) -->
         <destdir>liveterminal_linux</destdir>

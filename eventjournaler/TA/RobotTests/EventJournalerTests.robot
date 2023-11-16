@@ -81,7 +81,6 @@ Event Journaler Can Receive Events From Multiple Publishers
     ...  Get Three Events For Multiple Publishers Test
 
 Check Closed And Compressed Journal Files Can Still Be Read
-    [Tags]    EXCLUDE_ON_COVERAGE
     Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 1"}
     assert_expected_file_in_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  expected_closed_files=${0}  expected_open_files=${1}  expected_compressed_files=${0}
     Check Journal Contains X Detection Events  1

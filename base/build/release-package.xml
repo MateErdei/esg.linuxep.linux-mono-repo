@@ -71,13 +71,6 @@
             <workingdir>base</workingdir>
         </command>
 
-        <!-- Coverage build -->
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --bullseye --release</args>
-            <workingdir>base</workingdir>
-        </command>
-
         <!-- Static analysis build -->
         <command mode="analysis">
             <program>/bin/bash</program>
@@ -102,44 +95,9 @@
         </build-asset>
         <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
 
-        <!-- coverage(bullseye) -->
-        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
-
-        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
-
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
         <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
-
-        <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
-        <!-- debug -->
-        <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/cmcsrouterapi" source-dir="output" mode="debug">
-            <include glob="cmcsrouterapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/mcs" source-dir="output" mode="debug">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-debug/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

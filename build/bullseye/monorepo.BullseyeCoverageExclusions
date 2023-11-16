@@ -1,0 +1,15 @@
+# This file should be merged with tools/config/bullseye/monorepo.BullseyeCoverageExclusions once in ESG monorepo
+#exclude class BPA::nocoverage::
+#exclude class nocoverage::
+#exclude class Sophos::nocoverage::
+exclude folder **/tests/
+exclude folder common/livequery/
+exclude folder common/sophlib/
+exclude folder external/
+exclude folder imports/
+exclude folder tools/
+exclude folder bazel-out/x64_linux-dbg/bin/base/tests/
+exclude folder bazel-out/x64_linux-dbg/bin/common/journal/
+exclude folder bazel-out/x64_linux-dbg/bin/external/
+exclude source **/*.pb.*
+exclude source **/*.capnp.h

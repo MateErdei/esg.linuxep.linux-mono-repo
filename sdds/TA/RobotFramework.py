@@ -60,13 +60,24 @@ def get_platform_exclusions():
         print(f"Unhandled id {id}. Please extend platform exclusions to handle it")
     return exclusions
 
+
+class ExtendAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--include', nargs='+', help='keywords to include')
-    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    parser.register('action', 'extend', ExtendAction)
+    parser.add_argument('--include', nargs='+', help='keywords to include', action="extend")
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude', action="extend")
     parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
     parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
     parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
+    parser.add_argument("--central-api-client-id")
+    parser.add_argument("--central-api-client-secret")
     args = parser.parse_args()
 
     tags = {'include': [], 'exclude': []}
@@ -76,6 +87,12 @@ def main(argv):
     tags['exclude'] = get_platform_exclusions()
     if args.exclude is not None:
         tags['exclude'].extend(args.exclude)
+
+    if args.central_api_client_id and args.central_api_client_secret:
+        os.environ["CENTRAL_API_CLIENT_ID"] = args.central_api_client_id
+        os.environ["CENTRAL_API_CLIENT_SECRET"] = args.central_api_client_secret
+    else:
+        tags["exclude"].append("FIXED_VERSIONS")
 
     INPUT_DIRECTORY = "/opt/test/inputs"
     os.environ["INPUT_DIRECTORY"] = INPUT_DIRECTORY
@@ -92,6 +109,10 @@ def main(argv):
         "output": "/opt/test/logs/output.xml",
         "report": "/opt/test/logs/report.html",
     }
+
+    if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):
+        # Disable failing the test run if coverage is enabled
+        robot_args["statusrc"] = False
 
     if args.test:
         robot_args['test'] = args.test

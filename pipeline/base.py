@@ -1,275 +1,98 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
+
 import json
-import os
-import requests
+from typing import Any, Dict, List
 
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
+from dotdict import DotDict
 
-from pipeline.common import unified_artifact, package_install, get_test_machines, pip_install, get_suffix, \
-    COVERAGE_MODE, COVERAGE_TEMPLATE, get_robot_args_list, ROBOT_TEST_TIMEOUT, TASK_TIMEOUT, get_os_packages, python
-from pipeline import common
-
-PACKAGE_PATH = "./base/build/release-package.xml"
-INPUTS_DIR = '/opt/test/inputs'
-COVFILE_UNITTEST = os.path.join(INPUTS_DIR, 'coverage/sspl-base-unittest.cov')
-COVFILE_TAPTESTS = os.path.join(INPUTS_DIR, 'coverage/sspl-base-taptests.cov')
-BULLSEYE_SCRIPT_DIR = os.path.join(INPUTS_DIR, 'bullseye_files')
-UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
-UPLOAD_ROBOT_LOG_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadRobotLog.sh')
-RESULTS_DIR = '/opt/test/results'
-BRANCH_NAME = "develop"
-
-# Coverage
-SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
-# For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
-SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
+from pipeline.common import (
+    unified_artifact,
+    get_test_machines,
+    get_robot_args,
+    TEST_TASK_TIMEOUT_MINUTES,
+    get_build_output_for_arch,
+    stage_tap_machine,
+    stage_task,
+    run_robot_tests,
+    x86_64,
+    get_test_builds,
+)
 
 
-def get_base_test_inputs(context: tap.PipelineContext, base_build: ArtisanInput, x86_64_base_build: ArtisanInput, mode: str, arch: str):
-    if base_build is None:
-        return None
-    if x86_64_base_build is None:
-        return None
-
-    thirdparty_all = unified_artifact(context, "thirdparty.all",
-                                      "develop", "build")
+def load_inputs(
+    context: tap.PipelineContext, build_output: ArtisanInput, x86_64_build_output: ArtisanInput, build: str
+):
+    thirdparty_all = unified_artifact(context, "thirdparty.all", "develop", "build")
     openssl = None
+    arch = build.split("_")[1]
     if arch == "x64":
         openssl = thirdparty_all / "openssl_3" / "openssl_linux64_gcc11-2glibc2-17"
     elif arch == "arm64":
         openssl = thirdparty_all / "openssl_3" / "openssl_linux_arm64_gcc11-2glibc2-17"
 
     test_inputs = dict(
-        test_scripts=context.artifact.from_folder('./base/testUtils'),
+        test_scripts=context.artifact.from_folder("./base/testUtils"),
+        base_sdds=build_output / f"base/{build}/installer",
+        ra_sdds=build_output / f"response_actions/{build}/installer",
+        system_test=build_output / f"base/{build}/system_test",
         openssl=openssl,
-        bullseye_files=context.artifact.from_folder('./base/build/bullseye'),  # used for robot upload
-        common_test_libs=context.artifact.from_folder('./common/TA/libs'),
-        common_test_robot=context.artifact.from_folder('./common/TA/robot'),
-        SupportFiles=context.artifact.from_folder('./base/testUtils/SupportFiles'),
-        base_sdds_scripts=context.artifact.from_folder('./base/products/distribution'),
-        thininstaller=x86_64_base_build / f"thininstaller/thininstaller",
+        common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_robot=context.artifact.from_folder("./common/TA/robot"),
+        SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
+        base_sdds_scripts=context.artifact.from_folder("./base/products/distribution"),
+        thininstaller=x86_64_build_output / f"thininstaller/thininstaller",
+        sdds3_tools=unified_artifact(context, "em.esg", "develop", f"build/sophlib/linux_{arch}_rel/sdds3_tools"),
     )
-    if mode == 'coverage':
-        test_inputs.update(dict(
-            base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
-            ra_sdds=base_build / 'sspl-base-coverage/RA-SDDS-COMPONENT',
-            system_test=base_build / 'sspl-base-coverage/system_test',
-            coverage=base_build / 'sspl-base-coverage/covfile',
-            coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
-            bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
-        ))
-    else:
-        config = f"linux_{arch}_rel"
-        if mode == 'debug':
-            config = f"linux_{arch}_dbg"
-        test_inputs.update(dict(
-            base_sdds=base_build / f"base/{config}/installer",
-            ra_sdds=base_build / f"response_actions/{config}/installer",
-            system_test=base_build / f"base/{config}/system_test",
-            sdds3_tools=unified_artifact(context, 'em.esg', 'develop', f"build/sophlib/{config}/sdds3_tools")
-        ))
 
     return test_inputs
 
 
-@tap.timeout(task_timeout=TASK_TIMEOUT)
-def robot_task(machine: tap.Machine, branch_name: str, robot_args_json: str, include_tag: str, machine_name: str):
-    arch, platform = machine_name.split("_")
-    default_exclude_tags = ["CENTRAL", "MANUAL", "TESTFAILURE", "FUZZ", "SYSTEMPRODUCTTESTINPUT",
-                            "EXCLUDE_BAZEL", f"EXCLUDE_{platform.upper()}", f"EXCLUDE_{arch.upper()}",
-                            f"EXCLUDE_{machine_name.upper()}"]
-
-    machine_full_name = machine.template
-    print(f"test scripts: {machine.inputs.test_scripts}")
-    robot_args_list = json.loads(robot_args_json)
-    if robot_args_list:
-        print(f"robot_args: {robot_args_list}")
-    else:
-        print(f"include_tag: {include_tag}")
-
-    try:
-        install_requirements(machine)
-
-        if include_tag:
-            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                        '--include', include_tag,
-                        '--exclude', *default_exclude_tags,
-                        timeout=ROBOT_TEST_TIMEOUT)
-        else:
-            machine.run(python(machine),
-                        machine.inputs.test_scripts / 'RobotFramework.py',
-                        *robot_args_list,
-                        timeout=ROBOT_TEST_TIMEOUT)
-
-    finally:
-        machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py', timeout=60)
-        machine.output_artifact('/opt/test/logs', 'logs')
-        machine.output_artifact('/opt/test/results', 'results')
-
-        if include_tag:
-            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(
-                            branch_name) + "_" + machine_full_name + "_" + include_tag + "-log.html",
-                        timeout=120)
-        elif robot_args_list:
-            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                        branch_name + "/base" + get_suffix(
-                            branch_name) + "_" + machine_full_name + "_" + str(robot_args_list) + "-log.html",
-                        timeout=120)
+@tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
+def run_base_tests(machine: tap.Machine, robot_args_json: str):
+    run_robot_tests(
+        machine,
+        robot_args=json.loads(robot_args_json),
+    )
 
 
-def install_requirements(machine: tap.Machine):
-    """ install python lib requirements """
+def stage_base_tests(
+    stage: tap.Root,
+    context: tap.PipelineContext,
+    component: tap.Component,  # pylint: disable=unused-argument
+    parameters: DotDict,
+    outputs: Dict[str, Any],
+    coverage_tasks: List[str],
+):
+    group_name = "base_tests"
 
-    try:
-        # Check if python2 is python on this machine
-        machine.run("which", python(machine), timeout=5)
-        machine.run(python(machine), "-V", timeout=5)
-        machine.run("which", "python", timeout=5)
-        machine.run("python", "-V", timeout=5)
-    except Exception:
-        pass
-
-    # TODO LINUXDAR-5855 remove this section when we stop signing with sha1
-    try:
-        distro = machine.template.split("_")[0]
-        if distro in ["centos9stream", "rhel91"]:
-            machine.run("update-crypto-policies", "--set", "LEGACY", timeout=30)
-    except Exception as ex:
-        print(f"On updating openssl policy: {ex}")
-
-    try:
-        pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
-        os_packages = get_os_packages(machine)
-        install_command = ["bash", machine.inputs.test_scripts / "SupportFiles/install_os_packages.sh"] + os_packages
-        machine.run(*install_command, timeout=600)
-    except Exception as ex:
-        # the previous command will fail if user already exists. But this is not an error
-        print(f"On adding installing requirements: {ex}")
-
-
-def pip(machine: tap.Machine):
-    return "pip3"
-
-@tap.timeout(task_timeout=TASK_TIMEOUT)
-def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
-    try:
-        install_requirements(machine)
-
-        # upload unit test coverage-html and the unit-tests cov file to allegro
-        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-base-unittest")
-        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir, timeout=5)
-        machine.run('cp', COVFILE_UNITTEST, unitest_htmldir, timeout=5)
-        machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir, 'COVERAGE_TYPE': 'unit',
-                                 'COVFILE': COVFILE_UNITTEST},
-                    timeout=120)
-
-        # publish unit test coverage file and results to artifactory results/coverage
-        coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
-        machine.run('rm', '-rf', coverage_results_dir, timeout=120)
-        machine.run('mkdir', coverage_results_dir, timeout=5)
-        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir, timeout=120)
-        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir, timeout=10)
-
-        # run component pytests and integration robot tests with coverage file to get combined coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS, timeout=5)
-
-        # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
-        # We can set the COVFILE env var here so that all instrumented processes know where it is.
-        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt",
-                    timeout=5)
-
-        # Make sure that any product process can update the cov file, no matter the running user.
-        machine.run("chmod", "666", COVFILE_TAPTESTS,
-                    timeout=5)
-
-        # run component pytest -- these are disabled
-        # run tap-tests
-        try:
-            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                        timeout=ROBOT_TEST_TIMEOUT,
-                        environment={'COVFILE': COVFILE_TAPTESTS})
-        finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py',
-                        timeout=5)
-
-        # generate tap (tap tests + unit tests) coverage html results and upload to allegro
-        # (and the .cov file which is in tap_htmldir)
-        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-base-taptest')
-        machine.run('mkdir', "-p", tap_htmldir,
-                    timeout=5)
-        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir,
-                    timeout=60)
-        upload_results = "0"
-        # Don't upload results to allegro unless we're on develop, can be overridden.
-        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
-            upload_results = "1"
-
-        machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': upload_results,
-                                 'htmldir': tap_htmldir},
-                    timeout=120)
-
-        # publish tap (tap tests + unit tests) html results and coverage file to artifactory
-        machine.run('mv', tap_htmldir, coverage_results_dir,
-                    timeout=5)
-        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir,
-                    timeout=120)
-        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
-            # start systemtest coverage in jenkins (these include tap-tests)
-            requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
-
-    finally:
-        machine.output_artifact('/opt/test/results', 'results')
-        machine.output_artifact('/opt/test/logs', 'logs')
-
-
-def run_base_coverage_tests(stage, context, base_coverage_build, mode, parameters):
-    base_test_inputs = get_base_test_inputs(context, base_coverage_build, mode, "x64")
-    robot_args = get_robot_args(parameters)
-    with stage.parallel('base_coverage'):
-        # if mode == COVERAGE_MODE:
-        stage.task(task_name="coverage",
-                   func=coverage_task,
-                   machine=tap.Machine(COVERAGE_TEMPLATE, inputs=base_test_inputs, platform=tap.Platform.Linux),
-                   branch=context.branch,
-                   robot_args=robot_args)
-
-
-def run_base_tests(stage, context, builds, mode, parameters):
-    # exclude tags are in robot_task
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
 
-    base_test_inputs = {
-        "x64": get_base_test_inputs(context, builds[common.x86_64], builds[common.x86_64], mode, "x64"),
-        "arm64": get_base_test_inputs(context, builds[common.arm64], builds[common.x86_64], mode, "arm64")
-    }
-    base_test_machines = get_test_machines(base_test_inputs, parameters)
-    robot_args_list = get_robot_args_list(parameters, use_env_vars=False)
+    with stage.parallel(group_name):
+        for build in get_test_builds():
+            build_output = get_build_output_for_arch(outputs, build)
+            if not build_output:
+                continue
+            # Base has a special case that it depends on the thininstaller
+            if x86_64 not in outputs:
+                continue
+            inputs = load_inputs(context, build_output, outputs[x86_64], build)
+            test_machines = get_test_machines(build, parameters)
 
-    with stage.parallel('base_integration'):
-        if robot_args_list:
-            for template_name, machine in base_test_machines:
-                stage.task(task_name=template_name,
-                           func=robot_task,
-                           machine=machine,
-                           branch_name=context.branch,
-                           robot_args_json=json.dumps(robot_args_list),
-                           include_tag="",
-                           machine_name=template_name)
-        else:
+            robot_args = get_robot_args(parameters)
             includedtags = parameters.include_tags or default_include_tags
 
             for include in includedtags.split(","):
-                assert " " not in include, f"Can't include space in include tag: {include}!"
-                with stage.parallel(include):
-                    for template_name, machine in base_test_machines:
-                        stage.task(task_name=template_name,
-                                   func=robot_task,
-                                   machine=machine,
-                                   branch_name=context.branch,
-                                   robot_args_json=json.dumps(robot_args_list),
-                                   include_tag=include,
-                                   machine_name=template_name)
+                for machine in test_machines:
+                    robot_args_json = json.dumps(robot_args + ["--include", include])
+                    stage_task(
+                        stage=stage,
+                        coverage_tasks=coverage_tasks,
+                        group_name=group_name,
+                        task_name=f"{include}_{build}_{machine}",
+                        build=build,
+                        func=run_base_tests,
+                        machine=stage_tap_machine(machine, inputs, outputs, build),
+                        robot_args_json=robot_args_json,
+                    )

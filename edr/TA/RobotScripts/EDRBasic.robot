@@ -2,7 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/UserUtils.py
 Library         ../Libs/fixtures/EDRPlugin.py
 

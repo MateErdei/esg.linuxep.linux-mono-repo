@@ -7,12 +7,13 @@ sed -i 's/\r//' tools/aspects/wrapper.sh
 chmod +x tools/aspects/wrapper.sh
 chmod +x imports/internal/sdds3_utils/sdds3-builder
 chmod +x tools/launch_py3.py
+chmod +x tools/src/bullseye/shim_ar.sh tools/src/bullseye/shim_gcc_compile.sh tools/src/bullseye/shim_gcc_link.sh
 
 # sophlib is not part of bazel-tools, however this fix is necessary because of bazel-tools.
 # sophlib is exported so that e.g. sdds3 is accessible as //common/sophlib:sdds3
 # but bazel-tools requires it to be accessible as //common/sophlib/sdds3
 # So we need to create some aliases to allow that to work
-for lib in sdds3 string zip rapidjson crypto hostname
+for lib in sdds3 string zip rapidjson crypto hostname time raii file
 do
   mkdir -p common/sophlib/$lib
   cat >common/sophlib/$lib/BUILD.bazel <<EOF

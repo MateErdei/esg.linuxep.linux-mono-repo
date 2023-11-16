@@ -8,7 +8,8 @@ def params = [
  choice(name: 'TEST_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal'], defaultValue: 'all',
  description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
 
- choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], description: 'Build mode'),
+ choice(name: 'MODE', choices: ['default', 'coverage'], description: 'Build mode, exists only for backwards compatibility with weekly coverage job - Use CODE_COVERAGE instead'),
+ booleanParam(name: "CODE_COVERAGE", defaultValue: false, description: 'Add code coverage build and test'),
  choice(name: 'SDDS_OPTIONS', choices: ['build_dev_no_system_tests', 'build_dev_system_tests', 'build_prod', 'build_none'], description: 'Select sdds option'),
 
  choice(name: 'run_amazon_2', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2'),
@@ -39,6 +40,7 @@ def params = [
 ]
 
 CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';
+             overallTimeoutHours = 8;
              failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/b9db2dd8-a82c-4acc-92a5-3eda2c9fbf01@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/2684033c102047ef9bddc0537e5e2233/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
              failureWebhookBranchRegex = '^develop$' }
 

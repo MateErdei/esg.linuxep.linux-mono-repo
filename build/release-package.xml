@@ -4,7 +4,7 @@
         <workingdir>.</workingdir>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>
+<!--            <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>-->
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
@@ -98,10 +98,6 @@
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-aarch64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
     </inputs>
     <buildcommands>
-        <command>
-            <program>df</program>
-            <args>-hl</args>
-        </command>
         <!-- Configure the build (reset, and set up cache parameters from the environment) -->
         <command>
             <program>./build/python.sh</program>
@@ -130,12 +126,12 @@
             <program>bash</program>
             <args>-c 'git rev-parse HEAD > build/COMMIT_HASH'</args>
         </command>
-        <command>
-            <program>df</program>
-            <args>-hl</args>
-        </command>
 
         <!-- Linux Sanity: lsnty -->
+        <command mode="san_lsnty">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start lsnty</args>
+        </command>
         <command mode="san_lsnty">
             <program>./build/python.sh</program>
             <args>
@@ -148,8 +144,16 @@
                 -- //...
             </args>
         </command>
+        <command mode="san_lsnty">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final lsnty</args>
+        </command>
 
         <!-- linux_x64_rel: lx64r -->
+        <command mode="all_lx64r">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start linux_x64_rel</args>
+        </command>
         <command mode="all_lx64r">
             <program>./build/python.sh</program>
             <args>
@@ -180,8 +184,16 @@
                 --config=linux_x64_rel
             </args>
         </command>
+        <command mode="all_lx64r">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final linux_x64_rel</args>
+        </command>
 
         <!-- linux_x64_dbg: lx64d -->
+        <command mode="all_lx64d">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start linux_x64_dbg</args>
+        </command>
         <command mode="all_lx64d">
             <program>./build/python.sh</program>
             <args>
@@ -212,8 +224,16 @@
                 --config=linux_x64_dbg
             </args>
         </command>
+        <command mode="all_lx64d">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final linux_x64_dbg</args>
+        </command>
 
         <!-- linux_arm64_rel: la64r -->
+        <command mode="all_la64r">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start linux_arm64_rel</args>
+        </command>
         <command mode="all_la64r">
             <program>./build/python.sh</program>
             <args>
@@ -233,8 +253,16 @@
                 --config=linux_arm64_rel
             </args>
         </command>
+        <command mode="all_la64r">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final linux_arm64_rel</args>
+        </command>
 
         <!-- linux_arm64_dbg: la64d -->
+        <command mode="all_la64d">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start linux_arm64_dbg</args>
+        </command>
         <command mode="all_la64d">
             <program>./build/python.sh</program>
             <args>
@@ -254,13 +282,75 @@
                 --config=linux_arm64_dbg
             </args>
         </command>
+        <command mode="all_la64d">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final linux_arm64_dbg</args>
+        </command>
 
-<!--        &lt;!&ndash; Coverage build &ndash;&gt;-->
-<!--        <command mode="coverage">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;clean &#45;&#45;bullseye &#45;&#45;release</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <!-- linux_x64_bullseye: lcov -->
+        <command mode="all_lcov">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --start lcov</args>
+        </command>
+        <!-- We cannot pre-build the shims as they are built in the exec configuration, so they'll be built as part of the below -->
+        <!-- build combined object+covfile files -->
+        <command mode="all_lcov">
+            <program>python3.7</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=lib_lcov_build
+                --profile_exec
+                build
+                --config=linux_x64_bullseye
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lcov">
+            <!-- extract and merge all *.o.bullseye files into monorepo.cov file -->
+            <program>python3.7</program>
+            <args>
+                tools/src/bullseye/merge.py
+                -v
+                --reset
+                --exclusions=build/bullseye/monorepo.BullseyeCoverageExclusions
+                --output=.coverage/monorepo.cov
+                --copy_to=.coverage/monorepo_unit.cov
+                bazel-out/x64_linux-dbg/bin
+                bazel-out/x64_linux-dbg-ST-*/bin
+            </args>
+        </command>
+        <command mode="all_lcov">
+            <!-- run all unit tests, updating the monorepo_unit.cov file -->
+            <program>python3.7</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=lib_lcov_test
+                test
+                --config=linux_x64_bullseye
+                --test_lang_filters=cc
+                --sandbox_writable_path=$PWD/.coverage
+                --test_env=COVFILE=$PWD/.coverage/monorepo_unit.cov
+                --test_env=BULLSEYE_COVERAGE_IGNORE_TEST_FAILURES=1
+                --build_tests_only
+                --cache_test_results=no
+                --flaky_test_attempts=3
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+                --cache_test_results=no
+            </args>
+        </command>
+        <command mode="all_lcov">
+            <program>python3.7</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lcov
+                --exports=build/linuxep_spl_exports.txt
+                --config=linux_x64_bullseye
+            </args>
+        </command>
+        <command mode="all_lcov">
+            <program>python3.7</program>
+            <args>tools/src/dump_environment/diskusage.py --final lcov</args>
+        </command>
 
 <!--        &lt;!&ndash; Static analysis build &ndash;&gt;-->
 <!--        <command mode="analysis">-->
@@ -268,11 +358,6 @@
 <!--            <args>./build.sh &#45;&#45;no-build &#45;&#45;analysis</args>-->
 <!--            <workingdir>.</workingdir>-->
 <!--        </command>-->
-
-        <command>
-            <program>df</program>
-            <args>-hl</args>
-        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
@@ -281,6 +366,17 @@
             <include glob="**"/>
         </logs>
 
+        <!-- We want to understand what the build has done and why it took its time -->
+        <logs name="perf_profile" source-dir=".profile">
+            <include glob="*.gz"/>
+        </logs>
+        <logs name="exec_profile" source-dir=".profile" mode="bxlog">
+            <include glob="*.dat"/>
+        </logs>
+
+        <!-- Export disk usage logs -->
+        <logs name="diskusage" source-dir=".diskusage"/>
+
         <!-- AV -->
         <release-asset artifact-path="av/linux_x64_rel/installer" source-dir=".output/av/linux_x64_rel/installer" manifest-path=".output/av/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
         <build-asset artifact-path="av/linux_x64_rel/installer" source-zip=".output/av/linux_x64_rel/installer.zip" mode="all_lx64r"/>
@@ -288,13 +384,14 @@
         <build-asset artifact-path="av/linux_x64_rel/tap_test_output" source-zip=".output/av/linux_x64_rel/tap_test_output.zip" mode="all_lx64r"/>
         <build-asset artifact-path="av/linux_x64_dbg/installer" source-zip=".output/av/linux_x64_dbg/installer.zip" mode="all_lx64d"/>
         <build-asset artifact-path="av/linux_x64_dbg/tap_test_output" source-zip=".output/av/linux_x64_dbg/tap_test_output.zip" mode="all_lx64d"/>
-
         <release-asset artifact-path="av/linux_arm64_rel/installer" source-dir=".output/av/linux_arm64_rel/installer" manifest-path=".output/av/linux_arm64_rel/installer.manifest.json" mode="all_la64r"/>
         <build-asset artifact-path="av/linux_arm64_rel/installer" source-zip=".output/av/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="av/linux_arm64_rel/installer_symbols" source-zip=".output/av/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="av/linux_arm64_rel/tap_test_output" source-zip=".output/av/linux_arm64_rel/tap_test_output.zip" mode="all_la64r"/>
         <build-asset artifact-path="av/linux_arm64_dbg/installer" source-zip=".output/av/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="av/linux_arm64_dbg/tap_test_output" source-zip=".output/av/linux_arm64_dbg/tap_test_output.zip" mode="all_la64d"/>
+        <build-asset artifact-path="av/linux_x64_bullseye/installer" source-zip=".output/av/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
+        <build-asset artifact-path="av/linux_x64_bullseye/tap_test_output" source-zip=".output/av/linux_x64_bullseye/tap_test_output.zip" mode="all_lcov"/>
 
         <!-- Base -->
         <release-asset artifact-path="base/linux_x64_rel/installer" source-dir=".output/base/linux_x64_rel/installer" manifest-path=".output/base/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -305,6 +402,7 @@
         <build-asset artifact-path="base/linux_arm64_rel/installer" source-zip=".output/base/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_rel/installer_symbols" source-zip=".output/base/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_dbg/installer" source-zip=".output/base/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="base/linux_x64_bullseye/installer" source-zip=".output/base/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
         <build-asset artifact-path="base/fake_management" source-zip=".output/base/fake_management.zip" mode="all_lx64r"/>
         <build-asset artifact-path="base/distribution_scripts" source-zip=".output/base/distribution_scripts.zip" mode="all_lx64r"/>
 
@@ -317,6 +415,7 @@
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer" source-zip=".output/response_actions/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_rel/installer_symbols" source-zip=".output/response_actions/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="response_actions/linux_arm64_dbg/installer" source-zip=".output/response_actions/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="response_actions/linux_x64_bullseye/installer" source-zip=".output/response_actions/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
 
         <!-- EDR -->
         <release-asset artifact-path="edr/linux_x64_rel/installer" source-dir=".output/edr/linux_x64_rel/installer" manifest-path=".output/edr/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -331,6 +430,8 @@
         <build-asset artifact-path="edr/linux_arm64_rel/componenttests" source-zip=".output/edr/linux_arm64_rel/componenttests.zip" mode="all_la64r"/>
         <build-asset artifact-path="edr/linux_arm64_dbg/installer" source-zip=".output/edr/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="edr/linux_arm64_dbg/componenttests" source-zip=".output/edr/linux_arm64_dbg/componenttests.zip" mode="all_la64d"/>
+        <build-asset artifact-path="edr/linux_x64_bullseye/installer" source-zip=".output/edr/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
+        <build-asset artifact-path="edr/linux_x64_bullseye/componenttests" source-zip=".output/edr/linux_x64_bullseye/componenttests.zip" mode="all_lcov"/>
 
         <!-- Live Response -->
         <release-asset artifact-path="liveterminal/linux_x64_rel/installer" source-dir=".output/liveterminal/linux_x64_rel/installer" manifest-path=".output/liveterminal/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -341,6 +442,7 @@
         <build-asset artifact-path="liveterminal/linux_arm64_rel/installer" source-zip=".output/liveterminal/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="liveterminal/linux_arm64_rel/installer_symbols" source-zip=".output/liveterminal/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="liveterminal/linux_arm64_dbg/installer" source-zip=".output/liveterminal/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="liveterminal/linux_x64_bullseye/installer" source-zip=".output/liveterminal/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
 
         <!-- Event Journaler -->
         <release-asset artifact-path="eventjournaler/linux_x64_rel/installer" source-dir=".output/eventjournaler/linux_x64_rel/installer" manifest-path=".output/eventjournaler/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -355,6 +457,8 @@
         <build-asset artifact-path="eventjournaler/linux_arm64_rel/manualTools" source-zip=".output/eventjournaler/linux_arm64_rel/manualTools.zip" mode="all_la64r"/>
         <build-asset artifact-path="eventjournaler/linux_arm64_dbg/installer" source-zip=".output/eventjournaler/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
         <build-asset artifact-path="eventjournaler/linux_arm64_dbg/manualTools" source-zip=".output/eventjournaler/linux_arm64_dbg/manualTools.zip" mode="all_la64d"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_bullseye/installer" source-zip=".output/eventjournaler/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
+        <build-asset artifact-path="eventjournaler/linux_x64_bullseye/manualTools" source-zip=".output/eventjournaler/linux_x64_bullseye/manualTools.zip" mode="all_lcov"/>
 
         <!-- Device Isolation -->
         <release-asset artifact-path="deviceisolation/linux_x64_rel/installer" source-dir=".output/deviceisolation/linux_x64_rel/installer" manifest-path=".output/deviceisolation/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>
@@ -365,12 +469,14 @@
         <build-asset artifact-path="deviceisolation/linux_arm64_rel/installer" source-zip=".output/deviceisolation/linux_arm64_rel/installer.zip" mode="all_la64r"/>
         <build-asset artifact-path="deviceisolation/linux_arm64_rel/installer_symbols" source-zip=".output/deviceisolation/linux_arm64_rel/installer_symbols.zip" mode="all_la64r"/>
         <build-asset artifact-path="deviceisolation/linux_arm64_dbg/installer" source-zip=".output/deviceisolation/linux_arm64_dbg/installer.zip" mode="all_la64d"/>
+        <build-asset artifact-path="deviceisolation/linux_x64_bullseye/installer" source-zip=".output/deviceisolation/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
 
         <!-- System Product Test Output -->
         <build-asset artifact-path="base/linux_x64_rel/system_test" source-zip=".output/base/linux_x64_rel/system_test.zip" mode="all_lx64r"/>
         <build-asset artifact-path="base/linux_x64_dbg/system_test" source-zip=".output/base/linux_x64_dbg/system_test.zip" mode="all_lx64d"/>
         <build-asset artifact-path="base/linux_arm64_rel/system_test" source-zip=".output/base/linux_arm64_rel/system_test.zip" mode="all_la64r"/>
         <build-asset artifact-path="base/linux_arm64_dbg/system_test" source-zip=".output/base/linux_arm64_dbg/system_test.zip" mode="all_la64d"/>
+        <build-asset artifact-path="base/linux_x64_bullseye/system_test" source-zip=".output/base/linux_x64_bullseye/system_test.zip" mode="all_lcov"/>
 
         <!-- ThinInstaller Output -->
         <release-asset artifact-path="thininstaller/thininstaller" source-dir=".output/thininstaller/thininstaller" manifest-path=".output/thininstaller/thininstaller.manifest.json" mode="all_lx64r"/>
@@ -382,41 +488,17 @@
         <build-asset artifact-path="products/linux_arm64_rel/sbom" source-zip=".output/products/linux_arm64_rel/sbom.zip" mode="all_la64r"/>
         <build-asset artifact-path="products/linux_arm64_dbg/sbom" source-zip=".output/products/linux_arm64_dbg/sbom.zip" mode="all_la64d"/>
 
-<!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
-<!--            <include glob="pluginapi.tar.gz"/>-->
-<!--        </build-asset>-->
-
-        <!-- coverage(bullseye) -->
-<!--        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">-->
-<!--            <include glob="pluginapi.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">-->
-<!--            <include glob="mcs.tar.gz"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">-->
-<!--            <include glob="SystemProductTestOutput.tar.gz"/>-->
-<!--            <include glob="symbols"/>-->
-<!--        </build-asset>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>-->
-
-<!--        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>-->
-<!--        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">-->
-<!--            <include glob="./*.cov"/>-->
-<!--        </build-asset>-->
+        <!-- Coverage -->
+        <build-asset source-dir=".coverage" artifact-path="coverage_none" mode="all_lcov">
+            <include glob="monorepo.cov"/>
+        </build-asset>
+        <build-asset source-dir=".coverage" artifact-path="coverage_unit" mode="all_lcov">
+            <include glob="monorepo_unit.cov"/>
+        </build-asset>
 
         <!-- Analysis -->
 <!--        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>-->
 <!--        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>-->
-
-        <!-- linux_x64_dbg: lx64d -->
-<!--        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">-->
-<!--            <include glob="pluginapi.tar.gz"/>-->
-<!--        </build-asset>-->
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

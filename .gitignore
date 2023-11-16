@@ -14,6 +14,7 @@
 /log.html
 /build/SOURCE_CODE_BRANCH
 /build/COMMIT_HASH
+/.coverage/
 
 # Import locations
 /common/sophlib/

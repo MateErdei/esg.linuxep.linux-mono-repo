@@ -12,8 +12,7 @@
             <include artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" />
         </build-asset>
 
-        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="release,release-classic,coverage,debug,analysis"/>
-        <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="/build/input/base-sdds" mode="release,release-classic,coverage,debug,analysis"/>
+        <intermediate artifact-path="sspl-base/pluginapi" dest-dir="/build/input" mode="analysis"/>
 
         <build-asset project="winep" repo="sed">
             <release-version branch="release--SED_2023.31_libs" build-id="20230728143107-0c6e1139a06e2bd7140098191196a279c6e33e95-iaDLhP"/>
@@ -77,60 +76,17 @@
         </build-asset>
     </inputs>
     <buildcommands>
-        <!--<command buildtype="prod">-->
-        <command mode="release,release-classic">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr</args>
-            <workingdir>edr</workingdir>
-        </command>
-
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye</args>
-            <workingdir>edr</workingdir>
-        </command>
-
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --name edr --analysis</args>
             <workingdir>edr</workingdir>
         </command>
-
-
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
-        <!--<command buildtype="dev">>
-            <program>/bin/bash</program>
-            <args>./build.sh - -clean - -debug - -name edr</args> 'When put back remove spaces between hyphens'
-            <workingdir>.</workingdir>
-        </command> -->
     </buildcommands>
     <publish>
         <workingdir>edr</workingdir>
-        <build-asset artifact-path="sspl-edr-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-edr-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/componenttests" source-dir="output/componenttests" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/build_log" source-dir="output" mode="coverage">
-            <include glob="./build.log"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-edr-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
         <build-asset artifact-path="analysis" source-dir="output/analysis/cppcheck" mode="analysis"/>
 
         <destdir>sspl-plugin-edr-component</destdir>
-        <!--  Legacy build outputs to uk-filer6 -->
-        <buildoutputs>
-            <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release-classic"/>
-            <output name="build_log" srcfolder="log" mode="debug,release-classic"/>
-
-            <!-- Analysis -->
-            <output name="analysis" srcfolder="output" artifactpath="_analysis" mode="analysis-classic"/>
-            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis-classic"/>
-
-        </buildoutputs>
         <publishbranches>master,feature,bugfix,release,develop</publishbranches>
     </publish>
 </package>

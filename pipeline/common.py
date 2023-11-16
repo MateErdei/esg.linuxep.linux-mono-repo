@@ -4,49 +4,44 @@ import os.path
 import time
 
 import tap.v1 as tap
+from typing import Any, Callable, Dict, List
+from dotdict import DotDict
+
 import xml.etree.ElementTree as ET
 import random
 
 X86_64 = "x86_64"
 x86_64 = X86_64
-x64    = X86_64
+x64 = X86_64
 
 ARM64 = "arm64"
 arm64 = ARM64
 
+SDDS = "sdds"
+SDDS999 = "sdds999"
+
 INDEPENDENT_MODE = 'independent'
 RELEASE_MODE = 'release'
-ANALYSIS_MODE = 'analysis'
 COVERAGE_MODE = 'coverage'
-NINE_NINE_NINE_MODE = '999'
-ZERO_SIX_ZERO_MODE = '060'
-ROBOT_TEST_TIMEOUT = 5400
-TASK_TIMEOUT = 120
+
+DEFAULT_TEST_TIMEOUT_MINUTES = 90
+COVERAGE_TEST_TIMEOUT_MULTIPLIER = 4
+TEST_TASK_TIMEOUT_MINUTES = COVERAGE_TEST_TIMEOUT_MULTIPLIER * DEFAULT_TEST_TIMEOUT_MINUTES
 
 COVERAGE_TEMPLATE = "centos7_x64_aws_server_en_us"
 
 
-def get_robot_args_list(parameters, use_env_vars):
+def get_robot_args(parameters):
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
     # if mode == DEBUG_MODE:
     #     robot_args_list.append("DEBUG=true")
     if parameters.robot_test:
-        if use_env_vars:
-            robot_args_list.append("TEST=" + parameters.robot_test)
-        else:
-            robot_args_list.append("--test=" + parameters.robot_test)
+        robot_args_list.append("--test=" + parameters.robot_test)
     if parameters.robot_suite:
-        if use_env_vars:
-            robot_args_list.append("SUITE=" + parameters.robot_suite)
-        else:
-            robot_args_list.append("--suite=" + parameters.robot_suite)
+        robot_args_list.append("--suite=" + parameters.robot_suite)
 
     return robot_args_list
-
-
-def get_robot_args(parameters):
-    return " ".join(get_robot_args_list(parameters, use_env_vars=True))
 
 
 def get_suffix(branch_name: str):
@@ -97,8 +92,8 @@ def do_unified_build(parameters):
 
 
 def get_random_machines(machines_no: int, x64platforms: dict, arm64platforms: dict) -> dict:
-    assert(machines_no <= len(x64platforms)/2)
-    assert(machines_no <= len(arm64platforms)/2)
+    assert (machines_no <= len(x64platforms) / 2)
+    assert (machines_no <= len(arm64platforms) / 2)
 
     test_machines = {"x64": {}, "arm64": {}}
     for machine in range(machines_no):
@@ -118,10 +113,10 @@ def get_random_machines(machines_no: int, x64platforms: dict, arm64platforms: di
                 arm64_machine_found = True
     return test_machines
 
-def get_test_machines(test_inputs, parameters, system_tests=False):
-    run_tests = truthy(parameters.run_tests, "run_tests", True)
-    if not run_tests and not system_tests:
-        return []
+
+def get_test_machines(build: str, parameters: DotDict):
+    if build == "linux_x64_bullseye":
+        return [COVERAGE_TEMPLATE]
 
     available_x64_environments = {
         'amazonlinux2': 'amzlinux2_x64_server_en_us',
@@ -140,7 +135,8 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
         'sles15': 'sles15_x64_sp4_aws_server_en_us',
         'ubuntu1804': 'ubuntu1804_x64_aws_server_en_us',
         'ubuntu2004': 'ubuntu2004_x64_aws_server_en_us',
-        'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us'}
+        'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us',
+    }
 
     available_arm64_environments = {
         'amazonlinux2': 'amzlinux2_arm64_server_en_us',
@@ -154,21 +150,24 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
         'sles15': 'sles15_arm64_sp4_server_en_us',
         'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
         'ubuntu2004': 'ubuntu2004_arm64_server_en_us',
-        'ubuntu2204': 'ubuntu2204_arm64_server_en_us'}
+        'ubuntu2204': 'ubuntu2204_arm64_server_en_us',
+    }
 
-    #Process test_platform
+    test_platform = parameters.test_platform or "run_all"
+
+    # Process test_platform
     test_environments = {"x64": {}, "arm64": {}}
-    if parameters.test_platform == "run_all":
+    if test_platform == "run_all":
         test_environments["x64"] = available_x64_environments
         test_environments["arm64"] = available_arm64_environments
-    elif parameters.test_platform != "run_none":
+    elif test_platform != "run_none":
         platform_count = 0
-        if parameters.test_platform == "run_single":
+        if test_platform == "run_single":
             platform_count = 1
-        elif parameters.test_platform == "run_four":
+        elif test_platform == "run_four":
             platform_count = 4
-        test_environments = get_random_machines(platform_count, available_x64_environments, available_arm64_environments)
-
+        test_environments = get_random_machines(platform_count, available_x64_environments,
+                                                available_arm64_environments)
 
     platform = 'amazonlinux2'
     if parameters.run_amazon_2 == "force_run":
@@ -296,33 +295,8 @@ def get_test_machines(test_inputs, parameters, system_tests=False):
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
-    if len(test_environments) == 0 and not system_tests:
-        return []
-
-    if test_inputs.get("arm64", None) is None or not arm64_enabled(parameters):
-        test_environments.pop("arm64", None)
-    else:
-        assert "arm64" in test_inputs
-        assert test_inputs["arm64"] is not None
-
-    if test_inputs.get("x64", None) is None or not x86_64_enabled(parameters):
-        test_environments.pop("x64", None)
-    else:
-        assert "x64" in test_inputs
-        assert test_inputs["x64"] is not None
-
-    ret = []
-    for arch, environments in test_environments.items():
-        if test_inputs[arch] is None:
-            print(f"No test_input for {arch}")
-            continue
-
-        for name, image in environments.items():
-            ret.append((
-                f"{arch}_{name}",
-                tap.Machine(image, inputs=test_inputs[arch], platform=tap.Platform.Linux)
-            ))
-    return ret
+    arch = build.split("_")[1]
+    return test_environments[arch].values()
 
 
 def package_install(machine: tap.Machine, *install_args: str):
@@ -359,14 +333,20 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
 
+
 def python(machine: tap.Machine):
     return "python3"
+
+
+def pip(machine: tap.Machine):
+    return "pip3"
 
 
 def test_arch(arch):
     return {
         "x86_64": "x64"
     }.get(arch, arch)
+
 
 def get_os_packages(machine: tap.Machine):
     # TODO: LINUXDAR-7234: Remove "make" from list once fixed
@@ -439,3 +419,236 @@ def get_os_packages(machine: tap.Machine):
         return common
     else:
         raise Exception(f"Unknown template {machine.template}")
+
+
+def is_coverage_enabled(parameters):
+    return parameters.mode == COVERAGE_MODE or truthy(parameters.code_coverage, "CODE_COVERAGE", True)
+
+
+def stage_task(
+    stage: tap.Root,
+    coverage_tasks: List[str],
+    group_name: str,
+    task_name: str,
+    build: str,
+    func: Callable,
+    **kwargs,
+):
+    coverage = build == "linux_x64_bullseye"
+    if coverage:
+        coverage_tasks.append(f"{group_name}.{task_name}")
+    stage.task(
+        task_name=task_name,
+        func=func,
+        **kwargs,
+    )
+
+
+@tap.timeout(task_timeout=180)
+def run_coverage_results_task(machine: tap.Machine, branch: str):
+    machine.run("python3", "/opt/test/inputs/bullseye_scripts/final_coverage_steps.py", branch, timeout=180 * 60)
+    machine.output_artifact("/opt/test/coverage", "coverage_results")
+
+
+def stage_coverage_results_task(
+    stage: tap.Root,
+    context: tap.PipelineContext,
+    component: tap.Component,  # pylint: disable=unused-argument
+    parameters: DotDict,  # pylint: disable=unused-argument
+    outputs: Dict[str, Any],
+    coverage_tasks: List[str],
+):
+    if len(coverage_tasks) == 0:
+        return
+
+    stage_after = [f"linux_mono_repo.products.testing.{t}" for t in coverage_tasks]
+
+    cov_output = outputs["bullseye"]
+
+    with stage.parallel("coverage_results", after=stage_after):
+        template_name = COVERAGE_TEMPLATE
+        inputs = dict(
+            coverage_unit=cov_output / "coverage_unit",  # use monorepo_unit.cov file
+            coverage=tap.TaskOutput("covfiles"),
+            bullseye_scripts=context.artifact.from_folder("./build/bullseye"),
+            bazel_tools=context.artifact.from_component("em.esg", "develop", org="", storage="esg-build-tested")
+            / "build/bazel-tools",
+        )
+        machine = tap.Machine(template_name, inputs=inputs, platform=tap.Platform.Linux)
+        stage.task(task_name=template_name, func=run_coverage_results_task, machine=machine, branch=context.branch)
+
+
+def get_build_output_for_arch(outputs: dict, name: str):
+    if name == "linux_x64_rel":
+        return outputs.get(x86_64, None)
+    if name == "linux_arm64_rel":
+        return outputs.get(arm64, None)
+    if name == "linux_x64_bullseye":
+        return outputs.get("bullseye", None)
+    return None
+
+
+def stage_tap_machine(
+    template: str, inputs: "DotDict | Dict[str, Any]", build_outputs: Dict[str, Any], build: str, **kwargs
+):
+    outputs = kwargs.pop("outputs", {})
+    if build == "linux_x64_bullseye":
+        inputs["coverage"] = get_build_output_for_arch(build_outputs, "linux_x64_bullseye") / "coverage_none"
+        outputs["coverage"] = tap.TaskOutput("covfiles")
+    return tap.Machine(template=template, inputs=inputs, outputs=outputs, platform=tap.Platform.Linux, **kwargs)
+
+
+class CoverageWrapper:
+    def __init__(self, machine: tap.Machine, covfile: "str | None"):
+        self.covdir = "/opt/test/inputs/coverage"
+        self.machine = machine
+        self.covfile = os.path.join(self.covdir, covfile) if covfile else ""
+        self.enabled = bool(covfile)
+
+    def scale_timeout(self, unscaled_timeout_seconds=None):
+        timeout_seconds = unscaled_timeout_seconds if unscaled_timeout_seconds else 60 * DEFAULT_TEST_TIMEOUT_MINUTES
+        timeout_seconds *= COVERAGE_TEST_TIMEOUT_MULTIPLIER if self.enabled else 1
+        return timeout_seconds
+
+    def __enter__(self):
+        if self.enabled:
+            # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
+            # We can set the COVFILE env var here so that all instrumented processes know where it is.
+            self.machine.run("echo", f"COVFILE={self.covfile}", ">", "/tmp/BullseyeCoverageEnv.txt", timeout=5)
+            self.machine.run("chmod", "0644", "/tmp/BullseyeCoverageEnv.txt", timeout=5)
+            # Make sure that any product process can update the cov file, no matter the running user.
+            self.machine.run("chmod", "0666", self.covfile, timeout=5)
+        return self
+
+    def __exit__(self, *_):
+        if not self.enabled:
+            return False  # not enabled: do not suppress exceptions
+
+        self.machine.output_artifact(self.covdir, output=self.machine.outputs.coverage)
+        return True  # coverage enabled: suppress exceptions in wrapped code
+
+
+def install_requirements(machine: tap.Machine):
+    """install python lib requirements"""
+
+    try:
+        machine.run("which", python(machine), return_exit_code=True, timeout=5)
+        machine.run("which", pip(machine), return_exit_code=True, timeout=5)
+        machine.run(python(machine), "-V", return_exit_code=True, timeout=5)
+        machine.run("which", "python", return_exit_code=True, timeout=5)
+        machine.run("python", "-V", return_exit_code=True, timeout=5)
+    except Exception:
+        pass
+
+    # TODO LINUXDAR-5855 remove this section when we stop signing with sha1
+    try:
+        distro = machine.template.split("_")[0]
+        if distro in ["centos9stream", "rhel91"]:
+            machine.run("update-crypto-policies", "--set", "LEGACY", timeout=30)
+    except Exception as ex:
+        print(f"On updating openssl policy: {ex}")
+
+    try:
+        pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
+        os_packages = get_os_packages(machine)
+        install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
+        machine.run(*install_command, timeout=600)
+    except Exception as ex:
+        # the previous command will fail if user already exists. But this is not an error
+        print(f"On adding installing requirements: {ex}")
+
+
+def run_robot_tests(
+    machine: tap.Machine,
+    timeout_seconds=None,
+    robot_args=None,
+):
+    try:
+        if not robot_args:
+            robot_args = []
+
+        platform, arch = machine.template.split("_")[:2]
+        default_exclude_tags = [
+            "CENTRAL",
+            "MANUAL",
+            "TESTFAILURE",
+            "FUZZ",
+            "SYSTEMPRODUCTTESTINPUT",
+            f"EXCLUDE_{platform.upper()}",
+            f"EXCLUDE_{arch.upper()}",
+            f"EXCLUDE_{platform.upper()}_{arch.upper()}",
+            "DISABLED",
+            "STRESS",
+            "OSTIA",  # Needed for AV, not used anywhere else
+        ]
+
+        print(f"test scripts: {machine.inputs.test_scripts}")
+        print(f"robot_args: {robot_args}")
+        install_requirements(machine)
+
+        machine.run("mkdir", "-p", "/opt/test/coredumps", timeout=5)
+
+        covfile = "monorepo.cov" if "coverage" in machine.inputs else None
+        with CoverageWrapper(
+            machine,
+            covfile,
+        ) as coverage:
+            machine.run(
+                python(machine),
+                machine.inputs.test_scripts / "RobotFramework.py",
+                *robot_args,
+                "--exclude",
+                *default_exclude_tags,
+                timeout=coverage.scale_timeout(timeout_seconds),
+            )
+
+    finally:
+        machine.run("python3", machine.inputs.test_scripts / "move_robot_results.py", timeout=60)
+        machine.output_artifact("/opt/test/logs", "logs")
+        machine.output_artifact("/opt/test/results", "results")
+        machine.output_artifact("/opt/test/coredumps", "coredumps", raise_on_failure=False)
+
+
+def run_pytest_tests(
+    machine: tap.Machine,
+    test_paths: List[str],
+    scripts="scripts",
+    timeout_seconds=None,
+    extra_pytest_args_behind_paths=None,
+):
+    try:
+        install_requirements(machine)
+
+        # To run the pytest with additional verbosity add following to arguments
+        # "-o", "log_cli=true"
+        args = ["python3", "-u", "-m", "pytest"]
+        args += ["-o", "log_cli=true"]
+        args += ["--durations=0", "-v", "-s"]
+
+        # Set TAP_PARAMETER_TEST_PATTERN environment variable to a pytest filter to narrow scope when writing tests.
+        test_filter = os.getenv("TAP_PARAMETER_TEST_PATTERN")
+        if bool(test_filter):
+            args += ["--suppress-no-test-exit-code", "-k", test_filter]
+
+        for test_path in test_paths:
+            args.append(machine.inputs[scripts] / test_path)
+
+        if extra_pytest_args_behind_paths:
+            args += extra_pytest_args_behind_paths
+
+        machine.run("mkdir", "-p", "/opt/test/coredumps", timeout=5)
+
+        covfile = "monorepo.cov" if "coverage" in machine.inputs else None
+        with CoverageWrapper(
+            machine,
+            covfile,
+        ) as coverage:
+            machine.run(*args, timeout=coverage.scale_timeout(timeout_seconds))
+    finally:
+        machine.output_artifact("/opt/test/logs", "logs")
+        machine.output_artifact("/opt/test/results", "results")
+        machine.output_artifact("/opt/test/coredumps", "coredumps", raise_on_failure=False)
+
+
+def get_test_builds():
+    return ["linux_x64_rel", "linux_arm64_rel", "linux_x64_bullseye"]

@@ -65,8 +65,8 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.37-linux"
-                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>
+<!--            <release-version branch="release/SPRINT-2023.37-linux"-->
+<!--                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>-->
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="sdds"/>
             <include artifact-path="sophlib/BUILD" dest-dir="sdds/common/sophlib"/>
