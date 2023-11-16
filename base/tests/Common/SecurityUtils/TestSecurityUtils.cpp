@@ -16,16 +16,35 @@ class TestSecurityUtils : public ::testing::Test
 {
     public:
     std::vector<std::pair<std::string,int>> m_out;
+
+    std::string getOutput()
+    {
+        std::ostringstream ost;
+        for (const auto& [line, level] : m_out)
+        {
+            ost << line << '\n';
+        }
+        return ost.str();
+    }
+
 };
 
-TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeToNobody) // NOLINT
+TEST_F(TestSecurityUtils, check_user_exists)
 {
+    auto userNobody = getUserIdAndGroupId("lp", "lp", m_out);
+    ASSERT_TRUE(userNobody) << "getUserIdAndGroupId failed: "  << getOutput();
+}
+
+TEST_F(TestSecurityUtils, TestDropPrivilegeToNobody)
+{
+    auto userNobody = getUserIdAndGroupId("lp", "lp", m_out);
+    ASSERT_TRUE(userNobody) << "getUserIdAndGroupId failed: "  << getOutput();
+
     MAYSKIP;
 
     GTEST_FLAG_SET(death_test_style, "threadsafe");
     ASSERT_EXIT(
         {
-            auto userNobody = getUserIdAndGroupId("lp", "lp", m_out);
             dropPrivileges("lp", "lp", m_out);
 
             auto current_uid = getuid();
@@ -40,14 +59,15 @@ TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeToNobody) // NOLINT
         ::testing::ExitedWithCode(0), ".*");
 }
 
-TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
+TEST_F(TestSecurityUtils, TestDropPrivilegeLowPrivCanNotDrop)
 {
     MAYSKIP;
+    auto userSshd = getUserIdAndGroupId("lp", "lp", m_out);
+    ASSERT_TRUE(userSshd) << "getUserIdAndGroupId failed: "  << getOutput();
 
     GTEST_FLAG_SET(death_test_style, "threadsafe");
     ASSERT_EXIT(
         {
-            auto userSshd = getUserIdAndGroupId("lp", "lp", m_out);
             dropPrivileges("lp", "lp", m_out);
 
             auto current_uid = getuid();
@@ -70,7 +90,7 @@ TEST_F(TestSecurityUtils, DISABLED_TestDropPrivilegeLowPrivCanNotDrop) // NOLINT
                ::testing::ExitedWithCode(3), ".*");
 }
 
-TEST_F(TestSecurityUtils, TestSetupJailAndGoInSetsPwdEnvVar) // NOLINT
+TEST_F(TestSecurityUtils, TestSetupJailAndGoInSetsPwdEnvVar)
 {
     MAYSKIP;
     GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -95,7 +115,7 @@ TEST_F(TestSecurityUtils, TestSetupJailAndGoInSetsPwdEnvVar) // NOLINT
 
 }
 
-TEST_F(TestSecurityUtils, TestSetupJailAndGoInNoOutsideFileAccess) // NOLINT
+TEST_F(TestSecurityUtils, TestSetupJailAndGoInNoOutsideFileAccess)
 {
     MAYSKIP;
     GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -115,7 +135,7 @@ TEST_F(TestSecurityUtils, TestSetupJailAndGoInNoOutsideFileAccess) // NOLINT
         ".*");
 }
 
-TEST_F(TestSecurityUtils, TestSetupJailAndGoInCanCreateFilesInNewRoot) // NOLINT
+TEST_F(TestSecurityUtils, TestSetupJailAndGoInCanCreateFilesInNewRoot)
 {
     MAYSKIP;
     GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -141,7 +161,7 @@ TEST_F(TestSecurityUtils, TestSetupJailAndGoInCanCreateFilesInNewRoot) // NOLINT
 }
 
 
-TEST_F(TestSecurityUtils, TestSetupJailAndGoInAbortsOnFailure) // NOLINT
+TEST_F(TestSecurityUtils, TestSetupJailAndGoInAbortsOnFailure)
 {
     MAYSKIP;
     GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -163,7 +183,7 @@ TEST_F(TestSecurityUtils, TestSetupJailAndGoInAbortsOnFailure) // NOLINT
         ".*");
 }
 
-TEST_F(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser) // NOLINT
+TEST_F(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser)
 {
     MAYSKIP;
     GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -184,7 +204,7 @@ TEST_F(TestSecurityUtils, TestchrootAndDropPrivilegesAbortIfNotRealUser) // NOLI
         ".*");
 }
 
-TEST_F(TestSecurityUtils, DISABLED_TestChrootAndDropPrivilegesSuccessfully) // NOLINT
+TEST_F(TestSecurityUtils, TestChrootAndDropPrivilegesSuccessfully)
 {
     MAYSKIP;
 
@@ -210,130 +230,4 @@ TEST_F(TestSecurityUtils, DISABLED_TestChrootAndDropPrivilegesSuccessfully) // N
             exit(2);
         },
                ::testing::ExitedWithCode(0), ".*");
-}
-
-
-class TestSecurityUtilsBindMount : public ::testing::Test
-{
-
-public:
-    TestSecurityUtilsBindMount() : m_rootPath("/tmp"), m_tempDir{m_rootPath, "TestSecurityUtils"}
-    {
-        GTEST_FLAG_SET(death_test_style, "threadsafe");
-    }
-    ~TestSecurityUtilsBindMount()
-    {
-        unMount(m_targetDir, m_output);
-        unMount(m_targetFile, m_output);
-    }
-
-    std::vector<std::pair<std::string,int>> m_output;
-    std::string m_rootPath;
-    Tests::TempDir m_tempDir;
-    std::string m_sourceDir;
-    std::string m_targetDir;
-    std::string m_targetFile; 
-
-
-    void setupAfterSkipIfNotRoot()
-    {
-        std::cout << "called setupAfterSkipIfNotRoot" << std::endl;
-
-        m_tempDir.makeTempDir();
-        auto fperms = Common::FileSystem::FilePermissionsImpl();
-        fperms.chmod(m_tempDir.dirPath(), 0777);
-
-        m_tempDir.makeDirs(std::vector<std::string>{
-                "sourceDir", "targetDir", "sourceFile"
-        });
-
-
-        std::string sophosInstall = m_tempDir.dirPath();
-        m_sourceDir = m_tempDir.absPath("sourceDir");
-        m_targetDir = m_tempDir.absPath("targetDir");
-    }
-};
-
-TEST_F(TestSecurityUtilsBindMount, DISABLED_TestBindMountReadOnlyMountDir) // NOLINT
-{
-    MAYSKIP;
-
-    setupAfterSkipIfNotRoot();
-    auto testFileSrc = Common::FileSystem::join(m_sourceDir, "testMountDir.txt");
-    auto testFileTarget = Common::FileSystem::join(m_targetDir, "testMountDir.txt");
-    m_tempDir.createFile(testFileSrc, "test");    
-
-    bindMountReadOnly(m_sourceDir, m_targetDir, m_output);
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    EXPECT_EQ(Common::FileSystem::fileSystem()->readFile(testFileTarget), "test"); 
-
-    // files can not be dropped in 'read-only' mounted dirs. 
-    auto dropFileTarget = Common::FileSystem::join(m_targetDir, "tryThisFile.txt");        
-    EXPECT_THROW(Common::FileSystem::fileSystem()->writeFile(dropFileTarget,"thisWillFail"), Common::FileSystem::IFileSystemException);
-
-    unMount(m_targetDir, m_output);
-    ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, "SPL.NOTMOUNTED_MARKER")));
-}
-
-TEST_F(TestSecurityUtilsBindMount, DISABLED_TestBindMountReadOnlyMountFile) // NOLINT
-{
-    MAYSKIP;
-    setupAfterSkipIfNotRoot();
-    auto testFileSrc = Common::FileSystem::join(m_sourceDir, "testMountDir.txt");
-    auto testFileTarget = Common::FileSystem::join(m_targetDir, "testMountDir.txt");
-    m_tempDir.createFile(testFileSrc, "source");
-
-    //Target will be marked with content SPL.GL_NOTMOUNTED_MARKER
-    m_tempDir.createFile(testFileTarget, "");
-    bindMountReadOnly(testFileSrc, testFileTarget, m_output);
-    auto afterBindMount = Common::FileSystem::fileSystem()->readFile(testFileTarget);
-    ASSERT_STREQ(afterBindMount.c_str(), "source");
-
-    unMount(testFileTarget, m_output);
-    auto afterUnmount = Common::FileSystem::fileSystem()->readFile(testFileTarget);
-    ASSERT_STREQ(afterUnmount.c_str(), "SPL.NOTMOUNTED_MARKER");
-}
-
-TEST_F(TestSecurityUtilsBindMount, DISABLED_WillNotMountIfAlreadyMounted) // NOLINT
-{
-    MAYSKIP;
-
-    setupAfterSkipIfNotRoot();
-    auto testFileSrc = Common::FileSystem::join(m_sourceDir, "testMountDir.txt");
-    auto testFileTarget = Common::FileSystem::join(m_targetDir, "testMountDir.txt");
-    m_tempDir.createFile(testFileSrc, "test");
-    bindMountReadOnly(m_sourceDir, m_targetDir, m_output);
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    //This will not run mount otherwise we would require to unmount twice
-    bindMountReadOnly(m_sourceDir, m_targetDir, m_output);
-
-    //check only a single unmount if required
-    unMount(m_targetDir, m_output);
-    ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-}
-
-TEST_F(TestSecurityUtilsBindMount, DISABLED_WillUsePreviousilyCreatedMountTargets) // NOLINT
-{
-    MAYSKIP;
-
-    setupAfterSkipIfNotRoot();
-    auto testFileSrc = Common::FileSystem::join(m_sourceDir, "testMountDir.txt");
-    auto testFileTarget = Common::FileSystem::join(m_targetDir, "testMountDir.txt");
-    m_tempDir.createFile(testFileSrc, "test");
-
-    bindMountReadOnly(m_sourceDir, m_targetDir, m_output);
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-
-    //check only a single unmount if required
-    unMount(m_targetDir, m_output);
-    ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(Common::FileSystem::join(m_targetDir, "SPL.NOTMOUNTED_MARKER")));
-
-    //Will mount over previously created file
-    bindMountReadOnly(m_sourceDir, m_targetDir, m_output);
-    ASSERT_TRUE(Common::FileSystem::fileSystem()->exists(testFileTarget));
-
-    unMount(m_targetDir, m_output);
-    ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
 }

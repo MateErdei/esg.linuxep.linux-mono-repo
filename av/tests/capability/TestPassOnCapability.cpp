@@ -6,6 +6,8 @@
 # define _GNU_SOURCE
 #endif
 
+#include "common/SaferStrerror.h"
+
 #include "products/capability/PassOnCapability.h"
 
 #include "datatypes/Print.h"
@@ -13,14 +15,16 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
+#include <fstream>
 
+#include <sys/ptrace.h>
 #include <unistd.h>
 
-TEST(TestPassOnCapability, DISABLED_pass_on_capability_root_only)
+TEST(TestPassOnCapability, pass_on_capability_root_only)
 {
     if (::geteuid() != 0)
     {
-        return;
+        GTEST_SKIP() << "Test requires root";
     }
 
     int ret = pass_on_capability(CAP_SYS_CHROOT);
@@ -150,9 +154,33 @@ namespace
                 }
 
                 int ret = setresgid(1, 1, 1);
-                EXPECT_EQ(ret, 0);
+                EXPECT_EQ(ret, 0) << "setresgid failed: ret=" << ret << " errno=" << errno << " strerror="  << common::safer_strerror(errno);
                 ret = setresuid(1, 1, 1);
-                EXPECT_EQ(ret, 0);
+                EXPECT_EQ(ret, 0) << "setresuid failed: ret=" << ret << " errno=" << errno << " strerror="  << common::safer_strerror(errno);
+                if (ret == -1)
+                {
+                    {
+                        PRINT("/proc/self/status:");
+                        std::ifstream fstream{"/proc/self/status"};
+                        std::string line;
+                        while (std::getline(fstream, line))
+                        {
+                            PRINT(line);
+                        }
+                    }
+                    {
+                        PRINT("/proc/self/uid_map:");
+                        std::ifstream fstream{"/proc/self/uid_map"};
+                        std::string line;
+                        while (std::getline(fstream, line))
+                        {
+                            PRINT(line);
+                        }
+                    }
+
+                }
+                EXPECT_EQ(::geteuid(), 1);
+                EXPECT_EQ(::getuid(), 1);
 #else
                 PRINT("Restorably drop root");
                 int ret = setresgid(1, 1, 0);
@@ -171,9 +199,9 @@ namespace
             {
                 PRINT("Restore root");
                 int ret = setresuid(0, 0, 0);
-                EXPECT_EQ(ret, 0);
+                EXPECT_EQ(ret, 0) << "setresgid failed: ret=" << ret << " errno=" << errno << " strerror="  << common::safer_strerror(errno);
                 ret = setresgid(0, 0, 0);
-                EXPECT_EQ(ret, 0);
+                EXPECT_EQ(ret, 0) << "setresuid failed: ret=" << ret << " errno=" << errno << " strerror="  << common::safer_strerror(errno);
             }
 
             printPermissions(xmlOutputFile_);
@@ -181,7 +209,7 @@ namespace
     };
 }
 
-TEST(TestPassOnCapability, DISABLED_pass_on_capability_no_root)
+TEST(TestPassOnCapability, pass_on_capability_no_root)
 {
     RestoreRoot restoreRoot;
 
@@ -190,14 +218,11 @@ TEST(TestPassOnCapability, DISABLED_pass_on_capability_no_root)
 
     int ret = pass_on_capability(CAP_SYS_CHROOT);
     EXPECT_NE(ret, 0);
-
     // non-root process returns 62 - cap_set_proc fails
     // ex-root process returns 64 - cap_set_ambient fails - cap_set_proc works
-
-//    EXPECT_EQ(ret, E_CAP_SET_PROC);
 }
 
-TEST(TestPassOnCapability, DISABLED_no_new_privs)
+TEST(TestPassOnCapability, no_new_privs)
 {
     set_no_new_privs();
 }

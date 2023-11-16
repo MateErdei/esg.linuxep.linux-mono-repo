@@ -6,6 +6,7 @@ spl_independent_cc_tests(
         "*.cpp",
         "*.h",
     ]),
+    tags = ["no-sandbox"],
     deps = [
         "//base/modules/Common/FileSystemImpl",
         "//base/modules/Common/Logging",

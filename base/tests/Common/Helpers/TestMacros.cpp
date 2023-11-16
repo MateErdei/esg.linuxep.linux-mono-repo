@@ -4,18 +4,12 @@
 
 bool skipTest()
 {
-#ifndef NDEBUG
-    std::cout << "not compatible with coverage ... skip" << std::endl;
-    return true;
-#else
-    if (getuid() != 0)
+    if (geteuid() != 0)
     {
-        std::cout << "requires root ... skip" << std::endl;
+        std::cerr << "requires root ... skip\n";
         return true;
     }
     return false;
-#endif
-
 }
 
 bool skipIfCoverage()

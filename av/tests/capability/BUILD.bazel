@@ -8,7 +8,9 @@ soph_cc_test(
         "*.cpp",
         "*.h",
     ]),
+    tags = ["no-sandbox"],
     deps = [
+        "//av/modules/common:SaferStrerror",
         "//av/modules/datatypes:Print",
         "//av/products/capability",
         "@com_google_googletest//:gtest_main",

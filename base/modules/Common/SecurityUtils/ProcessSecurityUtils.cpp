@@ -129,13 +129,13 @@ namespace Common::SecurityUtils
             auto userid = ifperm->getUserId(userName);
             auto groupid = ifperm->getGroupId(groupName);
 
-            return std::optional<UserIdStruct>(UserIdStruct(userid, groupid));
+            return UserIdStruct{userid, groupid};
         }
         catch (const Common::FileSystem::IFileSystemException& iFileSystemException)
         {
             std::stringstream error;
             error << "Permission denied: " << iFileSystemException.what();
-            out.push_back(std::make_pair(error.str(), 4));
+            out.emplace_back(error.str(), 4);
             return std::nullopt;
         }
     }
@@ -274,8 +274,7 @@ namespace Common::SecurityUtils
     {
         if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
         {
-            out.push_back(
-                std::make_pair("un-mount for '" + targetDir + "' failed. Reason: " + std::strerror(errno), 4));
+            out.emplace_back("un-mount for '" + targetDir + "' failed. Reason: " + std::strerror(errno), 4);
             return false;
         }
         return true;
