@@ -48,6 +48,7 @@ spl_sdds_packages(
         "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",
         "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
         "cleanuprealm.dat": "cleanuprealm.dat.in",
+        "filestodelete.dat": "filestodelete.dat",
         "files/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf": "syslog_configs/rsyslog_sophos-spl.conf",
         "files/plugins/edr/extensions/extensions.load": "extensions.load",
     }.items()},
