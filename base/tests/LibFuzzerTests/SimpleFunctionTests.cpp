@@ -263,7 +263,8 @@ void verifyTelemetryConfig(const std::string & input)
         auto config = Common::TelemetryConfigImpl::Serialiser::deserialise(input);
         (void) config.isValid();
 
-    }catch (std::exception& ex)
+    }
+    catch (const std::exception& ex)
     {
         std::string reason = ex.what();
         if( reason.find("Configuration JSON is invalid") != std::string::npos)

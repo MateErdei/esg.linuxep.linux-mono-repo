@@ -216,6 +216,12 @@ namespace Common::TelemetryConfigImpl
             config = j;
         }
         // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
+        catch (const Common::Exceptions::IException& e)
+        {
+            std::stringstream msg;
+            msg << "Configuration JSON is invalid: " << e.what();
+            std::throw_with_nested(Common::Exceptions::IException(LOCATION, msg.str()));
+        }
         catch (const nlohmann::detail::exception& e)
         {
             std::stringstream msg;
