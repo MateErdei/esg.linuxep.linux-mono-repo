@@ -68,7 +68,7 @@ spl_sdds_packages(
     correct_rpaths = True,
     line_id = AV_LINE_ID,
     rpath_exceptions = {
-        "sophos_threat_detector": "$ORIGIN/../lib64:$ORIGIN/../chroot/lib64",
+        "sophos_threat_detector": "$ORIGIN/../chroot/lib64:$ORIGIN/../lib64",
         "libsusicore.so.2": "$ORIGIN",
     },
     spv_features = ["AV"],

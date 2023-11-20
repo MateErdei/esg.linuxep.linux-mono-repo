@@ -977,6 +977,17 @@ AV Installer Sets UID From Base Install Options File When Present
     Should Be Equal As Strings    ${td_uid}    1998
     Remove File    ${SOPHOS_INSTALL}/base/etc/install_options
 
+AV Installer deletes old libsusi
+    # Fake old libsusi
+    Create File  ${SOPHOS_INSTALL}/plugins/av/lib64/libsusi.so.2
+    Create File  ${SOPHOS_INSTALL}/plugins/av/lib64/libupdater.so.2
+
+    Modify manifest
+    Install AV Directly from SDDS
+
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/av/lib64/libsusi.so.2
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/av/lib64/libupdater.so.2
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 @{GROUP_WRITE_ALLOWED_TO_WRITE}
