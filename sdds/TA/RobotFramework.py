@@ -145,8 +145,14 @@ def main(argv):
         os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"] = os.path.join(INPUT_DIRECTORY, "dogfood_repo")
         os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"] = os.path.join(INPUT_DIRECTORY, "current_shipping_repo")
 
+
+        # if doing prod build, copying dev supplements that have been pulled in to current prod build directory
+        if os.path.isdir(os.path.join(INPUT_DIRECTORY, "dev_sdds3")):
+            copy_supplements(os.path.join(INPUT_DIRECTORY, "dev_sdds3"), os.environ["VUT_WAREHOUSE_ROOT"])
+
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"])
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"])
+
     except Exception as ex:
         print(f"Failed to copy supplements for dogfood/current_shipping: {ex}")
 

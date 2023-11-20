@@ -56,8 +56,6 @@ def get_inputs(
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder("./sdds/TA"),
-        repo=sdds_build / "sdds3-repo",
-        launchdarkly=sdds_build / "sdds3-launchdarkly",
         static_suites=sdds_build / "prod-sdds3-static-suites",
         thin_installer=x86_64_build_output / "thininstaller/thininstaller",
         base=build_output / f"base/{build}/installer",
@@ -109,6 +107,14 @@ def get_inputs(
         sdds3=context.artifact.from_component("em.esg", "develop", None, org="", storage="esg-build-tested")
         / f"build/sophlib/linux_{arch}_rel/sdds3_tools",
     )
+    if parameters.sdds_options == "build_prod_system_tests" or parameters.sdds_options == "build_prod_no_system_tests":
+        test_inputs["dev_sdds3"] = context.artifact.from_component("linuxep.linux-mono-repo", "develop", None, org="",
+                                                                   storage="esg-build-tested") / "build/sdds3-repo"
+        test_inputs["repo"] = sdds_build / "prod-sdds3-repo"
+        test_inputs["launchdarkly"] = sdds_build / "prod-sdds3-launchdarkly"
+    else:
+        test_inputs["repo"] = sdds_build / "sdds3-repo"
+        test_inputs["launchdarkly"] = sdds_build / "sdds3-launchdarkly"
 
     arch = build.split("_")[1]
     if arch == "x64":
@@ -164,13 +170,15 @@ def stage_sdds_build(
         do_prod = False
         do_dev = False
 
-        if is_release_branch or parameters.sdds_options == "build_prod":
+        if (is_release_branch or parameters.sdds_options == "build_prod_no_system_tests"
+                or parameters.sdds_options == "build_prod_system_tests"):
             do_prod = True
         else:
             do_dev = True
 
         if do_prod:
-            build_sdds3_warehouse(stage=stage, mode="prod")
+            outputs["sdds"] = build_sdds3_warehouse(stage=stage, mode="prod")
+            outputs["sdds999"] = build_sdds3_warehouse(stage=stage, mode="999")
         if do_dev:
             outputs["sdds"] = build_sdds3_warehouse(stage=stage, mode="dev")
             outputs["sdds999"] = build_sdds3_warehouse(stage=stage, mode="999")
