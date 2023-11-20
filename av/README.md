@@ -1,13 +1,9 @@
 # Anti-Virus Plugin for SSPL
 
-Simple plugin to do AV for SSPL.
 
-----
+This plugin provides the following AV functionality:
 
-Implement command-line AV, and possibly other sorts of AV.
-Will use SUSI libraries to implement detection.
-
-Designed to fit into the modular design of SSPL.
-
-
-----
+- Command line scanner
+- Scheduled scans
+- On-access scanning (asynchronous/non-blocking)
+- Threat quarantine (SafeStore)
