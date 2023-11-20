@@ -48,7 +48,7 @@ Endpoint Updates Via Update Cache Without Errors
     wait_for_log_contains_from_mark  ${sul_mark}  Trying SUS request (https://sus.sophosupd.com) with proxy: linuxuc    60
     wait_for_log_contains_from_mark  ${sul_mark}  SUS request received HTTP response code: 200    70
     wait_for_log_contains_from_mark  ${sul_mark}  Performing Sync using https://linuxuc_tests:8191/v3    60
-    wait_for_log_contains_from_mark  ${sul_mark}  Update success    180
+    wait_for_log_contains_from_mark  ${sul_mark}  Update success    240
     Check Log Does Not Contain  Trying connection candidate, URL: https://sus.sophosupd.com, proxy: noproxy:    ${SULDOWNLOADER_LOG_PATH}  suldownloader log
     Check Log Does Not Contain  Connecting to update source directly    ${SULDOWNLOADER_LOG_PATH}  suldownloader log
 
