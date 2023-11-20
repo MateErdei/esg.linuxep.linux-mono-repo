@@ -101,32 +101,12 @@ class HttpsServer(object):
         self.thread = None
         self.httpd = None
 
-    def start_https_server(self, certfile_path, port=443, protocol_string=None, root_ca=False):
+    def start_https_server(self, certfile_path, port=443, protocol_string=None):
 
+        if self.thread is not None:
+            self.stop_https_server()
         port = int(port)
         print("Start Simple HTTPS Server localhost:{}".format(port))
-
-        keyfile_path = "/tmp/key.pem"
-        subject = "/C=GB/ST=London/L=London/O=Sophos/OU=ESG/CN=localhost"
-
-        if root_ca:
-            keyfile_path = "localhost.key"
-            #generate private key
-            subprocess.call('/usr/bin/openssl genrsa -out localhost.key 2048', shell=True)
-
-            #generate root cert
-            subprocess.call('/usr/bin/openssl req -new -x509 -key localhost.key -subj {} -out /tmp/ca.crt'.format(subject), shell=True)
-
-            #generate csr info
-            subprocess.call('/usr/bin/openssl req -new -sha256 -key localhost.key -nodes -subj {} -out localhost.csr'
-                            .format(subject), shell=True)
-
-            #generate child cert
-            subprocess.call('/usr/bin/openssl x509 -req -in localhost.csr -CA /tmp/ca.crt -CAkey localhost.key -CAcreateserial -out {}'.format(certfile_path), shell=True)
-
-        else:
-            subprocess.call('/usr/bin/openssl req -x509 -newkey rsa:4096 -keyout {} -out {} -days 365 -nodes -subj "{}"'
-                            .format(keyfile_path, certfile_path, subject), shell=True)
 
         self.httpd = http.server.HTTPServer(('', port), HttpsHandler)
 
@@ -136,7 +116,6 @@ class HttpsServer(object):
 
         self.httpd.socket = ssl.wrap_socket(self.httpd.socket,
                                        server_side=True,
-                                       keyfile=keyfile_path,
                                        ssl_version=protocol,
                                        certfile=certfile_path)
 
@@ -150,3 +129,4 @@ class HttpsServer(object):
             self.httpd.shutdown()
         if self.thread:
             self.thread.join()
+            self.thread = None

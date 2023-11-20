@@ -1,11 +1,12 @@
 *** Settings ***
 Documentation    Live Response plugin tests
 
+Library   Process
 Library   OperatingSystem
 Library   /opt/test/inputs/common_test_libs/FullInstallerUtils.py
 
 Suite Setup      Global Setup Tasks
-Suite Teardown   Uninstall SSPL
+Suite Teardown   Global Teardown Tasks
 
 Force Tags  LOAD2
 
@@ -24,6 +25,7 @@ Global Setup Tasks
     Set Global Variable  ${LIVERESPONSE_DIR}        ${SOPHOS_INSTALL}/plugins/liveresponse
     Set Global Variable  ${MCS_POLICY_CONFIG}       ${ETC_DIR}/sophosspl/mcs_policy.config
     Set Global Variable  ${COMMON_TEST_LIBS}        ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_UTILS}       ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${COMMON_TEST_ROBOT}       ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${BASE_TEST_LIBS}          ${TEST_INPUT_PATH}/libs
     Set Global Variable  ${LIBS_DIRECTORY}          ${TEST_INPUT_PATH}/libs
@@ -34,3 +36,8 @@ Global Setup Tasks
     Set Global Variable  ${ROBOT_TESTS_DIR}         ${TEST_INPUT_PATH}/test_scripts/RobotTests
     Set Global Variable  ${WEBSOCKET_SERVER}        ${TEST_INPUT_PATH}/pytest_scripts/utils/websocket_server
     Set Global Variable  ${BASE_DIST}               ${TEST_INPUT_PATH}/base
+    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+Global Teardown Tasks
+    Uninstall SSPL
+    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh

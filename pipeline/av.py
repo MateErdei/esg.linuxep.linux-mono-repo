@@ -79,6 +79,8 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
         local_rep=context.artifact.from_component("ssplav-localrep", supplement_branch, None) / "reputation",
         dataseta=context.artifact.from_component("ssplav-dataseta", supplement_branch, None) / "dataseta",
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
+        common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
     )
 
     test_inputs["tap_test_output"] = build_output / f"av/{build}/tap_test_output"

@@ -16,8 +16,7 @@ Suite Setup     Run Keywords
 ...             Regenerate Certificates  AND
 ...             Set Timeout
 
-Suite Teardown  Run Keywords
-...             Cleanup Certificates
+
 
 Test Setup      Setup MCS Tests
 Test Teardown   Run Keywords

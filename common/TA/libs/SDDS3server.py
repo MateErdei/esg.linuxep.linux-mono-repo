@@ -654,7 +654,7 @@ def main():
                         help='port number of server default 8080',
                         default=8080,
                         type=int)
-    parser.add_argument('--certpath', help='path to certificate, default is <SUPPORT_FILE_PATH>/https/server-private.pem')
+    parser.add_argument('--certpath', help='path to certificate, default is common/TA/utils/server_certs/server.crt')
     args = parser.parse_args()
 
     protocol = ssl.PROTOCOL_TLS
@@ -666,7 +666,7 @@ def main():
         cert = args.certpath
     else:
         import PathManager
-        cert = os.path.join(PathManager.get_support_file_path(), "https", "server-private.pem")
+        cert = os.path.join(PathManager.get_utils_path(), "server_certs", "server.crt")
     assert os.path.isfile(cert)
     port = int(args.port)
     if args.launchdarkly and args.mock_sus:

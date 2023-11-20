@@ -30,6 +30,7 @@ Global Setup Tasks
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
     Set Global Variable  ${SUPPORT_FILES}           ${TEST_INPUT_PATH}/SupportFiles
     Set Global Variable  ${COMMON_TEST_LIBS}        ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_UTILS}       ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${COMMON_TEST_ROBOT}       ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
     Set Global Variable  ${INSTALL_SET_PATH}        ${ROBOT_SCRIPTS_PATH}/InstallSet
@@ -45,7 +46,9 @@ Global Setup Tasks
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
     evaluate    sys.path.append("${COMMON_TEST_LIBS}")    modules=sys
+    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Global Teardown Tasks
     Uninstall All
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True
+    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh

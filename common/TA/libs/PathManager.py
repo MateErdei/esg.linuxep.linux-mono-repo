@@ -102,6 +102,8 @@ def get_support_file_path():
 def get_libs_path():
     return "/opt/test/inputs/common_test_libs"
 
+def get_utils_path():
+    return "/opt/test/inputs/common_test_utils"
 
 ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "test_scripts")
 

@@ -35,7 +35,6 @@ Thininstaller Suite Setup
     Wait Until Keyword Succeeds  10 secs  1 secs  Can Curl Url    https://localhost:8080
 
 Thininstaller Suite Teardown
-    Upgrade Resources Suite Teardown
     SDDS3 Suite Fake Warehouse Teardown
 
 

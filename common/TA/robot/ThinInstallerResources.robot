@@ -14,17 +14,12 @@ ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 
 *** Keywords ***
 Setup Update Tests
-    Regenerate HTTPS Certificates
-    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
     Regenerate Certificates
     Set Local CA Environment Variable
 
 
 Setup sdds3 Update Tests
     Set Suite Variable    ${GL_handle}    ${EMPTY}
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
     Generate Fake sdds3 warehouse
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -35,8 +30,6 @@ Cleanup sdds3 Update Tests
     Clean up fake warehouse
 
 sdds3 suite setup with fakewarehouse with real base
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -109,9 +102,6 @@ Check MCS Config Contains
     ${ret} =  Grep File  ${MCS_CONFIG_FILE}  ${pattern}
     Should Contain  ${ret}  ${pattern}  ${fail_message}
 
-Regenerate HTTPS Certificates
-    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
-    Run Process    make    all    cwd=${SUPPORT_FILES}/https/
 
 Create Initial Installation
     Require Fresh Install

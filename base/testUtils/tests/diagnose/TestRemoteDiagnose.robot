@@ -11,9 +11,7 @@ Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup  Require Fresh Install
-Suite Teardown  Run Keywords
-...             Ensure Uninstalled  AND
-...             Cleanup Certificates
+Suite Teardown  Ensure Uninstalled
 
 Test Teardown   Teardown
 
@@ -68,25 +66,19 @@ check for processed tar files
     Should Be Equal As Integers  2   ${count}
 Setup Fake Cloud
     Start Local Cloud Server
-    Generate Local Fake Cloud Certificates
     Regenerate Certificates
     Set Local CA Environment Variable
-
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
+    HttpsServer.Start Https Server  ${COMMON_TEST_UTILS}/server_certs/server.crt    443  tlsv1_2
 
-    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
-    install_system_ca_cert  /tmp/cert.crt
-    install_system_ca_cert  /tmp/ca.crt
 
 Teardown
-    log file    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Stop Local Cloud Server
     MCSRouter Default Test Teardown
     Stop Https Server
     Dump Teardown Log  ${HTTPS_LOG_FILE_PATH}
     Remove File  ${HTTPS_LOG_FILE_PATH}
-    cleanup_system_ca_certs
 
 Simulate SDU Action Now
     [Arguments]  ${action_suffix}=1  ${action_xml_file_name}=SDUAction.xml

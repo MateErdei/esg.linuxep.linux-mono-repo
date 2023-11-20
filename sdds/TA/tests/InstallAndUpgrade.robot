@@ -20,7 +20,6 @@ Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
-Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       require_uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown

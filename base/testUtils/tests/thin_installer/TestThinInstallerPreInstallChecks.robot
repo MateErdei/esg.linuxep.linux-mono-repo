@@ -96,8 +96,6 @@ Thin Installer Detects Sweep And Cancels Installation If SAV can not be uninstal
     [Setup]    Setup Thininstaller Test
     [Teardown]  SAV Teardown
 
-    Wait Until Keyword Succeeds  10 secs  1 secs  Can Curl Url    https://localhost:8080
-
     Create Fake Savscan In Tmp
     Create Fake Sweep Symlink    /usr/bin
     Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs

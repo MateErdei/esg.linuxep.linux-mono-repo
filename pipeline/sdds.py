@@ -69,6 +69,7 @@ def get_inputs(
         di=build_output / f"deviceisolation/{build}/installer",
         base_sdds_scripts=context.artifact.from_folder("./base/products/distribution"),
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         rtd_content_rules=context.artifact.from_component(

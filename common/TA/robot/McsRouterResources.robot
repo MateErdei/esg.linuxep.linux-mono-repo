@@ -37,11 +37,6 @@ Wait For MCS Router To Be Running
     ...  1
     ...  Check MCS Router Running
 
-Cleanup Certificates
-    Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
-    Remove Directory  ../everest-base/modules/mcsrouter/base  recursive=True
-
-
 MCSRouter Test Teardown
     [Timeout]  2 minutes
     Run Keyword If Test Failed    Log File    /etc/hosts
@@ -91,9 +86,6 @@ Restart MCSRouter And Clear Logs
     [Return]  ${mcsrouter_mark}
 
 Regenerate Certificates
-    ${result} =  Run Process    make    cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
-    Should Be Equal As Integers 	${result.rc} 	0
-    Log 	cleanCerts output: ${result.stdout}
 
     Generate Local Fake Cloud Certificates
 

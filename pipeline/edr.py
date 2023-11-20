@@ -30,6 +30,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
         base_sdds=build_output / f"base/{build}/installer",
         componenttests=build_output / f"edr/{build}/componenttests",
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
         websocket_server=context.artifact.from_component(
             "winep.liveterminal", "develop", None, org="", storage="esg-build-tested"

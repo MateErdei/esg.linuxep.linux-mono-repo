@@ -60,7 +60,7 @@ Restore warehouse with fake sdds3 base with force cleanup
 
 Cert Test Teardown
     Thininstaller Test Teardown
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install_System_Ca_Cert  ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Create Fake Ldd Executable With Version As Argument And Add It To Path
     [Arguments]  ${version}
@@ -128,7 +128,7 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
-    Cleanup System Ca Certs
+    Cleanup_System_Ca_Certs
     Run Default Thininstaller    33  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    SPL installation will fail as a connection to the SUS server could not be established
 

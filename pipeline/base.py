@@ -39,6 +39,7 @@ def load_inputs(
         system_test=build_output / f"base/{build}/system_test",
         openssl=openssl,
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         base_sdds_scripts=context.artifact.from_folder("./base/products/distribution"),

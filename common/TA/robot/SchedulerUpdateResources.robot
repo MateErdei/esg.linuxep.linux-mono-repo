@@ -280,7 +280,6 @@ Teardown Servers For Update Scheduler
     General Test Teardown
     Log SystemCtl Update Status
     Stop Update Server
-    Run Process    make   cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation/
     Run Keyword If Test Failed    Display All tmp Files Present
     Run Keyword If Test Failed    Log File  /etc/hosts
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts

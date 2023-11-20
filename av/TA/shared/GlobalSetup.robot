@@ -38,6 +38,8 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
 
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
+    Set Global Variable  ${COMMON_TEST_LIBS}                ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_UTILS}               ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${LIBS_PATH}                       ${TEST_SCRIPTS_PATH}/Libs
     Set Global Variable  ${BASH_SCRIPTS_PATH}               ${LIBS_PATH}/bashScripts
     Set Global Variable  ${SUPPORT_FILES_PATH}              ${LIBS_PATH}/supportFiles
@@ -69,12 +71,14 @@ Global Setup Tasks
     CoreDumps.Enable Core Files
 
     Create test user and group
+    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
     stop fake management if running
 
     Remove test user and group
+    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh
 
 Uninstall All
     Run Keyword And Ignore Error  Log File    /tmp/installer.log

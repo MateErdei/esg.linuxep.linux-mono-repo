@@ -48,7 +48,7 @@ Cleanup Telemetry Tests
     Uninstall SSPL
     Stop Local Cloud Server
     Unset CA Environment Variable
-    Cleanup Certificates
+
 
 ### Test setup
 
@@ -80,6 +80,9 @@ Telemetry Test Teardown
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
     Remove Environment Variable  BREAK_PUT_REQUEST
 
+Telemetry Cert Test Teardown
+    Install_System_Ca_Cert  ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+    Telemetry Test Teardown
 
 Teardown With Proxy Clear
     Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
@@ -291,6 +294,8 @@ Telemetry Executable Generates System Telemetry Without Cpu Cores
 
 Telemetry Executable Telemetry Config File Certificate Path Empty
     [Documentation]    Telemetry Executable Creates Fails to Send Telemetry Data if Certificate Path Key in Config File is Empty
+    [Teardown]    Telemetry Cert Test Teardown
+    Cleanup_System_Ca_Certs
     Create Test Telemetry Config File     ${EXE_CONFIG_FILE}    ""  ${USERNAME}
 
     ${result} =    Run Process  sudo  -u  ${USERNAME}    ${SOPHOS_INSTALL}/base/bin/telemetry      ${EXE_CONFIG_FILE}

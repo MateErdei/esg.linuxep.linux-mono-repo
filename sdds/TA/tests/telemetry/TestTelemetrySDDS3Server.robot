@@ -1,14 +1,9 @@
 
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
-Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       Require Uninstalled
 Test Teardown    Run Keywords
-...                Remove Environment Variable  http_proxy    AND
-...                Remove Environment Variable  https_proxy  AND
-...                Stop Proxy If Running    AND
-...                Stop Proxy Servers   AND
 ...                Clean up fake warehouse  AND
 ...                Upgrade Resources SDDS3 Test Teardown
 

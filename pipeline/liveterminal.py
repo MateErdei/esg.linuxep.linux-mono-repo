@@ -32,6 +32,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
         )
         / "build/sspl-liveterminal/test-scripts",
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         tests=context.artifact.from_folder("./base/testUtils/tests"),

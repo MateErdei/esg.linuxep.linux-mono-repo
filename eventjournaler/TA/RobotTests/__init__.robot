@@ -2,6 +2,7 @@
 Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
+Library         Process
 Library         OperatingSystem
 
 Library         ../Libs/InstallerUtils.py
@@ -17,6 +18,7 @@ Global Setup Tasks
     Set Global Variable  ${MCS_DIR}                 ${SOPHOS_INSTALL}/base/mcs
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${COMMON_TEST_LIBS}        ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_UTILS}       ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotTests
     Set Global Variable  ${COMPONENT_NAME}          eventjournaler
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/event_journaler_sdds
@@ -28,7 +30,9 @@ Global Setup Tasks
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
 
+    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     initial cleanup
 
 Global Teardown Tasks
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True
+    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh

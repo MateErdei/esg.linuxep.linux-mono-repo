@@ -75,7 +75,7 @@ Liveresponse Test Teardown
     General Test Teardown
 
 Liveresponse Suite Setup
-    Generate Local Fake Cloud Certificates
+    Regenerate Certificates
     Setup Suite Tmp Dir   /tmp/liveterminal
     Setup Base FakeCloud And FakeCentral-LT Servers
     Install Live Response Directly

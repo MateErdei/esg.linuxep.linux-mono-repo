@@ -52,22 +52,14 @@ Upgrade Resources Test Teardown
 Upgrade Resources Suite Setup
     Set Suite Variable    ${GL_handle}       ${EMPTY}
     Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
-    Regenerate Certificates
     Set Local CA Environment Variable
 
-Upgrade Resources Suite Teardown
-    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
+
 
 Cleanup Local Warehouse And Thininstaller
     Stop Proxy Servers
     Stop Update Server
     Cleanup Files
-
-Install Local SSL Server Cert To System
-    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Check AV and Base Components Inside The ALC Status
     ${statusContent} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
@@ -109,7 +101,7 @@ Start Local SDDS3 Server
     ...  --launchdarkly  ${launchdarklyPath}
     ...  --sdds3  ${sdds3repoPath}
     ...  --port   ${port}
-    ...  --certpath   ${SUPPORT_FILES}/https/server-private.pem
+    ...  --certpath   ${COMMON_TEST_UTILS}/server_certs/server.crt
     ...  stdout=${sdds3_server_std_output}
     ...  stderr=STDOUT
     Set Suite Variable    $GL_handle    ${handle}
@@ -155,14 +147,6 @@ Stop Local SDDS3 Server
     Log  SDDS3_server rc = ${result.rc}
     Terminate All Processes  True
 
-Send ALC Policy And Prepare For Upgrade
-    [Arguments]    ${policyPath}
-    Prepare Installation For Upgrade Using Policy    ${policyPath}
-    send_policy_file    alc    ${policyPath}    wait_for_policy=${True}
-
-Prepare Installation For Upgrade Using Policy
-    [Arguments]    ${policyPath}
-    install_upgrade_certs_for_policy  ${policyPath}
 
 Check For downgraded logs
     # AV logs

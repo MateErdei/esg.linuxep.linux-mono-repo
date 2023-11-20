@@ -39,7 +39,7 @@ ${HTTPS_LOG_FILE}     https_server.log
 ${HTTPS_LOG_FILE_PATH}     /tmp/${HTTPS_LOG_FILE}
 
 ${SERVER}      localhost
-${CERT_PATH}   /tmp/cert.pem
+${CERT_PATH}   ${COMMON_TEST_UTILS}/server_certs/server.crt
 ${USERNAME}    sophos-spl-user
 
 ${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt

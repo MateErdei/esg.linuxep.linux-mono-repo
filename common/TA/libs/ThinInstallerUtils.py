@@ -35,7 +35,7 @@ class ThinInstallerUtils(object):
         self.last_good_artisan_build_file = os.path.join(filer6,
                                                          "sspl-thininstaller",
                                                          "develop/sspl-thininstaller_lastgoodbuild.txt")
-        self.https_certs_dir = os.path.join(PathManager.get_support_file_path(), "https/ca")
+        self.root_cert = os.path.join(PathManager.get_utils_path(), "server_certs/server-root.crt")
 
         try:
             os.makedirs(self.installer_files)
@@ -133,7 +133,7 @@ class ThinInstallerUtils(object):
             if update_caches:
                 fh.write("UPDATE_CACHES=" + update_caches + new_line)
                 fh.write("__UPDATE_CACHE_CERTS__" + new_line)
-                with open(os.path.join(self.https_certs_dir, "root-ca.crt.pem"), "r") as f:
+                with open(os.path.join(self.root_cert), "r") as f:
                     fh.write(f.read())
             if sus_url:
                 fh.write("SDDS3_SUS_URL=" + sus_url + new_line)

@@ -2,6 +2,7 @@
 Documentation    Setup for tests
 
 Suite Setup   Global Setup Tasks
+Suite Teardown   Global Teardown Tasks
 
 Library           OperatingSystem
 Library           Process
@@ -16,6 +17,8 @@ Global Setup Tasks
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
     ${placeholder} =  Get Environment Variable    COMMON_TEST_LIBS    default=${INPUT_DIRECTORY}/common_test_libs
     Set Global Variable  ${COMMON_TEST_LIBS}     ${placeholder}
+    ${placeholder} =  Get Environment Variable    COMMON_TEST_UTILS    default=${INPUT_DIRECTORY}/common_test_utils
+    Set Global Variable  ${COMMON_TEST_UTILS}     ${placeholder}
     Set Global Variable  ${LIBS_DIRECTORY}     ${placeholder}
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}     ${TEST_SCRIPT_PATH}/libs
     ${placeholder} =  Get Environment Variable    COMMON_TEST_ROBOT    default=${INPUT_DIRECTORY}/common_test_robot
@@ -77,6 +80,7 @@ Global Setup Tasks
     ...    ${SUPPORT_FILES}/openssl/openssl
     ...    ${SUPPORT_FILES}/openssl/libcrypto.so.3
     ...    ${SUPPORT_FILES}/openssl/libssl.so.3
+    ...    ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh
     ...    ${SDDS3_Builder}
     Set Global Variable    ${OPENSSL_BIN_PATH}    ${SUPPORT_FILES}/openssl
     Set Global Variable    ${OPENSSL_LIB_PATH}    ${SUPPORT_FILES}/openssl
@@ -104,3 +108,7 @@ Global Setup Tasks
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
 
     Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${INPUT_DIRECTORY}/safestore_tools/ssr/ssr
+    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+Global Teardown Tasks
+    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh

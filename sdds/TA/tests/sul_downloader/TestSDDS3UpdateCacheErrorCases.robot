@@ -1,6 +1,5 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
-Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       Require Uninstalled
 Test Teardown    UC Error Test Teardown
@@ -41,7 +40,7 @@ UC Error Test Teardown
 
 *** Test Cases ***
 Test that SDDS3 can Handle 202s from Update Caches
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081
@@ -63,7 +62,7 @@ Test that SDDS3 can Handle 202s from Update Caches
     wait_for_log_contains_from_mark  ${mark}  Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 202
 
 Test that SDDS3 can Handle 404s from Update Caches
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081
@@ -86,7 +85,7 @@ Test that SDDS3 can Handle 404s from Update Caches
 
 
 Test that SDDS3 can Handle 202 then 404s from Update Caches
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081
@@ -109,7 +108,7 @@ Test that SDDS3 can Handle 202 then 404s from Update Caches
 
 
 Test that SDDS3 can Handle 202 then success from Update Caches
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081
@@ -155,7 +154,7 @@ Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
     Check SulDownloader Log Contains    Connecting to update source directly
 
 Sul Downloader fails back to direct if UC fails to install supplements
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081
@@ -189,7 +188,7 @@ Sul Downloader fails back to direct if UC fails to install supplements
 
 
 Sul Downloader fails update if it cannot download fresh supplements
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081

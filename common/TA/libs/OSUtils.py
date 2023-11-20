@@ -429,7 +429,7 @@ def find_most_recent_edit_time_from_list_of_files(list_of_files):
 
 
 def install_system_ca_cert(certificate_path):
-    script = os.path.join(PathManager.get_support_file_path(), "InstallCertificateToSystem.sh")
+    script = os.path.join(PathManager.get_utils_path(), "InstallCertificateToSystem.sh")
     os.chmod(script, 0o755)
     command = [script, certificate_path]
     logger.info(command)
@@ -449,10 +449,10 @@ def install_system_ca_certs(certificate_paths):
 
 
 def cleanup_system_ca_certs():
-    support_files_path = PathManager.get_support_file_path()
-    script = os.path.join(support_files_path, "CleanupInstalledSystemCerts.sh")
+    utils_files_path = PathManager.get_utils_path()
+    script = os.path.join(utils_files_path, "CleanupInstalledSystemCerts.sh")
     os.chmod(script, 0o755)
-    logger.info(support_files_path)
+    logger.info(utils_files_path)
     logger.info(script)
     command = [script]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -629,16 +629,6 @@ def setup_etc_hosts_to_connect_to_internal_warehouse():
 def clear_etc_hosts_of_entries_to_connect_to_internal_warehouse():
     etc = ETCHostsWarehouseHandler()
     etc.clear_internal_warehouse()
-
-
-def install_internal_warehouse_certs():
-    directory_path = '/mnt/filer6/linux/SSPL/tools/setup_sspl/certs/internal_certs/'
-    certs = []
-    for file_name in os.listdir(directory_path):
-        if file_name.endswith('crt'):
-            certs.append(os.path.join(directory_path, file_name))
-    install_system_ca_certs(certs)
-
 
 def running_processes_should_match_the_count(comm_name, match_dir_path, count):
     count = int(count)

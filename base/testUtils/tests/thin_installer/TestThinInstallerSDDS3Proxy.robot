@@ -63,8 +63,6 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  ${dist1} dummyhost1
 
-    Install Local SSL Server Cert To System
-
     # Add Message Relays to Thin Installer
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
@@ -178,7 +176,6 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     Should Not Exist    ${SOPHOS_INSTALL}
     stop_local_cloud_server
     start_local_cloud_server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
-    Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=localhost:20000,2,4
@@ -230,8 +227,6 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
 
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  ${dist1} dummyhost1
-
-    Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=dummyhost1:10000,1,2

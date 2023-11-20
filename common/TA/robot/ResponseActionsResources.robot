@@ -89,9 +89,7 @@ RA Action With Register Suite Setup
 
 RA Test Setup
     Require Installed
-    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
-    install_system_ca_cert  /tmp/cert.crt
-    install_system_ca_cert  /tmp/ca.crt
+    HttpsServer.Start Https Server  ${COMMON_TEST_UTILS}/server_certs/server.crt  443  tlsv1_2
     Install Response Actions Directly
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
@@ -102,7 +100,6 @@ RA Test Teardown
     Remove file  ${TELEMETRY_OUTPUT_JSON}
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server
-    cleanup_system_ca_certs
     Remove File  ${EXE_CONFIG_FILE}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Remove File   /tmp/upload.zip

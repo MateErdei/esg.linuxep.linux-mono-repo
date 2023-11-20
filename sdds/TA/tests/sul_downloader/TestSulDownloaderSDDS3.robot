@@ -1,6 +1,5 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
-Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       Require Uninstalled
 Test Teardown    Run Keywords
@@ -199,7 +198,7 @@ SDDS3 updates supplements
 
 
 Sul Downloader Installs SDDS3 Through update cache
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
@@ -231,7 +230,7 @@ Sul Downloader Installs SDDS3 Through update cache
 Sul Downloader Installs SDDS3 Through message relay
     Start Simple Proxy Server    3333
 
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_proxy.xml    --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
@@ -264,7 +263,7 @@ Sul Downloader Installs SDDS3 Through message relay
 
 
 Sul Downloader falls back to direct when proxy and UC do not work
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8081

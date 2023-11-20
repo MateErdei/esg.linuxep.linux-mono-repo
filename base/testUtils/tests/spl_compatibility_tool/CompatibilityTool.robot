@@ -30,8 +30,6 @@ ${credentialsPath}              ./tmp/thin_installer/thininstaller_files/credent
 Compatibility Tool Suite Setup
     Regenerate Certificates
     Set_Local_CA_Environment_Variable
-    generate_local_ssl_certs_if_they_dont_exist
-    Install Local SSL Server Cert To System
     start_local_cloud_server
 
 Compatibility Tool Suite Teardown

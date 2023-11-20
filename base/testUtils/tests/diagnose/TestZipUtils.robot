@@ -10,9 +10,7 @@ Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 Suite Setup  Require Fresh Install
-Suite Teardown  Run Keywords
-...             Ensure Uninstalled  AND
-...             Cleanup Certificates
+Suite Teardown  Ensure Uninstalled
 
 Force Tags    TAP_PARALLEL4
 

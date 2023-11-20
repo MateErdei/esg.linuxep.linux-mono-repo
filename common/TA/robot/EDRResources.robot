@@ -145,8 +145,6 @@ Check Scheduled Query Log Contains
 
 EDR Suite Setup
     Upgrade Resources Suite Setup
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     # LINUXDAR-7059: On SUSE the thin installer fails to connect to the first SDDS3 server so workaround for now by running twice
     ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${VUT_WAREHOUSE_ROOT}  shell=true    timeout=10s
@@ -158,7 +156,6 @@ EDR Suite Setup
     Set Suite Variable    ${GL_handle}    ${handle}
 
 EDR Suite Teardown
-    Upgrade Resources Suite Teardown
     Stop Local SDDS3 Server
     Remove Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL
 

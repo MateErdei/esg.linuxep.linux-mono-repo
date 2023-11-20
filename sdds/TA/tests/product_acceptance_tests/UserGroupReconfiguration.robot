@@ -7,7 +7,6 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
-Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown

@@ -15,8 +15,6 @@ Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Suite Setup     Run Keywords
 ...             Regenerate Certificates
 
-Suite Teardown  Run Keywords
-...             Cleanup Certificates
 
 Test Setup      Setup MCS Tests
 Test Teardown   Run Keywords

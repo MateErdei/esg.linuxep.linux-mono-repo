@@ -24,6 +24,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, x86_64_
     test_inputs = dict(
         test_scripts=context.artifact.from_folder("./eventjournaler/TA"),
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         tests=context.artifact.from_folder("./base/testUtils/tests"),
         event_journaler_sdds=build_output / f"eventjournaler/{build}/installer",

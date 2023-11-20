@@ -2,7 +2,7 @@
 
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
-Library         ../Libs/HttpsServer.py
+Library         ${COMMON_TEST_LIBS}/HttpsServer.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
@@ -11,10 +11,9 @@ Library         String
 Library         DateTime
 
 *** Variables ***
-
 ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
-${CERT_PATH}   /tmp/cert.pem
+${CERT_PATH}                          ${COMMON_TEST_UTILS}/server_certs/server.crt
 ${SSPL_BASE}                          ${SOPHOS_INSTALL}/base
 ${PLUGIN_REGISTRY}                    ${SSPL_BASE}/pluginRegistry
 ${MCS_ACTION_DIRECTORY}               ${SSPL_BASE}/mcs/action
@@ -25,7 +24,6 @@ ${TELEMETRY_BACKUP_JSON}              ${SSPL_BASE}/telemetry/cache/av-telemetry.
 ${TELEMETRY_EXECUTABLE_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 
 *** Keywords ***
-
 Send Sav Policy With Imminent Scheduled Scan To Base
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}

@@ -4,30 +4,28 @@ set -ex
 
 cd "${0%/*}" || exit
 
-HTTPS_DIR=TA/SupportFiles/https
+ROOT_CERT=../common/TA/utils/server_certs/server-root.crt
 
-[[ -d $HTTPS_DIR ]] || {
-    echo "Can't find HTTPS_DIR: $HTTPS_DIR"
+[[ -d $ROOT_CERT ]] || {
+    echo "Can't find ROOT_CERT: $ROOT_CERT"
     exit 1
 }
 
-make -C "${HTTPS_DIR}"
 
 if [[ -d /usr/local/share/ca-certificates ]]
 then
-    if ! diff -qN "${HTTPS_DIR}/root-ca.crt.pem" /usr/local/share/ca-certificates/root-ca.crt
+    if ! diff -qN "${ROOT_CERT}" /usr/local/share/ca-certificates/root-ca.crt
     then
-        sudo cp "${HTTPS_DIR}/root-ca.crt.pem" /usr/local/share/ca-certificates/root-ca.crt
+        sudo cp "${ROOT_CERT}" /usr/local/share/ca-certificates/root-ca.crt
         sudo update-ca-certificates
     else
-        echo "${HTTPS_DIR}/root-ca.crt.pem" /usr/local/share/ca-certificates/root-ca.crt already match!
+        echo "${ROOT_CERT}" /usr/local/share/ca-certificates/root-ca.crt already match!
     fi
 elif [[ -d /etc/pki/ca-trust/source/anchors/ ]]
 then
-    if ! diff -qN "${HTTPS_DIR}/root-ca.crt.pem" /etc/pki/ca-trust/source/anchors/root-ca.crt
+    if ! diff -qN "${ROOT_CERT}" /etc/pki/ca-trust/source/anchors/root-ca.crt
     then
-        sudo cp "${HTTPS_DIR}/root-ca.crt.pem" /etc/pki/ca-trust/source/anchors/root-ca.crt
+        sudo cp "${ROOT_CERT}" /etc/pki/ca-trust/source/anchors/root-ca.crt
         sudo update-ca-trust extract
     fi
 fi
-chmod -R a+rX "${HTTPS_DIR}"

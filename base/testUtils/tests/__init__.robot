@@ -89,6 +89,7 @@ Global Setup Tasks
     ${isJenkinsTestRun}=   Directory Exists    ${JENKINS_TEST_LIBS}
 
     Set Global Variable  ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_UTILS}    ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
@@ -115,7 +116,7 @@ Global Setup Tasks
 
     Log To Console  \n${colored_message} \n
 
-
+    install_system_ca_cert    ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
     Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
     Set Global Variable    ${VUT_LAUNCH_DARKLY}                  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly
@@ -128,3 +129,4 @@ Global Setup Tasks
 Global Cleanup Tasks
     Clean Up System Product Test Output
     Cleanup Temporary Folders
+    cleanup_system_ca_certs

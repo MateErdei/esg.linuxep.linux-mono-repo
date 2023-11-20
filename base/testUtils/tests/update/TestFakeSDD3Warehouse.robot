@@ -35,8 +35,6 @@ Run Sdds warehouse
     Log  ${Files}
     Regenerate Certificates
     Set Local CA Environment Variable
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
     Start Local Cloud Server
     Get Thininstaller
     Create Default Credentials File

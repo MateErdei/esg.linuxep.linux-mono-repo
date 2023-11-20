@@ -17,4 +17,4 @@ fi
 cd "${0%/*}" || exit
 
 ./install_sdds3_server_certs.sh
-python TA/libs/SDDS3server.py --sdds3 bazel-bin/sdds3 --certpath TA/SupportFiles/https/server-private.pem
+python TA/libs/SDDS3server.py --sdds3 bazel-bin/sdds3 --certpath ../common/TA/utils/server_certs/server.crt
