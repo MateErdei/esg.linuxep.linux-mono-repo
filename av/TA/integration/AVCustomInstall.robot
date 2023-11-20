@@ -210,10 +210,6 @@ Enable OnAccess In Custom Install Location
     Run Process    chmod    666    ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/SAV-2_policy.xml
     Move File    ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/SAV-2_policy.xml    ${CUSTOM_INSTALL_LOCATION}/base/mcs/policy/SAV-2_policy.xml
 
-    Copy File  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/flags.json
-    Run Process  chmod  666  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/flags.json
-    Move File  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/flags.json  ${CUSTOM_INSTALL_LOCATION}/base/mcs/policy/flags.json
-
     Copy File  ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/CORE-36_policy.xml
     Run Process  chmod  666  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/CORE-36_policy.xml
     Move File  ${CUSTOM_INSTALL_LOCATION}/base/mcs/tmp/CORE-36_policy.xml  ${CUSTOM_INSTALL_LOCATION}/base/mcs/policy/CORE-36_policy.xml

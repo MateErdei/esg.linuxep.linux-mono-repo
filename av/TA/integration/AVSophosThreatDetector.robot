@@ -6,6 +6,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -703,6 +704,7 @@ Threat Detector Can Bootstrap New SUSI After A Failed Initialization
 
 
 Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
+    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -1039,10 +1041,11 @@ AVSophosThreatDetector Suite Setup
 
 AVSophosThreatDetector Suite TearDown
     Log  AVSophosThreatDetector Suite TearDown
+    Send CORE Policy To Base    core_policy/CORE-36_oa_disabled.xml
 
 AVSophosThreatDetector Test Setup
     Require Plugin Installed and Running  DEBUG
-
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${WATCHDOG_LOG}
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
@@ -1057,6 +1060,7 @@ AVSophosThreatDetector Test Setup
     Register Cleanup      Require No Unhandled Exception
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
+    Register Cleanup      Cleanup Safestore Database
 
 Create Default Machine Id
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb

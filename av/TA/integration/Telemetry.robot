@@ -260,7 +260,7 @@ On Access ML Scanning Is Reported Correctly To Telemetry
     ${soapd_mark} =  Get on access log mark
 
     #This registers disable with cleanup and enabled ML scanning
-    Send Policies to enable on-access
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
     wait for on access log contains after mark  On-access scanning enabled  mark=${soapd_mark}
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}

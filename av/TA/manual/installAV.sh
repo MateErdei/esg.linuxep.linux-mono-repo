@@ -132,7 +132,7 @@ if [[ -z $MCS_URL ]]
 then
     if [[ $FLAGS ]]
     then
-      cp ${TEST_SUITE}/resources/flags_policy/flags_enabled.json ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
+      cp ${TEST_SUITE}/resources/flags_policy/flags.json ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
     fi
 
     if [[ $ALC ]]

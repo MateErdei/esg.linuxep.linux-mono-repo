@@ -129,6 +129,11 @@ namespace Plugin
         return getPluginVarDirPath() + "/on_access_status";
     }
 
+    std::string getDisableSafestorePath()
+    {
+        return getPluginVarDirPath() + "/disable_safestore";
+    }
+
     std::string getPersistThreatDatabaseFilePath()
     {
         return getPluginVarDirPath() + "/persist-threatDatabase";

@@ -451,26 +451,6 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 
 
-AV Plugin Can Process SafeStore Flag Enabled
-    Start Fake Management If Required
-    ${mark} =  get_av_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
-    send av policy  FLAGS  ${policyContent}
-    wait for av log contains after mark
-    ...   SafeStore flag set. Setting SafeStore to enabled.
-    ...   timeout=60
-    ...   mark=${mark}
-
-
-AV Plugin Can Process SafeStore Flag Disabled
-    Start Fake Management If Required
-    ${mark} =  get_av_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
-    wait for av log contains after mark
-    ...   SafeStore flag not set. Setting SafeStore to disabled.
-    ...   timeout=60
-    ...   mark=${mark}
-
 AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
     Create Bad Unicode Eicars
 

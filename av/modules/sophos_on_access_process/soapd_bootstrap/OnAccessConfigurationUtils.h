@@ -46,10 +46,8 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile(const sophos_filesystem::path&);
     std::string readPolicyConfigFile();
     bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig);
-    std::string readFlagConfigFile();
     OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
 
-    bool parseFlagConfiguration(const std::string& jsonString);
     int numberOfThreadsFromConcurrency(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
     bool isSettingTrue(const std::string& settingString);
 }

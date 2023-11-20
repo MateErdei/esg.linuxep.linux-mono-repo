@@ -191,27 +191,11 @@ Sophos On-Access Process Crashing Triggers Bad Health
     Wait Until On Access running
     Check Status Health is Reporting Correctly    GOOD
 
-
-Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When SafeStore Is Not Enabled
-    ${av_mark} =  Get AV Log Mark
-    Send Flags Policy To Base  flags_policy/flags.json
-    Check Status Health is Reporting Correctly    GOOD
-
-    Stop SafeStore
-    Check AV Log Contains After Mark  SafeStore flag not set. Setting SafeStore to disabled.  ${av_mark}
-    Check Status Health is Reporting Correctly    GOOD
-
-    Start SafeStore
-    Wait Until SafeStore running
-    Check Status Health is Reporting Correctly    GOOD
-
 Sophos SafeStore Process Not Running Triggers Bad Status Health
     ${av_mark} =  Get AV Log Mark
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
-    Check AV Log Contains After Mark  SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
@@ -220,11 +204,6 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
 
 Sophos SafeStore Crashing Triggers Bad Health
     ${av_mark} =  Get AV Log Mark
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark
-    ...   SafeStore flag set. Setting SafeStore to enabled.
-    ...   ${av_mark}
-    ...   timeout=60
 
     Check Status Health is Reporting Correctly    GOOD
 
@@ -251,6 +230,8 @@ Clean CLS Result Does Not Reset Threat Health
     # On-access can detect the file immediately, so we need the AV mark before creating the file
     ${av_mark} =  Get AV Log Mark
 
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+    Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
 
@@ -274,6 +255,8 @@ Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Bad Threat Health is preserved after av plugin restarts
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+    Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     Check Threat Health is Reporting Correctly    GOOD
 
@@ -290,6 +273,8 @@ Bad Threat Health is preserved after av plugin restarts
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Clean Scan Now Result Does Not Reset Threat Health
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+    Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
@@ -312,6 +297,8 @@ Clean Scan Now Result Does Not Reset Threat Health
 
 
 Clean Scheduled Scan Result Does Not Reset Threat Health
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+    Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Check Threat Health is Reporting Correctly    GOOD
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}

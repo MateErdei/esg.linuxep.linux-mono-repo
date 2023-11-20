@@ -74,7 +74,6 @@ namespace Plugin
         static void setOnAccessConfiguredTelemetry(bool enabled);
 
         void processFlagSettings(const std::string& flagsJson);
-        [[nodiscard]] bool isSafeStoreEnabled() const;
         [[nodiscard]] bool shouldSafeStoreQuarantineMl() const;
 
         /**
@@ -121,7 +120,6 @@ namespace Plugin
         void processOnAccessSettingsFromSAVpolicy(const AttributesMap& policy);
 
     private:
-        void processOnAccessFlagSettings(const nlohmann::json& flagsJson);
         void processSafeStoreFlagSettings(const nlohmann::json& flagsJson);
 
         void loadSusiSettings();
@@ -135,8 +133,7 @@ namespace Plugin
         void writeOnAccessConfig(const nlohmann::json& configJson);
 
 
-        inline static const std::string OA_FLAG{ "av.onaccess.enabled" };
-        inline static const std::string SS_FLAG{ "safestore.enabled" };
+
         inline static const std::string SS_ML_FLAG{ "safestore.quarantine-ml" };
 
         IStoppableSleeperSharedPtr m_sleeper;
@@ -145,7 +142,6 @@ namespace Plugin
 
         int m_pendingOnAccessProcessReload = 0;
 
-        bool m_safeStoreEnabled = false;
         bool m_safeStoreQuarantineMl = false;
 
         bool m_gotFirstSavPolicy = false;

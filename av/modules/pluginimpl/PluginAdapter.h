@@ -74,7 +74,6 @@ namespace Plugin
         void markAsQuarantining(scan_messages::ThreatDetected& detection) override;
 
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
-        bool isSafeStoreEnabled() const;
         bool shouldSafeStoreQuarantineMl() const;
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
         void processRestoreReport(const scan_messages::RestoreReport& restoreReport) const override;

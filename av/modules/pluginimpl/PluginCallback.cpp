@@ -267,38 +267,33 @@ namespace Plugin
     void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        if (!m_safeStoreEnabled)
+
+        bool dormant = fileSystem->isFile(getSafeStoreDormantFlagPath());
+        if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
         {
-            m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
+            if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
+            }
+            m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else if(dormant)
+        {
+            if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos SafeStore Process failed initialisation, turning service health to red");
+            }
+            m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
         }
         else
         {
-            bool dormant = fileSystem->isFile(getSafeStoreDormantFlagPath());
-            if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
+            if (m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
-                {
-                    LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
-                }
-                m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+                LOGINFO("Sophos SafeStore Process is now healthy");
             }
-            else if(dormant)
-            {
-                if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
-                {
-                    LOGWARN("Sophos SafeStore Process failed initialisation, turning service health to red");
-                }
-                m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
-            }
-            else
-            {
-                if (m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
-                {
-                    LOGINFO("Sophos SafeStore Process is now healthy");
-                }
-                m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
-            }
+            m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
         }
+
     }
 
     void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
@@ -378,12 +373,6 @@ namespace Plugin
         nlohmann::json j;
         j["Health"] = calculateHealth(sysCalls);
         return j.dump();
-    }
-
-
-    void PluginCallback::setSafeStoreEnabled(bool isEnabled)
-    {
-        m_safeStoreEnabled = isEnabled;
     }
 
     void PluginCallback::setOnAccessEnabled(bool isEnabled)

@@ -140,18 +140,6 @@ On Access Process Parses Policy Config
     wait for on access log contains after mark  Setting onClose from file: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
 
-On Access Process Parses Flags Config On startup
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    Wait Until Created  ${ONACCESS_FLAG_CONFIG}
-
-    ${mark} =  get_on_access_log_mark
-    Restart On Access
-
-    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
-
 On Access Does Not Include Remote Files If Excluded In Policy
     [Tags]  NFS
     ${mark} =  get_on_access_log_mark
@@ -166,7 +154,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
     ${mark} =  get_on_access_log_mark
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
 
     ${mark} =  wait for on access log contains after mark  "excludeRemoteFiles":true  mark=${mark}
     wait for on access log contains after mark  On-access scan network: false  mark=${mark}
@@ -186,7 +174,7 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
 
     ${oamark2} =  get_on_access_log_mark
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled_PUA_detection_disabled.xml
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     Wait for on access log contains after mark    PUA detection enabled: false    ${oamark}
 
     ${testfile2} =    Set Variable    /tmp_test/eicar_notPua.com
@@ -493,109 +481,6 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Register Cleanup  Remove File  ${filepath}
 
     wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from  mark=${mark}
-
-
-On Access Process Handles Consecutive Process Control Requests
-    Wait for OA Scanning enabled in status file
-    Sleep  ${1}
-
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":false  mark=${mark}
-    ${mark} =  wait for on access log contains after mark  On-access scanning disabled  mark=${mark}
-    Check OA disabled in status file
-
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
-    wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
-    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${3}
-    Check OA disabled in status file
-
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    Check OA disabled in status file
-
-    On-access No Eicar Scan
-
-On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
-    ${enabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    send av policy  FLAGS  ${enabledFlags}
-
-    ${enabledPolicy}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${enabledPolicy}
-
-    ${mark} =  get_on_access_log_mark
-    ${disabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    send av policy  FLAGS  ${disabledFlags}
-    #need to ensure that the disable flag has been read by soapd,
-    #the avp process can ovewrite the flag config before soapd gets a change to read it.
-    #this is fine because soapd will always read the latest flag settings as we get a notification after the a config is written
-    #but for the purpose of this test it's we want to avoid this situation
-    wait for on access log contains after mark   New flag configuration: {"oa_enabled":false}    mark=${mark}  timeout=${2}
-
-    ${mark} =  get_on_access_log_mark
-    send av policy  FLAGS  ${enabledFlags}
-    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true  mark=${mark}
-    wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
-
-    On-access Scan Eicar Open
-
-On Access Is Disabled By Default If No Flags Policy Arrives
-    Disable OA Scanning
-
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
-
-    On-access No Eicar Scan
-
-
-On Access Uses Policy Settings If Flags Dont Override Policy
-    ${mark} =  get_on_access_log_mark
-    send_av_policy_from_file   ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send_av_policy_from_file   FLAGS         ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-
-    wait for on access to be enabled In Log  ${mark}
-
-    check on access log contains expected after unexpected
-    ...  expected=No policy override, following policy settings
-    ...  unexpected=Overriding policy, on-access will be disabled
-
-    On-access Scan Eicar Close
-
-
-On Access Is Disabled After it Receives Disable Flags
-    # Setup - ensure on-access is enabled
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-    Wait For On Access to be enabled In Log  ${mark}
-
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
-
-    wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
-    wait for on access log contains after mark   Stopping the reading of Fanotify events  mark=${mark}
-
-    On-access No Eicar Scan
-
-
-On Access Does not Use Policy Settings If Flags Have Overriden Policy
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-    Wait For On Access to be enabled In Log  ${mark}
-
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
-    wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
-
-    ${mark} =  get_on_access_log_mark
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
-    On-access No Eicar Scan
-
 
 On Access Process Reconnects To Threat Detector
     ${oa_mark} =  get_on_access_log_mark

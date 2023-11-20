@@ -216,60 +216,6 @@ namespace sophos_on_access_process::OnAccessConfig
         return settings;
     }
 
-    std::string readFlagConfigFile()
-    {
-        auto* sophosFsAPI =  Common::FileSystem::fileSystem();
-        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-        auto flagPath = pluginInstall / "var/oa_flag.json";
-
-        try
-        {
-            std::string onAccessFlagJson = sophosFsAPI->readFile(flagPath.string());
-            LOGDEBUG("New flag configuration: " << onAccessFlagJson);
-            return  onAccessFlagJson;
-        }
-        catch (const Common::FileSystem::IFileSystemException& ex)
-        {
-            LOGWARN("Failed to read flag configuration, keeping existing configuration: " << ex.what());
-            return  "";
-        }
-    }
-
-    bool parseFlagConfiguration(const std::string& jsonString)
-    {
-        if (jsonString.empty())
-        {
-            // Avoid trying to parse empty string
-            return false;
-        }
-        try
-        {
-            json parsedConfig = json::parse(jsonString);
-            return parsedConfig["oa_enabled"];
-        }
-        catch (const json::parse_error& e)
-        {
-            LOGWARN("Failed to parse json configuration of flags due to parse error, reason: " << e.what());
-        }
-        catch (const json::out_of_range & e)
-        {
-            LOGWARN("Failed to parse json configuration of flags due to out of range error, reason: " << e.what());
-        }
-        catch (const json::type_error & e)
-        {
-            LOGWARN("Failed to parse json configuration of flags due to type error, reason: " << e.what());
-        }
-        catch (const json::other_error & e)
-        {
-            LOGWARN("Failed to parse json configuration of flags, reason: " << e.what());
-        }
-
-        LOGWARN("Failed to parse flag configuration, keeping existing settings");
-
-        return false;
-    }
-
     bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig)
     {
         if (jsonString.empty())

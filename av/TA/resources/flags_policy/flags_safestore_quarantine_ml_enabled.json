@@ -1,5 +1,4 @@
 {
-  "av.onaccess.enabled": false,
   "installer_download.enabled": false,
   "scheduled_queries.next": false,
   "alc_obfuscation.enabled": false,
@@ -8,7 +7,5 @@
   "eap.liveterminal.enabled": false,
   "livequery.network-tables.available": false,
   "jwt-token.available": false,
-  "sdds3.enabled": false,
-  "safestore.enabled": true,
   "safestore.quarantine-ml": true
 }

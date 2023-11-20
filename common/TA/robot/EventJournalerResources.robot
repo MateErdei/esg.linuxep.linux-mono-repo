@@ -11,8 +11,8 @@ ${EVENT_JOURNALER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/eventjournaler/log/event
 ${EVENT_READER_TOOL}          ${EVENT_JOURNALER_TOOLS}/JournalReader
 ${COMPONENT_ROOT_PATH}        ${SOPHOS_INSTALL}/plugins/eventjournaler
 ${EVENT_JOURNAL_DIR}          ${COMPONENT_ROOT_PATH}/data/eventjournals
-${JOURNALED_EICAR}            {"avScanType":203,"details":{"filePath":"/tmp/dirty_excluded_file","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_excluded_file","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"quarantineSuccess":false,"threatSource":1,"threatType":1,"time":
-${JOURNALED_EICAR2}           {"avScanType":203,"details":{"filePath":"/tmp/dirty_excluded_file2","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_excluded_file2","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"quarantineSuccess":false,"threatSource":1,"threatType":1,"time":
+${JOURNALED_EICAR}            {"avScanType":203,"details":{"filePath":"/tmp/dirty_excluded_file","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_excluded_file","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"quarantineSuccess":true,"threatSource":1,"threatType":1,"time":
+${JOURNALED_EICAR2}           {"avScanType":203,"details":{"filePath":"/tmp/dirty_excluded_file2","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_excluded_file2","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"quarantineSuccess":true,"threatSource":1,"threatType":1,"time":
 
 
 *** Keywords ***

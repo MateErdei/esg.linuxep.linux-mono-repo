@@ -139,18 +139,11 @@ Test av can publish events for onaccess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
     Mark Livequery Log
+    ${av_mark} =    mark_log_size        ${SOPHOS_INSTALL}/plugins/av/log/av.log
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  AV Plugin Log Contains   Processing On Access Scanning settings from CORE policy
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  10 secs
-    ...  AV Plugin Log Contains   On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    wait_for_log_contains_from_mark    ${av_mark}    Processing On Access Scanning settings from CORE policy     20
+
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
@@ -161,10 +154,8 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  check_log_contains    Fanotify successfully initialised  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
 
     Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  check_log_contains  Threat health changed to suspicious   ${AV_LOG_FILE}    av
+    wait_for_log_contains_from_mark    ${av_mark}    Threat cleaned up at path: '/tmp/dirty_excluded_file'     20
+
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -224,7 +215,7 @@ Check Logs Detected EICAR Event
     Check Marked Livequery Log Contains String N Times   quarantine_success         1
     Check Marked Livequery Log Contains String N Times   on_demand                  ${EXPECTED_EICARS}
     Check Marked Livequery Log Contains String N Times   avScanType\\":203          ${EXPECTED_EICARS}
-    Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":false  ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":true  ${EXPECTED_EICARS}
 
 Detect EICAR And Read With Livequery Via Event Journaler
     [Arguments]  ${dirty_file}=/tmp/dirty_excluded_file   ${journal_string}=${JOURNALED_EICAR}

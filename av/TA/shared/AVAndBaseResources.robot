@@ -27,6 +27,7 @@ AV and Base Setup
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
     Send Flags Policy
+    Send CORE Policy To Base    core_policy/CORE-36_oa_disabled.xml
     Reset ThreatDatabase
 
     Remove Directory  /tmp/DiagnoseOutput  true

@@ -66,7 +66,7 @@ Send Fixed Sav Policy
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
 Send Policies to enable on-access
-    [Arguments]  ${flags_policy}=flags_policy/flags_onaccess_enabled.json  ${oa_mark}=${None}
+    [Arguments]  ${flags_policy}=flags_policy/flags.json  ${oa_mark}=${None}
     ${oa_mark} =  get on access log mark if required  ${oa_mark}
     Register Cleanup If Unique  Send Policies to disable on-access
     # apply policies so that exclusions are applied before OA is enabled
@@ -83,7 +83,7 @@ Send Policies to enable on-access with exclusions
     # apply policies so that exclusions are applied before OA is enabled
     Send Sav Policy To Base  SAV-2_policy_OA_enabled_with_exclusions.xml
     Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
-    Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
+    Send Flags Policy To Base  flags_policy/flags.json
     Wait for on access to be enabled  ${mark}   file=/tmp_test/oa_file
 
 Send Policies to disable on-access without waiting

@@ -35,6 +35,7 @@ On Access Suite Setup
     ${oa_mark} =  get_on_access_log_mark
     Start On Access And AV With Running Threat Detector
     Enable OA Scanning   mark=${oa_mark}
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
 
 
 On Access Suite Teardown

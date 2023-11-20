@@ -84,9 +84,7 @@ Threat is removed from Threat database when threat is quarantined
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
     ${avmark} =  get_av_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-    wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
+    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Threat cleaned up at path: '${NORMAL_DIRECTORY}/naughty_eicar'  ${avmark}
@@ -103,16 +101,15 @@ Threat is removed from Threat database when threat is quarantined
 Threat is not added to Threat database when threat is quarantined
     set_default_policy_from_file  CORC   ${RESOURCES_PATH}/corc_policy/corc_policy_empty_allowlist.xml
     set_default_policy_from_file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    set_default_policy_from_file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
+    set_default_policy_from_file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     set_default_policy_from_file  SAV    ${RESOURCES_PATH}/sav_policy/SAV_default_policy.xml
     set_default_policy_from_file  ALC    ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
-
+    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     ${avmark} =  get_av_log_mark
     Start AV
     # Start AV also starts Safestore
     Wait Until SafeStore running
 
-    wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
     Create File     ${NORMAL_DIRECTORY}/threat_not_added_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/threat_not_added_eicar
     wait_for_av_log_contains_after_mark  Threat cleaned up at path: '${NORMAL_DIRECTORY}/threat_not_added_eicar'  ${avmark}  timeout=60
@@ -129,9 +126,6 @@ Duplicate Threat Event Is Not Sent To Central If Not Quarantined
     Wait Until SafeStore running
 
     ${avmark} =  get_av_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-    wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
 
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
@@ -158,6 +152,7 @@ ThreatDatabase Test Setup
     Register Cleanup      Require No Unhandled Exception
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
 
 Stop AV
     ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}

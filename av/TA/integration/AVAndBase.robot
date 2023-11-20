@@ -22,7 +22,8 @@ Resource        ../shared/SafeStoreResources.robot
 Suite Setup     AVAndBase Suite Setup
 Suite Teardown  AVAndBase Suite Teardown
 
-Test Setup      AV And Base Setup
+Test Setup      AVAndBase Test Setup
+
 Test Teardown   AV And Base Teardown
 
 Default Tags    TAP_TESTS
@@ -33,6 +34,10 @@ AVAndBase Suite Setup
 
 AVAndBase Suite Teardown
     Uninstall All
+
+AVAndBase Test Setup
+    AV And Base Setup
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
 
 Remove Users Stop Processes
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep av

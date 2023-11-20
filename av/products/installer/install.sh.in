@@ -243,6 +243,11 @@ function apply_permissions()
         chown ${USER_NAME}:${GROUP_NAME} ${VAR}/persist-threatDatabase
     fi
 
+    if [[ -f "${VAR}/disable_safestore" ]]
+    then
+        chmod 640 ${VAR}/disable_safestore
+        chown root:${GROUP_NAME} ${VAR}/disable_safestore
+    fi
     mkdir -p "$SAFESTORE_DB_PATH"
     chown -R root:root "${SAFESTORE_DB_PATH}"
     [[ "$(ls -A "${SAFESTORE_DB_PATH}")" ]] && chmod -R 0400 "${SAFESTORE_DB_PATH}"

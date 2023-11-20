@@ -62,7 +62,6 @@ namespace Plugin
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(E_HEALTH_STATUS threatStatus);
         [[nodiscard]] long getThreatHealth() const;
-        void setSafeStoreEnabled(bool isEnabled);
 
         void setOnAccessEnabled(bool isEnabled);
 
@@ -95,7 +94,6 @@ namespace Plugin
         std::string m_revID;
         std::string m_savStatus;
         std::atomic_bool m_running = false;
-        std::atomic_bool m_safeStoreEnabled = false;
         std::atomic_bool m_onAccessEnabled = false;
         bool m_lookupEnabled = true;
         int m_allowedShutdownTime = 60;

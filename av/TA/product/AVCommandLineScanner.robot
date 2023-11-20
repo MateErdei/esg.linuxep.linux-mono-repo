@@ -47,6 +47,8 @@ AVCommandLineScanner Suite Setup
 
     Start AV
     Force SUSI to be initialized
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+
 
 AVCommandLineScanner Suite TearDown
     Stop AV

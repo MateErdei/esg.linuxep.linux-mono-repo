@@ -58,10 +58,6 @@ Check SafeStore Permissions And Owner
     Should Contain    ${parentPid.stdout}    sophos_watchdog
 
 Check SafeStore Installed Correctly
-    Wait Until Keyword Succeeds
-    ...    15 secs
-    ...    1 secs
-    ...    AV Plugin Log Contains    SafeStore flag set. Setting SafeStore to enabled
 
     File Should Exist    ${SAFESTORE_BIN}
     Wait Until Keyword Succeeds

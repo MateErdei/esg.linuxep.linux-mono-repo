@@ -1013,6 +1013,8 @@ Installer Suite Setup
     Install With Base SDDS
     #TODO LINUXDAR-5808 remove this line when systemctl restart sophos-spl-update hang is fixed
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  removePluginRegistration  updatescheduler
+    Send CORE Policy To Base    core_policy/CORE-36_oa_disabled.xml
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
 
 Installer Suite TearDown
     No Operation

@@ -185,20 +185,13 @@ void OnAccessRunner::ProcessPolicy()
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
     LOGDEBUG("ProcessPolicy");
 
-    bool OnAccessEnabledFlag = false;
-    auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    if (!flagJsonString.empty())
-    {
-        OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-    }
-
     OnAccessConfig::OnAccessConfiguration oaConfig{};
 
     if (getPolicyConfiguration(oaConfig))
     {
         bool OnAccessEnabledPolicySetting = oaConfig.enabled;
 
-        if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
+        if(OnAccessEnabledPolicySetting)
         {
             //Set exclusions first before starting receiving fanotify events
             applyConfig(oaConfig);
@@ -213,19 +206,6 @@ void OnAccessRunner::ProcessPolicy()
     //Logging for failure done in calls from getPolicyConfiguration
 }
 
-bool OnAccessRunner::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)
-{
-    if(!OnAccessEnabledFlag)
-    {
-        LOGINFO("Overriding policy, on-access will be disabled");
-        return false;
-    }
-    else
-    {
-        LOGDEBUG("No policy override, following policy settings");
-        return OnAccessEnabledPolicySetting;
-    }
-}
 
 timespec* OnAccessRunner::getTimeout()
 {

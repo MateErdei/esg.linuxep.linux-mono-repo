@@ -119,7 +119,7 @@ Disable OA Scanning
     Configure On-access Off With Core Policy With Fake Management
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
 
-    wait for on access log contains after mark  "oa_enabled":false   mark=${mark}
+    wait for on access log contains after mark  On-access enabled: false   mark=${mark}
     wait for on access log contains after mark  Joining eventReader   mark=${mark}
     wait for on access log contains after mark  Stopping the reading of Fanotify events   mark=${mark}
     wait for on access log contains after mark  On-access scanning disabled   mark=${mark}
@@ -135,9 +135,8 @@ Enable OA Scanning
     END
     send av policy from file  ${SAV_APPID}   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     send av policy from file  CORE           ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-    send av policy from file  FLAGS          ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    send av policy from file  FLAGS          ${RESOURCES_PATH}/flags_policy/flags.json
 
-    wait for on access log contains after mark  "oa_enabled":true   mark=${mark}    timeout=30
     wait for on access log contains after mark  Starting eventReader   mark=${mark}    timeout=30
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}    timeout=30
 
@@ -172,7 +171,7 @@ On-access Scan Eicar Close
     wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${oamark}
     # With DeDup LINUXDAR-5901, eicar can be detected on either the open or the close, so we can't check
     wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test   mark=${oamark}
-    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}'   mark=${avmark}
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}'   mark=${avmark}    timeout=30
 
 On-access Scan Eicar Open
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt

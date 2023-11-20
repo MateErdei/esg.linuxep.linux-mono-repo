@@ -130,12 +130,6 @@ namespace Plugin
             auto pluginInstall = getPluginInstall();
             return pluginInstall + "/var/on_access_policy.json";
         }
-
-        std::string getSoapFlagConfigPath()
-        {
-            auto pluginInstall = getPluginInstall();
-            return pluginInstall + "/var/oa_flag.json";
-        }
     } // namespace
 
     PolicyProcessor::PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper) :
@@ -397,7 +391,6 @@ namespace Plugin
         try
         {
             auto j = json::parse(flagsJson);
-            processOnAccessFlagSettings(j);
             processSafeStoreFlagSettings(j);
         }
         catch (const json::parse_error& e)
@@ -406,76 +399,17 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::processOnAccessFlagSettings(const json& flagsJson)
-    {
-        bool oaEnabled = false;
-
-        if (flagsJson.find(OA_FLAG) != flagsJson.end())
-        {
-            if (flagsJson[OA_FLAG] == true)
-            {
-                LOGINFO("On-access is enabled in the FLAGS policy, assuming on-access policy settings");
-                oaEnabled = true;
-            }
-            else
-            {
-                LOGINFO("On-access is disabled in the FLAGS policy, overriding on-access policy settings");
-            }
-        }
-        else
-        {
-            LOGINFO("No on-access flag found, overriding on-access policy settings");
-        }
-
-        auto path = getSoapFlagConfigPath();
-        auto orignal_config = readConfigFromFile(path);
-
-        json oaConfig;
-        oaConfig["oa_enabled"] = oaEnabled;
-
-        if (orignal_config != oaConfig)
-        {
-            if (writeConfigToFile(path, oaConfig, "Flag Config"))
-            {
-                markOnAccessReloadPending();
-            }
-        }
-        else
-        {
-            LOGINFO("On Access setting from FLAGS policy not changed");
-        }
-    }
-
     void PolicyProcessor::processSafeStoreFlagSettings(const nlohmann::json& flagsJson)
     {
-        bool ssEnabled = flagsJson.value(SS_FLAG, false);
-        if (ssEnabled)
+        m_safeStoreQuarantineMl = flagsJson.value(SS_ML_FLAG, false);
+        if (m_safeStoreQuarantineMl)
         {
-            LOGINFO("SafeStore flag set. Setting SafeStore to enabled.");
+            LOGDEBUG("SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.");
         }
         else
         {
-            LOGINFO("SafeStore flag not set. Setting SafeStore to disabled.");
+            LOGDEBUG("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections.");
         }
-        m_safeStoreEnabled = ssEnabled;
-
-        if (m_safeStoreEnabled)
-        {
-            m_safeStoreQuarantineMl = flagsJson.value(SS_ML_FLAG, false);
-            if (m_safeStoreQuarantineMl)
-            {
-                LOGDEBUG("SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.");
-            }
-            else
-            {
-                LOGDEBUG("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections.");
-            }
-        }
-    }
-
-    bool PolicyProcessor::isSafeStoreEnabled() const
-    {
-        return m_safeStoreEnabled;
     }
 
     bool PolicyProcessor::shouldSafeStoreQuarantineMl() const

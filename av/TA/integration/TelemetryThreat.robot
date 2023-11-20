@@ -10,6 +10,7 @@ Library         ../Libs/FileSampleObfuscator.py
 Resource        ../shared/OnAccessResources.robot
 Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/AVAndBaseResources.robot
+Resource        ../shared/SafeStoreResources.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Telemetry Suite Teardown
@@ -271,7 +272,8 @@ AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
     ${mark} =  Get on access log mark
-
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
+    Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     #This registers disable with cleanup
     Send Policies to enable on-access
 

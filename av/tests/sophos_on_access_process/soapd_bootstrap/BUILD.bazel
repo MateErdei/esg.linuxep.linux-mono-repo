@@ -6,7 +6,6 @@ soph_cc_test(
     name = "TestSoapdBootstrap",
     srcs = [
         "TestOnAccessConfigurationUtils.cpp",
-        "TestOnAccessRunner.cpp",
         "TestOnAccessServiceCallback.cpp",
         "TestSoapdBootstrap.cpp",
     ],

@@ -57,9 +57,6 @@ namespace sophos_on_access_process::soapd_bootstrap
             return m_fanotifyHandler;
         }
 
-    TEST_PUBLIC:
-        static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
-
     private:
         bool getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig);
         void applyConfig(const OnAccessConfig::OnAccessConfiguration& config);

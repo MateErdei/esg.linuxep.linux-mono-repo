@@ -402,7 +402,6 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenDormantFlagExists)
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
-    m_pluginCallback->setSafeStoreEnabled(true);
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
     
@@ -425,6 +424,8 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 60));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
+
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
     
     long expectedResult = E_HEALTH_STATUS_BAD;
@@ -448,6 +449,7 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
     EXPECT_CALL(*m_mockFileSystem, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("Shutdown file read error.")));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
@@ -468,6 +470,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFil
     expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
     
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
@@ -485,6 +488,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCannotBeTakenOnPidFile
     expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
@@ -508,6 +512,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     EXPECT_CALL(*m_mockFileSystem, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
@@ -544,6 +549,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
     
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
@@ -570,7 +576,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafeStoreP
     Path safestorePidFile = Plugin::getSafeStorePidPath();
 
     int other_fd = 123;
-    int soapd_fd = 321;
+    int safestore_fd = 321;
 
     expectAbsentSusiStatusFile();
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
@@ -579,12 +585,11 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafeStoreP
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::move(m_mockFileSystem)};
 
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
-    EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(safestorePidFile), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(safestorePidFile), O_RDONLY, 0644)).WillOnce(Return(safestore_fd));
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
-    EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
-    
+    EXPECT_CALL(*m_mockSysCalls, flock(safestore_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
+
     long expectedResult = E_HEALTH_STATUS_BAD;
-    m_pluginCallback->setSafeStoreEnabled(true);
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
@@ -615,6 +620,7 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     EXPECT_CALL(*m_mockFileSystem, exists(shutdownFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, readFile(threatDetectorPidFile)).WillRepeatedly(Return(threatDetectorPidFileContents));
     EXPECT_CALL(*m_mockFileSystem, readFile(soapdPidFile)).WillRepeatedly(Return(soapdPidFileContents));
     EXPECT_CALL(*m_mockFileSystem, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
@@ -652,7 +658,6 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
 
-    m_pluginCallback->setSafeStoreEnabled(true);
     m_pluginCallback->m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
     m_pluginCallback->m_soapServiceStatus = E_HEALTH_STATUS_BAD;
     m_pluginCallback->m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;

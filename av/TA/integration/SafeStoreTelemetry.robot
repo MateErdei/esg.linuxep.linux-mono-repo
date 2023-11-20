@@ -87,8 +87,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
    ${av_mark} =  Get AV Log Mark
-   Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-   Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
+
    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
    ${ss_mark} =    Get SafeStore Log Mark
 
@@ -132,8 +131,6 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
    ${av_mark} =  Get AV Log Mark
-   Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-   Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
    ${ss_mark} =    Get SafeStore Log Mark
 
@@ -229,7 +226,6 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     ${avMark} =  Get AV Log Mark
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait For Log Contains From Mark    ${avMark}    SafeStore flag set. Setting SafeStore to enabled.   timeout=60
     Wait Until SafeStore running
     Check SafeStore Telemetry    successful-file-restorations   ${0}
 
@@ -264,7 +260,6 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     ${avMark} =  Get AV Log Mark
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait For Log Contains From Mark    ${avMark}    SafeStore flag set. Setting SafeStore to enabled.   timeout=60
     Wait Until SafeStore running
     Check SafeStore Telemetry    failed-file-restorations   ${0}
 

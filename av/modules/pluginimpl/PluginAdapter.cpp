@@ -17,6 +17,8 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
@@ -52,17 +54,24 @@ namespace Plugin
                 const std::string escapedPath = common::pathForLogging(detection.filePath);
                 bool shouldQuarantine = true;
 
-                if (!m_adapter.isSafeStoreEnabled())
-                {
-                    LOGINFO(escapedPath << " was not quarantined due to SafeStore being disabled");
-                    shouldQuarantine = false;
-                }
-                else if (
+                if (
                     detection.reportSource == common::CentralEnums::ReportSource::ml &&
                     !m_adapter.shouldSafeStoreQuarantineMl())
                 {
                     LOGINFO(escapedPath << " was not quarantined due to being reported as an ML detection");
                     shouldQuarantine = false;
+                }
+
+                try
+                {
+                    if (Common::FileSystem::fileSystem()->isFile(Plugin::getDisableSafestorePath()))
+                    {
+                        shouldQuarantine = false;
+                    }
+                }
+                catch (Common::FileSystem::IFileSystemException &ex)
+                {
+                    LOGWARN("Failed to check for safestore disable path with error: " << ex.what());
                 }
 
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
@@ -292,8 +301,6 @@ namespace Plugin
     {
         LOGDEBUG("Flags Policy received: " << flagsJson);
         m_policyProcessor.processFlagSettings(flagsJson);
-
-        m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
     void PluginAdapter::processPolicy(
@@ -612,11 +619,6 @@ namespace Plugin
     void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
     {
         m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);
-    }
-
-    bool PluginAdapter::isSafeStoreEnabled() const
-    {
-        return m_policyProcessor.isSafeStoreEnabled();
     }
 
     bool PluginAdapter::shouldSafeStoreQuarantineMl() const
