@@ -11,11 +11,6 @@ namespace Plugin
         m_cond.notify_one();
     }
 
-    bool TaskQueue::pop(Task& task, int timeout)
-    {
-        return pop(task, std::chrono::seconds(timeout));
-    }
-
     bool TaskQueue::pop(Task& task, std::chrono::milliseconds timeout)
     {
         std::unique_lock<std::mutex> lock(m_mutex);

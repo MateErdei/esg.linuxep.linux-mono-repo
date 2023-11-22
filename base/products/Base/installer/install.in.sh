@@ -83,7 +83,7 @@ while [[ $# -ge 1 ]] ; do
             PREREGISTED_MCS_POLICY_CONFIG=$1
             [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]] || failure 2 "MCS policy config \"${PREREGISTED_MCS_POLICY_CONFIG}\" does not exist"
             ;;
-        --log-level|--sophos-log-level)
+        --log-level|--sophos-log-level|--loglevel)
             shift
             SOPHOS_LOG_LEVEL=$1
             ;;

@@ -25,9 +25,15 @@ namespace Plugin
         LOGDEBUG("Received unexpected policy");
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */)
-    { 
-        LOGDEBUG("Received unexpected action"); 
+    void PluginCallback::queueActionWithCorrelation(const std::string& actionXml, const std::string& correlationId)
+    {
+        m_task->push(Task { Task::TaskType::Action, actionXml, correlationId });
+    }
+
+    void PluginCallback::queueAction(const std::string& actionXml)
+    {
+        LOGWARN("Internal error: queueAction without correlationId");
+        queueActionWithCorrelation(actionXml, "");
     }
 
     void PluginCallback::onShutdown()
@@ -35,7 +41,7 @@ namespace Plugin
         LOGDEBUG("Shutdown signal received");
         m_task->pushStop();
         int timeoutCounter = 0;
-        int shutdownTimeout = 30;
+        int shutdownTimeout = 5;
         while(isRunning() && timeoutCounter < shutdownTimeout)
         {
             LOGDEBUG("Shutdown waiting for all processes to complete");

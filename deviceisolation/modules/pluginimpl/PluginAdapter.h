@@ -19,7 +19,7 @@ namespace Plugin
         void mainLoop();
 
     private:
-        void processPolicy(const std::string& policyXml);
+        void processAction(const std::string& actionXml);
 
         std::shared_ptr<TaskQueue> m_taskQueue;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;

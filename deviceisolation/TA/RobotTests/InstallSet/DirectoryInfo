@@ -1,3 +1,3 @@
-o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/deviceisolation/log
-o750, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation
-o750, sophos-spl-group, root, /opt/sophos-spl/plugins/deviceisolation/bin
+o700, root, root, /opt/sophos-spl/plugins/deviceisolation/log
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation/bin

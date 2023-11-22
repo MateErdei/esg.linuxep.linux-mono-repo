@@ -42,9 +42,6 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=sophos-spl-user
-GROUP_NAME=sophos-spl-group
-
 function is_already_installed()
 {
     [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/deviceisolation" ]]
@@ -81,8 +78,7 @@ chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
 chmod -R 0600 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/"*
 
 # Blanket plugin directory recursive chown
-chown -R root:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
-chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
+chown -R root:root "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"

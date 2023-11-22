@@ -2,6 +2,7 @@
   "policyAppIds": [
   ],
   "actionAppIds": [
+    "SHS"
   ],
   "statusAppIds": [
   ],
@@ -15,7 +16,7 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group",
+  "executableUserAndGroup": "root:root",
   "secondsToShutDown":10,
   "displayPluginName": "@PRODUCT_PRETTY_NAME@"
 }

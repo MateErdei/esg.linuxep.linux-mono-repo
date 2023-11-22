@@ -18,36 +18,36 @@ ${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
 *** Keywords ***
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
+    Run Shell Process   bash -x ${BASE_SDDS}/install.sh --log-level DEBUG 2>/tmp/installer.log   OnError=Failed to Install Base   timeout=60s
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install Device Isolation Directly from SDDS
     ${DEVICE_ISOLATION_SDDS} =   get_sspl_device_isolation_plugin_sdds
-    ${result} =   Run Process  bash ${DEVICE_ISOLATION_SDDS}/install.sh   shell=True   timeout=120s
+    File Should Exist   ${DEVICE_ISOLATION_SDDS}/install.sh
+    ${result} =   Run Process  bash  -x  ${DEVICE_ISOLATION_SDDS}/install.sh   timeout=120s   stderr=STDOUT
     log  ${result.stdout}
-    log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install deviceisolation.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install deviceisolation.\noutput: \n${result.stdout}"
 
 Uninstall Base
-    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    ${result} =   Run Process  bash  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force   timeout=30s  stderr=STDOUT
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall base.\noutput: \n${result.stdout}"
     
 Uninstall Device Isolation
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/deviceisolation/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall Device Isolation.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall Device Isolation.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 
 Downgrade Device Isolation
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/deviceisolation/bin/uninstall.sh --downgrade   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to downgrade Device Isolation.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to downgrade Device Isolation.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 
 Check Device Isolation Executable Running
     ${result} =    Run Process  pgrep deviceisolation | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Should Be Equal As Integers    ${result.stdout}    ${1}       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check Device Isolation Executable Not Running
     ${result} =    Run Process  pgrep  -a  deviceisolation
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    ${0}     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Stop Device Isolation
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop deviceisolation   OnError=failed to stop deviceisolation  timeout=35s
@@ -68,6 +68,11 @@ Restart Device Isolation
 List File In Test Dir
     ${filenames} =  List Directory  /opt/test/inputs/fake_management/
     Log    ${filenames}
+
+
+Get Device Isolation Log Mark
+    ${mark} =  mark_log_size  ${DEVICE_ISOLATION_LOG_PATH}
+    [Return]  ${mark}
 
 Device Isolation Suite Setup
     Install Base For Component Tests

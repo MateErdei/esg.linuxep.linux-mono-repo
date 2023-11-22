@@ -10,15 +10,16 @@
 
 namespace Plugin
 {
-    class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
+    class PluginCallback : public Common::PluginApi::IPluginCallbackApi
     {
         std::shared_ptr<TaskQueue> m_task;
 
     public:
-        PluginCallback(std::shared_ptr<TaskQueue> task);
+        explicit PluginCallback(std::shared_ptr<TaskQueue> task);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
+        void queueActionWithCorrelation(const std::string& content, const std::string& correlationId) override;
         void queueAction(const std::string& actionXml) override;
 
         void onShutdown() override;

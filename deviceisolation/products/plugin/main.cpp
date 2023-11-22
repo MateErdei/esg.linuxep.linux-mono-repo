@@ -38,21 +38,23 @@ static int inner_main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(
-            queueTask,
-            std::move(baseService),
-            sharedPluginCallBack);
+    {
+        PluginAdapter pluginAdapter(
+                queueTask,
+                std::move(baseService),
+                sharedPluginCallBack);
 
-    try
-    {
-        pluginAdapter.mainLoop();
+        try
+        {
+            pluginAdapter.mainLoop();
+        }
+        catch (const std::exception &ex)
+        {
+            LOGERROR("Plugin threw an exception at top level: " << ex.what());
+            ret = 40;
+        }
+        sharedPluginCallBack->setRunning(false);
     }
-    catch (const std::exception& ex)
-    {
-        LOGERROR("Plugin threw an exception at top level: " << ex.what());
-        ret = 40;
-    }
-    sharedPluginCallBack->setRunning(false);
     LOGINFO("Plugin Finished.");
     return ret;
 }

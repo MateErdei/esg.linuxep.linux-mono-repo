@@ -15,10 +15,12 @@ namespace Plugin
         enum class TaskType
         {
             Policy,
+            Action,
             Stop
         };
         TaskType taskType;
         std::string Content;
+        std::string correlationId=""; // NOLINT - needs ="" to avoid struct uninitialised
     };
 
     class TaskQueue
@@ -29,7 +31,6 @@ namespace Plugin
 
     public:
         void push(Task);
-        bool pop(Task&, int timeout);
         bool pop(Task&, std::chrono::milliseconds timeout);
         void pushStop();
     };

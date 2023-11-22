@@ -2,6 +2,7 @@
 
 #include "PluginAdapter.h"
 
+#include "ActionProcessor.h"
 #include "ApplicationPaths.h"
 #include "Logger.h"
 
@@ -39,15 +40,34 @@ namespace Plugin
                     case Task::TaskType::Stop:
                         return;
                     case Task::TaskType::Policy:
-                        processPolicy(task.Content);
+                        LOGERROR("Received unexpected Policy Task");
+                        break;
+                    case Task::TaskType::Action:
+                        processAction(task.Content);
                         break;
                 }
             }
         }
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml) 
+    void PluginAdapter::processAction(const std::string& actionXml)
     {
-        LOGDEBUG("Process policy: " << policyXml);
+        LOGDEBUG("Received action: " << actionXml);
+        auto action = ActionProcessor::processIsolateAction(actionXml);
+        if (!action)
+        {
+            // Error logged in processIsolateAction
+            LOGDEBUG("Ignoring invalid action: " << actionXml);
+            return;
+        }
+        if (action.value())
+        {
+            LOGINFO("Enabling Device Isolation");
+        }
+        else
+        {
+            LOGINFO("Disabling Device Isolation");
+        }
     }
+
 } // namespace Plugin

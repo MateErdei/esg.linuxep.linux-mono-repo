@@ -12,6 +12,7 @@ soph_cc_library(
     hdrs = [
         "ApplicationPaths.h",
         "PluginAdapter.h",
+        ":config",
     ],
     implementation_deps = [
         "//base/modules/Common/ApplicationConfiguration",
@@ -19,6 +20,7 @@ soph_cc_library(
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//base/modules/Common/XmlUtilities",
     ],
     visibility = [
         "//deviceisolation/products/plugin:__pkg__",

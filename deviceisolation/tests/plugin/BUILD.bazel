@@ -3,18 +3,7 @@ load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
 
 spl_independent_cc_tests(
     name = "TestPlugin",
-    srcs = glob(
-        [
-            "*.cpp",
-            "*.h",
-        ],
-    ),
-    linkopts = select({
-        "@platforms//os:linux": [
-            "-lstdc++fs",
-        ],
-        "//conditions:default": [],
-    }),
+    srcs = glob(["*.cpp"]),
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/TelemetryHelperImpl",

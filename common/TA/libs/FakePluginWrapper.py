@@ -10,6 +10,7 @@ import json
 import robot.api.logger
 import xml.dom.minidom
 
+import FakeMCS
 import PathManager
 
 SUPPORTFILEPATH = PathManager.get_support_file_path()
@@ -161,9 +162,4 @@ class FakePluginWrapper(object):
         return time.strftime("%Y%m%d %H%M%S")
 
     def send_action(self, src_file_name, dest_file_name, **replacements):
-        contents = open(src_file_name).read()
-        for k, v in replacements.items():
-            contents = contents.replace(k, v)
-        tmp_name = os.path.join(PathManager.SOPHOS_INSTALL, "tmp", "TempAction.xml")
-        open(tmp_name, "w").write(contents)
-        os.rename(tmp_name, dest_file_name)
+        return FakeMCS.send_action(src_file_name, dest_file_name, **replacements)
