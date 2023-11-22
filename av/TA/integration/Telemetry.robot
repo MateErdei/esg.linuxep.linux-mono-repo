@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Telemetry tests
-Force Tags      INTEGRATION  AVBASE  TELEMETRY  TAP_PARALLEL5
+Force Tags      INTEGRATION  AVBASE  TELEMETRY  TAP_PARALLEL1
 Library         Collections
 Library         OperatingSystem
 Library         Process

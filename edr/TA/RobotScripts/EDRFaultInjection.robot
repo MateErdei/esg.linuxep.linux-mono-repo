@@ -11,7 +11,7 @@ Suite Teardown  Uninstall All
 Test Setup      No Operation
 Test Teardown   EDR And Base Teardown
 
-Force Tags    TAP_PARALLEL4
+Force Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${OSQUERY_FLAGS_FILE}   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags

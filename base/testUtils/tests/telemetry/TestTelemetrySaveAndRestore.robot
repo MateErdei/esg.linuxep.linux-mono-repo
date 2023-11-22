@@ -10,7 +10,7 @@ Suite Teardown   Cleanup Telemetry Save Restore Tests
 Test Setup       Telemetry Save Restore Test Setup
 Test Teardown    Telemetry Save Restore Test Teardown
 
-Force Tags  TELEMETRY  WATCHDOG  TAP_PARALLEL6
+Force Tags  TELEMETRY  WATCHDOG  TAP_PARALLEL5
 
 *** Variables ***
 ${TELEMETRY_CACHE_DIR}  ${SOPHOS_INSTALL}/base/telemetry/cache

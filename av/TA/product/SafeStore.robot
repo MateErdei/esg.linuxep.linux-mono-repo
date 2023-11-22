@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for SafeStore
-Force Tags      PRODUCT  SAFESTORE  TAP_PARALLEL5
+Force Tags      PRODUCT  SAFESTORE  TAP_PARALLEL1
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot

@@ -2,7 +2,7 @@
 Library         Collections
 Library         OperatingSystem
 
-Resource        DeviceIsolationResources.robot
+Resource        ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library         ${TEST_INPUT_PATH}/fake_management/FakeManagement.py
 

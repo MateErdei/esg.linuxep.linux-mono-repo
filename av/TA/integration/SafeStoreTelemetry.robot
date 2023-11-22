@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   SafeStore Telemetry tests
-Force Tags      INTEGRATION  TELEMETRY    SAFESTORE  TAP_PARALLEL4
+Force Tags      INTEGRATION  TELEMETRY    SAFESTORE  TAP_PARALLEL2
 
 Library         Collections
 

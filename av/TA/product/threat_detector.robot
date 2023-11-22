@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for sophos_threat_detector
-Force Tags      PRODUCT  THREAT_DETECTOR    TAP_PARALLEL4
+Force Tags      PRODUCT  THREAT_DETECTOR    TAP_PARALLEL2
 
 Library         Process
 Library         OperatingSystem
@@ -281,6 +281,7 @@ Threat Detector can have Machine Learning Turned off
     Register Cleanup   dump log  ${SUSI_DEBUG_LOG_PATH}
     Register Cleanup   dump log  ${AV_LOG_PATH}
     Register Cleanup   dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Create Directory  ${NORMAL_DIRECTORY}/
 
     # Set CORE policy to turn off ML detections
     set_default_policy_from_file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml

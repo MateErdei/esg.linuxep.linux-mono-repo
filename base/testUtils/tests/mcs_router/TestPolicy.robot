@@ -10,7 +10,7 @@ Suite Teardown    Run Keywords
 ...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
-Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION  TAP_PARALLEL4
+Force Tags  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION  TAP_PARALLEL2
 
 *** Test Case ***
 # Note that our local cloud server does not support fragmented policy.

@@ -12,7 +12,7 @@ Test Teardown  Local Test Teardown
 Suite Setup   Local Suite Setup
 Suite Teardown   Local Suite Teardown
 
-Force Tags   FAULTINJECTION    TAP_PARALLEL4
+Force Tags   FAULTINJECTION    TAP_PARALLEL2
 
 *** Variables ***
 ${FakeLogger}                   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/FaultInjectionLogger

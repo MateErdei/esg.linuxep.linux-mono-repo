@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Telemetry Threat tests
-Force Tags      INTEGRATION  AVBASE  TELEMETRYTHREAT  TAP_PARALLEL5
+Force Tags      INTEGRATION  AVBASE  TELEMETRYTHREAT  TAP_PARALLEL1
 
 Library         Collections
 

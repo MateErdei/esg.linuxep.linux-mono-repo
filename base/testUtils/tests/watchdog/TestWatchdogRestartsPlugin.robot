@@ -9,7 +9,7 @@ Library    ${COMMON_TEST_LIBS}/Watchdog.py
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
-Force Tags    TAP_PARALLEL6    WATCHDOG    WDCTL
+Force Tags    TAP_PARALLEL2    WATCHDOG    WDCTL
 
 Test Setup  Require Fresh Install
 

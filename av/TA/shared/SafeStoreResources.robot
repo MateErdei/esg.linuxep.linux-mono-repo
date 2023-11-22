@@ -71,8 +71,8 @@ Wait Until SafeStore running
 
 Wait Until SafeStore Started Successfully
     Wait Until SafeStore running
-    ## password creation only done on first run - can't cover complete log turn-over:
-    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
+    ## password creation only done on first run - can't cover complete log turn-over so check for existance of file:
+    Wait Until Created    ${SAFESTORE_DB_PASSWORD_PATH}
 
     ## Lines logged for every start
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15

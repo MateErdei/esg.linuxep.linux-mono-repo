@@ -1,7 +1,7 @@
 *** Settings ***
 
 Documentation   Product tests for AVP
-Force Tags      PRODUCT  SCANNOW  TAP_PARALLEL6
+Force Tags      PRODUCT  SCANNOW  TAP_PARALLEL3
 Library         Collections
 Library         DateTime
 Library         Process

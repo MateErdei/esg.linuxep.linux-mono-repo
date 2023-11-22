@@ -7,11 +7,11 @@ Resource   ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource   ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
-Force Tags  UNINSTALL  TAP_PARALLEL5
+Force Tags  UNINSTALL  TAP_PARALLEL1
 
 *** Test Cases ***
 Uninstallation of base removes all plugins cleanly
-    [Tags]  LIVERESPONSE_PLUGIN   EDR_PLUGIN  UNINSTALL
+    [Tags]  LIVERESPONSE_PLUGIN   EDR_PLUGIN
     Require Fresh Install
 
     Check Expected Base Processes Are Running
@@ -32,7 +32,7 @@ Uninstallation of base removes all plugins cleanly
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
 Test Liveresponse Plugin uninstalls cleanly
-    [Tags]  LIVERESPONSE_PLUGIN  UNINSTALL
+    [Tags]  LIVERESPONSE_PLUGIN
     Require Fresh Install
 
     Install Live Response Directly
@@ -53,7 +53,7 @@ Test Liveresponse Plugin uninstalls cleanly
 
 
 Test Edr Plugin uninstalls cleanly
-    [Tags]  EDR_PLUGIN   UNINSTALL
+    [Tags]  EDR_PLUGIN
     Require Fresh Install
 
     Install EDR Directly
@@ -75,7 +75,7 @@ Test Edr Plugin uninstalls cleanly
     File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
 Test Edr Plugin downgrades properly with plugin conf
-    [Tags]  EDR_PLUGIN   UNINSTALL   PLUGIN_DOWNGRADE
+    [Tags]  EDR_PLUGIN   PLUGIN_DOWNGRADE
     Require Fresh Install
     Install EDR Directly
     Wait For EDR to be Installed
@@ -98,7 +98,7 @@ Test Edr Plugin downgrades properly with plugin conf
 
 
 Test Uninstall Script Gives Return Code Zero
-    [Tags]  UNINSTALL  TAP_PARALLEL5  SMOKE
+    [Tags]  SMOKE
     Require Fresh Install
     Check Expected Base Processes Are Running
 

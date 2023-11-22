@@ -13,7 +13,7 @@ Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown
 
-Force Tags  WDCTL    TAP_PARALLEL6
+Force Tags  WDCTL    TAP_PARALLEL2
 
 *** Test Cases ***
 Test Wdctl can remove a plugin

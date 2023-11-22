@@ -194,7 +194,7 @@ def stage_sdds_tests(
 ):
     group_name = "system_tests"
 
-    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2"
 
     with stage.parallel(group_name):
         for build in get_test_builds():

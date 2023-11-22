@@ -1,7 +1,7 @@
 *** Settings ***
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
-Resource    DeviceIsolationResources.robot
+Resource    ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 
 Suite Setup     Device Isolation Suite Setup
 Suite Teardown  Device Isolation Suite Teardown

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests of Installer
-Force Tags       INTEGRATION  INSTALLER  TAP_PARALLEL3
+Force Tags       INTEGRATION  INSTALLER  TAP_PARALLEL2
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot

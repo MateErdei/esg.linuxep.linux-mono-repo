@@ -1,5 +1,5 @@
 *** Settings ***
-Resource    DeviceIsolationResources.robot
+Resource    ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     Collections

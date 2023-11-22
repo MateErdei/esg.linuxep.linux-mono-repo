@@ -3,6 +3,7 @@ Documentation    Test base uninstaller clean up all components
 
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
+Resource  ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 Resource  ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource  ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
@@ -10,7 +11,7 @@ Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource  ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
-Force Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL5
+Force Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL2
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
@@ -22,7 +23,7 @@ Test Components Shutdown Cleanly
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running
 
-
+    Install Device Isolation Directly from SDDS
     Install Live Response Directly
     Check Live Response Plugin Installed
     Install Event Journaler Directly

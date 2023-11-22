@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests of VQA
-Force Tags       INTEGRATION  VQA  TAP_PARALLEL4
+Force Tags       INTEGRATION  VQA  TAP_PARALLEL2
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot

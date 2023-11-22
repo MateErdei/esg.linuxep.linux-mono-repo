@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests if SSPL-AV diagnose
-Force Tags      INTEGRATION  DIAGNOSE  TAP_PARALLEL4
+Force Tags      INTEGRATION  DIAGNOSE  TAP_PARALLEL2
 Library         OperatingSystem
 Library         Process
 Library         String

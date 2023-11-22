@@ -16,6 +16,9 @@ def main():
     if os.environ.get('COVFILE'):
         tags['exclude'].append('EXCLUDE_ON_COVERAGE')
 
+    os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
+    os.environ['SSPL_DEVICE_ISOLATION_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "device_isolation_sdds")
+
     open("/opt/test/inputs/testUtilsMarker", 'a').close()
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts',

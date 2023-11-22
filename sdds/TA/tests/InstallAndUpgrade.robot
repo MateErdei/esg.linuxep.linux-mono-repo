@@ -25,7 +25,7 @@ Test Setup       require_uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
-Force Tags    TAP_PARALLEL4
+Force Tags    TAP_PARALLEL2
 
 
 *** Variables ***

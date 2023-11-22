@@ -17,7 +17,7 @@ Suite Teardown  ZMQ Suite Teardown
 
 Test Teardown   ZMQ Test Teardown
 
-Force Tags  FAULTINJECTION    TAP_PARALLEL4
+Force Tags  FAULTINJECTION    TAP_PARALLEL2
 
 *** Variables ***
 ${ZMQCheckerSourceDir} =  ${COMMON_TEST_LIBS}/../SystemProductTestOutput/zmqchecker

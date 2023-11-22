@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Fault injection test for the AV threat ingestion socket
-Force Tags      PRODUCT  TAP_PARALLEL6
+Force Tags      PRODUCT  TAP_PARALLEL3
 
 Library         ../Libs/LogUtils.py
 Library         ../Libs/TapTestOutput.py

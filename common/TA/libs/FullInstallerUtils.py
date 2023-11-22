@@ -147,6 +147,14 @@ def get_plugin_sdds(plugin_name, environment_variable_name, candidates=None):
 
     raise Exception(f"Failed to find plugin {plugin_name} sdds. Attempted: " + ' '.join(fullpath_candidates) + " " + env_path)
 
+def get_sspl_device_isolation_plugin_sdds():
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("di")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin))
+    return get_plugin_sdds("Sophos Linux Device Isolation", "SSPL_DEVICE_ISOLATION_PLUGIN_SDDS", candidates)
+
+
 def get_sspl_live_response_plugin_sdds():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("esg.winep.liveterminal")

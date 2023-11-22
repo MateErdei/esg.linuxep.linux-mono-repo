@@ -5,13 +5,15 @@ Library         String
 
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
 Library   ${COMMON_TEST_LIBS}/OnFail.py
+Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 *** Variables ***
-${DEVICE_ISOLATION_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/deviceisolation.log
+${DEVICE_ISOLATION_PLUGIN_PATH}     ${SOPHOS_INSTALL}/plugins/deviceisolation
+${DEVICE_ISOLATION_LOG_PATH}     ${DEVICE_ISOLATION_PLUGIN_PATH}/log/deviceisolation.log
 ${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
-${DEVICE_ISOLATION_SDDS}         ${COMPONENT_SDDS}
+
 
 *** Keywords ***
 Install Base For Component Tests
@@ -20,7 +22,10 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install Device Isolation Directly from SDDS
+    ${DEVICE_ISOLATION_SDDS} =   get_sspl_device_isolation_plugin_sdds
     ${result} =   Run Process  bash ${DEVICE_ISOLATION_SDDS}/install.sh   shell=True   timeout=120s
+    log  ${result.stdout}
+    log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install deviceisolation.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
 Uninstall Base

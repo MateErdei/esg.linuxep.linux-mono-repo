@@ -21,7 +21,7 @@ Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
-Force Tags  UPDATE_SCHEDULER  TAP_PARALLEL3
+Force Tags  UPDATE_SCHEDULER  TAP_PARALLEL6
 
 *** Variables ***
 ${TELEMETRY_SUCCESS}    0

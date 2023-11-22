@@ -1,5 +1,5 @@
 *** Settings ***
-Force Tags      INTEGRATION  AV_HEALTH  TAP_PARALLEL6
+Force Tags      INTEGRATION  AV_HEALTH  TAP_PARALLEL3
 Library         Collections
 Library         ../Libs/LogUtils.py
 Library         ../Libs/SystemFileWatcher.py

@@ -1,11 +1,11 @@
 *** Settings ***
 Documentation   Product tests for SafeStore
-Force Tags      PRODUCT  SAFESTORE    TAP_PARALLEL6
+Force Tags      PRODUCT  SAFESTORE    TAP_PARALLEL2
 
 Library         ../Libs/TapTestOutput.py
 
 Resource    ../shared/ComponentSetup.robot
-Resource    ../shared/AVResources.robot
+Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/SafeStoreResources.robot
 
 Suite Setup    SafeStore Fault Injection Suite Setup
@@ -20,6 +20,8 @@ SafeStore Fault Injection Suite Setup
     set suite variable   \${SEND_THREAT_DETECTED_TOOL}  ${SEND_THREAT_DETECTED_TOOL}
     ${SEND_DATA_TO_SOCKET_TOOL} =   TapTestOutput.get_send_data_to_socket_tool
     set suite variable   \${SEND_DATA_TO_SOCKET_TOOL}  ${SEND_DATA_TO_SOCKET_TOOL}
+
+
 
 SafeStore Test Setup
     Component Test Setup

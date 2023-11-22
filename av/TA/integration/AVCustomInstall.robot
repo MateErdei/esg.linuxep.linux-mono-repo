@@ -1,5 +1,5 @@
 *** Settings ***
-Default Tags    INTEGRATION    CUSTOM_INSTALL_PATH  TAP_PARALLEL4
+Default Tags    INTEGRATION    CUSTOM_INSTALL_PATH  TAP_PARALLEL2
 
 Library    OperatingSystem
 Library    Process

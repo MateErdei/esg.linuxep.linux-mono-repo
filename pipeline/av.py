@@ -158,7 +158,7 @@ def stage_av_tests(
 ):
     group_name = "av_tests"
 
-    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3,TAP_PARALLEL4,TAP_PARALLEL5,TAP_PARALLEL6"
+    default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2,TAP_PARALLEL3"
 
     with stage.parallel(group_name):
         for build in get_test_builds():

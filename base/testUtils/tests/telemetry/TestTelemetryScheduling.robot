@@ -12,7 +12,7 @@ Suite Teardown   Cleanup TelemetryScheduling Tests
 Test Setup       Telemetry Scheduler Plugin Test Setup
 Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
-Force Tags  TELEMETRY SCHEDULER    TAP_PARALLEL6
+Force Tags  TELEMETRY SCHEDULER    TAP_PARALLEL5
 
 *** Keywords ***
 ### Suite Setup

@@ -124,6 +124,7 @@ def main(argv):
     os.environ['BASE_DIST'] = os.path.join(INPUT_DIRECTORY, "base")
     os.environ['SSPL_ANTI_VIRUS_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "av")
     os.environ['SSPL_EDR_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "edr")
+    os.environ['SSPL_DEVICE_ISOLATION_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "di")
     os.environ['SSPL_EVENT_JOURNALER_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "ej")
     os.environ['SSPL_LIVERESPONSE_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "lr")
     os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "rtd")
