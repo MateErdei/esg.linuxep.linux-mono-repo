@@ -274,28 +274,31 @@ Log Status Of Sophos Spl
     ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
     Log  ${result.stdout}
 
+Dump EDR Logs
+    Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+    Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+    Dump Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Dump Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+    Dump Log  ${EDR_LOG_PATH}
+    Dump Log  ${EDR_LOG_PATH}.1
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log.1
+    Dump Log  ${LIVEQUERY_LOG_PATH}
+    Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
+    Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+
 Common Teardown
     CoreDumps.Check For Coredumps  ${TEST_NAME}
     CoreDumps.Check Dmesg For Segfaults
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log Status Of Sophos Spl
-    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+    Run Keyword If Test Failed  Dump EDR Logs
     Run Keyword If Test Failed  Get all sophos processes
-    Run Keyword If Test Failed  Dump Log  ${EDR_LOG_PATH}
-    Run Keyword If Test Failed  Dump Log  ${EDR_LOG_PATH}.1
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log.1
-    Run Keyword If Test Failed  Dump Log  ${LIVEQUERY_LOG_PATH}
-    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
-    Run Keyword If Test Failed  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Run Keyword If Test Failed  Display All SSPL Files Installed
 
 EDR And Base Teardown Without Stopping Or Starting EDR

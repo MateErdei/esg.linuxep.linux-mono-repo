@@ -160,7 +160,7 @@ class CoreDumps(object):
         assert dmesg_process.returncode == 0
 
         if len(result) > 0:
-            BuiltIn().run_keyword("Dump Logs")
+            BuiltIn().run_keyword("Dump EDR Logs")
             BuiltIn().run_keyword("Dump dmesg")
             # Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
             logger.debug("Clear dmesg after segfault detected")
