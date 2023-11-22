@@ -46,7 +46,5 @@ tmp/
 /build-files/clion-config.sh
 /robot
 /vagrant
-TA/robot
-TA/vagrant
 /fuzz-libs/
 /log.html

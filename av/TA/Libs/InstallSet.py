@@ -52,7 +52,8 @@ class InstallSet(object):
             logger.error("Failed to find SDDS_COMPONENT for INSTALL_SET: %s" % sdds_component)
             return
 
-        return createInstallSet.create_install_set_if_required(install_set, sdds_component, base)
+        logger.info("Creating install set")
+        return createInstallSet.create_install_set(install_set, sdds_component, base)
 
     def Create_Install_Set_If_Required(self):
         if self.__m_install_set_verified:

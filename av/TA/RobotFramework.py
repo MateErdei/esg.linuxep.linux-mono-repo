@@ -36,7 +36,7 @@ def main():
         tags['include'] = args.include
     if args.exclude is not None:
         tags['exclude'] = args.exclude
-    log_files = ['log.html', 'output.xml', 'report.html']
+    log_files = ['/opt/test/logs/log.html', '/opt/test/logs/output.xml', '/opt/test/logs/report.html']
 
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts/',
@@ -50,7 +50,10 @@ def main():
         'output': log_files[1],
         'report': log_files[2],
         'suite': '*',
-        'test': '*'
+        'test': '*',
+        "variable": [
+            "COMMON_TEST_LIBS:/opt/test/inputs/common_test_libs",
+        ],
     }
 
     if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):

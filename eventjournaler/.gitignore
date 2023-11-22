@@ -17,9 +17,7 @@ redist
 tests/googletest
 log
 PLUGINNAME
-/TA/robot
 /robot
-/TA/vagrant
 /vagrant
 /log.html
 /products/distribution/include/AutoVersioningHeaders/AutoVersion.*

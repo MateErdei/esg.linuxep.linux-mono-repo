@@ -1,9 +1,0 @@
-directories:
-  .
-
-targets:
-  # This is better than using derive_targets_from_directories - it doesn't complain about incompatible targets
-  //...
-
-additional_languages:
-  python

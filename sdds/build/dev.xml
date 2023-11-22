@@ -15,9 +15,7 @@
         
         <!-- Base -->
         <intermediate artifact-path="base/linux_x64_rel/installer" dest-dir="sdds/redist/base/latest/x64" mode="dev,prod,999"/>
-        <intermediate artifact-path="base/linux_x64_rel/system_test" dest-dir="sdds"/>
         <intermediate artifact-path="base/linux_arm64_rel/installer" dest-dir="sdds/redist/base/latest/arm64" mode="dev,prod,999"/>
-        <intermediate artifact-path="base/linux_arm64_rel/system_test" dest-dir="sdds"/>
 
         <!-- Response Action -->
         <intermediate artifact-path="response_actions/linux_x64_rel/installer" dest-dir="sdds/redist/responseactions/latest/x64" mode="dev,prod,999"/>
@@ -68,17 +66,11 @@
 <!--            <release-version branch="release/SPRINT-2023.37-linux"-->
 <!--                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>-->
             <development-version branch="develop"/>
-            <include artifact-path="bazel-tools" dest-dir="sdds"/>
-            <include artifact-path="sophlib/BUILD" dest-dir="sdds/common/sophlib"/>
-            <include artifact-path="sophlib/include" dest-dir="sdds/common/sophlib/include/sophlib"/>
-            <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="sdds/common/sophlib/linux_x64_release/lib"/>
-            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="sdds/imports/internal/sdds3_utils"/>
-        </build-asset>
-
-        <!-- gcc -->
-        <build-asset project="thirdparty" repo="gcc">
-            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
-            <include artifact-path="output" dest-dir="sdds/redist/gcc" mode="dev,999,prod"/>
+            <include artifact-path="bazel-tools" dest-dir="."/>
+            <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
+            <include artifact-path="sophlib/include" dest-dir="common/sophlib/include/sophlib"/>
+            <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="common/sophlib/linux_x64_release/lib"/>
+            <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="imports/internal/sdds3_utils"/>
         </build-asset>
     </inputs>
 
@@ -87,54 +79,42 @@
             problems with tests -->
         <command mode="dev,999,prod">
             <program>rm</program>
-            <args>-rf bazel-bin/sdds3</args>
-            <workingdir>.</workingdir>
+            <args>-rf bazel-out/k8-dbg/bin/sdds</args>
         </command>
         <command mode="dev,999,prod">
             <program>python3</program>
             <args>makesuites.py</args>
             <workingdir>./sdds/linuxep_suites</workingdir>
         </command>
-        <command mode="dev,999,prod">
-            <program>/bin/bash</program>
-            <args>./fixup_bazel_tools.sh</args>
-            <workingdir>./sdds</workingdir>
+        <command>
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/dump_environment.py</args>
         </command>
-        <command mode="dev,999,prod">
-            <program>python3</program>
-            <args>-u tools/src/dump_environment/dump_environment.py</args>
-            <workingdir>./sdds</workingdir>
-        </command>
-        <command mode="dev,999,prod">
-            <program>mv</program>
-            <args>tools/environment.json imports/environment.json</args>
-            <workingdir>./sdds</workingdir>
+        <command>
+            <program>bash</program>
+            <args>./prepare_inputs.sh</args>
         </command>
         <command mode="dev">
             <program>python3</program>
-            <args>-u sdds3/tools/gen_bazel.py --mode dev</args>
-            <workingdir>./sdds</workingdir>
+            <args>-u sdds/sdds3/tools/gen_bazel.py --mode dev</args>
         </command>
         <command mode="999">
             <program>python3</program>
-            <args>-u sdds3/tools/gen_bazel.py --mode 999</args>
-            <workingdir>./sdds</workingdir>
+            <args>-u sdds/sdds3/tools/gen_bazel.py --mode 999</args>
         </command>
         <command mode="prod">
             <program>python3</program>
-            <args>-u sdds3/tools/gen_bazel.py --mode prod</args>
-            <workingdir>./sdds</workingdir>
+            <args>-u sdds/sdds3/tools/gen_bazel.py --mode prod</args>
         </command>
         <command mode="dev,999,prod">
             <program>bazel</program>
-            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
-            <workingdir>./sdds</workingdir>
+            <args>build //sdds/sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
         </command>
     </buildcommands>
 
   <publish>
       <!--dev version-->
-      <build-asset artifact-path="sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="dev">
+      <build-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-dbg/bin/sdds/sdds3" mode="dev">
           <include glob="package/**"/>
           <include glob="suite/**"/>
           <include glob="supplement/**"/>
@@ -143,7 +123,7 @@
           <include glob="*.json"/>
       </release-asset>
       <!--999 version-->
-      <build-asset artifact-path="sdds3-repo-999" source-dir="sdds/bazel-bin/sdds3" mode="999">
+      <build-asset artifact-path="sdds3-repo-999" source-dir="bazel-out/k8-dbg/bin/sdds/sdds3" mode="999">
           <include glob="package/**"/>
           <include glob="suite/**"/>
           <include glob="supplement/**"/>
@@ -152,7 +132,7 @@
           <include glob="*.json"/>
       </release-asset>
       <!--prod version-->
-      <release-asset artifact-path="prod-sdds3-repo" source-dir="sdds/bazel-bin/sdds3" mode="prod">
+      <release-asset artifact-path="prod-sdds3-repo" source-dir="bazel-out/k8-dbg/bin/sdds/sdds3" mode="prod">
           <include glob="package/**"/>
           <include glob="suite/**"/>
       </release-asset>

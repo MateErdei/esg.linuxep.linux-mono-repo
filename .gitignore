@@ -15,6 +15,7 @@
 /build/SOURCE_CODE_BRANCH
 /build/COMMIT_HASH
 /.coverage/
+/spl-tools/tests/*.img*
 
 # Import locations
 /common/sophlib/
@@ -68,3 +69,5 @@
 /thininstaller/certs/ps_rootca.crt
 
 __pycache__/
+
+/SophosSetup.sh

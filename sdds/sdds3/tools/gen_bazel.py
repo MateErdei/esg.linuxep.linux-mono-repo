@@ -40,10 +40,11 @@ HEADERS = {}
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(TOOLS)
-ROOT = os.path.dirname(BASE)
+SDDS = os.path.dirname(BASE)
+ROOT = os.path.dirname(SDDS)
 ARTIFACT_CACHE = os.path.join(ROOT, 'inputs', 'artifact')
 
-VERSION = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['version']
+VERSION = yaml.safe_load(open(os.path.join(SDDS, "def-sdds3", "version.yaml")).read())['version']
 
 # Map of fileset -> package target
 FILESET_TO_PKGTARGET = {}
@@ -493,7 +494,7 @@ def add_subcomponents(suitemeta, sdds_imports, packages, common_component_data):
 
 
 def write_mock_sus_responses(launchdarkly_flags):
-    mock_sus_dir = os.path.join(ROOT, 'output', 'sus')
+    mock_sus_dir = os.path.join(SDDS, 'output', 'sus')
     if os.path.exists(mock_sus_dir):
         shutil.rmtree(mock_sus_dir)
     os.makedirs(mock_sus_dir)
@@ -549,7 +550,7 @@ def add_static_flags(static_flags,product,suitedef,suite_src):
         'version': version,
     }
 def write_launchdarkly_flags(launchdarkly_flags):
-    flagsdir = os.path.join(ROOT, 'output', 'launchdarkly')
+    flagsdir = os.path.join(SDDS, 'output', 'launchdarkly')
     if os.path.exists(flagsdir):
         shutil.rmtree(flagsdir)
     os.makedirs(flagsdir)
@@ -561,7 +562,7 @@ def write_launchdarkly_flags(launchdarkly_flags):
 
 def write_static_flags(static_flags):
 
-    flagsdir = os.path.join(ROOT, 'output', 'prod-sdds3-static-suites')
+    flagsdir = os.path.join(SDDS, 'output', 'prod-sdds3-static-suites')
     if os.path.exists(flagsdir):
         shutil.rmtree(flagsdir)
     os.makedirs(flagsdir)
@@ -853,7 +854,7 @@ def import_external_supplements(supplements, components):
     del supplements['supplements']['external_supplements']
 
     for supplement in external_supplements:
-        syncdir = f'{ROOT}/inputs/supplements/{supplement}'
+        syncdir = f'{SDDS}/inputs/supplements/{supplement}'
         sync_sdds3_supplement(supplement, syncdir)
 
         info = {
@@ -892,15 +893,15 @@ def import_internal_supplements(supplements, components):
     del supplements['supplements']['internal_supplements']
     for path in internal_supplements:
         found = False
-        for manifest in glob(f'{ROOT}/inputs/supplements/{path}'):
+        for manifest in glob(f'{SDDS}/inputs/supplements/{path}'):
             import_scit_supplement(os.path.dirname(manifest), supplements, components)
             found = True
         if not found:
-            raise FileNotFoundError(f'Failed to import internal supplement {ROOT}/inputs/supplements/{path}')
+            raise FileNotFoundError(f'Failed to import internal supplement {SDDS}/inputs/supplements/{path}')
 
 
 def insert_telemetry_supplements(supplements, components):
-    sdds_import = fr'{ROOT}/inputs/supplements/telemetrysup/SDDS-Import.xml'
+    sdds_import = fr'{SDDS}/inputs/supplements/telemetrysup/SDDS-Import.xml'
     if not os.path.exists(sdds_import):
         raise FileNotFoundError(f"Missing TELEMSUP supplement: {sdds_import}")
 
@@ -1076,7 +1077,7 @@ def assert_no_undefined_supplement_refs(suites, supplements, components):
 
 def load_components():
     components = {}
-    for path in glob(fr'{ROOT}/def-sdds3/components/*.yaml'):
+    for path in glob(fr'{SDDS}/def-sdds3/components/*.yaml'):
         data = yaml.safe_load(open(path).read())
         if not isinstance(data, dict):
             raise TypeError(f'Error loading {path}: unexpected format')
@@ -1095,7 +1096,7 @@ def load_components():
 
 def load_suites():
     suites = {}
-    for path in glob(fr'{ROOT}/def-sdds3/suites/*.yaml'):
+    for path in glob(fr'{SDDS}/def-sdds3/suites/*.yaml'):
         data = yaml.safe_load(open(path).read())
         if not isinstance(data, dict):
             raise TypeError(f'Error loading {path}: unexpected format')
@@ -1108,15 +1109,15 @@ def emit_bazel_build_files(mode):
     common_component_data = load_components()
     suites = load_suites()
     _expand_static_suites(suites)
-    supplements = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplements.yaml")).read())
-    supplement_refs = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplement-refs.yaml")).read())
+    supplements = yaml.safe_load(open(os.path.join(SDDS, "def-sdds3", "supplements.yaml")).read())
+    supplement_refs = yaml.safe_load(open(os.path.join(SDDS, "def-sdds3", "supplement-refs.yaml")).read())
 
     expand_supplement_refs(suites, supplement_refs)
 
     with open(f'{BASE}/BUILD', 'w') as build:
         print("""####################################################################################
 # AUTO-GENERATED BUILD FILE. DO NOT EDIT. SEE sdds3/tools/prep_dev.py
-load("//sdds3/tools:tools.bzl",
+load("//sdds/sdds3/tools:tools.bzl",
     "build_sdds3_package",
     "copy_prebuilt_sdds3_package",
     "copy_prebuilt_sdds3_supplement",
@@ -1153,7 +1154,7 @@ def cleanup_output_folders():
         shutil.rmtree(sdds3_output)
     os.makedirs(sdds3_output)
 
-    top_output = os.path.join(ROOT, 'output')
+    top_output = os.path.join(SDDS, 'output')
     if os.path.exists(top_output):
         shutil.rmtree(top_output)
     os.makedirs(top_output)

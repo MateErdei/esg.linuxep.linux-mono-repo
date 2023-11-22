@@ -42,9 +42,4 @@ then
   echo "Detected that this is a CI build"
 else
   echo "Detected that this is a non-CI (local) build"
-
-  # Disabling remote cache because it does not work properly with EAA (hours to do a build)
-  sed -i -e '/build --remote_cache/ s/^#*/#/' .bazelrc
 fi
-
-

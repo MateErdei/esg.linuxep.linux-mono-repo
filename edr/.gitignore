@@ -12,8 +12,6 @@ PLUGINNAME
 /thirdparty/libprotobuf-mutator/
 /thirdparty/output/
 /TA/output.xml
-/TA/robot
-/TA/vagrant
 /TA/log.html
 /TA/report.html
 /tests/FuzzerTests/log.html

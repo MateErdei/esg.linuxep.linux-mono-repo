@@ -43,7 +43,6 @@ testUtils/output.xml
 testUtils/report.html
 testUtils/robot.xml
 testUtils/SystemProductTestOutput/
-testUtils/robot
 testUtils/tests/temp/
 testUtils/SupportFiles/CloudAutomation/localhost.cert.pem
 testUtils/SupportFiles/CloudAutomation/root-ca.crt.*
@@ -51,7 +50,6 @@ testUtils/SupportFiles/CloudAutomation/server-*.pem
 testUtils/SupportFiles/CloudAutomation/utm.cert.pem
 testUtils/*-VBoxSVC-*.log
 /testUtils/SupportFiles/FakeManagement/ActionUtils.py
-/testUtils/vagrant
 /tap_venv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml

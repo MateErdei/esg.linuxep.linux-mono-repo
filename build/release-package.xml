@@ -103,6 +103,13 @@
             <program>./build/python.sh</program>
             <args>tools/src/dump_environment/buildcfg.py --reset</args>
         </command>
+
+        <!-- Optionally: configure minimal downloads. -->
+        <command mode="bzlmin">
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/buildcfg.py --minimal</args>
+        </command>
+
         <!--
           Gather up environment, so variables that change per build can be
           plumbed through to the tools that need them without breaking the Bazel
@@ -129,7 +136,7 @@
 
         <!-- Linux Sanity: lsnty -->
         <command mode="san_lsnty">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start lsnty</args>
         </command>
         <command mode="san_lsnty">
@@ -145,13 +152,13 @@
             </args>
         </command>
         <command mode="san_lsnty">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final lsnty</args>
         </command>
 
         <!-- linux_x64_rel: lx64r -->
         <command mode="all_lx64r">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start linux_x64_rel</args>
         </command>
         <command mode="all_lx64r">
@@ -185,13 +192,13 @@
             </args>
         </command>
         <command mode="all_lx64r">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final linux_x64_rel</args>
         </command>
 
         <!-- linux_x64_dbg: lx64d -->
         <command mode="all_lx64d">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start linux_x64_dbg</args>
         </command>
         <command mode="all_lx64d">
@@ -225,13 +232,13 @@
             </args>
         </command>
         <command mode="all_lx64d">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final linux_x64_dbg</args>
         </command>
 
         <!-- linux_arm64_rel: la64r -->
         <command mode="all_la64r">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start linux_arm64_rel</args>
         </command>
         <command mode="all_la64r">
@@ -248,19 +255,19 @@
             <program>./build/python.sh</program>
             <args>
                 tools/src/export_artifacts/export_targets.py
-                --mode=all_lx64r
+                --mode=all_la64r
                 --exports=build/linuxep_spl_exports.txt
                 --config=linux_arm64_rel
             </args>
         </command>
         <command mode="all_la64r">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final linux_arm64_rel</args>
         </command>
 
         <!-- linux_arm64_dbg: la64d -->
         <command mode="all_la64d">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start linux_arm64_dbg</args>
         </command>
         <command mode="all_la64d">
@@ -283,19 +290,19 @@
             </args>
         </command>
         <command mode="all_la64d">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final linux_arm64_dbg</args>
         </command>
 
         <!-- linux_x64_bullseye: lcov -->
         <command mode="all_lcov">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --start lcov</args>
         </command>
         <!-- We cannot pre-build the shims as they are built in the exec configuration, so they'll be built as part of the below -->
         <!-- build combined object+covfile files -->
         <command mode="all_lcov">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
                 --profile=lib_lcov_build
@@ -307,7 +314,7 @@
         </command>
         <command mode="all_lcov">
             <!-- extract and merge all *.o.bullseye files into monorepo.cov file -->
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>
                 tools/src/bullseye/merge.py
                 -v
@@ -321,7 +328,7 @@
         </command>
         <command mode="all_lcov">
             <!-- run all unit tests, updating the monorepo_unit.cov file -->
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>
                 tools/src/bazel/run.py
                 --profile=lib_lcov_test
@@ -339,7 +346,7 @@
             </args>
         </command>
         <command mode="all_lcov">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>
                 tools/src/export_artifacts/export_targets.py
                 --mode=all_lcov
@@ -348,7 +355,7 @@
             </args>
         </command>
         <command mode="all_lcov">
-            <program>python3.7</program>
+            <program>./build/python.sh</program>
             <args>tools/src/dump_environment/diskusage.py --final lcov</args>
         </command>
 
@@ -372,6 +379,9 @@
         </logs>
         <logs name="exec_profile" source-dir=".profile" mode="bxlog">
             <include glob="*.dat"/>
+        </logs>
+        <logs name="explainations" source-dir=".profile">
+            <include glob="*explain.txt"/>
         </logs>
 
         <!-- Export disk usage logs -->

@@ -33,11 +33,11 @@ def main():
     if args.exclude is not None:
         tags['exclude'] = args.exclude
 
-    log_files = ['log.html', 'output.xml', 'report.html']
+    log_files = ['/opt/test/logs/log.html', '/opt/test/logs/output.xml', '/opt/test/logs/report.html']
 
     open("/opt/test/inputs/testUtilsMarker", 'a').close()
+    path = "/opt/test/inputs/test_scripts"
     robot_args = {
-        'path':  r'/opt/test/inputs/test_scripts',
         'name': 'integration',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
@@ -61,7 +61,7 @@ def main():
 
     try:
         # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        listener = tap_result_listener(path, tags, robot_args['name'])
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None
@@ -70,7 +70,7 @@ def main():
         robot_args['listener'] = listener
 
     sys.path.append('/opt/test/inputs/common_test_libs')
-    sys.exit(robot.run(robot_args['path'], **robot_args))
+    sys.exit(robot.run(path, **robot_args))
 
 
 if __name__ == '__main__':

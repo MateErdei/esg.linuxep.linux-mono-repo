@@ -46,7 +46,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_edr_component_tests(machine: tap.Machine):
     run_pytest_tests(
-        machine, [""], scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/results/report.html"]
+        machine, [""], scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/logs/log.html"]
     )
 
 

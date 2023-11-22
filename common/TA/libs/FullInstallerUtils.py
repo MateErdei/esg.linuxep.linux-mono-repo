@@ -224,11 +224,11 @@ def setup_av_install():
     SDDS_PATH = os.environ.get("SYSTEMPRODUCT_TEST_INPUT")
 
     if SDDS_PATH is not None:
-        path_to_vdl_data = SDDS_PATH + "/vdl"
+        path_to_vdl_data = SDDS_PATH + "/dataseta"
         path_to_model_data = SDDS_PATH + "/ml_model"
         path_to_localrep_data = SDDS_PATH + "/local_rep"
     else:
-        path_to_vdl_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "vdl")
+        path_to_vdl_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "dataseta")
         path_to_model_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "ml_model")
         path_to_localrep_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "local_rep")
     logger.info(f"path_to_vdl_data={path_to_vdl_data}")

@@ -78,8 +78,6 @@ def get_inputs(
             "winep.liveterminal", "develop", None, org="", storage="esg-build-tested"
         )
         / "build/sspl-liveterminal/test-scripts",
-        local_rep=context.artifact.from_component("ssplav-localrep", "released", None) / "reputation",
-        vdl=context.artifact.from_component("ssplav-dataseta", "released", None) / "dataseta",
         ej_manual_tools=context.artifact.from_component("em.esg", "develop", None, org="", storage="esg-build-tested")
         / f"build/common/journal/linux_{arch}_rel/tools",
         liveterminal_test_scripts=context.artifact.from_component(
@@ -124,7 +122,6 @@ def get_inputs(
             )
             / "build/SDDS-COMPONENT"
         )
-        test_inputs["ml_model"] = context.artifact.from_component("ssplav-mlmodel3-x86_64", "released") / "model"
     elif arch == "arm64":
         test_inputs["rtd"] = (
             context.artifact.from_component(
@@ -132,7 +129,6 @@ def get_inputs(
             )
             / "build/SDDS-COMPONENT-arm64"
         )
-        test_inputs["ml_model"] = context.artifact.from_component("ssplav-mlmodel3-arm64", "released") / "model"
 
     if sdds_build999:
         test_inputs["repo999"] = sdds_build999 / "sdds3-repo-999"

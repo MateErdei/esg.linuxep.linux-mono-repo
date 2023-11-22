@@ -31,7 +31,7 @@ def main():
     if args.exclude is not None:
         tags['exclude'] = args.exclude
 
-    log_files = ['log.html', 'output.xml', 'report.html']
+    log_files = ['/opt/test/logs/log.html', '/opt/test/logs/output.xml', '/opt/test/logs/report.html']
 
     os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
     os.environ["TEST_SCRIPT_PATH"] = fr"{os.environ['INPUT_DIRECTORY']}/test_scripts"
@@ -42,8 +42,8 @@ def main():
     os.environ["SOPHOS_INSTALL"] = "/opt/sophos-spl"
 
     open(os.path.join(os.environ["INPUT_DIRECTORY"], "testUtilsMarker"), 'a').close()
+    path = os.environ["TEST_SCRIPT_PATH"]
     robot_args = {
-        'path':  os.environ["TEST_SCRIPT_PATH"],
         'name': 'integration',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
@@ -67,7 +67,7 @@ def main():
 
     try:
         # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        listener = tap_result_listener(path, tags, robot_args['name'])
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None
@@ -76,7 +76,7 @@ def main():
         robot_args['listener'] = listener
 
     sys.path.append(os.path.join(os.environ["INPUT_DIRECTORY"], "common_test_libs"))
-    sys.exit(robot.run(robot_args['path'], **robot_args))
+    sys.exit(robot.run(path, **robot_args))
 
 
 if __name__ == '__main__':

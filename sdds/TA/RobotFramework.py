@@ -98,8 +98,8 @@ def main(argv):
     os.environ["INPUT_DIRECTORY"] = INPUT_DIRECTORY
     os.environ["TEST_SCRIPT_PATH"] = f"{INPUT_DIRECTORY}/test_scripts/"
 
+    path = os.environ["TEST_SCRIPT_PATH"]
     robot_args = {
-        "path":  os.environ["TEST_SCRIPT_PATH"],
         "name": "SSPL_warehouse",
         "loglevel": "DEBUG",
         "consolecolors": "ansi",
@@ -108,6 +108,9 @@ def main(argv):
         "log": "/opt/test/logs/log.html",
         "output": "/opt/test/logs/output.xml",
         "report": "/opt/test/logs/report.html",
+        "variable": [
+            f"COMMON_TEST_LIBS:{os.path.join(INPUT_DIRECTORY, 'common_test_libs')}",
+        ],
     }
 
     if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):
@@ -160,7 +163,7 @@ def main(argv):
     try:
         # Create the TAP Robot result listener.
         from pubtap.robotframework.tap_result_listener import tap_result_listener
-        listener = tap_result_listener(robot_args["path"], tags, robot_args["name"])
+        listener = tap_result_listener(path, tags, robot_args["name"])
         robot_args["listener"] = listener
     except ImportError:
         print("pubtap not available")
@@ -169,7 +172,7 @@ def main(argv):
         pass
 
     sys.path.append(os.path.join(INPUT_DIRECTORY, 'common_test_libs'))
-    return robot.run(robot_args["path"], **robot_args)
+    return robot.run(path, **robot_args)
 
 
 if __name__ == "__main__":

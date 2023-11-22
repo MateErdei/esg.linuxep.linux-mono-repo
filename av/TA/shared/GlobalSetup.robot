@@ -9,6 +9,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/TeardownTools.py
+Library    ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
 
 *** Variables ***
 ${COMPONENT}        av
@@ -38,7 +39,6 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
 
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
-    Set Global Variable  ${COMMON_TEST_LIBS}                ${TEST_INPUT_PATH}/common_test_libs
     Set Global Variable  ${COMMON_TEST_UTILS}               ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${LIBS_PATH}                       ${TEST_SCRIPTS_PATH}/Libs
     Set Global Variable  ${BASH_SCRIPTS_PATH}               ${LIBS_PATH}/bashScripts
@@ -66,6 +66,11 @@ Global Setup Tasks
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}       UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
+
+    Set Environment Variable    SDDS3_BUILDER    ${TEST_INPUT_PATH}/sdds3_tools/sdds3-builder
+    Set Global Variable    ${SDDS3_BUILDER}    ${TEST_INPUT_PATH}/sdds3_tools/sdds3-builder
+    Run Process    chmod    +x    ${SDDS3_BUILDER}
+    Download Av Supplements
 
     Create Install Set If Required
     CoreDumps.Enable Core Files

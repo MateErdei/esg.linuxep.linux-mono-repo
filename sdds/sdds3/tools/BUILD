@@ -5,7 +5,7 @@ py_binary(
     name = "env",
     srcs = ["env.py"],
     python_version = "PY3",
-    visibility = ["//sdds3:__pkg__"],
+    visibility = ["//sdds/sdds3:__pkg__"],
     deps = [
         requirement("pyyaml"),
     ],
@@ -14,6 +14,5 @@ py_binary(
 filegroup(
     name = "maker",
     srcs = ["maker.py"],
-    visibility = ["//sdds3:__pkg__"],
+    visibility = ["//sdds/sdds3:__pkg__"],
 )
-

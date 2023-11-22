@@ -21,7 +21,7 @@ def _set_environment():
 
     # Set the specific environment variables that the signing tools care about.
     # These variables won't exist on a developer machine.
-    environment = json.loads(open('./imports/environment.json').read())
+    environment = json.loads(open('./tools/environment.json').read())
     if "CI_SIGNING_URL" in environment:
         os.environ["CI_SIGNING_URL"] = environment["CI_SIGNING_URL"]
     if "BUILD_JWT_PATH" in environment:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function, division, unicode_literals
 # Download supplements from Artifactory, select latest for LocalRep, MLData and VDL.
 
 # https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/ssplav-vdl/released/
@@ -9,19 +8,11 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 
 import SDDS3supplementSync
 
-import glob
-import hashlib
-import json
 import os
 import shutil
-import subprocess
 import sys
-import zipfile
+import platform
 
-
-from urllib.request import urlopen as urllib_urlopen
-from urllib.request import urlretrieve as urllib_urlretrieve
-from urllib.error import URLError
 
 LOGGER = None
 
@@ -33,16 +24,8 @@ def safe_mkdir(d):
         pass
 
 
-def run(argv):
-    dest = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
-
-    try:
-        if argv[1]:
-            dest = argv[1]
-    except IndexError:
-        pass
-
-    builder = dest + "/sdds3/sdds3-builder"
+def download_av_supplements(dest="/opt/test/inputs"):
+    builder = os.getenv("SDDS3_BUILDER")
     assert os.path.isfile(builder)
 
     sdds3_temp_dir = os.path.join(dest, "sdds3_temp")
@@ -52,12 +35,17 @@ def run(argv):
         "sdds3.DataSetA", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT", "GranularInitial")
     assert datasetA_zip is not None, "Failed to download DataSet-A supplement"
 
-    mlmodel_zip  = SDDS3supplementSync.sync_sdds3_supplement_name(
-        "sdds3.ML_MODEL3_LINUX_X86_64", builder, sdds3_temp_dir, "LINUX_SCAN")
+    mlmodel_name = None
+    if platform.machine() == "x86_64":
+        mlmodel_name = "sdds3.ML_MODEL3_LINUX_X86_64"
+    elif platform.machine() == "aarch64":
+        mlmodel_name = "sdds3.ML_MODEL3_LINUX_ARM64"
+    mlmodel_zip = SDDS3supplementSync.sync_sdds3_supplement_name(mlmodel_name, builder, sdds3_temp_dir, "LINUX_SCAN")
+
     localrep_zip = SDDS3supplementSync.sync_sdds3_supplement_name(
         "sdds3.LocalRepData", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT")
 
-    SDDS3supplementSync.unpack(builder, datasetA_zip, os.path.join(dest, "vdl"))
+    SDDS3supplementSync.unpack(builder, datasetA_zip, os.path.join(dest, "dataseta"))
     SDDS3supplementSync.unpack(builder, mlmodel_zip, os.path.join(dest, "ml_model"))
     SDDS3supplementSync.unpack(builder, localrep_zip, os.path.join(dest, "local_rep"))
 
@@ -65,7 +53,11 @@ def run(argv):
 
 
 def main(argv):
-    run(argv)
+    dest = os.environ.get("SYSTEMPRODUCT_TEST_INPUT")
+    if len(argv) >= 2 and argv[1]:
+        dest = argv[1]
+
+    download_av_supplements(dest)
     return 0
 
 

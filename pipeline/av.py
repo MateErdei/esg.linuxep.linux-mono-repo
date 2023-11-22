@@ -72,26 +72,18 @@ def is_suse_based(template):
 
 
 def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: str) -> Dict[str, Input]:
-    supplement_branch = "released"
-
+    arch = build.split("_")[1]
     test_inputs = dict(
         test_scripts=context.artifact.from_folder("./av/TA"),
-        local_rep=context.artifact.from_component("ssplav-localrep", supplement_branch, None) / "reputation",
-        dataseta=context.artifact.from_component("ssplav-dataseta", supplement_branch, None) / "dataseta",
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
         common_test_utils=context.artifact.from_folder("./common/TA/utils"),
+        sdds3_tools=context.artifact.from_component("em.esg", "develop", org="", storage="esg-build-tested") / "build" / "sophlib" / f"linux_{arch}_rel" / "sdds3_tools",
     )
 
     test_inputs["tap_test_output"] = build_output / f"av/{build}/tap_test_output"
     test_inputs["av/SDDS-COMPONENT"] = build_output / f"av/{build}/installer"
     test_inputs["av/base-sdds"] = build_output / f"base/{build}/installer"
-
-    arch = build.split("_")[1]
-    if arch == "x64":
-        test_inputs["ml_model"] = context.artifact.from_component("ssplav-mlmodel3-x86_64", "released") / "model"
-    elif arch == "arm64":
-        test_inputs["ml_model"] = context.artifact.from_component("ssplav-mlmodel3-arm64", "released") / "model"
 
     return test_inputs
 

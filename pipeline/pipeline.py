@@ -93,6 +93,12 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
         rel_build[common.arm64] = ["all_la64r"]
         dbg_build[common.arm64] = ["all_la64d"]
 
+    if not truthy(parameters.force_non_minimal_downloads, "force_non_minimal_downloads", False):
+        for _, tags in rel_build.items():
+            tags.append("bzlmin")
+        for _, tags in dbg_build.items():
+            tags.append("bzlmin")
+
     builds = do_builds(stage, component, parameters, "rel", rel_build)
 
     # Default to true here so that local builds work.

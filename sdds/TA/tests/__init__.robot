@@ -6,6 +6,7 @@ Suite Teardown   Global Teardown Tasks
 
 Library           OperatingSystem
 Library           Process
+Library    ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
 
 *** Keywords ***
 Global Setup Tasks
@@ -15,8 +16,6 @@ Global Setup Tasks
     Set Global Variable  ${TEST_SCRIPT_PATH}     ${placeholder}
     ${placeholder} =  Get Environment Variable    SUPPORT_FILES    default=${INPUT_DIRECTORY}/SupportFiles
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
-    ${placeholder} =  Get Environment Variable    COMMON_TEST_LIBS    default=${INPUT_DIRECTORY}/common_test_libs
-    Set Global Variable  ${COMMON_TEST_LIBS}     ${placeholder}
     ${placeholder} =  Get Environment Variable    COMMON_TEST_UTILS    default=${INPUT_DIRECTORY}/common_test_utils
     Set Global Variable  ${COMMON_TEST_UTILS}     ${placeholder}
     Set Global Variable  ${LIBS_DIRECTORY}     ${placeholder}
@@ -74,6 +73,7 @@ Global Setup Tasks
     Set Global Variable    ${INPUT_DIRECTORY}             ${placeholder}
     Set Global Variable    ${THIN_INSTALLER_DIRECTORY}    ${INPUT_DIRECTORY}/thin_installer
     Set Global Variable    ${SDDS3_Builder}               ${INPUT_DIRECTORY}/sdds3/sdds3-builder
+    Set Environment Variable    SDDS3_BUILDER    ${INPUT_DIRECTORY}/sdds3/sdds3-builder
     Set Global Variable    ${BASE_SDDS_SCRIPTS}           ${INPUT_DIRECTORY}/base_sdds_scripts
 
     Run Process    chmod    +x
@@ -109,6 +109,8 @@ Global Setup Tasks
 
     Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${INPUT_DIRECTORY}/safestore_tools/ssr/ssr
     Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    Download Av Supplements
 
 Global Teardown Tasks
     Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh

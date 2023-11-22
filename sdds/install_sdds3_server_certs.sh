@@ -6,11 +6,11 @@ cd "${0%/*}" || exit
 
 ROOT_CERT=../common/TA/utils/server_certs/server-root.crt
 
-[[ -d $ROOT_CERT ]] || {
+if [[ ! -f "$ROOT_CERT" ]]
+then
     echo "Can't find ROOT_CERT: $ROOT_CERT"
     exit 1
-}
-
+fi
 
 if [[ -d /usr/local/share/ca-certificates ]]
 then

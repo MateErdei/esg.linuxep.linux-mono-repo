@@ -2,26 +2,43 @@ import json
 import robot
 import sys
 import os
+import argparse
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
-def main():
-    tags = {'include': [], 'exclude': []}
-    log_files = ['log.html', 'output.xml', 'report.html']
 
-    if os.environ.get('TEST'):
-        robot_args['test'] = os.environ.get('TEST')
-    if os.environ.get('SUITE'):
-        robot_args['suite'] = os.environ.get('SUITE')
-    if os.environ.get('COVFILE'):
-        tags['exclude'].append('EXCLUDE_ON_COVERAGE')
+class ExtendAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.register('action', 'extend', ExtendAction)
+    parser.add_argument('--include', nargs='+', help='keywords to include', action="extend")
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude', action="extend")
+    parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
+    parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
+    parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
+    args = parser.parse_args()
+
+    tags = {'include': [], 'exclude': []}
+    if args.include is not None:
+        tags['include'] = args.include
+
+    if args.exclude is not None:
+        tags['exclude'] = args.exclude
+
+    log_files = ['/opt/test/logs/log.html', '/opt/test/logs/output.xml', '/opt/test/logs/report.html']
 
     os.environ["INPUT_DIRECTORY"] = "/opt/test/inputs"
     os.environ['SSPL_DEVICE_ISOLATION_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "device_isolation_sdds")
 
     open("/opt/test/inputs/testUtilsMarker", 'a').close()
+    path = "/opt/test/inputs/test_scripts"
     robot_args = {
-        'path':  r'/opt/test/inputs/test_scripts',
         'name': 'integration',
         'loglevel': 'DEBUG',
         'consolecolors': 'ansi',
@@ -34,9 +51,18 @@ def main():
         'test': '*'
     }
 
+    if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):
+        # Disable failing the test run if coverage is enabled
+        robot_args["statusrc"] = False
+
+    if args.test:
+        robot_args['test'] = args.test
+    if args.suite:
+        robot_args['suite'] = args.suite
+
     try:
         # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        listener = tap_result_listener(path, tags, robot_args['name'])
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None
@@ -45,7 +71,7 @@ def main():
         robot_args['listener'] = listener
 
     sys.path.append('/opt/test/inputs/common_test_libs')
-    sys.exit(robot.run(robot_args['path'], **robot_args))
+    sys.exit(robot.run(path, **robot_args))
 
 if __name__ == '__main__':
     main()

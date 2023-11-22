@@ -33,7 +33,7 @@ def main():
 
     if args.debug:
         tags['exclude'].append('BREAKS_DEBUG')
-    log_files = ['log.html', 'output.xml', 'report.html']
+    log_files = ['/opt/test/logs/log.html', '/opt/test/logs/output.xml', '/opt/test/logs/report.html']
 
     open("/opt/test/inputs/testUtilsMarker", 'a').close()
     path = r'/opt/test/inputs/test_scripts'
