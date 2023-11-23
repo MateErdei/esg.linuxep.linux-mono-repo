@@ -332,8 +332,9 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
 
 SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
     register cleanup    Exclude Watchdog Log Unable To Open File Error
-    Send Policies to enable on-access
+
     Create eicar on read only mount  /tmp_test/
+    Send Policies to enable on-access
 
     ${av_mark} =  Get AV Log Mark
 

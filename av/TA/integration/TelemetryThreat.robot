@@ -35,8 +35,11 @@ Command Line Scan Increments Telemetry Threat Eicar Count
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${dirtyfile}
 
+    ${av_mark} =  Get AV Log Mark
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
+    Log    ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    wait_for_log_contains_from_mark  ${av_mark}  Found 'EICAR-AV-Test' in '/tmp_test/dirty_file.txt' which is a new detection  timeout=60
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 

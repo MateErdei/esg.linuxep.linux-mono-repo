@@ -53,6 +53,7 @@ ${AV_SDDS}                                      ${COMPONENT_INSTALL_SET}
 ${PLUGIN_BINARY}                                ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT}
 ${SCHEDULED_FILE_WALKER_LAUNCHER}               ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 ${ON_ACCESS_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/soapd
+${SAFESTORE_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/safestore
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
@@ -1252,4 +1253,3 @@ Create Archive With Eicar
     [Arguments]    ${output}
     Create File    ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/eicar
-

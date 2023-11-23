@@ -3,6 +3,7 @@ Documentation   Fault injection test for the AV threat ingestion socket
 Force Tags      PRODUCT  TAP_PARALLEL3
 
 Library         ../Libs/LogUtils.py
+Library         ../Libs/ProcessUtils.py
 Library         ../Libs/TapTestOutput.py
 
 Resource    ../shared/ComponentSetup.robot
@@ -15,6 +16,19 @@ Test Setup     Fault Injection Test Setup
 Test Teardown  Fault Injection Test Teardown
 
 *** Keywords ***
+Dump Process Information
+    ProcessUtils.dump_threads    ${SAFESTORE_BIN}
+    ProcessUtils.dump_threads    ${AV_PLUGIN_BIN}
+    ProcessUtils.dump_threads    ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${ss_pid} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    ${result} =   Run Shell Process   lsof -p ${ss_pid}   OnError=Failed to lsof ${SAFESTORE_BIN}
+    Log  ${result.stdout}
+    ${av_pid} =   ProcessUtils.pidof  ${AV_PLUGIN_BIN}
+    ${result} =   Run Shell Process   lsof -p ${av_pid}   OnError=Failed to lsof ${AV_PLUGIN_BIN}
+    Log  ${result.stdout}
+    ${td_pid} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${result} =   Run Shell Process   lsof -p ${td_pid}   OnError=Failed to lsof ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Log  ${result.stdout}
 
 Check Product Logs For Errors
     check_all_product_logs_do_not_contain_error
@@ -25,9 +39,11 @@ Mark Expected Error In AV Log
 
 Fault Injection Test Setup
     Wait Until AV Plugin running
+    register on fail  Dump Process Information
 
 Fault Injection Test Teardown
     Exclude MCS Router is dead
+    run_teardown_functions
 
     # Check that we can still cleanup files after each fault injection test case.
     ${av_mark} =  Get AV Log Mark
@@ -37,9 +53,14 @@ Fault Injection Test Teardown
     Check Product Logs For Errors
     Dump and Reset Logs
 
+
+
 Dump and Reset Logs
     Dump Log  ${SAFESTORE_LOG_PATH}
     Dump Log  ${AV_LOG_PATH}
+    Dump Log  ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log  ${SUSI_DEBUG_LOG_PATH}
+
 
 Send Threat Object To AV
     [Arguments]  ${file_path}=/tmp/testfile  ${threat_name}=ThreatName  ${sha}=sha256    ${report_source}=vdl    ${threat_type}=virus    ${userid}=userid

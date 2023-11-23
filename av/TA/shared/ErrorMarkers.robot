@@ -314,3 +314,12 @@ Exclude Susi Initialisation Failed Messages On Access Enabled
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to initialise SUSI: 0xc0000009
 
     Exclude VDL Folder Missing Errors
+
+
+Exclude SafeStore Cannot Quarantine Because Directory Does Not Exist Errors
+    [Arguments]  ${directory}
+    @{files} =    list files in directory    ${directory}    absolute=True
+    Log    ${files}
+    FOR  ${file}  IN  @{files}
+        mark_expected_error_in_log    ${SAFESTORE_LOG_PATH}    Cannot quarantine ${file} because directory ${directory} does not exist
+    END

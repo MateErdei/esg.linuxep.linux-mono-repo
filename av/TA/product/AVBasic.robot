@@ -452,11 +452,13 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
 
 
 AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
+    ${testdirectory} =   Set Variable   /tmp_test/
     Create Bad Unicode Eicars
+    Exclude SafeStore Cannot Quarantine Because Directory Does Not Exist Errors    ${testdirectory}
 
     ${avmark} =  LogUtils.get_av_log_mark
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${testdirectory}
     Log  return code is ${rc}
     Log  output is ${output}
 

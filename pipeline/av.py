@@ -120,7 +120,7 @@ def run_av_integration_tests(machine: tap.Machine, robot_args_json: str):
         print("NTFS disabled:", machine.template, id(machine))
         robot_exclusion_tags.append("ntfs")
 
-    os_packages += ["zip", "gdb", "autofs", "util-linux"]
+    os_packages += ["zip", "gdb", "autofs", "util-linux", "lsof"]
     if is_debian_based(machine.template):
         os_packages += ["nfs-kernel-server", "bfs", "libguestfs-reiserfs", "netcat"]
     elif is_redhat_based(machine.template):
