@@ -280,11 +280,19 @@ namespace Common::ProcessMonitoringImpl
 
     ProcessProxy::~ProcessProxy() noexcept
     {
+        stop();
+    }
+
+    void ProcessProxy::shutDownProcessCheckForExit()
+    {
         try
         {
-            // cppcheck-suppress virtualCallInConstructor
+            auto start = std::chrono::steady_clock::now();
             stop();
-            checkForExit();
+            ProcessProxy::checkForExit();
+            auto end = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            LOGDEBUG(m_exe << " shutdown duration: " << duration.count() << "ms");
         }
         catch (const std::exception& ex)
         {

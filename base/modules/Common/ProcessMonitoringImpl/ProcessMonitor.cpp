@@ -4,8 +4,7 @@
 
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/ProcessMonitoring/IProcessProxy.h"
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZMQWrapperApi/IContext.h"
@@ -13,6 +12,7 @@
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 #include <cassert>
+#include <thread>
 
 namespace Common::ProcessMonitoringImpl
 {
@@ -128,14 +128,32 @@ namespace Common::ProcessMonitoringImpl
 
         LOGINFO("Stopping processes");
         {
-            std::lock_guard<std::mutex> lock(m_processProxiesMutex);
-            m_processProxies.clear(); // stop is called on proxies as they are destroyed
+            stopProcesses();
         }
         // Normal shutdown
         m_socketHandleFunctionList.clear();
         m_context.reset();
 
         return 0;
+    }
+
+    void ProcessMonitor::stopProcesses()
+    {
+        std::vector<std::thread> shutdownThreads;
+        {
+            std::lock_guard<std::mutex> l{m_processProxiesMutex};
+            for (auto& p : m_processProxies)
+            {
+                shutdownThreads.emplace_back(&Common::ProcessMonitoring::IProcessProxy::shutDownProcessCheckForExit, p.get());
+            }
+        }
+        for (auto& shutdownThread : shutdownThreads)
+        {
+            if (shutdownThread.joinable())
+            {
+                shutdownThread.join();
+            }
+        }
     }
 
     void ProcessMonitor::addProcessToMonitor(Common::ProcessMonitoring::IProcessProxyPtr processProxyPtr)

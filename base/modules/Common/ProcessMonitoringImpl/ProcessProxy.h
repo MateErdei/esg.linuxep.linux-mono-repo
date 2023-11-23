@@ -25,6 +25,7 @@ namespace Common::ProcessMonitoringImpl
         ProcessProxy(const ProcessProxy&) = delete;
         ProcessProxy& operator=(const ProcessProxy&) = delete;
         ProcessProxy(const ProcessProxy&&) = delete;
+        void shutDownProcessCheckForExit() override;
 
         /**
          * Stops the process if it is running.

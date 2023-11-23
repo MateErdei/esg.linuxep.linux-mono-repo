@@ -37,6 +37,8 @@ namespace Common::ProcessMonitoring
          */
         virtual std::chrono::seconds ensureStateMatchesOptions() = 0;
 
+        virtual void shutDownProcessCheckForExit() = 0;
+
         virtual void setEnabled(bool enabled) = 0;
         virtual bool isRunning() = 0;
 

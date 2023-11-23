@@ -42,16 +42,25 @@ Test Components Shutdown Cleanly
 
     Run Process   systemctl  stop  sophos-spl
 
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/base/bin/mcsrouter shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/base/bin/UpdateScheduler shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/base/bin/sdu shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/base/bin/tscheduler shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/plugins/responseactions/bin/responseactions shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/plugins/eventjournaler/bin/eventjournaler shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/plugins/liveresponse/bin/liveresponse shutdown duration:
+    Check Watchdog Log Contains  ${SOPHOS_INSTALL}/plugins/edr/bin/edr shutdown duration:
+
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
     ...  Check EDR Log Contains  Plugin Finished
 
-
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
     ...  Check Log Contains   Plugin Finished   ${DEVICEISOLATION_DIR}/log/deviceisolation.log   device isolation log
+
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs

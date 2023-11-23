@@ -33,12 +33,14 @@ namespace Common::ProcessMonitoringImpl
             std::function<void(void)> socketHandleFunction) override;
 
         int run() override;
+        void stopProcesses();
 
     private:
         std::mutex m_processProxiesMutex;
         ProxyList m_processProxies;
         SocketHandleFunctionList m_socketHandleFunctionList;
         Common::ProcessMonitoring::IProcessProxy::NotifyPipeSharedPtr m_processTerminationCallbackPipe;
+
 
     protected:
         std::vector<std::string> getListOfPluginNames();
