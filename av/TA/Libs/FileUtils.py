@@ -60,23 +60,6 @@ def copy_file_with_permissions(src, dest):
     raise Exception("Unable to copy " + src)
 
 
-def does_file_exist(path) -> bool:
-    return bool(os.path.exists(path))
-
-
-def does_file_not_exist(path) -> bool:
-    return not does_file_exist(path)
-
-
-def does_file_contain_word(path, word) -> bool:
-    with open(path) as f:
-        pattern = re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE)
-        return bool(pattern.search(f.read()))
-
-
-def does_file_not_contain(path, word) -> bool:
-    return not does_file_contain_word(path, word)
-
 
 def set_old_timestamps(directory):
     """
@@ -126,15 +109,6 @@ def open_and_close_file(path):
     with open(path) as _:
         logger.info("Opened " + path)
     logger.info("Closed " + path)
-
-def get_file_owner(filepath):
-    owner = subprocess.check_output(['stat', '-c', '%U', filepath]).decode().strip()
-    return owner
-
-def get_file_group(filepath):
-    group = subprocess.check_output(['stat', '-c', '%G', filepath]).decode().strip()
-    return group
-
 
 def zip_file(zippath, filetozip):
     with zipfile.ZipFile(zippath, mode='w') as zipf:

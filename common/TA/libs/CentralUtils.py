@@ -470,11 +470,11 @@ def send_run_command_action_from_fake_cloud(commands, ignore_error=True, timeout
                                                                   return400=return400)
 
 
-def Set_Local_CA_Environment_Variable():
-    MCS_CA = os.path.join(PathManager.get_support_file_path(), "CloudAutomation", "root-ca.crt.pem")
+def setup_mcs_cert_override():
+    MCS_CA = os.path.join(PathManager.get_utils_path(), "server_certs", "server-root.crt")
     if os.path.exists("/home/bullseye"):
-        shutil.copy(MCS_CA, "/tmp/root-ca.crt.pem")
-        MCS_CA = "/tmp/root-ca.crt.pem"
+        shutil.copy(MCS_CA, "/tmp/root-ca.crt")
+        MCS_CA = "/tmp/root-ca.crt"
     Set_MCS_CA_Environment_Variable(MCS_CA)
 
 

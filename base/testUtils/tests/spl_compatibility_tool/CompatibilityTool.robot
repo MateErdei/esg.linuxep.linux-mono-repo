@@ -28,8 +28,7 @@ ${credentialsPath}              ./tmp/thin_installer/thininstaller_files/credent
 
 *** Keywords ***
 Compatibility Tool Suite Setup
-    Regenerate Certificates
-    Set_Local_CA_Environment_Variable
+    Setup_MCS_Cert_Override
     start_local_cloud_server
 
 Compatibility Tool Suite Teardown

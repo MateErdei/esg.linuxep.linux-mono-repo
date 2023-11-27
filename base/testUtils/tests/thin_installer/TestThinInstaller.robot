@@ -367,7 +367,7 @@ Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registr
     Should Contain  ${policy_config_contents}  MCSID=ThisIsAnMCSID+1001
     Should Contain  ${policy_config_contents}  MCSPassword=ThisIsThePassword
     Should Contain  ${root_config_contents}  MCSToken=ThisIsARegToken
-    Should Contain  ${root_config_contents}  CAFILE=${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Should Contain  ${root_config_contents}  CAFILE=${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Should Contain  ${root_config_contents}  MCSURL=https://localhost:4443/mcs
     Should Contain  ${root_config_contents}  customerToken=ThisIsACustomerToken
     Should Contain  ${root_config_contents}  mcsConnectedProxy=localhost:20000

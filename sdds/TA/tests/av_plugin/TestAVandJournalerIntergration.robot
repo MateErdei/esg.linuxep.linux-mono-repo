@@ -180,9 +180,8 @@ Wait Until Threat Report Socket Exists
     ...  Should Exist    ${THREAT_REPORT_SOCKET_PATH}
 
 Setup For Fake Cloud
-    Regenerate Certificates
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Override LogConf File as Global Level  DEBUG
     Check For Existing MCSRouter
     Cleanup MCSRouter Directories

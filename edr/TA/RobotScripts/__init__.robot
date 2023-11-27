@@ -2,6 +2,7 @@
 Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
+Library         /opt/test/inputs/common_test_libs/OSUtils.py
 Library         OperatingSystem
 Resource        ComponentSetup.robot
 
@@ -46,9 +47,9 @@ Global Setup Tasks
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
     evaluate    sys.path.append("${COMMON_TEST_LIBS}")    modules=sys
-    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+    install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Global Teardown Tasks
     Uninstall All
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True
-    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh
+    cleanup_system_ca_certs

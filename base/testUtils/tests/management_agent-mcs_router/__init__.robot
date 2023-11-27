@@ -13,7 +13,6 @@ Test Teardown    Test Fake Plugin Teardown
 
 *** Keywords ***
 Setup MCS And Management Agent Tests
-    Regenerate Certificates
     Setup MCS Tests
     Start Local Cloud Server
 

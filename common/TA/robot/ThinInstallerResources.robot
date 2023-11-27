@@ -14,8 +14,7 @@ ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 
 *** Keywords ***
 Setup Update Tests
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
 
 Setup sdds3 Update Tests
@@ -23,7 +22,7 @@ Setup sdds3 Update Tests
     Generate Fake sdds3 warehouse
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
 Cleanup sdds3 Update Tests
     Stop Local SDDS3 Server
@@ -33,7 +32,7 @@ sdds3 suite setup with fakewarehouse with real base
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
 SDDS3 Suite Fake Warehouse Teardown
     Clean up fake warehouse
@@ -105,7 +104,7 @@ Check MCS Config Contains
 
 Create Initial Installation
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
 Check Root Directory Permissions Are Not Changed
     ${result}=  Run Process  stat  -c  "%A"  /

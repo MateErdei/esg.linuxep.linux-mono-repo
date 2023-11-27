@@ -1,0 +1,9 @@
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1  = sustest.sophosupd.com
+DNS.2  = localhost
+DNS.3  = sdds3test.sophosupd.com
+DNS.4  = sdds3test.sophosupd.net
+DNS.5  = pushredirect

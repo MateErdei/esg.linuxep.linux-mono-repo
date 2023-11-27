@@ -14,16 +14,15 @@ Force Tags   MCS_ROUTER  TAP_PARALLEL4
 Setup
     Require Fresh Install
     Start Local Cloud Server
-    Regenerate Certificates
 
 *** Test Cases ***
 MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
-    Setup MCS CA With Incorrect Permissions  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Setup MCS CA With Incorrect Permissions  ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check Mcsrouter Log Contains   Unable to load CA certificates from '/tmp/tempcertdir/root-ca.crt.pem' as it isn't a file
+    ...  Check Mcsrouter Log Contains   Unable to load CA certificates from '/tmp/tempcertdir/server-root.crt' as it isn't a file
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -31,7 +30,7 @@ MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
     ...  Check Log Contains   ${SOPHOS_INSTALL}/base/bin/mcsrouter died with exit code 100   ${SOPHOS_INSTALL}/logs/base/watchdog.log   Watchdog
 
 Successful Register With Central Replacing MCS Certificate
-    Copy File   ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem  /tmp/mcs_rootca.crt.0
+    Copy File   ${COMMON_TEST_UTILS}/server_certs/server-root.crt  /tmp/mcs_rootca.crt.0
     Copy CA To File   /tmp/mcs_rootca.crt.0  ${SOPHOS_INSTALL}/base/mcs/certs/
     File Should Not Exist   ${SOPHOS_INSTALL}/base/mcs/policy/MCS-25_policy.xml
     Register With Local Cloud Server

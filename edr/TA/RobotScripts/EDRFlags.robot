@@ -88,9 +88,8 @@ EDR Test Teardown
     Uninstall EDR Plugin
 
 EDR Suite Setup
-    Regenerate Certificates
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Override LogConf File as Global Level  DEBUG
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running

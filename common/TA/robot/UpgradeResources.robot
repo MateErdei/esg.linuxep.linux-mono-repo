@@ -52,7 +52,7 @@ Upgrade Resources Test Teardown
 Upgrade Resources Suite Setup
     Set Suite Variable    ${GL_handle}       ${EMPTY}
     Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
 
 

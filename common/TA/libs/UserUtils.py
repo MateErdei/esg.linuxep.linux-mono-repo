@@ -4,7 +4,7 @@
 # All rights reserved.
 
 
-
+import grp
 import os
 import subprocess
 import pwd
@@ -98,3 +98,9 @@ def delete_user_for_test(name='userfortest'):
                 raise
             time.sleep(1)
             logger.info( "Attempt to delete user failed with: {}".format(str(ex)))
+
+
+def change_owner(path, user, group):
+    uid = pwd.getpwnam(user)[2]
+    gid = grp.getgrnam(group)[2]
+    os.chown(path, uid, gid)

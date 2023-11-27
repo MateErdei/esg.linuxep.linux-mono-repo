@@ -106,6 +106,7 @@ function failure() {
     if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]; then
         echo "-- Output from suldownloader log:"
         cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
+        cat "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log"
     fi
 
     # only remove files if we didnt get far enough through the process to install or

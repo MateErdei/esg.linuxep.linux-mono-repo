@@ -34,6 +34,9 @@ sys.path.append('/opt/test/inputs/common_test_libs')
 
 import ArgParserUtils
 
+import PathManager
+CERT_DIR = os.path.join(PathManager.get_utils_path(), "server_certs")
+
 logger = logging.getLogger("cloudServer")
 action_log = logging.getLogger("action")
 
@@ -203,7 +206,7 @@ class Policies(object):
 
 GL_POLICIES = Policies()
 
-CA_CERT_FILENAME = "root-ca.crt.pem"
+CA_CERT_FILENAME = "server-root.crt"
 UTM_CERT_FILENAME = "utm.cert.pem"
 
 POLICY_BASE = r"""<policy RevID="">
@@ -230,14 +233,10 @@ MIGRATE_401 = False
 
 
 def readCert(basename):
-    basedir = getCloudAutomationDirectory()
-    path = os.path.join(basedir, basename)
+    path = os.path.join(CERT_DIR, basename)
     if os.path.isfile(path):
         return open(path).read()
 
-    subprocess.call(["make", basename], cwd=basedir)
-    assert os.path.isfile(path)
-    return open(path).read()
 
 
 def generatePolicy(revID, endpointCertMap, caCertList, utmCertMap):
@@ -2150,15 +2149,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
 
 def getServerCert():
-    basedir = getCloudAutomationDirectory()
-    path = os.path.join(basedir, "server-private.pem")
-
-    if os.path.isfile(path):
-        return path
-    try:
-        subprocess.check_call(["make", "all"], cwd=basedir)
-    except Exception:
-        raise AssertionError("Certificate make failed - cannot continue with test.")
+    path = os.path.join(CERT_DIR, "server.crt")
 
     assert os.path.isfile(path)
     return path

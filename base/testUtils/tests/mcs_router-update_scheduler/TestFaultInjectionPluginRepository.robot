@@ -110,7 +110,7 @@ Wait For Update Status File To Contain RevId
 
 Install And Wait System Stable
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Start Local Cloud Server
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved

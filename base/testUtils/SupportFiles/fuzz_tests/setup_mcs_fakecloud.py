@@ -74,7 +74,7 @@ class SetupMCSAndFakeCloud(object):
             self.mcs_test_suite_setup()
 
         # Setup MCS Tests Local Fake Cloud Server
-        CentralUtils.Set_Local_CA_Environment_Variable()
+        CentralUtils.Setup_MCS_Cert_Override()
 
     def stop_mcsrouter_and_clear_logs(self):
         self._mcs_router.stop_mcsrouter_if_running()

@@ -209,7 +209,7 @@ if __name__ == "__main__":
     
     """
     import argparse
-    default_cert = os.path.join( PathManager.get_support_file_path(), 'CloudAutomation/server-private.pem')
+    default_cert = os.path.join( PathManager.get_utils_path(), 'server_certs/server.crt')
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--certfile', type=str, help='Path to the private.pem certificate for launching https server',
                         default=default_cert)

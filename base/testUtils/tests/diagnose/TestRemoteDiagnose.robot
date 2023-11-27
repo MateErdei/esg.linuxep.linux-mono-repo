@@ -66,8 +66,7 @@ check for processed tar files
     Should Be Equal As Integers  2   ${count}
 Setup Fake Cloud
     Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
     HttpsServer.Start Https Server  ${COMMON_TEST_UTILS}/server_certs/server.crt    443  tlsv1_2

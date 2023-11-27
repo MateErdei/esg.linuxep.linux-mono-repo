@@ -9,7 +9,7 @@ Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
-Library         ../Libs/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
 

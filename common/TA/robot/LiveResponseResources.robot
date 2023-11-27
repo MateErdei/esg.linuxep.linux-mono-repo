@@ -75,7 +75,6 @@ Liveresponse Test Teardown
     General Test Teardown
 
 Liveresponse Suite Setup
-    Regenerate Certificates
     Setup Suite Tmp Dir   /tmp/liveterminal
     Setup Base FakeCloud And FakeCentral-LT Servers
     Install Live Response Directly
@@ -92,7 +91,7 @@ Setup Base FakeCloud And FakeCentral-LT Servers
     Install LT Server Certificates
     Start MCS Push Server
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
     Require Fresh Install
     create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag

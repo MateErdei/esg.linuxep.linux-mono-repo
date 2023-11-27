@@ -33,8 +33,7 @@ Run Sdds warehouse
     Log  ${Files}
     ${Files} =  List Files In Directory  ${SDDS3_FAKESUITES}
     Log  ${Files}
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Start Local Cloud Server
     Get Thininstaller
     Create Default Credentials File

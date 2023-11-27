@@ -77,8 +77,7 @@ RA Suite Teardown
 
 RA Suite Setup
     Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Run Full Installer
     Override LogConf File as Global Level  DEBUG
     Create File  ${MCS_DIR}/certs/ca_env_override_flag
@@ -107,8 +106,7 @@ RA Test Teardown
 # Run Command tests keywords
 RA Run Command Suite Setup
     Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     ${ma_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Full Installer
     Install Response Actions Directly

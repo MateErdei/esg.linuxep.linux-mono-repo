@@ -81,7 +81,6 @@ export TEST_UTILS=$WORKSPACE/base/testUtils
 INPUTS_DIR="/opt/test/inputs"
 
 ${SUDO}mkdir -p /opt/test/inputs
-${SUDO}cp -r $WORKSPACE/common/TA/utils $INPUTS_DIR/common_test_utils
 ${SUDO}cp -r $WORKSPACE/common/TA/libs $INPUTS_DIR/common_test_libs
 ${SUDO}cp -r $WORKSPACE/common/TA/robot $INPUTS_DIR/common_test_robot
 ${SUDO}cp -r $WORKSPACE/base/testUtils/SupportFiles $INPUTS_DIR/SupportFiles

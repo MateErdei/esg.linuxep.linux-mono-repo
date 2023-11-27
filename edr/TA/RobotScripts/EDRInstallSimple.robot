@@ -78,8 +78,7 @@ EDR Removes Ipc And Status Files When Uninstalled
 
 EDR Handles Live Query
     Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
 
     Run Full Installer
     Install EDR Directly

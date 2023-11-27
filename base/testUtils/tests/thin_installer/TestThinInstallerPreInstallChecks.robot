@@ -21,6 +21,7 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Force Tags  THIN_INSTALLER  thin_installer_pre_install_check
 
 Suite Setup      Setup sdds3 Update Tests
+Suite Teardown   SDDS3 Suite Fake Warehouse Teardown
 
 Test Setup      Setup Thininstaller Test Without Local Cloud Server
 Test Teardown   Thininstaller Test Teardown

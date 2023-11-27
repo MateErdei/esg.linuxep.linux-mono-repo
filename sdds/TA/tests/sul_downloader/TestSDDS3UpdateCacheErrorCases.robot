@@ -131,7 +131,7 @@ Test that SDDS3 can Handle 202 then success from Update Caches
 
 
 Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
-    write_ALC_update_cache_policy   ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/utm.cert.pem
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files  8081

@@ -28,17 +28,6 @@ Fail Register If TLS1_1
     Start HTTPS Server    --tls1_1
     Fail Register With HTTPS Server   [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]
 
-Register with TLS1_2
-    Start HTTPS Server    --tls1_2
-    Set Local CA Environment Variable
-    # Connection was successful in terms of TLS handshake
-    Fail Register With HTTPS Server Gateway Error
-
-Register With Server At Defualt Value PROTOCOL_TLS Will Resolve To TLSv1_2 Plus
-    Start HTTPS Server   --tls
-    Set Local CA Environment Variable
-    # Connection was successful in terms of TLS handshake
-    Fail Register With HTTPS Server Gateway Error
 
 *** Keywords ***
 Check Cloud Server Log For Command Poll

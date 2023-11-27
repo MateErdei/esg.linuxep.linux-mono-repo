@@ -19,7 +19,7 @@ ${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 *** Keywords ***
 Setup MCS Tests
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Stop System Watchdog
 
     Check For Existing MCSRouter
@@ -84,24 +84,6 @@ Restart MCSRouter And Clear Logs
     Start MCSRouter
     Wait For MCS Router To Be Running
     [Return]  ${mcsrouter_mark}
-
-Regenerate Certificates
-
-    Generate Local Fake Cloud Certificates
-
-Generate Local Fake Cloud Certificates
-    #Note RANDFILE env variable is required to create the certificates on amazon
-    ${result} =  Run Process    make    all           cwd=${SUPPORT_FILES}/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
-    Log 	all output: ${result.stdout}
-
-    # You need execute permission on all folders up to the certificate file to use it in mcsrouter (lower priv user)
-    # This makes the necessary folder on jenkins and amazon have the correct permissions. Ubuntu has a+x on home folders
-    # by default.
-    Run Keyword And Ignore Error  Run Process    chmod  a+x  /home/jenkins  #RHEL and CentOS
-    Run Keyword And Ignore Error  Run Process    chmod  a+x  /root          #Amazon
-
-    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
-    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
 Check MCS Router Running
     [Arguments]    ${logs_location}=${SOPHOS_INSTALL}

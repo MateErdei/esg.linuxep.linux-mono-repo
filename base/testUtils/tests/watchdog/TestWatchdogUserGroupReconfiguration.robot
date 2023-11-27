@@ -15,8 +15,6 @@ Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
-Suite Setup    Suite Setup
-
 Test Setup       Watchdog User Group Test Setup
 Test Teardown       Watchdog User Group Test Teardown
 
@@ -262,12 +260,10 @@ Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInsta
     Remove File    /tmp/InstallOptionsTestFile
 
 *** Keywords ***
-Suite Setup
-    Regenerate Certificates
 
 Watchdog User Group Test Setup
     Require Uninstalled
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Override LogConf File as Global Level  DEBUG
     Cleanup Local Cloud Server Logs
     Start Local Cloud Server

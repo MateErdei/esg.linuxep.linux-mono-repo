@@ -721,3 +721,13 @@ def machine_architecture() -> str:
 def dump_df():
     df = subprocess.run(["df", "-hl"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logger.info(f"df -hl {df.returncode}: {df.stdout}")
+
+
+def get_cwd_then_change_directory(path):
+    cwd = os.getcwd()
+    os.chdir(path)
+    return cwd
+
+
+def get_robot_pid():
+    return os.getpid()

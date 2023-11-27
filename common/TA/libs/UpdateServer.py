@@ -38,7 +38,7 @@ def get_variable(varName, defaultValue=None):
 class UpdateServer(object):
     def __init__(self, server_log="update_server.log"):
         self.server_path = PathManager.get_support_file_path()
-        self.private_pem = os.path.join(self.server_path, "https", "server-private.pem")
+        self.private_pem = os.path.join(PathManager.get_utils_path(), "server_certs", "server.crt")
         self.server_processes = []
         self.proxy_processes = {}
 
@@ -103,27 +103,30 @@ class UpdateServer(object):
             f.write(new_hosts_file_content)
 
     def start_simple_proxy_server(self, port):
-        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port]
+        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port,
+                   "--certfile", self.private_pem]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
         self.wait_for_proxy_to_be_up(port)
 
     def start_timeout_proxy_server(self, port):
-        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--timeout-connections"]
+        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--timeout-connections",
+                   "--certfile", self.private_pem]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
 
     def start_proxy_server_which_hangs_on_push_connection(self, port):
-        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--hang-on-push-connections"]
+        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--hang-on-push-connections",
+                   "--certfile", self.private_pem]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
 
     def start_proxy_server_with_digest_auth(self, port, username, password):
         command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--digest", "--username",
-                   username, "--password", password]
+                   username, "--password", password , "--certfile", self.private_pem]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
         self.wait_for_proxy_to_be_up(port)
 
     def start_proxy_server_with_basic_auth(self, port, username, password):
         command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--basic", "--username",
-                   username, "--password", password]
+                   username, "--password", password,  "--certfile", self.private_pem]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
         self.wait_for_proxy_to_be_up(port)
 

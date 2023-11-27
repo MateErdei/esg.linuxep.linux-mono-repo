@@ -2,6 +2,7 @@
 aiohttp==3.8.1
 aiohttp_sse
 asyncio
+psutil
 datetime
 #https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
 protobuf==3.14.0

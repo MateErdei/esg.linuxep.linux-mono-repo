@@ -4,6 +4,7 @@ Documentation    Live Response plugin tests
 Library   Process
 Library   OperatingSystem
 Library   /opt/test/inputs/common_test_libs/FullInstallerUtils.py
+Library   /opt/test/inputs/common_test_libs/OSUtils.py
 
 Suite Setup      Global Setup Tasks
 Suite Teardown   Global Teardown Tasks
@@ -36,8 +37,8 @@ Global Setup Tasks
     Set Global Variable  ${ROBOT_TESTS_DIR}         ${TEST_INPUT_PATH}/test_scripts/RobotTests
     Set Global Variable  ${WEBSOCKET_SERVER}        ${TEST_INPUT_PATH}/pytest_scripts/utils/websocket_server
     Set Global Variable  ${BASE_DIST}               ${TEST_INPUT_PATH}/base
-    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+    install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Global Teardown Tasks
     Uninstall SSPL
-    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh
+    cleanup_system_ca_certs

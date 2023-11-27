@@ -3,6 +3,7 @@ Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
 Library         Process
+Library         /opt/test/inputs/common_test_libs/OSUtils.py
 Library         OperatingSystem
 
 Test Timeout    5 minutes
@@ -25,8 +26,8 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
-    Run Process    bash      ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+    install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
 Global Teardown Tasks
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True
-    Run Process    bash    ${COMMON_TEST_UTILS}/CleanupInstalledSystemCerts.sh
+    cleanup_system_ca_certs

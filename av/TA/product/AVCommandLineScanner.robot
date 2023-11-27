@@ -13,7 +13,7 @@ Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
-Library         ../Libs/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/ThreatReportUtils.py

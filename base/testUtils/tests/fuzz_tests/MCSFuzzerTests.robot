@@ -12,9 +12,6 @@ Library    ${COMMON_TEST_LIBS}/FuzzerSupport.py
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
-Suite Setup     Run Keywords
-...             Regenerate Certificates
-
 
 Test Setup      Setup MCS Tests
 Test Teardown   Run Keywords

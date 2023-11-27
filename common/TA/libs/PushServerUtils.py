@@ -21,7 +21,7 @@ class PushServerUtils:
         self._client = None
         self._server = None
         self._port = 8459
-        self._cert = os.path.join( PathManager.get_support_file_path(), 'CloudAutomation/root-ca.crt.pem')
+        self._cert = os.path.join( PathManager.get_utils_path(), 'server_certs/server-root.crt')
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "push_server_log.log")
         self.push_url_pattern = 'https://localhost:{}/mcs/push/endpoint/thisendpoint'

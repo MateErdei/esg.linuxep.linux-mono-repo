@@ -92,7 +92,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     Check MCS Router Running
 
     # Check the message relays made their way through to the MCS Router
-    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    File Should Exist  ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
     Check MCS Router Log Contains In Order
     ...     Trying connection via message relay dummyhost1:10000
@@ -195,7 +195,7 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     Check MCS Router Running
 
     # Check the message relays made their way through to the MCS Router
-    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    File Should Exist  ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
     Wait Until Keyword Succeeds
     ...    30 secs
@@ -260,11 +260,11 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
     ${root_config_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     ${policy_config_contents} =  Get File  ${MCS_CONFIG}
     Should Contain  ${root_config_contents}  MCSToken=ThisIsARegToken
-    Should Contain  ${root_config_contents}  CAFILE=${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Should Contain  ${root_config_contents}  CAFILE=${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Should Contain  ${root_config_contents}  MCSURL=https://localhost:4443/mcs
     Should Contain  ${root_config_contents}  customerToken=ThisIsACustomerToken
     Should Contain  ${root_config_contents}  mcsConnectedProxy=localhost:20000
-    File Should Exist    ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    File Should Exist    ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
     check_mcsrouter_log_contains    Successfully connected to localhost:4443 via localhost:20000
     check_mcsrouter_log_does_not_contain    Successfully directly connected to localhost:4443

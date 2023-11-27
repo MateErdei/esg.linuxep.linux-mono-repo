@@ -203,7 +203,7 @@ Suite Setup
     Start Local Cloud Server
 
 Test Setup
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Require Fresh Install
 
     Check For Existing MCSRouter

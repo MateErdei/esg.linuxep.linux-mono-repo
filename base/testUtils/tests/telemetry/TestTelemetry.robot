@@ -34,10 +34,9 @@ ${MANAGEMENT_AGENT_LOG}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_man
 *** Keywords ***
 ### Suite Setup
 Setup Telemetry Tests
-    Regenerate Certificates
     Start Local Cloud Server
     Require Fresh Install
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Copy Telemetry Config File in To Place

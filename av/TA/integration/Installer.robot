@@ -17,7 +17,8 @@ Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
-Library         ../Libs/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/UserUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/Telemetry.py

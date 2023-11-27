@@ -224,6 +224,7 @@ class MCSRouter(object):
     
     def __init__(self):
         self.support_path = PathManager.get_support_file_path()
+        self.cert_file = os.path.join(PathManager.get_utils_path(),"server_certs/server.crt")
         self.cloud_server_path = os.path.join(self.support_path, "CloudAutomation")
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
@@ -1027,7 +1028,8 @@ class MCSRouter(object):
     def start_message_relay(self):
         relay_log_file_path = os.path.join(self.tmp_path, "relay.log")
         relay_log_file = open(relay_log_file_path, "w")
-        command = [sys.executable, os.path.join(self.support_path, "https_proxy.py"), str(self.local_proxy_port)]
+        command = [sys.executable, os.path.join(self.support_path, "https_proxy.py"), str(self.local_proxy_port),
+                   "--certfile", self.cert_file]
         self.proxy = subprocess.Popen(command, stdout=relay_log_file, stderr=subprocess.STDOUT)
             
     def cleanup_proxy_logs(self):
@@ -1045,8 +1047,9 @@ class MCSRouter(object):
     def start_https_server(self, protocol):
         proxy_log_file_path = os.path.join(self.tmp_path, "proxy.log")
         proxy_log_file = open(proxy_log_file_path, "w")
-        cert_location = os.path.join(self.cloud_server_path, "server-private.pem")
-        command = [sys.executable, os.path.join(self.support_path, "https_proxy.py"), str(self.local_proxy_port), protocol, "--certfile", cert_location]
+
+        command = [sys.executable, os.path.join(self.support_path, "https_proxy.py"), str(self.local_proxy_port),
+                   protocol, "--certfile", self.cert_file]
         self.proxy = subprocess.Popen(command, stdout=proxy_log_file, stderr=subprocess.STDOUT)
         self.__ensure_server_started(self.proxy, proxy_log_file_path, 'Serving HTTP Proxy')
 

@@ -14,7 +14,7 @@ Library         ../Libs/LockFile.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
-Library         ../Libs/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/ThreatReportUtils.py
 

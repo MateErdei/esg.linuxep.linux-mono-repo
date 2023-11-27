@@ -14,7 +14,7 @@ Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
 Test Setup       Run Keywords
 ...              Start Local Cloud Server  AND
-...              Set Local CA Environment Variable  AND
+...              Setup_MCS_Cert_Override  AND
 ...              Backup Version Ini
 
 Test Teardown    Run Keywords
@@ -188,7 +188,7 @@ Verify MCS Router Running After Installation With Registration
     [Tags]  INSTALLER
     Uninstall SSPL
     Check MCS Router Not Running
-    Set Local CA Environment Variable
+    Setup_MCS_Cert_Override
     Run Full Installer  --mcs-url  https://localhost:4443/mcs  --mcs-token   ThisIsARegToken  --allow-override-mcs-ca
     ${pid} =  Check MCS Router Running
     Check Process Running As Sophosspl Local And Group  ${pid}

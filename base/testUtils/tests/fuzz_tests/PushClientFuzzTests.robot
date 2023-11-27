@@ -12,10 +12,7 @@ Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource   ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource   ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
-Suite Setup     Run Keywords
-...             Regenerate Certificates  AND
-...             Set Timeout
-
+Suite Setup     Set Timeout
 
 
 Test Setup      Setup MCS Tests
