@@ -64,6 +64,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     send_policy_file    core    ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     Start Local Dogfood SDDS3 Server
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     Override LogConf File as Global Level    DEBUG
 
@@ -84,6 +85,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -91,6 +93,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
 
     # Upgrading to VUT
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
@@ -137,6 +140,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     check_all_product_logs_do_not_contain_critical
 
     Check Current Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -210,7 +214,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
 
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -232,6 +236,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check Current Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -243,9 +248,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
 
     Stop Local SDDS3 Server
-    # Changing the policy here will result in an automatic update
-    # Note when downgrading from a release with live response to a release without live response
-    # results in a second update.
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local Dogfood SDDS3 Server
 
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
@@ -280,6 +283,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     check_all_product_logs_do_not_contain_critical
 
     Check EAP Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
@@ -336,7 +340,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     start_local_cloud_server
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local Current Shipping SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     Override LogConf File as Global Level    DEBUG
@@ -357,11 +361,13 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
     Stop Local SDDS3 Server
 
     # Upgrade to VUT
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     ${watchdog_pid_before_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Start Local SDDS3 Server
 
@@ -402,6 +408,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     check_all_product_logs_do_not_contain_critical
 
     Check Current Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Wait Until Keyword Succeeds
@@ -435,6 +442,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     # Enable OnAccess
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     Override LogConf File as Global Level    DEBUG
@@ -455,12 +463,11 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check Current Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Stop Local SDDS3 Server
-    # Changing the policy here will result in an automatic update
-    # Note when downgrading from a release with live response to a release without live response
-    # results in a second update.
+    ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local Current Shipping SDDS3 Server
     Create File  ${MCS_DIR}/action/testfile
     Should Exist  ${MCS_DIR}/action/testfile
@@ -506,6 +513,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     check_all_product_logs_do_not_contain_critical
 
     Check EAP Release Installed Correctly
+    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
     Check For downgraded logs
 

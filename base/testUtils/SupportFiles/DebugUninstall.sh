@@ -173,7 +173,7 @@ function removeUser()
       while [ $USER_EXISTS -eq 0 ] && [ $USER_DELETE_TRIES -le 10 ]
       do
           "$USER_DELETER" "$USERNAME" 2>/dev/null >/dev/null && USER_EXISTS=1
-          if [[ $USER_EXISTS == 1 ]]
+          if [[ $USER_EXISTS == 0 ]]
           then
               sleep 1
               ps -u "$USERNAME"
