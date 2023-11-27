@@ -74,8 +74,3 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
     execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols/ra ]] && cp -a ${CMAKE_BINARY_DIR}/symbols/ra ${OUTPUT}/ra-symbols && echo copied ra symbols to output \")
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/cmcsrouterapi.tar.gz ${OUTPUT}/cmcsrouterapi.tar.gz)
 ")
-
-# FakeManagement depends on ActionUtils, FakeManagement is exported and used by other plugins TAP tests.
-INSTALL(CODE "MESSAGE(STATUS \"Copying ActionUtils.py into FakeManagement directory\")
-    execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/testUtils/libs/ActionUtils.py ${CMAKE_SOURCE_DIR}/testUtils/SupportFiles/FakeManagement/)
-")

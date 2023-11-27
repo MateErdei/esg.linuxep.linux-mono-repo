@@ -20,7 +20,7 @@ spl_independent_cc_tests(
 soph_cc_binary(
     name = "HttpRequesterLiveNetworkTests",
     srcs = ["HttpRequesterLiveNetworkTests.cpp"],
-    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+    visibility = ["//base:__pkg__"],
     deps = [
         "//base/modules/Common/HttpRequestsImpl",
         "//base/tests/Common/Helpers",

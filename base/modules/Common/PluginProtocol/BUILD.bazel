@@ -34,6 +34,9 @@ proto_library(
 
 py_proto_library(
     name = "PluginAPIMessage_py_pb2",
-    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+    visibility = [
+        "//base:__pkg__",
+        "//base/products/SystemProductTestOutput:__pkg__",
+    ],
     deps = [":PluginAPIMessage_proto"],
 )

@@ -93,7 +93,6 @@
         <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">
             <include glob="mcs.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
 
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>

@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import zmq
+import os
 from threading import Thread
 import re
 import xml.dom.minidom

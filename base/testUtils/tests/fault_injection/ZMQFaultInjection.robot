@@ -20,7 +20,7 @@ Test Teardown   ZMQ Test Teardown
 Force Tags  FAULTINJECTION    TAP_PARALLEL2
 
 *** Variables ***
-${ZMQCheckerSourceDir} =  ${COMMON_TEST_LIBS}/../SystemProductTestOutput/zmqchecker
+${ZMQCheckerSourceDir} =  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 ${ZMQCheckerDir} =  /tmp/zmqchecker
 
 ${TESTUSER} =  sophos-spl-user
@@ -192,8 +192,8 @@ Run ZMQ Checker Executable As Low Priviledged User
 
 Move Executable To Tmp
     #RHEL based system will not allow executable to be ran from path that include home directory
-    #Move to tmp brfore running tests
-    Copy Directory  ${ZMQCheckerSourceDir}  /tmp/
+    #Move to tmp before running tests
+    Copy File  ${ZMQCheckerSourceDir}/zmqchecker  ${ZMQCheckerDir}/zmqchecker
 
 ZMQ Suite Setup
     Require Installed

@@ -78,7 +78,7 @@ Check Marked Event Journaler Log Contains
     Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}   ${input}   ${mark}
 
 List File In Test Dir
-    ${filenames} =  List Directory  /opt/test/inputs/fake_management/
+    ${filenames} =  List Directory  /opt/test/inputs/SupportFiles/
     Log    ${filenames}
 
 Event Journaler Teardown

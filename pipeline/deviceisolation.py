@@ -28,12 +28,12 @@ def load_inputs(
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
         common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
-        SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         tests=context.artifact.from_folder("./base/testUtils/tests"),
         device_isolation_sdds=build_output / f"deviceisolation/{build}/installer",
         base_sdds=build_output / f"base/{build}/installer",
-        fake_management=x86_64_build_output / "base/fake_management",
+        PluginAPIMessage_pb2_py=x86_64_build_output / f'base/pluginapimessage_pb2_py'
     )
+    test_inputs["SupportFiles/PluginCommunicationTools"] = context.artifact.from_folder('./base/testUtils/SupportFiles/PluginCommunicationTools')
 
     return test_inputs
 

@@ -49,7 +49,6 @@ testUtils/SupportFiles/CloudAutomation/root-ca.crt.*
 testUtils/SupportFiles/CloudAutomation/server-*.pem
 testUtils/SupportFiles/CloudAutomation/utm.cert.pem
 testUtils/*-VBoxSVC-*.log
-/testUtils/SupportFiles/FakeManagement/ActionUtils.py
 /tap_venv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml

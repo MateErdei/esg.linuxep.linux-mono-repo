@@ -7,7 +7,7 @@ soph_cc_binary(
         "*.cpp",
         "*.h",
     ]),
-    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
+    visibility = ["//base:__pkg__"],
     deps = [
         "//base/modules/Common/Reactor",
         "//base/modules/Common/ReactorImpl",

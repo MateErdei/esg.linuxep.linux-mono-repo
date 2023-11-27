@@ -4,16 +4,9 @@
 # All rights reserved.
 
 
-import sys
-import os
 from enum import Enum
 from .SetupLogger import setup_logging
 from .messages import Message
-from robot.libraries.BuiltIn import BuiltIn
-
-SYSTEMPRODUCTTESTOUTPUT = BuiltIn().get_variable_value("$SYSTEM_PRODUCT_TEST_OUTPUT_PATH")
-if SYSTEMPRODUCTTESTOUTPUT not in sys.path:
-    sys.path.append(SYSTEMPRODUCTTESTOUTPUT)
 
 # Test we actually have protobuf before trying to import the message
 import google.protobuf

@@ -1,17 +1,114 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-
+import zmq
 import os
-
-import PathManager
-SUPPORTFILESPATH = PathManager.get_support_file_path()
-PathManager.addPathToSysPath(SUPPORTFILESPATH)
-
-
+import grp
+import pwd
+import time
+import ActionUtils
 from PluginCommunicationTools import FakeManagementAgent
+from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+from PluginCommunicationTools.common.IPCDir import IPC_DIR
+from PluginCommunicationTools.common.ProtobufSerialisation import Messages, deserialise_message, serialise_message
+from PluginCommunicationTools.common.messages import Message
+
+
+class ManagementAgentPluginRequester(object):
+    def __init__(self, plugin_name, logger):
+        self.name = plugin_name
+        self.logger = logger
+        self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(IPC_DIR, self.name)
+        self.__m_socket = try_get_socket(ZMQ_CONTEXT, self.__m_socket_path, zmq.REQ)
+
+    def __del__(self):
+        self.__m_socket.close()
+
+    def send_message(self, message):
+        to_send = serialise_message(message)
+        self.__m_socket.send(to_send)
+
+    def build_message(self, command, app_id, contents):
+        return Message(app_id, self.name, command.value, contents)
+
+    def action(self, app_id, correlation, action):
+        self.logger.info("Sending {} action [correlation {}] to {} via {}".format(action,
+                                                                                  correlation,
+                                                                                  self.name,
+                                                                                  self.__m_socket_path))
+        filename = "LiveQuery_{}_request_{}.json".format(correlation, ActionUtils.get_valid_creation_time_and_ttl())
+        sophos_install = os.environ['SOPHOS_INSTALL']
+        with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "a") as f:
+            f.write(action)
+        message = self.build_message(Messages.DO_ACTION, app_id, [filename])
+        message.correlationId = correlation
+        self.send_message(message)
+
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge:
+            return Messages.ACK.value
+        elif response.error:
+            return response.error
+        elif response.contents is None:
+            return ""
+        else:
+            return response.contents[0]
+
+    def policy(self, app_id, policy_xml):
+        self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
+        message = self.build_message(Messages.APPLY_POLICY, app_id, [policy_xml])
+        self.send_message(message)
+
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge:
+            return Messages.ACK.value
+        elif response.error:
+            return response.error
+        elif response.contents is None:
+            return ""
+        else:
+            return response.contents[0]
+
+    def get_status(self, app_id):
+        self.logger.info("Request Status for {}".format( self.name))
+        request_message = self.build_message(Messages.REQUEST_STATUS, app_id, [])
+        self.send_message(request_message)
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+        if response.acknowledge or response.error or (response.contents and len(response.contents) < 2):
+            self.logger.error("No status in message from plugin: {}, contents: {}".format(response.plugin_name, response.contents))
+            return ""
+        self.logger.info("Got status back from plugin, plugin name: {}, status: {}".format(self.name, response.contents))
+
+        # This is a list of 2 items: status with XML and status without XML
+        status = response.contents[0]
+        return status
+
+    def get_telemetry(self):
+        self.logger.info("Request Telemetry for {}".format(self.name))
+        request_message = self.build_message(Messages.REQUEST_TELEMETRY, "no-app-id", [])
+        self.send_message(request_message)
+        raw_response = self.__m_socket.recv()
+        response = deserialise_message(raw_response)
+
+        if response.acknowledge or response.error or (response.contents and len(response.contents) < 1):
+            self.logger.error("No telemetry in message from plugin: {}, contents: {}".format(response.plugin_name, response.contents))
+            return ""
+        self.logger.info("Got telemetry back from plugin, plugin name: {}, status: {}".format(self.name, response.contents))
+        received_telemetry = response.contents[0]
+        return received_telemetry
+
+    def send_raw_message(self, to_send):
+        self.__m_socket.send_multipart(to_send)
+        return self.__m_socket.recv_multipart()
+
+    def make_file_readable_by_mcs(self, file_path):
+        uid = pwd.getpwnam('sophos-spl-user').pw_uid
+        gid = grp.getgrnam('sophos-spl-group')[2]
+        os.chown(file_path, uid, gid)
 
 
 class FakeManagement(object):
@@ -19,46 +116,41 @@ class FakeManagement(object):
     def __init__(self):
         self.logger = FakeManagementAgent.setup_logging("fake_management_agent.log", "Fake Management Agent")
         self.agent = None
-        pass
 
-    def _get_file_content(self, filename_or_path):
-        if os.path.exists(filename_or_path):
-            filepath = filename_or_path
-        else:
-            filepath = os.path.join(SUPPORTFILESPATH, "CentralXml", filename_or_path + ".xml")
-            if not os.path.exists(filepath):
-                raise AssertionError("Policy file not found: " + filepath)
-        return open(filepath, 'r').read()
+    def start_fake_management(self):
+        if self.agent:
+            raise AssertionError("Agent already initialized")
+        self.agent = FakeManagementAgent.Agent(self.logger)
+        self.agent.start()
 
-
-    def link_appid_plugin(self, appid, pluginname):
+    def stop_fake_management(self):
         if not self.agent:
-            raise AssertionError("Agent not initialized")
-        self.appid = str(appid)
-        self.pluginname = str(pluginname)
-        self.agent.link_app_id_to_plugin(appid, pluginname)
+            self.logger.info("Agent already stopped")
+            return
+        self.agent.stop()
+        self.agent = None
 
-    def send_policy(self, policyname ):
-        policycontent = self._get_file_content(policyname)
-        response = self.agent.send_apply_policy(self.appid, policycontent)
-        if 'ACK' not in response:
-            raise AssertionError( "Plugin Responded with error: " + str(response))
+    def send_plugin_policy(self, plugin_name, appid, content):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        plugin.policy(appid, content)
 
-    def send_action(self, actionname ):
-        actioncontent = self._get_file_content(actionname)
-        response = self.agent.send_action(self.pluginname, self.appid, actioncontent)
-        if 'ACK' not in response:
-            raise AssertionError(str(response))
+    def send_plugin_action(self, plugin_name, appid, correlation, content):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        plugin.action(appid, correlation, content)
 
-    def get_telemetry(self):
-        return self.agent.get_telemetry(self.pluginname)
+    def send_plugin_actions(self, plugin_name, appid, correlation, content, count):
+        for i in range(count):
+            plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+            plugin.action(appid, correlation, content)
+            time.sleep(0.01)
 
-    def check_status_contains(self, statusElement):
-        status_contents = self.agent.get_status(self.appid, self.pluginname)
-        strcontents = str(status_contents)
-        self.logger.info("Current status: " + strcontents)
-        if not all([statusElement in status_content.decode("utf-8") for status_content in status_contents]):
-            raise AssertionError("Status does not contain: " + statusElement)
+    def get_plugin_status(self, plugin_name, appid):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        return plugin.get_status(appid)
+
+    def get_plugin_telemetry(self, plugin_name):
+        plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+        return plugin.get_telemetry()
 
     def __del__(self):
         if self.agent:

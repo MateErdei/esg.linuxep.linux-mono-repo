@@ -325,7 +325,7 @@ Create 060 Install Set
     Set Environment Variable    PRODUCT_NAME   SPL-Base-Component
     Set Environment Variable    FEATURE_LIST    CORE
     Set Environment Variable    VERSION_OVERRIDE  0.6.0
-    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py /opt/tmp/0-6-0  shell=true
+    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${BASE_SDDS_SCRIPTS}/generateSDDSImportAndManifestDat.py /opt/tmp/0-6-0  shell=true
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Strings   ${result.rc}  0

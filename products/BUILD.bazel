@@ -49,13 +49,13 @@ soph_export_assets(
     deps = RELEASEABLE_ASSETS + [
         ":sbom",
         "//av:tap_test_output",
-        "//base:system_test",
+        "//base:SystemProductTestOutput",
         "//edr:componenttests",
         "//eventjournaler:manualTools",
     ] + select({
         "//tools/config:linux_x64_rel": RELEASE_MODE_DEPS + [
             "//base:distribution_scripts",
-            "//base:fake_management",
+            "//base:pluginapimessage_pb2_py",
         ],
         "//tools/config:linux_arm64_rel": RELEASE_MODE_DEPS,
         "//tools/config:linux_x64_dbg": [],

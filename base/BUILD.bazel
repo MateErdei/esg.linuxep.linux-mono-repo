@@ -5,13 +5,6 @@ load(":version_info.bzl", "BASE_BASE_VERSION")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
-pkg_tar(
-    name = "testUtils",
-    srcs = glob(["testUtils/**"]),
-    strip_prefix = "/base",
-    visibility = ["//base/products/SystemProductTestOutput:__pkg__"],
-)
-
 expand_template(
     name = "AutoVersion_h",
     out = "AutoVersion.h",
@@ -50,17 +43,9 @@ soph_build_asset(
 )
 
 soph_build_asset_pkg(
-    name = "fake_management",
-    srcs = glob(
-        [
-            "testUtils/SupportFiles/FakeManagement/**",
-        ],
-    ),
+    name = "pluginapimessage_pb2_py",
+    srcs = ["//base/modules/Common/PluginProtocol:PluginAPIMessage_py_pb2"],
     platform_neutral = True,
-    remap_paths = {
-        "base/testUtils/SupportFiles/FakeManagement": "",
-    },
-    strip_prefix = "/",
     visibility = ["//products:__pkg__"],
 )
 
@@ -72,7 +57,18 @@ soph_build_asset_pkg(
 )
 
 soph_build_asset_pkg(
-    name = "system_test",
-    srcs = ["//base/products/SystemProductTestOutput"],
+    name = "SystemProductTestOutput",
+    srcs = [
+        "testUtils/SupportFiles/CloudAutomation/SophosHTTPSClient.py",
+        "testUtils/SupportFiles/CloudAutomation/cloudClient.py",
+        "//base/products/SystemProductTestOutput/ZMQChecker:zmqchecker",
+        "//base/tests/Common/HttpRequesterImpl:HttpRequesterLiveNetworkTests",
+        "//base/tests/Common/HttpRequesterImpl:HttpTestServer.py",
+        "//base/tests/Common/ZipUtilities:unzipTool",
+        "//base/tests/Common/ZipUtilities:zipTool",
+        "//base/tests/manualTools:FaultInjectionLogger",
+        "//base/tests/manualTools:ignoreSignals",
+        "//imports/thirdparty/openssl:openssl_binary",
+    ],
     visibility = ["//products:__pkg__"],
 )

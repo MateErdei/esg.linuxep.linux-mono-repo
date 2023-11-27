@@ -6,7 +6,7 @@ Library         OperatingSystem
 
 Resource        EventJournalerResources.robot
 Library         ../Libs/InstallerUtils.py
-Library         ${TEST_INPUT_PATH}/fake_management/FakeManagement.py
+Library         ${COMMON_TEST_LIBS}/FakeManagement.py
 
 Suite Teardown  Uninstall Base
 

@@ -4,7 +4,7 @@ Library         OperatingSystem
 
 Resource        ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
-Library         ${TEST_INPUT_PATH}/fake_management/FakeManagement.py
+Library         ${COMMON_TEST_LIBS}/FakeManagement.py
 
 Suite Setup     Device Isolation Suite Setup
 Suite Teardown  Device Isolation Suite Teardown

@@ -8,7 +8,6 @@ Library    CentralUtils.py
 Library    FullInstallerUtils.py
 Library    OSUtils.py
 Library    PathManager.py
-Library    SystemProductTestOutputInstall.py
 Library    TemporaryDirectoryManager.py
 Library    UpdateServer.py
 Library    WarehouseUtils.py
@@ -91,6 +90,10 @@ Global Setup Tasks
     Set Global Variable  ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
     Set Global Variable  ${COMMON_TEST_UTILS}    ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
+    Set Global Variable  ${BASE_SDDS_SCRIPTS}  ${TEST_INPUT_PATH}/base_sdds_scripts
+    Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}    ${TEST_INPUT_PATH}/SystemProductTestOutput
+    Set Global Variable  ${OPENSSL_BIN_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
+    Set Global Variable  ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update
@@ -101,20 +104,7 @@ Global Setup Tasks
 
     Set Global Variable  ${SUPPORT_FILES}     ${TEST_INPUT_PATH}/SupportFiles
     Set Global Variable  ${ROBOT_TESTS_DIR}   ${TEST_INPUT_PATH}/test_scripts
-    Set Global Variable  ${BASE_SDDS_SCRIPTS}     ${TEST_INPUT_PATH}/base_sdds_scripts
     Set Global Variable  ${LIBS_DIRECTORY}    ${COMMON_TEST_LIBS}
-
-    ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output
-    Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}
-    ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"
-
-    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-event-journaler-manual-tools
-    Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
-
-    Set Global Variable   ${OPENSSL_BIN_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
-    Set Global Variable   ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
-
-    Log To Console  \n${colored_message} \n
 
     install_system_ca_cert    ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
@@ -127,6 +117,5 @@ Global Setup Tasks
     Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr
 
 Global Cleanup Tasks
-    Clean Up System Product Test Output
     Cleanup Temporary Folders
     cleanup_system_ca_certs

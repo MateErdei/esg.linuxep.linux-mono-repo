@@ -58,7 +58,7 @@ def main():
     if args.suite:
         robot_args['suite'] = args.suite
 
-    os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/system_test/'
+    os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/SystemProductTestOutput/'
     os.environ['BASE_DIST'] = '/opt/test/inputs/base_sdds'
     os.environ['RA_DIST'] = '/opt/test/inputs/ra_sdds'
     os.environ['OUTPUT'] = '/opt/test/inputs/base/'
@@ -80,6 +80,9 @@ def main():
 
     sys.path.append('/opt/test/inputs/common_test_libs')
     sys.path.append('/opt/test/inputs/SupportFiles')
+    sys.path.append('/opt/test/inputs/SystemProductTestOutput')
+    os.system("chmod -R 755 /opt/test/inputs/SystemProductTestOutput")
+    sys.path.append('/opt/test/inputs/PluginAPIMessage_pb2_py')
     sys.exit(robot.run(path, **robot_args))
 
 

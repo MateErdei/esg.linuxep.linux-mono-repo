@@ -36,7 +36,7 @@ def load_inputs(
         test_scripts=context.artifact.from_folder("./base/testUtils"),
         base_sdds=build_output / f"base/{build}/installer",
         ra_sdds=build_output / f"response_actions/{build}/installer",
-        system_test=build_output / f"base/{build}/system_test",
+        SystemProductTestOutput=build_output / f"base/{build}/SystemProductTestOutput",
         openssl=openssl,
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
         common_test_utils=context.artifact.from_folder("./common/TA/utils"),
@@ -44,6 +44,7 @@ def load_inputs(
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         base_sdds_scripts=context.artifact.from_folder("./base/products/distribution"),
         thininstaller=x86_64_build_output / f"thininstaller/thininstaller",
+        PluginAPIMessage_pb2_py=x86_64_build_output / f"base/pluginapimessage_pb2_py",
         sdds3_tools=unified_artifact(context, "em.esg", "develop", f"build/sophlib/linux_{arch}_rel/sdds3_tools"),
     )
 

@@ -70,6 +70,8 @@ def main():
         robot_args['listener'] = listener
 
     sys.path.append('/opt/test/inputs/common_test_libs')
+    sys.path.append("/opt/test/inputs/SupportFiles")
+    sys.path.append("/opt/test/inputs/PluginAPIMessage_pb2_py")
     sys.exit(robot.run(path, **robot_args))
 
 
