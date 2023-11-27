@@ -192,8 +192,8 @@ class TestMCS(unittest.TestCase):
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","FOO")
         config.set("MCSPassword","BAR")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","0")
+        config.set("commandPollingDelay","0")
+        config.set("flagsPollingInterval","0")
         config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
         config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
         m = self.createMCS(config)
@@ -215,8 +215,8 @@ class TestMCS(unittest.TestCase):
         config.set("MCSToken", "MCSTOKEN")
         config.set("MCSID", "FOO")
         config.set("MCSPassword", "BAR")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM", "0")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM", "0")
+        config.set("commandPollingDelay", "0")
+        config.set("flagsPollingInterval", "0")
         config.set("COMMAND_CHECK_BASE_RETRY_DELAY", "0")
         config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY", "0")
         m = self.createMCS(config)
@@ -240,8 +240,8 @@ class TestMCS(unittest.TestCase):
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","FOO")
         config.set("MCSPassword","BAR")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","0")
+        config.set("commandPollingDelay","0")
+        config.set("flagsPollingInterval","0")
         config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
         config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
         m = self.createMCS(config)
@@ -268,8 +268,8 @@ class TestMCS(unittest.TestCase):
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","FOO")
         config.set("MCSPassword","BAR")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","300")
+        config.set("commandPollingDelay","0")
+        config.set("flagsPollingInterval","300")
         config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
         config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
         m = self.createMCS(config)
@@ -278,7 +278,7 @@ class TestMCS(unittest.TestCase):
             ret = m.startup()
             with open(FLAG_FILE, 'w') as outfile:
                 outfile.write("stuff")
-            # When this runs the last time check will be under the COMMAND_CHECK_INTERVAL_MAXIMUM
+            # When this runs the last time check will be under the flagsPollingInterval
             # so the file will not be updated with the flags
             ret = m.get_flags(time.time())
 
@@ -348,8 +348,8 @@ class TestMCS(unittest.TestCase):
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","FOO")
         config.set("MCSPassword","BAR")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","0")
+        config.set("commandPollingDelay","0")
+        config.set("flagsPollingInterval","0")
         config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
         config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
         m = self.createMCS(config)
@@ -523,16 +523,16 @@ class TestCommandCheckInterval(unittest.TestCase):
 
     def testPreCreationIntervalConfig(self):
         config = mcsrouter.utils.config.Config()
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+        config.set("commandPollingDelay","53")
+        config.set("flagsPollingInterval","53")
         c = mcsrouter.mcs.CommandCheckInterval(config)
         self.assertEqual(c.get(),53)
 
     def testPostCreationIntervalConfig(self):
         config = mcsrouter.utils.config.Config()
         c = mcsrouter.mcs.CommandCheckInterval(config)
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+        config.set("commandPollingDelay","53")
+        config.set("flagsPollingInterval","53")
         c.set(20)
         self.assertEqual(c.get(),53)
 
@@ -545,7 +545,7 @@ class TestCommandCheckInterval(unittest.TestCase):
         self.assertEqual(command_check_interval.get(), 20)
 
         #is updated to the push fall back poll
-        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        config.set("pushFallbackPollInterval", "4400")
         command_check_interval.set_use_fallback_polling_interval(True)
         command_check_interval.set()
         self.assertEqual(command_check_interval.get(), 4400)
@@ -558,7 +558,7 @@ class TestCommandCheckInterval(unittest.TestCase):
         self.assertEqual(command_check_interval.get(), 20)
 
 
-        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
+        config.set("pushFallbackPollInterval", "4400")
         command_check_interval.set_use_fallback_polling_interval(True)
         command_check_interval.set()
         self.assertEqual(command_check_interval.get(), 4400)
@@ -574,9 +574,9 @@ class TestCommandCheckInterval(unittest.TestCase):
         self.assertEqual(command_check_interval.get(), 20)
 
         #is updated to the push fall back poll
-        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+        config.set("pushFallbackPollInterval", "4400")
+        config.set("commandPollingDelay","53")
+        config.set("flagsPollingInterval","53")
         command_check_interval.set_use_fallback_polling_interval(False)
         command_check_interval.set()
         self.assertEqual(command_check_interval.get(), 53)
@@ -589,21 +589,21 @@ class TestCommandCheckInterval(unittest.TestCase):
         self.assertEqual(command_check_interval.get(), 20)
 
 
-        config.set("PUSH_SERVER_CHECK_INTERVAL", "4400")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","83")
+        config.set("pushFallbackPollInterval", "4400")
+        config.set("commandPollingDelay","53")
+        config.set("flagsPollingInterval","83")
         command_check_interval.set_use_fallback_polling_interval(False)
         command_check_interval.set()
         self.assertEqual(command_check_interval.get(), 53)
         command_check_interval.increment()
         # expect the interval to be incremented.
-        self.assertEqual(command_check_interval.get(), (53 + 20))
+        self.assertEqual(command_check_interval.get(), (53 + 53))
 
     def test_interval_will_revert_to_mcs_default_polling_when_use_fallback_polling_is_set_to_False(self):
         config = mcsrouter.utils.config.Config()
-        config.set("PUSH_SERVER_CHECK_INTERVAL", "5500")
-        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","53")
-        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","53")
+        config.set("pushFallbackPollInterval", "5500")
+        config.set("commandPollingDelay","53")
+        config.set("flagsPollingInterval","53")
 
         command_check_interval = mcsrouter.mcs.CommandCheckInterval(config)
         command_check_interval.set_use_fallback_polling_interval(True)

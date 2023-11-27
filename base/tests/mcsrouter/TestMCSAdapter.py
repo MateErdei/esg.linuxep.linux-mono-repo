@@ -136,8 +136,8 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertTrue(policy_config.getBool("useAutomaticProxy",False))
     #     self.assertTrue(policy_config.getBool("useDirect",False))
     #     self.assertTrue(policy_config.getDefault("MCSToken",""),"21e72d59248ce0dc5f957b659d72a4261b663041bbc96c54a81c8ea578186648")
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),20)
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),20)
+    #     self.assertEqual(policy_config.get_int("commandPollingDelay",0),20)
+    #     self.assertEqual(policy_config.get_int("flagsPollingInterval",0),20)
     #     self.assertEqual(policy_config.getDefault("mcs_policy_url1",""),"https://mcs.sandbox.sophos/sophos/management/ep")
     #     self.assertTrue(os.path.isfile("base/etc/sophosspl/mcs_policy.config"))
     #     (res,revID,policyType) = extractCompliance(adapter._getStatusXml())
@@ -161,8 +161,8 @@ class TestMCSAdapter(unittest.TestCase):
 #         self.assertEqual(policy_config.getBool("useSystemProxy",None),None)
 #         self.assertTrue(policy_config.getBool("useAutomaticProxy",None) is None)
 #         self.assertTrue(policy_config.getBool("useDirect",None) is None)
-#         self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",1337),1337)
-#         self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",1337),1337)
+#         self.assertEqual(policy_config.get_int("commandPollingDelay",1337),1337)
+#         self.assertEqual(policy_config.get_int("flagsPollingInterval",1337),1337)
 
 #     def testTmpFileContainsPolicy(self):
 #         TEST_CONFIG="""<?xml version="1.0"?>
@@ -186,8 +186,8 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertTrue(policy_config.getBool("useSystemProxy",False))
     #     self.assertTrue(policy_config.getBool("useAutomaticProxy",False))
     #     self.assertTrue(policy_config.getBool("useDirect",False))
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),20)
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),20)
+    #     self.assertEqual(policy_config.get_int("commandPollingDelay",0),20)
+    #     self.assertEqual(policy_config.get_int("flagsPollingInterval",0),20)
 
     # def testParsingExamplePolicy(self):
     #     policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
@@ -257,11 +257,11 @@ class TestMCSAdapter(unittest.TestCase):
     #     adapter = createAdapter(policy_config,applied_config)
     #     command = FakePolicyCommand(SIMPLE_MCS_POLICY)
     #     adapter.process_command(command)
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),20)
-    #     self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),20)
+    #     self.assertEqual(policy_config.get_int("commandPollingDelay",0),20)
+    #     self.assertEqual(policy_config.get_int("flagsPollingInterval",0),20)
     #
-    #     applied_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","5")
-    #     applied_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","5")
+    #     applied_config.set("commandPollingDelay","5")
+    #     applied_config.set("flagsPollingInterval","5")
     #
     #     (res,revID,policyType) = extractCompliance(adapter._getStatusXml())
     #     self.assertEqual(policyType,"25")
@@ -281,8 +281,8 @@ class TestMCSAdapter(unittest.TestCase):
 </policy>"""
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
-        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
-        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+        policy_config.set("commandPollingDelay","15")
+        policy_config.set("flagsPollingInterval","15")
 
         adapter = createAdapter(policy_config)
 
@@ -290,7 +290,7 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
+        self.assertEqual(123, policy_config.get_int("commandPollingDelay", 0))
 
     def testFlagsPollingIntervalTag(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -303,8 +303,8 @@ class TestMCSAdapter(unittest.TestCase):
 </policy>"""
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
-        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
-        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+        policy_config.set("commandPollingDelay","15")
+        policy_config.set("flagsPollingInterval","15")
 
         adapter = createAdapter(policy_config)
 
@@ -312,8 +312,8 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
-        self.assertEqual(155, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
+        self.assertEqual(123, policy_config.get_int("commandPollingDelay", 0))
+        self.assertEqual(155, policy_config.get_int("flagsPollingInterval", 0))
 
     def testNoAttributeInPollingElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -324,8 +324,8 @@ class TestMCSAdapter(unittest.TestCase):
 </policy>"""
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
-        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
-        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+        policy_config.set("commandPollingDelay","15")
+        policy_config.set("flagsPollingInterval","15")
 
         adapter = createAdapter(policy_config)
 
@@ -333,8 +333,8 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),15)
-        self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),15)
+        self.assertEqual(policy_config.get_int("commandPollingDelay",0),15)
+        self.assertEqual(policy_config.get_int("flagsPollingInterval",0),15)
 
     def testNonIntAttributeInPollingElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -345,8 +345,8 @@ class TestMCSAdapter(unittest.TestCase):
 </policy>"""
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
 
-        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
-        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+        policy_config.set("commandPollingDelay","15")
+        policy_config.set("flagsPollingInterval","15")
 
         adapter = createAdapter(policy_config)
 
@@ -354,8 +354,8 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),15)
-        self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),15)
+        self.assertEqual(policy_config.get_int("commandPollingDelay",0),15)
+        self.assertEqual(policy_config.get_int("flagsPollingInterval",0),15)
 
     def testNoServerInServersElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -441,15 +441,14 @@ class TestMCSAdapter(unittest.TestCase):
 </configuration>
 </policy>"""
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
-
         adapter = createAdapter(policy_config)
 
         command = FakePolicyCommand(TEST_POLICY)
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(50, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
-        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
+        self.assertEqual(50, policy_config.get_int("pushPingTimeout", 0))
+        self.assertEqual(20, policy_config.get_int("pushFallbackPollInterval", 0))
 
     def testMCSPushFallbackPollElementsAreLoadedIntoConfig(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -470,8 +469,8 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
-        self.assertEqual(90, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
+        self.assertEqual(20, policy_config.get_int("pushFallbackPollInterval", 0))
+        self.assertEqual(90, policy_config.get_int("pushPingTimeout", 0))
 
     def testMCSPushServerDefaultValuesAreLoadedIntoConfig(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -491,8 +490,8 @@ class TestMCSAdapter(unittest.TestCase):
         adapter.process_command(command)
         self.assertTrue(command.m_complete)
 
-        self.assertEqual(90, policy_config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT", 0))
-        self.assertEqual(20, policy_config.get_int("PUSH_SERVER_CHECK_INTERVAL", 0))
+        self.assertEqual(90, policy_config.get_int("pushPingTimeout", 0))
+        self.assertEqual(20, policy_config.get_int("pushFallbackPollInterval", 0))
 
     def testMultiplePushServersInPushServersElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -518,8 +517,8 @@ class TestMCSAdapter(unittest.TestCase):
 
         self.assertEqual(policy_config.get_default("pushServer1", None), "https://push-loadbalancer-prod-eu-west1.sophos.com")
         self.assertEqual(policy_config.get_default("pushServer2", None), "https://push-loadbalancer-prod-eu-west2.sophos.com")
-        self.assertEqual(policy_config.get_int("pushPingTimeout", 0), 0)
-        self.assertEqual(policy_config.get_int("pushFallbackPollInterval", 0), 0)
+        self.assertEqual(policy_config.get_int("pushPingTimeout", 0), 90)
+        self.assertEqual(policy_config.get_int("pushFallbackPollInterval", 0), int(policy_config.get("commandPollingDelay")))
 
     def testNoPushServersInPushServersElement(self):
         TEST_POLICY="""<?xml version="1.0"?>

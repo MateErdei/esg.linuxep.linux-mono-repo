@@ -146,7 +146,7 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
     def __init__(self):
         mcsrouter.utils.config.Config.__init__(self)
         self.set('pushServer1', 'value')
-        self.set('PUSH_SERVER_CONNECTION_TIMEOUT', '10')
+        self.set('pushPingTimeout', '10')
         self.set('device_id', 'thisisadeviceid')
         self.set('tenant_id', 'thisisatenantid')
 

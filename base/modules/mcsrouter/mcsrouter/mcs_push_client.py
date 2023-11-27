@@ -98,7 +98,7 @@ class MCSPushSetting:
             url = os.path.join(push_server_url, "v2/push/device", device_id)
         else:
             url = None
-        expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
+        expected_ping = config.get_int("pushPingTimeout")
         certs = cert
         tenant_id = config.get_default("tenant_id", None)
         return MCSPushSetting(url, certs, expected_ping, proxy_settings, connection_header, device_id, tenant_id)

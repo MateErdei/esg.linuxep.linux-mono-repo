@@ -167,11 +167,11 @@ class TestMCSPolicyHandler(unittest.TestCase):
 
         #verify credentials are populated at the beginning
         self.assertEqual(policy_config.get_default("pushFallbackPollInterval", None), '90')
-        self.assertEqual(policy_config.get_default("COMMAND_CHECK_INTERVAL_MINIMUM", None), '20')
+        self.assertEqual(policy_config.get_default("commandPollingDelay", None), '20')
         # we use the default set in central documentation if we do not get the information from the policy
-        self.assertEqual(policy_config.get_default("COMMAND_CHECK_INTERVAL_MAXIMUM", None), '14400')
-        self.assertEqual(policy_config.get_default("PUSH_SERVER_CHECK_INTERVAL", None), '90')
-        self.assertEqual(policy_config.get_default("PUSH_SERVER_CONNECTION_TIMEOUT", None), '60')
+        self.assertEqual(policy_config.get_default("flagsPollingInterval", None), '14400')
+        self.assertEqual(policy_config.get_default("pushFallbackPollInterval", None), '90')
+        self.assertEqual(policy_config.get_default("pushPingTimeout", None), '60')
         self.assertEqual(policy_config.get_default("MCSToken", None), "mcstokenb44b0f0e7b56548f14f2854e87ea535f228a712506d2707d1c4f444")
         self.assertEqual(policy_config.get_default("mcs_policy_url1", None),"https://mcs2-cloudstation.sophos.com/sophos/management/ep")
         self.assertEqual(policy_config.get_default("pushServer1", None), "https://mcs-push-server/ps")

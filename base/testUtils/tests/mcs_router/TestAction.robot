@@ -61,7 +61,7 @@ Action Applied After Policies
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Check Mcsrouter Log Contains  COMMAND_CHECK_INTERVAL_MINIMUM=15
+    ...  Check Mcsrouter Log Contains  commandPollingDelay=15
 
     Setup Filesystem Watcher  ${SOPHOS_INSTALL}  log_file_path=${FileSystemWatcherLog}
     Start Filesystem Watcher

@@ -69,25 +69,23 @@ class CommandCheckInterval:
     DEFAULT_MAX_POLLING_INTERVAL = default_values.get_default_flags_poll()
     DEFAULT_MIN_POLLING_INTERVAL = default_values.get_default_command_poll()
 
-
     def __init__(self, config):
         """
         __init__
         """
         self.__m_config = config
+        self.__m_command_check_interval = 0
         self.__m_command_check_interval_minimum = 0
         self.__m_command_check_interval_maximum = 0
         self.__m_push_ping_timeout = 0
         self.__m_push_command_check_interval = 0
         self.__use_fallback_polling_interval = False
+        self.__m_command_check_maximum_retry_number = 0
+        self.__m_command_check_base_retry_delay = 0
+        self.__m_command_check_semi_permanent_error_retry_delay = 0
 
-        self.__m_command_check_maximum_retry_number = self.__m_config.get_int(
-            "COMMAND_CHECK_MAXIMUM_RETRY_NUMBER", 10)
-        self.__m_command_check_base_retry_delay = self.__m_config.get_int(
-            "COMMAND_CHECK_INTERVAL_MINIMUM", 20)
-        self.__m_command_check_semi_permanent_error_retry_delay = self.__m_command_check_base_retry_delay * 2
         self.set()
-        self.__get_ping_timeout()
+        self.__get_push_ping_timeout()
         self.__get_push_poll_interval()
 
     def get(self):
@@ -96,63 +94,71 @@ class CommandCheckInterval:
         """
         return self.__m_command_check_interval
 
-    def __get_minimum(self):
+    def __get_command_polling_delay(self):
         """
-        __get_minimum
+        __get_command_polling_delay
         """
-        interval_min = self.__m_config.get_int(
-            "COMMAND_CHECK_INTERVAL_MINIMUM",
+        command_polling_delay = self.__m_config.get_int(
+            "commandPollingDelay",
             self.DEFAULT_MIN_POLLING_INTERVAL)
-        if self.__m_command_check_interval_minimum != interval_min:
-            self.__m_command_check_interval_minimum = interval_min
-            LOGGER.debug("COMMAND_CHECK_INTERVAL_MINIMUM={}".format(str(interval_min)))
-        return interval_min
+        if self.__m_command_check_interval_minimum != command_polling_delay:
+            self.__m_command_check_interval_minimum = command_polling_delay
+            LOGGER.debug("commandPollingDelay={}".format(str(command_polling_delay)))
+        return command_polling_delay
 
-    def __get_maximum(self):
+    def __get_flags_polling_interval(self):
         """
-        __get_maximum
+        __get_flags_polling_interval
         """
-        interval_max = self.__m_config.get_int(
-            "COMMAND_CHECK_INTERVAL_MAXIMUM",
+        flags_polling_interval = self.__m_config.get_int(
+            "flagsPollingInterval",
             self.DEFAULT_MAX_POLLING_INTERVAL)
-        if self.__m_command_check_interval_maximum != interval_max:
-            self.__m_command_check_interval_maximum = interval_max
-            LOGGER.debug("COMMAND_CHECK_INTERVAL_MAXIMUM={}".format(str(interval_max)))
-        return interval_max
+        if self.__m_command_check_interval_maximum != flags_polling_interval:
+            self.__m_command_check_interval_maximum = flags_polling_interval
+            LOGGER.debug("flagsPollingInterval={}".format(str(flags_polling_interval)))
+        return flags_polling_interval
 
-    def __get_ping_timeout(self):
-        ping_timeout = self.__m_config.get_int(
-            "PUSH_SERVER_CONNECTION_TIMEOUT",
-            self.__get_minimum())
-        if self.__m_push_ping_timeout != ping_timeout:
-            self.__m_push_ping_timeout = ping_timeout
-            LOGGER.debug("PUSH_SERVER_CONNECTION_TIMEOUT={}".format(str(ping_timeout)))
-        return ping_timeout
+    def __get_push_ping_timeout(self):
+        push_ping_timeout = self.__m_config.get_int(
+            "pushPingTimeout",
+            self.__get_command_polling_delay())
+        if self.__m_push_ping_timeout != push_ping_timeout:
+            self.__m_push_ping_timeout = push_ping_timeout
+            LOGGER.debug("pushPingTimeout={}".format(str(push_ping_timeout)))
+        return push_ping_timeout
 
     def __get_push_poll_interval(self):
-        push_interval = self.__m_config.get_int(
-            "PUSH_SERVER_CHECK_INTERVAL",
-            self.__get_minimum())
-        if self.__m_push_command_check_interval != push_interval:
-            self.__m_push_command_check_interval = push_interval
-            LOGGER.debug("PUSH_SERVER_CHECK_INTERVAL={}".format(str(push_interval)))
-        return push_interval
+        push_poll_interval = self.__m_config.get_int(
+            "pushFallbackPollInterval",
+            self.__get_command_polling_delay())
+        if self.__m_push_command_check_interval != push_poll_interval:
+            self.__m_push_command_check_interval = push_poll_interval
+            LOGGER.debug("pushFallbackPollInterval={}".format(str(push_poll_interval)))
+        return push_poll_interval
+
+    def update_retry_info(self):
+        self.__m_command_check_maximum_retry_number = self.__m_config.get_int("COMMAND_CHECK_MAXIMUM_RETRY_NUMBER", 10)
+        self.__m_command_check_base_retry_delay = self.__m_config.get_int("commandPollingDelay", 20)
+        self.__m_command_check_semi_permanent_error_retry_delay = self.__m_command_check_base_retry_delay * 2
 
     def set(self, val=None):
         """
         set
         """
-        if not self.__use_fallback_polling_interval:
+        if self.__use_fallback_polling_interval:
+            self.__m_command_check_interval = self.__get_push_poll_interval()
+            LOGGER.info(f"Using pushFallbackPollInterval. Set command poll interval to {self.__m_command_check_interval}")
+        else:
             if val is None:
                 # this is the minimum we should ever set the command poll to
                 val = 5
-            val = max(val, self.__get_minimum())
-            val = min(val, self.__get_maximum())
+            val = max(val, self.__get_command_polling_delay())
+            val = min(val, self.DEFAULT_MAX_POLLING_INTERVAL)
             self.__m_command_check_interval = val
-            LOGGER.debug("Set command poll interval to {}".format(val))
-        else:
-            self.__m_command_check_interval = self.__get_push_poll_interval()
-            LOGGER.debug("Using push poll interval. Set command poll interval to {}".format(self.__m_command_check_interval))
+            LOGGER.info(f"Using commandPollingDelay. Set command poll interval to {val}")
+
+        self.update_retry_info()
+
         return self.__m_command_check_interval
 
     def increment(self, val=None):
@@ -161,14 +167,9 @@ class CommandCheckInterval:
         """
         if val is None:
             val = self.__m_command_check_base_retry_delay
-
-        if self.__use_fallback_polling_interval:
-            LOGGER.debug("resetting interval")
-            interval = self.__m_command_check_interval
-        else:
+        if not self.__use_fallback_polling_interval:
             LOGGER.debug("increasing interval")
-            interval = self.__m_command_check_interval + val
-        self.__m_command_check_interval = interval
+            self.__m_command_check_interval += val
 
     def set_on_error(self, error_count, transient=True):
         """
@@ -474,7 +475,7 @@ class MCS:
         self.__m_command_check_interval.set_on_error(error_count, transient)
 
     def get_flags(self, last_time_checked):
-        flags_polling = self.__m_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", default_values.get_default_flags_poll())
+        flags_polling = self.__m_config.get_int("flagsPollingInterval", default_values.get_default_flags_poll())
         if (time.time() > last_time_checked + flags_polling) \
                 or not os.path.isfile(path_manager.mcs_flags_file()):
             LOGGER.info("Checking for updates to mcs flags")
@@ -849,13 +850,9 @@ class MCS:
                         else:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(False)
 
-                        if (self.__m_command_check_interval.get() != self.__m_config.get_int(
-                                "COMMAND_CHECK_INTERVAL_MINIMUM", 0)):
-                            self.__m_command_check_interval = CommandCheckInterval(self.__m_config)
-
                         self.__m_command_check_interval.set()
 
-                        LOGGER.debug(
+                        LOGGER.info(
                             "Next command check in %.2f s",
                             self.__m_command_check_interval.get())
 

@@ -179,28 +179,26 @@ class MCSPolicyHandler:
         """
         __apply_polling_delay
         """
-        min_poll_value = str(self.__get_default_int_value(dom, "commandPollingDelay",
-                                                          default_values.get_default_command_poll()))
+        command_polling_delay = str(self.__get_default_int_value(dom, "commandPollingDelay",
+                                                                 default_values.get_default_command_poll()))
 
-        max_poll_value = str(self.__get_default_int_value(dom, "flagsPollingInterval",
-                                                          default_values.get_default_flags_poll()))
+        flags_polling_interval = str(self.__get_default_int_value(dom, "flagsPollingInterval",
+                                                                  default_values.get_default_flags_poll()))
 
+        push_ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout",
+                                                     default_values.get_default_push_ping_timeout()))
 
-        ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout",
-                                                default_values.get_default_push_ping_timeout()))
+        push_fallback_poll_interval = str(self.__get_int_value(dom, "pushFallbackPollInterval", int(command_polling_delay)))
 
-        push_poll_value = str(self.__get_int_value(dom, "pushFallbackPollInterval", int(min_poll_value)))
-
-
-        LOGGER.debug("MCS policy commandPollingDelay = {}".format(min_poll_value))
+        LOGGER.debug("MCS policy commandPollingDelay = {}".format(command_polling_delay))
         self.__m_policy_config.set(
-            "COMMAND_CHECK_INTERVAL_MINIMUM", min_poll_value)
+            "commandPollingDelay", command_polling_delay)
         self.__m_policy_config.set(
-            "COMMAND_CHECK_INTERVAL_MAXIMUM", max_poll_value)
+            "flagsPollingInterval", flags_polling_interval)
         self.__m_policy_config.set(
-            "PUSH_SERVER_CHECK_INTERVAL", push_poll_value)
+            "pushPingTimeout", push_ping_timeout)
         self.__m_policy_config.set(
-            "PUSH_SERVER_CONNECTION_TIMEOUT", ping_timeout)
+            "pushFallbackPollInterval", push_fallback_poll_interval)
 
         return True
 
@@ -434,8 +432,6 @@ class MCSPolicyHandler:
             self.__apply_policy_setting(policy_node, "useSystemProxy")
             self.__apply_policy_setting(policy_node, "useAutomaticProxy")
             self.__apply_policy_setting(policy_node, "useDirect")
-            self.__apply_policy_setting(policy_node, "pushPingTimeout")
-            self.__apply_policy_setting(policy_node, "pushFallbackPollInterval")
             self.__apply_policy_setting(policy_node, "customerId", treat_missing_as_empty=True)
             self.__apply_policy_setting(policy_node, "deviceId", config_option="policy_device_id",
                                         treat_missing_as_empty=True)
@@ -511,8 +507,8 @@ class MCSPolicyHandler:
                       "MCSToken",
                       "mcs_policy_proxy",
                       "mcs_policy_proxy_credentials",
-                      "COMMAND_CHECK_INTERVAL_MINIMUM",
-                      "COMMAND_CHECK_INTERVAL_MAXIMUM"):
+                      "commandPollingDelay",
+                      "flagsPollingInterval"):
             if self.__m_policy_config.get_default(field, None)\
                     != self.__m_applied_config.get_default(field, None):
                 LOGGER.warning("MCS Policy not compliant: %s option differs", field)
