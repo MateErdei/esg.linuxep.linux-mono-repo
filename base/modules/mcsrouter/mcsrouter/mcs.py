@@ -844,7 +844,7 @@ class MCS:
                         if push_client.ensure_push_server_is_connected(self.__m_config,
                                                                        comms.ca_cert(),
                                                                        comms.create_list_of_proxies_for_push_client(),
-                                                                       (comms.get_id(), comms.get_password())):
+                                                                       comms.get_v2_headers()):
                             self.__m_command_check_interval.set_use_fallback_polling_interval(True)
                         else:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(False)

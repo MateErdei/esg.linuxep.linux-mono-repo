@@ -1515,7 +1515,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         logger.info(f"Push redirect requested. headers received: {dict(self.headers)}")
         auth = self.headers['Authorization']
         logger.info(f"Value for auth: {auth}")
-        if 'Basic' not in auth:
+        if 'Bearer' not in auth:
             logger.info("Refusing to redirect as unauthorized")
             return self.ret("Unauthorized access to push server", code=401)
         return self.ret(code=307, extra_header={'Location': f'https://localhost:8459{self.path}'})
@@ -1670,16 +1670,16 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         elif MCSRequestHandler.options.reregister:
             return self.send_401()
-        elif REREGISTER_NEXT and not self.path.startswith('/mcs/push/endpoint/'):
+        elif REREGISTER_NEXT and not self.path.startswith('/mcs/v2/push/device/'):
             REREGISTER_NEXT = False
             return self.send_401()
-        elif ERROR_NEXT and not self.path.startswith('/mcs/push/endpoint/'):
+        elif ERROR_NEXT and not self.path.startswith('/mcs/v2/push/device/'):
             ERROR_NEXT = False
             return self.send_error_code(503, "HTTP Service Unavailable")
-        elif SERVER_504 and not self.path.startswith('/mcs/push/endpoint/'):
+        elif SERVER_504 and not self.path.startswith('/mcs/v2/push/device/'):
             SERVER_504 = False
             return self.send_error_code(504, "Gateway Timeout")
-        elif SERVER_404 and not self.path.startswith('/mcs/push/endpoint/'):
+        elif SERVER_404 and not self.path.startswith('/mcs/v2/push/device/'):
             SERVER_404 = False
             return self.send_error_code(404, "Not Found")
         elif self.path.startswith("/mcs/commands/applications/"):
@@ -1689,7 +1689,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_commands()
         elif self.path.startswith("/mcs/policy/application/"):
             return self.mcs_policy()
-        elif self.path.startswith('/mcs/push/endpoint/'):
+        elif self.path.startswith('/mcs/v2/push/device/'):
             return self.push_redirect()
         elif self.path.startswith("/mcs/flags/endpoint/"):
             return self.mcs_flags()

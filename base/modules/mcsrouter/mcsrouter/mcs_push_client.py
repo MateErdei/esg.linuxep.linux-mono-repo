@@ -81,28 +81,30 @@ class MCSPushException(RuntimeError):
 
 class MCSPushSetting:
     @staticmethod
-    def from_config(config, cert, proxy_settings, authorization):
+    def from_config(config, cert, proxy_settings, connection_header):
         """
 
         :param config: mcs config
         :param cert: certs to use for connection
         :param proxy_settings: list of sophos_https.Proxy objects. It is ordered by connection priority and
-        :param authorization: tuple with (username, password) to be used to get authorization
+        :param connection_header: header to use when connecting with V2 Push Server
         includes a direct connection if applicable
         :return: MCSPushSetting object
         """
         push_server_url = config.get_default("pushServer1", None)
-        mcs_id = config.get_default("MCSID", None)
-        if push_server_url and mcs_id:
-            url = os.path.join(push_server_url, "push/endpoint/", mcs_id)
+
+        device_id = config.get_default("device_id", None)
+        if push_server_url and device_id:
+            url = os.path.join(push_server_url, "v2/push/device", device_id)
         else:
             url = None
         expected_ping = config.get_int("PUSH_SERVER_CONNECTION_TIMEOUT")
         certs = cert
-        return MCSPushSetting(url, certs, expected_ping, proxy_settings, authorization)
+        tenant_id = config.get_default("tenant_id", None)
+        return MCSPushSetting(url, certs, expected_ping, proxy_settings, connection_header, device_id, tenant_id)
 
     def as_tuple(self):
-        return self.url, self.cert, self.expected_ping, self.proxy_settings, self.authorization
+        return self.url, self.cert, self.expected_ping, self.proxy_settings, self.device_id, self.tenant_id, self.connection_header
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -112,12 +114,14 @@ class MCSPushSetting:
     def __str__(self):
         return "url {}, ping {} and cert {}".format(self.url, self.expected_ping, self.cert)
 
-    def __init__(self, url=None, cert=None, expected_ping=None, proxy_settings=None, authorization=None):
+    def __init__(self, url=None, cert=None, expected_ping=None, proxy_settings=None, connection_header=None, device_id=None, tenant_id=None):
         self.url = url
         self.cert = cert
         self.expected_ping = expected_ping
         self.proxy_settings = proxy_settings
-        self.authorization = authorization
+        self.device_id = device_id
+        self.tenant_id = tenant_id
+        self.connection_header = connection_header
 
 
 class MCSPushClient:
@@ -164,9 +168,9 @@ class MCSPushClient:
             return False
         return self._push_client_impl.is_alive()
 
-    def ensure_push_server_is_connected(self, config, cert, proxy_settings, authorization):
+    def ensure_push_server_is_connected(self, config, cert, proxy_settings, connection_header):
         # retrieve push server url and compare with the current one
-        settings = MCSPushSetting.from_config(config, cert, proxy_settings, authorization)
+        settings = MCSPushSetting.from_config(config, cert, proxy_settings, connection_header)
         need_start = False
         try:
             if settings != self._settings:
@@ -180,7 +184,8 @@ class MCSPushClient:
                 self._settings = settings
                 self._start_service()
         except Exception as ex:
-            LOGGER.warning(str(ex))
+            exception_string = str(ex)
+            LOGGER.warning(exception_string)
 
         return self.is_service_active()
 
@@ -193,32 +198,72 @@ class MCSPushClientInternal(threading.Thread):
         self._cert = settings.cert
         self._expected_ping_interval = settings.expected_ping
         self._proxy_settings = settings.proxy_settings
+        self.__device_id = settings.device_id
+        self.__tenant_id = settings.tenant_id
+        self.connection_header = settings.connection_header
         self._notify_push_client_channel = PipeChannel()
         self._notify_mcsrouter_channel = mcsrouter_channel
         self._pending_commands = []
         self._pending_commands_lock = threading.Lock()
-        self.messages = self._create_sse_client(settings.authorization)
+        self.messages = self._create_sse_client()
 
-    def _create_sse_client(self, authorization):
+    def _log_http_error_reason(self, response, session):
+        status_code = response.status_code
+        if status_code == 400:
+            if "X-Device-ID" not in session.headers:
+                LOGGER.debug("Bad request, missing X-Device-ID in header")
+            elif "X-Tenant-ID" not in session.headers:
+                LOGGER.debug("Bad request, missing X-Tenant-ID in header")
+            elif session.headers["X-Device-ID"] != self._url.split('/')[-1]:
+                LOGGER.debug("Bad request, mismatch between Device ID in header and url")
+            else:
+                LOGGER.debug("Bad request, reason unknown")
+        elif status_code == 401:
+            if "Authorization" not in session.headers:
+                LOGGER.debug("Unauthorized, missing 'Authorization' in header")
+            elif not session.headers["Authorization"].startswith("Bearer"):
+                LOGGER.debug("Unauthorized, 'Authorization' in header does not start with 'Bearer'")
+            else:
+                LOGGER.debug("Unauthorized, unknown error with JWT token used in 'Authorization' header")
+        elif status_code == 403:
+            LOGGER.debug("Forbidden, valid JWT but missing the required feature code")
+        elif status_code == 404:
+            LOGGER.debug("Not found, URL must be for the format: /v2/push/device/<device_id>")
+        elif status_code == 405:
+            LOGGER.debug("Method not allowed, invalid HTTP method used against URL")
+        elif status_code == 500:
+            LOGGER.debug("Internal Server Error")
+        elif status_code == 503:
+            LOGGER.debug("Service Unavailable, no subscriber nodes may be available")
+        elif status_code == 504:
+            LOGGER.debug("Gateway Timeout, push server may be dealing with a heavy load")
+
+    def _create_sse_client(self):
         if len(self._proxy_settings) == 0:
             raise MCSPushException("No connection methods available." .format(self.__log_url()))
+
         for proxy in self._proxy_settings:
             self._proxy = proxy
             LOGGER.info(self.__attempting_connection_message())
-            session, proxy_username, proxy_password = self.get_requests_session(authorization)
+            session, proxy_username, proxy_password = self.get_requests_session()
             LOGGER.debug("Try connection to push server via this route: {}".format(session.proxies))
+            LOGGER.debug(f"Session headers used: {session.headers}")
+            LOGGER.debug(f"URL used: {self._url}")
             try:
                 digestproxyworkaround.GLOBALAUTHENTICATION.set(proxy_username, proxy_password)
                 messages = sseclient.SSEClient(self._url, session=session, timeout=30)
                 LOGGER.info(self.__successful_connection_message())
                 LOGGER.debug("success in connecting to push server")
                 return messages
+            except requests.exceptions.HTTPError as exception:
+                self._log_http_error_reason(exception.response, session)
+                LOGGER.warning("{}: {}".format(self.__failed_connection_message(), str(exception)))
             except Exception as exception:
                 LOGGER.warning("{}: {}".format(self.__failed_connection_message(), str(exception)))
             finally:
                 digestproxyworkaround.GLOBALAUTHENTICATION.clear()
         else:
-            raise MCSPushException("Tried all connection methods and failed to connect to {}".format(self.__log_url()))
+            raise MCSPushException(f"Tried all connection methods and failed to connect to {self.__log_url()}")
 
     def __log_url(self):
         loggable_url = urlparse(self._url).netloc
@@ -245,16 +290,16 @@ class MCSPushClientInternal(threading.Thread):
         else:
             return "Failed to connect to {} directly".format(self.__log_url())
 
-    def get_requests_session(self, authorization):
+    def get_requests_session(self):
         session = requests.Session()
         session.verify = self._cert
-        session.auth = authorization
         if self._proxy.is_configured():
             session.proxies = {
                 'http': self._proxy.address(with_full_uri=False),
                 'https': self._proxy.address(with_full_uri=False)
             }
         session.trust_env = False
+        session.headers = self.connection_header
         return session, self._proxy.m_username, self._proxy.m_password
 
     def run(self):

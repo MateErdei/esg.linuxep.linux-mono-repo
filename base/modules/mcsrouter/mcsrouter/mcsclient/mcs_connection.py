@@ -425,6 +425,17 @@ class MCSConnection:
 
         return proxies, message_relays, policy_proxy, use_direct
 
+    def get_v2_headers(self):
+        headers = {
+            "User-Agent": self.__m_user_agent,
+            "Authorization": f"Bearer {self.m_jwt_token}",
+            "Content-Type": "application/json",
+            "X-Device-ID": self.m_device_id,
+            "X-Tenant-ID": self.m_tenant_id,
+            "Accept": "application/json",
+        }
+        return headers
+
     def get_id(self):
         """
         get_id

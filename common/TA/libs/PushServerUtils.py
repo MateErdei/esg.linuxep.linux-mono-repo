@@ -24,7 +24,7 @@ class PushServerUtils:
         self._cert = os.path.join( PathManager.get_utils_path(), 'server_certs/server-root.crt')
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "push_server_log.log")
-        self.push_url_pattern = 'https://localhost:{}/mcs/push/endpoint/thisendpoint'
+        self.push_url_pattern = 'https://localhost:{}/mcs/v2/push/device/thisisadevice'
         if os.path.exists(self.cloud_server_log):
             os.remove(self.cloud_server_log)
 
@@ -81,7 +81,7 @@ class PushServerUtils:
         if via_cloud_server:
             url = self.push_url_pattern.format(4443)
             session = requests.Session()
-            session.auth = ("user", "password")
+            session.headers["Authorization"] = "Bearer <JWT_TOKEN>"
             session.verify = self._cert
             copy_args = {'session': session, 'retry': 0, 'timeout': timeout}
             sse_args = copy_args
@@ -117,7 +117,7 @@ class PushServerUtils:
         :return:
         """
         url_pattern = self.push_url_pattern
-        r = requests.get(url_pattern.format(4443), allow_redirects=False, verify=self._cert, headers={"Authorization":"Basic allow me"})
+        r = requests.get(url_pattern.format(4443), allow_redirects=False, verify=self._cert, headers={"Authorization":"Bearer allow me"})
         if r.status_code != 307:
             raise AssertionError("VerifyCloudServerRedirect failed code {} and Text {}".format(r.status_code, r.text))
         print(dict(r.headers))

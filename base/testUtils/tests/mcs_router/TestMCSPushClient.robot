@@ -475,7 +475,7 @@ Push Connection Does Not Hang Forever If Proxy Does Not Respond
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
-    ...  Check mcsrouter Log Contains    Failed to connect to pushredirect:4443 via localhost:1235: HTTPSConnectionPool(host='pushredirect', port=4443): Max retries exceeded with url: /mcs/push/endpoint/ThisIsAnMCSID+1001 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))
+    ...  Check mcsrouter Log Contains    Failed to connect to pushredirect:4443 via localhost:1235: HTTPSConnectionPool(host='pushredirect', port=4443): Max retries exceeded with url: /mcs/v2/push/device/ThisIsADeviceID+1001 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy  pushHost=pushredirect
 
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message

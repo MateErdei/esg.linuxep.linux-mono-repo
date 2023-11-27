@@ -83,8 +83,17 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
 
 
     def get_client(self, proxies=[DIRECT_CONNECTION]):
+        header = {
+            "User-Agent": "Sophos MCS Client/0.1 x86_64 sessions regToke",
+            "Authorization": f"Bearer <dummy_jwt_token>",
+            "Content-Type": "application/json",
+            "X-Device-ID": "thisisadeviceid",
+            "X-Tenant-ID": "thisisatenantid",
+            "Accept": "application/json",
+        }
         sett= MCSPushSetting(url="url", cert="cert", expected_ping=10,
-                       proxy_settings=proxies, authorization=('user','pass'))
+                             proxy_settings=proxies, connection_header=header,
+                             device_id="thisisadeviceid", tenant_id="thisisatenantid")
         self.client_internal = MCSPushClientInternal(sett)
         return self.client_internal
 
@@ -138,16 +147,25 @@ class ConfigWithoutFile( mcsrouter.utils.config.Config):
         mcsrouter.utils.config.Config.__init__(self)
         self.set('pushServer1', 'value')
         self.set('PUSH_SERVER_CONNECTION_TIMEOUT', '10')
-        self.set('MCSID', 'thisendpoint')
+        self.set('device_id', 'thisisadeviceid')
+        self.set('tenant_id', 'thisisatenantid')
 
 class TestMCSPushConfigSettings(unittest.TestCase):
     def default_push_settings_args(self):
         proxy = [sophos_https.Proxy("http://localhost", 4335, "username", "password")]
-        return ['certpath', proxy, ('user','pass')]
+        header = {
+            "User-Agent": "Sophos MCS Client/0.1 x86_64 sessions regToke",
+            "Authorization": f"Bearer <dummy_jwt_token>",
+            "Content-Type": "application/json",
+            "X-Device-ID": "thisisadeviceid",
+            "X-Tenant-ID": "thisisatenantid",
+            "Accept": "application/json",
+        }
+        return ['certpath', proxy, header]
 
     def test_extract_values_from_config(self):
         settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
-        self.assertEqual(settings.url, 'value/push/endpoint/thisendpoint')
+        self.assertEqual(settings.url, 'value/v2/push/device/thisisadeviceid')
         self.assertEqual(settings.expected_ping,  10)
         self.assertEqual(settings.cert, 'certpath')
         self.assertEqual(settings.proxy_settings[0].host(), 'localhost')
@@ -171,7 +189,7 @@ class TestMCSPushConfigSettings(unittest.TestCase):
     def test_change_authorization_is_detected_as_settings_changed(self):
         settings = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
         settings1 = MCSPushSetting.from_config(ConfigWithoutFile(), *self.default_push_settings_args())
-        settings1.authorization = ('user','newpass')
+        settings1.device_id = "settings1_device_id"
         self.assertNotEqual(settings, settings1)
 
 

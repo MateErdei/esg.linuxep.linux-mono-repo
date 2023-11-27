@@ -83,8 +83,8 @@ async def subscribe_endpoint(request):
         server_state = ServerState()
         app['channels'].add(server_state)
         resp.ping_interval = ping_time
-        endpoint_id = request.match_info.get('endpoint_id', 'no-endpoint-defined')
-        LOGGER.info("EndpointId Connected {}".format(endpoint_id))
+        device_id = request.match_info.get('device_id', 'no-device-defined')
+        LOGGER.info("EndpointId Connected {}".format(device_id))
         try:
             while not resp.task.done():
                 data = await server_state.message()
@@ -165,7 +165,7 @@ def get_app(certfile, ping_time):
     app['channels'] = set()
     app['config'] = ServerConfig()
     app['config'].ping_time = ping_time
-    app.router.add_route('GET', '/mcs/push/endpoint/{endpoint_id}', subscribe_endpoint)
+    app.router.add_route('GET', '/mcs/v2/push/device/{device_id}', subscribe_endpoint)
     app.router.add_route('GET', '/', index)
     app.router.add_route('POST', '/mcs/push/sendmessage', send_this)
     app.router.add_route('PUT', '/mcs/push/ping_interval', set_ping_interval)
