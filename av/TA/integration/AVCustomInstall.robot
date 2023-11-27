@@ -31,6 +31,7 @@ ${CUSTOM_THREAT_DETECTOR_BINARY}      ${CUSTOM_AV_PLUGIN_PATH}/sbin/sophos_threa
 ${CUSTOM_AV_LOG_PATH}                 ${CUSTOM_AV_PLUGIN_PATH}/log/av.log
 ${CUSTOM_ON_ACCESS_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/soapd.log
 ${CUSTOM_CLOUDSCAN_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
+${CUSTOM_SAFESTORE_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/safestore.log
 ${CUSTOM_THREAT_DETECTOR_LOG_PATH}    ${CUSTOM_AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 
 
@@ -96,7 +97,9 @@ On Access Excludes Binaries Within AV Plugin Directory When Scanning In Custom L
         Wait For Log Contains From Mark    ${oa_mark2}   On-open event for ${eicarPath} from Process
         Wait For Log Contains From Mark    ${oa_mark2}   On-close event for ${eicarPath} from Process
         Wait For Log Contains From Mark    ${oa_mark2}   detected "${eicarPath}" is infected with EICAR-AV-Test
-        register_cleanup    Remove File    ${eicarPath}
+        # Even though the docs say Remove File should pass if the file does not exist, this is not the case here.
+        # Ignore the error, as this file will have been cleaned up by safestore but try and remove it for failure cases.
+        register_cleanup    Run Keyword And Ignore Error    Remove File    ${eicarPath}
     END
 
     # Re-check the excluded items haven't appeared - we have definitely scanned other files since
@@ -163,6 +166,7 @@ Custom Install Test Teardown
     register On Fail  dump log    ${CUSTOM_AV_LOG_PATH}
     Register On Fail  dump log    ${CUSTOM_THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log    ${CUSTOM_ON_ACCESS_LOG_PATH}
+    Register On Fail  dump log    ${CUSTOM_SAFESTORE_LOG_PATH}
 
     Register On Fail    dump_dmesg
     Register On Fail    dump_log    /var/log/syslog
