@@ -141,7 +141,7 @@ fi
 tap --version
 tap ls
 export TAP_JWT=$(cat "$BASEDIR/testUtils/SupportFiles/jenkins/jwt_token.txt")
-tap fetch linux_mono_repo.products.cmake.base.base_release || {
+tap fetch linux_mono_repo.products.cmake.base_release || {
   # This is a work around because tap fetch seems to also try and do some sort
   # of build promotion which fails when using jwt_token.txt, so if this is used in a script we need
   # to run the below directly instead of running tap fetch.

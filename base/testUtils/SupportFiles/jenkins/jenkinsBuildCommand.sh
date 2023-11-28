@@ -78,9 +78,11 @@ then
 fi
 
 export TEST_UTILS=$WORKSPACE/base/testUtils
+export SDDS3_BUILDER=$SYSTEMPRODUCT_TEST_INPUT/sdds3/sdds3-builder
 INPUTS_DIR="/opt/test/inputs"
 
 ${SUDO}mkdir -p /opt/test/inputs
+${SUDO}cp -r $WORKSPACE/common/TA/utils $INPUTS_DIR/common_test_utils
 ${SUDO}cp -r $WORKSPACE/common/TA/libs $INPUTS_DIR/common_test_libs
 ${SUDO}cp -r $WORKSPACE/common/TA/robot $INPUTS_DIR/common_test_robot
 ${SUDO}cp -r $WORKSPACE/base/testUtils/SupportFiles $INPUTS_DIR/SupportFiles
