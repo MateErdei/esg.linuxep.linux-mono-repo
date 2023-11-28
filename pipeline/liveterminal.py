@@ -26,7 +26,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
         pytest_scripts=context.artifact.from_component(
             "winep.liveterminal",
             "develop",
-            "20231103050000-24b504abf94ec0a99e9180998f9cc56c3edcde4f-hKKQEI",
+            None,
             org="",
             storage="esg-build-tested",
         )
