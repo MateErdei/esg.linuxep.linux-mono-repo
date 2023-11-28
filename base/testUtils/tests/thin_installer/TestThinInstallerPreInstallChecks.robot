@@ -99,17 +99,17 @@ Thin Installer Detects Sweep And Cancels Installation If SAV can not be uninstal
 
     Create Fake Savscan In Tmp
     Create Fake Sweep Symlink    /usr/bin
-    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink   /usr/bin
 
     Create Fake Sweep Symlink    /usr/local/bin/
-    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /usr/local/bin/
 
     Create Fake Sweep Symlink    /bin
-    Run Default Thininstaller    ${8}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${8}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /bin
 
@@ -126,7 +126,7 @@ Thin Installer Detects Sweep And uninstalls SAV
     Create Fake Savscan In Tmp
     Create Fake SAV Uninstaller in Tmp
     Create Fake Sweep Symlink    /usr/bin
-    Run Default Thininstaller    ${0}  force_certs_dir=${SUPPORT_FILES}/sophos_certs    thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
+    Run Default Thininstaller    ${0}    thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
     Check Thininstaller Log Contains    Found an existing installation of Sophos Anti-Virus in /tmp/i/am/fake/.
     Check Thininstaller Log Contains    This product cannot be run alongside Sophos Anti-Virus.
     Check Thininstaller Log Contains    Sophos Anti-Virus will be uninstalled:
@@ -228,7 +228,7 @@ Thin Installer Fails When No Path In Systemd File
     Log File  ${serviceDir}/sophos-spl.service
 
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  ${20}    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  ${20}
 
     Check Thininstaller Log Contains  An existing installation of Sophos Protection for Linux was found but could not find the installed path.
     mark_expected_error_in_thininstaller_log    SPL installation will fail as the server cannot connect to Sophos Central either directly or via Message Relays
@@ -477,7 +477,7 @@ Thin Installer With Duplicate Update Caches Argument Fails
 Thin Installer Uses Baked In SUS and CDN URLs For Install Checks
     create_default_credentials_file  sus_url=localhost/sus    cdn_urls=localhost/cdn1;localhost/cdn2
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller    ${33}    force_certs_dir=${SDDS3_DEVCERTS}    sus_url=    cdn_url=
+    run_default_thininstaller    ${33}    sus_url=    cdn_url=
     Check Thininstaller Log Contains    Server cannot connect to the SUS server (https://localhost/sus) directly
     Check Thininstaller Log Contains    SPL installation will fail as a connection to the SUS server could not be established
     Check Thininstaller Log Contains    Server cannot connect to CDN address (https://localhost/cdn1) directly

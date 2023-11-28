@@ -11,6 +11,7 @@ load(":create_thininstaller_asset.bzl", "create_thininstaller_asset")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//tools/config:soph_rules.bzl", "soph_platforms_transition")
 load("@gcc//:glibc.bzl", "GLIBC_VERSION")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 soph_cc_binary(
     name = "installer",
@@ -28,12 +29,6 @@ soph_cc_binary(
     ],
 )
 
-copy_file(
-    name = "rootca_crt",
-    src = "certs/ps_rootca.crt",
-    out = "certs/rootca.crt",
-)
-
 strip(
     name = "installer_files",
     srcs_renamed = {
@@ -42,9 +37,6 @@ strip(
         ":installer": "bin/installer",
         "certs/mcs_rootca.crt": "mcs_rootca.crt",
         "certs/rootca384.crt": "rootca384.crt",
-        "certs/sdds_https_rootca.crt": "sdds_https_rootca.crt",
-        "certs/ps_rootca.crt": "ps_rootca.crt",
-        ":rootca_crt": "rootca.crt",
     },
 )
 
@@ -127,7 +119,6 @@ manifest_sign(
     srcs = [
         ":sophos_setup_sh",
     ],
-    legacy = True,  # TODO LINUXDAR-5855: remove
 )
 
 pkg_tar(

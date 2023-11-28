@@ -165,7 +165,7 @@ namespace Common::FileSystem
          * @param path, location of the file to read.
          * @return the file stream
          */
-        virtual std::ifstream openFileForRead(const Path& path) const = 0;
+        virtual std::unique_ptr<std::istream> openFileForRead(const Path& path) const = 0;
 
         /**
          * Writes the given string content into a new file.

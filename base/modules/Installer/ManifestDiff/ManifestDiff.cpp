@@ -6,6 +6,7 @@
 #include "Manifest.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include <cassert>
 #include <fstream>
@@ -13,7 +14,7 @@
 
 using namespace Installer::ManifestDiff;
 
-int ManifestDiff::manifestDiffMain(int argc, char** argv)
+int Installer::ManifestDiff::manifestDiffMain(int argc, char** argv)
 {
     Common::Datatypes::StringVector argvv;
 
@@ -23,22 +24,29 @@ int ManifestDiff::manifestDiffMain(int argc, char** argv)
         argvv.emplace_back(argv[i]);
     }
 
-    return manifestDiffMain(argvv);
+    Common::FileSystem::FileSystemImpl fileSystem;
+    return manifestDiffMain(fileSystem, argvv);
 }
 
-int ManifestDiff::manifestDiffMain(const Common::Datatypes::StringVector& argv)
+int Installer::ManifestDiff::manifestDiffMain(
+    Common::FileSystem::IFileSystem& fileSystem,
+    const Common::Datatypes::StringVector& argv)
 {
     CommandLineOptions options(argv);
 
-    Manifest oldManifest(Manifest::ManifestFromPath(options.m_old));
-    Manifest newManifest(Manifest::ManifestFromPath(options.m_new));
+    ManifestDiff manifestDiff{ fileSystem };
 
-    writeAdded(options.m_added, oldManifest, newManifest);
-    writeRemoved(options.m_removed, oldManifest, newManifest);
-    writeChanged(options.m_changed, oldManifest, newManifest);
+    Manifest oldManifest(Manifest::ManifestFromPath(fileSystem, options.m_old));
+    Manifest newManifest(Manifest::ManifestFromPath(fileSystem, options.m_new));
+
+    manifestDiff.writeAdded(options.m_added, oldManifest, newManifest);
+    manifestDiff.writeRemoved(options.m_removed, oldManifest, newManifest);
+    manifestDiff.writeChanged(options.m_changed, oldManifest, newManifest);
 
     return 0;
 }
+
+ManifestDiff::ManifestDiff(Common::FileSystem::IFileSystem& fileSystem) : fileSystem_{ fileSystem } {}
 
 std::string ManifestDiff::toString(const PathSet& paths)
 {
@@ -63,9 +71,8 @@ PathSet ManifestDiff::entriesToPaths(const ManifestEntrySet& entries)
 void ManifestDiff::writeFile(const std::string& destination, const PathSet& paths)
 {
     assert(!destination.empty());
-    auto* filesystem = Common::FileSystem::fileSystem();
-    filesystem->makedirs(Common::FileSystem::dirName(destination));
-    filesystem->writeFile(destination, toString(paths));
+    fileSystem_.makedirs(Common::FileSystem::dirName(destination));
+    fileSystem_.writeFile(destination, toString(paths));
 }
 
 void ManifestDiff::writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)

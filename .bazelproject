@@ -7,3 +7,9 @@ targets:
 
 additional_languages:
   python
+
+test_flags:
+  --test_output=all
+
+build_flags:
+  --config=linux_x64_rel

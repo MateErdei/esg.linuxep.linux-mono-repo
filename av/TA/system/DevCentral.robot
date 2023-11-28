@@ -117,7 +117,7 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
     # Base will uninstall SSPL-AV if it does an update
-    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca384.crt
     Register In Central
     Wait Until AV Plugin Log Contains  Starting scanScheduler
     Wait for computer to appear in Central
@@ -144,7 +144,7 @@ Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
     # Base will uninstall SSPL-AV if it does an update
-    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca384.crt
     Register In Central
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
@@ -172,7 +172,8 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     clear alerts in central
     Ensure AV Policy Exists
     Install Base And Plugin Without Register
-    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    # Base will uninstall SSPL-AV if it does an update
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca384.crt
     Register In Central
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central

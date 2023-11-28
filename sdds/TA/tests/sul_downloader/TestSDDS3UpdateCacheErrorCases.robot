@@ -176,7 +176,6 @@ Sul Downloader fails back to direct if UC fails to install supplements
     Check Sul Downloader log does not contain    Connecting to update source directly
     Remove file   ${SDDS3_FAKESUPPLEMENT}/sdds3.SSPLFLAGS.dat
     Remove File    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt.1
-    Copy File  ${SUPPORT_FILES}/sophos_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt.1
     ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
     Trigger Update Now
     wait_for_log_contains_from_mark  ${mark}  Connecting to update source directly  timeout=${50}

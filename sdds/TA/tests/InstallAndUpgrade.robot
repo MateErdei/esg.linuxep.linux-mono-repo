@@ -90,6 +90,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
+
+    # TODO: This will fail once dogfood no longer has these. Then this check and the one below can be removed.
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+
     Stop Local SDDS3 Server
 
     # Upgrading to VUT
@@ -163,6 +168,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
+
+    # TODO: To be removed once dogfood does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
@@ -242,10 +251,13 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
-
     ${sspl_user_uid} =       get_uid_from_username    sophos-spl-user
     ${sspl_local_uid} =      get_uid_from_username    sophos-spl-local
     ${sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
+
+    # TODO: To be removed once dogfood does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
     Stop Local SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
@@ -301,6 +313,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
+    # TODO: This will fail once dogfood no longer has these. Then this check and the one above can be removed.
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
@@ -329,6 +345,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
+
+    # TODO: To be removed once dogfood does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     # TODO once 2023.4 is released: remove ARM64 exclusion
@@ -363,6 +383,10 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Check EAP Release Installed Correctly
     wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
+
+    # TODO: This will fail once current shipping no longer has these. Then this check and the one below can be removed.
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
     Stop Local SDDS3 Server
 
@@ -430,6 +454,10 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
 
+    # TODO: To be removed once current shipping does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     # TODO once 2023.4 is released: remove ARM64 exclusion
     [Tags]    EXCLUDE_ARM64
@@ -465,6 +493,10 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check Current Release Installed Correctly
     wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
+
+    # TODO: To be removed once current shipping does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
     Stop Local SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
@@ -517,6 +549,10 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
     Check For downgraded logs
 
+    # TODO: This will fail once current shipping no longer has these. Then this check and the one above can be removed.
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
@@ -542,6 +578,10 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...  15 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
+    # TODO: To be removed once current shipping does not have these certs
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 SDDS3 updating respects ALC feature codes
     [Tags]    RTD_CHECKED

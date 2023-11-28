@@ -15,7 +15,6 @@ ${SDDS3_FAKEPACKAGES}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakerepo/package
 ${SDDS3_FAKESUITES}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakerepo/suite
 ${SDDS3_FAKESUPPLEMENT}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakerepo/supplement
 ${SDDS3_FAKEFLAGS}   ${SDDS3_FAKEWAREHOUSE_DIR}/fakeflag
-${SDDS3_DEVCERTS}   ${SDDS3_FAKEWAREHOUSE_DIR}/certs
 ${nonce}  020fb0c370
 
 *** Keywords ***
@@ -38,8 +37,6 @@ Generate Warehouse From Local Base Input
     Generate Fake Supplement  ${flagscontent}
     #launch darkly flag
     write_sdds3_flag
-    Create Directory   ${SDDS3_DEVCERTS}
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca384.crt    ${SDDS3_DEVCERTS}/
 
 
 Generate Fake Base SDDS3 Package

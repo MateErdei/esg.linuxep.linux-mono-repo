@@ -1,8 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "CommandLineOptions.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-
 #include <iostream>
 
 using namespace Installer::ManifestDiff;

@@ -73,19 +73,12 @@ umask 077
 # Verify supplement manifest files
 VERSIG=$SOPHOS_INSTALL/base/update/versig
 [[ -x $VERSIG ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find signature verifier in SSPL"
-ROOT_CA=$SOPHOS_INSTALL/base/update/rootcerts/rootca.crt
-[[ -f $ROOT_CA ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find root CA in SSPL"
 SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
 DATASETA_MANIFEST="$VDL/manifestdata.dat"
 ML_MODEL="$SUPPLEMENT_DIR/model"
-$VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
-    --no-require-sha256 \
-    --allow-sha1-signature \
-    $VERSIG_OPTIONS || \
-  $VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
-    $VERSIG_OPTIONS || \
-     failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
+# LINUXDAR-8417: Re-enable
+#$VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
 SETCAP="$(which setcap)"
 [[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap

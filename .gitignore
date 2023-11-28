@@ -66,8 +66,6 @@
 /av/venv
 /base/venv
 
-/thininstaller/certs/ps_rootca.crt
-
 __pycache__/
 
 /SophosSetup.sh

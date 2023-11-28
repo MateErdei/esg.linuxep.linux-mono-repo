@@ -177,12 +177,8 @@ class ThinInstallerUtils(object):
                                               update_caches=None,
                                               args=None,
                                               mcs_ca=None,
-                                              force_certs_dir="default",
+                                              force_certs_dir=None,
                                               thininstaller_source=None):
-        # Use the cert override to pass in the dev cert
-        if force_certs_dir == "default":
-            force_certs_dir = os.path.join(PathManager.get_support_file_path(), "dev_certs")
-
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
@@ -224,7 +220,6 @@ class ThinInstallerUtils(object):
                                                  mcs_ca=None,
                                                  proxy=None,
                                                  override_path=None,
-                                                 certs_dir=None,
                                                  force_certs_dir=None,
                                                  cleanup=True,
                                                  temp_dir_to_unpack_to=None,
@@ -232,7 +227,7 @@ class ThinInstallerUtils(object):
 
         sus_url = "https://localhost:8080"
         cdn_url = "https://localhost:8080"
-        self.run_thininstaller(command, expected_return_code, mcsurl, mcs_ca, proxy, override_path, certs_dir, force_certs_dir, cleanup, temp_dir_to_unpack_to, sus_url, cdn_url, force_legacy_install)
+        self.run_thininstaller(command, expected_return_code, mcsurl, mcs_ca, proxy, override_path, force_certs_dir, cleanup, temp_dir_to_unpack_to, sus_url, cdn_url, force_legacy_install)
 
 
     def run_thininstaller(self,
@@ -242,42 +237,32 @@ class ThinInstallerUtils(object):
                           mcs_ca=None,
                           proxy=None,
                           override_path=None,
-                          certs_dir=None,
                           force_certs_dir=None,
                           cleanup=True,
                           temp_dir_to_unpack_to=None,
                           sus_url=None,
                           cdn_url=None,
                           force_legacy_install=False):
-        if not certs_dir:
-            sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
-            logger.info(f"sophos_certs_dir: {sophos_certs_dir}")
-        else:
-            sophos_certs_dir = certs_dir
         if not mcs_ca:
             env_cert = os.environ.get("MCS_CA", "")
             if os.path.isfile(env_cert):
                 mcs_ca = env_cert
             else:
                 mcs_ca = os.path.join(PathManager.get_support_file_path(), "CloudAutomation/root-ca.crt.pem")
-        if sophos_certs_dir == "system":
+        if force_certs_dir == "system":
             logger.info("do not set override_sophos_certs")
             try:
                 del self.env['OVERRIDE_SOPHOS_CERTS']
             except KeyError:
                 pass
         else:
-            logger.info(f"Set sophos_certs_dir to: {sophos_certs_dir}")
-            test_using_prod = os.environ.get('TEST_USING_PROD', None)
-            if test_using_prod:
-                self.env["OVERRIDE_SOPHOS_CERTS"] = sophos_certs_dir
-            elif force_certs_dir:
+            if force_certs_dir:
+                logger.info(f"Set sophos_certs_dir to: {force_certs_dir}")
                 self.env["OVERRIDE_SOPHOS_CERTS"] = force_certs_dir
             else:
-                try:
-                    del self.env['OVERRIDE_SOPHOS_CERTS']
-                except KeyError:
-                    pass
+                certs_dir = os.path.join(PathManager.get_support_file_path(), "dev_certs")
+                logger.info(f"Using dev certs at: {certs_dir}")
+                self.env["OVERRIDE_SOPHOS_CERTS"] = certs_dir
         self.env["MCS_CA"] = mcs_ca
         if command[-1] not in ("--help", "-h", "--version"):
             command.append("--allow-override-mcs-ca")
@@ -319,7 +304,6 @@ class ThinInstallerUtils(object):
                                   expected_return_code=0,
                                   mcsurl=None,
                                   mcs_ca=None,
-                                  certs_dir=None,
                                   force_certs_dir=None,
                                   proxy=None,
                                   installsh_path=None,
@@ -335,7 +319,6 @@ class ThinInstallerUtils(object):
                                mcsurl,
                                mcs_ca,
                                force_certs_dir=force_certs_dir,
-                               certs_dir=certs_dir,
                                proxy=proxy,
                                cleanup=cleanup,
                                sus_url=sus_url,
@@ -420,13 +403,13 @@ exit 0""")
 
         self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, force_certs_dir=force_certs_dir)
 
-    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, force_certs_dir,
+    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode,
                                                                product_argument="", mcsurl=None):
         command = [self.default_installsh_path]
         if product_argument != "":
             command.append(product_argument)
 
-        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
+        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, mcsurl=mcsurl)
 
     def check_if_unwanted_strings_are_in_thininstaller(self, strings_to_check_for):
         # this is used for checking the content of the thininstaller header

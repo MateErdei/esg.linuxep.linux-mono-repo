@@ -123,7 +123,6 @@ def spl_sdds_packages(
         name = name,
         base_version_str = base_version,
         files = [":{}_files_stripped".format(name)],
-        legacy_manifest_sign = True,  # TODO LINUXDAR-5855: remove
         spv_template = ":{}_spv_template".format(name),
         spv_version_token = "@ComponentAutoVersion@",
         versioning_component_name = versioning_component_name,

@@ -53,12 +53,6 @@ expand_template(
     template = "uninstall.in.sh",
 )
 
-copy_file(
-    name = "ps_rootca_crt",
-    src = "rootca.crt",
-    out = "ps_rootca.crt",
-)
-
 filter_files(
     name = "python_standard_libs",
     srcs = ["//imports/thirdparty/python:libraries"],
@@ -210,8 +204,6 @@ spl_sdds_packages(
         "files/base/lib/python{}/site-packages/sseclient.py".format(PYTHON_VERSION): ":patched_sseclient",
         "files/base/lib64/mcsrouter.zip": "//base/modules/mcsrouter:mcsrouter_zip",
         "files/base/mcs/certs/mcs_rootca.crt": "//base/modules/mcsrouter/engine:mcs_rootca.crt",
-        "files/base/update/rootcerts/ps_rootca.crt": ":ps_rootca_crt",
-        "files/base/update/rootcerts/rootca.crt": "rootca.crt",
         "files/base/update/rootcerts/rootca384.crt": "rootca384.crt",
         "files/base/update/versig": "//common/versig",
         "files/bin/sophos_diagnose": "//base/products/Base/Diagnose:sophos_diagnose",

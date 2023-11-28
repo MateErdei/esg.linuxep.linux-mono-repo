@@ -93,7 +93,6 @@
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>
         <trusted-asset artifact-path="com.osquery/osquery/5.8.2/osquery-5.8.2-linux" dest-dir="imports/thirdparty/osquery/linux_x64_rel"/>
         <trusted-asset artifact-path="com.osquery/osquery/5.8.2/osquery-5.8.2_1.linux_aarch64" dest-dir="imports/thirdparty/osquery/linux_arm64_rel"/>
-        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="thininstaller/certs"/>
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-x86_64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
         <trusted-asset artifact-path="com.github/indygreg/python-build-standalone/20230826/cpython-3.11.5-20230826-aarch64-unknown-linux-gnu-install_only.tar.gz" dest-dir="imports/thirdparty/python"/>
     </inputs>

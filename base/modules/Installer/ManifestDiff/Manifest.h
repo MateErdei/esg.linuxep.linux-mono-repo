@@ -1,11 +1,10 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 
 #include "ManifestEntry.h"
+
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <map>
 
@@ -19,7 +18,7 @@ namespace Installer::ManifestDiff
     public:
         Manifest() = default;
         explicit Manifest(std::istream& file);
-        static Manifest ManifestFromPath(const std::string& filepath);
+        static Manifest ManifestFromPath(Common::FileSystem::IFileSystem& fileSystem, const std::string& filepath);
         unsigned long size() const;
         ManifestEntrySet entries() const;
         PathSet paths() const;

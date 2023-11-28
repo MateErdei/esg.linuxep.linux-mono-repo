@@ -5,9 +5,7 @@ o600, root, root, /opt/sophos-spl/base/etc/downgradepaths.dat.0
 o600, root, root, /opt/sophos-spl/base/etc/licenses.txt.0
 o600, root, root, /opt/sophos-spl/base/etc/user-group-ids-actual.conf
 o600, root, root, /opt/sophos-spl/base/etc/user-group-ids-requested.conf
-o600, root, root, /opt/sophos-spl/base/update/rootcerts/ps_rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/rootcerts/rootca384.crt.0
-o600, root, root, /opt/sophos-spl/base/update/rootcerts/rootca.crt.0
 o600, root, root, /opt/sophos-spl/base/update/ServerProtectionLinux-Base-component/manifest.dat
 o600, root, root, /opt/sophos-spl/base/update/var/installedComponentTracker
 o600, root, root, /opt/sophos-spl/.sophos

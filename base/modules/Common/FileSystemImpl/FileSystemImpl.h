@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -69,7 +69,7 @@ namespace Common::FileSystem
 
         std::vector<std::string> readLines(const Path& path, unsigned long maxSize) const override;
 
-        std::ifstream openFileForRead(const Path& path) const override;
+        std::unique_ptr<std::istream> openFileForRead(const Path& path) const override;
 
         void removeFile(const Path& path, bool ignoreAbsent) const override;
 

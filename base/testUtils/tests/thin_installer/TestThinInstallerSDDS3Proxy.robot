@@ -33,7 +33,7 @@ ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 
 *** Test Case ***
 SDDS3 Thin Installer Falls Back From Bad Env Proxy To Direct
-    Run Default Thininstaller   expected_return_code=0  proxy=http://notanaddress.sophos.com   force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller   expected_return_code=0  proxy=http://notanaddress.sophos.com
     Check Thininstaller Log Contains  Successfully installed product
     Check Thininstaller Log Contains  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://notanaddress.sophos.com)
     Check Thininstaller Log Contains  Failed to connect to Sophos Central at https://localhost:4443/mcs (cURL error is [Couldn't resolve proxy name])
@@ -43,7 +43,7 @@ SDDS3 Thin Installer Registering With Message Relays Is Not Impacted By Env Prox
 
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller   expected_return_code=0    proxy=http://notanaddress.sophos.com   force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller   expected_return_code=0    proxy=http://notanaddress.sophos.com
 
     Check Thininstaller Log Contains  INFO - Product successfully registered via proxy: localhost:20000
     Check suldownloader log contains   Trying to update via proxy localhost:20000 to https://localhost:8080
@@ -66,7 +66,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     # Add Message Relays to Thin Installer
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  expected_return_code=0
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
@@ -124,7 +124,7 @@ SDDS3 Thin Installer Digest Proxy
 
     Start Proxy Server With Digest Auth  10000  username  password
 
-    Run Default Thininstaller  expected_return_code=0   proxy=http://username:password@localhost:10000  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  expected_return_code=0   proxy=http://username:password@localhost:10000
 
     #The customer and warehouse domains are localhost:1233 and localhost:1234
     Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
@@ -153,7 +153,7 @@ SDDS3 Thin Installer Environment Proxy
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
     Start Simple Proxy Server  10000
-    Run Default Thininstaller  expected_return_code=0   proxy=http://localhost:10000  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  expected_return_code=0   proxy=http://localhost:10000
 
     #The customer and warehouse domains are localhost:1233 and localhost:1234
     Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
@@ -180,7 +180,7 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=localhost:20000,2,4
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller_with_args    ${0}    --message-relays=none    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --message-relays=none
 
     check_thininstaller_log_contains    Message relay manually set to none, installation will not be performed via a message relay
     check_thininstaller_log_contains    Checking we can connect to Sophos Central (at https://localhost:4443/mcs)\nDEBUG: Set CURLOPT_NOPROXY to *\nDEBUG: Successfully got [No error] from Sophos Central
@@ -231,7 +231,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
     # Add Message Relays to Thin Installer
     create_default_credentials_file    message_relays=dummyhost1:10000,1,2
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller_with_args    ${0}    --message-relays=localhost:20000    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --message-relays=localhost:20000
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy

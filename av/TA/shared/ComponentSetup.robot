@@ -77,7 +77,6 @@ Setup Component For Testing
     Copy Directory   ${COMPONENT_INSTALL_SET}/files/plugins   ${SOPHOS_INSTALL}
     ## Change permissions for all executables
     Run Process  chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
-    Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/etc
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/update/var
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/etc

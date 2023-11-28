@@ -540,14 +540,6 @@ def install_requirements(machine: tap.Machine):
     except Exception:
         pass
 
-    # TODO LINUXDAR-5855 remove this section when we stop signing with sha1
-    try:
-        distro = machine.template.split("_")[0]
-        if distro in ["centos9stream", "rhel91"]:
-            machine.run("update-crypto-policies", "--set", "LEGACY", timeout=30)
-    except Exception as ex:
-        print(f"On updating openssl policy: {ex}")
-
     try:
         pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
         os_packages = get_os_packages(machine)

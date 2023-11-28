@@ -423,11 +423,11 @@ namespace
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/");
         tempDir.createFile("Root/file","hello\nworld");
-        std::ifstream file = m_fileSystem->openFileForRead(tempDir.absPath("Root/file"));
+        auto file = m_fileSystem->openFileForRead(tempDir.absPath("Root/file"));
         std::string line;
-        std::getline(file, line);
+        std::getline(*file, line);
         EXPECT_EQ("hello",line);
-        std::getline(file, line);
+        std::getline(*file, line);
         EXPECT_EQ("world",line);
     }
 

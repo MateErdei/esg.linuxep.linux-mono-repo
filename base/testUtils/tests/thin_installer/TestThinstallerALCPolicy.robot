@@ -39,6 +39,6 @@ Revert HostFile
 
 *** Test Case ***
 Thin Installer uses url from policy
-    configure_and_run_SDDS3_thininstaller  0    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    configure_and_run_SDDS3_thininstaller  0
     check_suldownloader_log_contains    Performing request: https://sustest.sophosupd.com:8080/v3/
     check_suldownloader_log_contains    Performing Sync using https://sdds3test.sophosupd.com:8080

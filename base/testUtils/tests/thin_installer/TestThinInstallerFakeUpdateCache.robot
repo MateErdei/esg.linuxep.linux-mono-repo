@@ -49,7 +49,7 @@ Clear Environment Proxy
 Thin Installer can install Directly and Fallback from broken update cache
     Create Default Credentials File  update_caches=localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  0
     Check Suldownloader Log Contains In Order
         ...  Trying update via update cache: https://localhost:1235
         ...  Connecting to update source directly
@@ -58,7 +58,7 @@ Thin Installer can install Directly and Fallback from broken update cache
 Thin Installer can install via Update Cache and Fallback from broken update cache
     Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  0
     Check Suldownloader Log Contains In Order
         ...  Trying update via update cache: https://localhost:1235
         ...  Trying update via update cache: https://localhost:8080
@@ -70,7 +70,7 @@ Thin Installer can install via Update Cache With Bad Proxy
     Set Bad Environment Proxy
     Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  0
     Check Suldownloader Log Contains In Order
         ...  Trying update via update cache: https://localhost:1235
         ...  Trying update via update cache: https://localhost:8080
@@ -82,7 +82,7 @@ Thin Installer can install via Update Cache With Bad Proxy
 Thin Installer Respects Update Cache Override Set to None
     create_default_credentials_file  update_caches=localhost:8080,2,1;localhost:1235,1,1
     build_default_creds_thininstaller_from_sections
-    run_default_thininstaller_with_args    ${0}    --update-caches=none    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --update-caches=none
 
     check_thininstaller_log_contains    Update cache manually set to none, updates will not be performed via an update cache
     check_thininstaller_log_does_not_contain    List of update caches to install from: localhost:8080,2,1;localhost:1235,1,1
@@ -97,7 +97,7 @@ Thin Installer can Install via Update Cache Overriden by Argument
     create_default_credentials_file  update_caches=localhost:1235,1,1
     build_default_creds_thininstaller_from_sections
 
-    run_default_thininstaller_with_args    ${0}    --update-caches=localhost:8080    force_certs_dir=${SDDS3_DEVCERTS}
+    run_default_thininstaller_with_args    ${0}    --update-caches=localhost:8080
     check_thininstaller_log_contains    List of update caches to install from: localhost:8080,0,overridden-update-cache
 
     check_suldownloader_log_contains_in_order

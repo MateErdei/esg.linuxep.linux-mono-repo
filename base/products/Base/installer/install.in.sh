@@ -846,7 +846,6 @@ chmod u+x "$DIST/files/base/bin"/*
 "$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
 
 CLEAN_INSTALL=1
-[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && mkdir -p "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/" && mv "${SOPHOS_INSTALL}/base/update/manifest.dat" "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat"
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID} || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to generate manifest diff"

@@ -1,7 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Manifest.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/iostr_utils.h"
 
 #include <cassert>
@@ -32,14 +33,7 @@ Manifest::Manifest(std::istream& file)
 
     file >> std::noskipws;
 
-    std::string body;
-
-    // look for the signature header
-    file >> get_upto(body, "\n-----BEGIN SIGNATURE-----\n");
-
-    std::istringstream in(body);
-
-    in >> std::noskipws;
+    std::istream& in = file;
 
     while (in.good())
     {
@@ -74,6 +68,8 @@ Manifest::Manifest(std::istream& file)
                 m_entries.back().withSHA1(checksum).withSize(size);
                 continue;
             default:
+                // This includes if a line starts with '-', which is likely a '-----BEGIN SIGNATURE-----', i.e. the
+                // signature header. We don't need to read anything after that.
                 break;
         }
         break; // can't break in the default branch, so break here and other branches continue
@@ -81,14 +77,21 @@ Manifest::Manifest(std::istream& file)
     in >> std::expect_eof;
 }
 
-Manifest Manifest::ManifestFromPath(const std::string& filepath)
+Manifest Manifest::ManifestFromPath(Common::FileSystem::IFileSystem& fileSystem, const std::string& filepath)
 {
     if (filepath.empty())
     {
-        return Manifest();
+        return {};
     }
-    std::ifstream stream(filepath);
-    return Manifest(stream);
+    try
+    {
+        auto stream = fileSystem.openFileForRead(filepath);
+        return Manifest(*stream);
+    }
+    catch (const Common::FileSystem::IFileSystemException& ex)
+    {
+        return {};
+    }
 }
 
 unsigned long Manifest::size() const

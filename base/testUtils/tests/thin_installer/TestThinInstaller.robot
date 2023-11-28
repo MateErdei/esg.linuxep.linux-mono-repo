@@ -87,7 +87,7 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
     ${install_location}=  get_default_install_script_path
     ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    run_thininstaller_with_localhost_sdds_urls  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    run_thininstaller_with_localhost_sdds_urls  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
@@ -106,7 +106,7 @@ ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direc
 Thin Installer can download test file from warehouse and execute it
     [Tags]  SMOKE
 
-    Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  0
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
@@ -117,7 +117,7 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
-    Run Default Thininstaller  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  expected_return_code=0
 
     Check Expected Base Processes Are Running
 
@@ -129,13 +129,13 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
     Cleanup_System_Ca_Certs
-    Run Default Thininstaller    33  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    33
     Check Thininstaller Log Contains    SPL installation will fail as a connection to the SUS server could not be established
 
 Thin Installer Cannot Connect to Central timeout
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server  --timeout
-    Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${33}    https://localhost:4443
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE
@@ -144,10 +144,10 @@ Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
 
     TRY
-        Run Default Thininstaller    ${3}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+        Run Default Thininstaller    ${3}    https://localhost:4443
         Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
     EXCEPT    Thin Installer exited with exit code: 33 but was expecting: 3
-        Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+        Run Default Thininstaller    ${33}    https://localhost:4443
         Check Thininstaller Log Contains    SPL installation will fail as a connection to Sophos Central could not be established
     END
 
@@ -160,20 +160,20 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     check_thininstaller_log_contains_pattern    (unsupported protocol|SSL_ERROR_UNSUPPORTED_VERSION|SSL_ERROR_SYSCALL|TLS alert)
 
 Thin Installer With Space In Name Works
-    Run Default Thininstaller With Different Name    SophosSetup (1).sh    0   force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller With Different Name    SophosSetup (1).sh    0
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Cannot Connect to Central
     [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Run Default Thininstaller    ${33}    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    ${33}    https://localhost:4443
     Check Thininstaller Log Contains   SPL installation will fail as a connection to Sophos Central could not be established
 
 Thin Installer handles broken jwt
     [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Start Local Cloud Server  --force-break-jwt
-    Run Default Thininstaller    52    https://localhost:4443/mcs  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    52    https://localhost:4443/mcs
     Check Thininstaller Log Contains  Failed to get JWT from Sophos Central
 
 Thin Installer Registers Existing Installation
@@ -183,7 +183,7 @@ Thin Installer Registers Existing Installation
     Start Local Cloud Server
 
     # Force an installation
-    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  expected_return_code=0
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
@@ -198,7 +198,7 @@ Thin Installer Doesnt Remove Existing Files In Installation Directory
     Create File    ${SOPHOS_INSTALL}/${testfile}    ${content}
 
     Start Local Cloud Server
-    Run Default Thininstaller    expected_return_code=19    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    expected_return_code=19
     Check Thininstaller Log Contains  The intended destination for Sophos Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory.
 
     Directory Should Exist    ${SOPHOS_INSTALL}
@@ -213,7 +213,7 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
     ${registerCentralArgFilePath} =  replace_register_central_with_script_that_echos_args
 
     # Force an installation
-    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  expected_return_code=0
 
     Check Thininstaller Log Does Not Contain  ERROR
     ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
@@ -229,7 +229,7 @@ Thin Installer Registers Existing Installation With Product Args
     Start Local Cloud Server
 
     # Force an installation
-    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
@@ -243,7 +243,7 @@ Thin Installer Installs Product Successfully With Product Arguments
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
-    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
 
     Check MCS Router Running
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -259,7 +259,7 @@ Thin Installer Repairs Broken Existing Installation
     Remove File  ${REGISTER_CENTRAL}
     Should Not Exist  ${REGISTER_CENTRAL}
 
-    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  expected_return_code=0
 
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
 
@@ -284,7 +284,7 @@ Thin Installer Force Works
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true
     ${time} =  Subtract Time From Date  ${time}  1s  exclude_millis=true
-    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
+    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Successfully installed product
     Should Have A Stopped Sophos Message In Journalctl Since Certain Time  ${time}
@@ -300,50 +300,50 @@ Thin Installer Saves Requested GID and UIDs To Install Options
 Thin Installer Succeeds When System Has Glibc Greater Than Build Machine
     ${HighGlibcVersion} =  Set Variable  999.999
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${HighGlibcVersion}
-    Run Thininstaller With Non Standard Path  0  ${PATH}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Thininstaller With Non Standard Path  0  ${PATH}
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Succeeds When System Has Glibc Same As Build Machine
     ${buildGlibcVersion} =  Get Glibc Version From Thin Installer
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${buildGlibcVersion}
-    Run Thininstaller With Non Standard Path  0  ${PATH}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Thininstaller With Non Standard Path  0  ${PATH}
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Passes XDR Product Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=xdr
+    Run Default Thinistaller With Product Args And Central  0    --products=xdr
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: xdr
 
 
 Thin Installer Passes MDR Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr
+    Run Default Thinistaller With Product Args And Central  0    --products=mdr
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr
 
 Thin Installer Passes MDR and XDR Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr,xdr
+    Run Default Thinistaller With Product Args And Central  0    --products=mdr,xdr
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr,xdr
 
 Thin Installer Passes AV Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=antivirus
+    Run Default Thinistaller With Product Args And Central  0    --products=antivirus
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: antivirus
 
 Thin Installer Passes AV and XDR Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=antivirus,xdr
+    Run Default Thinistaller With Product Args And Central  0    --products=antivirus,xdr
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: antivirus,xdr
 
 Thin Installer Passes MDR And AV Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr,antivirus
+    Run Default Thinistaller With Product Args And Central  0    --products=mdr,antivirus
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr,antivirus
 
 Thin Installer Passes MDR, AV, and XDR Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr,antivirus,xdr
+    Run Default Thinistaller With Product Args And Central  0    --products=mdr,antivirus,xdr
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr,antivirus,xdr
 
 Thin Installer Passes None Products Arg To Base Installer
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=none
+    Run Default Thinistaller With Product Args And Central  0    --products=none
     Check Thininstaller Log Contains  Carrying out Preregistration for selected products: none
 
 Thin Installer Passes No Products Args To Base Installer When None Are Given
-    Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs
+    Run Default Thinistaller With Product Args And Central  0
     Check Thininstaller Log Does Not Contain  Carrying out Preregistration for selected products:
 
 Disable Auditd Argument Saved To Install Options
@@ -358,7 +358,7 @@ Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registr
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
 
-    Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs  cleanup=${False}
+    Run Default Thininstaller    0    cleanup=${False}
 
     Check Thininstaller Log Contains    Successfully installed product
 
@@ -380,7 +380,7 @@ Thin Installer Passes Proxy Used By Registration To Suldownloader During Install
     Start Message Relay
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs  cleanup=${False}
+    Run Default Thininstaller    0    cleanup=${False}
     Check Thininstaller Log Contains    Successfully installed product
     Check Suldownloader Log Contains  Trying SUS request (https://localhost:8080) with proxy: localhost:20000
     Check Suldownloader Log Contains  SUS Request was successful
@@ -391,7 +391,7 @@ Thin Installer Passes Basic Auth Proxy Used By Registration To Suldownloader Dur
     Start Proxy Server With Basic Auth    8192    username    password
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller   expected_return_code=0  proxy=http://username:password@localhost:8192  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller   expected_return_code=0  proxy=http://username:password@localhost:8192
     Check Thininstaller Log Contains    Successfully installed product
     Check Suldownloader Log Contains  Trying SUS request (https://localhost:8080) with proxy: http://username:password@localhost:8192
     Check Suldownloader Log Contains  SUS Request was successful

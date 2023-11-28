@@ -261,13 +261,13 @@ namespace Common::FileSystem
     {
         std::string srcExists = exists(source) ? "exists" : "doesn't exist";
 
-        auto destPath  = dest.back() == '/' ? dest : dirName(dest);
+        auto destPath = dest.back() == '/' ? dest : dirName(dest);
         std::string destExists = exists(destPath) ? "exists" : "doesn't exist";
 
         std::stringstream errorStream;
-        errorStream << "Could not move " << source << "(" << srcExists << ")" <<
-                                    " to " << dest << "(" << destExists << ")"  <<
-                                      ": " << StrError(err) << "(" << err << ")";
+        errorStream << "Could not move " << source << "(" << srcExists << ")"
+                    << " to " << dest << "(" << destExists << ")"
+                    << ": " << StrError(err) << "(" << err << ")";
 
         throw IMoveFileException(errorStream.str());
     }
@@ -401,12 +401,12 @@ namespace Common::FileSystem
         }
     }
 
-    std::ifstream FileSystemImpl::openFileForRead(const Path& path) const
+    std::unique_ptr<std::istream> FileSystemImpl::openFileForRead(const Path& path) const
     {
         if (isFile(path))
         {
-            std::ifstream infile(path.c_str());
-            if (infile.is_open() && infile.good())
+            auto infile = std::make_unique<std::ifstream>(path.c_str());
+            if (infile->is_open() && infile->good())
             {
                 return infile;
             }

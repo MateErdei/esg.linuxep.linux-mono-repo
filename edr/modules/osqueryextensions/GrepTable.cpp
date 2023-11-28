@@ -1,10 +1,11 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "GrepTable.h"
-#include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
 
 #include "ConstraintHelpers.h"
+#include "Logger.h"
+
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <fstream>
 namespace OsquerySDK
@@ -18,7 +19,7 @@ namespace OsquerySDK
         OsquerySDK::QueryContextInterface& context)
     {
         auto fs = Common::FileSystem::fileSystem();
-        std::vector<std::string>  paths = fs->listFilesAndDirectories(filePath);
+        std::vector<std::string> paths = fs->listFilesAndDirectories(filePath);
         for (auto const& subPath : paths)
         {
             GrepFile(grepPath, subPath, pattern, results, context);
@@ -36,8 +37,8 @@ namespace OsquerySDK
         {
             auto fs = Common::FileSystem::fileSystem();
 
-            std::ifstream fileStream = fs->openFileForRead(filePath) ;
-            for (std::string line; std::getline(fileStream, line);)
+            auto fileStream = fs->openFileForRead(filePath);
+            for (std::string line; std::getline(*fileStream, line);)
             {
                 if (line.size() < MAX_LINE_LENGTH && (pattern.empty() || line.find(pattern, 0) != std::string::npos))
                 {
@@ -117,4 +118,4 @@ namespace OsquerySDK
 
         return results;
     }
-}
+} // namespace OsquerySDK

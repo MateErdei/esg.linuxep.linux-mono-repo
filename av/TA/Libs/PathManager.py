@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Copyright (C) 2019-2020 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 import os
 import sys
@@ -64,11 +62,6 @@ def get_libs_path():
 RESOURCES_PATH = os.path.join(ROBOT_ROOT_PATH, "resources")
 def get_resources_path():
     return RESOURCES_PATH
-
-
-LOCAL_HTTPS_CERT_PATH = os.path.join(RESOURCES_PATH, "sophos_certs", "local_certs", "https")
-def get_local_https_cert_path():
-    return LOCAL_HTTPS_CERT_PATH
 
 
 def addPathToSysPath(p):

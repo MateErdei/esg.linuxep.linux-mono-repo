@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -31,7 +27,7 @@ namespace SulDownloader::suldownloaderdata
 
         /**
          * Perform a versig verification.
-         * @param configurationData: path to the rootca.crt certificate.
+         * @param configurationData: to get manifest names and versig path
          * @note If the verification fails, internal error will be set and can be checked by hasError.
          * @pre ::setDistributePath called first and ::hasError return false.
          */

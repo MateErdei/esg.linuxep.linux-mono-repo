@@ -40,4 +40,4 @@ Run Sdds warehouse
     Build Default Creds Thininstaller From Sections
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
-    Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  0

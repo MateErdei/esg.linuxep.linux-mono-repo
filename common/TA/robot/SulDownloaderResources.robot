@@ -19,7 +19,6 @@ Check Suldownloader Is Not Running
 
 Setup Dev Certs for sdds3
     Copy File  ${SUPPORT_FILES}/dev_certs/rootca384_dev.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/rootca384_dev.crt
-    Copy File  ${SUPPORT_FILES}/sophos_certs/prod_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/prodrootca384.crt
 
 Setup Install SDDS3 Base
     Require Fresh Install

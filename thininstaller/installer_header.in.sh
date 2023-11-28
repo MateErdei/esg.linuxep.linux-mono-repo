@@ -755,11 +755,6 @@ mkdir -p "${SOPHOS_INSTALL}/base/update/cache"
 mkdir -p "${SOPHOS_INSTALL}/var/lock"
 mkdir -p "${SOPHOS_INSTALL}/var/lock-sophosspl"
 
-CERT=${BIN}/../rootca.crt
-[[ -n ${OVERRIDE_SOPHOS_CERTS} ]] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca.crt
-[[ -f ${CERT} ]] || CERT=${BIN}/../rootca.crt
-cp "$CERT" "${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt"
-
 CERT=${BIN}/../rootca384.crt
 [[ -n ${OVERRIDE_SOPHOS_CERTS} ]] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca384.crt
 [[ -f ${CERT} ]] || CERT=${BIN}/../rootca384.crt

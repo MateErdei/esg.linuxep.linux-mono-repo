@@ -9,6 +9,7 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
+        "//base/modules/Common/FileSystemImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/UtilityImpl:iostr_utils",
     ],
@@ -18,5 +19,6 @@ soph_cc_library(
     ],
     deps = [
         "//base/modules/Common/Datatypes",
+        "//base/modules/Common/FileSystem",
     ],
 )

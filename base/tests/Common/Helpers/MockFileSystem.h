@@ -6,6 +6,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <gmock/gmock.h>
+
 #include <fstream>
 using namespace ::testing;
 using namespace Common::FileSystem;
@@ -40,7 +41,7 @@ public:
     MOCK_METHOD(std::string, readFile, (const Path& path, unsigned long maxSize), (const, override));
     MOCK_METHOD((std::vector<std::string>), readLines, (const Path& path), (const, override));
     MOCK_METHOD((std::vector<std::string>), readLines, (const Path& path, unsigned long maxSize), (const, override));
-    MOCK_METHOD((std::ifstream), openFileForRead, (const Path& path), (const, override));
+    MOCK_METHOD(std::unique_ptr<std::istream>, openFileForRead, (const Path& path), (const, override));
     MOCK_METHOD(void, appendFile, (const Path& path, const std::string& content), (const, override));
     MOCK_METHOD(void, writeFile, (const Path& path, const std::string& content), (const, override));
     MOCK_METHOD(void, writeFileAtomically, (const Path& path, const std::string& content, const Path& tempDir), (const, override));
