@@ -99,9 +99,10 @@ def run_av_component_tests(machine: tap.Machine):
 def run_av_integration_tests(machine: tap.Machine, robot_args_json: str):
     robot_exclusion_tags = []
     platform = machine.template.split("_")[0]
-    if platform in ("centos9stream", "ubuntu2204"):
+    if platform in ("centos9stream", "ubuntu2204", "rhel91"):
         #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
         #  As of 2023-10-27 Ubuntu 22.04 doesn't support NFSv2
+        #  As of 2023-11-23 RHEL 9 doesn't support NFSv2
         robot_exclusion_tags.append("nfsv2")
 
     os_packages = []
