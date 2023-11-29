@@ -2,17 +2,15 @@
 # -*- coding: utf-8 -*-
 
 
-
-import unittest
-import sys
+import logging
 import os
+import unittest
+from unittest import mock
 
+from FakeCommand import FakeCommand
 import PathManager
 
-import xml.dom.minidom
-
 import mcsrouter.adapters.app_proxy_adapter
-import mcsrouter.mcsclient.mcs_commands as MCSCommands
 
 builddir="."
 
@@ -90,46 +88,6 @@ INVALID_XML="""<?xml version="1.0"?>
     </fragments>
 </ns:policyFragments>"""
 
-class Connection(object):
-    def __init__(self):
-        self.__m_appId = ""
-        self.__m_policyId = ""
-
-    def get_policy(self, appId, policyId):
-        self.__m_appId = appId
-        self.__m_policyId = policyId
-
-    def get_app_id(self):
-        return self.__m_appId
-
-    def get_policy_id(self):
-        return self.__m_policyId
-
-    def get_policy_fragment(self, appId, fragmentId):
-        return "{}|{}|".format(appId, fragmentId)
-
-
-class FakeCommand(object):
-    def __init__(self,xml):
-        self._m__dict = {"body":xml}
-        self._m__complete = False
-        self._m__connection = Connection()
-
-    def get_connection(self):
-        return self._m__connection
-
-    def get(self, s):
-        return self._m__dict.get(s, "")
-
-    def get_xml_text(self):
-        return ""
-
-    def complete(self):
-        self._m__complete = True
-
-    def completed(self):
-        return self.completed
-
 
 class TestAppProxyAdapter(unittest.TestCase):
     def setUp(self):
@@ -181,11 +139,13 @@ class TestAppProxyAdapter(unittest.TestCase):
     #     self.assertEqual(policyCommand[0].get_policy(), expectedFragmentsString)
     #     self.assertTrue(command.completed)
 
-    def testInvalidXml(self):
+    @mock.patch("logging.Logger.error")
+    def testInvalidXmlAndJSONlogsError(self, *mockargs):
         command = FakeCommand(INVALID_XML)
         policyCommand = mcsrouter.adapters.app_proxy_adapter.AppProxyAdapter("SAV").process_command(command)
         self.assertEqual(policyCommand, [])
         self.assertTrue(command.completed)
+        self.assertTrue(logging.Logger.error.called)
 
 
 if __name__ == '__main__':

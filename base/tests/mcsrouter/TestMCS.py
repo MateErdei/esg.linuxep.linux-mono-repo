@@ -14,6 +14,7 @@ logger = logging.getLogger("TestMCS")
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 
+from FakeCommand import FakeCommand
 import PathManager
 
 import mcsrouter.mcs
@@ -510,6 +511,39 @@ class TestMCS(unittest.TestCase):
         self.assertFalse(m.attempt_migration(comms, config, root_config, None))
         self.assertEqual(FakeMCSConnection.set_migrate_mode.call_count, 0)
         self.assertEqual(root_config.get('MCSToken'), 'MCSTOKEN')
+
+    @mock.patch("logging.Logger.info")
+    @mock.patch("uuid.uuid4", return_value="1234")
+    def testCloneChallengeParsedAndRespondsWithDedupID(self, *mockargs):
+        clone_challenge_json = '{"type": "clone_challenge"}'
+        pushFallbackPollInterval = 10
+        command = FakeCommand(clone_challenge_json)
+        config = mcsrouter.utils.config.Config()
+        config.set("pushFallbackPollInterval", pushFallbackPollInterval)
+        m = self.createMCS(config)
+        interval = m.get_command_check_interval()
+        interval.set_use_fallback_polling_interval(True)
+        self.assertEqual(m.is_clone_dedupe_command(command), True)
+        self.assertEqual(command.get_connection().get_json_body(), '{"dedup_id": "1234"}')
+        self.assertTrue(logging.Logger.info.called)
+        m.get_command_check_interval().set()
+        self.assertEqual(m.get_command_check_interval().get(), pushFallbackPollInterval)
+
+    @mock.patch("logging.Logger.info")
+    def testCloneDetectedParsedAndLogged(self, *mockargs):
+        clone_detected_json = '{"type": "clone_detected"}'
+        pushFallbackPollInterval = 10
+        command = FakeCommand(clone_detected_json)
+        config = mcsrouter.utils.config.Config()
+        config.set("pushFallbackPollInterval", pushFallbackPollInterval)
+        m = self.createMCS(config)
+        interval = m.get_command_check_interval()
+        interval.set_use_fallback_polling_interval(True)
+        self.assertEqual(m.is_clone_dedupe_command(command), True)
+        self.assertTrue(logging.Logger.info.called)
+        m.get_command_check_interval().set()
+        self.assertNotEqual(m.get_command_check_interval().get(), pushFallbackPollInterval)
+
 
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):

@@ -202,6 +202,16 @@ class TestMCSConnection(unittest.TestCase):
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
         self.assertEqual(body, "body")
 
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
+    def test_send_v2_response_with_id(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        json_body = '{"hello": "world"}'
+        app_id = "123"
+        command_id = "234"
+        body = mcs_connection.send_v2_response_with_id(json_body, app_id, command_id)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
+        self.assertEqual(body, "body")
+
     @mock.patch("logging.Logger.info")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request",
                 side_effect=mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request)

@@ -144,8 +144,8 @@ class Computer:
             new_command = None
             try:
                 new_command = self.direct_command(command)
-            except Exception:
-                LOGGER.warning("Failed to execute command: %s", str(command))
+            except Exception as ex:
+                LOGGER.warning(f"Failed to execute command: {str(command)}. Reason: {ex}")
                 self.__m_commands.append(command)
                 raise
 

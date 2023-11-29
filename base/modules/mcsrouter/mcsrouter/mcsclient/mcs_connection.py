@@ -433,6 +433,7 @@ class MCSConnection:
             "X-Device-ID": self.m_device_id,
             "X-Tenant-ID": self.m_tenant_id,
             "Accept": "application/json",
+            "x-sophos-capabilities": "cloneDetectionV2,terminate",
         }
         return headers
 
@@ -1084,6 +1085,21 @@ class MCSConnection:
                 command_path,
                 response.m_json_body_size))
         (headers, body) = self.__request(command_path, headers, response.m_json_body, "POST")
+        return body
+
+    def send_v2_response_with_id(self, json_body, app_id, command_id):
+        """
+        prepare a HTTP request to send to central
+        :param json_body: The JSON response to send to Central
+        :return: The JSON response to send to Central
+        """
+        command_path = f"/v2/responses/device/{self.m_device_id}/app_id/{app_id}/correlation_id/{command_id}"
+
+        body_size = len(json_body)
+        headers = self.get_v2_headers()
+        headers["Content-Length"] = body_size
+        LOGGER.debug(f"MCS request url={command_path} body size={body_size}")
+        (headers, body) = self.__request(command_path, headers, json_body, "POST")
         return body
 
     def send_status_event(self, status):

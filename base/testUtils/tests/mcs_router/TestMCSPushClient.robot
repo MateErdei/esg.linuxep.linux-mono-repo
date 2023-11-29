@@ -84,6 +84,46 @@ MCSRouter Can Start and Receive Live Query From Push Client
 
     Check File Content  {"type": "sophos.mgt.action.RunLiveQuery", "name": "users", "query": "SELECT * from users"}  ${MCS_DIR}/action/
 
+MCSRouter Can Start and Receive Clone Challenge Command From Push Client
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/MCS_Clone_Challenge_command.xml
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received command from Push Server
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received clone challenge command
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Sending clone challenge response
+
+MCSRouter Can Start and Receive Clone Detected Command From Push Client
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/MCS_Clone_Detected_command.xml
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received command from Push Server
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    This endpoint has been detected as a clone
+
+MCSRouter Increases Polling Frequency When Sent Clone Detected Command and Decreases Following Re-register
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/MCS_Clone_Detected_command.xml
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received command from Push Server
+    # Check polling frequency has increased following Clone Detected command in order to respond quickly to re-register
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    This endpoint has been detected as a clone, increasing polling frequency to every
+
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Cmd To Fake Cloud  controller/reregisterNext
+
+    Wait EndPoint Report It Has Re-registered
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Endpoint re-registered
+    # Check polling frequency has reverted back to the default lower value of pushFallbackPollInterval following re-register
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Using pushFallbackPollInterval. Set command poll interval to 
+
 MCSRouter Can Start and Receive Wakeup Command From Push Client
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml

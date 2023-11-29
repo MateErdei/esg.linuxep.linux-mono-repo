@@ -18,6 +18,7 @@ import shutil
 import time
 import json
 import copy
+import uuid
 
 from . import computer
 from . import mcs_push_client
@@ -647,6 +648,32 @@ class MCS:
             LOGGER.info("Successfully migrated Sophos Central account")
         return migration_success
 
+    def get_command_check_interval(self):
+        return self.__m_command_check_interval
+    
+    def is_clone_dedupe_command(self, command) -> bool:
+        try:
+            json_cmd = json.loads(command.get("body"))
+            if json_cmd.get("type") == "clone_challenge":
+                LOGGER.info("Received clone challenge command")
+                command_id = command.get('id')
+                app_id = command.get('appId')
+                dedup_uuid = str(uuid.uuid4())
+                dedup_response = {}
+                dedup_response["dedup_id"] = dedup_uuid
+                json_body = json.dumps(dedup_response)
+                LOGGER.info(f"Sending clone challenge response: {json_body}")
+                connection = command.get_connection()
+                connection.send_v2_response_with_id(json_body, app_id, command_id)
+                return True
+            elif json_cmd.get("type") == "clone_detected":
+                self.__m_command_check_interval.set_use_fallback_polling_interval(False)
+                LOGGER.info(f"This endpoint has been detected as a clone, increasing polling frequency to every {self.__m_command_check_interval.get()} seconds")
+                return True
+        except json.decoder.JSONDecodeError:
+            pass
+        return False
+
     def run(self):
         """
         run
@@ -792,7 +819,9 @@ class MCS:
                             LOGGER.debug("Got pending push_command: {}".format(push_command.msg))
                             try:
                                 commands = comms.extract_commands_from_xml(push_command.msg)
-                                commands_to_run.extend(commands)
+                                for command in commands:
+                                    if not self.is_clone_dedupe_command(command):
+                                        commands_to_run.append(command)
                             except Exception as exception:
                                 self.stop_push_client(push_client)
                                 force_mcs_server_command_processing = True
