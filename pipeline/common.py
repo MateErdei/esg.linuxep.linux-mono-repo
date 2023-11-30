@@ -91,26 +91,22 @@ def do_unified_build(parameters):
     return arch in ('both unified',)
 
 
-def get_random_machines(machines_no: int, x64platforms: dict, arm64platforms: dict) -> dict:
-    assert (machines_no <= len(x64platforms) / 2)
-    assert (machines_no <= len(arm64platforms) / 2)
+def get_random_machines(x64_count: int, arm64_count: int, x64platforms: dict, arm64platforms: dict) -> dict:
+    assert (x64_count <= len(x64platforms) / 2)
+    assert (arm64_count <= len(arm64platforms) / 2)
 
     test_machines = {"x64": {}, "arm64": {}}
-    for machine in range(machines_no):
-        x64_machine_found = False
-        arm64_machine_found = False
+    while len(test_machines["x64"]) < x64_count:
+        x64machine = random.choice(list(x64platforms.keys()))
+        if test_machines["x64"].get(x64machine) is None:
+            test_machines["x64"][x64machine] = x64platforms.get(x64machine)
 
-        while not x64_machine_found:
-            x64machine = random.choice(list(x64platforms.keys()))
-            if test_machines["x64"].get(x64machine) is None and test_machines["arm64"].get(x64machine) is None:
-                test_machines["x64"][x64machine] = x64platforms.get(x64machine)
-                x64_machine_found = True
+    while len(test_machines["arm64"]) < arm64_count:
+        arm64machine = random.choice(list(arm64platforms.keys()))
+        if test_machines["x64"].get(arm64machine) is None and test_machines["arm64"].get(arm64machine) is None:
+            test_machines["arm64"][arm64machine] = arm64platforms.get(arm64machine)
 
-        while not arm64_machine_found:
-            arm64machine = random.choice(list(arm64platforms.keys()))
-            if test_machines["x64"].get(arm64machine) is None and test_machines["arm64"].get(arm64machine) is None:
-                test_machines["arm64"][arm64machine] = arm64platforms.get(arm64machine)
-                arm64_machine_found = True
+    print(f"Randomly selected test machines: {test_machines}")
     return test_machines
 
 
@@ -153,6 +149,20 @@ def get_test_machines(build: str, parameters: DotDict):
         'ubuntu2204': 'ubuntu2204_arm64_server_en_us',
     }
 
+    run_single_x64_environments = {
+        'centos79': 'centos7_x64_aws_server_en_us',
+    }
+
+    run_four_x64_environments = {
+        'centos79': 'centos7_x64_aws_server_en_us',
+        'debian11': 'debian11_x64_aws_server_en_us',
+        'sles15': 'sles15_x64_sp4_aws_server_en_us',
+    }
+
+    run_four_arm64_environments = {
+        'amazonlinux2023': 'amzlinux2023_arm64_server_en_us',
+    }
+
     test_platform = parameters.test_platform or "run_all"
 
     # Process test_platform
@@ -160,14 +170,16 @@ def get_test_machines(build: str, parameters: DotDict):
     if test_platform == "run_all":
         test_environments["x64"] = available_x64_environments
         test_environments["arm64"] = available_arm64_environments
-    elif test_platform != "run_none":
-        platform_count = 0
-        if test_platform == "run_single":
-            platform_count = 1
-        elif test_platform == "run_four":
-            platform_count = 4
-        test_environments = get_random_machines(platform_count, available_x64_environments,
+    elif test_platform == "run_overnight":
+        x64_count = 4
+        arm64_count = 2
+        test_environments = get_random_machines(x64_count, arm64_count, available_x64_environments,
                                                 available_arm64_environments)
+    elif test_platform == "run_single":
+        test_environments["x64"] = run_single_x64_environments
+    elif test_platform == "run_four":
+        test_environments["x64"] = run_four_x64_environments
+        test_environments["arm64"] = run_four_arm64_environments
 
     platform = 'amazonlinux2'
     if parameters.run_amazon_2 == "force_run":

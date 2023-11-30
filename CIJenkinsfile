@@ -2,48 +2,54 @@
 
 def params = [
     choice(name: 'TEST_PLATFORM',
-        choices: ((env.BRANCH_NAME == 'develop' || env.BRANCH_NAME ==~ /^release.+/ ) ?
-        [ 'run_four', 'run_all', 'run_none' ] : ['run_single', 'run_none', 'run_four', 'run_all']),
+        choices: ((env.BRANCH_NAME == 'develop' ) ? [ 'run_four', 'run_all', 'run_none', 'run_overnight' ] : 
+            (env.BRANCH_NAME ==~ /^release.+/) ? [ 'run_all', 'run_none' ] : ['run_single', 'run_none', 'run_four', 'run_all']),
         description: 'Number of TAP test platforms: select none, single, four or all. This is overriden by non-default platform choices below'),
- choice(name: 'TEST_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal', 'di', 'none'], defaultValue: 'all',
- description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
-
- choice(name: 'MODE', choices: ['default', 'coverage'], description: 'Build mode, exists only for backwards compatibility with weekly coverage job - Use CODE_COVERAGE instead'),
- booleanParam(name: "CODE_COVERAGE", defaultValue: false, description: 'Add code coverage build and test'),
- choice(name: 'SDDS_OPTIONS', choices: ['build_dev_no_system_tests', 'build_dev_system_tests', 'build_prod_no_system_tests', 'build_prod_system_tests', 'build_none'], description: 'Select sdds option'),
-
- choice(name: 'run_amazon_2', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2'),
- choice(name: 'run_amazon_2023', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2023'),
- choice(name: 'run_centos_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 7'),
- choice(name: 'run_centos_stream_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 8 Stream'),
- choice(name: 'run_centos_stream_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 9 Stream'),
- choice(name: 'run_debian_10', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Debian 10'),
- choice(name: 'run_debian_11', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Debian 11'),
- choice(name: 'run_oracle_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 7'),
- choice(name: 'run_oracle_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 8'),
- choice(name: 'run_rhel_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 7'),
- choice(name: 'run_rhel_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 8'),
- choice(name: 'run_rhel_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 9'),
- choice(name: 'run_sles_12', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on SLES 12'),
- choice(name: 'run_sles_15', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on SLES 15'),
- choice(name: 'run_ubuntu_18_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 18.04'),
- choice(name: 'run_ubuntu_20_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 20.04'),
- choice(name: 'run_ubuntu_22_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 22.04'),
-
- string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
- string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
- string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
-
- booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
- booleanParam(name: 'build_debug_bazel', defaultValue: false, description: 'Do the Bazel linux_dbg build'),
- choice(name: 'architectures', choices: ['both separately', 'both unified', 'x86_64 only', 'arm64 only'], description: 'Which architectures to build and how to build them'),
- booleanParam(name: "FORCE_NON_MINIMAL_DOWNLOADS",
+    choice(name: 'TEST_SELECTION', choices: ['all','av','edr','ej','base', 'liveterminal', 'di', 'none'],
+        description: 'Which component(s) to run tests on, if run_none is selected above this is irrelevant'),
+    
+    choice(name: 'MODE', choices: ['default', 'coverage'], description: 'Build mode, exists only for backwards compatibility with weekly coverage job - Use CODE_COVERAGE instead'),
+    booleanParam(name: "CODE_COVERAGE", defaultValue: false, description: 'Add code coverage build and test'),
+    choice(name: 'SDDS_OPTIONS', 
+        choices: ((env.BRANCH_NAME ==~ /^release.+/) ? ['build_prod_system_tests', 'build_prod_no_system_tests', 'build_none'] :
+            ['build_dev_no_system_tests', 'build_dev_system_tests', 'build_prod_no_system_tests', 'build_prod_system_tests', 'build_none']), 
+        description: 'Select sdds option'),
+    
+    choice(name: 'run_amazon_2', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2'),
+    choice(name: 'run_amazon_2023', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Amazon Linux 2023'),
+    choice(name: 'run_centos_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 7'),
+    choice(name: 'run_centos_stream_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 8 Stream'),
+    choice(name: 'run_centos_stream_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on CentOS 9 Stream'),
+    choice(name: 'run_debian_10', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Debian 10'),
+    choice(name: 'run_debian_11', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Debian 11'),
+    choice(name: 'run_oracle_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 7'),
+    choice(name: 'run_oracle_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 8'),
+    choice(name: 'run_rhel_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 7'),
+    choice(name: 'run_rhel_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 8'),
+    choice(name: 'run_rhel_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 9'),
+    choice(name: 'run_sles_12', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on SLES 12'),
+    choice(name: 'run_sles_15', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on SLES 15'),
+    choice(name: 'run_ubuntu_18_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 18.04'),
+    choice(name: 'run_ubuntu_20_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 20.04'),
+    choice(name: 'run_ubuntu_22_04', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Ubuntu 22.04'),
+    
+    string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
+    string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
+    string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
+    
+    booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
+    booleanParam(name: 'build_debug_bazel', defaultValue: false, description: 'Do the Bazel linux_dbg build'),
+    choice(name: 'architectures', choices: ['both separately', 'both unified', 'x86_64 only', 'arm64 only'], description: 'Which architectures to build and how to build them'),
+    booleanParam(name: "FORCE_NON_MINIMAL_DOWNLOADS",
               defaultValue: false,
               description: '''Do not use `bazel --remote_download_minimal` flag.'''),
 ]
 
-CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true';
-             overallTimeoutHours = 8;
-             failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/b9db2dd8-a82c-4acc-92a5-3eda2c9fbf01@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/2684033c102047ef9bddc0537e5e2233/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
-             failureWebhookBranchRegex = '^develop$' }
+CIPipeline { 
+    pipelineEntryPoint = 'linux_mono_repo';
+    buildParameters = params; 
+    skipInitialBuild = 'true';
+    overallTimeoutHours = 8;
+    failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/b9db2dd8-a82c-4acc-92a5-3eda2c9fbf01@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/2684033c102047ef9bddc0537e5e2233/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
+    failureWebhookBranchRegex = '^develop$' }
 
