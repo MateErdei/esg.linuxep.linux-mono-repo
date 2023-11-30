@@ -87,15 +87,7 @@ class MCSPolicyHandler:
             self.__m_policy_xml = open(path, "rb").read()
             self.__try_apply_policy("existing", False)
 
-    def __get_element(self, dom, element_name):
-        """
-        __get_element
-        """
-        # in sspl dom has been converted from an elementTree object to a dom.
-        # using an elementTree we can perform the xpath findall("./mcs:configuration/mcs:" + elementName,...)
-        # as is done in SAV.
-        # The change below is mimicking this search as xpath not available for dom object.
-
+    def __get_all_matching_elements(self, dom, element_name):
         parent_node_name = "configuration"
         nodes = dom.getElementsByTagName(element_name)
 
@@ -104,25 +96,30 @@ class MCSPolicyHandler:
             if node.parentNode.tagName == parent_node_name:
                 valid_nodes.append(node)
 
-        if len(valid_nodes) == 1:
-            return valid_nodes[0]
+        if len(valid_nodes) > 0:
+            return valid_nodes
 
         return None
 
     def __get_default_int_value(self, dom, element_name, default_value):
-        node = self.__get_element(dom, element_name)
-        if node is None:
-            LOGGER.warning(
-                "MCS policy has no element {}".format(element_name))
+        nodes = self.__get_all_matching_elements(dom, element_name)
+        if nodes is None:
+            LOGGER.warning(f"MCS policy has no element {element_name}")
             return default_value
 
-        value = node.getAttribute("default")
+        if len(nodes) != 1:
+            LOGGER.debug(f"MCS policy has multiple elements with name {element_name}, using default value")
+            return default_value
+
+        value = nodes[0].getAttribute("default")
         if value == "":
-            LOGGER.error(
-                "MCS policy {} has no attribute default".format(element_name))
+            LOGGER.error(f"MCS policy {element_name} has no attribute default")
             return default_value
 
         try:
+            if not value.isdigit():
+                raise ValueError
+
             value = int(value)
         except ValueError:
             LOGGER.error(
@@ -132,18 +129,26 @@ class MCSPolicyHandler:
         return value
 
     def __get_int_value(self, dom, element_name, default_value):
-        node = self.__get_element(dom, element_name)
-        if node is None:
+        nodes = self.__get_all_matching_elements(dom, element_name)
+        if nodes is None:
             LOGGER.info(
                 "MCS policy has no element {}".format(element_name))
             return default_value
-        value = mcsrouter.utils.xml_helper.get_text_from_element(node)
+
+        if len(nodes) != 1:
+            LOGGER.debug(f"MCS policy has multiple elements with name {element_name}, using default value")
+            return default_value
+
+        value = mcsrouter.utils.xml_helper.get_text_from_element(nodes[0])
 
         try:
+            if not value.isdigit():
+                raise ValueError
+
             value = int(value)
         except ValueError:
             LOGGER.error(
-                "MCS policy {} default is not a number".format(element_name))
+                f"MCS policy {element_name} default is not a number")
             return default_value
 
         return value
@@ -160,15 +165,18 @@ class MCSPolicyHandler:
         if not config_option:
             config_option = policy_option
 
-        node = self.__get_element(dom, policy_option)
+        nodes = self.__get_all_matching_elements(dom, policy_option)
 
-        if not node:
+        if not nodes:
             if treat_missing_as_empty:
                 value = ""
             else:
                 return False
         else:
-            value = mcsrouter.utils.xml_helper.get_text_from_element(node)
+            if len(nodes) > 1:
+                LOGGER.debug(f"When applying policy setting for '{policy_option}', multiple elements were matched. "
+                             f"Using first match and ignoring others.")
+            value = mcsrouter.utils.xml_helper.get_text_from_element(nodes[0])
 
         LOGGER.debug("MCS policy %s = %s", policy_option, value)
 
@@ -179,16 +187,23 @@ class MCSPolicyHandler:
         """
         __apply_polling_delay
         """
-        command_polling_delay = str(self.__get_default_int_value(dom, "commandPollingDelay",
-                                                                 default_values.get_default_command_poll()))
+        command_polling_delay = self.__get_default_int_value(dom, "commandPollingDelay",
+                                                      default_values.get_default_command_poll())
+        command_polling_delay = str(min(command_polling_delay, default_values.get_max_for_any_value()))
 
-        flags_polling_interval = str(self.__get_default_int_value(dom, "flagsPollingInterval",
-                                                                  default_values.get_default_flags_poll()))
 
-        push_ping_timeout = str(self.__get_int_value(dom, "pushPingTimeout",
-                                                     default_values.get_default_push_ping_timeout()))
+        flags_polling_interval = self.__get_default_int_value(dom, "flagsPollingInterval",
+                                                      default_values.get_default_flags_poll())
+        flags_polling_interval = str(min(flags_polling_interval, default_values.get_max_for_any_value()))
 
-        push_fallback_poll_interval = str(self.__get_int_value(dom, "pushFallbackPollInterval", int(command_polling_delay)))
+
+        push_ping_timeout = self.__get_int_value(dom, "pushPingTimeout",
+                                            default_values.get_default_push_ping_timeout())
+        push_ping_timeout = str(min(push_ping_timeout, default_values.get_max_for_any_value()))
+
+
+        push_fallback_poll_interval = self.__get_int_value(dom, "pushFallbackPollInterval", int(command_polling_delay))
+        push_fallback_poll_interval = str(min(push_fallback_poll_interval, default_values.get_max_for_any_value()))
 
         LOGGER.debug("MCS policy commandPollingDelay = {}".format(command_polling_delay))
         self.__m_policy_config.set(
@@ -219,11 +234,14 @@ class MCSPolicyHandler:
         """
         load mcs server urls into policy config
         """
-        node = self.__get_element(dom, "servers")
-        if node is None:
+        nodes = self.__get_all_matching_elements(dom, "servers")
+        if nodes is None:
             return False
+        if len(nodes) > 1:
+            LOGGER.debug(f"When applying policy setting for 'servers', multiple elements were matched. "
+                         f"Using first match and ignoring others.")
 
-        servers = self.__get_non_empty_sub_elements(node, "server")
+        servers = self.__get_non_empty_sub_elements(nodes[0], "server")
         
         if not servers:
             LOGGER.error("MCS Policy has no server nodes in servers element")
@@ -256,11 +274,15 @@ class MCSPolicyHandler:
                 break
             old_push_server_index += 1
 
-        node = self.__get_element(dom, "pushServers")
-        if node is None:
+        nodes = self.__get_all_matching_elements(dom, "pushServers")
+        if nodes is None:
             return False
 
-        servers = self.__get_non_empty_sub_elements(node, "pushServer")
+        if len(nodes) > 1:
+            LOGGER.debug(f"When applying policy setting for 'pushServers', multiple elements were matched. "
+                         f"Using first match and ignoring others.")
+
+        servers = self.__get_non_empty_sub_elements(nodes[0], "pushServer")
 
         if not servers:
             LOGGER.info("MCS Policy has no pushServer nodes in PushServers element")
@@ -278,11 +300,15 @@ class MCSPolicyHandler:
         """
         Reading message relay priority, port, address and ID from policy into config
         """
-        node = self.__get_element(dom, "messageRelays")
-        if node is None:
+        nodes = self.__get_all_matching_elements(dom, "messageRelays")
+        if nodes is None:
             message_relays = []
         else:
-            message_relays = node.getElementsByTagName("messageRelay")
+            message_relays = nodes[0].getElementsByTagName("messageRelay")
+
+        if len(nodes) > 1:
+            LOGGER.debug(f"When applying policy setting for 'servers', multiple elements were matched. "
+                         f"Using first match and ignoring others.")
 
         index = 1
         for message_relay in message_relays:
@@ -349,9 +375,12 @@ class MCSPolicyHandler:
             self.__m_policy_config.remove("mcs_policy_proxy_credentials")
 
         def get_sub_element(policy_dom, element, sub_element):
-            proxies_node = self.__get_element(policy_dom, element)
-            if proxies_node:
-                return self.__get_non_empty_sub_elements(proxies_node, sub_element)
+            proxies_nodes = self.__get_all_matching_elements(policy_dom, element)
+            if proxies_nodes:
+                if len(proxies_nodes) > 1:
+                    LOGGER.debug(f"When applying policy setting for '{element}', multiple elements were matched. "
+                                 f"Using first match and ignoring others.")
+                return self.__get_non_empty_sub_elements(proxies_nodes[0], sub_element)
             return None
 
         ## Remove any existing proxy configuration
@@ -470,6 +499,10 @@ class MCSPolicyHandler:
             self.__apply_policy(policy_age, save)
         except Exception as ex:  # pylint: disable=broad-except
             LOGGER.error("Failed to apply MCS policy: {}".format(ex))
+
+    def apply_policy(self, policy_xml):
+        self.__m_policy_xml = policy_xml
+        self.__apply_policy("new", True)
 
     def process(self, policy_xml):
         """

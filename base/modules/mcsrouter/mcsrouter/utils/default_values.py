@@ -10,3 +10,5 @@ def get_default_flags_poll():
 def get_default_push_ping_timeout():
     return 90
 
+def get_max_for_any_value():
+    return 24*3600

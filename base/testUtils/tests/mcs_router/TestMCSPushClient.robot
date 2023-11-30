@@ -18,6 +18,16 @@ Test Teardown    Test Teardown
 Force Tags  FAKE_CLOUD  MCS  MCS_ROUTER   TAP_PARALLEL1
 
 *** Test Case ***
+MCSRouter Can Handle Incorrect AppId
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+
+    ${mcsrouter_log_mark} =    Get Mark For Mcsrouter Log
+    Send Message To Push Server From File    ${SUPPORT_FILES}/CentralXml/MCS_Push_Command_Invalid_AppId.xml
+
+    Check Mcsrouter Log Contains    No adapter for INCORRECTAPPID
 
 MCSRouter Can Start And Receive Messages From The Push Client
     Start MCS Push Server

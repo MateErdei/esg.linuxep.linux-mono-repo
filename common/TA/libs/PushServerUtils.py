@@ -37,7 +37,7 @@ class PushServerUtils:
     def set_cert(self, cert):
         self._cert = cert
 
-    def send_message_to_push_server(self, message):
+    def send_message_to_push_server(self, message=None):
         """Use the subscription channel to send messages to all the clients connected to the push server."""
         r = requests.post('https://localhost:{}/mcs/push/sendmessage'.format(self._port), data=message, verify=self._cert)
         if r.status_code != 200:

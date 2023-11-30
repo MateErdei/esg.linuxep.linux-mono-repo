@@ -3,12 +3,15 @@ import logging
 from unittest import mock
 import time
 import selectors
+
+import requests
 import sseclient
 import PathManager
 import mcsrouter.utils.config
 import mcsrouter.sophos_https as sophos_https
 from types import SimpleNamespace
-from mcsrouter.mcs_push_client import MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException, MCSPushSetting, PushClientStatus
+from mcsrouter.mcs_push_client import (MCSPushClientInternal, PipeChannel, MCSPushClient, MCSPushException,
+                                       MCSPushSetting, PushClientStatus, MsgType)
 
 
 DIRECT_CONNECTION = sophos_https.Proxy()
@@ -24,17 +27,19 @@ class FakeSSEClient:
     def __init__(self):
         self.resp = SimpleNamespace()
         self.resp.raw = ExtendedPipeChannel()
-        self._msg = None
+        self.session = None
+        self._msgs = []
 
     def push_message(self, msg):
         msg = SimpleNamespace(data=msg)
-        self._msg = msg
+        self._msgs.append(msg)
 
     def __next__(self):
-        if self._msg:
-            copy_msg = self._msg
+        if len(self._msgs) > 0:
+            copy_msg = self._msgs.pop(0)
             self.resp.raw.clear()
-            self._msg = None
+            if len(self._msgs) > 0:
+                self.resp.raw.notify()
             return copy_msg
         raise StopIteration()
 
@@ -76,13 +81,17 @@ class SharedTestsUtilities(unittest.TestCase):
         self.assertEqual(len(pending), 1, msg="events: {}".format(pending))
         return pending[0].msg
 
+def return_http_error_from_push_server(status_code=None, msg=None):
+    response = requests.Response()
+    response.status_code = status_code
+    return requests.exceptions.HTTPError(msg, response=response)
+
 class TestMCSPushClientInternal(SharedTestsUtilities):
 
     def setUp(self) -> None:
         self.client_internal = None
 
-
-    def get_client(self, proxies=[DIRECT_CONNECTION]):
+    def get_mcs_push_settings(self, proxies=[DIRECT_CONNECTION]):
         header = {
             "User-Agent": "Sophos MCS Client/0.1 x86_64 sessions regToke",
             "Authorization": f"Bearer <dummy_jwt_token>",
@@ -91,9 +100,14 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
             "X-Tenant-ID": "thisisatenantid",
             "Accept": "application/json",
         }
-        sett= MCSPushSetting(url="url", cert="cert", expected_ping=10,
-                             proxy_settings=proxies, connection_header=header,
-                             device_id="thisisadeviceid", tenant_id="thisisatenantid")
+        sett = MCSPushSetting(url="url", cert="cert", expected_ping=10,
+                              proxy_settings=proxies, connection_header=header,
+                              device_id="thisisadeviceid", tenant_id="thisisatenantid")
+        return sett
+
+    def get_client(self, proxies=[DIRECT_CONNECTION], sett=None):
+        if sett is None:
+            sett = self.get_mcs_push_settings(proxies)
         self.client_internal = MCSPushClientInternal(sett)
         return self.client_internal
 
@@ -117,7 +131,6 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         client = self.get_client()
         client.start()
         time.sleep(0.3)
-        client.stop()
 
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
     def test_can_receive_and_process_messages(self, *mockargs):
@@ -125,7 +138,6 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         client.start()
         received_msg = self.send_and_receive_message('hello', client)
         self.assertEqual(received_msg, 'hello')
-        client.stop()
 
     @mock.patch("logging.Logger.debug")
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
@@ -139,6 +151,259 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Server sent ping"))
         pending = client.pending_commands()
         self.assertEqual(len(pending), 0)
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_multiple_quick_pings_are_handled(self, *mockargs):
+        client = self.get_client()
+        client.start()
+
+        num_pings = 100
+        global GlobalFakeSSeClient
+        for _ in range(num_pings):
+            GlobalFakeSSeClient.push_message('')
+            GlobalFakeSSeClient.resp.raw.notify()
+
+        time.sleep(0.3)
+
+        for i in range(1, num_pings + 1):
+            self.assertEqual(logging.Logger.debug.call_args_list[-i], mock.call("Server sent ping"))
+
+        pending = client.pending_commands()
+        self.assertEqual(len(pending), 0)
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_server_sends_ping_then_nothing_is_handled(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        settings.expected_ping = 0.1
+        client = self.get_client(sett=settings)
+        client.start()
+
+        global GlobalFakeSSeClient
+        GlobalFakeSSeClient.push_message('')
+        GlobalFakeSSeClient.resp.raw.notify()
+
+        time.sleep(0.1)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Server sent ping"))
+        time.sleep(0.2)
+        pending = client.pending_commands()
+        for command in pending:
+            self.assertEqual(command.msg_type, MsgType.Error)
+            self.assertEqual(command.msg, "No Ping from Server")
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(400, "test 400"))
+    def test_multiple_different_http_400_errors_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        settings.connection_header.pop("X-Device-ID")
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, missing X-Device-ID in header"))
+
+        settings = self.get_mcs_push_settings()
+        settings.connection_header.pop("X-Tenant-ID")
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, missing X-Tenant-ID in header"))
+
+        settings = self.get_mcs_push_settings()
+        settings.connection_header["X-Device-ID"] = "wrong device id"
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, mismatch between Device ID in header and url"))
+
+        settings = self.get_mcs_push_settings()
+        settings.url = f"/v2/push/device/{settings.connection_header['X-Device-ID']}"
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, reason unknown"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(401, "test 401"))
+    def test_multiple_different_http_401_errors_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        settings.connection_header.pop("Authorization")
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, missing 'Authorization' in header"))
+
+        settings = self.get_mcs_push_settings()
+        settings.connection_header["Authorization"] = settings.connection_header["Authorization"][1:]
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, 'Authorization' in header does not start with 'Bearer'"))
+
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, unknown error with JWT token used in 'Authorization' header"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(403, "test 403"))
+    def test_http_403_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Forbidden, valid JWT but missing the required feature code"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(404, "test 404"))
+    def test_http_404_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Not found, URL must be for the format: /v2/push/device/<device_id>"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(405, "test 405"))
+    def test_http_405_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Method not allowed, invalid HTTP method used against URL"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(500, "test 500"))
+    def test_http_500_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Internal Server Error"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(503, "test 503"))
+    def test_http_503_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Service Unavailable, no subscriber nodes may be available"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("sseclient.SSEClient", side_effect=return_http_error_from_push_server(504, "test 504"))
+    def test_http_504_error_during_server_connection_attempt(self, *mockargs):
+        settings = self.get_mcs_push_settings()
+        self.assertRaises(MCSPushException, lambda: self.get_client(sett=settings))
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Gateway Timeout, push server may be dealing with a heavy load"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(400, "test 400"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_multiple_different_http_400_errors_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.messages.session.headers.pop("X-Device-ID")
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, missing X-Device-ID in header"))
+        client.stop()
+
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.messages.session.headers.pop("X-Tenant-ID")
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, missing X-Tenant-ID in header"))
+        client.stop()
+
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.messages.session.headers["X-Device-ID"] = "wrong device id"
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, mismatch between Device ID in header and url"))
+        client.stop()
+
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client._url = f"/v2/push/device/{client.messages.session.headers['X-Device-ID']}"
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Bad request, reason unknown"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(401, "test 401"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_multiple_different_http_401_errors_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.messages.session.headers.pop("Authorization")
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, missing 'Authorization' in header"))
+        client.stop()
+
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.messages.session.headers["Authorization"] = client.messages.session.headers["Authorization"][1:]
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, 'Authorization' in header does not start with 'Bearer'"))
+        client.stop()
+
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Unauthorized, unknown error with JWT token used in 'Authorization' header"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(403, "test 403"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_403_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Forbidden, valid JWT but missing the required feature code"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(404, "test 404"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_404_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Not found, URL must be for the format: /v2/push/device/<device_id>"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(405, "test 405"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_405_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Method not allowed, invalid HTTP method used against URL"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(500, "test 500"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_500_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Internal Server Error"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(503, "test 503"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_503_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Service Unavailable, no subscriber nodes may be available"))
+
+    @mock.patch("logging.Logger.debug")
+    @mock.patch("selectors.DefaultSelector.select", side_effect=return_http_error_from_push_server(504, "test 504"))
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_http_504_error_after_succesful_server_connection(self, *mockargs):
+        client = self.get_client()
+        client.messages.session, _, _ = client.get_requests_session()
+        client.start()
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Gateway Timeout, push server may be dealing with a heavy load"))
+
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_server_does_not_send_any_response_after_successful_connection(self, *mockargs):
+        client = self.get_client()
+        client._expected_ping_interval = 0
+        client.start()
+        time.sleep(0.1)
+        pending_commands = client.pending_commands()
+        self.assertEqual(pending_commands[0].msg_type, MsgType.Error)
+        self.assertEqual(pending_commands[0].msg, "No Ping from Server")
 
 class ConfigWithoutFile( mcsrouter.utils.config.Config):
     def load(self, filename):
@@ -237,7 +502,6 @@ class TestMCSPushClient(SharedTestsUtilities):
         self.assertRaises(MCSPushException, self.push_client._start_service)
         self.assertEqual(logging.Logger.warning.call_args_list[-1], mock.call("Tried all connection methods and failed to connect to push server"))
 
-
     def test_push_client_returns_status_enum_when_applying_server_settings(self):
         # This is the case for when the connection to the Push Server cannot be established
         with mock.patch("sseclient.SSEClient", new_callable=SSEClientSimulateConnectionFailureFactory) as sseclient.SSEClient:
@@ -248,7 +512,6 @@ class TestMCSPushClient(SharedTestsUtilities):
             self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
             # this is the case for a normal connected client without any settings change will just keep connected and nothing changes
             self.assertTrue(self.push_client.ensure_push_server_is_connected(ConfigWithoutFile(), *self.args))
-
 
 if __name__ == '__main__':
     unittest.main()

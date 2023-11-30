@@ -304,7 +304,6 @@ class MCSPushClientInternal(threading.Thread):
 
     def run(self):
         try:
-
             sel = selectors.DefaultSelector()
             sel.register(self.messages.resp.raw, selectors.EVENT_READ, 'push')
             sel.register(self._notify_push_client_channel, selectors.EVENT_READ, 'stop')
@@ -329,10 +328,13 @@ class MCSPushClientInternal(threading.Thread):
                         self.messages.resp.close()
                         LOGGER.info("MCS Push Client main loop finished")
                         return
+        except requests.exceptions.HTTPError as exception:
+            self._log_http_error_reason(exception.response, self.messages.session)
+            self._append_command(MsgType.Error, f'Push client Failure : {exception}')
         except StopIteration as stop_iteration_exception:
             self._append_command(MsgType.Error, 'Push client lost connection to server : sseclient raised StopIteration exception')
         except Exception as ex:
-            self._append_command(MsgType.Error, 'Push client Failure : {}'.format(ex))
+            self._append_command(MsgType.Error, f'Push client Failure : {ex}')
 
     def stop(self):
         self._notify_push_client_channel.notify()
