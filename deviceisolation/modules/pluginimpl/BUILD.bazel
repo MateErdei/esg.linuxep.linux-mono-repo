@@ -11,7 +11,10 @@ soph_cc_library(
     ]) + [":config"],
     hdrs = [
         "ApplicationPaths.h",
+        "IsolationExclusion.h",
+        "NTPPolicy.h",
         "PluginAdapter.h",
+        "TaskQueue.h",
         ":config",
     ],
     implementation_deps = [

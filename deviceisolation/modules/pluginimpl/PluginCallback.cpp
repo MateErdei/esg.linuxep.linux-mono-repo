@@ -20,9 +20,15 @@ namespace Plugin
         LOGDEBUG("Plugin Callback Started");
     }
 
+    void PluginCallback::applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
+    {
+        LOGDEBUG("Applying new policy with APPID: " << appId);
+        m_task->push(Task { Task::TaskType::Policy, policyXml, "", appId });
+    }
+
     void PluginCallback::applyNewPolicy(const std::string& /*policyXml */)
     {
-        LOGDEBUG("Received unexpected policy");
+        LOGERROR("Received policy without appId!");
     }
 
     void PluginCallback::queueActionWithCorrelation(const std::string& actionXml, const std::string& correlationId)

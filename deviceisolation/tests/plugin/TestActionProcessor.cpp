@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "pluginimpl/ActionProcessor.h"
 
@@ -18,21 +18,21 @@ namespace
     };
 }
 
-TEST_F(TestActionProcessor, empty_action)
+TEST_F(TestActionProcessor, emptyAction)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction("");
     EXPECT_EQ(result, std::nullopt);
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, non_xml)
+TEST_F(TestActionProcessor, nonXml)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction("{{{{{");
     EXPECT_EQ(result, std::nullopt);
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, invalid_xml)
+TEST_F(TestActionProcessor, invalidXml)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">)SOPHOS");
@@ -40,7 +40,7 @@ TEST_F(TestActionProcessor, invalid_xml)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, non_action_element)
+TEST_F(TestActionProcessor, nonActionElement)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <foobar type="sophos.mgt.action.IsolationRequest">
@@ -50,7 +50,7 @@ TEST_F(TestActionProcessor, non_action_element)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, different_action)
+TEST_F(TestActionProcessor, differentAction)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="foobar">
@@ -60,7 +60,7 @@ TEST_F(TestActionProcessor, different_action)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, missing_enabled_element)
+TEST_F(TestActionProcessor, missingEnabledElement)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">
@@ -69,7 +69,7 @@ TEST_F(TestActionProcessor, missing_enabled_element)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, invalid_enabled_element)
+TEST_F(TestActionProcessor, invalidEnabledElement)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">
@@ -79,7 +79,7 @@ TEST_F(TestActionProcessor, invalid_enabled_element)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, duplicate_enabled_element)
+TEST_F(TestActionProcessor, duplicateEnabledElement)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">
@@ -90,7 +90,7 @@ TEST_F(TestActionProcessor, duplicate_enabled_element)
     EXPECT_FALSE(result);
 }
 
-TEST_F(TestActionProcessor, enable_isolation)
+TEST_F(TestActionProcessor, enableIsolation)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">
@@ -101,7 +101,7 @@ TEST_F(TestActionProcessor, enable_isolation)
     EXPECT_TRUE(result.value());
 }
 
-TEST_F(TestActionProcessor, disable_isolation)
+TEST_F(TestActionProcessor, disableIsolation)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
     <action type="sophos.mgt.action.IsolationRequest">

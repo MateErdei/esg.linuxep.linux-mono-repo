@@ -1,10 +1,12 @@
 {
   "policyAppIds": [
+    "NTP"
   ],
   "actionAppIds": [
     "SHS"
   ],
   "statusAppIds": [
+    "NTP"
   ],
   "pluginName": "@PLUGIN_NAME@",
   "executableFullPath": "plugins/@PLUGIN_NAME@/bin/@PLUGIN_NAME@",

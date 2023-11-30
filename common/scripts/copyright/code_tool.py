@@ -45,6 +45,10 @@ def folder_generator(repo, folders):
     return itertools.chain(*generators)
 
 
+def file_generator(filepath):
+    yield filepath
+
+
 def file_is_supported(rule, filepath):
     supported_types = rule.SUPPORTED_FILE_TYPES
     if not supported_types:
@@ -112,6 +116,7 @@ def main():
     filegroup.add_argument("--changes", action="store_true")
     filegroup.add_argument("--staged", action="store_true")
     filegroup.add_argument("--folder", type=str, dest='folders', action='append')
+    filegroup.add_argument("--file", type=str, dest="file")
     parser.add_argument("rule_names", nargs="+")
 
     args = parser.parse_args()
@@ -125,6 +130,8 @@ def main():
         generator = staged_generator(git_repo)
     elif args.branch:
         generator = branch_generator(git_repo)
+    elif args.file is not None:
+        generator = file_generator(args.file)
     else:
         generator = folder_generator(git_repo, args.folders)
 

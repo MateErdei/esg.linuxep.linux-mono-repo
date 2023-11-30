@@ -18,6 +18,7 @@ namespace Plugin
         explicit PluginCallback(std::shared_ptr<TaskQueue> task);
 
         void applyNewPolicy(const std::string& policyXml) override;
+        void applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml) override;
 
         void queueActionWithCorrelation(const std::string& content, const std::string& correlationId) override;
         void queueAction(const std::string& actionXml) override;

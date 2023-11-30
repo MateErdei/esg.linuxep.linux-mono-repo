@@ -7,6 +7,7 @@ spl_independent_cc_tests(
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/XmlUtilities",
         "//base/tests/Common/Helpers",
         "//deviceisolation/modules/pluginimpl",
         "@com_google_googletest//:gtest_main",

@@ -69,3 +69,24 @@
 __pycache__/
 
 /SophosSetup.sh
+
+/av/TA/robot
+/av/TA/vagrant
+/base/testUtils/robot
+/base/testUtils/vagrant
+/deviceisolation/robot
+/deviceisolation/vagrant
+/deviceisolation/TA/robot
+/deviceisolation/TA/vagrant
+/edr/TA/robot
+/edr/TA/vagrant
+/eventjournaler/TA/robot
+/eventjournaler/TA/vagrant
+/liveterminal/robot
+/liveterminal/vagrant
+/liveterminal/TA/robot
+/liveterminal/TA/vagrant
+/sdds/robot
+/sdds/vagrant
+/sdds/TA/robot
+/sdds/TA/vagrant

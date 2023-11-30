@@ -71,6 +71,7 @@ function unpack_zip_if_required()
     [[ -n "$ZIP" ]] || return 0
     [[ -f "$ZIP" ]] || return 0
     [[ -d "$DEST" && "$DEST" -nt "$ZIP" ]] && return 0
+    rm -rf "$DEST"
     mkdir -p "$DEST"
     unzip "$ZIP" -d "$DEST"
 }
@@ -89,12 +90,28 @@ function base_zip()
 function component_zip()
 {
     local Z
-    for Z in "${COMPONENT_ROOT}/di_sdds.zip" \
-      "/vagrant/esg.linuxep.linux-mono-repo/.output/deviceisolation/linux_x64_dbg/installer.zip" \
-      "/vagrant/esg.linuxep.linux-mono-repo/.output/deviceisolation/linux_x64_rel/installer.zip"
+    local REL="/vagrant/esg.linuxep.linux-mono-repo/.output/deviceisolation/linux_x64_rel/installer.zip"
+    local DBG="/vagrant/esg.linuxep.linux-mono-repo/.output/deviceisolation/linux_x64_dbg/installer.zip"
+    for Z in "${COMPONENT_ROOT}/di_sdds.zip"
     do
         [[ -f "$Z" ]] && echo "$Z" && return
     done
+
+    if [[ -f "$REL" && -f "$DBG" ]]
+    then
+        if [[ "$REL" -nt "$DBG" ]]
+        then
+            echo "$REL"
+        else
+            echo "$DBG"
+        fi
+    elif [[ -f "$REL" ]]
+    then
+        echo "$REL"
+    elif [[ -f "$DBG" ]]
+    then
+        echo "$DBG"
+    fi
 }
 
 SDDS_BASE=${COMPONENT_ROOT}/base-sdds
