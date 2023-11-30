@@ -157,6 +157,11 @@ const ProductMetadata& DownloadedProduct::getProductMetadata() const
     return m_productMetadata;
 }
 
+void DownloadedProduct::setProductMetadata(ProductMetadata productMetadata)
+{
+    m_productMetadata = std::move(productMetadata);
+}
+
 const std::string& DownloadedProduct::distributePath() const
 {
     return m_distributePath;

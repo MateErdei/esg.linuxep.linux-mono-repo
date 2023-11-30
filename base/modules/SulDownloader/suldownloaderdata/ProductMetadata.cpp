@@ -52,11 +52,6 @@ void ProductMetadata::setVersion(const std::string& version)
     m_version = version;
 }
 
-std::string ProductMetadata::getBaseVersion() const
-{
-    return m_baseVersion;
-}
-
 const std::string& ProductMetadata::getVersion() const
 {
     return m_version;
@@ -70,11 +65,6 @@ void ProductMetadata::setDefaultHomePath(const std::string& defaultHomeFolder)
 const std::vector<Tag> ProductMetadata::tags() const
 {
     return m_tags;
-}
-
-void ProductMetadata::setBaseVersion(const std::string& baseVersion)
-{
-    m_baseVersion = baseVersion;
 }
 
 void ProductMetadata::setFeatures(const std::vector<std::string>& features)

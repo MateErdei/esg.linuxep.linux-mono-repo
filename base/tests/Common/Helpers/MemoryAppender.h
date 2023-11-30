@@ -3,6 +3,7 @@
 #pragma once
 
 #include "LogInitializedTests.h"
+
 #include "Common/Logging/SophosLoggerMacros.h"
 
 #include <chrono>
@@ -100,10 +101,10 @@ namespace
         m_events.clear();
     }
 
-    class MemoryAppenderUsingTests : public LogInitializedTests
+    class MemoryAppenderHolder
     {
     public:
-        explicit MemoryAppenderUsingTests(std::string loggerInstanceName);
+        explicit MemoryAppenderHolder(std::string loggerInstanceName);
         std::string m_loggerInstanceName;
         MemoryAppender* m_memoryAppender = nullptr;
         log4cplus::SharedAppenderPtr m_sharedAppender;
@@ -151,12 +152,12 @@ namespace
         [[maybe_unused]] [[nodiscard]] bool waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time = 100ms) const;
     };
 
-    [[maybe_unused]] MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
+    [[maybe_unused]] MemoryAppenderHolder::MemoryAppenderHolder(std::string loggerInstanceName) :
         m_loggerInstanceName(std::move(loggerInstanceName))
     {
     }
 
-    void MemoryAppenderUsingTests::setupMemoryAppender()
+    void MemoryAppenderHolder::setupMemoryAppender()
     {
         if (!m_sharedAppender)
         {
@@ -167,7 +168,7 @@ namespace
         }
     }
 
-    void MemoryAppenderUsingTests::teardownMemoryAppender()
+    void MemoryAppenderHolder::teardownMemoryAppender()
     {
         if (m_sharedAppender)
         {
@@ -178,18 +179,18 @@ namespace
         }
     }
 
-    [[maybe_unused]] void MemoryAppenderUsingTests::clearMemoryAppender() const
+    [[maybe_unused]] void MemoryAppenderHolder::clearMemoryAppender() const
     {
         assert(m_memoryAppender != nullptr);
         m_memoryAppender->clear();
     }
 
-    log4cplus::Logger MemoryAppenderUsingTests::getLogger() const
+    log4cplus::Logger MemoryAppenderHolder::getLogger() const
     {
         return Common::Logging::getInstance(m_loggerInstanceName);
     }
 
-    [[maybe_unused]] void MemoryAppenderUsingTests::dumpLog() const
+    [[maybe_unused]] void MemoryAppenderHolder::dumpLog() const
     {
         assert(m_memoryAppender != nullptr);
         PRINT("Memory appender contains " << appenderSize() << " items");
@@ -201,7 +202,7 @@ namespace
         }
     }
 
-    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time) const
+    bool MemoryAppenderHolder::waitForLog(const std::string& expected, clock::duration wait_time) const
     {
         assert(m_memoryAppender != nullptr);
         auto deadline = clock::now() + wait_time;
@@ -216,7 +217,7 @@ namespace
         return false;
     }
 
-    bool MemoryAppenderUsingTests::waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time) const
+    bool MemoryAppenderHolder::waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time) const
     {
         assert(m_memoryAppender != nullptr);
         auto deadline = clock::now() + wait_time;
@@ -231,6 +232,11 @@ namespace
         return false;
     }
 
+    class MemoryAppenderUsingTests : public LogInitializedTests, public MemoryAppenderHolder
+    {
+        using MemoryAppenderHolder::MemoryAppenderHolder;
+    };
+
     template<const char* loggerInstanceName>
     class MemoryAppenderUsingTestsTemplate : public MemoryAppenderUsingTests
     {
@@ -241,10 +247,10 @@ namespace
     class UsingMemoryAppender
     {
     private:
-        MemoryAppenderUsingTests& m_testClass;
+        MemoryAppenderHolder& m_testClass;
 
     public:
-        explicit UsingMemoryAppender(MemoryAppenderUsingTests& testClass) : m_testClass(testClass)
+        explicit UsingMemoryAppender(MemoryAppenderHolder& testClass) : m_testClass(testClass)
         {
             m_testClass.setupMemoryAppender();
         }

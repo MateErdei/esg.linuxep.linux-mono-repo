@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (C) 2019 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 import os
 import re
+import shutil
 import xml.etree.ElementTree as ET
 import json
 import platform
@@ -14,7 +13,10 @@ import robot.api.logger as logger
 from packaging import version
 from robot.libraries.BuiltIn import BuiltIn
 
+from IniUtils import get_version_number_from_ini_file
+
 SDDS3_BUILDER = os.environ.get("SDDS3_BUILDER")
+
 
 def get_version_from_sdds_import_file(path):
     with open(path) as file:
@@ -28,11 +30,10 @@ class WarehouseUtils(object):
     Class to get versions of install components
     """
 
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
     ROBOT_LISTENER_API_VERSION = 2
 
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_repo_root, launchdarkly_root, rigidname, is_using_version_workaround=False):
+    def get_version_for_rigidname_in_sdds3_warehouse(self, warehouse_repo_root, launchdarkly_root, rigidname):
         # Open LaunchDarkly file to get SUS response for the suite
         with open(os.path.join(launchdarkly_root, "release.linuxep.ServerProtectionLinux-Base.json")) as f:
             launchdarkly = json.loads(f.read())
@@ -48,6 +49,7 @@ class WarehouseUtils(object):
         arch = platform.machine()
 
         suite_data = ET.fromstring(result.stdout)
+        package_name = None
         for package_ref in suite_data.iter("package-ref"):
             line_id = package_ref.find("line-id").text
             logger.debug(f"Checking package: {line_id}")
@@ -67,15 +69,29 @@ class WarehouseUtils(object):
                 logger.debug("Doesn't have platform matching current architecture")
                 continue
 
-            version = package_ref.find("version").text
-            logger.debug(f"Found matching product with version: {version}")
-            if is_using_version_workaround:
-                return ".".join(version.split(".")[:3] + version.split(".")[4:])
-            else:
-                return version
+            package_name = package_ref.get("src")
+            package_path = os.path.join(warehouse_repo_root, "package", package_name)
+            temp_dir = "sdds3_temp"
+            os.makedirs(temp_dir, exist_ok=True)
+            args = [
+                SDDS3_BUILDER,
+                "--extract-package",
+                "--package",
+                package_path,
+                "--dir",
+                temp_dir,
+                "--file",
+                "VERSION.ini",
+            ]
+            result = subprocess.run(args, capture_output=True, text=True)
+            if result.returncode != 0:
+                raise AssertionError(f"Failed to run '{args}': {result.stderr}")
+            version = get_version_number_from_ini_file(os.path.join(temp_dir, "VERSION.ini"))
+            shutil.rmtree(temp_dir)
+
+            return version
 
         raise AssertionError(f"Did not find {rigidname} for {arch} in {result.stdout}")
-
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)

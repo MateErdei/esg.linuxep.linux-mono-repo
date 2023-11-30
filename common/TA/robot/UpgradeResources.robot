@@ -14,6 +14,7 @@ Library    ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 Library    ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/UpdateServer.py
 Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
+Library    ${COMMON_TEST_LIBS}/IniUtils.py
 
 Resource    AVResources.robot
 Resource    InstallerResources.robot
@@ -201,10 +202,9 @@ Check Installed Correctly
     Check Expected Base Processes Except SDU Are Running
 
 Check Installed Plugin Is VUT Version
-	# TODO LINUXDAR-8265: Remove is_using_version_workaround
 	[Arguments]  ${plugin_directory}  ${rigid_name}
 	${contents} =  Get File  ${plugin_directory}/VERSION.ini
-    ${plugin_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ${rigid_name}    is_using_version_workaround=${True}
+    ${plugin_vut_version} =  get_version_for_rigidname_in_sdds3_warehouse   ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    ${rigid_name}
     Should Contain   ${contents}   PRODUCT_VERSION = ${plugin_vut_version}
 
 Check Installed Plugins Are VUT Versions

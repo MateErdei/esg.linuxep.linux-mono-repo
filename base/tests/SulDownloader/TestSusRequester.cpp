@@ -1,5 +1,6 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
+#include "JwtUtils.h"
 #include "MockSignatureVerifierWrapper.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -12,8 +13,6 @@
 
 #include <gtest/gtest.h>
 
-#include <json.hpp>
-
 namespace
 {
     class SusRequesterTest : public LogInitializedTests
@@ -22,46 +21,6 @@ namespace
         std::unique_ptr<MockSignatureVerifierWrapper> verifier_ =
             std::make_unique<StrictMock<MockSignatureVerifierWrapper>>();
     };
-
-    std::string generateJwtFromPayload(const std::string& payload)
-    {
-        nlohmann::json header = nlohmann::json::object();
-        header["typ"] = "JWT";
-        header["alg"] = "RS384";
-        header["x5c"] = nlohmann::json::array();
-        const auto headerBase64 = sophlib::crypto::base64url::Encode(header.dump());
-
-        const auto payloadBase64 = sophlib::crypto::base64url::Encode(payload);
-
-        std::string signatureBase64 = sophlib::crypto::base64url::Encode("signature");
-
-        return headerBase64 + "." + payloadBase64 + "." + signatureBase64;
-    }
-
-    std::string generateJwt(unsigned int size, const std::string& hash)
-    {
-        nlohmann::json header = nlohmann::json::object();
-        header["typ"] = "JWT";
-        header["alg"] = "RS384";
-        header["x5c"] = nlohmann::json::array();
-        const auto headerBase64 = sophlib::crypto::base64url::Encode(header.dump());
-
-        nlohmann::json payload = nlohmann::json::object();
-        payload["size"] = size;
-        payload["sha256"] = hash;
-        payload["iat"] = 0;
-        payload["exp"] = 1;
-        const auto payloadBase64 = sophlib::crypto::base64url::Encode(payload.dump());
-
-        std::string signatureBase64 = sophlib::crypto::base64url::Encode("signature");
-
-        return headerBase64 + "." + payloadBase64 + "." + signatureBase64;
-    }
-
-    std::string generateJwt(const std::string& body)
-    {
-        return generateJwt(body.size(), Common::SslImpl::calculateDigest(Common::SslImpl::Digest::sha256, body));
-    }
 } // namespace
 
 TEST_F(SusRequesterTest, susRequesterHandles200ResponseWithValidJson)

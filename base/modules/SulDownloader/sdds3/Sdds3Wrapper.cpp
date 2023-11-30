@@ -59,6 +59,16 @@ namespace SulDownloader
         std::filesystem::path configFilePath(path);
         return sophlib::sdds3::ConfigXml::Load(configFilePath);
     }
+
+    void Sdds3Wrapper::Purge(
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        const sophlib::sdds3::Config& new_config,
+        const std::optional<sophlib::sdds3::Config>& old_config)
+    {
+        sophlib::sdds3::Purge(session, repo, new_config, old_config);
+    }
+
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer()
     {
         static std::unique_ptr<ISdds3Wrapper> instance = std::unique_ptr<ISdds3Wrapper>(new Sdds3Wrapper());

@@ -118,7 +118,7 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
   auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
   EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(updateConfig));
   EXPECT_CALL(*mockFileSystem, isFile(_))
-      .Times(10)
+      .Times(8)
       .WillRepeatedly(Return(false));
   EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini"))
       .Times(5)

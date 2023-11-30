@@ -18,7 +18,7 @@
 
 SulDownloader::SDDS3::SusRequester::SusRequester(
     std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient,
-    std::unique_ptr<ISignatureVerifierWrapper> verifier) :
+    std::shared_ptr<ISignatureVerifierWrapper> verifier) :
     m_httpClient(std::move(httpClient)), verifier_(std::move(verifier))
 {
 }

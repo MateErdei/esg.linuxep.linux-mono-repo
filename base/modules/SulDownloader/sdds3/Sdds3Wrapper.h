@@ -35,6 +35,11 @@ namespace SulDownloader
             const sophlib::sdds3::Config& oldConfig) override;
         void saveConfig(sophlib::sdds3::Config& config, std::string& path) override;
         sophlib::sdds3::Config loadConfig(std::string& path) override;
+        void Purge(
+            sophlib::sdds3::Session& session,
+            const sophlib::sdds3::Repo& repo,
+            const sophlib::sdds3::Config& new_config,
+            const std::optional<sophlib::sdds3::Config>& old_config) override;
     };
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer();
 } // namespace SulDownloader

@@ -904,7 +904,6 @@ TEST_F(DownloadReportTest, FromReportToReportGivesBackExpectedResults)
     plugin.setName("ServerProtectionLinux-Plugin-EDR-Product");
     plugin.setVersion("10.3.5");
     plugin.setTags({ { "RECOMMENDED", "10", "Plugin-label" } });
-    plugin.setBaseVersion("base version");
     plugin.setFeatures({ "feature1", "feature2" });
     plugin.setSubProduts({ { "line1", "version1" }, { "line2", "version2" } });
 
@@ -958,8 +957,8 @@ TEST_F(DownloadReportTest, FromReportToReportGivesBackExpectedResults)
 TEST_F(DownloadReportTest, ProcessedReportIsNotSerialised)
 {
     TimeTracker timeTracker;
-    auto downloadReport =
-        DownloadReportBuilder::Report("source url", {}, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
+    auto downloadReport = DownloadReportBuilder::Report(
+        "source url", {}, {}, {}, &timeTracker, DownloadReportBuilder::VerifyState::VerifyCorrect);
 
     EXPECT_TRUE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
 

@@ -6,6 +6,7 @@
 
 #include "MockSdds3Repository.h"
 #include "MockVersig.h"
+#include "SuldownloaderSDDS3Helper.h"
 #include "TestSdds3RepositoryHelper.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -34,7 +35,6 @@
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/UtilityImpl/TestStringGenerator.h"
 
-#include "SuldownloaderSDDS3Helper.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -43,7 +43,6 @@ using namespace SulDownloader::suldownloaderdata;
 using namespace Common::DownloadReport;
 
 using PolicyProto::ConfigurationSettings;
-
 
 namespace
 {
@@ -198,7 +197,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
@@ -271,7 +271,8 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -337,7 +338,8 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -412,7 +414,8 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
 
@@ -489,7 +492,8 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
 
@@ -595,7 +599,8 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSuppleme
     ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
 
     // Produce a successful report by mocking that products were already installed
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.2");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     auto products = defaultProducts();
     TimeTracker timeTracker;
@@ -626,7 +631,8 @@ TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndSupplementO
     ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
 
     // Produce a successful report by mocking that products were already installed
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.2");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     auto products = defaultProducts();
     TimeTracker timeTracker;
@@ -944,7 +950,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
@@ -989,7 +996,8 @@ TEST_F(
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     int counter = 0;
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -1077,7 +1085,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgrade to 10.3.5
 
     int counter = 0;
 
@@ -1190,8 +1199,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock,
                 writeFile(HasSubstr("update_config.json"), "content"))
         .Times(0);
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0",
-                          "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgrade to 10.3.5
 
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
@@ -1338,7 +1347,8 @@ TEST_F(SULDownloaderSdds3Test,
     EXPECT_CALL(fileSystemMock,
                 writeFile(HasSubstr("update_config.json"), "content"))
         .Times(1);
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgrade to 10.3.5
 
 
     int counter = 0;
@@ -1435,7 +1445,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -1537,7 +1548,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(installProducts));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -1645,7 +1657,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedComponentTracker")).WillRepeatedly(Return(installProducts));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -1762,8 +1775,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.0");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.4"); // Will downgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.6"); // Will downgrade to 10.3.5
 
     int counter = 0;
 
@@ -1869,8 +1882,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
-    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.0");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.6"); // Will downgrade to 10.3.5
 
     int counter = 0;
 
@@ -1976,8 +1989,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2084,7 +2097,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2191,7 +2205,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2294,7 +2309,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2404,7 +2420,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2507,8 +2524,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
 
-
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     int counter = 0;
 
@@ -2614,9 +2631,11 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+    EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
@@ -2677,7 +2696,8 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::SUCCESS,
                                                      "",
@@ -2729,7 +2749,8 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.3");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.5");
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -2818,7 +2839,8 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
     auto& fileSystemMock = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgade to 10.3.5
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -2875,7 +2897,8 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
     auto& mockFileSystem = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade
-    setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+    setupBaseVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999"); // Will upgrade to 10.3.5
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -2921,7 +2944,8 @@ TEST_F(
     auto& fileSystemMock = setupFileSystemAndGetMock(0, 1, 0);
 
     // Expect an upgrade, with the current installed version being >= 1.2.3
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.3.0", "PRODUCT_VERSION = 1.2.5.1");
+    setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.3.0"); // Will upgrade to 10.2.3
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.3.0"); // Will upgrade to 10.3.5
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -2966,7 +2990,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
 
     // Expect a plugin upgrade
-    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+    setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.2.2.999"); // Will upgrade to 10.3.5
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
@@ -3023,7 +3047,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDo
      EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
 
     // Expect a plugin upgrade
-    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999"); // Will upgrade to 10.3.5
 
     auto settings = defaultSettings();
     auto configurationData = configData(settings);

@@ -7,6 +7,7 @@ Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/MCSRouter.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/UpdateServer.py
+Library     ${COMMON_TEST_LIBS}/IniUtils.py
 
 Resource    GeneralTeardownResource.robot
 Resource    GeneralUtilsResources.robot

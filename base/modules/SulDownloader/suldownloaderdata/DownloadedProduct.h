@@ -90,6 +90,8 @@ namespace SulDownloader::suldownloaderdata
          */
         const ProductMetadata& getProductMetadata() const;
 
+        void setProductMetadata(ProductMetadata productMetadata);
+
         /**
          * Auxiliar method to return the product line. It is equivalent to: getProductMetadata().getLine()
          * @return Product Line

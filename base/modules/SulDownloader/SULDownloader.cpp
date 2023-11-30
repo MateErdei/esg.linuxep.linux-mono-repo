@@ -216,7 +216,6 @@ namespace SulDownloader
         for (auto& product : products)
         {
             std::string rigidName = product.getProductMetadata().getLine();
-            std::string warehouseVersionIni = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
             LOGDEBUG("Checking if " << rigidName << " needs to be downgraded");
 
             bool isCachedVersionNewerThanInstalled = false;
@@ -236,18 +235,7 @@ namespace SulDownloader
                 {
                     std::string currentVersion =
                         StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
-                    std::string newVersion("");
-                    try
-                    {
-                        newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
-                    }
-                    catch (std::runtime_error& ex)
-                    {
-                        LOGINFO(
-                            "Failed to read VERSION.ini from warehouse for: '" << rigidName
-                                                                               << "', treating as downgrade");
-                        product.setProductWillBeDowngraded(true);
-                    }
+                    std::string newVersion = product.getProductMetadata().getVersion();
 
                     if (newVersion.empty() || currentVersion.empty())
                     {
@@ -258,6 +246,9 @@ namespace SulDownloader
                     }
                     else
                     {
+                        LOGDEBUG(
+                            "Component " << rigidName << " current version: " << currentVersion
+                                         << ", new version: " << newVersion);
                         bool willBeDowngraded = StringUtils::isVersionOlder(currentVersion, newVersion);
                         if (willBeDowngraded)
                         {

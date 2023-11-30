@@ -281,47 +281,18 @@ public:
     return *pointer;
   }
 
-  void setupFileVersionCalls(MockFileSystem &fileSystemMock,
-                             const std::string &currentVersion,
-                             const std::string &newVersion) {
-    setupBaseVersionFileCalls(fileSystemMock, currentVersion, newVersion);
-    setupPluginVersionFileCalls(fileSystemMock, currentVersion, newVersion);
-  }
-
-  static void setupBaseVersionFileCalls(MockFileSystem &fileSystemMock,
-                                        const std::string &currentVersion,
-                                        const std::string &newVersion) {
+  static void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion) {
     std::vector<std::string> currentVersionContents{{currentVersion}};
-    std::vector<std::string> newVersionContents{{newVersion}};
 
-    EXPECT_CALL(fileSystemMock,
-                isFile("/opt/sophos-spl/base/update/cache/sdds3primary/"
-                       "ServerProtectionLinux-Base-component/VERSION.ini"))
-        .WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock,
-                readLines("/opt/sophos-spl/base/update/cache/sdds3primary/"
-                          "ServerProtectionLinux-Base-component/VERSION.ini"))
-        .WillOnce(Return(newVersionContents));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini"))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/VERSION.ini"))
         .WillRepeatedly(Return(currentVersionContents));
   }
 
-  void setupPluginVersionFileCalls(MockFileSystem &fileSystemMock,
-                                   const std::string &currentVersion,
-                                   const std::string &newVersion) {
+  void setupPluginVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion) {
     std::vector<std::string> currentVersionContents{{currentVersion}};
-    std::vector<std::string> newVersionContents{{newVersion}};
 
-    EXPECT_CALL(fileSystemMock,
-                isFile("/opt/sophos-spl/base/update/cache/sdds3primary/"
-                       "ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
-        .WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock,
-                readLines("/opt/sophos-spl/base/update/cache/sdds3primary/"
-                          "ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
-        .WillOnce(Return(newVersionContents));
     EXPECT_CALL(
         fileSystemMock,
         isFile("/opt/sophos-spl/base/update/var/installedproductversions/"

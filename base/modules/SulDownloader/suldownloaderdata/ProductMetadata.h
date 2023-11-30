@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -47,12 +43,9 @@ namespace SulDownloader::suldownloaderdata
         bool hasTag(const std::string& releaseTag) const;
         const std::vector<Tag> tags() const;
 
-        std::string getBaseVersion() const;
-
         const std::string& getVersion() const;
 
         void setVersion(const std::string& version);
-        void setBaseVersion(const std::string& baseVersion);
 
         void setDefaultHomePath(const std::string& defaultHomeFolder);
         void setFeatures(const std::vector<std::string>& features);
@@ -66,7 +59,6 @@ namespace SulDownloader::suldownloaderdata
         std::string m_line;
         std::string m_name;
         std::string m_version;
-        std::string m_baseVersion;
         std::string m_defaultHomeFolder;
         std::vector<std::string> m_features;
         SubProducts m_subProducts;

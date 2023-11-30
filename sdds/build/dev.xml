@@ -75,11 +75,10 @@
     </inputs>
 
     <buildcommands>
-        <!-- Clear the output directory for the packages/suites, so that old ones are not left around, which can cause
-            problems with tests -->
+        <!-- Delete broken symlinks to avoid problems with syncing -->
         <command mode="dev,999,prod">
-            <program>rm</program>
-            <args>-rf bazel-out/k8-dbg/bin/sdds</args>
+            <program>bash</program>
+            <args>-c '[ -d bazel-out/k8-dbg/bin/sdds/sdds3/package ] &amp;&amp; find bazel-out/k8-dbg/bin/sdds/sdds3/package -xtype l -delete || exit 0'</args>
         </command>
         <command mode="dev,999,prod">
             <program>python3</program>

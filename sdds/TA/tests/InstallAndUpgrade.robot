@@ -56,8 +56,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     # TODO once 2023.43/2023.4 is in dogfood: remove ARM64 exclusion
     [Tags]    EXCLUDE_ARM64
     &{expectedDogfoodVersions} =    Get Expected Versions For Recommended Tag    ${DOGFOOD_WAREHOUSE_REPO_ROOT}    ${DOGFOOD_LAUNCH_DARKLY}
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    is_using_version_workaround=${True}
+    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
     start_local_cloud_server
     # Enable OnAccess
@@ -217,8 +216,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # TODO once 2023.43/2023.4 is in dogfood: remove ARM64 exclusion
     [Tags]    EXCLUDE_ARM64
     &{expectedDogfoodVersions} =    Get Expected Versions For Recommended Tag    ${DOGFOOD_WAREHOUSE_REPO_ROOT}    ${DOGFOOD_LAUNCH_DARKLY}
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    is_using_version_workaround=${True}
+    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
     start_local_cloud_server
@@ -361,8 +359,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     # TODO once 2023.4 is released: remove ARM64 exclusion
     [Tags]    EXCLUDE_ARM64
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    is_using_version_workaround=${True}
+    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
     start_local_cloud_server
     # Enable OnAccess
@@ -472,8 +469,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     # TODO once 2023.4 is released: remove ARM64 exclusion
     [Tags]    EXCLUDE_ARM64
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
-    # TODO LINUXDAR-8265: Remove is_using_version_workaround
-    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}    is_using_version_workaround=${True}
+    &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
     start_local_cloud_server

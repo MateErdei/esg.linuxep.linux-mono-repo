@@ -5,7 +5,6 @@ load("//tools/config:copy_file.bzl", "copy_file")
 load("//tools/config:zip.bzl", "zip_asset")
 load("//common:strip.bzl", "strip")
 load("//tools/config:sophos_sdds_package.bzl", "collate_sdds_packages")
-load("@rules_python//python:defs.bzl", "py_test")
 
 def _generate_spv_template_impl(ctx):
     args = ctx.actions.args()
@@ -127,14 +126,6 @@ def spl_sdds_packages(
         spv_version_token = "@ComponentAutoVersion@",
         versioning_component_name = versioning_component_name,
         tags = ["manual"],
-    )
-
-    py_test(
-        name = "{}_test_versions_match".format(name),
-        srcs = ["//common:test_versions_match.py"],
-        main = "test_versions_match.py",
-        data = [":{}_sdds2".format(name)],
-        args = ["$(location :{}_sdds2)".format(name)],
     )
 
     zip_asset(

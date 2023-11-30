@@ -18,7 +18,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//base/modules/SulDownloader/common",
         "//base/modules/SulDownloader/sdds3",
-        "//imports/thirdparty/nlohmann-json:nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
     ],
     visibility = [
         "//base/products/Base/SulDownloader:__pkg__",

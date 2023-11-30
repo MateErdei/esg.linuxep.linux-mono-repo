@@ -39,6 +39,11 @@ namespace SulDownloader
             const sophlib::sdds3::Config& oldConfig) = 0;
         virtual void saveConfig(sophlib::sdds3::Config& config, std::string& path) = 0;
         virtual sophlib::sdds3::Config loadConfig(std::string& path) = 0;
+        virtual void Purge(
+            sophlib::sdds3::Session& session,
+            const sophlib::sdds3::Repo& repo,
+            const sophlib::sdds3::Config& new_config,
+            const std::optional<sophlib::sdds3::Config>& old_config) = 0;
     };
     /**
      * Return a BORROWED pointer to a static ISdds3Wrapper instance.

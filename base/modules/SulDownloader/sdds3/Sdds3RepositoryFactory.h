@@ -10,6 +10,9 @@
 #include <functional>
 #include <memory>
 
+class TestDownloadReports;
+class TestSdds3Repository;
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
@@ -30,6 +33,8 @@ namespace SulDownloader
          * TestSdds3RepositoryHelper.
          */
         friend class TestSdds3RepositoryHelper;
+        friend class ::TestDownloadReports;
+        friend class ::TestSdds3Repository;
 
     public:
         /**

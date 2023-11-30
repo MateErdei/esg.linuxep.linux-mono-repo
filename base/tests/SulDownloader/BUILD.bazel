@@ -19,6 +19,7 @@ spl_independent_cc_tests(
     deps = [
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/HttpRequestsImpl",
         "//base/modules/Common/Logging",
         "//base/modules/Common/Policy:ConfigurationSettings",
         "//base/modules/Common/ProcessImpl",

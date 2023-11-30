@@ -12,6 +12,7 @@
 #include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/StringUtilsException.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
@@ -57,7 +58,7 @@ namespace SulDownloader
         m_supplementOnly = supplementOnly;
         populateConfigFromFile();
         m_config.platform_filter = Common::Policy::machineArchitecture_;
-        std::stringstream  platformMessage;
+        std::stringstream platformMessage;
         platformMessage << "Platform filter set to: " << Common::Policy::machineArchitecture_;
 
         LOGDEBUG(platformMessage.str());
@@ -169,7 +170,7 @@ namespace SulDownloader
 
     void SDDS3Repository::purge() const
     {
-        sophlib::sdds3::Purge(*m_session.get(), m_repo, m_config, m_oldConfig);
+        SulDownloader::sdds3Wrapper()->Purge(*m_session.get(), m_repo, m_config, m_oldConfig);
     }
 
     void SDDS3Repository::setupSdds3LibLogger()
@@ -308,7 +309,7 @@ namespace SulDownloader
         if (updateSetting.getUseSdds3DeltaV2())
         {
 #ifdef SPL_BAZEL
-            m_session->deltaVersion  = sophlib::sdds3::DeltaVersion::V2;
+            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V2;
 #else
             m_session->deltaVersioningEnabled = true;
 #endif
@@ -317,7 +318,7 @@ namespace SulDownloader
         else
         {
 #ifdef SPL_BAZEL
-            m_session->deltaVersion  = sophlib::sdds3::DeltaVersion::None;
+            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::None;
 #else
             m_session->deltaVersioningEnabled = false;
 #endif
@@ -555,37 +556,59 @@ namespace SulDownloader
 
     void SDDS3Repository::distribute()
     {
-        if (hasError() || !m_willInstall)
-        {
-            return;
-        }
-        auto distributionDir = Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+        auto distributionDir =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
         try
         {
-            SulDownloader::sdds3Wrapper()->extractPackagesTo(
-                *m_session,
-                m_repo,
-                m_config,
-                distributionDir);
+            if (hasError())
+            {
+                return;
+            }
+
+            if (m_willInstall)
+            {
+                SulDownloader::sdds3Wrapper()->extractPackagesTo(*m_session, m_repo, m_config, distributionDir);
+            }
+
+            for (auto& product : m_products)
+            {
+                auto productMetadata = product.getProductMetadata();
+                const auto downloadedVersionIniPath = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
+
+                try
+                {
+                    const auto downloadedVersion = Common::UtilityImpl::StringUtils::extractValueFromIniFile(
+                        downloadedVersionIniPath, "PRODUCT_VERSION");
+                    productMetadata.setVersion(downloadedVersion);
+                    product.setProductMetadata(std::move(productMetadata));
+                }
+                catch (const Common::UtilityImpl::StringUtilsException& ex)
+                {
+                    LOGWARN(
+                        "Failed to read VERSION.ini from download cache for: '"
+                        << productMetadata.getLine() << "', falling back to SDDS version "
+                        << product.getProductMetadata().getVersion());
+                }
+            }
         }
         catch (const std::runtime_error& ex)
         {
             std::ostringstream err;
-            err << "Failed to extract packages to "<< distributionDir << ": " << ex.what();
+            err << "Failed to extract packages to " << distributionDir << ": " << ex.what();
             m_error.status = RepositoryStatus::DOWNLOADFAILED;
             m_error.Description = err.str();
         }
         catch (const std::exception& ex)
         {
             std::ostringstream err;
-            err << "Failed to extract packages to "<< distributionDir << ": exception: " << ex.what();
+            err << "Failed to extract packages to " << distributionDir << ": exception: " << ex.what();
             m_error.status = RepositoryStatus::DOWNLOADFAILED;
             m_error.Description = err.str();
         }
         catch (...)
         {
             std::ostringstream err;
-            err << "Failed to extract packages to "<< distributionDir << ": non-runtime error";
+            err << "Failed to extract packages to " << distributionDir << ": non-runtime error";
             m_error.status = RepositoryStatus::DOWNLOADFAILED;
             m_error.Description = err.str();
         }

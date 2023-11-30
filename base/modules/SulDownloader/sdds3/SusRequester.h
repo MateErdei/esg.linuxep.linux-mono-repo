@@ -18,7 +18,7 @@ namespace SulDownloader::SDDS3
 
         SusRequester(
             std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient,
-            std::unique_ptr<ISignatureVerifierWrapper> verifier);
+            std::shared_ptr<ISignatureVerifierWrapper> verifier);
         SusResponse request(const SUSRequestParameters& parameters) override;
 
         /**
@@ -34,6 +34,6 @@ namespace SulDownloader::SDDS3
 
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_httpClient;
-        std::unique_ptr<ISignatureVerifierWrapper> verifier_;
+        std::shared_ptr<ISignatureVerifierWrapper> verifier_;
     };
 } // namespace SulDownloader::SDDS3
