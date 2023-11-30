@@ -85,6 +85,7 @@ class LogUtils(object):
         self.liveresponse_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "liveresponse.log")
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
+        self.rtd_log = os.path.join(self.install_path, "plugins", "runtimedetections", "log", "runtimedetections.log")
 
         # SSPL-AV chroot log files
         self.__m_chroot_logs_dir = os.path.join(self.install_path, "plugins", "av", "chroot", "log")
@@ -1218,6 +1219,12 @@ class LogUtils(object):
                                                             self.mark_log_size(self.__m_safestore_log))
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${THREATDETECTOR_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.sophos_threat_detector_log))
+
+########################################################################################################################
+# RTD Log
+    def wait_for_rtd_log_contains_after_last_restart(self, log_path, expected, timeout: int = 20, mark=None):
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark, True)
 
 ########################################################################################################################
 # On-Access Soapd Log

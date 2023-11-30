@@ -14,7 +14,7 @@ Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 *** Variables ***
 ${rtdBin}     ${RTD_DIR}/bin/runtimedetections
-
+${RUNTIME_DETECTIONS_LOG_PATH}  ${RTD_DIR}/log/runtimedetections.log
 
 *** Keywords ***
 Runtime Detections Plugin Is Running
@@ -24,6 +24,7 @@ Runtime Detections Plugin Is Running
 Check RuntimeDetections Installed Correctly
     Wait For RuntimeDetections to be Installed
     Verify RTD Component Permissions
+    Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
     Verify Running RTD Component Permissions
 
 Wait For RuntimeDetections to be Installed
@@ -70,6 +71,7 @@ Verify Running RTD Component Permissions
     Verify Permissions    /var/run/sophos   0o700   sophos-spl-user   sophos-spl-group
     Verify Permissions    /run/sophos       0o700   sophos-spl-user   sophos-spl-group
 
+Wait Until RTD Cgroup Check Completes
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   1 secs

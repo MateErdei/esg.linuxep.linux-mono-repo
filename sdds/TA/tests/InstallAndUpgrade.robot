@@ -168,6 +168,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
+    Check RuntimeDetections Installed Correctly
 
     # TODO: To be removed once dogfood does not have these certs
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
@@ -346,6 +347,12 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
+    # no cgroup check because we downgrade to aggressive mode
+    Verify RTD Component Permissions
+    Verify Running RTD Component Permissions
+    Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
+
+
     # TODO: To be removed once dogfood does not have these certs
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
@@ -442,6 +449,9 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Check AV Plugin Can Scan Files
     Enable On Access Via Policy
     Check On Access Detects Threats
+
+    Check RuntimeDetections Installed Correctly
+
     Check Update Reports Have Been Processed
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
@@ -562,6 +572,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check AV Plugin Can Scan Files
     Enable On Access Via Policy
     Check On Access Detects Threats
+    Check RuntimeDetections Installed Correctly
 
     # The query pack should have been re-installed
     Wait Until Created    ${Sophos_Scheduled_Query_Pack}    timeout=20s

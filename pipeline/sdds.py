@@ -69,6 +69,10 @@ def get_inputs(
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
         common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         common_test_robot=context.artifact.from_folder("./common/TA/robot"),
+        sspl_rdrules_scit=context.artifact.from_component(
+            "linuxep.runtimedetections", "develop", None, org="", storage="esg-build-tested"
+        )
+        / "build/sspl-rdrules-scit",
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         rtd_content_rules=context.artifact.from_component(
             "linuxep.runtimedetections", "develop", None, org="", storage="esg-build-tested"
