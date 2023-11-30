@@ -39,6 +39,7 @@
         <filePath>/mnt/</filePath>
         <filePath>/opt/</filePath>
         <filePath>/run/</filePath>
+        <filePath>/snap/</filePath>
         <filePath>/tmp/</filePath>
         <filePath>/usr/</filePath>
         <filePath>/var/</filePath>

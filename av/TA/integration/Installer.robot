@@ -171,7 +171,6 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    Set number of scanning threads in integration test  10
 
     # Ensure on-access is disabled
     #    restart on-access to ensure scanners are not initialized
@@ -186,6 +185,8 @@ On access gets IDE update to new scanners
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     ${td_mark} =   get_sophos_threat_detector_log_mark
+    # restart soapd so that we get new scanners
+    Set number of scanning threads in integration test  10
     On-access Scan Multiple Peend
     # ensure that we used at least one new scanner (for LINUXDAR-6018)
     check_sophos_threat_detector_log_contains_after_mark   Creating SUSI scanner   mark=${td_mark}
