@@ -1,4 +1,1 @@
-report*.json
-config.json
-*.pyc
-*.pyo
+rootca.crt

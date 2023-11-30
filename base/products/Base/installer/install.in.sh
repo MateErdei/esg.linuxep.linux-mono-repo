@@ -1017,6 +1017,8 @@ fi
 
 if (( $CLEAN_INSTALL == 1 ))
 then
+    perform_cleanup "${DIST}" ${PRODUCT_LINE_ID}
+
     startSsplService
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
