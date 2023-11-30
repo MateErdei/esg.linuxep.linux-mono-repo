@@ -27,5 +27,5 @@
   "serviceHealth": true,
   "displayPluginName": "@AV_PRETTY_NAME@",
   "executableUserAndGroup": "sophos-spl-av:sophos-spl-group",
-  "secondsToShutDown": 10
+  "secondsToShutDown": 20
 }

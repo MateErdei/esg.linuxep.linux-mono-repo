@@ -19,6 +19,6 @@
     }
   ],
   "executableUserAndGroup": "root:root",
-  "secondsToShutDown":10,
+  "secondsToShutDown":20,
   "displayPluginName": "@PRODUCT_PRETTY_NAME@"
 }
