@@ -90,7 +90,7 @@ namespace diagnose
             gatherFiles.copyPluginFiles(pluginFilesDir);
 
             // Copy all audit log files.
-            gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", systemFilesDir);
+            gatherFiles.gatherAuditLogs("/var/log/audit/", systemFilesDir);
 
             // other formats of the timestamp in '-since=<timestamp>' result in parse errors as of journalctl version
             // 237

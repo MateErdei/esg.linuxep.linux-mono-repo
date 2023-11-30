@@ -6,6 +6,7 @@ Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/DiagnoseUtils.py
 Library     ${COMMON_TEST_LIBS}/HttpsServer.py
 Library     ${COMMON_TEST_LIBS}/TelemetryUtils.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 
 Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
@@ -58,7 +59,51 @@ Test Remote Diagnose can handle two SDU actions
     wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2    320
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
+Diagnose Collects Audit Files
 
+    ${TarTempDir} =  Add Temporary Directory  tarTempdir
+	${auditDirExists}=   Directory Exists    /var/log/audit
+
+    Create File  /var/log/audit/audit.log
+    Create File  /var/log/audit/audit.log.0
+    Create File  /var/log/audit/audit.log.1
+    Create File  /var/log/audit/audit.log.2
+    Create File  /var/log/audit/audit.log.3
+    Create File  /var/log/audit/audit.log.4..
+    Create File  /var/log/audit/audit.log.5
+    Create File  /var/log/audit/audit.log.6
+    Create File  /var/log/audit/audit.log.7
+    Create File  /var/log/audit/audit.log.8
+    Create File  /var/log/audit/audit.log.9
+    Create File  /var/log/audit/audit.log.10
+    Create File  /var/log/audit/audit.log.11
+    Create File  /var/log/audit/audit.log.12
+    Create File  /var/log/audit/random.log
+
+    ${result} =  Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TarTempDir}
+    Should Be Equal As Integers  ${result.rc}  0
+    ${Files} =  List Files In Directory  ${TarTempDir}
+    ${LengthOfFiles} =  Get Length  ${Files}
+    should Be Equal As Numbers  1  ${LengthOfFiles}
+    ${TarContents} =  Query Tarfile For Contents  ${TarTempDir}/${Files[0]}
+
+    Log  ${TarContents}
+
+    Should Contain 	${TarContents}  SystemFiles/audit.log
+    Should Contain 	${TarContents}  SystemFiles/audit.log.0
+    Should Contain 	${TarContents}  SystemFiles/audit.log.1
+    Should Contain 	${TarContents}  SystemFiles/audit.log.2
+    Should Contain 	${TarContents}  SystemFiles/audit.log.3
+    Should Contain 	${TarContents}  SystemFiles/audit.log.5
+    Should Contain 	${TarContents}  SystemFiles/audit.log.6
+    Should Contain 	${TarContents}  SystemFiles/audit.log.7
+    Should Contain 	${TarContents}  SystemFiles/audit.log.8
+    Should Contain 	${TarContents}  SystemFiles/audit.log.9
+    Should not contain  ${TarContents}  SystemFiles/audit.log.4..
+    Should not contain  ${TarContents}  SystemFiles/audit.log.10
+    Should not contain  ${TarContents}  SystemFiles/audit.log.11
+    Should not contain  ${TarContents}  SystemFiles/audit.log.12
+    Should not contain  ${TarContents}  SystemFiles/random.log
 
 *** Keywords ***
 check for processed tar files

@@ -38,6 +38,65 @@ namespace
         }
         return false;
     }
+
+    bool auditLogHasSmallerSuffix(const std::string& a, const std::string& b)
+    {
+        Common::UtilityImpl::StringUtils stringUtils;
+        std::vector<std::string> aSplitPath = stringUtils.splitString(a, "/");
+        std::vector<std::string> bSplitPath = stringUtils.splitString(b, "/");
+        std::string aAuditFile = aSplitPath.at(aSplitPath.size() - 1);
+        std::string bAuditFile = bSplitPath.at(bSplitPath.size() - 1);
+
+        // is a less than compare function, if a is the same as be, than its false.
+        if(bAuditFile == "audit.log")
+        {
+            return false;
+        }
+        if(aAuditFile == "audit.log")
+        {
+            return true;
+        }
+
+        std::vector<std::string> aLogRotationSuffix = stringUtils.splitString(aAuditFile, ".");
+        std::vector<std::string> bLogRotationSuffix= stringUtils.splitString(bAuditFile, ".");
+        int aNum;
+        int bNum;
+
+        // sort anything that throws the exception towards the end
+        try
+        {
+            aNum = std::stoi(aLogRotationSuffix.at(aLogRotationSuffix.size() - 1));
+        }
+        catch (...)
+        {
+            return false;
+        }
+        try
+        {
+            bNum = std::stoi(bLogRotationSuffix.at(bLogRotationSuffix.size() - 1));
+        }
+        catch (...)
+        {
+            return true;
+        }
+
+        return aNum < bNum;
+    }
+
+    void sortAuditFiles( std::vector<std::string>& files)
+    {
+        std::vector<std::string> auditFiles;
+        for (auto str : files)
+        {
+            if (str.find("audit.log") != std::string::npos)
+            {
+                auditFiles.push_back(str);
+            }
+        }
+
+        sort(auditFiles.begin(), auditFiles.end(), auditLogHasSmallerSuffix );
+        files = auditFiles;
+    }
 } // namespace
 
 namespace diagnose
@@ -157,6 +216,30 @@ namespace diagnose
                 {
                     copyFileIntoDirectory(file, destination);
                 }
+            }
+        }
+        else
+        {
+            LOGINFO("Directory does not exist or cannot be accessed: " << dirPath);
+        }
+    }
+
+    void GatherFiles::gatherAuditLogs(const Path& dirPath, const Path& destination)
+    {
+        if (m_fileSystem->isDirectory(dirPath))
+        {
+            const int maxNumAuditLogs = 10;
+            std::vector<std::string> exportFiles = m_fileSystem->listFiles(dirPath);
+            sortAuditFiles(exportFiles);
+
+            if (exportFiles.size() > maxNumAuditLogs)
+            {
+                exportFiles.resize(maxNumAuditLogs);
+            }
+
+            for (const auto& file : exportFiles)
+            {
+                copyFileIntoDirectory(file, destination);
             }
         }
         else

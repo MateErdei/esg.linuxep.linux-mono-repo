@@ -56,6 +56,8 @@ namespace diagnose
          */
         void copyAllOfInterestFromDir(const Path& dirPath, const Path& destination);
 
+        void gatherAuditLogs(const Path& dirPath, const Path& destination);
+
         /*
          * Copies an existing file to the destination file.
          */

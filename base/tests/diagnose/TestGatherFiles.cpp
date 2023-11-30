@@ -88,3 +88,179 @@ TEST_F(TestGatherFiles, copyFileIntoDirectoryOneDuplicateOneNot) // NOLINT
     gather.copyFileIntoDirectory(srcA, tempdir2.dirPath());
     gather.copyFileIntoDirectory(srcB, tempdir2.dirPath());
 }
+
+TEST_F(TestGatherFiles, gatherAuditLogsTest)
+{
+    std::string filenameA = "audit.log";
+    std::string filenameB = "audit.log.0";
+    std::string filenameC = "audit.log.1";
+
+    Tests::TempDir tempdir("", "audit");
+    Tests::TempDir tempdir2("", "destination");
+
+    Path srcA = tempdir.absPath(filenameA);
+    Path srcB = tempdir.absPath(filenameB);
+    Path srcC = tempdir.absPath(filenameC);
+    Path destA = tempdir2.absPath(filenameA);
+    Path destB = tempdir2.absPath(filenameB);
+    Path destC = tempdir2.absPath(filenameC);
+    std::vector<std::string> fileList{ srcB, srcC, srcA};
+
+    Sequence s;
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(tempdir.dirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(tempdir.dirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, isFile(srcA)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcB)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcC)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(destA)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destB)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destC)).WillOnce(Return(false));
+
+    // testing the sort order as we copy after we sort
+    EXPECT_CALL(*mockFileSystem, copyFile(srcA, destA)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcB, destB)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcC, destC)).InSequence(s);
+
+    diagnose::GatherFiles gather(std::move(mockIFileSystemPtr));
+    gather.gatherAuditLogs(tempdir.dirPath(), tempdir2.dirPath());
+}
+
+TEST_F(TestGatherFiles, gatherAuditLogsTest12Files)
+{
+    Tests::TempDir tempdir("", "audit");
+    Tests::TempDir tempdir2("", "destination");
+    std::vector<Path> fileList;
+
+    for(int i = 10; i >= 0 ; i--)
+    {
+        std::string filename = "audit.log.";
+        filename += std::to_string(i);
+        Path src = tempdir.absPath(filename);
+        fileList.push_back(src);
+    }
+
+    fileList.push_back("audit.log");
+    std::string auditDot11 = fileList.at(0);
+    std::string auditDot12 = fileList.at(1);
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(tempdir.dirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(tempdir.dirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, copyFile(_, _)).Times(10);
+
+    // making sure these files are not being copied
+    EXPECT_CALL(*mockFileSystem, copyFile(auditDot11, _)).Times(0);
+    EXPECT_CALL(*mockFileSystem, copyFile(auditDot12, _)).Times(0);
+
+    diagnose::GatherFiles gather(std::move(mockIFileSystemPtr));
+    gather.gatherAuditLogs(tempdir.dirPath(), tempdir2.dirPath());
+}
+
+TEST_F(TestGatherFiles, gatherAuditLogs1InvalidAuditFile)
+{
+    std::string filenameA = "audit.log";
+    std::string filenameB = "audit.log.0";
+    std::string filenameC = "audit.log.1....";
+
+    Tests::TempDir tempdir("", "audit");
+    Tests::TempDir tempdir2("", "destination");
+
+    Path srcA = tempdir.absPath(filenameA);
+    Path srcB = tempdir.absPath(filenameB);
+    Path srcC = tempdir.absPath(filenameC);
+    Path destA = tempdir2.absPath(filenameA);
+    Path destB = tempdir2.absPath(filenameB);
+    Path destC = tempdir2.absPath(filenameC);
+    std::vector<std::string> fileList{ srcB, srcC, srcA};
+
+    Sequence s;
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(tempdir.dirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(tempdir.dirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, isFile(srcA)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcB)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcC)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(destA)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destB)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destC)).WillOnce(Return(false));
+
+    // testing the sort order as we copy after we sort
+    EXPECT_CALL(*mockFileSystem, copyFile(srcA, destA)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcB, destB)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcC, destC)).InSequence(s);
+
+    diagnose::GatherFiles gather(std::move(mockIFileSystemPtr));
+    gather.gatherAuditLogs(tempdir.dirPath(), tempdir2.dirPath());
+
+}
+
+TEST_F(TestGatherFiles, emptyAuditDirectory)
+{
+    Tests::TempDir tempdir("", "audit");
+    Tests::TempDir tempdir2("", "destination");
+    std::vector<std::string> fileList{};
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(tempdir.dirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(tempdir.dirPath())).WillOnce(Return(fileList));
+    // making sure files are not being copied
+    EXPECT_CALL(*mockFileSystem, copyFile(_, _)).Times(0);
+
+    diagnose::GatherFiles gather(std::move(mockIFileSystemPtr));
+    gather.gatherAuditLogs(tempdir.dirPath(), tempdir2.dirPath());
+}
+
+TEST_F(TestGatherFiles, directoryIncludesNonAuditFiles)
+{
+    std::string filenameA = "audit.log";
+    std::string filenameB = "audit.log.0";
+    std::string filenameC = "audit.log.1";
+    std::string filenameD = "aaaaaaa.log";
+
+    Tests::TempDir tempdir("", "audit");
+    Tests::TempDir tempdir2("", "destination");
+
+    Path srcA = tempdir.absPath(filenameA);
+    Path srcB = tempdir.absPath(filenameB);
+    Path srcC = tempdir.absPath(filenameC);
+    Path srcD = tempdir.absPath(filenameD);
+    Path destA = tempdir2.absPath(filenameA);
+    Path destB = tempdir2.absPath(filenameB);
+    Path destC = tempdir2.absPath(filenameC);
+    Path destD = tempdir2.absPath(filenameD);
+    std::vector<std::string> fileList{ srcB, srcC, srcA, "aaaaaaa.log"};
+
+    Sequence s;
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+
+    EXPECT_CALL(*mockFileSystem, isDirectory(tempdir.dirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(tempdir.dirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, isFile(srcA)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcB)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isFile(srcC)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(destA)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destB)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(destC)).WillOnce(Return(false));
+
+    // testing the sort order as we copy after we sort
+    EXPECT_CALL(*mockFileSystem, copyFile(srcA, destA)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcB, destB)).InSequence(s);
+    EXPECT_CALL(*mockFileSystem, copyFile(srcC, destC)).InSequence(s);
+    // making sure file is not being copied
+    EXPECT_CALL(*mockFileSystem, copyFile(srcD, destD)).Times(0);
+
+    diagnose::GatherFiles gather(std::move(mockIFileSystemPtr));
+    gather.gatherAuditLogs(tempdir.dirPath(), tempdir2.dirPath());
+}
