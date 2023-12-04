@@ -1,4 +1,5 @@
 *** Settings ***
+Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/ProxyUtils.py
@@ -64,6 +65,15 @@ Register With Environment Proxy Uppercase
     Start MCSRouter
     Check MCS Router log contains proxy success  localhost:3333
 
+MCS Requests To Connect Using HTTP 1.1
+    Override LogConf File as Global Level  DEBUG
+    Start Simple Proxy Server    3333
+    Set Environment Variable  https_proxy   http://localhost:3333
+    Register With Local Cloud Server
+    ${mcs_router_mark} =  mark_log_size  ${MCS_ROUTER_LOG}
+    Start MCSRouter
+    Check MCS Router log contains proxy success  localhost:3333
+    Wait for log contains from mark  ${mcs_router_mark}    CONNECT localhost:4443 HTTP/1.1
 
 Register in cloud through basic auth proxy
     [Documentation]  Derived from CLOUD.PROXY.007_basic_auth.sh

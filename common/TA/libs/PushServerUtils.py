@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import requests
+from http.client import HTTPSConnection
 import sys
 from sseclient import SSEClient
 import subprocess
 import time
 import os
+import ssl
 import PathManager
 try:
     from robot.api import logger
@@ -39,8 +41,13 @@ class PushServerUtils:
 
     def send_message_to_push_server(self, message=None):
         """Use the subscription channel to send messages to all the clients connected to the push server."""
-        r = requests.post('https://localhost:{}/mcs/push/sendmessage'.format(self._port), data=message, verify=self._cert)
-        if r.status_code != 200:
+        context = ssl.create_default_context(cafile=self._cert)
+        conn = HTTPSConnection("localhost", self._port, context=context)
+        conn._http_vsn_str = 'HTTP/1.1'
+        conn._http_vsn = 11
+        conn.request('POST', '/mcs/push/sendmessage', body=message)
+        r = conn.getresponse()
+        if r.status != 200:
             raise AssertionError("Send message Failed with code {} and Text {}".format(r.status_code, r.text))
 
     def send_message_to_push_server_from_file(self, file):

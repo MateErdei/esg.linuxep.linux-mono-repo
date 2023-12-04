@@ -95,6 +95,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         self.tls = threading.local()
         self.tls.conns = {}
+        self.protocol_version = "HTTP/1.1"
 
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
@@ -173,9 +174,12 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.warning("connect_relay failed with error {}".format(e))
             return self.send_error(502)
-        logger.debug("connection success")
+        logger.debug(f"connection success: {self.request_version}")
 
-        self.send_response(200, 'Connection Established')
+        if self.request_version != "HTTP/1.1":
+            self.send_response(418, 'HTTP version not supported')
+        else:
+            self.send_response(200, 'Connection Established')
         self.end_headers()
 
         conns = [self.connection, s]
@@ -250,9 +254,9 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 conn.request(self.command, path, req_body, dict(req.headers))
                 res = conn.getresponse()
 
-                version_table = {10: 'HTTP/1.0', 11: 'HTTP/1.1'}
+                assert res.version == 11, "HTTP version 1.1 expected"
                 setattr(res, 'headers', res.msg)
-                setattr(res, 'response_version', version_table[res.version])
+                setattr(res, 'response_version', 'HTTP/1.1')
 
                 # support streaming
                 if not 'Content-Length' in res.headers and 'no-store' in res.headers.get('Cache-Control', ''):

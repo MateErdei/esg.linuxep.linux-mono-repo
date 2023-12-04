@@ -68,7 +68,7 @@ class AuthHandler(object):
                 "</html>")
         assert isinstance(body, str)
 
-        response = "HTTP/1.0 %d %s\n"%(self.code,self.message)
+        response = "HTTP/1.1 %d %s\n"%(self.code,self.message)
         self.outHeader['Content-Type'] = "text/html"
         self.outHeader['Content-Length'] = str(len(body))
         #~ self.outHeader['Proxy-Connection'] = 'close'

@@ -55,7 +55,7 @@ class ReplaceConnection(OriginalVerifiedHTTPSConnection):
            The connect method intercept the exception and respond to the challenge.
         """
         logger.debug('Replace connection being used')
-        connect_str = "CONNECT %s:%d HTTP/1.0\r\n" % (self._tunnel_host,
+        connect_str = "CONNECT %s:%d HTTP/1.1\r\n" % (self._tunnel_host,
                                                       self._tunnel_port)
         connect_bytes = connect_str.encode("ascii")
         self.send(connect_bytes)

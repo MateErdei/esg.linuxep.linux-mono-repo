@@ -290,7 +290,7 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         live response
         """
         connect = [
-            "CONNECT %s:%d HTTP/1.0\r\n" %
+            "CONNECT %s:%d HTTP/1.1\r\n" %
             (self._tunnel_host, self._tunnel_port)]
         for header, value in self._tunnel_headers.items():
             connect.append("%s: %s\r\n" % (header, value))
