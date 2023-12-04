@@ -1,4 +1,5 @@
 *** Settings ***
+Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${COMMON_TEST_LIBS}/PushServerUtils.py
 Library     ${COMMON_TEST_LIBS}/ProxyUtils.py
 
@@ -9,6 +10,7 @@ Suite Teardown   Run Keywords  Uninstall SSPL Unless Cleanup Disabled  AND  Serv
 
 Test Setup       Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
 Test Teardown    Run Keywords
+...              OnFail.run_teardown_functions    AND
 ...              Stop Local Cloud Server    AND
 ...              Dump Log   ./tmp/proxy_server.log  AND
 ...              MCSRouter Default Test Teardown  AND
@@ -144,6 +146,45 @@ Transient errors keeps same proxies
     ...  60 secs
     ...  10 secs
     ...  Check Marked MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+
+Test Remove Read Permissions Show MessageRelays Dont Work And Logs Warnings
+    Start Simple Proxy Server    3000
+
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='sustest.sophosupd.com' id='no_auth_proxy'/><messageRelay priority='0' port='3000' address='sustest.sophosupd.com' id='no_auth_proxy'/>
+
+    # emulating unreadable file as Start MCSRouter is run as root
+    Register Cleanup  Run Process  mv  /etc/rename  /etc/hosts
+    Run Process   mv  /etc/hosts  /etc/rename
+
+    ${mcs_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
+
+    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    /etc/hosts does not have read permissions.
+    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    Extracting ip from server
+    wait_for_log_contains_from_mark    ${mcs_mark}    Successfully directly connected to localhost
+
+
+Test Remove Read Permissions Show That The MessageRelay Doesnt Work And Logs Warnings
+    Start Simple Proxy Server    3000
+
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='sustest.sophosupd.com' id='no_auth_proxy'/>
+
+    # emulating unreadable file as Start MCSRouter is run as root
+    Register Cleanup  Run Process  mv  /etc/rename  /etc/hosts
+    Run Process   mv  /etc/hosts  /etc/rename
+
+    ${mcs_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
+
+    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    /etc/hosts does not have read permissions.
+    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    Failed connection with message relay via
+    wait_for_log_contains_from_mark    ${mcs_mark}    Successfully directly connected to localhost
 
 
 The Connection Will Transfer Between Proxies When One Fails

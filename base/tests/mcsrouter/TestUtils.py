@@ -20,6 +20,7 @@ import mcsrouter.sophos_https as sophos_https
 import mcsrouter.ip_selection as ip_selection
 from mcsrouter import ip_address
 from mcsrouter.mcs_router import SophosLogging
+from mcsrouter.mcs_router import hostfile_has_read_permission
 
 import xml.parsers.expat
 import json.decoder
@@ -171,6 +172,12 @@ class TestUtils(unittest.TestCase):
         finally:
 
             os.remove(filepath)
+    @mock.patch("os.access", return_value=False)
+    def test_hostfile_has_read_permissions(self, *mockargs):
+        assert(hostfile_has_read_permission() == False)
+
+
+
 
 
 
@@ -275,6 +282,18 @@ class TestIPSelection(unittest.TestCase):
         self.assertEqual(len(server_location_list), 4)
         hosts = [l['hostname'] for l in server_location_list]
         self.assertEqual(hostnames, hosts)
+
+    @mock.patch("socket.getaddrinfo", return_value=Exception)
+    @mock.patch("logging.Logger.warning")
+    def test_host_name_logging_messagerelays(self, *mockargs):
+        server_location_list = [
+            {'hostname': 'FakeRelayTwentyFive', 'port': '6666', 'priority': '0', 'id': '1', 'ips': ['11.0.2.15']},
+            {'hostname': 'FakeRelayFive', 'port': '6666', 'priority': '0', 'id': '2', 'ips': ['10.0.2.31']}
+        ]
+        ip_selection.evaluate_address_preference(server_location_list)
+        calls = [mock.call("Extracting ip from server FakeRelayTwentyFive resulted in exception 'type' object is not iterable"),
+                 mock.call("Extracting ip from server FakeRelayFive resulted in exception 'type' object is not iterable")]
+        logging.Logger.warning.assert_has_calls(calls)
 
     def test_ip_fqdn(self):
         fq = ip_address.get_fqdn()

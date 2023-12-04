@@ -279,7 +279,8 @@ class MCSRouter:
         """
         proc = None
         LOGGER.info("Starting mcsrouter")
-
+        if not hostfile_has_read_permission():
+            LOGGER.warning("/etc/hosts does not have read permissions. Will have issues resolving hostnames.")
 
         from . import mcs
         proc = mcs.MCS(self.__m_install_dir)
@@ -289,6 +290,11 @@ class MCSRouter:
         LOGGER.warning("Exiting mcsrouter")
         return ret
 
+def hostfile_has_read_permission():
+    try:
+        return os.access("/etc/hosts", os.R_OK)
+    except OSError:
+        return False
 
 def main():
     """
