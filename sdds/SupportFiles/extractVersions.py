@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# This is used to print out the version numbers of a release build so that we can easily update sprint wiki pages.
+
 import json
 import os
 import sys
@@ -7,6 +9,7 @@ import urllib.request
 import xml.dom.minidom
 
 import yaml
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -26,6 +29,7 @@ def get_version(repository_path: str):
         repository_path = repository_path + "/"
 
     url = "https://artifactory.sophos-ops.com/artifactory/" + repository_path + "SDDS-Import.xml"
+    # print(f"GET: {url}")
     response = urllib.request.urlopen(url)
     xml_data = response.read()
     # print(xml_data)
@@ -40,12 +44,27 @@ def get_version(repository_path: str):
             return text
 
 
+def convert_to_dir_name(component: str):
+    if component == "event-journaler":  # Name in suite
+        return "eventjournaler"  # Actual directory name in mono repo
+    if component == "liveresponse":
+        return "liveterminal"
+    if component == "responseactions":
+        return "response_actions"
+    # Most already match
+    return component
+
+
 def main(argv):
-    if len(argv) != 2:
-        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/pkgs_latest.yaml")
+    if len(argv) != 4:
+        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/pkgs_latest.yaml '<branch>' '<linux mono repo build ID>'")
+        print("Example: python3 SupportFiles/extractVersions.py def-sdds3/components/pkgs_latest.yaml 'release--2023-49' '20231205090922-95d58331554228e82207ea98a25619e8bb9dc0ca-MsBIlm'")
         return 1
 
     path = argv[1]
+    branch = argv[2]
+    mono_repo_build_id = argv[3]
+
     if not os.path.exists(path):
         print(f"{path} does not exist")
         return 1
@@ -54,10 +73,17 @@ def main(argv):
     data = yaml.load(data, Loader)
     # print(json.dumps(data, indent=2))
     for key, value in data.items():
-        version = get_version(value['prod-artifact'])
-        component = key.split(".")[0]
-        build_id = value['prod-artifact'].split("/")[3]
-        print(component, version, build_id)
+        arch = key.split(".")[2]
+        component_name_in_suite = key.split(".")[0]
+        component = convert_to_dir_name(component_name_in_suite)
+        if 'prod-artifact' in value:
+            version = get_version(value['prod-artifact'])
+            build_id = value['prod-artifact'].split("/")[3]
+        else:
+            build_id = mono_repo_build_id
+            version = get_version(
+                f"esg-releasable-candidate/linuxep.linux-mono-repo/{branch}/{build_id}/{component}/linux_x64_rel/installer")
+        print(arch, component, version, build_id)
     return 0
 
 
