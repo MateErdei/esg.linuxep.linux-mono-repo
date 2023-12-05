@@ -4,7 +4,7 @@ set -e
 # Manual example:
 # TAP_PARAMETER_ROBOT_TEST="On access gets IDE update to new scanners" ./spl-tools/tests/qemu_do.py tap run linux_mono_repo.products.testing.system_tests.TAP_PARALLEL2_linux_x64_rel_ubuntu2004_x64_aws_server_en_us
 # This wrapper example:
-# ./tap_test.sh "On access gets IDE update to new scanners"
+# ./tap_test.sh -t "On access gets IDE update to new scanners"
 
 cd "${0%/*}"
 DRY_RUN="0"
