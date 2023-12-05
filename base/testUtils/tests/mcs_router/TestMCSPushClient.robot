@@ -24,10 +24,10 @@ MCSRouter Can Handle Incorrect AppId
     Check Connected To Fake Cloud
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy
 
-    ${mcsrouter_log_mark} =    Get Mark For Mcsrouter Log
+    ${mcsrouter_log_mark} =   Get Mark For Mcsrouter Log
     Send Message To Push Server From File    ${SUPPORT_FILES}/CentralXml/MCS_Push_Command_Invalid_AppId.xml
 
-    Wait For Log Contains From Mark    ${mcsrouter_log_mark}    No adapter for INCORRECTAPPID
+    Wait For Log Contains From Mark  ${mcsrouter_log_mark}    No adapter for INCORRECTAPPID
 
 MCSRouter Can Start And Receive Messages From The Push Client
     Start MCS Push Server

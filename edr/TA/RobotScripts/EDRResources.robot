@@ -421,7 +421,7 @@ Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
     ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
     Move File Atomically  ${policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    wait for log contains from mark  ${mark}  LiveQuery policy has changed. Restarting osquery to apply changes  ${10}
+    wait for log contains from mark  ${mark}  LiveQuery policy has changed. Restarting osquery to apply changes  ${15}
     wait for log contains from mark  ${mark}  Plugin preparation complete  ${20}
 
 Create Debug Level Logger Config File
