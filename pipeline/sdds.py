@@ -25,6 +25,22 @@ SYSTEM_TEST_TIMEOUT = 9000
 SYSTEM_TEST_TASK_TIMEOUT = 150
 
 
+def do_prod_or_dev_based_on_branch(context: tap.PipelineContext, parameters: tap.Parameters):
+    branch = context.branch
+    is_release_branch = branch.startswith("release-") or branch.startswith("hotfix-")
+
+    do_prod = False
+    do_dev = False
+
+    if (is_release_branch or parameters.sdds_options == "build_prod_no_system_tests"
+            or parameters.sdds_options == "build_prod_system_tests"):
+        do_prod = True
+    else:
+        do_dev = True
+
+    return {"do_dev": do_dev, "do_prod": do_prod}
+
+
 def build_sdds3_warehouse(stage: tap.Root, mode="dev", image="ubuntu2004_x64_bazel_20231109"):
     component = tap.Component(name="sdds3-warehouse-" + mode, base_version="1.0.0")
     return stage.artisan_build(
@@ -109,12 +125,16 @@ def get_inputs(
         sdds3=context.artifact.from_component("em.esg", "develop", None, org="", storage="esg-build-tested")
         / f"build/sophlib/linux_{arch}_rel/sdds3_tools",
     )
-    if parameters.sdds_options == "build_prod_system_tests" or parameters.sdds_options == "build_prod_no_system_tests":
+
+    do_prod_dev_dict = do_prod_or_dev_based_on_branch(context, parameters)
+    do_dev, do_prod = do_prod_dev_dict["do_dev"], do_prod_dev_dict["do_prod"]
+
+    if do_prod:
         test_inputs["dev_sdds3"] = context.artifact.from_component("linuxep.linux-mono-repo", "develop", None, org="",
                                                                    storage="esg-build-tested") / "build/sdds3-repo"
         test_inputs["repo"] = sdds_build / "prod-sdds3-repo"
         test_inputs["launchdarkly"] = sdds_build / "prod-sdds3-launchdarkly"
-    else:
+    elif do_dev:
         test_inputs["repo"] = sdds_build / "sdds3-repo"
         test_inputs["launchdarkly"] = sdds_build / "sdds3-launchdarkly"
 
@@ -164,17 +184,8 @@ def stage_sdds_build(
     stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, outputs: Dict[str, Any]
 ):
     with stage.parallel("sdds"):
-        branch = context.branch
-        is_release_branch = branch.startswith("release-") or branch.startswith("hotfix-")
-
-        do_prod = False
-        do_dev = False
-
-        if (is_release_branch or parameters.sdds_options == "build_prod_no_system_tests"
-                or parameters.sdds_options == "build_prod_system_tests"):
-            do_prod = True
-        else:
-            do_dev = True
+        do_prod_dev_dict = do_prod_or_dev_based_on_branch(context, parameters)
+        do_dev, do_prod = do_prod_dev_dict["do_dev"], do_prod_dev_dict["do_prod"]
 
         if do_prod:
             outputs["sdds"] = build_sdds3_warehouse(stage=stage, mode="prod")
