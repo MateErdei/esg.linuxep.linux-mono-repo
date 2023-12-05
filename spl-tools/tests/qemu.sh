@@ -33,6 +33,9 @@ then
 fi
 
 sudo apt-get install -y cloud-image-utils qemu qemu-kvm
+# Make sure we have correct permissions else the vm can't be started.
+sudo chmod 660 /dev/kvm
+sudo chown root:kvm /dev/kvm
 
 # 20.04
 img=focal-server-cloudimg-amd64.img
