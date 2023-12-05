@@ -187,6 +187,8 @@ On access gets IDE update to new scanners
     ${td_mark} =   get_sophos_threat_detector_log_mark
     # restart soapd so that we get new scanners
     Set number of scanning threads in integration test  10
+    ${oa_mark} =    get_on_access_log_mark
+    wait_for_on_access_log_contains_after_mark    Enabling on-access scanning    mark=${oa_mark}
     On-access Scan Multiple Peend
     # ensure that we used at least one new scanner (for LINUXDAR-6018)
     check_sophos_threat_detector_log_contains_after_mark   Creating SUSI scanner   mark=${td_mark}
