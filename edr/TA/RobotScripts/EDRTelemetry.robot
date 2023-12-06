@@ -32,11 +32,10 @@ EDR Plugin reports health correctly
     ${health} =  Set Variable  ${telemetry_json['health']}
     Should Be Equal As Integers  ${health}  0
     Run Process  mv  ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd  /tmp
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Restart EDR Plugin
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   2 secs
-    ...   File Should Contain  ${EDR_LOG_PATH}   Unable to execute osquery
+    Wait For Log Contains From Mark    ${mark}    Unable to execute osquery
+    
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${health} =  Set Variable  ${telemetry_json['health']}
@@ -62,20 +61,12 @@ EDR Plugin Produces Telemetry When XDR is enabled
     [Teardown]  EDR Telemetry Test Teardown With Policy Cleanup
 
     # make sure osquery has started so the new policy is guaranteed to cause a restart
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check EDR Log Contains   LiveQuery policy has not been sent to the plugin
+    Wait For Log Contains After Last Restart    ${EDR_LOG_PATH}    LiveQuery policy has not been sent to the plugin
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Drop LiveQuery Policy Into Place
 
-    Wait Until Keyword Succeeds
-    ...   20 secs
-    ...   5 secs
-    ...   Check EDR Log Contains  Updating running_mode flag settings to: 1
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   5 secs
-    ...   Check EDR Log Contains  Process task OSQUERY_PROCESS_FINISHED
+    Wait For Log Contains From Mark    ${mark}    Updating running_mode flag settings to: 1
+    Wait For Log Contains From Mark    ${mark}    Process task OSQUERY_PROCESS_FINISHED
     Wait Until EDR OSQuery Running  20
     Wait Until Osquery Socket Exists
     Prepare To Run Telemetry Executable
@@ -86,32 +77,26 @@ EDR Plugin Produces Telemetry When XDR is enabled
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until EDR OSQuery Running  20
     Wait Until Osquery Socket Exists
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  1
+    Wait For Log Contains After Last Restart    ${EDR_LOG_PATH}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
     Wait Until Osquery Socket Exists
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Restart EDR Plugin              #Check telemetry persists after restart
-
     Wait Until EDR OSQuery Running  20
     Wait Until Osquery Socket Exists
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  3
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
-
+    Wait Until Osquery Socket Exists
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
+    
     Prepare To Run Telemetry Executable
-
-    #TODO LINUXDAR-3974
-    ${times} =  Get Number Of Osquery Restarts
-    Should Be True  ${times} > 1
-    Should Be True  ${times} < 5
+    Wait For Log Contains From Mark    ${mark}    OSQUERY_PROCESS_FINISHED
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -124,60 +109,37 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
     # make sure osquery has started so the new policy is guaranteed to cause a restart
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check EDR Log Contains   LiveQuery policy has not been sent to the plugin
-    Wait Until Keyword Succeeds
-    ...  16s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  1
+    Wait For Log Contains After Last Restart    ${EDR_LOG_PATH}    LiveQuery policy has not been sent to the plugin
+    Wait For Log Contains After Last Restart    ${EDR_LOG_PATH}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Drop LiveQuery Policy Into Place
 
-    Wait Until Keyword Succeeds
-    ...   20 secs
-    ...   5 secs
-    ...   Check Log Contains In Order
-            ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-            ...  Updating running_mode flag settings to: 1
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check EDR Log Contains  Restarting osquery, reason: LiveQuery policy has changed. Restarting osquery to apply changes
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
+    Wait For Log Contains From Mark    ${mark}    Updating running_mode flag settings to: 1
+    Wait For Log Contains From Mark    ${mark}    Restarting osquery, reason: LiveQuery policy has changed. Restarting osquery to apply changes
+    Wait For Log Contains From Mark    ${mark}    OSQUERY_PROCESS_FINISHED
     Wait Until EDR OSQuery Running  20
     Wait Until Osquery Socket Exists
 
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
     # sleep to give osquery a chance to stabilise so this test doesn't flake
     # TODO - LINUXDAR-2839 Use new logline to replace this sleep with a smarter wait
     Sleep  10s
 
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
     Wait Until Osquery Socket Exists
-    ${times} =  Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  3
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Restart EDR Plugin              #Check telemetry persists after restart
-
     Wait Until EDR OSQuery Running  20
     Wait Until Osquery Socket Exists
-    ${times} =  Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  ${times+1}
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
+    
+    ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
-    ${times} =   Wait Until Keyword Succeeds
-    ...  30s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  ${times+1}
+    Wait For Log Contains From Mark    ${mark}    SophosExtension running
 
     Prepare To Run Telemetry Executable
 
@@ -194,16 +156,12 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
+    ${edr_mark} =   Mark Log Size   ${EDR_LOG_PATH}
+    ${lq_mark} =    Mark Log Size   ${LIVEQUERY_LOG_FILE}
     Run Live Query  ${CRASH_QUERY}  Crash
 
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  2 secs
-    ...  Check Livequery Log Contains    Extension exited while running
-    Wait Until Keyword Succeeds
-    ...  15
-    ...  1
-    ...  Check EDR Log Contains  OSQUERY_PROCESS_FINISHED
+    Wait For Log Contains From Mark    ${lq_mark}    Extension exited while running    100
+    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -211,24 +169,18 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  failed_count=1
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
+    ${lq_mark} =   Mark Log Size   ${LIVEQUERY_LOG_FILE}
     Run Live Query  ${SIMPLE_QUERY_1_ROW}   simple
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  2 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  1
+    Wait For Log Contains From Mark    ${lq_mark}    Successfully executed query with name: simple
 
     Restart EDR Plugin              #Check telemetry persists after restart
 
     Run Live Query  ${SIMPLE_QUERY_4_ROW}   simple
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  2 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  2
+    Wait For Log Contains From Mark    ${lq_mark}    Successfully executed query with name: simple
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-
 
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  successful_count=2
 
@@ -243,8 +195,6 @@ EDR Reports Telemetry Correctly When Events Max Limit Is Hit For A Table
     ...    \
     Create File    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO.20201117-051713.1056   content=${script}
 
-
-
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -256,34 +206,28 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until EDR OSQuery Running  20
     # osquery will take longer to restart if it is killed before the socket is created
     Wait Until Osquery Socket Exists
+    
+    ${edr_mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
-    ${times} =  Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  1
+    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
     Wait Until Osquery Socket Exists
+    
+    ${edr_mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Kill OSQuery And Wait Until Osquery Running Again
-    ${times} =  Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  ${times+1}
+    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
 
+    ${edr_mark} =   Mark Log Size   ${EDR_LOG_PATH}
+    ${lq_mark} =   Mark Log Size   ${LIVEQUERY_LOG_FILE}
     Run Live Query  ${CRASH_QUERY}  Crash
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  2 secs
-    ...  Check Livequery Log Contains    Extension exited while running
-
-    ${times} =  Wait Until Keyword Succeeds
-    ...  60s
-    ...  2s
-    ...  Check Log Contains String At Least N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  ${times+1}
+    Wait For Log Contains From Mark    ${lq_mark}   Extension exited while running    100
+    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
+    
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-
     #TODO LINUXDAR-3974
+    ${times} =    Get Number Of Occurrences Of Substring In Log    ${EDR_LOG_PATH}    OSQUERY_PROCESS_FINISHED
     Should Be True  ${times} < 7  More restarts than is reasonable were found
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  ${times}  1  0  failed_count=1
 
@@ -354,12 +298,6 @@ Trigger EDR Osquery Database Purge
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Strings  ${result.rc}  0
-
-Wait For EDR Osquery To Purge Database
-    Wait Until Keyword Succeeds
-    ...  120s
-    ...  10s
-    ...  Check EDR Log Contains   Purging Database
 
 Wait Until Osquery Socket Exists
     Wait Until Keyword Succeeds

@@ -40,6 +40,7 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_BIN_PATH}      ${COMPONENT_ROOT_PATH}/bin/${COMPONENT_NAME}
     Set Global variable  ${EDR_LOG_FILE}            ${COMPONENT_ROOT_PATH}/log/edr.log
+    Set Global variable  ${LIVEQUERY_LOG_FILE}      ${COMPONENT_ROOT_PATH}/log/livequery.log
     Set Global variable  ${SCHEDULEDQUERY_LOG_FILE}    ${COMPONENT_ROOT_PATH}/log/scheduledquery.log
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  /tmp/fake_management_agent.log
     Set Global Variable  ${WEBSOCKET_SERVER}        ${TEST_INPUT_PATH}/websocket_server/utils/websocket_server
