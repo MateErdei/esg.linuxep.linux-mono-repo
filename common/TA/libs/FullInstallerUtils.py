@@ -535,9 +535,6 @@ def _remove_files_recursively(directory_path):
 
 
 def get_machine_id_generate_by_python():
-    import sys
-    supportFilesPath = PathManager.get_support_file_path()
-    sys.path.append(supportFilesPath)
     import SXLMachineID as sxl
     return sxl.generateMachineId()
 
@@ -551,9 +548,6 @@ def get_relative_log_path_for_log_component_name(logname):
     relative_paths = {"sophos_managementagent": "logs/base/sophosspl/sophos_managementagent.log",
                       "mcs_router": "logs/base/sophosspl/mcsrouter.log",
                       "updatescheduler": "logs/base/sophosspl/updatescheduler.log",
-                      "EventProcessor": "plugins/EventProcessor/log/EventProcessor.log",
-                      "AuditPlugin": "plugins/AuditPlugin/log/AuditPlugin.log"
-
                       }
     relative_path = relative_paths.get(logname, os.path.join("logs/base", logname + '.log'))
     return relative_path

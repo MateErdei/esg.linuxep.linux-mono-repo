@@ -314,20 +314,6 @@ function unpack_pypi_pkgs()
   shopt -u nullglob
 }
 
-function copy_certs()
-{
-  mkdir -p "$REDIST/certificates"
-  if [[ -f $FETCHED_INPUTS_DIR/ps_rootca.crt ]]
-  then
-      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/"
-      # Manifest cert, currently same as ps_rootca
-      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/rootca.crt"
-  else
-      echo "ERROR - ps_rootca.crt not found here: $FETCHED_INPUTS_DIR/ps_rootca.crt"
-      exit 1
-  fi
-  echo "Certificates synced to $REDIST/certificates"
-}
 
 function setup_cmake()
 {
@@ -362,7 +348,6 @@ unpack_gzipped_tars
 unpack_zips
 unpack_pypi_pkgs
 apply_third_party_patches
-copy_certs
 setup_cmake
 
 unlock

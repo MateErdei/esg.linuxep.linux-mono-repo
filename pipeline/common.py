@@ -361,10 +361,8 @@ def test_arch(arch):
 
 
 def get_os_packages(machine: tap.Machine):
-    # TODO: LINUXDAR-7234: Remove "make" from list once fixed
     common = [
         "git",
-        "make",
         "openssl",
         "rsync",
         "unzip",
@@ -373,13 +371,13 @@ def get_os_packages(machine: tap.Machine):
     if machine.template == "amzlinux2_x64_server_en_us":
         return common
     elif machine.template == "amzlinux2023_x64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "centos7_x64_aws_server_en_us":
         return common
     elif machine.template == "centos8stream_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "centos9stream_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "debian10_x64_aws_server_en_us":
         return common
     elif machine.template == "debian11_x64_aws_server_en_us":
@@ -387,13 +385,13 @@ def get_os_packages(machine: tap.Machine):
     elif machine.template == "oracle79_x64_aws_server_en_us":
         return common
     elif machine.template == "oracle87_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "rhel79_x64_aws_server_en_us":
         return common
     elif machine.template == "rhel87_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "rhel91_x64_aws_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "sles12_x64_sp5_aws_server_en_us":
         return common + ["libcap-progs", "curl"]
     elif machine.template == "sles15_x64_sp4_aws_server_en_us":
@@ -408,19 +406,19 @@ def get_os_packages(machine: tap.Machine):
     elif machine.template == "amzlinux2_arm64_server_en_us":
         return common
     elif machine.template == "amzlinux2023_arm64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "centos8stream_arm64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "centos9stream_arm64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "debian10_arm64_server_en_us":
         return common
     elif machine.template == "debian11_arm64_server_en_us":
         return common
     elif machine.template == "rhel87_arm64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "rhel91_arm64_server_en_us":
-        return common + ["openssl-perl"]
+        return common
     elif machine.template == "sles15_arm64_sp4_server_en_us":
         return common + ["libcap-progs"]
     elif machine.template == "ubuntu1804_arm64_server_en_us":

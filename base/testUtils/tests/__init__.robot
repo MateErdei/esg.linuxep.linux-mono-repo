@@ -92,8 +92,6 @@ Global Setup Tasks
     Set Global Variable  ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${BASE_SDDS_SCRIPTS}  ${TEST_INPUT_PATH}/base_sdds_scripts
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}    ${TEST_INPUT_PATH}/SystemProductTestOutput
-    Set Global Variable  ${OPENSSL_BIN_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
-    Set Global Variable  ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

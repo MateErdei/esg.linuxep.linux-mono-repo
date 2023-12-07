@@ -301,7 +301,6 @@ class MCSRouter(object):
     # Fake Cloud Utils
     def start_local_cloud_server(self, *args):
         self.stop_local_cloud_server()
-        self.ensure_fake_cloud_certs_generated()
         command = [sys.executable, os.path.join(self.cloud_server_path, "cloudServer.py")]
         self._launch_local_fake_cloud_process(command, args)
         self.__ensure_server_started(self.cloud_server_process, self.cloud_server_log, 'START')
@@ -1292,12 +1291,6 @@ class MCSRouter(object):
             return None
         if not pid and require_running:
             raise AssertionError("No MCSrouter running")
-
-    def ensure_fake_cloud_certs_generated(self):
-        proc = subprocess.Popen(["make", "all"], cwd=self.cloud_server_path, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        out, err = proc.communicate()
-        rc = proc.returncode
-        assert rc == 0, "failed to run make all in cloud automation folder"
 
 
     def create_back_dated_alc_status_cache_file(self, output_file, status):

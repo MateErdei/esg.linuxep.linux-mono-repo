@@ -79,14 +79,8 @@ Global Setup Tasks
     Set Environment Variable    SDDS3_BUILDER    ${INPUT_DIRECTORY}/sdds3/sdds3-builder
     Set Global Variable    ${BASE_SDDS_SCRIPTS}           ${INPUT_DIRECTORY}/base_sdds_scripts
 
-    Run Process    chmod    +x
-    ...    ${SUPPORT_FILES}/openssl/openssl
-    ...    ${SUPPORT_FILES}/openssl/libcrypto.so.3
-    ...    ${SUPPORT_FILES}/openssl/libssl.so.3
-    ...    ${COMMON_TEST_UTILS}/InstallCertificateToSystem.sh
-    ...    ${SDDS3_Builder}
-    Set Global Variable    ${OPENSSL_BIN_PATH}    ${SUPPORT_FILES}/openssl
-    Set Global Variable    ${OPENSSL_LIB_PATH}    ${SUPPORT_FILES}/openssl
+    Run Process    chmod    +x     ${SDDS3_Builder}
+
     Set Global Variable    ${TEST_TEMP_DIR}       ${CURDIR}/temp
 
     ${placeholder} =  Get Environment Variable    VUT_WAREHOUSE_ROOT    default=${INPUT_DIRECTORY}/repo

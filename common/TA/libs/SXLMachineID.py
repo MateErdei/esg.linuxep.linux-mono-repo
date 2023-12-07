@@ -7,7 +7,6 @@ import subprocess
 import os
 import hashlib
 import re
-import targetsystem as tsystem
 
 SXL_MACHINE_ID_FILENAME = "machine_ID.txt"
 
@@ -56,7 +55,7 @@ def _generateIpLines(option="addr"):
     for line in output.splitlines():
         yield line
 
-def _generateMacsIp(targetsystem):
+def _generateMacsIp():
     for line in _generateIpLines():
         mo = IP_HWADDR_RE.search(line)
         if mo:
@@ -81,14 +80,14 @@ def _generateIfconfigLines(option="-a"):
     for line in output.splitlines():
         yield line
 
-def _generateIps(targetsystem):
+def _generateIps():
     for line in _generateIfconfigLines():
         mo = IFCONFIG_INET_IP_RE.search(line)
         if mo:
             yield mo.group(1)
 
 
-def _generateMacsArp(targetsystem):
+def _generateMacsArp():
     arp = _findCommand("arp")
     if arp is None:
         return
@@ -100,7 +99,7 @@ def _generateMacsArp(targetsystem):
     if code != 0:
         return
 
-    ips = list(_generateIps(targetsystem))
+    ips = list(_generateIps())
     for line in output.splitlines():
         mo = ARP_RE.search(line)
         if mo:
@@ -112,7 +111,7 @@ def _generateMacsArp(targetsystem):
                 if mo.group(1) in ips:
                     yield mo.group(2)
 
-def _generateMacsIfconfig(targetsystem=None):
+def _generateMacsIfconfig():
     for line in _generateIfconfigLines():
         mo = IFCONFIG_HWADDR_RE.search(line)
         if mo:
@@ -122,7 +121,7 @@ def _generateMacsIfconfig(targetsystem=None):
             yield mo.group(1)
 
 
-def _generateMacsLanscan(targetsystem):
+def _generateMacsLanscan():
     """
     HPUX - `lanscan -a` prints out the mac address, one per-line
     """
@@ -136,7 +135,7 @@ def _generateMacsLanscan(targetsystem):
             for line in output.splitlines():
                 yield line
 
-def _generateMacsNetstat(targetsystem):
+def _generateMacsNetstat():
     """
     AIX - generate MACs from netstat -v | grep "Hardware Address"
     """
@@ -164,26 +163,25 @@ def _tidyMac(mac):
             res.append(s)
     return ":".join(res)
 
-def _generateMacs(targetsystem):
-    for mac in _generateMacsIp(targetsystem):
+def _generateMacs():
+    for mac in _generateMacsIp():
         yield _tidyMac(mac)
 
-    for mac in _generateMacsIfconfig(targetsystem):
+    for mac in _generateMacsIfconfig():
         yield _tidyMac(mac)
 
-    for mac in _generateMacsLanscan(targetsystem):
+    for mac in _generateMacsLanscan():
         yield _tidyMac(mac)
 
-    for mac in _generateMacsArp(targetsystem):
+    for mac in _generateMacsArp():
         yield _tidyMac(mac)
 
-    if not targetsystem:
-        for mac in _generateMacsNetstat(targetsystem):
-            yield _tidyMac(mac)
+    for mac in _generateMacsNetstat():
+        yield _tidyMac(mac)
 
-def generateMachineId(targetsystem=tsystem.TargetSystem()):
+def generateMachineId():
     macs = {}
-    for mac in _generateMacs(targetsystem):
+    for mac in _generateMacs():
         macs[mac] = 1
 
     macs = list(macs.keys())
@@ -200,31 +198,3 @@ def generateMachineId(targetsystem=tsystem.TargetSystem()):
 
     return macHash2.hexdigest()
 
-def writeFile(path, contents, permission):
-    oldumask = os.umask(0o177)
-    f = open(path, "w")
-    os.chmod(path, permission)
-    f.write(contents)
-    f.close()
-    os.umask(oldumask)
-    os.chmod(path, permission)
-
-def writeMachineIdIfRequired(instdir, targetsystem):
-    """
-    @return False if machine ID didn't need to be written
-    """
-    enginedir = os.path.join(instdir, "engine")
-    if not os.path.isdir(enginedir):
-        return False
-    machineIDFile = os.path.join(enginedir, SXL_MACHINE_ID_FILENAME)
-    if os.path.isfile(machineIDFile):
-        ## Already generated - regenerate if it is the default value since that
-        ## is an error
-        existing = open(machineIDFile).read().strip()
-        if existing != "07bdc20cee569c7000fdf28d94b7fa65":
-            return False
-
-    machineID = generateMachineId(targetsystem)
-    writeFile(machineIDFile, machineID, 0o644)
-
-    return True

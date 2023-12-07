@@ -61,34 +61,6 @@ class UpdateServer(object):
             print("Killing proxy server(s)")
             self.stop_proxy_servers()
 
-    def generate_update_certs(self):
-        # certs are valid for 24h, regenerate if they're more than 12h old.
-        if os.path.exists(self.private_pem):
-            age = time.time() - os.stat(self.private_pem).st_ctime
-            if age < 12 * 60 * 60:
-                # certificate is less than 12h old
-                return
-
-        openssl_bin_path = get_variable("OPENSSL_BIN_PATH")
-        openssl_lib_path = get_variable("OPENSSL_LIB_PATH")
-        if openssl_bin_path is None or openssl_lib_path is None:
-            raise AssertionError("openssl environment variables not set OPENSSL_BIN_PATH={}, OPENSSL_LIB_PATH={}".format(openssl_bin_path, openssl_lib_path))
-
-        env = os.environ.copy()
-        env["PATH"] = openssl_bin_path + ":" + env["PATH"]
-        env["LD_LIBRARY_PATH"] = openssl_lib_path
-
-        cert_dir=os.path.join(self.server_path, "https")
-        p = subprocess.run(["make", "clean"], cwd=cert_dir, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        if p.returncode != 0:
-            logger.warning(p.stdout)
-            raise AssertionError("Failed make clean")
-        p = subprocess.run(["make", "all"], cwd=cert_dir, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        if p.returncode != 0:
-            logger.warning(p.stdout)
-            raise AssertionError("Failed make all")
-        logger.info(f"Cert directory: {str(os.listdir(cert_dir))}")
-
     def stop_update_server(self):
         for process in self.server_processes:
             process.kill()
