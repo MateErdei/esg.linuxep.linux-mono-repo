@@ -3,3 +3,4 @@ protobuf
 pytest-html
 datetime
 sseclient
+psutil

@@ -78,6 +78,8 @@ namespace Plugin
         ~PluginAdapter();
 
         bool hasScheduleEpochEnded(time_t now);
+        void clearExtensions();
+        void stop();
 
     protected:
         /*

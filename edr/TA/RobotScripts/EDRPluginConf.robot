@@ -10,9 +10,7 @@ Suite Setup     Install Base For Component Tests
 Suite Teardown  Uninstall All
 
 Test Setup      Install EDR Directly from SDDS
-Test Teardown   Run Keywords
-...             EDR And Base Teardown  AND
-...             Uninstall EDR
+Test Teardown   EDRPluginConf Test Teardown
 
 Force Tags    TAP_PARALLEL2
 
@@ -59,3 +57,9 @@ EDR plugins reads and uses watchdog flags from in plugin conf
     File Log Contains    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags    watchdog_utilization_limit=60
     File Log Contains    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags    watchdog_latency_limit=1
     File Log Contains    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags    watchdog_delay=61
+
+*** Keywords ***
+
+EDRPluginConf Test Teardown
+    EDR And Base Teardown Without Starting EDR
+    Uninstall EDR

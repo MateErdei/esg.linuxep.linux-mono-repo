@@ -177,7 +177,6 @@ namespace
                             PRINT(line);
                         }
                     }
-
                 }
                 EXPECT_EQ(::geteuid(), 1);
                 EXPECT_EQ(::getuid(), 1);

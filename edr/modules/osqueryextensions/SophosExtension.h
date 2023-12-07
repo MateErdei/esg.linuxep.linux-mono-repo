@@ -28,7 +28,15 @@ private:
     Common::Threads::LockableData<bool> stopping_{false};
     std::unique_ptr<boost::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
-    std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
+    using ExtensionType = OsquerySDK::ExtensionInterface;
+    using ExtensionTypePtr = std::shared_ptr<OsquerySDK::ExtensionInterface>;
+    Common::Threads::LockableData<ExtensionTypePtr> m_extension;
+    ExtensionTypePtr accessExtension();
+    ExtensionTypePtr resetExtension(ExtensionTypePtr extension);
+    void resetExtension();
+    std::mutex waitForExtensionLock_;
+    void waitForExtension(ExtensionTypePtr& extension);
+
 
     [[nodiscard]] bool stopping()
     {

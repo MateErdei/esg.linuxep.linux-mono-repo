@@ -127,24 +127,30 @@ static int inner_main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    {
+        PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
-    try
-    {
-        pluginAdapter.mainLoop();
-    }
-    catch (const std::exception& ex)
-    {
-        LOGERROR("Plugin threw an exception at top level: " << ex.what());
-        ret = 40;
-    }
-    catch (...)
-    {
-        LOGERROR("Plugin threw an unhandled exception at top level");
-        ret = 41;
+        try
+        {
+            pluginAdapter.mainLoop();
+        }
+        catch (const std::exception &ex)
+        {
+            LOGERROR("Plugin threw an exception at top level: " << ex.what());
+            ret = 40;
+        }
+        catch (...)
+        {
+            LOGERROR("Plugin threw an unhandled exception at top level");
+            ret = 41;
+        }
+        pluginAdapter.stop();
+        sharedPluginCallBack->setRunning(false); // This must be set before pluginAdapter is deleted!
+        // callback onShutdown is called on the reactor thread
+        // callback waits for setRunning(false) (for 20 seconds)
+        // pluginAdapter owns and stops the reactor thread (via IBaseServiceApi)
     }
     LOGINFO("Plugin Finished.");
-    sharedPluginCallBack->setRunning(false);
     return ret;
 }
 MAIN(inner_main())

@@ -11,3 +11,4 @@ log4cplus::Logger& getPluginLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getPluginLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getPluginLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getPluginLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getPluginLogger(), x)  // NOLINT

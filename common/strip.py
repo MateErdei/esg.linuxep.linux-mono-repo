@@ -73,6 +73,13 @@ def check_disk_space():
     subprocess.run(["df", "-hl"])
 
 
+def add_debug_link(strip, src, dest):
+    result = subprocess.run([strip, "--only-keep-debug", "-o", dest+".debug", src], capture_output=True, text=True)
+    if result.returncode == 0:
+        debug = os.path.basename(dest+".debug")
+        subprocess.run(["objcopy", "--add-gnu-debuglink="+debug, dest])
+
+
 def main(argv):
     assert argv[1][0] == "@", "Expecting a parameter file"
 
@@ -108,6 +115,8 @@ def main(argv):
         result = None
         if mode == "strip":
             result = subprocess.run([strip, "-o", dest, src], capture_output=True, text=True)
+            if result.returncode == 0:
+                add_debug_link(strip, src, dest)
         elif mode == "extract_symbols":
             result = subprocess.run([strip, "--only-keep-debug", "-o", dest, src], capture_output=True, text=True)
 

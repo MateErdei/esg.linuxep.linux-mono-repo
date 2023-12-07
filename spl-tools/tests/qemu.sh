@@ -32,10 +32,13 @@ then
     ssh-keygen -b 2048 -t rsa -f "$vm_ssh_key" -q -N ""
 fi
 
-sudo apt-get install -y cloud-image-utils qemu qemu-kvm
+sudo apt install -y cloud-image-utils qemu qemu-kvm
 # Make sure we have correct permissions else the vm can't be started.
-sudo chmod 660 /dev/kvm
-sudo chown root:kvm /dev/kvm
+if [[ -e /dev/kvm ]]
+then
+    sudo chmod 660 /dev/kvm
+    sudo chown root:kvm /dev/kvm
+fi
 
 # 20.04
 img=focal-server-cloudimg-amd64.img
@@ -76,6 +79,7 @@ fi
 echo To SSH: ssh -p 2222 -i "$vm_ssh_key" ubuntu@localhost
 
 qemu-system-x86_64 \
+  -cpu host \
   -enable-kvm \
   -drive "file=${img},format=qcow2" \
   -drive "file=${user_data},format=raw" \

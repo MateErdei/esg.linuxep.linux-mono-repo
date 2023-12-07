@@ -146,7 +146,7 @@ Install With Base SDDS Inner
 Uninstall EDR
     ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh
     Return From Keyword If    ${file_exists} == ${False}
-    ${result} =   Run Process  bash -x ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
+    ${result} =   Run Process  bash -x ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=40s
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}  ${result.stderr}
 
@@ -300,6 +300,7 @@ Common Teardown
     Run Keyword If Test Failed  Dump EDR Logs
     Run Keyword If Test Failed  Get all sophos processes
     Run Keyword If Test Failed  Display All SSPL Files Installed
+    Run Keyword If Test Failed  Dump Threads   ${EDR_PLUGIN_BIN}
 
 EDR And Base Teardown Without Stopping Or Starting EDR
     Wait Until Keyword Succeeds

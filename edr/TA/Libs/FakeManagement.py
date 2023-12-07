@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 import zmq
 import os
+
+# Just always use python implementation - slower but more compatible
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
+
 import grp
 import pwd
 import time
@@ -13,6 +15,7 @@ from Libs.PluginCommunicationTools import FakeManagementAgent
 from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):

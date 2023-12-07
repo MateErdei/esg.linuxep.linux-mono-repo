@@ -90,6 +90,7 @@ then
   ./tools/scripts/setup-devmachine.sh
   sudo mkdir -p /opt/test
 fi
+sudo apt install -y gdb
 
 # Clear the inputs
 rm -rf /opt/test/inputs
@@ -183,6 +184,7 @@ def main():
     rsync(["--delete",
            "--exclude", "/bazel-out",  # To avoid removing it in the destination
            "--exclude", "/spl-tools/tests",  # To avoid copying VM images
+           "--exclude", "/.clwb",
            f"{monorepo_root}/",
            f"ubuntu@localhost:{MONO_REPO_ON_VM}/"])
     if os.path.isdir(f"{monorepo_root}/bazel-out/k8-dbg/bin/sdds"):

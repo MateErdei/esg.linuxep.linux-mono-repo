@@ -23,12 +23,14 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
     if (m_stopped)
     {
-        if (m_extension)
+        auto oldExtension = accessExtension();
+        if (oldExtension)
         {
             LOGDEBUG("Stopping old SophosExtension");
-            m_extension->Stop();
-            m_extension->Wait();
-            m_extension.reset();
+            oldExtension->Stop();
+            waitForExtension(oldExtension);
+            oldExtension.reset();
+            resetExtension();
         }
 
         m_flags.socket = socket;
@@ -37,18 +39,20 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_flags.timeout = 3;
 
         LOGDEBUG("Creating SophosExtension");
-        m_extension = OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0");
+        auto newExtension = resetExtension(
+                OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0")
+        );
 
         LOGDEBUG("Adding Sophos Server Table");
-        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
+        newExtension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
         LOGDEBUG("Adding Sophos Detections Table");
-        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
+        newExtension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
         LOGDEBUG("Adding Grep Table");
-        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::GrepTable>());
+        newExtension->AddTablePlugin(std::make_unique<OsquerySDK::GrepTable>());
         LOGDEBUG("Adding HexToInt Table");
-        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::HexToIntTable>());
+        newExtension->AddTablePlugin(std::make_unique<OsquerySDK::HexToIntTable>());
         LOGDEBUG("Extension Added");
-        m_extension->Start();
+        newExtension->Start();
         m_stopped = false;
         m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
@@ -65,12 +69,16 @@ void SophosExtension::Stop(long timeoutSeconds)
     {
         LOGINFO("Stopping SophosExtension");
         stopping(true);
-        m_extension->Stop();
+        auto extension = accessExtension();
+        extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
             m_runnerThread.reset();
         }
+        waitForExtension(extension);
+        extension.reset(); // reset our local variable
+        resetExtension(); // reset the instance variable
         m_stopped = true;
         stopping(false);
         LOGINFO("SophosExtension::Stopped");
@@ -80,16 +88,17 @@ void SophosExtension::Stop(long timeoutSeconds)
 void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFinished)
 {
     LOGINFO("SophosExtension running");
+    auto extension = accessExtension();
 
     // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
     if (!stopping())
     {
-        m_extension->Wait();
+        waitForExtension(extension);
     }
 
     if (!m_stopped && !stopping())
     {
-        const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
+        const auto healthCheckMessage = extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
         {
             LOGWARN(healthCheckMessage);
@@ -102,5 +111,31 @@ void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
 
 int SophosExtension::GetExitCode()
 {
-   return m_extension->GetReturnCode();
+    auto locked = m_extension.lock();
+    return locked->get()->GetReturnCode();
+}
+
+SophosExtension::ExtensionTypePtr SophosExtension::accessExtension()
+{
+    auto locked = m_extension.lock();
+    return *locked;
+}
+
+SophosExtension::ExtensionTypePtr SophosExtension::resetExtension(SophosExtension::ExtensionTypePtr extension)
+{
+    auto locked = m_extension.lock();
+    *locked = std::move(extension);
+    return *locked;
+}
+
+void SophosExtension::resetExtension()
+{
+    auto locked = m_extension.lock();
+    locked->reset();
+}
+
+void SophosExtension::waitForExtension(ExtensionTypePtr& extension)
+{
+    std::lock_guard locked(waitForExtensionLock_);
+    extension->Wait();
 }

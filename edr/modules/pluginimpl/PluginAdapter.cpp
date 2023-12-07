@@ -440,7 +440,7 @@ namespace Plugin
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
-        for(auto extensionAndState : m_extensionAndStateMap)
+        for(auto& extensionAndState : m_extensionAndStateMap)
         {
             extensionAndState.second.first->Stop(SVC_EXT_STOP_TIMEOUT);
         }
@@ -527,6 +527,25 @@ namespace Plugin
     {
         try
         {
+            // Repeat stop to be sure that it is done.
+            stop();
+        }
+        catch (const Common::Exceptions::IException& ex)
+        {
+            LOGFATAL("Failed to stop plugin in destructor! " << ex.what_with_location());
+        }
+        catch (const std::exception& ex)
+        {
+            LOGFATAL("Failed to stop plugin in destructor! " << ex.what());
+        }
+    }
+
+    void PluginAdapter::stop()
+    {
+        // Will be called multiple times.
+        clearExtensions();
+        try
+        {
             if (m_monitor.valid())
             {
                 stopOsquery(); // in case it reach this point without the request to stop being issued.
@@ -539,6 +558,7 @@ namespace Plugin
         // safe to clean up.
         m_queueTask->clearQueue();
         Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(TELEMETRY_CALLBACK_COOKIE);
+
     }
 
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
@@ -852,5 +872,17 @@ namespace Plugin
             queueTask.push(task);
         }
         return policyContent;
+    }
+
+    void PluginAdapter::clearExtensions()
+    {
+        LOGDEBUG("Clearing Extensions");
+
+        for (auto& runningStatus : m_extensionAndStateMap)
+        {
+            runningStatus.second.first->Stop(SVC_EXT_STOP_TIMEOUT);
+        }
+        m_extensionAndStateMap.clear();
+        LOGDEBUG("Cleared Extensions");
     }
 } // namespace Plugin

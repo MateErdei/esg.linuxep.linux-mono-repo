@@ -9,6 +9,8 @@
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
+#include <thread>
+
 #include <json.hpp>
 #include <unistd.h>
 
@@ -58,13 +60,22 @@ namespace Plugin
     {
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
-        int timeoutCounter = 0;
-        int shutdownTimeout = 20;
-        while(isRunning() && timeoutCounter < shutdownTimeout)
+
+        using namespace std::chrono_literals;
+        using clock_t = std::chrono::steady_clock;
+
+        constexpr auto shutdownTimeout = 20s;
+        auto deadline = clock_t::now() + shutdownTimeout;
+        auto nextLog = clock_t::now() + 1s;
+
+        while(isRunning() && clock_t::now() < deadline)
         {
-            LOGSUPPORT("Shutdown waiting for all processes to complete");
-            sleep(1);
-            timeoutCounter++;
+            if ( clock_t::now() > nextLog )
+            {
+                nextLog = clock_t::now() + 1s;
+                LOGSUPPORT("Shutdown waiting for all processes to complete");
+            }
+            std::this_thread::sleep_for(50ms);
         }
     }
 
