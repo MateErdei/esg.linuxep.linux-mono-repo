@@ -297,6 +297,8 @@ Verify SPL Is Not Restarted When SulDownloader Env Var Is Set
     Replace Version  ${BaseDevVersion}   9.99.999  /opt/tmp/version2
     ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
     Should Be Equal As Integers    ${result.rc}    0
+    # this file is used by base installer to check if its a clean install or not
+    Create File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
     Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 

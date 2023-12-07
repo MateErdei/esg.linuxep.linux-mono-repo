@@ -846,7 +846,9 @@ chmod u+x "$DIST/files/base/bin"/*
 "$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
 
 CLEAN_INSTALL=1
-[[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
+# update_report.json is only written after the update has finished and still exists on a downgrade
+[[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" ]] && CLEAN_INSTALL=0
+
 
 generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID} || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to generate manifest diff"
 
