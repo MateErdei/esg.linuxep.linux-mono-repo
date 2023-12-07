@@ -13,11 +13,11 @@ Library    ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/UpdateSchedulerHelper.py
 Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
-Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
-Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    PluginResources.robot
 Resource    ProductResources.robot
-Resource    UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
@@ -25,7 +25,7 @@ Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
-Force Tags    FIXED_VERSIONS
+Force Tags    FIXED_VERSIONS    TAP_PARALLEL2
 
 
 *** Variables ***
@@ -51,9 +51,8 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
     Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
 
-    ${central_api_client_id} =  Get Environment Variable    CENTRAL_API_CLIENT_ID
-    ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
-    @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
+    ${fixed_versions_str} =  Get Environment Variable    FIXED_VERSIONS
+    @{expectedFixedVersions} =    Split String    ${fixed_versions_str}    ,
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
@@ -69,9 +68,8 @@ Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
     Set Environment Variable    BUILD_JWT         ${build_jwt}
     ${hostname} =    Get Hostname
 
-    ${central_api_client_id} =  Get Environment Variable    CENTRAL_API_CLIENT_ID
-    ${central_api_client_secret} =  Get Environment Variable    CENTRAL_API_CLIENT_SECRET
-    @{expectedFixedVersions} =    Get Fixed Versions    ${central_api_client_id}    ${central_api_client_secret}    q    ${hostname}
+    ${fixed_versions_str} =  Get Environment Variable    FIXED_VERSIONS
+    @{expectedFixedVersions} =    Split String    ${fixed_versions_str}    ,
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true

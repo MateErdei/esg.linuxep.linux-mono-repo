@@ -76,8 +76,7 @@ def main(argv):
     parser.add_argument("--test", "--TEST", help="single test to run", default=os.environ.get('TEST', None))
     parser.add_argument("--suite", "--SUITE", help="single test suite to run", default=os.environ.get('SUITE', None))
     parser.add_argument("--debug", "--DEBUG", action="store_true", default=os.environ.get('DEBUG', False))
-    parser.add_argument("--central-api-client-id")
-    parser.add_argument("--central-api-client-secret")
+    parser.add_argument('--fixed-versions', nargs='+', help='SPL FTS Releases', action="extend")
     args = parser.parse_args()
 
     tags = {'include': [], 'exclude': []}
@@ -88,9 +87,8 @@ def main(argv):
     if args.exclude is not None:
         tags['exclude'].extend(args.exclude)
 
-    if args.central_api_client_id and args.central_api_client_secret:
-        os.environ["CENTRAL_API_CLIENT_ID"] = args.central_api_client_id
-        os.environ["CENTRAL_API_CLIENT_SECRET"] = args.central_api_client_secret
+    if args.fixed_versions is not None:
+        os.environ["FIXED_VERSIONS"] = ','.join(args.fixed_versions)
     else:
         tags["exclude"].append("FIXED_VERSIONS")
 

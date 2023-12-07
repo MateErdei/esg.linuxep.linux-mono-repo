@@ -164,7 +164,6 @@ def get_inputs(
 @tap.timeout(task_timeout=SYSTEM_TEST_TASK_TIMEOUT)
 def run_sdds_tests(machine: tap.Machine, robot_args_json: str):
     robot_exclusion_tags = []
-
     platform, arch = machine.template.split("_")[:2]
     if arch == "arm64" and platform in ["amzlinux2", "centos8stream", "debian10", "rhel87"]:
         # These ARM64 platforms have too old of a kernel to work with ARM64 RTD, so don't run tests which check
@@ -207,6 +206,12 @@ def stage_sdds_tests(
 
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2"
 
+    fixed_versions = []
+    for fts in context.releases.fixed_term_releases:
+        if fts.device_class == 'LINUXEP':
+            print(f"FTS name: {fts.name}, expiry: {fts.eol_date}, token: {fts.token}")
+            fixed_versions.append(fts.name)
+
     with stage.parallel(group_name):
         for build in get_test_builds():
             build_output = get_build_output_for_arch(outputs, build)
@@ -225,6 +230,10 @@ def stage_sdds_tests(
                 robot_args += ["--central-api-client-id", parameters["central_api_client_id"]]
             if parameters.get("central_api_client_secret"):
                 robot_args += ["--central-api-client-secret", parameters["central_api_client_secret"]]
+            if fixed_versions:
+                robot_args += ["--fixed-versions"]
+                for fixed_version in fixed_versions:
+                    robot_args += [fixed_version]
 
             includedtags = parameters.include_tags or default_include_tags
 
