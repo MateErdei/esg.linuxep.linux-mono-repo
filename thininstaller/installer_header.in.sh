@@ -2,7 +2,7 @@
 
 umask 077
 
-echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited"
+echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited: https://www.sophos.com/en-us/legal/sophos-end-user-terms-of-use"
 
 VERSION=@PRODUCT_VERSION@
 PRODUCT_NAME="Sophos Protection for Linux"
