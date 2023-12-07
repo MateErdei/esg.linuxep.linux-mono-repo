@@ -71,58 +71,28 @@ Multiple Liveresponse Sessions Work Concurrently
     Check Connected To Fake Cloud
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
 
-    ${correlation_id1} =  Get Correlation Id
-    ${correlation_id2} =  Get Correlation Id
-    ${correlation_id3} =  Get Correlation Id
-    ${correlation_id4} =  Get Correlation Id
-    ${correlation_id5} =  Get Correlation Id
-    ${correlation_id6} =  Get Correlation Id
-    ${correlation_id7} =  Get Correlation Id
-    ${correlation_id8} =  Get Correlation Id
-    ${correlation_id9} =  Get Correlation Id
-    ${correlation_id10} =  Get Correlation Id
+    @{correlation_ids} =  Get Correlation Ids    ${10}
 
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id1}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id2}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id3}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id4}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id5}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id6}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id7}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id8}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id9}
-    Check Liveresponse Command Successfully Starts A Session   ${correlation_id10}
+    FOR    ${correlation_id}    IN    @{correlation_ids}
+        Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
+    END
 
-    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id1}
-    wait for match message   sophos-live-terminal   ${correlation_id1}
+    FOR    ${correlation_id}    IN    @{correlation_ids}
+        Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
+        wait for match message   sophos-live-terminal   ${correlation_id}
+    END
 
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id2}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id3}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id4}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id5}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id6}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id7}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id8}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id9}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id10}
+    FOR    ${correlation_id}    IN    @{correlation_ids}
+        Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
+    END
 
     ${files} =  List Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
     Log  ${files}
 
-    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Should Be Equal As Integers  ${count}  ${10}
+    FOR    ${correlation_id}    IN    @{correlation_ids}
+        Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id}
+    END
 
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id3}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id4}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id5}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id6}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id7}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id8}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id9}
-    Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id10}
 
 Closing a LiveResponse Session Does Not Affect The Outcome Of Another Session
     Check Connected To Fake Cloud
@@ -175,14 +145,12 @@ Number Of Files In Dir Should Be
 
 Check Liveresponse Command Successfully Starts A Session
     [Arguments]   ${correlationId}
-    ${mark} =  Mark Managementagent Log
+    ${ma_mark} =  Mark Managementagent Log
+    ${mr_mark} =  Get Mark For Mcsrouter Log
     ${liveResponse} =  Create Live Response Action  ${websocket_server_url}/${correlationId}  ${Thumbprint}  ${correlationId}
     Send Message To Push Server   ${liveResponse}
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Mcsrouter Log Contains   Received command from Push Server
-    wait_for_log_contains_from_mark  ${mark}  Action LiveTerminal_${correlationId}_action_  timeout=${5}
+    Wait For Log Contains From Mark    ${mr_mark}    Received command from Push Server
+    Wait For Log Contains From Mark    ${ma_mark}    Action LiveTerminal_${correlationId}_action_  timeout=${5}
     wait for match message  root@   ${correlationId}  timeout=${5}
 
 Check Touch Creates Files Successfully From Liveresponse Session

@@ -3,6 +3,8 @@ import os
 import glob
 import datetime
 import shutil
+import uuid
+
 import ActionUtils
 import LiveQueryUtils
 
@@ -50,8 +52,14 @@ class LiveResponseUtils:
 
     @staticmethod
     def get_correlation_id():
-        import uuid
         return str(uuid.uuid4())
+
+    @staticmethod
+    def get_correlation_ids(count):
+        corr_ids = []
+        for _ in range(count):
+            corr_ids.append(str(uuid.uuid4()))
+        return corr_ids
 
     def run_live_response(self, query, correlationId):
 
