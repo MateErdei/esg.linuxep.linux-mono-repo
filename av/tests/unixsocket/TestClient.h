@@ -5,9 +5,10 @@
 #include "unixsocket/SocketUtils.h"
 
 #include "Common/Exceptions/IException.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <sstream>
 
 namespace
@@ -45,7 +46,8 @@ namespace
             assert(m_socket_fd.valid());
             try
             {
-                if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
+                Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+                if (!unixsocket::writeLengthAndBuffer(systemCallWrapper, m_socket_fd.get(), request))
                 {
                     std::stringstream errMsg;
                     errMsg << "Failed to write to to socket [" << errno << "]";

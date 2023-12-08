@@ -72,6 +72,8 @@ namespace Common::SystemCallWrapper
         virtual ssize_t readlink(const char* path, char* buf, size_t len) = 0;
         virtual int setpriority(int which, int who, int prio) = 0;
         virtual int setrlimit(int resource, const struct ::rlimit* rlim) = 0;
+        virtual ssize_t sendmsg(int fd, const struct msghdr* message, int flags) = 0;
+        virtual ssize_t recvmsg(int fd, struct msghdr* message, int flags) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

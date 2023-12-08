@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -6,6 +6,8 @@
 #include "scan_messages/ScanResponse.h"
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/BaseServerSocket.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 using namespace unixsocket;
 class TestServerConnectionThread : public BaseServerConnectionThread
@@ -26,12 +28,14 @@ public:
     }
     std::string m_nextResponse;
     bool m_sendGiantResponse;
+
 private:
     void inner_run();
     bool handleEvent(datatypes::AutoFd& socket_fd, ssize_t length);
     bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response);
     bool sendResponse(datatypes::AutoFd& socket_fd, const std::string& response);
     bool sendResponse(int socket_fd, size_t length, const std::string& buffer);
+    Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper_;
 };
 
 class FakeScanningServer : public ImplServerSocket<TestServerConnectionThread>
@@ -45,8 +49,8 @@ public:
     std::string m_nextResponse;
     TestServerConnectionThread* m_latestThread = nullptr; // Borrowed pointer to latested thread
     bool m_sendGiantResponse = false;
-protected:
 
+protected:
     TPtr makeThread(datatypes::AutoFd& fd) override
     {
         auto t = std::make_unique<TestServerConnectionThread>(fd);

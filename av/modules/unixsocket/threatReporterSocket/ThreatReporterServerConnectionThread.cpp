@@ -2,9 +2,8 @@
 
 #include "ThreatReporterServerConnectionThread.h"
 
-#include "scan_messages/ThreatDetected.capnp.h"
-
 #include "common/SaferStrerror.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
@@ -218,7 +217,7 @@ void ThreatReporterServerConnectionThread::inner_run()
             scan_messages::ThreatDetected detectionReader = std::move(threatDetectedOptional.value());
 
             // read fd
-            datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
+            datatypes::AutoFd file_fd(unixsocket::recv_fd(*sysCalls, socket_fd));
             if (file_fd.get() < 0)
             {
                 LOGERROR("Aborting " << m_threadName << ": failed to read fd");

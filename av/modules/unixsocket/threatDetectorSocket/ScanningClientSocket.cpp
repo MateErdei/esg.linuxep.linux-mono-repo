@@ -3,18 +3,21 @@
 #include "ScanningClientSocket.h"
 
 #include "common/AbortScanException.h"
-#include "unixsocket/SocketUtils.h"
-#include "unixsocket/Logger.h"
 #include "scan_messages/ClientScanRequest.h"
-
 #include "scan_messages/ScanResponse.capnp.h"
+#include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
 #include <capnp/serialize.h>
 
 #include <cassert>
 #include <sstream>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
 
 namespace unixsocket
 {
@@ -42,7 +45,8 @@ namespace unixsocket
 
         try
         {
-            if (!writeLengthAndBufferAndFd(m_socket_fd, dataAsString, fd))
+            Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+            if (!writeLengthAndBufferAndFd(systemCallWrapper, m_socket_fd, dataAsString, fd))
             {
                 return false;
             }
@@ -120,4 +124,4 @@ namespace unixsocket
     {
         return m_socket_fd;
     }
-}
+} // namespace unixsocket

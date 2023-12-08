@@ -123,5 +123,11 @@ namespace Common::SystemCallWrapper
         int setpriority(int which, int who, int prio) override { return ::setpriority(which, who, prio); }
 
         int lstat(const char* path, struct stat* buf) override { return ::lstat(path, buf); }
+
+        ssize_t sendmsg(int fd, const struct msghdr* message, int flags) override
+        {
+            return ::sendmsg(fd, message, flags);
+        }
+        ssize_t recvmsg(int fd, struct msghdr* message, int flags) override { return ::recvmsg(fd, message, flags); }
     };
 } // namespace Common::SystemCallWrapper

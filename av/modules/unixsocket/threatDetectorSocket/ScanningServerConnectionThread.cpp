@@ -126,7 +126,7 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
     std::string serialised_result = response.serialise();
     try
     {
-        if (!writeLengthAndBuffer(socket_fd, serialised_result))
+        if (!writeLengthAndBuffer(*sysCalls_, socket_fd, serialised_result))
         {
             LOGWARN(m_threadName << " failed to write result to unix socket");
             return false;
@@ -296,7 +296,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             LOGDEBUG(m_threadName << " scan requested of " << escapedPath);
 
             // read fd
-            datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
+            datatypes::AutoFd file_fd(unixsocket::recv_fd(*sysCalls_, socket_fd));
             if (file_fd.get() < 0)
             {
                 errMsg = "Aborting " + m_threadName + ": failed to read fd";

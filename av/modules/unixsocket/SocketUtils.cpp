@@ -7,15 +7,15 @@
 
 #include "common/SaferStrerror.h"
 
-#include <cstdint>
-#include <cstring>
-#include <memory>
-#include <vector>
-
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
+
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <vector>
 
 void unixsocket::writeLength(int socket_fd, size_t length)
 {
@@ -29,7 +29,10 @@ void unixsocket::writeLength(int socket_fd, size_t length)
     }
 }
 
-bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
+bool unixsocket::writeLengthAndBuffer(
+    Common::SystemCallWrapper::ISystemCallWrapper& systemCallWrapper,
+    int socket_fd,
+    const std::string& buffer)
 {
     struct iovec iov[2];
     size_t lengthBufferSize;
@@ -43,7 +46,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     message.msg_iov = iov;
     message.msg_iovlen = 2;
 
-    ssize_t bytes_written = ::sendmsg(socket_fd, &message, MSG_NOSIGNAL);
+    ssize_t bytes_written = systemCallWrapper.sendmsg(socket_fd, &message, MSG_NOSIGNAL);
     if (static_cast<unsigned>(bytes_written) != buffer.size() + lengthBufferSize)
     {
         throw EnvironmentInterruption(__FUNCTION__);
@@ -88,10 +91,8 @@ ssize_t unixsocket::readLength(int socket_fd, ssize_t maxSize)
 
 /**
  * Receive a single file descriptor from a unix socket
- * @param socket
- * @return
  */
-int unixsocket::recv_fd(int socket)
+int unixsocket::recv_fd(Common::SystemCallWrapper::ISystemCallWrapper& systemCallWrapper, int socket)
 {
     int fd = -1;
 
@@ -106,7 +107,7 @@ int unixsocket::recv_fd(int socket)
     msg.msg_controllen = sizeof(buf);
 
     errno = 0;
-    ssize_t ret = recvmsg (socket, &msg, 0); // ret = bytes received
+    ssize_t ret = systemCallWrapper.recvmsg(socket, &msg, 0); // ret = bytes received
     if (ret < 0)
     {
         perror("Failed to receive fd: recvmsg failed");
@@ -180,10 +181,13 @@ ssize_t unixsocket::send_fd(int socket, int fd)  // send fd by socket
     return sendmsg(socket, &msg, MSG_NOSIGNAL);
 }
 
-
-bool unixsocket::writeLengthAndBufferAndFd(int socket_fd, const std::string& buffer, int fd)
+bool unixsocket::writeLengthAndBufferAndFd(
+    Common::SystemCallWrapper::ISystemCallWrapper& systemCallWrapper,
+    int socket_fd,
+    const std::string& buffer,
+    int fd)
 {
-    std::ignore = writeLengthAndBuffer(socket_fd, buffer); // throws or returns true
+    std::ignore = writeLengthAndBuffer(systemCallWrapper, socket_fd, buffer); // throws or returns true
     return (send_fd(socket_fd, fd) > 0);
 }
 

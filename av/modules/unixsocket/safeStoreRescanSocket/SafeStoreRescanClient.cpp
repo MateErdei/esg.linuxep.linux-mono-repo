@@ -3,10 +3,11 @@
 #include "SafeStoreRescanClient.h"
 
 #include "common/SaferStrerror.h"
-
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <cassert>
 #include <sstream>
@@ -29,7 +30,8 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
 
     try
     {
-        if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
+        Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+        if (!writeLengthAndBuffer(systemCallWrapper, m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
             errMsg << m_name << " failed to write rescan request to socket [" << common::safer_strerror(errno) << "]";

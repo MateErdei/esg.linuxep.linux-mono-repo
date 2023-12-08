@@ -4,11 +4,13 @@
 
 #include "SafeStoreSocketMemoryAppenderUsingTests.h"
 
+#include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/SampleThreatDetected.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/safestore/MockIQuarantineManager.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/SocketUtilsImpl.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerConnectionThread.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -21,6 +23,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cstring>
 #include <memory>
 
 namespace fs = sophos_filesystem;
@@ -69,6 +72,33 @@ namespace
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<MockIQuarantineManager> mockQuarantineManager_ = std::make_shared<MockIQuarantineManager>();
     };
+
+    std::function<int(struct pollfd* pfd, nfds_t num_fds, const struct timespec* /*timeout*/, const sigset_t* /*ss*/)>
+    MockPpollSettingPollinForFd(int fd)
+    {
+        return [fd](struct pollfd* pfd, nfds_t num_fds, const struct timespec* /*timeout*/, const sigset_t* /*ss*/)
+        {
+            bool hasFound = false;
+            for (unsigned int i = 0; i < num_fds; ++i)
+            {
+                if (pfd[i].fd == fd)
+                {
+                    pfd[i].revents |= POLLIN;
+                    hasFound = true;
+                    break;
+                }
+            }
+            return hasFound ? 1 : 0;
+        };
+    }
+
+    void SetFdInCmsg(struct cmsghdr* cmsg, int fd)
+    {
+        cmsg->cmsg_level = SOL_SOCKET;
+        cmsg->cmsg_type = SCM_RIGHTS;
+        cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
+        memcpy(CMSG_DATA(cmsg), &fd, sizeof(fd));
+    }
 } // namespace
 
 TEST_F(TestSafeStoreServerConnectionThread, successful_construction)
@@ -235,7 +265,7 @@ TEST_F(TestSafeStoreServerConnectionThread, corrupt_request)
     SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd.get(), request);
+    unixsocket::writeLengthAndBuffer(*m_sysCalls, clientFd.get(), request);
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
@@ -279,11 +309,203 @@ TEST_F(TestSafeStoreServerConnectionThread, ReceivesRequestAndCallsQuarantineMan
     connectionThread.start();
 
     // Send detection
-    writeLengthAndBuffer(clientFd.get(), detection.serialise());
+    writeLengthAndBuffer(*m_sysCalls, clientFd.get(), detection.serialise());
     send_fd(clientFd.get(), detection.autoFd.get());
 
     EXPECT_TRUE(waitForLog("Received Threat:"));
 
     connectionThread.requestStop();
     connectionThread.join();
+}
+
+TEST_F(TestSafeStoreServerConnectionThread, DataSplitAcrossTwoReadsIsReadSuccessfully)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    datatypes::AutoFd autoFd{ ::open("/dev/null", O_RDONLY) };
+    auto fd = autoFd.get(); // borrowed
+
+    {
+        InSequence seq;
+
+        // First poll will result in reading the length (2), and the first of the 2 bytes
+        EXPECT_CALL(*m_mockSysCalls, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*m_mockSysCalls, read(fd, _, 1))
+            .WillOnce(Invoke(
+                [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                {
+                    static_cast<uint8_t*>(buf)[0] = 2;
+                    return 1;
+                }));
+        EXPECT_CALL(*m_mockSysCalls, read(fd, _, 2)).WillOnce(Return(1));
+
+        // Second poll will read the second byte
+        EXPECT_CALL(*m_mockSysCalls, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*m_mockSysCalls, read(fd, _, 1)).WillOnce(Return(1));
+    }
+
+    SafeStoreServerConnectionThread safeStoreServerConnectionThread{ autoFd, mockQuarantineManager_, m_mockSysCalls };
+
+    safeStoreServerConnectionThread.start();
+    safeStoreServerConnectionThread.requestStop();
+    safeStoreServerConnectionThread.join();
+
+    EXPECT_TRUE(appenderContains("failed to parse detection")); // Means it finished reading and tried to parse it
+    // Also if we got here it means it hasn't frozen waiting
+}
+
+TEST_F(TestSafeStoreServerConnectionThread, ReadingMultipleZeroLengthMessagesOnlyLogsOnce)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    datatypes::AutoFd autoFd{ ::open("/dev/null", O_RDONLY) };
+    auto fd = autoFd.get(); // borrowed
+
+    {
+        InSequence seq;
+
+        // Poll and read a bunch of 0-lengths
+        for (int readIndex = 0; readIndex < 10; ++readIndex)
+        {
+            EXPECT_CALL(*m_mockSysCalls, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+            EXPECT_CALL(*m_mockSysCalls, read(fd, _, 1))
+                .WillOnce(Invoke(
+                    [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                    {
+                        static_cast<uint8_t*>(buf)[0] = 0;
+                        return 1;
+                    }));
+        }
+
+        // Finally, poll and read a 1 byte message
+        EXPECT_CALL(*m_mockSysCalls, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*m_mockSysCalls, read(fd, _, 1))
+            .WillOnce(Invoke(
+                [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                {
+                    static_cast<uint8_t*>(buf)[0] = 1;
+                    return 1;
+                }));
+        EXPECT_CALL(*m_mockSysCalls, read(fd, _, 1)).WillOnce(Return(1));
+    }
+
+    SafeStoreServerConnectionThread safeStoreServerConnectionThread{ autoFd, mockQuarantineManager_, m_mockSysCalls };
+
+    safeStoreServerConnectionThread.start();
+    safeStoreServerConnectionThread.requestStop();
+    safeStoreServerConnectionThread.join();
+
+    EXPECT_TRUE(appenderContainsCount("ignoring length of zero / No new messages", 1));
+    EXPECT_TRUE(appenderContains("failed to parse detection")); // Means it finished reading and tried to parse it
+    // Also if we got here it means it hasn't frozen waiting
+}
+
+TEST_F(TestSafeStoreServerConnectionThread, ZeroLengthFollowedByCompleteMessageFollowedByZeroLengthLogsZeroTwice)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    datatypes::AutoFd autoFd{ ::open("/dev/null", O_RDONLY) };
+    auto fd = autoFd.get(); // borrowed
+
+    const auto detection = createThreatDetectedWithRealFd({});
+    const auto serialisedDetection = detection.serialise();
+    size_t lengthBufferSize;
+    const auto lengthBuffer = unixsocket::getLength(serialisedDetection.size(), lengthBufferSize);
+
+    auto mockSystemCallWrapper = std::make_shared<MockSystemCallWrapper>();
+
+    {
+        InSequence seq;
+
+        // Poll and read a 0-length
+        EXPECT_CALL(*mockSystemCallWrapper, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, 1))
+            .WillOnce(Invoke(
+                [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                {
+                    static_cast<uint8_t*>(buf)[0] = 0;
+                    return 1;
+                }));
+
+        {
+            // Poll and read the ThreatDetected object
+            EXPECT_CALL(*mockSystemCallWrapper, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+            for (size_t i = 0; i < lengthBufferSize; ++i)
+            {
+                EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, 1))
+                    .WillOnce(Invoke(
+                        [&lengthBuffer, i](int /*fd*/, void* buf, size_t /*nbytes*/)
+                        {
+                            static_cast<uint8_t*>(buf)[0] = lengthBuffer[i];
+                            return 1;
+                        }));
+            }
+            EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, serialisedDetection.size()))
+                .WillOnce(Invoke(
+                    [&serialisedDetection](int /*fd*/, void* buf, size_t /*nbytes*/)
+                    {
+                        std::memcpy(buf, serialisedDetection.data(), serialisedDetection.size());
+                        return serialisedDetection.size();
+                    }));
+        }
+
+        // Poll and read a 0-length
+        EXPECT_CALL(*mockSystemCallWrapper, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, 1))
+            .WillOnce(Invoke(
+                [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                {
+                    static_cast<uint8_t*>(buf)[0] = 0;
+                    return 1;
+                }));
+
+        // Finally, poll and read a 1 byte message to make the thread finish
+        EXPECT_CALL(*mockSystemCallWrapper, ppoll).WillOnce(Invoke(MockPpollSettingPollinForFd(fd)));
+        EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, 1))
+            .WillOnce(Invoke(
+                [](int /*fd*/, void* buf, size_t /*nbytes*/)
+                {
+                    static_cast<uint8_t*>(buf)[0] = 1;
+                    return 1;
+                }));
+        EXPECT_CALL(*mockSystemCallWrapper, read(fd, _, 1)).WillOnce(Return(1));
+    }
+
+    ON_CALL(*mockSystemCallWrapper, recvmsg(fd, _, _))
+        .WillByDefault(Invoke(
+            [fd](int /*fd*/, struct msghdr* message, int /*flags*/)
+            {
+                if (message->msg_iovlen < 1)
+                {
+                    return -1;
+                }
+
+                struct cmsghdr* cmsg = CMSG_FIRSTHDR(message);
+                SetFdInCmsg(cmsg, fd);
+                return 0;
+            }));
+
+    ON_CALL(*mockSystemCallWrapper, sendmsg)
+        .WillByDefault(Invoke(
+            [](int /*fd*/, const struct msghdr* message, int /*flags*/)
+            {
+                size_t size = 0;
+                for (size_t i = 0; i < message->msg_iovlen; ++i)
+                {
+                    size += message->msg_iov[i].iov_len;
+                }
+                return size;
+            }));
+
+    SafeStoreServerConnectionThread safeStoreServerConnectionThread{ autoFd,
+                                                                     mockQuarantineManager_,
+                                                                     mockSystemCallWrapper };
+
+    safeStoreServerConnectionThread.start();
+    safeStoreServerConnectionThread.requestStop();
+    safeStoreServerConnectionThread.join();
+
+    EXPECT_TRUE(appenderContainsCount("ignoring length of zero / No new messages", 2));
+    EXPECT_TRUE(appenderContains("failed to parse detection")); // Means it finished reading and tried to parse it
+    // Also if we got here it means it hasn't frozen waiting
 }

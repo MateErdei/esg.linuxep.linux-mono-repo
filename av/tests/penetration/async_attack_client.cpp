@@ -9,6 +9,7 @@
 #include "scan_messages/ClientScanRequest.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <cassert>
 #include <string>
@@ -87,8 +88,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
     ScanRequest request = generateScanRequest(filename);
-    unixsocket::writeLengthAndBuffer(socket_fd, request.serialise());
+    unixsocket::writeLengthAndBuffer(systemCallWrapper, socket_fd, request.serialise());
 
     if (!fork)
     {

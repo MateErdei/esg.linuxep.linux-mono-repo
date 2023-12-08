@@ -3,18 +3,21 @@
 #include "ProcessControllerClient.h"
 
 #include "common/SaferStrerror.h"
-
-#include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
-#include <string>
-#include <cassert>
-#include <utility>
-#include <sstream>
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
-        : BaseClient(std::move(socket_path), "ProcessControlClient", sleepTime)
+#include <cassert>
+#include <sstream>
+#include <string>
+#include <utility>
+
+unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
+    std::string socket_path,
+    const duration_t& sleepTime) :
+    BaseClient(std::move(socket_path), "ProcessControlClient", sleepTime)
 {
     connectWithRetries();
 }
@@ -45,7 +48,8 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
 
     try
     {
-        if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+        Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+        if (!writeLengthAndBuffer(systemCallWrapper, m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
             errMsg << m_name << " failed to write Process Control Request to socket [" << common::safer_strerror(errno) << "]";

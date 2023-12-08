@@ -8,6 +8,8 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 #include <unistd.h>
 
 #include <capnp/serialize.h>
@@ -39,7 +41,8 @@ namespace unixsocket
 
         try
         {
-            if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
+            Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+            if (!writeLengthAndBuffer(systemCallWrapper, m_socket_fd, dataAsString))
             {
                 return false;
             }

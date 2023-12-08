@@ -13,9 +13,9 @@
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-#include <cassert>
-
 #include <poll.h>
+
+#include <cassert>
 
 void TestServerConnectionThread::inner_run()
 {
@@ -29,7 +29,8 @@ void TestServerConnectionThread::inner_run()
                 { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
         };
         auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-        assert(ret > 0); std::ignore = ret;
+        assert(ret > 0);
+        std::ignore = ret;
         if ((fds[1].revents & POLLERR) != 0)
         {
             LOGERROR("Error from fds[0]");
@@ -121,7 +122,7 @@ bool TestServerConnectionThread::handleEvent(datatypes::AutoFd& socket_fd, ssize
     LOGDEBUG("Scan requested of " << escapedPath);
 
     // read fd
-    datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd.get()));
+    datatypes::AutoFd file_fd(unixsocket::recv_fd(*m_sysCalls, socket_fd.get()));
     if (file_fd.get() < 0)
     {
         errMsg = "Aborting Scanning connection thread: failed to read fd";
@@ -175,7 +176,7 @@ bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, cons
 {
     try
     {
-        if (!writeLengthAndBuffer(socket_fd.get(), serialised_result))
+        if (!writeLengthAndBuffer(systemCallWrapper_, socket_fd.get(), serialised_result))
         {
             LOGWARN("Failed to write result to unix socket");
             return false;

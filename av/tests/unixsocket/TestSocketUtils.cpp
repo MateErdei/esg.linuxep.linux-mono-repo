@@ -11,6 +11,8 @@
 // Test utils
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 // 3rd party
 #include <gtest/gtest.h>
 
@@ -19,9 +21,8 @@
 #include <utility>
 // Std C
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/socket.h>
-
+#include <sys/types.h>
 
 using namespace unixsocket;
 using namespace testing;
@@ -110,7 +111,10 @@ TEST(TestBuffer, TestThreeBytesWithZeroes)
 namespace
 {
     class TestFdTransfer : public UnixSocketMemoryAppenderUsingTests
-    {};
+    {
+    protected:
+        Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper_;
+    };
 
     class TestReadLength : public UnixSocketMemoryAppenderUsingTests
     {};
@@ -194,7 +198,7 @@ namespace
     private:
         int socket_fds[2];
     };
-}
+} // namespace
 
 TEST_F(TestReadLength, EOFReturnsMinus2)
 {
@@ -361,7 +365,8 @@ TEST(TestWriteLengthAndBuffer, SimpleWrite)
     std::string client_buffer = "hello";
     TestSocket socket_pair;
 
-    unixsocket::writeLengthAndBuffer(socket_pair.get_client_fd(), client_buffer);
+    Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+    unixsocket::writeLengthAndBuffer(systemCallWrapper, socket_pair.get_client_fd(), client_buffer);
 
     char server_buffer[16] = { '\0' };
     ssize_t readlen = ::read(socket_pair.get_server_fd(), server_buffer, sizeof(server_buffer));
@@ -382,7 +387,7 @@ TEST_F(TestFdTransfer, validFd)
     auto ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
     ASSERT_GT(ret, 0) << "send_fd failed with: " << common::safer_strerror(errno);
 
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_GE(new_fd, 0) << "recv_fd failed with: " << common::safer_strerror(errno);
     datatypes::AutoFd server_fd(new_fd);
 
@@ -413,7 +418,7 @@ TEST_F(TestFdTransfer, readError)
     TestSocket socket_pair;
 
     ::close(socket_pair.get_server_fd());
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_EQ(new_fd, -1);
 }
 
@@ -471,7 +476,7 @@ TEST_F(TestFdTransfer, sendTwoFds)
     devZero.close();
     devNull.close();
 
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_EQ(new_fd, -1);
 
     int fd_count_after = count_open_fds();
@@ -497,7 +502,7 @@ TEST_F(TestFdTransfer, sendThreeFds)
     devZero.close();
     devNull.close();
 
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_EQ(new_fd, -1);
 
     int fd_count_after = count_open_fds();
@@ -514,7 +519,7 @@ TEST_F(TestFdTransfer, sendZeroFds)
     int fds[] = {};
     send_fds(socket_pair.get_client_fd(), fds, 0);
 
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_EQ(new_fd, -1);
 
     EXPECT_TRUE(appenderContains(expected));
@@ -529,7 +534,7 @@ TEST_F(TestFdTransfer, sendRegularMessage)
     std::string buffer = "junk";
     ::send(socket_pair.get_client_fd(), buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
 
-    int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
+    int new_fd = unixsocket::recv_fd(systemCallWrapper_, socket_pair.get_server_fd());
     ASSERT_EQ(new_fd, -1);
 
     EXPECT_TRUE(appenderContains(expected));

@@ -1,37 +1,36 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
+#define AUTO_FD_IMPLICIT_INT
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-#include "unixsocket/SocketUtils.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/FailedToInitializeSusiException.h"
 #include "common/ShuttingDownException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/ScanRequest.h"
-
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
+#include "unixsocket/SocketUtils.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Helpers/MockSysCalls.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <capnp/serialize.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <memory>
-
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 using namespace unixsocket;
 using namespace ::testing;
@@ -183,7 +182,7 @@ namespace
 
         std::shared_ptr<ScanningServerConnectionThread> connectionThread_;
     };
-}
+} // namespace
 
 TEST_F(TestScanningServerConnectionThread, successful_construction)
 {
@@ -392,7 +391,7 @@ TEST_F(TestScanningServerConnectionThread, corrupt_request)
     ScanningServerConnectionThread connectionThread(serverFd, scannerFactory, sysCalls_);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd, request);
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd, request);
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
@@ -408,7 +407,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_
     dontExpectBadHealth();
     connectionThread_->start();
     EXPECT_TRUE(connectionThread_->isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
     ::close(clientFd_);
     EXPECT_TRUE(waitForLog(expected));
     connectionThread_->requestStop();
@@ -446,7 +445,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
     ScanningServerConnectionThread connectionThread(serverFd_, scannerFactory, sysCalls_);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
@@ -490,7 +489,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     ScanningServerConnectionThread connectionThread(serverFd_, scannerFactory, sysCalls_);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
@@ -532,7 +531,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_
     ScanningServerConnectionThread connectionThread(serverFd_, scannerFactory, sysCalls_);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
@@ -568,7 +567,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_t
     ScanningServerConnectionThread connectionThread(serverFd_, scannerFactory, sysCalls_);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
@@ -592,7 +591,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable)
     dontExpectBadHealth();
     connectionThread_->start();
     EXPECT_TRUE(connectionThread_->isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_WRONLY));
     auto ret = send_fd(clientFd_, fd.get());
@@ -617,7 +616,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device)
     dontExpectBadHealth();
     connectionThread_->start();
     EXPECT_TRUE(connectionThread_->isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
     datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
     ASSERT_GE(devNull.get(), 0);
     auto ret = send_fd(clientFd_, devNull.get());
@@ -643,7 +642,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket)
     dontExpectBadHealth();
     connectionThread_->start();
     EXPECT_TRUE(connectionThread_->isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
     auto ret = send_fd(clientFd_, clientFd_.get());
     ASSERT_GE(ret, 0);
 
@@ -666,7 +665,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_path)
     dontExpectBadHealth();
     connectionThread_->start();
     EXPECT_TRUE(connectionThread_->isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd_, request.serialise());
+    unixsocket::writeLengthAndBuffer(*sysCalls_, clientFd_, request.serialise());
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_PATH));
     ASSERT_GE(fd.get(), 0);

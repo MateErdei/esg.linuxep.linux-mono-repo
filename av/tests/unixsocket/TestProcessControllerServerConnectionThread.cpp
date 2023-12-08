@@ -4,29 +4,29 @@
 
 // Product
 #include "datatypes/sophos_filesystem.h"
+#include "scan_messages/ClientScanRequest.h" // for invalid_request_type test
+#include "scan_messages/ProcessControlSerialiser.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerConnectionThread.h"
-#include "scan_messages/ProcessControlSerialiser.h"
-#include "scan_messages/ClientScanRequest.h" // for invalid_request_type test
 
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 // test
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
-#include "tests/common/WaitForEvent.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/TestFile.h"
+#include "tests/common/WaitForEvent.h"
 
 #include "Common/Helpers/MockSysCalls.h"
-
-#include <gtest/gtest.h>
-
-#include <memory>
 
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
+#include <gtest/gtest.h>
+
+#include <memory>
 
 namespace fs = sophos_filesystem;
 
@@ -79,7 +79,7 @@ namespace
             ON_CALL(*this, processControlMessage).WillByDefault(Return());
         }
     };
-}
+} // namespace
 
 TEST_F(TestProcessControllerServerConnectionThread, successful_construction)
 {
@@ -220,7 +220,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length_twice_logs_
 
     EXPECT_CALL(*callback, processControlMessage(_));
     scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_RELOAD);
-    unixsocket::writeLengthAndBuffer(clientFd.get(), processControlRequest.serialise());
+    unixsocket::writeLengthAndBuffer(*m_sysCalls, clientFd.get(), processControlRequest.serialise());
 
     clearMemoryAppender();
     ::send(clientFd.get(), zeroLengthMessage, sizeof(zeroLengthMessage), MSG_NOSIGNAL);
@@ -271,7 +271,6 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd)
     connectionThread.requestStop();
     connectionThread.join();
 }
-
 
 TEST_F(TestProcessControllerServerConnectionThread, ignore_EINTR)
 {
@@ -378,7 +377,7 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request)
     ProcessControllerServerConnectionThread connectionThread(serverFd, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
-    unixsocket::writeLengthAndBuffer(clientFd.get(), request);
+    unixsocket::writeLengthAndBuffer(*m_sysCalls, clientFd.get(), request);
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
@@ -403,7 +402,7 @@ TEST_F(TestProcessControllerServerConnectionThread, valid_request)
     EXPECT_CALL(*callback, processControlMessage(scan_messages::E_SHUTDOWN))
         .WillOnce(triggerEvent(&gotEvent));
     scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
-    unixsocket::writeLengthAndBuffer(clientFd.get(), processControlRequest.serialise());
+    unixsocket::writeLengthAndBuffer(*m_sysCalls, clientFd.get(), processControlRequest.serialise());
     gotEvent.wait(500ms);
 
     connectionThread.requestStop();
@@ -430,7 +429,7 @@ TEST_F(TestProcessControllerServerConnectionThread, invalid_request_type)
     EXPECT_CALL(*callback, processControlMessage(_))
         .WillOnce(triggerEvent(&gotEvent));
     scan_messages::ClientScanRequest clientScanRequest;
-    unixsocket::writeLengthAndBuffer(clientFd.get(), clientScanRequest.serialise());
+    unixsocket::writeLengthAndBuffer(*m_sysCalls, clientFd.get(), clientScanRequest.serialise());
     gotEvent.wait(500ms);
 
     connectionThread.requestStop();

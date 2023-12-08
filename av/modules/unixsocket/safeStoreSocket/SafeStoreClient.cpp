@@ -11,6 +11,8 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 #include <poll.h>
 #include <unistd.h>
 
@@ -38,7 +40,8 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
     std::string dataAsString = detection.serialise();
     auto fd = detection.autoFd.get();
 
-    if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
+    Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+    if (!writeLengthAndBuffer(systemCallWrapper, m_socket_fd, dataAsString))
     {
         throw unixsocket::UnixSocketException(LOCATION, m_name + " failed to write Threat Detection to socket: " + common::safer_strerror(errno));
     }

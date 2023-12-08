@@ -3,16 +3,16 @@
 #include "ThreatReporterClient.h"
 
 #include "common/SaferStrerror.h"
-
-#include "unixsocket/SocketUtils.h"
+#include "scan_messages/ThreatDetected.h"
 #include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
-#include "scan_messages/ThreatDetected.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
-#include <string>
 #include <cassert>
 #include <sstream>
+#include <string>
 
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(
     std::string socket_path,
@@ -31,7 +31,8 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
 
     try
     {
-        if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
+        Common::SystemCallWrapper::SystemCallWrapper systemCallWrapper;
+        if (!writeLengthAndBuffer(systemCallWrapper, m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
             errMsg << m_name << " failed to write to socket [" << common::safer_strerror(errno) << "]";

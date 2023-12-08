@@ -74,8 +74,10 @@ namespace
         MOCK_METHOD(void, _exit, (int __status));
         MOCK_METHOD(int, setpriority, (int, int,int), (override));
         MOCK_METHOD(int, lstat, (const char *__file, struct ::stat *__buf));
+        MOCK_METHOD(ssize_t, sendmsg, (int fd, const struct msghdr* message, int flags), (override));
+        MOCK_METHOD(ssize_t, recvmsg, (int fd, struct msghdr* message, int flags), (override));
     };
-}
+} // namespace
 
 ACTION_P(fstatfsReturnsType, f_type) { arg1->f_type = f_type; return 0; }
 ACTION_P2(pollReturnsWithRevents, index, revents) { arg0[index].revents = revents; return 1; }

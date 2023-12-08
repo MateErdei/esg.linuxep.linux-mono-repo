@@ -3,12 +3,12 @@
 #include "SafeStoreServerConnectionThread.h"
 
 #include "Logger.h"
-#include "scan_messages/ThreatDetected.capnp.h"
 
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "scan_messages/QuarantineResponse.h"
+#include "scan_messages/ThreatDetected.capnp.h"
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
@@ -30,7 +30,7 @@ using namespace unixsocket;
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
-    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls) :
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls) :
     BaseServerConnectionThread("SafeStoreServerConnectionThread"),
     m_fd(std::move(fd)),
     m_quarantineManager(std::move(quarantineManager)),
@@ -167,6 +167,7 @@ void SafeStoreServerConnectionThread::inner_run()
 
 bool SafeStoreServerConnectionThread::read_socket(int socketFd)
 {
+    bool justCompletedReadingLength = false;
     if (!readLengthAsync_.complete())
     {
         // read length
@@ -199,6 +200,8 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
             // Not completed reading length
             return true;
         }
+
+        justCompletedReadingLength = true;
     }
 
     auto length = readLengthAsync_.getLength();
@@ -214,11 +217,13 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
         return true;
     }
 
-    // read capn proto
-    if (readBufferAsync_.setLength(length))
+    if (justCompletedReadingLength)
     {
+        readBufferAsync_.setLength(length);
         loggedLengthOfZero_ = false;
     }
+
+    // read capn proto
     auto bytes_read = readBufferAsync_.read(socketFd);
 
     if (bytes_read < 0)
@@ -231,7 +236,6 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
         // async return hoping for more data in future
         return true;
     }
-
 
     assert(readBufferAsync_.complete());
     LOGDEBUG(m_threadName << " read capn of " << length);
@@ -253,7 +257,7 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
     }
 
     // read fd
-    datatypes::AutoFd file_fd(unixsocket::recv_fd(socketFd));
+    datatypes::AutoFd file_fd(unixsocket::recv_fd(*m_sysCalls, socketFd));
     if (file_fd.get() < 0)
     {
         LOGERROR("Aborting " << m_threadName << ": failed to read fd");
@@ -314,7 +318,7 @@ bool SafeStoreServerConnectionThread::read_socket(int socketFd)
 
     try
     {
-        if (!writeLengthAndBuffer(socketFd, serialised_result))
+        if (!writeLengthAndBuffer(*m_sysCalls, socketFd, serialised_result))
         {
             LOGWARN(m_threadName << " failed to write result to unix socket");
             return false;
