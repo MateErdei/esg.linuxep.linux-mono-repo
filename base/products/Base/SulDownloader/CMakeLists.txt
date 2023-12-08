@@ -19,11 +19,3 @@ install(TARGETS SulDownloader DESTINATION ${THININSTALLER_DEPS_DIR_BIN})
 
 add_dependencies(SulDownloader copy_libs)
 
-
-set( CERTIFICATES ${INPUT}/certificates )
-
-install(FILES
-        ${CERTIFICATES}/ps_rootca.crt
-        ${CERTIFICATES}/rootca.crt
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/update/rootcerts
-        PERMISSIONS OWNER_READ)
