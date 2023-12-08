@@ -30,6 +30,7 @@ from retry import retry
 from common import  set_inputs_mode, is_static_suite_instance
 from common import hash_file,change_version_to_999, change_version_for_platform
 from auto_versioning import _generate_static_suite_flags, _expand_static_suites, _import_static_suite_flags
+from auto_versioning import autoversion_static_suites
 
 ARTIFACTORY_URL = f'https://{os.environ["TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL"]}/artifactory' \
                   if 'TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL' in os.environ \
@@ -570,15 +571,15 @@ def write_static_flags(static_flags):
     for entry in static_flags:
         newflag = {}
         newflag['device_class'] = entry
-        static = VERSION['static']
-        newflag['name'] = f'{static} ' + static_flags[entry]['ServerProtectionLinux-Base']['version']
+        version = autoversion_static_suites(static_flags[entry]['ServerProtectionLinux-Base']['version'])
+        newflag['name'] = version
         newflag['suite_info'] = {}
 
         for suite in static_flags[entry]:
             newflag['suite_info'][suite] = {}
 
             newflag['suite_info'][suite]['suite'] = static_flags[entry][suite]['suite']
-            newflag['suite_info'][suite]['display_version'] = f'{static} ' + static_flags[entry][suite]['version']
+            newflag['suite_info'][suite]['display_version'] = version
         xramp = VERSION['xRAMP'] if 'xRAMP' in VERSION else False
         if xramp:
             newflag['xRAMP'] = "true"

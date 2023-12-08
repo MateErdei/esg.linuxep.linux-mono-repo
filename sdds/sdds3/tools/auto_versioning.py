@@ -1,17 +1,19 @@
 import os
+import re
 import yaml
 import json
 import copy
 import shutil
 
 import xml.etree.ElementTree as ET
-from common import visit_suite_instance_views, visit_suite_instances, visit_instance_views
-from common import get_absolute_fileset, is_static_suite_instance
+from common import visit_suite_instances
+from common import get_absolute_fileset
 from common import hash_file, say
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(TOOLS)
 ROOT = os.path.dirname(BASE)
 STATIC_FLAG_OVERRIDES = yaml.safe_load(open(fr'{ROOT}/def-sdds3/static_flag_overrides.yaml'))
+VERSION = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).read())['version']
 ALL_STATIC_FLAGS = {}
 def _expand_static_suites(suites):
     for _, suitedef, instance in visit_suite_instances(suites):
@@ -23,6 +25,16 @@ def _expand_static_suites(suites):
         copyinst['tags'] = ['_STATIC']
         suitedef['instances'].append(copyinst)
 
+def autoversion_static_suites(version):
+    sprint = VERSION['sprint'] if 'sprint' in VERSION else ''
+    special = VERSION['special'] if 'special' in VERSION else ''
+    return _expand_marketing_version(
+        '{static} {version}{dash_special} {sprint}',
+        version=version,
+        static=VERSION['static'],
+        sprint=f'SPRINT {sprint}' if sprint else '',
+        dash_special=f'-{special}' if special else '',
+    )
 
 def _generate_static_suite_flags(flagsfile, view, common_component_data, common_supplements_data):
     if 'supplements' not in view:
@@ -120,3 +132,8 @@ def _get_file_package_content_entry_from_attrib(attrib):
     if 'MD5' in attrib:
         entry['MD5'] = attrib['MD5']
     return entry
+
+def _expand_marketing_version(template, **kwargs):
+    marketing_version = template.format(**kwargs)
+    return re.sub(pattern=r'\s+', string=marketing_version, repl=' ').strip()
+

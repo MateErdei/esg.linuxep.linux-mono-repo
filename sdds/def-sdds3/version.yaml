@@ -58,5 +58,10 @@ version:
   # set this to LTS if doing a warehouse build for LTS release
   static: 'FTS'
 
+  # If this version is a "special" (a private build derived from some earlier FTS/LTS build)
+  # then this string should be non-empty, and will be appended to the version.
+  # For non-special builds, just comment this out or use null
+  #special: LINUXDAR-8073
+
   # if true, ESM json output file will contain "xRAMP": "true"
 #  xRAMP: true
