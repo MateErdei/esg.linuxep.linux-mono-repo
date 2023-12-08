@@ -32,6 +32,7 @@ ${staticflagfile}                               linuxep.json
 *** Keywords ***
 Upgrade Resources SDDS3 Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    Run Teardown Functions
     Stop Local SDDS3 Server
     Upgrade Resources Test Teardown    installDir=${installDir}
 

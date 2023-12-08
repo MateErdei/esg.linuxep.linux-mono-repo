@@ -18,10 +18,10 @@ Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
-Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
-Resource    SafeStoreResources.robot
+Resource    GlobalSetup.robot
 Resource    RunShellProcess.robot
+Resource    SafeStoreResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}                               ${COMPONENT_ROOT_PATH}
@@ -951,7 +951,6 @@ Check If The Logs Are Close To Rotating
 Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     ${result} =     Check If The Logs Are Close To Rotating
     run keyword if  ${result}  Restart AV Plugin And Clear The Logs For Integration Tests
-
 
 Check avscanner can detect eicar in
     [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}

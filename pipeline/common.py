@@ -366,6 +366,7 @@ def get_os_packages(machine: tap.Machine):
         "openssl",
         "rsync",
         "unzip",
+        "strace",
     ]
     # X64
     if machine.template == "amzlinux2_x64_server_en_us":

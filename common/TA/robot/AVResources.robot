@@ -25,6 +25,8 @@ ${OSQUERY_CONF_PATH}                ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
 ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${SCAN_DIRECTORY}                   /home/this/is/a/directory/for/scanning
+${AVSCANNER}                        /usr/local/bin/avscanner
 
 *** Keywords ***
 Install AV Plugin Directly
@@ -122,3 +124,18 @@ Enable On Access Via Policy
     ${mark} =  get_on_access_log_mark
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
     wait for on access log contains after mark   On-access scanning enabled  mark=${mark}  timeout=${15}
+
+#TODO: LINUXDAR-8471 Clean up Duplicate AV Keywords from AVResources
+Check avscanner can detect eicar in
+    [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${LOCAL_AVSCANNER} ${EICAR_PATH}
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
+
+Check avscanner can detect eicar
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    File should exist  ${LOCAL_AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}

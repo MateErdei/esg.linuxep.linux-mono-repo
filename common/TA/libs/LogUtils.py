@@ -1226,3 +1226,12 @@ class LogUtils(object):
         """
         time.sleep(timeout)
         return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
+
+    def check_strace_log_for_openssl_mentions(self, logpath):
+        with open(logpath, "r") as f:
+            contents = f.read()
+            path_regex = re.compile(r"\"(.+openssl\.cnf)\"")
+            matches = path_regex.findall(contents)
+            for path in matches:
+                if path != "/etc/ssl/openssl.cnf":
+                    raise AssertionError(f"Found an unexpected instance of an openssl config" )
