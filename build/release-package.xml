@@ -312,6 +312,17 @@
             </args>
         </command>
         <command mode="all_lcov">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=lib_lcov_build
+                --profile_exec
+                build
+                --config=linux_x64_bullseye
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+            </args>
+        </command>
+        <command mode="all_lcov">
             <!-- extract and merge all *.o.bullseye files into monorepo.cov file -->
             <program>./build/python.sh</program>
             <args>
