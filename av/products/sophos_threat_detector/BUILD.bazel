@@ -68,6 +68,8 @@ soph_cc_binary(
 soph_cc_binary(
     name = "sophos_threat_detector_launcher",
     srcs = ["sophos_threat_detector_launcher.c"],
+    #TODO LINUXDAR-8468 remove the clang-tidy exclusion
+    features = ["-sophos_clang_tidy"],
     linkopts = [
         "-Wl,-rpath,$$ORIGIN/../lib64",
     ],

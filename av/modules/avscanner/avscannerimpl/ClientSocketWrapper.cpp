@@ -43,7 +43,7 @@ namespace avscanner::avscannerimpl
             }
 
             LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying after sleep");
-            stoppableSleep(m_sleepTime);
+            stoppableSleep(m_sleepTime); //NOLINT (clang-analyzer-optin.cplusplus.VirtualCall)
 
             ret = m_socket.connect();
         }

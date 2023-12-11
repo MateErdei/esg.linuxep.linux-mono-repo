@@ -11,10 +11,9 @@
 // Bazel wants <json.hpp> but CMake wants <nlohmann/json.hpp>
 #ifdef SPL_BAZEL
 #include "AutoVersioningHeaders/AutoVersion.h"
-#include <json.hpp>
-#else
-#include <nlohmann/json.hpp>
 #endif
+
+#include <nlohmann/json.hpp>
 
 namespace Plugin
 {

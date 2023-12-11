@@ -8,7 +8,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 
 // 3rd party production
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 // Sophos test
 

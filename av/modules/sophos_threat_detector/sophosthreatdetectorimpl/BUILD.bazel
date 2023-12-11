@@ -17,8 +17,8 @@ soph_cc_library(
     ]),
     implementation_deps = [
         "//av:AutoVersion",
-        "//av/modules/common:PidLockFile",
         "//av/modules/common:Define",
+        "//av/modules/common:PidLockFile",
         "//av/modules/common:ThreadRunner",
         "//av/modules/datatypes:sophos_prctl",
         "@boost//:locale",
@@ -33,6 +33,7 @@ soph_cc_library(
         "//av/modules/common:IPidLockFile",
         "//av/modules/common/signals",
         "//av/modules/sophos_threat_detector/threat_scanner",
+        "//av/modules/unixsocket:BaseClientDefaultSleepTime",
         "//av/modules/unixsocket/metadataRescanSocket",
         "//av/modules/unixsocket/processControllerSocket:IProcessControlMessageCallback",
         "//av/modules/unixsocket/processControllerSocket:ProcessControllerServerSocket",

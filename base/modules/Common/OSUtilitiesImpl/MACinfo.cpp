@@ -74,7 +74,7 @@ namespace Common::OSUtilitiesImpl
 
         for (; it != end; ++it)
         {
-            strcpy(ifr.ifr_name, it->ifr_name);
+            strcpy(ifr.ifr_name, it->ifr_name); //NOLINT #TODO LINUXDAR-8468 Fix
             if (ioctl(sock.socketfd, SIOCGIFFLAGS, &ifr) == 0)
             {
                 if (!(ifr.ifr_flags & IFF_LOOPBACK))

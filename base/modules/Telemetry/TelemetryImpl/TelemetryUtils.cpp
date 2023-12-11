@@ -7,7 +7,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Telemetry/LoggerImpl/Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Telemetry
 {

@@ -113,7 +113,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
         {
             buffer_size = 1 + length / sizeof(capnp::word);
             proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-            loggedLengthOfZero = false;
+            loggedLengthOfZero = false; //NOLINT (clang-analyzer-deadcode.DeadStores)
         }
 
         ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);

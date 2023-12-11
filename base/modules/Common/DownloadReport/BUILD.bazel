@@ -13,10 +13,12 @@ soph_cc_library(
         "ProductInfo.h",
         "RepositoryStatus.h",
     ],
+    #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         ":DownloadReport_pb_h",
-        "//base/modules/Common/Logging",
         "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/Logging",
         "//base/modules/Common/ProtobufUtil",
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "@com_google_protobuf//:protobuf",

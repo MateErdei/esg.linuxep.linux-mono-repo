@@ -3,7 +3,7 @@
 #include "ManagementAgent/HealthStatusCommon/PluginHealthStatus.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace ManagementAgent::HealthStatusImpl
 {

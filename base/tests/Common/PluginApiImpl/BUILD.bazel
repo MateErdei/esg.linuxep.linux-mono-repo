@@ -8,6 +8,8 @@ soph_cc_library(
         "MockedPluginApiCallback.h",
         "TestCompare.h",
     ],
+    #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         "//base/modules/Common/PluginProtocol",
         "@com_google_googletest//:gtest",

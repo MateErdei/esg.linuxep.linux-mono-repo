@@ -5,7 +5,7 @@
 #include "Common/SslImpl/Digest.h"
 #include "sophlib/crypto/Base64.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 
 inline std::string generateJwtFromPayload(const std::string& payload)

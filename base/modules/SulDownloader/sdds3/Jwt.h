@@ -4,7 +4,7 @@
 
 #include "ISignatureVerifierWrapper.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace SulDownloader

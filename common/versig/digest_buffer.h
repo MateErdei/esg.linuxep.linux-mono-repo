@@ -19,11 +19,10 @@ namespace manifest
     class digest_file_buffer
     {
     private:
-        unsigned long file_buf_max_; // a maximum size to read into the _file_buf, to stop DOS attacks (default 128k)
         std::string file_buf_;       // buffer containing the bit of the file over which the signature is calculated
         std::vector<signature> signatures_; // the digital signatures at the end of the file
     public:
-        digest_file_buffer() : file_buf_max_(1024 * 128) {}
+
 //        void set_file_body_limit(unsigned long lim) { file_buf_max_ = lim; }
 
         [[nodiscard]] const std::string&     file_body()  const { return file_buf_; }

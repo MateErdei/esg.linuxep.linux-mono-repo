@@ -33,8 +33,7 @@ Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(
 Common::ZeroMQWrapperImpl::ProxyImpl::~ProxyImpl()
 {
     // Will stop the thread eventually
-    // cppcheck-suppress virtualCallInConstructor
-    stop();
+    stopProxy();
 }
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::start()
@@ -48,7 +47,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
     m_ensureThreadStarted.wait(lock, [this]() { return m_threadStartedFlag; });
 }
 
-void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
+void Common::ZeroMQWrapperImpl::ProxyImpl::stopProxy()
 {
     // ensure that we have not already stopped
     if (m_thread.joinable())
@@ -69,6 +68,11 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
         // Wait for thread to exit
         m_thread.join();
     }
+}
+
+void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
+{
+    stopProxy();
 }
 
 void ProxyImpl::announceThreadStarted()

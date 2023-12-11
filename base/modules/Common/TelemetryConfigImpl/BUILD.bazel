@@ -9,7 +9,7 @@ soph_cc_library(
     ]),
     hdrs = glob(["*.h"]),
     implementation_deps = [
-        "//imports/thirdparty/nlohmann-json:nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
     ],
     visibility = ["//common:spl_packages"],
     deps = [

@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <limits.h>
 

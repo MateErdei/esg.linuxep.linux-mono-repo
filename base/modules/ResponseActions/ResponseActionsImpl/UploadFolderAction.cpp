@@ -14,7 +14,7 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 namespace ResponseActionsImpl
 {
     UploadFolderAction::UploadFolderAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :

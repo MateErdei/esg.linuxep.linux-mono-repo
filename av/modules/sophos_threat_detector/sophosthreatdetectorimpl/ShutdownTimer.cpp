@@ -14,7 +14,8 @@ using namespace sspl::sophosthreatdetectorimpl;
 ShutdownTimer::ShutdownTimer(fs::path configFile)
 : m_configFile(configFile)
 {
-    reset();
+    m_startTime = getCurrentEpoch();
+    LOGDEBUG("Reset timer to: " << m_startTime);
 }
 
 void ShutdownTimer::reset()

@@ -13,7 +13,7 @@
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <gtest/gtest.h>
 

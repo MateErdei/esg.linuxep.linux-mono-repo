@@ -19,7 +19,5 @@ namespace Common::PluginProtocol
         const data_t serialize(const Common::PluginProtocol::DataMessage& dataMessage) const override;
         const Common::PluginProtocol::DataMessage deserialize(const data_t& serializedData) override;
 
-    private:
-        Common::PluginProtocol::DataMessage createDefaultErrorMessage();
     };
 } // namespace Common::PluginProtocol

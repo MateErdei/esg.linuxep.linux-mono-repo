@@ -6,7 +6,7 @@
 
 #include "Common/HttpRequests/IHttpRequester.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 namespace ResponseActionsImpl
 {

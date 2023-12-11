@@ -10,6 +10,8 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = glob(["*.h"]),
+    #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
+    features = ["-sophos_clang_tidy"],
     visibility = [
         "//base/modules/UpdateSchedulerImpl:__subpackages__",
         "//base/tests/UpdateScheduler:__pkg__",

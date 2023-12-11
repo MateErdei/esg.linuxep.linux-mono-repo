@@ -58,7 +58,7 @@ TEST(TestSplit, TestSplitThreeMax)
 }
 
 
-TEST(TestBuffer, TestOne) //NOLINT
+TEST(TestBuffer, TestOne)
 {
     auto bytes = splitInto7Bits(1);
     EXPECT_THAT(bytes, ElementsAre(0x01));
@@ -68,7 +68,7 @@ TEST(TestBuffer, TestOne) //NOLINT
     EXPECT_THAT(bufVector, ElementsAre(0x01));
 }
 
-TEST(TestBuffer, TestOneByteMax) //NOLINT
+TEST(TestBuffer, TestOneByteMax)
 {
     auto bytes = splitInto7Bits(0x7f);
     EXPECT_THAT(bytes, ElementsAre(0x7f));

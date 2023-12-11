@@ -8,7 +8,7 @@
 #include "Common/ObfuscationImpl/Obfuscate.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace

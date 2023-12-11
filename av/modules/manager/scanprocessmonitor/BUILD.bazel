@@ -50,7 +50,6 @@ soph_cc_library(
         ":ConfigMonitor",
         "//av/modules/common:LockableData",
         "//av/modules/common:NotifyPipeSleeper",
-        "//av/modules/datatypes:sophos_filesystem",
         "//av/modules/scan_messages:ProcessControlSerialiser",
         "//base/modules/Common/SystemCallWrapper",
     ],

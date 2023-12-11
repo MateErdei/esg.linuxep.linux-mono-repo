@@ -4,7 +4,7 @@
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 #include "Common/TelemetryHelperImpl/TelemetryValue.h"
 #include <gtest/gtest.h>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Common::Telemetry
 {

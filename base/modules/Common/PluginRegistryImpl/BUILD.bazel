@@ -8,14 +8,16 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = glob(["*.h"]),
+    #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         ":PluginInfo",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
         "//base/modules/Common/ProtobufUtil",
-        "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "@com_google_protobuf//:protobuf",
-        "//base/modules/Common/FileSystem",
     ],
     visibility = ["//common:spl_packages"],
     deps = [

@@ -155,6 +155,39 @@
             <args>tools/src/dump_environment/diskusage.py --final lsnty</args>
         </command>
 
+        <command mode="all_lsao">
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/diskusage.py --start lsao</args>
+        </command>
+        <command mode="all_lsao">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=linuxep_spl_lsao
+                build
+                --config=linux_x64_static_analysis_only
+                --features=sophos_clang_tidy
+                --preview_ruleset
+                --target_pattern_file=build/linuxep_spl_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lsao">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=linuxep_spl_lsao
+                build
+                --config=linux_x64_static_analysis_only
+                --features=sophos_clang_tidy
+                --preview_ruleset
+                --target_pattern_file=build/linuxep_spl_test_targets.txt
+            </args>
+        </command>
+        <command mode="all_lsao">
+            <program>./build/python.sh</program>
+            <args>tools/src/dump_environment/diskusage.py --final lsao</args>
+        </command>
+
         <!-- linux_x64_rel: lx64r -->
         <command mode="all_lx64r">
             <program>./build/python.sh</program>

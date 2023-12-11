@@ -563,21 +563,21 @@ TEST_F(TestScheduledScanConfiguration, TestEmptyXml)
     EXPECT_FALSE(m->scanFilesWithNoExtensions());
 }
 
-TEST_F(TestScheduledScanConfiguration, TestSimpleParsing) //NOLINT
+TEST_F(TestScheduledScanConfiguration, TestSimpleParsing)
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key>value</key></xml>");
     auto attributes = attributeMap.lookup("xml/key");
     EXPECT_EQ(attributes.value(attributes.TextId), "value");
 }
 
-TEST_F(TestScheduledScanConfiguration, TestTextIdAttribute) //NOLINT
+TEST_F(TestScheduledScanConfiguration, TestTextIdAttribute)
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
     auto attributes = attributeMap.lookup("xml/key");
     EXPECT_EQ(attributes.value(attributes.TextId), "bar"); // Rather than foo
 }
 
-TEST_F(TestScheduledScanConfiguration, ScanNowConstructed) //NOLINT
+TEST_F(TestScheduledScanConfiguration, ScanNowConstructed)
 {
     auto attributeMap = Common::XmlUtilities::parseXml("<xml><key TestId=\"foo\">bar</key></xml>");
     auto scanConfiguration = ScheduledScanConfiguration(attributeMap);

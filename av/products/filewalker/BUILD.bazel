@@ -18,6 +18,8 @@ soph_cc_binary(
 soph_cc_binary(
     name = "scheduled_file_walker_launcher",
     srcs = ["scheduled_file_walker_launcher.c"],
+    #TODO LINUXDAR-8468 remove the clang-tidy exclusion
+    features = ["-sophos_clang_tidy"],
     linkopts = [
         "-Wl,-rpath,$$ORIGIN/../lib64",
     ],

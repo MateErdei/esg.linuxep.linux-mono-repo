@@ -56,7 +56,6 @@ const int g_EXIT_BADCERT = 3;
 const int g_EXIT_BADCRYPT = 4;
 const int g_EXIT_BADFILE = 5;
 const int g_EXIT_BADSIG = 6;
-const int g_EXIT_BADLOGIC = 7;
 
 static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 {
@@ -235,13 +234,6 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADCERT;
     }
 
-    // catch ( ve_logic& except )
-    //{
-    //	ostringstream Msgstrm;
-    //	Msgstrm << "Failed logic:" << except << endl;
-    //	Output(Msgstrm.str());
-    //	return g_EXIT_BADLOGIC;
-    //}
     catch (const std::bad_alloc& except)
     {
         ostringstream Msgstrm;

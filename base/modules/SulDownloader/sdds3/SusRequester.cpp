@@ -13,7 +13,7 @@
 #include "Common/SslImpl/Digest.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <utility>
 
 SulDownloader::SDDS3::SusRequester::SusRequester(

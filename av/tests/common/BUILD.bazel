@@ -3,7 +3,6 @@ load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
     name = "LogInitializedTests",
-    srcs = ["LogInitializedTests.cpp"],
     hdrs = ["LogInitializedTests.h"],
     visibility = ["//av/tests:__subpackages__"],
     deps = [
@@ -50,7 +49,6 @@ soph_cc_library(
 
 soph_cc_library(
     name = "TestSpecificDirectory",
-    srcs = ["TestSpecificDirectory.cpp"],
     hdrs = ["TestSpecificDirectory.h"],
     implementation_deps = [
         "@com_google_googletest//:gtest_main",

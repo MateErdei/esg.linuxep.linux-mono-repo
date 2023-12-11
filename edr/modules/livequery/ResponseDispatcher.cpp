@@ -12,7 +12,7 @@
 #include "Common/UtilityImpl/StringUtils.h"
 
 // Thirdparty
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 // System
 #include <sstream>

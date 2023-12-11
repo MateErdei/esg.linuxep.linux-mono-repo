@@ -12,7 +12,7 @@
 #include "Common/XmlUtilities/AttributesMap.h"
 
 #include <iostream>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <thread>
 

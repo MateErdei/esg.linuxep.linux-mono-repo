@@ -6,7 +6,7 @@
 
 #include "sophlib/sdds3/Config.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace SulDownloader
 {

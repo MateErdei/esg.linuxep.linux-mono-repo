@@ -16,7 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <map>
 #include <regex>
 #include <utility>
@@ -35,8 +35,8 @@ struct TelemetryTestCase
     {
 
     }
-    std::string inputXml;       //NOLINT
-    std::string expectedValue;      //NOLINT
+    std::string inputXml;
+    std::string expectedValue;
 };
 
 class BaseTelemetryReporterTests : public ::testing::Test

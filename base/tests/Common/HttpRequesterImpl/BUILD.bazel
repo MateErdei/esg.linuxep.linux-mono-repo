@@ -20,6 +20,8 @@ spl_independent_cc_tests(
 soph_cc_binary(
     name = "HttpRequesterLiveNetworkTests",
     srcs = ["HttpRequesterLiveNetworkTests.cpp"],
+    # tests that are not run erroneously start throwing clang-tidy errors
+    features = ["-sophos_clang_tidy"],
     visibility = ["//base:__pkg__"],
     deps = [
         "//base/modules/Common/HttpRequestsImpl",

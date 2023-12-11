@@ -6,7 +6,7 @@
 
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl;
 

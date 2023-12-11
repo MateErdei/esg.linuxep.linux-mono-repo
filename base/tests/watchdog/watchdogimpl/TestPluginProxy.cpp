@@ -13,7 +13,7 @@
 #include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockProcess.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace
 {

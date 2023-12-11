@@ -23,7 +23,7 @@ namespace Common::ZeroMQWrapperImpl
 
         void start() override;
 
-        // cppcheck-suppress virtualCallInConstructor
+
         void stop() override;
 
         void run();
@@ -36,6 +36,7 @@ namespace Common::ZeroMQWrapperImpl
         ContextHolderSharedPtr& ctx();
 
     private:
+        void stopProxy();
         std::string m_frontendAddress;
         std::string m_backendAddress;
         std::string m_controlAddress;

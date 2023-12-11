@@ -15,7 +15,7 @@
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
 // 3rd party
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 // Std C++
 #include <ctime>
 // Std C

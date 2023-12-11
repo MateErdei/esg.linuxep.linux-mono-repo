@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "RunUtils.h"
 #include "ResponseActions/ActionRunner/config.h"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Common/Logging/PluginLoggingSetup.h"
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"

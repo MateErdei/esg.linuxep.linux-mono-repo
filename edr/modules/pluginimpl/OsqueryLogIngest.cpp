@@ -10,7 +10,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 void OsqueryLogIngest::ingestOutput(const std::string& output)
 {

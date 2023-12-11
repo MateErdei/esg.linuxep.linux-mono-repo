@@ -68,5 +68,5 @@ AbstractFakeTimeUtils::NextTimeStruct SequenceOfFakeTime::getNextTime(
         m_index++;
     }
 
-    return { .timeLabel = timeLabel, m_timesToReturn.at(currIndex) };
+    return { timeLabel, m_timesToReturn.at(currIndex) };
 }

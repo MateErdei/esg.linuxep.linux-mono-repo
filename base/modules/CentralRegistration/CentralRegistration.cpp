@@ -8,7 +8,7 @@
 #include "cmcsrouter/Config.h"
 #include "cmcsrouter/MCSApiCalls.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace CentralRegistration
 {

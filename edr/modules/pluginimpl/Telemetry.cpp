@@ -13,7 +13,7 @@
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <time.h>
 namespace

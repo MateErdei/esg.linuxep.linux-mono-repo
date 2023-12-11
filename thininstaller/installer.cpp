@@ -1,6 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "curl.h"
-#include "json.hpp"
+#include <curl.h>
+#include <nlohmann/json.hpp>
 
 #include "CentralRegistration/Main.h"
 #include "Common/CurlWrapper/CurlWrapper.h"

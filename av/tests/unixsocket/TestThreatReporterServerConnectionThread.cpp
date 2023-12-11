@@ -38,7 +38,7 @@ namespace
     };
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, successful_construction) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, successful_construction)
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -47,7 +47,7 @@ TEST_F(TestThreatReporterServerConnectionThread, successful_construction) //NOLI
     EXPECT_NO_THROW(unixsocket::ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, m_sysCalls));
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construction) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construction)
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -57,7 +57,7 @@ TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construct
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_bad_fd)
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder;
@@ -65,7 +65,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_bad_fd) 
     EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, m_sysCalls), std::runtime_error);
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_factory) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_factory)
 {
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -73,7 +73,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_fac
     EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, nullptr, m_sysCalls), std::runtime_error);
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, stop_while_running)
 {
     const std::string expected = "Closing ThreatReporterServerConnectionThread";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -94,7 +94,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, eof_while_running)
 {
     const std::string expected = "ThreatReporterServerConnectionThread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -112,7 +112,7 @@ TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, send_zero_length)
 {
     const std::string expected = "ThreatReporterServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -130,7 +130,7 @@ TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, bad_notify_pipe_fd) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, bad_notify_pipe_fd)
 {
     const std::string expected = "Closing ThreatReporterServerConnectionThread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -155,7 +155,7 @@ TEST_F(TestThreatReporterServerConnectionThread, bad_notify_pipe_fd) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestThreatReporterServerConnectionThread, bad_socket_fd) //NOLINT
+TEST_F(TestThreatReporterServerConnectionThread, bad_socket_fd)
 {
     const std::string expected = "Closing ThreatReporterServerConnectionThread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);

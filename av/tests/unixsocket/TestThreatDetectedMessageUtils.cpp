@@ -46,7 +46,7 @@ namespace
     };
 }
 
-TEST_F(TestThreatDetectedMessageUtils, readCapnProtoMsg_returnsFalseWithNegativeReadRetCode) //NOLINT
+TEST_F(TestThreatDetectedMessageUtils, readCapnProtoMsg_returnsFalseWithNegativeReadRetCode)
 {
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);

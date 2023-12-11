@@ -13,6 +13,8 @@ soph_cc_library(
         "ApplicationPaths.h",
         "PluginAdapter.h",
     ]),
+    #TODO LINUXDAR-8468 remove the clang-tidy exclusion
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/FileSystem",

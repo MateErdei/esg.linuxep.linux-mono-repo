@@ -61,6 +61,8 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = glob(["*.h"]),
+    # code that is not used erroneously throw clang-tidy errors
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         ":FileSystemReplaceAndRestore",
         "//base/modules/Common/FileSystemImpl",

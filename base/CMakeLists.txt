@@ -285,7 +285,7 @@ target_link_libraries(openssl_crypto_static INTERFACE dl pthread)
 target_link_libraries(openssl_ssl INTERFACE openssl_crypto)
 target_link_libraries(openssl_ssl_static INTERFACE openssl_crypto_static)
 
-set(NLOHMANN_JSON_INCLUDE_DIR ${INPUT}/nlohmann-json/single_include/nlohmann)
+set(NLOHMANN_JSON_INCLUDE_DIR ${INPUT}/nlohmann-json/single_include)
 
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT} )
 

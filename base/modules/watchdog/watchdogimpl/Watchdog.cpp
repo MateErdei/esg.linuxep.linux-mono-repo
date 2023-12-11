@@ -26,7 +26,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <memory>
 #include <set>
 #include <unistd.h>

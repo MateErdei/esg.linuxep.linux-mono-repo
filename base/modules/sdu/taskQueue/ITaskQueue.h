@@ -24,6 +24,7 @@ namespace RemoteDiagnoseImpl
     class ITaskQueue
     {
     public:
+        virtual ~ITaskQueue() = default;
         virtual void push(Task task) = 0;
         virtual void pushPriority(Task task) = 0;
         virtual Task pop() = 0;

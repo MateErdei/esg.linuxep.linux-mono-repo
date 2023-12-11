@@ -21,7 +21,7 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include "google/protobuf/text_format.h"
 
 #include <future>

@@ -11,7 +11,7 @@
 #include "common/Logger.h"
 #include "stateMachinesModule/StateMachineProcessor.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <unistd.h>
 #include <utility>
 

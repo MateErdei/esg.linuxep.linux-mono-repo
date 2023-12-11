@@ -182,7 +182,6 @@ void numSpam()
 
 void gobbleMemory()
 {
-    std::string aString = "this is a string";
     std::vector<std::string> bigVector;
 
     std::cout << "Gobbling Memory" << std::endl;

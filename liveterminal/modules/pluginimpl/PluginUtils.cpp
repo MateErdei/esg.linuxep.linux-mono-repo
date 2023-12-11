@@ -3,12 +3,7 @@
 #include "Logger.h"
 #include "PluginUtils.h"
 
-// CMake wants <nlohmann/json.hpp>, Bazel wants <json.hpp>
-#ifdef SPL_BAZEL
-#include <json.hpp>
-#else
 #include <nlohmann/json.hpp>
-#endif
 
 
 #include "Common/UtilityImpl/StringUtils.h"

@@ -40,7 +40,7 @@ FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
 add_custom_target(
         cmcsrouterapitar ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
-        COMMAND cp ${NLOHMANN_JSON_INCLUDE_DIR}/json.hpp mcslibrary/include
+        COMMAND cp ${NLOHMANN_JSON_INCLUDE_DIR}/nlohmann/json.hpp mcslibrary/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:cmcsrouterapi> mcslibrary/lib64
         COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh
         COMMAND ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh  mcslibrary/lib64/libcmcsrouterapi.so

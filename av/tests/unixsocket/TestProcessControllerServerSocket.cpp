@@ -58,7 +58,7 @@ namespace
     };
 }
 
-TEST_F(TestProcessControllerServerSocket, testConstructor) //NOLINT
+TEST_F(TestProcessControllerServerSocket, testConstructor)
 {
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
     EXPECT_NO_THROW(ProcessControllerServerSocket processController(m_socketPath, 0660, callback));

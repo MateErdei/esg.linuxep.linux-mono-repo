@@ -32,7 +32,7 @@
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <chrono>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <thread>
 
 static constexpr int SULDOWNLOADER_TIMEOUT = 1800;

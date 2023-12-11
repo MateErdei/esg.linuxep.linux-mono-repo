@@ -8,7 +8,7 @@
 #include "EdrCommon/ApplicationPaths.h"
 
 #include <json/json.h>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <string>
 

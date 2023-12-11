@@ -6,7 +6,7 @@
 
 #include <climits>
 #include <iostream>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace Common::TelemetryConfigImpl

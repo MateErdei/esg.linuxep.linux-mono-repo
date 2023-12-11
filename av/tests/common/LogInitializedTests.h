@@ -18,7 +18,7 @@ namespace
 {
     void initialize_logging()
     {
-        test_common::initialize_logging();
+        static Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     }
 
     /** Inherit from this class when the tests 'uses' log4cplus and the messages are used in the tests*/

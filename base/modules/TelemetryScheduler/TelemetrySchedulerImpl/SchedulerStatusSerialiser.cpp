@@ -6,7 +6,7 @@
 #include "Common/TelemetryConfigImpl/Serialiser.h"
 
 #include <climits>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace TelemetrySchedulerImpl

@@ -4,10 +4,7 @@ add_executable(TestHelpersTest
         TestTempDir.cpp
         ../Helpers/TempDirBaseClassTest.cpp
         ../Helpers/TempDirBaseClassTest.h
-        ../Helpers/ExampleTempDirSuiteTest.cpp
-        ../Helpers/ExampleTempDirSuiteTest.h
         TestTempDirBaseClassTest.cpp
-        TestExampleTempDirSuiteTest.cpp
         ExecutionSynchronizerDemoTests.cpp
         TestFakeTimeUtils.cpp
         MockApiBaseServicesTests.cpp

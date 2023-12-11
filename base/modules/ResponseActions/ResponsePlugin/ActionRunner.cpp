@@ -9,7 +9,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace ResponseActions::RACommon;
 using namespace ResponsePlugin::Telemetry;

@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryJsonToMap.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace Common::Telemetry

@@ -10,7 +10,7 @@
 #endif
 
 #include <gtest/gtest.h>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 class TestLiveQueryPolicyParser: public LogInitializedTests{};
 

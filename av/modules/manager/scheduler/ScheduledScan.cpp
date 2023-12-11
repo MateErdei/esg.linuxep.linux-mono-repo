@@ -58,7 +58,6 @@ using namespace manager::scheduler;
 ScheduledScan::ScheduledScan()
     :
     m_name("INVALID"),
-    m_lastRunTime(static_cast<time_t>(-1)),
     m_valid(false),
     m_isScanNow(false),
     m_archiveScanning(false),
@@ -75,7 +74,6 @@ ScheduledScan::ScheduledScan(std::string name)
     m_name(std::move(name)),
     m_days(),
     m_times(),
-    m_lastRunTime(static_cast<time_t>(-1)),
     m_valid(true),
     m_isScanNow(true),
     m_archiveScanning(false),
@@ -96,7 +94,6 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
     : m_name(savPolicy.lookup(id + "/name").contents()),
       m_days(savPolicy, id + "/schedule/daySet/day"),
       m_times(savPolicy, id + "/schedule/timeSet/time"),
-      m_lastRunTime(static_cast<time_t>(-1)),
       m_valid(true),
       m_isScanNow(false),
       m_archiveScanning(collectBool(savPolicy, id+"/settings/scanBehaviour/archives")),

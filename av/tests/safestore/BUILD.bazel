@@ -36,6 +36,8 @@ soph_cc_test(
 soph_cc_binary(
     name = "SafeStoreTapTests",
     srcs = ["SafeStoreTapTests.cpp"],
+    # tests that are not run erroneously start throwing clang-tidy errors
+    features = ["-sophos_clang_tidy"],
     linkopts = [
         "-Wl,-rpath,$$ORIGIN/../lib64:/opt/sophos-spl/plugins/av/lib64",
     ],

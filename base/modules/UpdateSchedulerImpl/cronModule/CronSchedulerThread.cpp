@@ -26,12 +26,10 @@ namespace UpdateSchedulerImpl::cronModule
         std::shared_ptr<SchedulerTaskQueue> schedulerQueue,
         CronSchedulerThread::DurationTime firstTick,
         CronSchedulerThread::DurationTime repeatPeriod,
-        int scheduledUpdateOffsetInMinutes,
-        CronSchedulerThread::DurationTime onDelayUpdateWaitTime) :
+        int scheduledUpdateOffsetInMinutes) :
         m_sharedState(),
         m_schedulerQueue(schedulerQueue),
         m_firstTick(firstTick),
-        m_onDelayUpdateWaitTime(onDelayUpdateWaitTime),
         m_actionOnInterrupt(ActionOnInterrupt::NOTHING),
         m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes)),
         m_crossThreadState{ .m_periodTick = { repeatPeriod }, .m_updateOnStartUp = true, .m_changed = true },
@@ -43,7 +41,6 @@ namespace UpdateSchedulerImpl::cronModule
     {
         // destructor must ensure that the thread is not running anymore or
         // seg fault may occur.
-        // cppcheck-suppress virtualCallInConstructor
         requestStop();
         join();
     }

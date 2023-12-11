@@ -9,7 +9,7 @@
 #include "Common/UtilityImpl/StringUtils.h"
 #include "common/Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace Common::Policy;
 using namespace Common::UtilityImpl;

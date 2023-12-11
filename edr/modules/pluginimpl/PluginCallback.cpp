@@ -11,7 +11,7 @@
 
 #include <thread>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <unistd.h>
 
 namespace Plugin

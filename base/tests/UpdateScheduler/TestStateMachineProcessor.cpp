@@ -17,7 +17,7 @@
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateSchedulerImpl::StateData;

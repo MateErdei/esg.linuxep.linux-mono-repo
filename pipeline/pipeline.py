@@ -191,36 +191,3 @@ def cmake_pipeline(stage: tap.Root, context: tap.PipelineContext, test_selection
                             mode="release",
                             release_package=PACKAGE_PATH_BASE)
 
-        stage.artisan_build(name="base_analysis",
-                            component=base_component,
-                            image=BUILD_TEMPLATE,
-                            mode="analysis",
-                            release_package=PACKAGE_PATH_BASE)
-
-        if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-            stage.artisan_build(name="edr_analysis",
-                                component=edr_component,
-                                image=BUILD_TEMPLATE,
-                                mode="analysis",
-                                release_package=PACKAGE_PATH_EDR)
-
-        if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-            stage.artisan_build(name="ej_analysis",
-                                component=ej_component,
-                                image=BUILD_TEMPLATE,
-                                mode="analysis",
-                                release_package=PACKAGE_PATH_EJ)
-
-        if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-            stage.artisan_build(name="av_analysis",
-                                component=av_component,
-                                image=BUILD_TEMPLATE,
-                                mode="analysis",
-                                release_package=PACKAGE_PATH_AV)
-
-        if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-            stage.artisan_build(name="liveterminal_analysis",
-                                component=liveterminal_component,
-                                image=BUILD_TEMPLATE,
-                                mode="analysis",
-                                release_package=PACKAGE_PATH_LIVETERMINAL)

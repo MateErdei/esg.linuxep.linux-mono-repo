@@ -9,7 +9,7 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace OsquerySDK
 {

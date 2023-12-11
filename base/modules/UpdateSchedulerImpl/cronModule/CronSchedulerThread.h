@@ -11,7 +11,7 @@ namespace UpdateSchedulerImpl::cronModule
 {
     // uses private inheritance to abstractThread because it wants to have a different meaning for requestStop and
     // also to be able to override the run method.
-    class CronSchedulerThread : public virtual UpdateScheduler::ICronSchedulerThread,
+    class CronSchedulerThread final : public virtual UpdateScheduler::ICronSchedulerThread,
                                 private Common::Threads::AbstractThread
     {
     public:
@@ -21,8 +21,7 @@ namespace UpdateSchedulerImpl::cronModule
             std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerQueue,
             DurationTime firstTick,
             DurationTime repeatPeriod,
-            int scheduledUpdateOffsetInMinutes = 8,
-            DurationTime onDelayUpdateWaitTime = std::chrono::minutes(15));
+            int scheduledUpdateOffsetInMinutes = 8);
 
         ~CronSchedulerThread() override;
 
@@ -60,7 +59,6 @@ namespace UpdateSchedulerImpl::cronModule
         std::mutex m_sharedState;
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerQueue;
         DurationTime m_firstTick;
-        DurationTime m_onDelayUpdateWaitTime;
         ActionOnInterrupt m_actionOnInterrupt;
         int m_scheduledUpdateOffsetInMinutes;
 

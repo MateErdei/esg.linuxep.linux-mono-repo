@@ -24,6 +24,7 @@ soph_cc_binary(
     deps = [
         "//av/modules/scan_messages:ClientScanRequest",
         "//av/modules/scan_messages:ThreatDetected",
+        "//av/modules/unixsocket:BaseClientDefaultSleepTime",
         "//av/tests/unixsocket:TestClient",
         "//base/modules/Common/Logging",
     ],

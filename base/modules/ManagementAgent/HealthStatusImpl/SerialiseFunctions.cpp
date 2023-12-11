@@ -7,7 +7,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "ManagementAgent/HealthStatusCommon/PluginHealthStatus.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace ManagementAgent::HealthStatusImpl
 {

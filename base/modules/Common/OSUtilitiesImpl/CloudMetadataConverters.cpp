@@ -6,7 +6,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "CloudMetadataConverters.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <regex>
 #include <sstream>
 

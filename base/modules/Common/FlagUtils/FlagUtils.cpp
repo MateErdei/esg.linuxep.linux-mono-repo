@@ -4,7 +4,7 @@
 
 #include "Common/FlagUtils/Logger.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace Common

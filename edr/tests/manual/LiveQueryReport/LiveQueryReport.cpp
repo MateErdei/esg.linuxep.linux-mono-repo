@@ -5,7 +5,7 @@
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>

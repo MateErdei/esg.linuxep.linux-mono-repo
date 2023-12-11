@@ -30,7 +30,7 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
 
-    const struct timespec* timeout = &m_reconnectInterval;
+    const struct timespec* timeout;
 
     // Try to connect if we don't have a valid connection
     connectIfNotConnected();

@@ -21,14 +21,14 @@ namespace
         std::string url;
         std::string urlAndPort;
         int port = 0;
-        std::string certToUse = "";
-        std::string proxyToUse = "";
-        std::string proxyUsernameToUse = "";
-        std::string proxyPasswordToUse = "";
+        std::string certToUse;
+        std::string proxyToUse;
+        std::string proxyUsernameToUse;
+        std::string proxyPasswordToUse;
     };
 
     // Test helper function to make creating the different requests for each parameterised run easier
-    Common::HttpRequests::RequestConfig getTestRequest(HttpTestParam testParams)
+    Common::HttpRequests::RequestConfig getTestRequest(const HttpTestParam& testParams)
     {
         Common::HttpRequests::RequestConfig request = { .url = testParams.url };
         if (!testParams.certToUse.empty())
@@ -53,7 +53,7 @@ namespace
     // Helper function to allow us to  use the certs both in TAP and when run locally
     std::string getCertLocation()
     {
-        static std::string certPath = "";
+        static std::string certPath;
         if (certPath.empty())
         {
             std::string certName = "localhost-selfsigned.crt";

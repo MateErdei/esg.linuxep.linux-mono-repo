@@ -7,8 +7,8 @@ soph_cc_library(
     hdrs = ["ThreatReporterClient.h"],
     implementation_deps = [
         "//av/modules/common:SaferStrerror",
-        "//av/modules/unixsocket:SocketUtils",
         "//av/modules/unixsocket:Logger",
+        "//av/modules/unixsocket:SocketUtils",
         "//av/modules/unixsocket:UnixSocketException",
     ],
     visibility = ["//av:__subpackages__"],
@@ -28,7 +28,6 @@ soph_cc_library(
         "//av/modules/unixsocket:Logger",
         "//av/modules/unixsocket:SocketUtils",
         "//av/modules/unixsocket:UnixSocketException",
-        "//base/modules/Common/SystemCallWrapper",
     ],
     visibility = ["//av:__subpackages__"],
     deps = [

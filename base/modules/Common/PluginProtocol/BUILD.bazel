@@ -10,6 +10,8 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = glob(["*.h"]),
+    #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
+    features = ["-sophos_clang_tidy"],
     implementation_deps = [
         ":PluginAPIMessage",
         "//base/modules/Common/Logging",

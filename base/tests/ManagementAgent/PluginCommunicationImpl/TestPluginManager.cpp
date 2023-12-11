@@ -18,7 +18,7 @@
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/PluginApiImpl/MockedPluginApiCallback.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <thread>
 

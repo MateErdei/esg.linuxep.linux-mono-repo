@@ -23,7 +23,7 @@ namespace EventJournal
     bool isOpenSubjectFile(const std::string& subject, const std::string& filename);
 
 
-    class Writer : public IEventJournalWriter
+    class Writer final : public IEventJournalWriter
     {
     public:
         Writer();

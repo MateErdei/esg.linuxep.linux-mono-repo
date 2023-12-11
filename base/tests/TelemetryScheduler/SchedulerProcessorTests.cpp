@@ -23,7 +23,7 @@
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <thread>
