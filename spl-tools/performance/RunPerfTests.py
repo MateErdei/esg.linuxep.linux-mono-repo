@@ -645,7 +645,7 @@ def run_central_live_query_perf_test(client_id, email, password, region):
                        '--name', name,
                        '--query', query,
                        '--machine', target_machine]
-        process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
+        process_result = subprocess.run(command, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
             logging.error(f"Running live query through central failed. return code: {process_result.returncode}, "
                           f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")

@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 
 from PerformanceResources import Jenkins_Job_Return_Code
 
@@ -70,7 +71,25 @@ def main():
     parser = add_options()
     args = parser.parse_args()
     on_read_toggle, on_write_toggle = args.on_access_read, args.on_access_write
-    client = get_api_client(args.client_id, args.password, args.region)
+
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+
+    client = None
+    num_retries = 6
+    sleep_amt_between_tries = 10
+    for _ in range(num_retries):
+        try:
+            client = get_api_client(args.client_id, args.password, args.region)
+            break
+        except Exception as exception:
+            logging.warning(f"Failed to initialize api client, error: {exception}")
+        time.sleep(sleep_amt_between_tries)
+
+
+    if client is None:
+        # Not a product issue that api client could not be initialized so unstable rather than failure
+        return Jenkins_Job_Return_Code.UNSTABLE
 
     # API information came from the following two links:
     # https://developer.sophos.com/endpoint-policy-settings-all#server-threat-protection
@@ -81,8 +100,6 @@ def main():
     on_write_setting_name = "endpoint.threat-protection.malware-protection.on-access.scan-on-write.enabled"
     body = {on_read_setting_name: {"value": on_read_toggle}, on_write_setting_name: {"value": on_write_toggle}}
 
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
     try:
         # patch_response will be a dictionary of the updated policy, can be used for a sanity check
 

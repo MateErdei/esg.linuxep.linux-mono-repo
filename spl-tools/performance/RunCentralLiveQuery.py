@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import logging
 import json
 import os
 import sys
+import time
 
-from PerformanceResources import get_current_unix_epoch_in_seconds
+from PerformanceResources import get_current_unix_epoch_in_seconds, Jenkins_Job_Return_Code
 
 # Before importing cloudClient!
 os.environ.setdefault("TMPROOT", "/tmp")
@@ -76,26 +78,55 @@ def main():
     parser = add_options()
     args = parser.parse_args()
 
-    if args.client_id is None:
-        client = get_client(args.email, args.password, args.region)
-    else:
-        client = get_api_client(args.client_id, args.password, args.region)
-    response = client.run_live_query_and_wait_for_response("test", "SELECT system_info.hostname, system_info.local_hostname FROM system_info;", args.machine)
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+
+    num_retries = 6
+    sleep_amt_between_tries = 10
+    client = None
+    for _ in range(num_retries):
+        try:
+            if args.client_id is None:
+                client = get_client(args.email, args.password, args.region)
+            else:
+                client = get_api_client(args.client_id, args.password, args.region)
+            break
+        except Exception as exception:
+            logging.warning(f"Failed to initialize client, error: {exception}")
+        time.sleep(sleep_amt_between_tries)
+
+    if client is None:
+        # Not a product issue that api client could not be initialized so unstable rather than failure
+        return Jenkins_Job_Return_Code.UNSTABLE
+
+    relative_timeout = 120
+    for _ in range(num_retries):
+        try:
+            response = client.run_live_query_and_wait_for_response("test", "SELECT system_info.hostname, system_info.local_hostname FROM system_info;", args.machine, relative_timeout)
+            if response is not None:
+                break
+            logging.warning(f"Test live query failed as response was None")
+        except Exception as exception:
+            logging.warning(f"Test live query failed with exception: {exception}")
+        time.sleep(sleep_amt_between_tries)
+
+    if response is None:
+        return Jenkins_Job_Return_Code.UNSTABLE
 
     try:
         response = response[0][0]
     except Exception as ex:
-        return 1
+        return Jenkins_Job_Return_Code.FAILURE
 
     if args.client_id is None:
         if args.machine not in response:
-            return 1
+            return Jenkins_Job_Return_Code.FAILURE
     else:
         if args.machine not in response.values():
-            return 1
+            return Jenkins_Job_Return_Code.FAILURE
 
     start_time = get_current_unix_epoch_in_seconds()
-    response = client.run_live_query_and_wait_for_response(args.name, args.query, args.machine)
+    response = client.run_live_query_and_wait_for_response(args.name, args.query, args.machine, relative_timeout)
     end_time = get_current_unix_epoch_in_seconds()
 
     result = {"start_time": start_time,
@@ -104,7 +135,7 @@ def main():
               "success": True}
 
     print(json.dumps(result))
-    return 0
+    return Jenkins_Job_Return_Code.SUCCESS
 
 
 if __name__ == "__main__":

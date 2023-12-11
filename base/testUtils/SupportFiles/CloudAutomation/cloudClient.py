@@ -2069,14 +2069,16 @@ class CloudClient(object):
 
         return response_obj
 
-    def wait_for_live_query_response(self, pending_query_response):
+    def wait_for_live_query_response(self, pending_query_response, relative_timeout=None):
         response_obj = json.loads(pending_query_response)
         query_id = response_obj["id"]
         if self.api_host is None:
             url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
         else:
             url = self.api_host + '/live-discover/v1/queries/runs/' + query_id
-        timeout = time.time() + response_obj["maxDurationInSeconds"]
+
+        timeout = time.time()
+        timeout += response_obj["maxDurationInSeconds"] if relative_timeout is None else relative_timeout
         results = []
         while time.time() < timeout:
             if self.api_host is None:
@@ -2129,9 +2131,9 @@ class CloudClient(object):
             time.sleep(0.2)
         return None
 
-    def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
+    def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None, relative_timeout=None):
         pending_query_response = self.run_live_query(query_name, query_string, hostname)
-        return self.wait_for_live_query_response(pending_query_response)
+        return self.wait_for_live_query_response(pending_query_response, relative_timeout)
 
     def get_all_saved_queries(self):
         url = self.api_host + '/live-discover/v1/queries?pageSize=250'
