@@ -58,12 +58,16 @@ def get_inputs(
     build: str,
 ) -> Dict[str, Input]:
     previous_dogfood_branch = parameters.previous_dogfood_branch
+    previous_dogfood_branch_build_instance = parameters.previous_dogfood_branch_build_instance
     current_shipping_branch = parameters.current_shipping_branch
+    current_shipping_branch_build_instance = parameters.current_shipping_branch_build_instance
 
     if not previous_dogfood_branch:
-        previous_dogfood_branch = "release--2023-40"
+        previous_dogfood_branch = "release--2023.4"
+        previous_dogfood_branch_build_instance = "20231117142146-704d26b9d2f10d7bbc843d378c6c700dcf500074-1rARjl"
     if not current_shipping_branch:
-        current_shipping_branch = "release--2023.3"
+        current_shipping_branch = "release--2023.4"
+        current_shipping_branch_build_instance = "20231117142146-704d26b9d2f10d7bbc843d378c6c700dcf500074-1rARjl"
 
     previous_dogfood_branch = previous_dogfood_branch.replace("/", "--")
     current_shipping_branch = current_shipping_branch.replace("/", "--")
@@ -105,19 +109,19 @@ def get_inputs(
         )
         / "build/sspl-liveterminal/test-scripts",
         dogfood_launch_darkly=context.artifact.from_component(
-            "linuxep.sspl-warehouse", previous_dogfood_branch, None, org="", storage="esg-build-tested"
+            "linuxep.linux-mono-repo", previous_dogfood_branch, previous_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-launchdarkly",
         dogfood_repo=context.artifact.from_component(
-            "linuxep.sspl-warehouse", previous_dogfood_branch, None, org="", storage="esg-build-tested"
+            "linuxep.linux-mono-repo", previous_dogfood_branch, previous_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-repo",
         current_shipping_launch_darkly=context.artifact.from_component(
-            "linuxep.sspl-warehouse", current_shipping_branch, None, org="", storage="esg-build-tested"
+            "linuxep.linux-mono-repo", current_shipping_branch, current_shipping_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-launchdarkly",
         current_shipping_repo=context.artifact.from_component(
-            "linuxep.sspl-warehouse", current_shipping_branch, None, org="", storage="esg-build-tested"
+            "linuxep.linux-mono-repo", current_shipping_branch, current_shipping_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-repo",
         safestore_tools=context.artifact.from_component("em.esg", "develop", None, org="", storage="esg-build-tested")

@@ -36,8 +36,6 @@ ${SDDS3_REPO}                   ${INPUT_DIRECTORY}/repo
 
 *** Test Cases ***
 Sdds3 Supplement Update Changes Content
-    # TODO once 2023.43/2023.4 is in dogfood: remove ARM64 exclusion
-    [Tags]    EXCLUDE_ARM64
     [Documentation]
     ...    Updates from a modified content supplement. Verifies that changes to
     ...    the yaml are applied and that BPF programs can be added, modified & removed.

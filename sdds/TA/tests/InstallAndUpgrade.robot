@@ -53,8 +53,6 @@ Sul Downloader fails update if expected product missing from SUS
     check_thininstaller_log_contains    Failed to connect to repository: Product doesn't match any suite: ServerProtectionLinux-Plugin-Fake
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
-    # TODO once 2023.43/2023.4 is in dogfood: remove ARM64 exclusion
-    [Tags]    EXCLUDE_ARM64
     &{expectedDogfoodVersions} =    Get Expected Versions For Recommended Tag    ${DOGFOOD_WAREHOUSE_REPO_ROOT}    ${DOGFOOD_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
@@ -213,8 +211,6 @@ Install VUT and Check RPATH of Every Binary
     END
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
-    # TODO once 2023.43/2023.4 is in dogfood: remove ARM64 exclusion
-    [Tags]    EXCLUDE_ARM64
     &{expectedDogfoodVersions} =    Get Expected Versions For Recommended Tag    ${DOGFOOD_WAREHOUSE_REPO_ROOT}    ${DOGFOOD_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
@@ -356,8 +352,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
-    # TODO once 2023.4 is released: remove ARM64 exclusion
-    [Tags]    EXCLUDE_ARM64
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
@@ -466,8 +460,6 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
-    # TODO once 2023.4 is released: remove ARM64 exclusion
-    [Tags]    EXCLUDE_ARM64
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
     ${expectBaseDowngrade} =  second_version_is_lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
