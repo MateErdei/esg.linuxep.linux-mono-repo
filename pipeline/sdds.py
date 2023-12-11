@@ -210,11 +210,14 @@ def stage_sdds_tests(
 
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2"
 
-    fixed_versions = []
+    fixed_versions_x86 = []
+    fixed_versions_arm64 = []
     for fts in context.releases.fixed_term_releases:
         if fts.device_class == 'LINUXEP':
             print(f"FTS name: {fts.name}, expiry: {fts.eol_date}, token: {fts.token}")
-            fixed_versions.append(fts.name)
+            fixed_versions_x86.append(fts.name)
+            if fts.name != "FTS 2023.3.0.23":
+                fixed_versions_arm64.append(fts.name)
 
     with stage.parallel(group_name):
         for build in get_test_builds():
@@ -234,16 +237,25 @@ def stage_sdds_tests(
                 robot_args += ["--central-api-client-id", parameters["central_api_client_id"]]
             if parameters.get("central_api_client_secret"):
                 robot_args += ["--central-api-client-secret", parameters["central_api_client_secret"]]
-            if fixed_versions:
-                robot_args += ["--fixed-versions"]
-                for fixed_version in fixed_versions:
-                    robot_args += [fixed_version]
+
 
             includedtags = parameters.include_tags or default_include_tags
 
             for include in includedtags.split(","):
                 for machine in test_machines:
-                    robot_args_json = json.dumps(robot_args + ["--include", include])
+                    fixed_version_array = []
+                    if "arm" in machine:
+                        if fixed_versions_arm64:
+                            fixed_version_array.append("--fixed-versions")
+                            for fixed_version in fixed_versions_arm64:
+                                fixed_version_array.append(fixed_version)
+                    else:
+                        if fixed_versions_x86:
+                            fixed_version_array.append("--fixed-versions")
+                            for fixed_version in fixed_versions_x86:
+                                fixed_version_array.append(fixed_version)
+                    robot_args_json = json.dumps(robot_args + fixed_version_array +["--include", include])
+
                     stage_task(
                         stage=stage,
                         coverage_tasks=coverage_tasks,
