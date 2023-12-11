@@ -847,7 +847,9 @@ chmod u+x "$DIST/files/base/bin"/*
 
 CLEAN_INSTALL=1
 # update_report.json is only written after the update has finished and still exists on a downgrade
-[[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" ]] && CLEAN_INSTALL=0
+if ls "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report"* 1> /dev/null 2>&1; then
+    CLEAN_INSTALL=0
+fi
 
 
 generate_manifest_diff "${DIST}" ${PRODUCT_LINE_ID} || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to generate manifest diff"
