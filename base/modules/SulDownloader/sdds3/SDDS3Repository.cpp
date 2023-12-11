@@ -14,7 +14,6 @@
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/StringUtilsException.h"
-#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
 #include "sophlib/sdds3/PackageRef.h"
@@ -515,7 +514,6 @@ namespace SulDownloader
             productMetadata.setDefaultHomePath(package.decodePath_);
             productMetadata.setName(package.name_);
             productMetadata.setFeatures(package.features_);
-            m_catalogueInfo.addInfo(package.lineId_, package.version_, package.name_);
 
             std::vector<Tag> tags;
 

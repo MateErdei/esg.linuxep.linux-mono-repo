@@ -137,7 +137,9 @@ TEST_F(TestDownloadReports, VersionFromVersionIniIsUsedInLogAndInDownloadReport)
         "INFO - Installing product: ServerProtectionLinux-Base-component version: 1.2.3"));
 }
 
-TEST_F(TestDownloadReports, WhenVersionIniVersionAndSddsVersionMismatchDownloadReportHasComponentRigidNameAndProductName)
+TEST_F(
+    TestDownloadReports,
+    WhenVersionIniVersionAndSddsVersionMismatchDownloadReportHasComponentRigidNameAndProductName)
 {
     MemoryAppenderHolder memoryAppenderHolderSuldownloaderdata{ "suldownloaderdata" };
     UsingMemoryAppender usingMemoryAppenderSuldownloaderdata{ memoryAppenderHolderSuldownloaderdata };
@@ -166,26 +168,26 @@ TEST_F(TestDownloadReports, WhenVersionIniVersionAndSddsVersionMismatchDownloadR
     ON_CALL(*mockFileSystem, isDirectory("/opt/sophos-spl")).WillByDefault(Return(true));
     ON_CALL(*mockFileSystem, isDirectory("/opt/sophos-spl/base/update/cache/")).WillByDefault(Return(true));
     ON_CALL(
-            *mockFileSystem,
-            exists("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh"))
-            .WillByDefault(Return(true));
+        *mockFileSystem,
+        exists("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh"))
+        .WillByDefault(Return(true));
     ON_CALL(
-            *mockFileSystem,
-            isFile("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/VERSION.ini"))
-            .WillByDefault(Return(true));
+        *mockFileSystem,
+        isFile("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/VERSION.ini"))
+        .WillByDefault(Return(true));
     EXPECT_CALL(
-            *mockFileSystem,
-            readLines("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/VERSION.ini"))
-            .WillRepeatedly(Return(std::vector<std::string>{ "PRODUCT_VERSION = 1.2.3" }));
+        *mockFileSystem,
+        readLines("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/VERSION.ini"))
+        .WillRepeatedly(Return(std::vector<std::string>{ "PRODUCT_VERSION = 1.2.3" }));
     ON_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillByDefault(Return(true));
     EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/base/VERSION.ini"))
-            .WillRepeatedly(Return(std::vector<std::string>{ "PRODUCT_VERSION = 1.2.3" }));
+        .WillRepeatedly(Return(std::vector<std::string>{ "PRODUCT_VERSION = 1.2.3" }));
     EXPECT_CALL(*mockFileSystem, writeFile).Times(AnyNumber());
     EXPECT_CALL(
-            *mockFileSystem,
-            writeFile(
-                    StartsWith("/opt/sophos-spl/tmp/output"),
-                    HasSingleComponent("ServerProtectionLinux-Base-component", "base", "1.2.3", "1.2.3")));
+        *mockFileSystem,
+        writeFile(
+            StartsWith("/opt/sophos-spl/tmp/output"),
+            HasSingleComponent("ServerProtectionLinux-Base-component", "base", "1.2.3", "1.2.3")));
 
     Tests::replaceFileSystem(std::move(mockFileSystem));
 
@@ -200,11 +202,11 @@ TEST_F(TestDownloadReports, WhenVersionIniVersionAndSddsVersionMismatchDownloadR
     auto mockSignatureVerifierWrapper = std::make_shared<MockSignatureVerifierWrapper>();
 
     replaceSdds3RepositoryCreator(
-            [&mockHttpRequester, &mockSignatureVerifierWrapper]()
-            {
-                auto susRequester = std::make_unique<SDDS3::SusRequester>(mockHttpRequester, mockSignatureVerifierWrapper);
-                return std::make_unique<SDDS3Repository>(std::move(susRequester));
-            });
+        [&mockHttpRequester, &mockSignatureVerifierWrapper]()
+        {
+            auto susRequester = std::make_unique<SDDS3::SusRequester>(mockHttpRequester, mockSignatureVerifierWrapper);
+            return std::make_unique<SDDS3Repository>(std::move(susRequester));
+        });
 
     auto mockSdds3Wrapper = std::make_unique<MockSdds3Wrapper>();
     sophlib::sdds3::PackageRef packageRef;

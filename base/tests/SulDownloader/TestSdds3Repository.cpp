@@ -11,7 +11,6 @@
 #include "SulDownloader/sdds3/SDDS3Repository.h"
 #include "SulDownloader/sdds3/Sdds3RepositoryFactory.h"
 #include "SulDownloader/sdds3/SusRequester.h"
-#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/VersigImpl.h"
 #include "sophlib/sdds3/PackageRef.h"

@@ -5,7 +5,6 @@
 #include "ISusRequester.h"
 #include "Sdds3Wrapper.h"
 
-#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/ISdds3Repository.h"
@@ -71,7 +70,6 @@ namespace SulDownloader
         sophlib::sdds3::Config m_oldConfig;
         std::vector<suldownloaderdata::DownloadedProduct> m_products;
         suldownloaderdata::RepositoryError m_error;
-        suldownloaderdata::CatalogueInfo m_catalogueInfo;
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly;
         std::string m_sourceUrl;
