@@ -165,7 +165,17 @@ namespace SulDownloader
 
     std::vector<ProductInfo> SDDS3Repository::listInstalledProducts() const
     {
-        return CatalogueInfo::calculatedListProducts(getProducts(), m_catalogueInfo);
+        std::vector<ProductInfo> productInfos;
+        for (auto& product : m_products)
+        {
+            const auto& productMetadata = product.getProductMetadata();
+            ProductInfo productInfo;
+            productInfo.m_rigidName = product.getLine();
+            productInfo.m_version = productMetadata.getVersion();
+            productInfo.m_productName = productMetadata.getName();
+            productInfos.push_back(productInfo);
+        }
+        return productInfos;
     }
 
     void SDDS3Repository::purge() const
