@@ -134,14 +134,27 @@ class PushServerUtils:
 
     def start_mcs_push_server(self):
         """Utility function to simplify starting the mcs push server. It executes MockMCSPushServer.py """
+        if self._server:
+            logger.error("Attempting to start server while it is already running!")
         server_path = os.path.join(os.path.dirname(__file__), 'MockMCSPushServer.py')
-        args= [ sys.executable,
-                server_path,
-                '--logpath',
-                self.cloud_server_log
+        args = [
+            sys.executable,
+            server_path,
+            '--logpath',
+            self.cloud_server_log,
         ]
-        self._server = subprocess.Popen(args)
-        time.sleep(1)
+        self._server = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        start = time.time()
+        while time.time() < start + 1:
+            if self._server.poll():
+                output = self._server.communicate()[0]
+                code = self._server.returncode
+                raise AssertionError(f"MockMCSPushServer.py immediately exited: {code}: {output}")
+            if os.path.isfile(self.cloud_server_log):
+                logger.info("MockMCSPushServer.py log created")
+                # May need to check for particular contents?
+                break
+            time.sleep(0.1)
 
     def mcs_push_server_log(self):
         """
@@ -162,9 +175,9 @@ class PushServerUtils:
             self._server.kill()
             out, err = self._server.communicate()
             if out:
-                logger.info("Server Info: {}".format(out.decode()))
+                logger.info(f"MockMCSPushServer output: {out.decode()}")
             if err:
-                logger.info("Server Stderr: {}".format(err.decode()))
+                logger.info(f"Server Stderr: {err.decode()}")
             self._server = None
 
     def check_server_stops_connection(self):

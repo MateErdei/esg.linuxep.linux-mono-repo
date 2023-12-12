@@ -36,7 +36,9 @@ class LogMark:
         self.__m_log_path = log_path
         self.__m_override_position = position
         if inode is not None:
+            self.__m_stat = None
             self.__m_inode = inode
+            assert position != -1
         else:
             try:
                 self.__m_stat = os.stat(self.__m_log_path)
@@ -50,7 +52,9 @@ class LogMark:
 
     def __str__(self):
         mark_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(self.__m_mark_time))
-        if self.__m_stat is None:
+        if self.__m_override_position >= 0:
+            return "%d bytes in %s in inode %d" %(self.get_size(), mark_time, self.__m_inode)
+        if self.__m_inode is None:
             return "Missing file at %s" % mark_time
         return "%d bytes at %s" % (self.get_size(), mark_time)
 
@@ -99,34 +103,47 @@ class LogMark:
         except OSError:
             return None
 
-    def get_contents(self) -> Optional[bytes]:
-        try:
-            with open(self.__m_log_path, "rb") as f:
-                stat = os.fstat(f.fileno())
-                if self.check_inode(stat.st_ino):
-                    # File hasn't rotated
-                    f.seek(self.get_size())
-                    return f.read()
-                contents = f.read()
-        except OSError:
-            return None
-        # log file has rotated
+    def __generate_log_paths(self):
+        yield self.__m_log_path
         old_index = 1
-        try:
-            while True:
-                with open(self.__m_log_path + ".%d" % old_index, "rb") as f:
+        while True:
+            yield self.__m_log_path + ".%d" % old_index
+            old_index += 1
+
+    def __generate_contents(self):
+        for log_path in self.__generate_log_paths():
+            try:
+                with open(log_path, "rb") as f:
                     stat = os.fstat(f.fileno())
                     if stat.st_ino == self.get_inode():
-                        # Found old log file
+                        # Found the originally marked file, so only get the new content and finish
                         f.seek(self.get_size())
-                        return f.read() + contents
-                    contents = f.read() + contents
-                old_index += 1
-        except OSError:
-            if self.__m_inode is not None:
-                # no inode means nothing counts as old
-                logger.error("Ran out of log files getting content for " + self.__m_log_path)
-            return contents
+                        yield stat.st_ino, f.read()
+                        return
+
+                    # Not the marked file, so return the entire file
+                    yield stat.st_ino, f.read()
+            except OSError:
+                if self.__m_inode is not None:
+                    # no inode means nothing counts as old
+                    logger.error("Ran out of log files getting content for " + self.__m_log_path)
+                return
+
+    def __generate_full_contents(self):
+        for log_path in self.__generate_log_paths():
+            try:
+                with open(log_path, "rb") as f:
+                    stat = os.fstat(f.fileno())
+                    yield stat.st_ino, f.read()
+            except OSError:
+                return
+
+    def get_contents(self) -> Optional[bytes]:
+        contents = list(self.__generate_contents())
+        contents.reverse()
+        if len(contents) == 0:
+            return None
+        return b"".join((content for _, content in contents))
 
     def get_contents_unicode(self) -> Optional[str]:
         contents = self.get_contents()
@@ -188,40 +205,7 @@ class LogMark:
         else:
             return contents.find(expected, start)
 
-    def wait_for_possible_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
-        expected = ensure_binary(expected, "UTF-8")
-        start = time.time()
-        sleep_time = min(0.5, timeout / 10)
-        old_contents = ""
-        while time.time() < start + timeout:
-            contents = self.get_contents()
-            if contents is not None and old_contents != contents:
-                if len(contents) > len(old_contents):
-                    logger.debug(contents[:len(old_contents)])
-
-                pos = self.__find_str_in_contents(expected, contents)
-                if pos >= 0:
-                    absolute_pos = pos + self.get_size()
-                    stat = os.stat(self.__m_log_path)
-                    if stat.st_size < absolute_pos:
-                        absolute_pos = stat.st_size
-                    return LogMark(self.__m_log_path, absolute_pos)
-
-                old_contents = contents
-
-            time.sleep(sleep_time)
-
-        logger.info("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
-        return self
-
-    def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
-        """
-        Wait for the log to contain the text specified
-
-        :param expected: List of strings or String that we are expecting
-        :param timeout: Fail the test if we spend too long waiting
-        :return: New LogMark for the position we found the match
-        """
+    def __internal_wait_for_possible_log_contains_from_mark(self, expected, timeout: float) -> Optional['LogMark']:
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         sleep_time = timeout / 60  # Check by default 60 times during the timeout
@@ -242,21 +226,53 @@ class LogMark:
                     if self.__m_inode == stat.st_ino:
                         # mark is within the current file, so pos must be as well
                         absolute_pos = pos + self.get_size()
+                        return LogMark(self.__m_log_path, absolute_pos, stat.st_ino)
                     else:
                         # mark is is a previous log file
                         # pos might be in a previous file
-                        current_contents = self.get_current_contents()
-                        absolute_pos = self.__find_str_in_contents(expected, current_contents) # current_contents is entire file
-                        if absolute_pos == -1:
-                            # match was is a previous file, which we have no way to cover
-                            absolute_pos = 0
+                        for inode, contents in self.__generate_full_contents():
+                            absolute_pos = self.__find_str_in_contents(expected, contents)  # see if we have a match
+                            if absolute_pos > -1:
+                                # A match in this log file, so return if
+                                return LogMark(self.__m_log_path, absolute_pos, inode)
 
-                    return LogMark(self.__m_log_path, absolute_pos)
+                        # No good match - log files must be rotating too fast - so use start of current file
+                        logger.error("Failed to find matching mark for found contents - log files rotating too fast!")
+                        return LogMark(self.__m_log_path, 0)
 
                 old_contents = contents
-
             time.sleep(sleep_time)
+        # Failed to find a match in time
+        return None
 
+    def wait_for_possible_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+        """
+        Wait for the log to contain the text specified
+
+        :param expected: List of strings or String that we are expecting
+        :param timeout: Log info level if we spend too long
+        :return: New LogMark for the position we found the match
+        """
+        mark = self.__internal_wait_for_possible_log_contains_from_mark(expected, timeout)
+        if mark:
+            return mark
+
+        logger.info("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
+        return self
+
+    def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
+        """
+        Wait for the log to contain the text specified
+
+        :param expected: List of strings or String that we are expecting
+        :param timeout: Fail the test if we spend too long waiting
+        :return: New LogMark for the position we found the match
+        """
+        mark = self.__internal_wait_for_possible_log_contains_from_mark(expected, timeout)
+        if mark:
+            return mark
+
+        expected = ensure_binary(expected, "UTF-8")
         logger.error("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
         self.dump_marked_log()
         raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
@@ -390,7 +406,7 @@ class LogHandler:
             for line in mark.generate_reversed_lines():
                 yield line
 
-    def get_content_since_last_start(self, mark=None, rtd=False) -> list:
+    def get_content_since_last_start(self, mark=None) -> list:
         """
         Get the log file contents since the last start, assuming the process
         starts by logging: "Logger .* configured for level:"
@@ -398,9 +414,6 @@ class LogHandler:
         """
         results = []
         START_RE = re.compile(rb".*<> Logger .* configured for level: ")
-        if rtd:
-            START_RE = re.compile(rb"\d* *\[.*\]    INFO \[\d*\] runtimedetections <> Sophos Runtime Detections Plugin")
-
         for line in self.__generate_reversed_lines(mark):  # read the newest first
             mo = START_RE.match(line)
             results.append(line)
@@ -431,21 +444,20 @@ class LogHandler:
 
         return results
 
-    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None, rtd=False) -> None:
+    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
         """
         Need to look for the restart in the log, and check the log after that.
         A restart means the first digit resetting to 0
         :param mark: Optional Mark - only check log after mark
         :param expected: String expected in log
         :param timeout: Amount of time to wait for expected to appear
-        :param rtd: Use the RTD match string instead of the usual sophos plugin string
         :return: None
         """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         content_lines = []
         while time.time() < start + timeout:
-            content_lines = self.get_content_since_last_start(mark, rtd)
+            content_lines = self.get_content_since_last_start(mark)
             for line in content_lines:
                 if expected in line:
                     return

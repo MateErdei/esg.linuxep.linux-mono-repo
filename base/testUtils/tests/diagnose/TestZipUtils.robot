@@ -17,7 +17,6 @@ Force Tags    TAP_PARALLEL4
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
 
-
 *** Test Cases ***
 Test Zip And Unzip Directory
     Create Directory   ${TAR_FILE_DIRECTORY}
@@ -82,6 +81,7 @@ Test Zip And Unzip Directory with trailing slash
     Log  ${result.stdout}
     Should Not Be Equal As Integers    ${extractedModTime}    ${0}    "Timestamp or extracted file not restored"
     Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt    ${preZipMode}
+
 Test Zip And Unzip Directory With Password
     Create Directory   ${TAR_FILE_DIRECTORY}
     Create File   ${TAR_FILE_DIRECTORY}/test.txt   this is a test file
@@ -92,23 +92,20 @@ Test Zip And Unzip Directory With Password
     ${password} =  Set Variable  password
 
     Remove File  ${zipFile}
-    ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${zipTool} ${TAR_FILE_DIRECTORY} ${zipFile} ${password}   shell=True
-    Log  ${result.stderr}
+    ${result} =    Run Process  ${zipTool}  ${TAR_FILE_DIRECTORY}  ${zipFile}  ${password}   env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/  stderr=STDOUT
     Log  ${result.stdout}
-    Should Be Equal As Integers    ${result.rc}    0   "zip failed: Reason ${result.stderr}"
+    Should Be Equal As Integers    ${result.rc}    ${0}   "zip failed: Reason ${result.stderr}"
     Should Exist  ${zipFile}
 
     Create Directory  ${UNPACK_DIRECTORY}
     Empty Directory  ${UNPACK_DIRECTORY}
-    ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} ${zipFile} ${UNPACK_DIRECTORY}   shell=True
-    Log  ${result.stderr}
+    ${result} =    Run Process  ${unzipTool}  ${zipFile}  ${UNPACK_DIRECTORY}   env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/  stderr=STDOUT
     Log  ${result.stdout}
     ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}
     Log   ${Files}
-    Should Not Be Equal As Integers    ${result.rc}    0   "unzip utility unexpectedly succeeded without password"
+    Should Not Be Equal As Integers    ${result.rc}    ${0}   "unzip utility unexpectedly succeeded without password"
 
-    ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} ${zipFile} ${UNPACK_DIRECTORY} ${password}   shell=True
-    Should Be Equal As Integers    ${result.rc}    0   "unzip failed: Reason ${result.stderr}"
-    Log  ${result.stderr}
+    ${result} =    Run Process  ${unzipTool}  ${zipFile}  ${UNPACK_DIRECTORY}  ${password}   env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/  stderr=STDOUT
+    Should Be Equal As Integers    ${result.rc}    ${0}   "unzip failed: Reason ${result.stderr}"
     Log  ${result.stdout}
     Directory Should Not Be Empty  ${UNPACK_DIRECTORY}

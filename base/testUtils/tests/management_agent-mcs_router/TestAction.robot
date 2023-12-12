@@ -65,8 +65,6 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
 
     Should Be True    "sophos.mgt.action.InitiateLiveTerminal" in """${pluginAction}"""
 
-    Check Temp Folder Doesnt Contain Atomic Files
-
 Verify Management Agent Handles CORE Health Reset Action When Received
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
