@@ -172,31 +172,31 @@ Check SSPL systemd files are correct
 
 Check Watchdog Running
     ${result} =     Run Process     pgrep  -f   sophos_watchdog
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check Management Agent Running
     ${result} =     Run Process     pgrep  -f   sophos_managementagent
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check SDU Running
     ${result} =     Run Process     pgrep  -f   sdu
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check Update Scheduler Running
     ${result} =     Run Process     pgrep  -f   UpdateScheduler
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check Telemetry Scheduler Is Running
     ${result} =     Run Process     pgrep  -f   tscheduler
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check Telemetry Scheduler Copy Is Running
     ${result} =     Run Process     pgrep  -f   newTscheduler
-    Should Be Equal As Integers     ${result.rc}    0
+    Should Be Equal As Integers     ${result.rc}    ${0}
 
 Check Watchdog Not Running
     ${result} =    Run Process  pgrep  sophos_watchdog
-    Should Not Be Equal As Integers    ${result.rc}    0
+    Should Not Be Equal As Integers    ${result.rc}    ${0}
 
 Check Management Agent not Running
     ${result} =     Run Process     pgrep  -f   sophos_managementagent

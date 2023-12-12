@@ -118,7 +118,9 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     if parameters.sdds_options != "build_none":
         stage_sdds_build(stage, context, parameters, builds)
 
-    if parameters.test_platform != "run_none":
+    integration_testing = parameters.test_platform != "run_none"
+
+    if integration_testing or system_tests:
         with stage.parallel('testing'):
             coverage_tasks = []
 
