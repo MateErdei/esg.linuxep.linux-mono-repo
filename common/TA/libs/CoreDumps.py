@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright 2022-2023 Sophos Limited. All rights reserved.
-# All rights reserved.
 
 import datetime
 import os
@@ -57,8 +55,11 @@ def attempt_backtrace_of_core(filepath):
 class CoreDumps(object):
     def __init__(self):
         self.__m_ignore_cores_segfaults = False
+        self.__m_log_keyword = "Dump Logs"
 
-    def enable_core_files(self):
+    def enable_core_files(self, log_keyword="Dump Logs"):
+        logger.info("Enabling core dumps")
+        self.__m_log_keyword = log_keyword
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
@@ -72,6 +73,14 @@ class CoreDumps(object):
         # Configure core_pattern so we can find core files
         with open("/proc/sys/kernel/core_pattern", "wb") as f:
             f.write(b"/z/core-%t-%P-%E")
+
+        os.environ['SOPHOS_CORE_DUMP_ON_PLUGIN_KILL'] = "1"
+        os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
+
+    def disable_core_files(self):
+        logger.info("Disabling core dumps")
+        os.environ.pop('SOPHOS_CORE_DUMP_ON_PLUGIN_KILL', None)
+        os.environ.pop('SOPHOS_ENABLE_CORE_DUMP', None)
 
     def dump_dmesg(self):
         sp = subprocess
@@ -151,7 +160,7 @@ class CoreDumps(object):
         assert dmesg_process.returncode == 0
 
         if len(result) > 0:
-            BuiltIn().run_keyword("Dump Logs")
+            BuiltIn().run_keyword(self.__m_log_keyword)
             BuiltIn().run_keyword("Dump dmesg")
             # Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
             logger.debug("Clear dmesg after segfault detected")

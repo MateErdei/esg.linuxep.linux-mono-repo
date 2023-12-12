@@ -7,7 +7,7 @@ Library         OperatingSystem
 Library         String
 
 Library         ../Libs/AVScanner.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/JsonUtils.py
 Library         ../Libs/LockFile.py

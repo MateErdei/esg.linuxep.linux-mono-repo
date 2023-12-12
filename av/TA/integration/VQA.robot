@@ -8,7 +8,7 @@ Resource    ../shared/ErrorMarkers.robot
 
 Library         Collections
 Library         Process
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 

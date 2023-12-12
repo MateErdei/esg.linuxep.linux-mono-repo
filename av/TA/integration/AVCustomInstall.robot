@@ -6,7 +6,7 @@ Library    Process
 
 Library    ../Libs/BaseInteractionTools/PolicyUtils.py
 Library    ../Libs/BaseUtils.py
-Library    ../Libs/CoreDumps.py
+Library    ${COMMON_TEST_LIBS}/CoreDumps.py
 Library    ../Libs/ExclusionHelper.py
 Library    ../Libs/LogUtils.py
 Library    ../Libs/OnAccessUtils.py

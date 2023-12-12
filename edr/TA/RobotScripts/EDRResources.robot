@@ -4,7 +4,7 @@ Library         OperatingSystem
 Library         String
 Library         DateTime
 
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/OSLibs.py
 Library         ../Libs/ProcessUtils.py
@@ -137,7 +137,7 @@ Install With Base SDDS Inner
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
-    CoreDumps.enable_core_files
+    CoreDumps.enable_core_files  Dump EDR Logs
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
     ${ALCContent}=  Get ALC Policy Without MTR

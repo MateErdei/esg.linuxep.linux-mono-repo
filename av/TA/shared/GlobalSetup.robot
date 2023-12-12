@@ -4,13 +4,13 @@ Library         OperatingSystem
 Library         Process
 Library         /opt/test/inputs/common_test_libs/OSUtils.py
 Library         ../Libs/PathManager.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/TeardownTools.py
-Library    ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
+Library         ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
 
 *** Variables ***
 ${COMPONENT}        av

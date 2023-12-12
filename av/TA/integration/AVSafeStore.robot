@@ -10,7 +10,7 @@ Resource    ../shared/SafeStoreResources.robot
 Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py

@@ -2,7 +2,7 @@
 Resource    AVResources.robot
 Resource    BaseResources.robot
 
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 
 *** Variables ***
 ${SUSI_DISTRIBUTION_VERSION}        ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version

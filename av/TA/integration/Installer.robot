@@ -12,7 +12,7 @@ Resource    ../shared/SafeStoreResources.robot
 
 Library         Collections
 Library         Process
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py

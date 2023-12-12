@@ -8,7 +8,7 @@ Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/InstallerUtils.py
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot

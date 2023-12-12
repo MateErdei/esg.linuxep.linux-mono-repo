@@ -5,7 +5,7 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/BaseUtils.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py

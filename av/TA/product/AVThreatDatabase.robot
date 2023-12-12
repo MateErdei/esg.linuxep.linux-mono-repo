@@ -9,7 +9,7 @@ Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/FileSampleObfuscator.py
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py

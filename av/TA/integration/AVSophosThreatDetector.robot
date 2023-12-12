@@ -8,7 +8,7 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
 
-Library         ../Libs/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/ProcessUtils.py
