@@ -406,7 +406,7 @@ class LogHandler:
             for line in mark.generate_reversed_lines():
                 yield line
 
-    def get_content_since_last_start(self, mark=None) -> list:
+    def get_content_since_last_start(self, mark=None, rtd=False) -> list:
         """
         Get the log file contents since the last start, assuming the process
         starts by logging: "Logger .* configured for level:"
@@ -414,6 +414,9 @@ class LogHandler:
         """
         results = []
         START_RE = re.compile(rb".*<> Logger .* configured for level: ")
+        if rtd:
+            START_RE = re.compile(rb"\d* *\[.*\]    INFO \[\d*\] runtimedetections <> Sophos Runtime Detections Plugin")
+
         for line in self.__generate_reversed_lines(mark):  # read the newest first
             mo = START_RE.match(line)
             results.append(line)
@@ -444,20 +447,21 @@ class LogHandler:
 
         return results
 
-    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
+    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None, rtd=False) -> None:
         """
         Need to look for the restart in the log, and check the log after that.
         A restart means the first digit resetting to 0
         :param mark: Optional Mark - only check log after mark
         :param expected: String expected in log
         :param timeout: Amount of time to wait for expected to appear
+        :param rtd: Use the RTD match string instead of the usual sophos plugin string
         :return: None
         """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         content_lines = []
         while time.time() < start + timeout:
-            content_lines = self.get_content_since_last_start(mark)
+            content_lines = self.get_content_since_last_start(mark, rtd)
             for line in content_lines:
                 if expected in line:
                     return
