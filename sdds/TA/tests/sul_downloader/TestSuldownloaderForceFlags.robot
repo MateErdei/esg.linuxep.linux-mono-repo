@@ -88,13 +88,13 @@ Sul Downloader Installs does not Force reinstall when there is a marker file for
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Install SDDS3 Base
+    Create Local SDDS3 Override
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/paused_update_forced_marker
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {"sdds3.force-paused-update":"true"}
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Register With Local Cloud Server
     Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
-    Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
