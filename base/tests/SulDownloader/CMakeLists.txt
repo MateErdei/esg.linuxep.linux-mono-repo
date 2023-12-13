@@ -19,7 +19,6 @@ add_executable(SulDownloaderTests
         TestProductUninstaller.cpp
         ../Common/Helpers/ConfigurationDataBase.h
         TestProductMetadata.cpp
-        TestCatalogueInfo.cpp
         TestSdds3Repository.cpp
         Sdds3ReplaceAndRestore.h
         Sdds3ReplaceAndRestore.cpp
