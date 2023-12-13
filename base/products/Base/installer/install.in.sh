@@ -548,7 +548,7 @@ add_to_group "${USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
 check_for_upgrade "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} "${DIST}"
 
