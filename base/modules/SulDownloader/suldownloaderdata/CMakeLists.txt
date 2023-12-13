@@ -24,8 +24,6 @@ add_library(suldownloaderdataobject OBJECT
         IVersig.h
         VersigImpl.cpp
         VersigImpl.h
-        CatalogueInfo.cpp
-        CatalogueInfo.h
         ISdds3Repository.h
         )
 
