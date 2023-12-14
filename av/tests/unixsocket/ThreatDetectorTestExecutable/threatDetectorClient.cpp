@@ -3,20 +3,17 @@
 #include "FakeServerSocket.h"
 
 #include "avscanner/avscannerimpl/ScanClient.h"
-#include "unixsocket/SocketUtils.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-
-#include "Common/Logging/ConsoleLoggingSetup.h"
-
-
-#include <capnp/message.h>
 #include "common/AbortScanException.h"
 #include "datatypes/Print.h"
 #include "datatypes/IUuidGenerator.h"
 #include "unixsocket/SocketUtilsImpl.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
-#include <chrono>
-#include <cstddef>
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
+#include <capnp/message.h>
+#include <log4cplus/logger.h>
+
 #include <fstream>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
@@ -36,6 +33,19 @@ private:
     void logSummary() override {}
 };
 
+namespace {
+    class QuietLogSetup {
+    public:
+        QuietLogSetup() {
+            Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+        }
+
+        ~QuietLogSetup() {
+            log4cplus::Logger::shutdown();
+        }
+    };
+}
+
 namespace Fuzzing
 {
     static std::string m_socketPathBase = "/tmp/socket_";
@@ -47,6 +57,8 @@ namespace Fuzzing
 
     static void doInitialization(uint8_t* data, size_t size)
     {
+
+
         if (!socketServer || !socketServer->m_isRunning)
         {
             std::ostringstream ss;
@@ -66,8 +78,9 @@ namespace Fuzzing
         socketServer->initializeData(data_vector);
     }
 
-    static int runFuzzing()
+    static int runFuzzing(uint8_t* data, size_t size)
     {
+        Fuzzing::doInitialization(data, size);
         auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(m_socketPath);
         auto scanCallbacks = std::make_shared<FakeCallbacks>();
 
@@ -91,8 +104,8 @@ namespace Fuzzing
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t* Data, size_t Size)
 {
-    Fuzzing::doInitialization(Data, Size);
-    return Fuzzing::runFuzzing();
+    QuietLogSetup quietLogSetup;
+    return Fuzzing::runFuzzing(Data, Size);
 }
 
 #else

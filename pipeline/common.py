@@ -30,7 +30,7 @@ COVERAGE_TEST_TIMEOUT_MULTIPLIER = 4
 TEST_TASK_TIMEOUT_MINUTES = COVERAGE_TEST_TIMEOUT_MULTIPLIER * DEFAULT_TEST_TIMEOUT_MINUTES
 
 COVERAGE_TEMPLATE = "centos7_x64_aws_server_en_us"
-
+FUZZ_TEMPLATE = "ubuntu2204_x64_aws_server_en_us"
 
 def get_robot_args(parameters):
     # Add args to pass env vars to RobotFramework.py call in test runs
@@ -114,6 +114,8 @@ def get_random_machines(x64_count: int, arm64_count: int, x64platforms: dict, ar
 def get_test_machines(build: str, parameters: DotDict):
     if build == "linux_x64_bullseye":
         return [COVERAGE_TEMPLATE]
+    elif build == "linux_x64_clang":
+        return [FUZZ_TEMPLATE]
 
     available_x64_environments = {
         'amazonlinux2': 'amzlinux2_x64_server_en_us',
@@ -448,6 +450,7 @@ def stage_task(
     func: Callable,
     **kwargs,
 ):
+    print(task_name)
     coverage = build == "linux_x64_bullseye"
     if coverage:
         coverage_tasks.append(f"{group_name}.{task_name}")

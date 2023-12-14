@@ -84,8 +84,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
     if is_fuzzing_enabled(parameters):
-        # TODO fuzz_targets will either be removed or configured on CI
-        stage_fuzzing(stage, context, component, 'all', BUILD_TEMPLATE_BAZEL, PACKAGE_PATH)
+        stage_fuzzing(stage, context, component, parameters, BUILD_TEMPLATE_BAZEL, PACKAGE_PATH)
 
     else:
         rel_build = {}
