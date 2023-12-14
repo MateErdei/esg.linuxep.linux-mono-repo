@@ -157,7 +157,7 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 @tap.pipeline(version=1, component='linux-mono-repo')
 def linux_mono_repo(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     os.environ["BRANCH_NAME"] = context.branch
-    cmake = truthy(parameters.build_with_cmake, "build_with_cmake", True)
+    cmake = truthy(parameters.build_with_cmake, "build_with_cmake", False)
     system_tests = (not parameters.sdds_options or parameters.sdds_options == "build_dev_system_tests"
                     or parameters.sdds_options == "build_prod_system_tests")
     print(f"parameters.build_with_cmake = {parameters.build_with_cmake}; Defaulting to cmake = {cmake}")

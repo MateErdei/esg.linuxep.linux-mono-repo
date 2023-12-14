@@ -37,7 +37,7 @@ def params = [
     string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
     string(name: 'include_tags', defaultValue: '', description: 'Optional specific Robot tags to run: firsttag,secondtag'),
 
-    booleanParam(name: 'build_with_cmake', defaultValue: true, description: 'Do builds that need cmake'),
+    booleanParam(name: 'build_with_cmake', defaultValue: false, description: 'Do builds that need cmake'),
     booleanParam(name: 'build_debug_bazel', defaultValue: false, description: 'Do the Bazel linux_dbg build'),
     choice(name: 'architectures', choices: ['both unified', 'both separately', 'x86_64 only', 'arm64 only'], description: 'Which architectures to build and how to build them'),
     booleanParam(name: "FORCE_NON_MINIMAL_DOWNLOADS",
