@@ -512,3 +512,15 @@ TEST_F(TestSusiSettings, sxl_url_allowed_path)
     auto url = "https://4.sophosxl.net/lookup";
     EXPECT_TRUE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
 }
+
+TEST_F(TestSusiSettings, sxl_url_hyphen_allowed_path)
+{
+    auto url = "https://dev-4.sophosxl.com";
+    EXPECT_TRUE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
+}
+
+TEST_F(TestSusiSettings, sxl_url_ampersand_not_allowed_path)
+{
+    auto url = "https://4&.sophosxl.com";
+    EXPECT_FALSE(ThreatDetector::SusiSettings::isSxlUrlValid(url));
+}

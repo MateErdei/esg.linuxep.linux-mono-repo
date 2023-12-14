@@ -222,7 +222,7 @@ TEST_F(TestSerialiseUpdateSettings, mssingCdnUrlsShouldFailValidation)
     EXPECT_FALSE(updateSettings.verifySettingsAreValid());
 }
 
-TEST_F(TestSerialiseUpdateSettings, mssingSusUrlShouldFailValidation)
+TEST_F(TestSerialiseUpdateSettings, missingSusUrlShouldFailValidation)
 {
     setupFileSystemAndGetMock();
 

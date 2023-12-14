@@ -290,7 +290,7 @@ namespace common::ThreatDetector
         auto pos = host.find_first_not_of(
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz"
-            "0123456789./");
+            "0123456789./-");
 
         return pos == std::string::npos;
     }

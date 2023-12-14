@@ -495,6 +495,79 @@ TEST_F(TestALCPolicy, sdds3_update_server)
     EXPECT_EQ(urls[1], "https://sdds3test.sophosupd.net");
 }
 
+TEST_F(TestALCPolicy, sus_sdds3_update_server_hyphen_urls)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>sus-test.sophosupd.com</sus>
+    <content_servers>
+      <server>sdds3-test.sophosupd.com</server>
+      <server>sdds3-test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto cdn_urls = settings.getSophosCDNURLs();
+    auto sus_url = settings.getSophosSusURL();
+
+    EXPECT_EQ(sus_url, "https://sus-test.sophosupd.com");
+    ASSERT_EQ(cdn_urls.size(), 2);
+    EXPECT_EQ(cdn_urls[0], "https://sdds3-test.sophosupd.com");
+    EXPECT_EQ(cdn_urls[1], "https://sdds3-test.sophosupd.net");
+}
+
+TEST_F(TestALCPolicy, sdds3_update_server_hyphen_invalid_char_urls_fails)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<cloud_subscriptions>
+  <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+</cloud_subscriptions>
+</AUConfig>
+<server_names>
+  <sdds3>
+    <sus>su!s-test.sophosupd.com</sus>
+    <content_servers>
+      <server>s!dds3-test.sophosupd.com</server>
+      <server>s!dds3-test.sophosupd.net</server>
+    </content_servers>
+  </sdds3>
+</server_names>
+</AUConfigurations>
+)sophos";
+
+    testing::internal::CaptureStderr();
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto cdn_urls = settings.getSophosCDNURLs();
+    auto sus_url = settings.getSophosSusURL();
+
+    EXPECT_EQ(sus_url, "https://sus.sophosupd.com");
+    ASSERT_EQ(cdn_urls.size(), 2);
+    EXPECT_EQ(cdn_urls[0], "https://sdds3.sophosupd.com:443");
+    EXPECT_EQ(cdn_urls[1], "https://sdds3.sophosupd.net:443");
+
+    std::string logMessage = internal::GetCapturedStderr();
+
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host 'su!s-test.sophosupd.com'"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host 's!dds3-test.sophosupd.net'"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Invalid host 's!dds3-test.sophosupd.com'"));
+}
+
 TEST_F(TestALCPolicy, sdds3_update_server_with_ports)
 {
 
@@ -1340,4 +1413,30 @@ TEST_F(TestALCPolicy, getTelemetry)
 </AUConfigurations>)";
     ALCPolicy obj{ policy };
     EXPECT_EQ(obj.getTelemetryHost(), "t1.sophosupd.com");
+}
+
+TEST_F(TestALCPolicy, getTelemetry_hyphen_url)
+{
+    const std::string policy=R"(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="8980d3ddce5f4b4e5911ddb617e8a9e440ba78da8c288312900847bb75737628" policyType="1"/>
+  <AUConfig platform="Linux">
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCC9XRvgRuGLpCpmE+LX3N+7Whc41czNucxdwpVa4wuJVQJLTQN1/oxMZJMkb3qYfT8=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </primary_location>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
+  </AUConfig>
+  <Features>
+    <Feature id="CORE"/>
+  </Features>
+  <server_names>
+    <telemetry>t-1.sophosupd.com</telemetry>
+</server_names>
+</AUConfigurations>)";
+    ALCPolicy obj{ policy };
+    EXPECT_EQ(obj.getTelemetryHost(), "t-1.sophosupd.com");
 }
