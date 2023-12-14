@@ -3,7 +3,7 @@
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "FuzzerUtils.h"
+#include "common/fuzzer/FuzzerUtils.h"
 
 Runner::Runner() : m_thread_status{ ThreadStatus::NOTSTARTED } {}
 

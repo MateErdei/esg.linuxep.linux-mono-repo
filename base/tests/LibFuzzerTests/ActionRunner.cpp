@@ -1,30 +1,28 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "FuzzerUtils.h"
-
-#include "google/protobuf/text_format.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "tests/LibFuzzerTests/actionrunner.pb.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
-
 #include "ResponseActions/ActionRunner/responseaction_main.h"
 
-#include "actionrunner.pb.h"
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
 
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+#include <google/protobuf/text_format.h>
+
+
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifdef HasLibFuzzer
-DEFINE_PROTO_FUZZER(const ActionRunnerProto::TestCase& testCase)
+#ifdef USING_LIBFUZZER
+DEFINE_PROTO_FUZZER([[maybe_unused]] const ActionRunnerProto::TestCase& testCase)
 {
 #else
 void mainTest( ActionRunnerProto::TestCase testcase)
@@ -40,7 +38,7 @@ void mainTest( ActionRunnerProto::TestCase testcase)
     ActionRunner::responseaction_main::main(argvs.size()-1, argvs.data());
 #endif
 }
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     ActionRunnerProto::TestCase testcase;

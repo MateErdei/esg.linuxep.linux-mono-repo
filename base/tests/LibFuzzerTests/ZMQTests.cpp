@@ -63,10 +63,8 @@ ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
 
 ******************************************************************************************************/
 
-#include "FuzzerUtils.h"
-#include "zmqparts.pb.h"
-
-#include "google/protobuf/text_format.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "tests/LibFuzzerTests/zmqparts.pb.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -75,15 +73,18 @@ ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+
 #include "Common/UtilityImpl/StrError.h"
 #include "Common/ZeroMQWrapperImpl/PollerImpl.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 #include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketUtil.h"
+
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
+
+#include <google/protobuf/text_format.h>
+
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
@@ -307,7 +308,7 @@ void sendMessageToReplier(const ZMQPartsProto::ZMQStack& message, const std::str
     zmqTestLog("Success");
 }
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const ZMQPartsProto::ZMQStack& message)
 {
 #else
@@ -320,7 +321,7 @@ void mainTest(const ZMQPartsProto::ZMQStack& message)
     sendMessageToReplier(message, IPCADDRESS);
 }
 
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     GL_log = true;

@@ -1,0 +1,14 @@
+load("//tools/config:zip.bzl", "zip_asset")
+
+zip_asset(
+    name = "fuzz_test_assets",
+    srcs = [
+        "//base/tests/LibFuzzerTests:ActionRunnerTest",
+        "//base/tests/LibFuzzerTests:ManagementAgentApiTest",
+        "//base/tests/LibFuzzerTests:PluginApiTest",
+        "//base/tests/LibFuzzerTests:SimpleFunctionTests",
+        "//base/tests/LibFuzzerTests:WatchdogApiTest",
+        "//base/tests/LibFuzzerTests:ZMQtests",
+    ],
+    visibility = ["//base:__pkg__"],
+)

@@ -1,0 +1,15 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+#General Fuzzer Libs
+soph_cc_library(
+    name = "FuzzerUtils",
+    srcs = [
+        "FuzzerUtils.cpp",
+    ],
+    hdrs = [
+        "FuzzerUtils.h",
+    ],
+    visibility = ["//visibility:public"],
+)

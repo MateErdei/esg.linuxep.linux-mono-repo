@@ -13,8 +13,8 @@ soph_cc_library(
     #TODO LINUXDAR-8467 remove when we fix the protobuf includes issue
     features = ["-sophos_clang_tidy"],
     implementation_deps = [
-        ":PluginAPIMessage",
         "//base/modules/Common/Logging",
+        ":PluginAPIMessage",
     ],
     visibility = ["//common:spl_packages"],
     deps = [
@@ -32,6 +32,7 @@ cc_proto_library(
 proto_library(
     name = "PluginAPIMessage_proto",
     srcs = ["PluginAPIMessage.proto"],
+    visibility = ["//common:spl_packages"],
 )
 
 py_proto_library(

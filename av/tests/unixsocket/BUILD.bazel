@@ -268,11 +268,14 @@ soph_cc_binary(
     ],
 )
 
-#    add_subdirectory(SendThreatDetectedExecutable)
-
+#Todo these are built normally to, need select or separate soph_cc_binary
 soph_cc_binary(
     name = "ProcessControlServerExecutable",
     srcs = ["ProcessControlTestExecutable/ProcessControlServer.cpp"],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:Print",
         "//av/modules/unixsocket:SocketUtilsImpl",
@@ -284,6 +287,10 @@ soph_cc_binary(
 soph_cc_binary(
     name = "threatReporterServerExecutable",
     srcs = ["ThreatReporterTestExecutable/threatReporterServer.cpp"],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:Print",
         "//av/modules/unixsocket:SocketUtilsImpl",
@@ -296,6 +303,10 @@ soph_cc_binary(
 soph_cc_binary(
     name = "threatDetectorServerExecutable",
     srcs = ["ThreatDetectorTestExecutable/threatDetectorServer.cpp"],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:Print",
         "//av/modules/datatypes:sophos_filesystem",
@@ -316,6 +327,10 @@ soph_cc_binary(
         "ThreatDetectorTestExecutable/FakeServerSocket.h",
         "ThreatDetectorTestExecutable/threatDetectorClient.cpp",
     ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/avscanner/avscannerimpl",
         "//av/modules/common:AbortScanException",

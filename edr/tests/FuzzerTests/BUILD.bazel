@@ -1,0 +1,11 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:zip.bzl", "zip_asset")
+
+zip_asset(
+    name = "fuzz_test_assets",
+    srcs = [
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:LiveQueryInputTests",
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:LiveQueryTests",
+    ],
+    visibility = ["//edr:__pkg__"],
+)

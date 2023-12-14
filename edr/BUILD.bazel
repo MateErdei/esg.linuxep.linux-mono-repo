@@ -41,3 +41,9 @@ soph_build_asset(
     asset = "//edr/tests/manual:componenttests",
     visibility = ["//products:__pkg__"],
 )
+
+soph_build_asset(
+    name = "fuzz_test_assets",
+    asset = "//edr/tests/FuzzerTests:fuzz_test_assets",
+    visibility = ["//products:__pkg__"],
+)

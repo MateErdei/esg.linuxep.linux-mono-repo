@@ -19,6 +19,7 @@ soph_cc_library(
     ],
     visibility = [
         "//base/products/ResponseActions/actionRunner:__pkg__",
+        "//base/tests/LibFuzzerTests:__pkg__",
     ],
     deps = [
         "//imports/thirdparty/nlohmann-json",

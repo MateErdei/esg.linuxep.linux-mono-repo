@@ -1,13 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "FuzzerUtils.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "tests/LibFuzzerTests/vector_strings.pb.h"
 
-#include "google/protobuf/text_format.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/PluginApiImpl/BaseServiceAPI.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginProtocol/Protocol.h"
@@ -15,19 +17,16 @@
 #include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 
-#include "vector_strings.pb.h"
-#include <thread>
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/TempDir.h"
+
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
+
+#include <google/protobuf/text_format.h>
 
 #include <future>
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
-#include "Common/FileSystem/IFilePermissions.h"
-#include "Common/PluginApiImpl/BaseServiceAPI.h"
-#include "tests/Common/Helpers/TempDir.h"
+#include <thread>
 
 /** this class is just to allow the tests to be executed without requiring root*/
 class PluginNullFilePermission : public Common::FileSystem::FilePermissionsImpl
@@ -39,7 +38,7 @@ public:
     void chmod(const Path& , __mode_t ) const override
     {
     }
-    gid_t getGroupId(const std::string& groupString) const override
+    gid_t getGroupId([[maybe_unused]] const std::string& groupString) const override
     {
         return 1;
     }
@@ -215,7 +214,7 @@ private:
 };
 
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const VectorStringsProto::Query & query)
 {
 #else
@@ -244,12 +243,12 @@ void mainTest(const VectorStringsProto::Query & query)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
 

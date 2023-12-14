@@ -10,9 +10,8 @@
 
 ******************************************************************************************************/
 
-#include "FuzzerUtils.h"
-
-#include "google/protobuf/text_format.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "tests/LibFuzzerTests/simplefunction.pb.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -26,14 +25,14 @@
 #include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
 #include "Common/UtilityImpl/RegexUtilities.h"
 #include "Common/UtilityImpl/StringUtils.h"
+
 #include "tests/Common/Helpers/TempDir.h"
 
-#include "simplefunction.pb.h"
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
 
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+#include <google/protobuf/text_format.h>
+
 
 class FileWriterForBase64
 {
@@ -286,7 +285,7 @@ class LogConf{
     Common::Logging::ConsoleLoggingSetup m_consoleSetup;
 };
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const SimpleFunctionProto::TestCase& testCase)
 {
 #else
@@ -328,12 +327,12 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     SimpleFunctionProto::TestCase testcase;

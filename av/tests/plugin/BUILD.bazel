@@ -78,6 +78,10 @@ soph_cc_binary(
     srcs = [
         "CorcPolicyProcessorFuzzer.cpp",
     ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:sophos_filesystem",
         "//av/modules/pluginimpl",
@@ -90,6 +94,10 @@ soph_cc_binary(
     srcs = [
         "CorePolicyProcessorFuzzer.cpp",
     ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:sophos_filesystem",
         "//av/modules/pluginimpl",

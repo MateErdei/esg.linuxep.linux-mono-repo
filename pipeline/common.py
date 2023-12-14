@@ -23,6 +23,7 @@ SDDS999 = "sdds999"
 INDEPENDENT_MODE = 'independent'
 RELEASE_MODE = 'release'
 COVERAGE_MODE = 'coverage'
+FUZZER_MODE = 'fuzzers'
 
 DEFAULT_TEST_TIMEOUT_MINUTES = 90
 COVERAGE_TEST_TIMEOUT_MULTIPLIER = 4
@@ -433,8 +434,10 @@ def get_os_packages(machine: tap.Machine):
 
 
 def is_coverage_enabled(parameters):
-    return parameters.mode == COVERAGE_MODE or truthy(parameters.code_coverage, "CODE_COVERAGE", True)
+    return parameters.mode == COVERAGE_MODE or truthy(parameters.code_coverage, "CODE_COVERAGE", False)
 
+def is_fuzzing_enabled(parameters):
+    return parameters.mode == FUZZER_MODE or truthy(parameters.build_fuzzers, "BUILD_FOR_FUZZING", False)
 
 def stage_task(
     stage: tap.Root,

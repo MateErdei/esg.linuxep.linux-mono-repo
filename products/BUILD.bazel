@@ -31,6 +31,13 @@ RELEASE_MODE_DEPS = [
     "//av:installer_symbols",
 ]
 
+FUZZ_DEPS = [
+    "//av:fuzz_test_assets",
+    "//base:fuzz_test_assets",
+    #Todo osquery is built with gcc currently. Causes build failure LINUXDAR-7869 to remedy
+    #    "//edr:fuzz_test_assets",
+]
+
 generate_sbom(
     name = "_sbom",
     out = "sbom.txt",
@@ -60,5 +67,16 @@ soph_export_assets(
         "//tools/config:linux_arm64_rel": RELEASE_MODE_DEPS,
         "//tools/config:linux_x64_dbg": [],
         "//tools/config:linux_arm64_dbg": [],
+    }),
+)
+
+soph_export_assets(
+    name = "export_fuzz_assets",
+    output_folder = ".output",
+    release_package = "//build:release-package.xml",
+    deps = select({
+        "//tools/config:linux_x64_clang": FUZZ_DEPS,
+        #        Todo, will this generate a empty artifact
+        "//conditions:default": [],
     }),
 )

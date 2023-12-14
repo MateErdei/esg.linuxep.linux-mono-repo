@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:zip.bzl", "zip_asset")
 
 zip_asset(
@@ -8,6 +9,19 @@ zip_asset(
         "//av/tests/unixsocket/SendThreatDetectedExecutable:SendDataToSocket",
         "//av/tests/unixsocket/SendThreatDetectedExecutable:SendThreatDetectedEvent",
         "//av/tools/safestore:safestore_print_tool",
+    ],
+    visibility = ["//av:__pkg__"],
+)
+
+zip_asset(
+    name = "fuzz_test_assets",
+    srcs = [
+        "//av/tests/plugin:CorcPolicyProcessorFuzzer",
+        "//av/tests/plugin:CorePolicyProcessorFuzzer",
+        "//av/tests/unixsocket:ProcessControlServerExecutable",
+        "//av/tests/unixsocket:threatDetectorClientExecutable",
+        "//av/tests/unixsocket:threatDetectorServerExecutable",
+        "//av/tests/unixsocket:threatReporterServerExecutable",
     ],
     visibility = ["//av:__pkg__"],
 )

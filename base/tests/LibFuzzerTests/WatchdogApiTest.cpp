@@ -23,44 +23,43 @@ messages {
 }
 ******************************************************************************************************/
 
-#include "FuzzerUtils.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "tests/LibFuzzerTests/watchdogmessage.pb.h"
 
-#include "google/protobuf/text_format.h"
-
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/DirectoryWatcherImpl/Logger.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
+#include "Common/PluginApi/ApiException.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/PluginApi/ApiException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZMQWrapperApi/IContextSharedPtr.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
+
 #include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/TempDir.h"
 #include "watchdog/watchdogimpl/Watchdog.h"
 
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
+
+#include <google/protobuf/text_format.h>
+
 #include <future>
 #include <stddef.h>
 #include <stdint.h>
 #include <thread>
-#include "watchdogmessage.pb.h"
-
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
 
 namespace
 {
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 #    define TESTLOG(x)
 #else
 #    define TESTLOG(x) std::cout << x
@@ -101,20 +100,20 @@ public:
     void exec(
         const std::string& path,
         const std::vector<std::string>& arguments,
-        const Common::Process::EnvPairVector& extraEnvironment,
-        uid_t uid,
-        gid_t gid) override
+        [[maybe_unused]] const Common::Process::EnvPairVector& extraEnvironment,
+        [[maybe_unused]] uid_t uid,
+        [[maybe_unused]] gid_t gid) override
     {
         exec(path, arguments);
     }
     void exec(
         const std::string& path,
         const std::vector<std::string>& arguments,
-        const std::vector<Common::Process::EnvironmentPair>& extraEnvironment) override
+        [[maybe_unused]] const std::vector<Common::Process::EnvironmentPair>& extraEnvironment) override
     {
         exec(path, arguments);
     };
-    void exec(const std::string& path, const std::vector<std::string>& arguments) override
+    void exec(const std::string& path, [[maybe_unused]] const std::vector<std::string>& arguments) override
     {
         m_status = Common::Process::ProcessStatus::RUNNING;
         m_path = path;
@@ -145,7 +144,7 @@ public:
         m_status = Common::Process::ProcessStatus::FINISHED;
         return true;
     }
-    bool kill(int secondsBeforeSIGKILL) override { return kill(); }
+    bool kill([[maybe_unused]] int secondsBeforeSIGKILL) override { return kill(); }
     void sendSIGUSR1() override { return; }
     int exitCode() override { return 0; };
     int nativeExitCode() override { return 0; };
@@ -171,8 +170,8 @@ public:
         return std::string();
     };
     Common::Process::ProcessStatus getStatus() override { return m_status; };
-    void setOutputLimit(size_t limit) override{};
-    void setFlushBufferOnNewLine(bool flushOnNewLine) override{};
+    void setOutputLimit([[maybe_unused]] size_t limit) override{};
+    void setFlushBufferOnNewLine([[maybe_unused]] bool flushOnNewLine) override{};
     void setOutputTrimmedCallback(std::function<void(std::string)>) override{};
     void setNotifyProcessFinishedCallBack(functor) override{};
     void waitUntilProcessEnds() override{};
@@ -414,7 +413,7 @@ private:
     Common::ZeroMQWrapper::ISocketRequesterPtr m_wdctlRequester;
 };
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const PluginProtocolProto::WatchdogMsgs& messages)
 {
 #else
@@ -456,12 +455,12 @@ void mainTest(const PluginProtocolProto::WatchdogMsgs& messages)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;

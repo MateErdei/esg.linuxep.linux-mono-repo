@@ -1,0 +1,215 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+
+#soph_cc_binary section
+soph_cc_binary(
+    name = "ActionRunnerTest",
+    srcs = [
+        "ActionRunner.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":actionrunner_pb_h",
+        "//base/modules/Common/Logging",
+        "//base/modules/ResponseActions/ActionRunner",
+        "//common/fuzzer:FuzzerUtils",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "SimpleFunctionTests",
+    srcs = [
+        "SimpleFunctionTests.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":simplefunction_pb_h",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/ObfuscationImpl",
+        "//base/modules/Common/Process",
+        "//base/modules/Common/TelemetryConfigImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:RegexUtilities",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/tests/Common/Helpers",
+        "//common/fuzzer:FuzzerUtils",
+        "@com_google_protobuf//:protobuf",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "ManagementAgentApiTest",
+    srcs = [
+        "ManagementAgentApiTest.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":message_pb_h",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/ManagementAgent/ManagementAgentImpl",
+        "//common/fuzzer:FuzzerUtils",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "PluginApiTest",
+    srcs = [
+        "PluginApiTest.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":vectorstrings_pb_h",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApiImpl",
+        "//base/tests/Common/Helpers",
+        "//common/fuzzer:FuzzerUtils",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "WatchdogApiTest",
+    srcs = [
+        "WatchdogApiTest.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":watchdogmessage_pb_h",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/DirectoryWatcherImpl",
+        "//base/modules/Common/FileSystemImpl",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/PluginApi:PluginProtocolShared",
+        "//base/modules/Common/ProcessImpl",
+        "//base/modules/Common/TelemetryHelperImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/ManagementAgent/ManagementAgentImpl",
+        "//base/modules/watchdog/watchdogimpl",
+        "//base/tests/Common/Helpers",
+        "//common/fuzzer:FuzzerUtils",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "ZMQtests",
+    srcs = [
+        "ZMQTests.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//base/tests:__pkg__"],
+    deps = [
+        ":zmqparts_pb_h",
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/UtilityImpl:StrError",
+        "//base/modules/Common/ZMQWrapperApi",
+        "//base/modules/Common/ZeroMQWrapperImpl",
+        "//common/fuzzer:FuzzerUtils",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+        "@zmq",
+    ],
+)
+
+#Protobuf Libraries
+cc_proto_library(
+    name = "watchdogmessage_pb_h",
+    deps = [":watchdogmessage_proto"],
+)
+
+proto_library(
+    name = "watchdogmessage_proto",
+    srcs = ["watchdogmessage.proto"],
+    deps = ["//base/modules/Common/PluginProtocol:PluginAPIMessage_proto"],
+)
+
+cc_proto_library(
+    name = "zmqparts_pb_h",
+    deps = [":zmqparts_proto"],
+)
+
+proto_library(
+    name = "zmqparts_proto",
+    srcs = ["zmqparts.proto"],
+)
+
+cc_proto_library(
+    name = "vectorstrings_pb_h",
+    deps = [":vector_strings_proto"],
+)
+
+proto_library(
+    name = "vector_strings_proto",
+    srcs = ["vector_strings.proto"],
+)
+
+cc_proto_library(
+    name = "actionrunner_pb_h",
+    deps = [":actionrunner_proto"],
+)
+
+proto_library(
+    name = "actionrunner_proto",
+    srcs = ["actionrunner.proto"],
+)
+
+cc_proto_library(
+    name = "simplefunction_pb_h",
+    deps = [":simplefunction_proto"],
+)
+
+proto_library(
+    name = "simplefunction_proto",
+    srcs = ["simplefunction.proto"],
+)
+
+cc_proto_library(
+    name = "message_pb_h",
+    deps = [
+        ":message_proto",
+    ],
+)
+
+proto_library(
+    name = "message_proto",
+    srcs = [
+        "message.proto",
+    ],
+    deps = [
+        "//base/modules/Common/PluginProtocol:PluginAPIMessage_proto",
+    ],
+)

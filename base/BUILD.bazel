@@ -72,3 +72,9 @@ soph_build_asset_pkg(
     ],
     visibility = ["//products:__pkg__"],
 )
+
+soph_build_asset(
+    name = "fuzz_test_assets",
+    asset = "//base/tests:fuzz_test_assets",
+    visibility = ["//products:__pkg__"],
+)

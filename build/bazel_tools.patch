@@ -18,5 +18,6 @@
 -                #"-Wl,--gc-sections"
 +                "-Wl,--gc-sections",
              ],
+             set_static_libgcc_feature = True,
              supports_start_end_lib = False,  # Disabled as the default linker does not support this, and gold is not available
              target_libc = "local",

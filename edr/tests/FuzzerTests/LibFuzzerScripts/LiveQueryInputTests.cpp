@@ -1,27 +1,29 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "FuzzerUtils.h"
+#include "edr/modules/livequery/IQueryProcessor.h"
+#include "edr/modules/osqueryclient/IOsqueryClient.h"
+#include "edr/modules/osqueryclient/OsqueryProcessor.h"
+#include "edr/tests/FuzzerTests/LibFuzzerScripts/livequery.pb.h"
+#include "edr/tests/FuzzerTests/LibFuzzerScripts/livequeryinput.pb.h"
 
-#include <livequery.pb.h>
-#include <livequeryinput.pb.h>
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
-#include "google/protobuf/text_format.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-#include <modules/livequery/IQueryProcessor.h>
-#include <modules/osqueryclient/IOsqueryClient.h>
-#include <modules/osqueryclient/OsqueryProcessor.h>
+#include "common/fuzzer/FuzzerUtils.h"
+#include "common/livequery/include/OsquerySDK/OsquerySDK.h"
+
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
+
 #include <nlohmann/json.hpp>
-#include <OsquerySDK/OsquerySDK.h>
+#include <google/protobuf/text_format.h>
+
 #include <future>
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
+
 
 /* This replaces the osquery sdk and always return the same output
  * The substitution is done via the factory replacement.
@@ -37,7 +39,7 @@ public:
         return OsquerySDK::Status{0, ""};
     }
 
-    OsquerySDK::Status getQueryColumns(const std::string&, OsquerySDK::QueryColumns& qc) override
+    OsquerySDK::Status getQueryColumns(const std::string&, [[maybe_unused]] OsquerySDK::QueryColumns& qc) override
     {
         return OsquerySDK::Status{0, ""};
     }
@@ -87,7 +89,7 @@ namespace livequery
 
 } // namespace livequery
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const LiveQueryInputProto::TestCase& itestCase)
 {
 #else
@@ -145,12 +147,12 @@ void mainTest(const LiveQueryInputProto::TestCase& itestCase)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{Common::Logging::LOGOFFFORTEST()};

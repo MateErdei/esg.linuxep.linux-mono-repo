@@ -1,6 +1,6 @@
 syntax = "proto2";
 package PluginProtocolProto;
-import "PluginAPIMessage.proto";
+import "base/modules/Common/PluginProtocol/PluginAPIMessage.proto";
 message Msgs {
   repeated PluginAPIMessage apimessage = 1;
 }

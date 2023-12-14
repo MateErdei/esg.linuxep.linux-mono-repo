@@ -1,0 +1,2 @@
+# This is the list of 'bazel build' targets for 'linuxep_spl_lx64f_build'.
+//products:export_fuzz_assets

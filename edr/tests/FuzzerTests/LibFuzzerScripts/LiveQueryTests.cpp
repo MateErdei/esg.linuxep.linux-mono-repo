@@ -1,28 +1,28 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "FuzzerUtils.h"
-#include <livequery.pb.h>
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+#include "livequery/IQueryProcessor.h"
 
-#include <livequery/IQueryProcessor.h>
-#include <modules/pluginimpl/OsqueryConfigurator.h>
-#include <modules/EdrCommon/ApplicationPaths.h>
-#include <modules/osqueryclient/OsqueryProcessor.h>
+#include "edr/modules/pluginimpl/OsqueryConfigurator.h"
+#include "edr/modules/EdrCommon/ApplicationPaths.h"
+#include "edr/modules/osqueryclient/OsqueryProcessor.h"
+#include "edr/tests/FuzzerTests/LibFuzzerScripts/livequery.pb.h"
 
-#include <Common/Helpers/TempDir.h>
-#include <Common/Process/IProcess.h>
-#include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/Helpers/TempDir.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Logging/PluginLoggingSetup.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+
+#include "common/fuzzer/FuzzerUtils.h"
+
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
 
 #include <nlohmann/json.hpp>
-#include "google/protobuf/text_format.h"
+#include <google/protobuf/text_format.h>
 
 #include <future>
 #include <unistd.h>
@@ -170,7 +170,7 @@ private:
 };
 
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const LiveQueryProto::TestCase& testCase)
 {
 #else
@@ -216,12 +216,12 @@ void mainTest(const LiveQueryProto::TestCase& testCase)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     LiveQueryProto::TestCase testcase;

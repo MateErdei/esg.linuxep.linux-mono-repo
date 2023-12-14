@@ -5,10 +5,11 @@ import tap.v1 as tap
 
 from pipeline.av import stage_av_tests
 from pipeline.base import stage_base_tests
-from pipeline.common import get_package_version, truthy, is_coverage_enabled, stage_coverage_results_task
+from pipeline.common import get_package_version, truthy, is_coverage_enabled, stage_coverage_results_task, is_fuzzing_enabled
+from pipeline.deviceisolation import stage_di_tests
 from pipeline.edr import stage_edr_tests
 from pipeline.eventjournaler import stage_ej_tests
-from pipeline.deviceisolation import stage_di_tests
+from pipeline.fuzzer import stage_fuzzing
 from pipeline.liveterminal import stage_liveterminal_tests
 from pipeline.sdds import stage_sdds_build, stage_sdds_tests
 from pipeline import common
@@ -82,70 +83,75 @@ def do_builds(stage: tap.Root, component, parameters: tap.Parameters, build_type
 def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, test_selection: str, system_tests: bool):
     component = tap.Component(name="linux-mono-repo", base_version="1.0.0")
 
-    rel_build = {}
-    dbg_build = {}
-    if common.x86_64_enabled(parameters):
-        print("x86_64 build enabled")
-        rel_build[common.X86_64] = ["san_lsnty", "all_lx64r"]
-        dbg_build[common.X86_64] = ["all_lx64d"]
-    if common.arm64_enabled(parameters):
-        print("arm64 build enabled")
-        rel_build[common.arm64] = ["all_la64r"]
-        dbg_build[common.arm64] = ["all_la64d"]
+    if is_fuzzing_enabled(parameters):
+        # TODO fuzz_targets will either be removed or configured on CI
+        stage_fuzzing(stage, context, component, 'all', BUILD_TEMPLATE_BAZEL, PACKAGE_PATH)
 
-    if not truthy(parameters.force_non_minimal_downloads, "force_non_minimal_downloads", False):
-        for _, tags in rel_build.items():
-            tags.append("bzlmin")
-        for _, tags in dbg_build.items():
-            tags.append("bzlmin")
+    else:
+        rel_build = {}
+        dbg_build = {}
+        if common.x86_64_enabled(parameters):
+            print("x86_64 build enabled")
+            rel_build[common.X86_64] = ["san_lsnty", "all_lx64r"]
+            dbg_build[common.X86_64] = ["all_lx64d"]
+        if common.arm64_enabled(parameters):
+            print("arm64 build enabled")
+            rel_build[common.arm64] = ["all_la64r"]
+            dbg_build[common.arm64] = ["all_la64d"]
 
-    builds = do_builds(stage, component, parameters, "rel", rel_build)
+        if not truthy(parameters.force_non_minimal_downloads, "force_non_minimal_downloads", False):
+            for _, tags in rel_build.items():
+                tags.append("bzlmin")
+            for _, tags in dbg_build.items():
+                tags.append("bzlmin")
 
-    # Default to true here so that local builds work.
-    linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", True)
-    print(f"parameters.build_debug_bazel = {parameters.build_debug_bazel}; Defaulting to linux_debug = {linux_dbg}")
+        builds = do_builds(stage, component, parameters, "rel", rel_build)
 
-    if linux_dbg:
-        do_builds(stage, component, parameters, "dbg", dbg_build)
+        # Default to true here so that local builds work.
+        linux_dbg = truthy(parameters.build_debug_bazel, "build_debug_bazel", True)
+        print(f"parameters.build_debug_bazel = {parameters.build_debug_bazel}; Defaulting to linux_debug = {linux_dbg}")
 
-    if is_coverage_enabled(parameters):
-        builds["bullseye"] = stage.artisan_build(name=f"linux_coverage",
-                                                 component=component,
-                                                 image=BUILD_TEMPLATE_BAZEL,
-                                                 mode="all_lcov",
-                                                 release_package=PACKAGE_PATH)
+        if linux_dbg:
+            do_builds(stage, component, parameters, "dbg", dbg_build)
 
-    if parameters.sdds_options != "build_none":
-        stage_sdds_build(stage, context, parameters, builds)
+        if is_coverage_enabled(parameters):
+            builds["bullseye"] = stage.artisan_build(name=f"linux_coverage",
+                                                     component=component,
+                                                     image=BUILD_TEMPLATE_BAZEL,
+                                                     mode="all_lcov",
+                                                     release_package=PACKAGE_PATH)
 
-    integration_testing = parameters.test_platform != "run_none"
+        if parameters.sdds_options != "build_none":
+            stage_sdds_build(stage, context, parameters, builds)
 
-    if integration_testing or system_tests:
-        with stage.parallel('testing'):
-            coverage_tasks = []
+        integration_testing = parameters.test_platform != "run_none"
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
-                stage_av_tests(stage, context, component, parameters, builds, coverage_tasks)
+        if integration_testing or system_tests:
+            with stage.parallel('testing'):
+                coverage_tasks = []
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
-                stage_base_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_AV]:
+                    stage_av_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
-                stage_ej_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_BASE]:
+                    stage_base_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_DI]:
-                stage_di_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EJ]:
+                    stage_ej_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
-                stage_edr_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_DI]:
+                    stage_di_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
-                stage_liveterminal_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_EDR]:
+                    stage_edr_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            if system_tests:
-                stage_sdds_tests(stage, context, component, parameters, builds, coverage_tasks)
+                if test_selection in [BUILD_SELECTION_ALL, BUILD_SELECTION_LIVETERMINAL]:
+                    stage_liveterminal_tests(stage, context, component, parameters, builds, coverage_tasks)
 
-            stage_coverage_results_task(stage, context, component, parameters, builds, coverage_tasks)
+                if system_tests:
+                    stage_sdds_tests(stage, context, component, parameters, builds, coverage_tasks)
+
+                stage_coverage_results_task(stage, context, component, parameters, builds, coverage_tasks)
 
 
 @tap.pipeline(version=1, component='linux-mono-repo')

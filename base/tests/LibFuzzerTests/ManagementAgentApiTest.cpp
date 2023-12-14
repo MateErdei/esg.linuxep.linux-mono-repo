@@ -24,9 +24,9 @@
 
 ******************************************************************************************************/
 
-#include "FuzzerUtils.h"
+#include "common/fuzzer/FuzzerUtils.h"
+#include "base/tests/LibFuzzerTests/message.pb.h"
 
-#include "google/protobuf/text_format.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -40,17 +40,16 @@
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h"
 
-#include "PluginAPIMessage.pb.h"
-#include "message.pb.h"
-#include <thread>
-#ifdef HasLibFuzzer
-#    include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
-#    include <libprotobuf-mutator/src/mutator.h>
-#endif
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "src/mutator.h"
+
+#include <google/protobuf/text_format.h>
+
 #include <fcntl.h>
 #include <future>
 #include <stddef.h>
 #include <stdint.h>
+#include <thread>
 
 /**
  * Setup of files and directories as expected by ManagementAgent to be present.
@@ -197,7 +196,7 @@ private:
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 };
 
-#ifdef HasLibFuzzer
+#ifdef USING_LIBFUZZER
 DEFINE_PROTO_FUZZER(const PluginProtocolProto::Msgs& messages)
 {
 #else
@@ -229,12 +228,12 @@ void mainTest(const PluginProtocolProto::Msgs& messages)
 
 /**
  * LibFuzzer works only with clang, and developers machine are configured to run gcc.
- * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ * For this reason, the flag USING_LIBFUZZER has been used to enable buiding 2 outputs:
  *   * the real fuzzer tool
  *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
  *     but can be build and executed inside the developers IDE.
  */
-#ifndef HasLibFuzzer
+#ifndef USING_LIBFUZZER
 int main(int argc, char* argv[])
 {
     PluginProtocolProto::Msgs messages;

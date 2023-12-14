@@ -402,12 +402,27 @@
             <args>tools/src/dump_environment/diskusage.py --final lcov</args>
         </command>
 
-<!--        &lt;!&ndash; Static analysis build &ndash;&gt;-->
-<!--        <command mode="analysis">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;no-build &#45;&#45;analysis</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <!-- linux_x64_clang_rel: lx64f -->
+        <command mode="all_lx64f">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/bazel/run.py
+                --profile=linuxep_spl_lx64f_build
+                build
+                --features=-default_compile_flags
+                --config=linux_x64_clang
+                --target_pattern_file=build/linuxep_spl_fuzz_build_targets.txt
+            </args>
+        </command>
+        <command mode="all_lx64f">
+            <program>./build/python.sh</program>
+            <args>
+                tools/src/export_artifacts/export_targets.py
+                --mode=all_lx64f
+                --exports=build/linuxep_spl_fuzz_exports.txt
+                --config=linux_x64_clang
+            </args>
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
@@ -549,9 +564,10 @@
             <include glob="monorepo_unit.cov"/>
         </build-asset>
 
-        <!-- Analysis -->
-<!--        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>-->
-<!--        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>-->
+        <!-- fuzz -->
+        <build-asset artifact-path="av/linux_x64_clang/fuzz_test_assets" source-zip=".output/av/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>
+        <build-asset artifact-path="base/linux_x64_clang/fuzz_test_assets" source-zip=".output/base/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>
+<!--        <build-asset artifact-path="edr/linux_x64_clang/fuzz_test_assets" source-zip=".output/edr/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>-->
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

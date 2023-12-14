@@ -1,0 +1,5 @@
+# Processed by tools/src/export_artifacts/export_targets.py.
+# Each 'run' line is expanded into a separate 'bazel run' command.
+# Parameters to export_targets.py are also provided, plus --verbose_failures.
+
+run --profile={mode}_export_assets -- //products:export_fuzz_assets

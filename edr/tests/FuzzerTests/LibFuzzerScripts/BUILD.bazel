@@ -1,0 +1,66 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+
+#soph_cc_binary
+soph_cc_binary(
+    name = "LiveQueryTests",
+    srcs = [
+        "LiveQueryTests.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//edr/tests/FuzzerTests:__pkg__"],
+    deps = [
+        ":livequery_pb_h",
+        "//base/tests/Common/Helpers",
+        "//common/fuzzer:FuzzerUtils",
+        "//edr/modules/livequery",
+        "//edr/modules/pluginimpl",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+soph_cc_binary(
+    name = "LiveQueryInputTests",
+    srcs = [
+        "LiveQueryInputTests.cpp",
+    ],
+    copts = ["-fsanitize=fuzzer"],
+    defines = ["USING_LIBFUZZER"],
+    linkopts = ["-fsanitize=fuzzer"],
+    visibility = ["//edr/tests/FuzzerTests:__pkg__"],
+    deps = [
+        ":livequery_pb_h",
+        ":livequeryinput_pb_h",
+        "//common/fuzzer:FuzzerUtils",
+        "//edr/modules/livequery",
+        "//edr/modules/pluginimpl",
+        "@protobuf-mutator//:protobuf-mutator",
+        "@protobuf-mutator//:protobuf-mutator-libfuzzer",
+    ],
+)
+
+#Protobuf Libraries
+cc_proto_library(
+    name = "livequery_pb_h",
+    deps = [":livequery_proto"],
+)
+
+proto_library(
+    name = "livequery_proto",
+    srcs = ["livequery.proto"],
+)
+
+cc_proto_library(
+    name = "livequeryinput_pb_h",
+    deps = [":livequeryinput_proto"],
+)
+
+proto_library(
+    name = "livequeryinput_proto",
+    srcs = ["livequeryinput.proto"],
+)

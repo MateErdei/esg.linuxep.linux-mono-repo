@@ -10,6 +10,7 @@ soph_cc_library(
     ],
     visibility = [
         "//base/products/Base/ManagementAgent:__pkg__",
+        "//base/tests/LibFuzzerTests:__pkg__",
         "//base/tests/ManagementAgentImpl:__pkg__",
     ],
     deps = [
