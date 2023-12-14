@@ -131,6 +131,11 @@ public:
         {
             return ::testing::AssertionFailure() << s.str() << "useSdds3DeltaV2 differs";
         }
+
+        if (expected.getUseSdds3DeltaV3() != resulted.getUseSdds3DeltaV3())
+        {
+            return ::testing::AssertionFailure() << s.str() << "useSdds3DeltaV3 differs";
+        }
         return ::testing::AssertionSuccess();
     }
 };

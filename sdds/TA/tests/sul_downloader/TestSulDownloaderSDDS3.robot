@@ -301,6 +301,28 @@ Sul Downloader falls back to direct when proxy and UC do not work
     ...    Check SulDownloader Log Contains  Update success
     Check SulDownloader Log Contains    Connecting to update source directly
 
+Sul Downloader sets sdds3 v3 delta if flag present
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Generate Warehouse From Local Base Input  {"sdds3.delta-versioning.v3.enabled": "true"}
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
+
+    Create Local SDDS3 Override
+    Register With Local Cloud Server
+
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Log File    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    File Should Contain    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json    sdds3.delta-versioning.v3.enabled": true
+    Override LogConf File as Global Level  DEBUG
+    Trigger Update Now
+    wait_for_log_contains_from_mark    ${sul_mark}    Enabling sdds3 delta V3 usage    40
+
 Sul Downloader sets sdds3 v2 delta if flag present
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
     Generate Warehouse From Local Base Input  {"sdds3.delta-versioning.enabled": "true"}

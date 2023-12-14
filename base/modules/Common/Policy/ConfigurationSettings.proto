@@ -70,4 +70,5 @@ message ConfigurationSettings
 
     optional string sophosSusURL = 23;
     optional bool useSdds3DeltaV2 = 24 [default=false];
+    optional bool useSdds3DeltaV3 = 26 [default=false];
 }

@@ -1,5 +1,6 @@
 {"livequery.network-tables.available" : true,
   "av.onaccess.enabled": true,
   "safestore.enabled": true,
-  "sdds3.delta-versioning.enabled": true
+  "sdds3.delta-versioning.enabled": true,
+  "sdds3.delta-versioning.v3.enabled": true
 }

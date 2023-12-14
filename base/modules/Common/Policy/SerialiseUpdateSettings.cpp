@@ -105,6 +105,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     updateSettings.setDoForcedUpdate(settings.forceupdate());
     updateSettings.setDoForcedPausedUpdate(settings.forcepausedupdate());
     updateSettings.setUseSdds3DeltaV2(settings.usesdds3deltav2());
+    updateSettings.setUseSdds3DeltaV3(settings.usesdds3deltav3());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -172,6 +173,7 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     settings.set_forceupdate(updateSettings.getDoForcedUpdate());
     settings.set_forcepausedupdate(updateSettings.getDoPausedForcedUpdate());
     settings.set_usesdds3deltav2(updateSettings.getUseSdds3DeltaV2());
+    settings.set_usesdds3deltav3(updateSettings.getUseSdds3DeltaV3());
 
     const auto& primarySubscription = updateSettings.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());

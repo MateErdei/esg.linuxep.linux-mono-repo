@@ -175,6 +175,16 @@ TEST_F(TestSerialiseUpdateSettings, preserveDelta)
     EXPECT_EQ(before.getUseSdds3DeltaV2(), after.getUseSdds3DeltaV2());
 }
 
+TEST_F(TestSerialiseUpdateSettings, preserveDeltaV3Value)
+{
+    UpdateSettings before;
+    before.setUseSdds3DeltaV3(true);
+    ASSERT_TRUE(before.getUseSdds3DeltaV3());
+    auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
+    auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
+    EXPECT_EQ(before.getUseSdds3DeltaV3(), after.getUseSdds3DeltaV3());
+}
+
 TEST_F(TestSerialiseUpdateSettings, defaultValues)
 {
     UpdateSettings before;

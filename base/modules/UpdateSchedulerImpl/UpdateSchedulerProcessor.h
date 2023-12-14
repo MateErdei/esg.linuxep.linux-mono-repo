@@ -21,13 +21,6 @@ namespace UpdateSchedulerImpl
 {
 
     /**
-     * Persists a list of feature codes to disk in JSON format. Used by Update Scheduler so that it can correctly
-     * generate ALC status feature code list on an update failure or when first started.
-     * @param Reference to std::vector<std::string> which holds list of feature codes, e.g. CORE
-     */
-    void writeInstalledFeatures(const std::vector<std::string>& features);
-
-    /**
      * Returns the list of features that are currently installed, if there is no file or the file cannot be parsed
      * then this returns an empty list.
      * @return std::vector<std::string> of feature codes, e.g. CORE
@@ -107,6 +100,7 @@ namespace UpdateSchedulerImpl
         bool m_forceUpdate;
         bool m_forcePausedUpdate;
         bool m_useSDDS3DeltaV2;
+        bool m_useSDDS3DeltaV3;
         Common::Policy::WeekDayAndTimeForDelay weeklySchedule_;
         std::vector<std::string> m_featuresCurrentlyInstalled;
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;

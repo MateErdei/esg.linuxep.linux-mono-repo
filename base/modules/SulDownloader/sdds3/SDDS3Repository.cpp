@@ -320,20 +320,29 @@ namespace SulDownloader
 
         m_session->httpConfig.connectTimeoutMs = 60000;
 
-        if (updateSetting.getUseSdds3DeltaV2())
+        if (updateSetting.getUseSdds3DeltaV3())
         {
 #ifdef SPL_BAZEL
-            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V2;
+            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V3;
 #else
             m_session->deltaVersioningEnabled = true;
 #endif
+            LOGDEBUG("Enabling sdds3 delta V3 usage");
+        }
+
+#ifdef SPL_BAZEL
+        else if (updateSetting.getUseSdds3DeltaV2())
+        {
+
+            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V2;
             LOGDEBUG("Enabling sdds3 delta V2 usage");
         }
         else
         {
-#ifdef SPL_BAZEL
             m_session->deltaVersion = sophlib::sdds3::DeltaVersion::None;
 #else
+        else
+        {
             m_session->deltaVersioningEnabled = false;
 #endif
         }

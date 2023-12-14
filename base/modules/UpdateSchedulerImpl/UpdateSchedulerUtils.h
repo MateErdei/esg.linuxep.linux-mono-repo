@@ -40,6 +40,7 @@ namespace UpdateSchedulerImpl
         inline static const std::string FORCE_UPDATE_ENABLED_FLAG = "sdds3.force-update";
         inline static const std::string FORCE_PAUSED_UPDATE_ENABLED_FLAG = "sdds3.force-paused-update";
         inline static const std::string SDDS3_DELTA_V2_ENABLED_FLAG = "sdds3.delta-versioning.enabled";
+        inline static const std::string SDDS3_DELTA_V3_ENABLED_FLAG = "sdds3.delta-versioning.v3.enabled";
 
     private:
         static std::string getValueFromMCSConfig(const std::string& key);
