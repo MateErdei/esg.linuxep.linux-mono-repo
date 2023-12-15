@@ -35,6 +35,7 @@ namespace SulDownloader
             const sophlib::sdds3::Config& oldConfig) override;
         void saveConfig(sophlib::sdds3::Config& config, std::string& path) override;
         sophlib::sdds3::Config loadConfig(std::string& path) override;
+        std::string getUnverifiedSignedBlob(std::string& content) override;
         void Purge(
             sophlib::sdds3::Session& session,
             const sophlib::sdds3::Repo& repo,

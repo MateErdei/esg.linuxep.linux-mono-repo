@@ -126,7 +126,7 @@ IVersig::VerifySignature VersigImpl::verify(
         }
         catch (Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to verify manifest file with error: " <<ex.what());
             exitCode = -1;
         }
         // Stop as soon as we get a failure

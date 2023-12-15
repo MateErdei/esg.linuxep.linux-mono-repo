@@ -270,7 +270,7 @@ namespace SulDownloader
             catch (std::runtime_error& ex)
             {
                 // run time error thrown if local version.ini file missing
-                LOGWARN(ex.what());
+                LOGWARN("Failed to open version ini file with error: " << ex.what());
                 isCachedVersionNewerThanInstalled = true;
             }
             catch (std::invalid_argument& ex)
@@ -810,7 +810,7 @@ namespace SulDownloader
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGERROR(exception.what());
+            LOGERROR("Failed to run Suldownloader with file system error: " << exception.what());
             if (!readSuccessful)
             {
                 throw Common::FileSystem::IFileSystemException(exception.what());
@@ -818,7 +818,7 @@ namespace SulDownloader
         }
         catch (const std::exception& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to run Suldownloader with error: " << ex.what());
         }
 
         auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);

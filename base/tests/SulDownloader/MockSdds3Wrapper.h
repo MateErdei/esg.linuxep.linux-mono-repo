@@ -19,5 +19,6 @@ public:
     MOCK_METHOD(void, sync, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const std::string& url, sophlib::sdds3::Config& config, const sophlib::sdds3::Config& oldConfig));
     MOCK_METHOD(void, saveConfig, (sophlib::sdds3::Config& config, std::string& path));
     MOCK_METHOD(sophlib::sdds3::Config, loadConfig, (std::string& path));
+    MOCK_METHOD(std::string, getUnverifiedSignedBlob, (std::string& content));
     MOCK_METHOD(void, Purge, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const sophlib::sdds3::Config& new_config, const std::optional<sophlib::sdds3::Config>& old_config), (override));
 };

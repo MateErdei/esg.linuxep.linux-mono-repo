@@ -40,6 +40,7 @@ namespace SulDownloader
     {
         sophlib::sdds3::ExtractTo(session, repo, config, path);
     }
+
     void Sdds3Wrapper::sync(
         sophlib::sdds3::Session& session,
         const sophlib::sdds3::Repo& repo,
@@ -49,16 +50,24 @@ namespace SulDownloader
     {
         sophlib::sdds3::Sync(session, repo, url, config, oldConfig);
     }
+
     void Sdds3Wrapper::saveConfig(sophlib::sdds3::Config& config, std::string& path)
     {
         std::filesystem::path configFilePath(path);
         sophlib::sdds3::ConfigXml::Save(config, configFilePath);
     }
+
     sophlib::sdds3::Config Sdds3Wrapper::loadConfig(std::string& path)
     {
         std::filesystem::path configFilePath(path);
         return sophlib::sdds3::ConfigXml::Load(configFilePath);
     }
+
+    std::string Sdds3Wrapper::getUnverifiedSignedBlob(std::string& content)
+    {
+        return sophlib::sdds3::UnverifiedExtractSignedBlob(content);
+    }
+
 
     void Sdds3Wrapper::Purge(
         sophlib::sdds3::Session& session,

@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 #include "Sdds3Wrapper.h"
+#include "SDDS3CacheUtils.h"
 #include "SusRequestParameters.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
@@ -432,12 +433,22 @@ namespace SulDownloader
         {
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
-                m_oldConfig = SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
+                auto tempConfig = SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
+                SDDS3CacheUtils sdds3CacheUtils;
+                if (sdds3CacheUtils.checkCache(tempConfig.sus_response.suites,tempConfig.sus_response.release_groups_filter))
+                {
+                    // Cache is good, so we can use cache and old config
+                    // Base the new config on the old config so that the suites are preserved from the last SUS request
+                    m_oldConfig = tempConfig;
+                    m_config = m_oldConfig;
 
-                // Base the new config on the old config so that the suites are preserved from the last SUS request
-                m_config = m_oldConfig;
-
-                LOGINFO("Successfully loaded previous config file");
+                    LOGINFO("Successfully loaded previous config file");
+                }
+                else
+                {
+                    // Cleared the cache, so need to ignore config
+                    // Already logged that we are clearing the cache
+                }
             }
             else
             {
@@ -454,7 +465,7 @@ namespace SulDownloader
     {
         // This call updates m_config with the current package thumbprints
         std::vector<sophlib::sdds3::PackageRef> packagesToInstall =
-            SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
+            SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session, m_repo, m_config, m_oldConfig);
 
         std::string configFilePathString =
             Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
@@ -465,11 +476,11 @@ namespace SulDownloader
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to store SDDS3 config file, filesystem error: " << ex.what());
         }
         catch (const std::exception& ex)
         {
-            LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
+            LOGERROR("Failed to store SDDS3 config file, error: " << ex.what());
         }
 
         std::vector<sophlib::sdds3::PackageRef> allPackages =

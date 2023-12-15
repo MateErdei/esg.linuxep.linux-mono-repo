@@ -6,6 +6,7 @@
 #include "sophlib/sdds3/ConfigXml.h"
 #include "sophlib/sdds3/PackageRef.h"
 #include "sophlib/sdds3/SyncLogic.h"
+#include "sophlib/sdds3/SignedData.h"
 
 namespace SulDownloader
 {
@@ -39,6 +40,7 @@ namespace SulDownloader
             const sophlib::sdds3::Config& oldConfig) = 0;
         virtual void saveConfig(sophlib::sdds3::Config& config, std::string& path) = 0;
         virtual sophlib::sdds3::Config loadConfig(std::string& path) = 0;
+        virtual std::string getUnverifiedSignedBlob(std::string& content) = 0;
         virtual void Purge(
             sophlib::sdds3::Session& session,
             const sophlib::sdds3::Repo& repo,

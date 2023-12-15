@@ -45,6 +45,7 @@ Upgrade Resources Test Teardown
     Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Dump Teardown Log    ${installDir}/base/update/var/config.json
     Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
+    Run Keyword If Test Failed    Dump Teardown Log    ${installDir}/base/update/var/package_config.xml
     Remove File  /tmp/preserve-sul-downgrade
     Stop Local Cloud Server
     Cleanup Local Warehouse And Thininstaller

@@ -2,9 +2,6 @@
 
 #include "SDDS3Utils.h"
 
-#include "Logger.h"
-
-#include "sophlib/sdds3/Config.h"
 
 #include <nlohmann/json.hpp>
 

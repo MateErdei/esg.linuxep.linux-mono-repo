@@ -96,7 +96,7 @@ namespace SulDownloader
         }
         catch (Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to check if product was running with error: " << ex.what());
             exitCode = -1;
         }
         if (exitCode == 0)
@@ -126,7 +126,7 @@ namespace SulDownloader
         }
         catch (Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to stop product with error: " << ex.what());
             exitCode = -1;
         }
         if (exitCode != 0)
@@ -161,7 +161,7 @@ namespace SulDownloader
         }
         catch (Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to start product with error: " << ex.what());
             exitCode = -1;
         }
         if (exitCode != 0)
@@ -241,7 +241,7 @@ namespace SulDownloader
         }
         catch (Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to check if component was running with error: " <<ex.what());
             exitCode = -1;
         }
         if (exitCode == 0)

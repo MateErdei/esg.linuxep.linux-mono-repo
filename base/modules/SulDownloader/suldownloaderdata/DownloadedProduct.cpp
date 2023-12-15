@@ -92,7 +92,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         }
         catch (const Common::Process::IProcessException& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Failed to run installer with error: " << ex.what());
             exitCode = -1;
         }
         catch (const Common::FileSystem::IFileSystemException& ex)

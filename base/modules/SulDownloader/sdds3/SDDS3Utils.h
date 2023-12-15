@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "SulDownloader/sdds3/SDDS3Repository.h"
+#include "SusRequestParameters.h"
+
+#include "Common/XmlUtilities/AttributesMap.h"
 
 namespace SulDownloader
 {
     std::string createSUSRequestBody(const SUSRequestParameters& parameters);
-    bool isValidChar(char c);
 
 } // namespace SulDownloader

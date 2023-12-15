@@ -533,10 +533,31 @@ TEST_F(Sdds3RepositoryTest, tryConnectDoesntConnectToSusIfDoingSupplementUpdateW
         *mockFileSystem_,
         exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath()))
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(
+            *mockFileSystem_,
+            isFile(_))
+            .WillRepeatedly(Return(true));
+    EXPECT_CALL(
+            *mockFileSystem_,
+            readFile(_))
+            .WillRepeatedly(Return(""));
     sophlib::sdds3::Config config;
-    config.sus_response.suites = { "sdds3.Base" };
-    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
+    config.sus_response.suites = { "sdds3.ServerProtectionLinux-Base" };
+    std::string baseSuiteXML = R"(
+<suite name="ServerProtectionLinux-Base" version="2023.10.27.1.0" nonce="f5a88fb176" marketing-version="2023.10.27.1 ">
+  <package-ref src="SPL-Base-Component_1.2.5.0.1506.f287b5e6e4.zip" size="43199062" sha256="5dcad131df0b33d32b103acef8fc907d9472634c08cc754a4d9633ed8726814f">
 
+    <platforms>
+      <platform name="LINUX_ARM64" />
+      <platform name="LINUX_INTEL_LIBC6" />
+    </platforms>
+
+  </package-ref>
+</suite>)";
+    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
+    EXPECT_CALL(sdds3Wrapper, getUnverifiedSignedBlob( _))
+            .Times(1)
+            .WillOnce(Return(baseSuiteXML));
     EXPECT_CALL(*mockSusRequester_, request).Times(0);
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };

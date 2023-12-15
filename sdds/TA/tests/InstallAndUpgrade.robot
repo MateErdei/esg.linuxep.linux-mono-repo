@@ -1,6 +1,7 @@
 *** Settings ***
 Library    Collections
 Library    OperatingSystem
+Library    String
 
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/LiveQueryUtils.py
@@ -674,6 +675,20 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     all_products_in_update_report_are_up_to_date  ${latest_report_result.stdout.strip()}
     check_log_does_not_contain    extract_to  ${BASE_LOGS_DIR}/suldownloader_sync.log  sync
 
+Sul Downloader clears cache when out of sync
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
+    start_local_cloud_server
+    Start Local SDDS3 Server
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+
+    wait_for_log_contains_from_mark  ${mark}  Update success    timeout=${120}
+    ${mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
+    Replace Group in package config    name="0"
+    Replace Group in package config    name="GranularF"
+    Trigger Update Now
+    wait_for_log_contains_from_mark  ${mark}  The sophos update cache was out of sync with config so it is being cleared
+    wait_for_log_contains_from_mark  ${mark}  Update success   timeout=${120}
+
 SPL Can Be Installed To A Custom Location
     [Tags]    CUSTOM_INSTALL_PATH
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
@@ -800,3 +815,10 @@ Installing New Plugins Respects Custom Installation Location
 
     # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
 
+
+*** Keywords ***
+Replace Group in package config
+    [Arguments]  ${pattern}
+    ${content} =  Get File  ${SOPHOS_INSTALL}/base/update/var/package_config.xml
+    ${output} =   Replace String   ${content}       ${pattern}      name="Fake"
+    Create File     ${SOPHOS_INSTALL}/base/update/var/package_config.xml    ${output}
