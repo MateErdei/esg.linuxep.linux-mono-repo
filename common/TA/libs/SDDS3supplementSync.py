@@ -68,17 +68,26 @@ def copy_file_or_url(origin, target, quiet=False):
 
         if not quiet:
             trace(f'Downloading {origin} -> {target}')
-        resp = SESSION.get(origin, stream=True)
-        if resp:
-            tmptarget = f'{target}.tmp'
-            with open(tmptarget, 'wb') as f:
-                for chunk in resp.iter_content(65536):
-                    f.write(chunk)
-            if os.path.exists(target):
-                os.remove(target)
-            os.rename(tmptarget, target)
-            return True
-        trace(f'Error: {resp.status_code} {resp.reason}: GET {origin} -> {target}')
+        with SESSION.get(origin, stream=True) as resp:
+            if resp:
+                actual_size = 0
+                expected_size = int(resp.headers['content-length'])
+                tmptarget = f'{target}.tmp'
+                with open(tmptarget, 'wb') as f:
+                    for chunk in resp.iter_content(65536):
+                        f.write(chunk)
+                        actual_size += len(chunk)
+
+                if actual_size != expected_size:
+                    trace(f'Error: Read {actual_size} but expected {expected_size}: GET {origin} -> {target}')
+                    os.remove(tmptarget)
+                    return False
+
+                if os.path.exists(target):
+                    os.remove(target)
+                os.rename(tmptarget, target)
+                return True
+            trace(f'Error: {resp.status_code} {resp.reason}: GET {origin} -> {target}')
         return False
     if os.path.exists(origin):
         if not quiet:
