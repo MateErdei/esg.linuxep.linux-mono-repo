@@ -32,14 +32,6 @@ expand_template(
     template = "cleanuprealm.dat.in",
 )
 
-alias(
-    name = "rust_binary",
-    actual = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "rust-liveterminal-x64/sophos-live-terminal",
-        "@bazel_tools//src/conditions:linux_aarch64": "rust-liveterminal-arm64/sophos-live-terminal",
-    }),
-)
-
 spl_sdds_packages(
     name = "installer",
     base_version = LIVE_RESPONSE_BASE_VERSION,
@@ -56,7 +48,7 @@ spl_sdds_packages(
         "files/base/pluginRegistry/liveresponse.json": ":registry_json",
         "files/plugins/liveresponse/bin/liveresponse": "//liveterminal/products/plugin:liveresponse",
         "files/plugins/liveresponse/bin/uninstall.sh": ":uninstall_sh",
-        "files/plugins/liveresponse/bin/sophos-live-terminal": ":rust_binary",
+        "files/plugins/liveresponse/bin/sophos-live-terminal": "//imports/internal/rust-liveterminal:rust_binary",
         "install.sh": ":install_sh",
     }.items()},
     symbols_strip_prefix = "liveterminal/products/installer",

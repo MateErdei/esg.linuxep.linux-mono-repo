@@ -33,9 +33,12 @@
 !/imports/internal/susi/BUILD.bazel
 /imports/thirdparty/nlohmann-json/*
 !/imports/thirdparty/nlohmann-json/BUILD.bazel
+/imports/thirdparty/nft/*
+!/imports/thirdparty/nft/BUILD.bazel
+/imports/internal/rust-liveterminal/*
+!/imports/internal/rust-liveterminal/BUILD.bazel
 /imports/thirdparty/osquery/linux_arm64_rel/
 /imports/thirdparty/osquery/linux_x64_rel/
-/liveterminal/products/installer/rust-liveterminal-*
 
 # bazel-tools from ESG monorepo
 /.bazelignore

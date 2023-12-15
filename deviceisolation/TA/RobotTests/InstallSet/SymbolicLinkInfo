@@ -1,3 +1,4 @@
 o777, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation
+o777, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/nft
 o777, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/deviceisolation/VERSION.ini

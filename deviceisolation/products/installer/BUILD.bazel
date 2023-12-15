@@ -38,6 +38,7 @@ spl_sdds_packages(
         "files/plugins/deviceisolation/bin/deviceisolation": "//deviceisolation/products/plugin:deviceisolation",
         "files/plugins/deviceisolation/bin/uninstall.sh": ":uninstall_sh",
         "files/base/pluginRegistry/deviceisolation.json": ":plugin_json",
+        "files/plugins/deviceisolation/bin/nft": "//imports/thirdparty/nft:nft_binary",
         "install.sh": ":install_sh",
         "cleanuprealm.dat": "cleanuprealm.dat",
         "checkAndRunExtraUpgrade.sh": "//base/products/distribution:checkAndRunExtraUpgrade.sh",

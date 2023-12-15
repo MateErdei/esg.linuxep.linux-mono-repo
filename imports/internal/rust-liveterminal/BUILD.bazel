@@ -1,0 +1,8 @@
+alias(
+    name = "rust_binary",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/sophos-live-terminal",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/sophos-live-terminal",
+    }),
+    visibility = ["//liveterminal/products/installer:__pkg__"],
+)

@@ -1,0 +1,8 @@
+alias(
+    name = "nft_binary",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/nft",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/nft",
+    }),
+    visibility = ["//deviceisolation/products/installer:__pkg__"],
+)

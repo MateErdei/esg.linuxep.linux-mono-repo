@@ -23,6 +23,14 @@
             <include artifact-path="common/safestore/linux_arm64_rel/safestore" dest-dir="common/safestore/linux_arm64_rel"/>
         </build-asset>
 
+        <!-- Device Isolation imports -->
+        <build-asset project="linuxep" repo="netfilter_isolator">
+            <release-version branch="release/version_1_0_9" build-id="20231214085524-fa6031a3c836296e2e4948878bc351536371689e-UUcYSd"/>
+            <development-version branch="develop"/>
+            <include artifact-path="x64" dest-dir="imports/thirdparty/nft/x86_64"/>
+            <include artifact-path="arm64" dest-dir="imports/thirdparty/nft/arm64"/>
+        </build-asset>
+
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
             <release-version branch="release--3.89.0" build-id="20230915145859-a4679b8647d3831c5b46549ca893aa4a209cd9eb-5zKA9B"/>
@@ -86,8 +94,8 @@
         <build-asset project="winep" repo="liveterminal">
              <release-version branch="release/2023-43-linux" build-id="20231023081639-220516888f5f376e1d91320254483e3901569bf1-7KBVB8"/>
             <development-version branch="develop" />
-            <include artifact-path="sspl-liveterminal/rust_binary_x64" dest-dir="liveterminal/products/installer/rust-liveterminal-x64" />
-            <include artifact-path="sspl-liveterminal/rust_binary_arm64" dest-dir="liveterminal/products/installer/rust-liveterminal-arm64" />
+            <include artifact-path="sspl-liveterminal/rust_binary_x64" dest-dir="imports/internal/rust-liveterminal/x86_64" />
+            <include artifact-path="sspl-liveterminal/rust_binary_arm64" dest-dir="imports/internal/rust-liveterminal/arm64" />
         </build-asset>
 
         <trusted-asset artifact-path="com.nlohmann/json/3.11.2/nlohmann-json-include" dest-dir="imports/thirdparty/nlohmann-json"/>

@@ -80,3 +80,10 @@ Save Current Device Isolation InstalledFiles To Local Path
     Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/FileInfo  ${FileInfo}
     Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/DirectoryInfo  ${DirectoryInfo}
     Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+
+Load NFT Conf
+    [Arguments]    ${path_to_conf_file}
+    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft -f ${path_to_conf_file}    shell=True    timeout=5s
+
+Flush NFT Ruleset
+    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft flush ruleset    shell=True    timeout=5s
