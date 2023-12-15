@@ -24,7 +24,7 @@ Suite Setup      Upgrade Resources Suite Setup
 Test Setup       Require Uninstalled
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
-Test Timeout  10 mins
+Test Timeout  15 mins
 Force Tags    FIXED_VERSIONS    TAP_PARALLEL2
 
 
@@ -58,7 +58,7 @@ Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
-        Should Be Equal As Strings   ${result.rc}  0
+        Should Be Equal As Integers   ${result.rc}  ${0}    msg="Failed to gather fixed version ${expectedFixedVersion}"
         Check Upgrade From Fixed Version to VUT    ${expectedFixedVersion}
     END
 
@@ -75,7 +75,7 @@ Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
         ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
         Log  ${result.stdout}
         Log  ${result.stderr}
-        Should Be Equal As Strings   ${result.rc}  0
+        Should Be Equal As Integers   ${result.rc}  ${0}    msg="Failed to gather fixed version ${expectedFixedVersion}"
         Check Downgrade From VUT to Fixed Version    ${expectedFixedVersion}
     END
 

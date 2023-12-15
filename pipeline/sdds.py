@@ -215,8 +215,9 @@ def stage_sdds_tests(
     for fts in context.releases.fixed_term_releases:
         if fts.device_class == 'LINUXEP':
             print(f"FTS name: {fts.name}, expiry: {fts.eol_date}, token: {fts.token}")
-            fixed_versions_x86.append(fts.name)
+            # FTS 2023.3 is not available in Linux Mono-repo of with ARM64 build
             if fts.name != "FTS 2023.3.0.23":
+                fixed_versions_x86.append(fts.name)
                 fixed_versions_arm64.append(fts.name)
 
     with stage.parallel(group_name):

@@ -8,11 +8,8 @@ import sys
 from artifactory import ArtifactoryPath
 from build_scripts.artisan_fetch import artisan_fetch
 
-warehouse_repo_url = "https://artifactory.sophos-ops.com/artifactory/esg-build-candidate/linuxep.sspl-warehouse"
-no_static_suite = ['release--2023-10', 'release--2023-16_separate_suites', 'release--2023-13', 'release--2023-19',
-                   'release--2023-16', 'release--2023-19.2', 'release--2023-25', 'release--2023-07', 'release--2023.1',
-                   'release--2023.1-new-RTD-for-MITRE-testing', 'release--2023.1.1', 'release--2023.1.2',
-                   'release--2023.1.3', 'release--2023.2']
+warehouse_repo_url = "https://artifactory.sophos-ops.com/artifactory/esg-build-candidate/linuxep.linux-mono-repo"
+no_static_suite = ['release--2023-37', 'release--2023-40', 'release--2023.4-non-arm64-thin-installer']
 
 def get_warehouse_artifact(release_branch, output_dir, with_static_suites=False):
 
@@ -22,7 +19,7 @@ def get_warehouse_artifact(release_branch, output_dir, with_static_suites=False)
     <package name="system-product-tests">
         <inputs>
             <workingdir>.</workingdir>
-            <build-asset project="linuxep" repo="sspl-warehouse">
+            <build-asset project="linuxep" repo="linux-mono-repo">
                 <development-version branch="{release_branch}" />
                 <include artifact-path="prod-sdds3-repo" dest-dir="{output_dir}/repo" />
                 <include artifact-path="prod-sdds3-launchdarkly" dest-dir="{output_dir}/launchdarkly" />
@@ -152,6 +149,9 @@ def setup_fixed_versions(dest, fixed_versions):
         get_warehouse_artifact(release_branch, output_dir, True)
         with open(os.path.join(output_dir, "static-suites", "linuxep.json")) as f:
             release_version = json.load(f)["name"]
+            # Special handling for mis-matching version numbers for LINUXDAR-8073
+            if release_version == "FTS 2023.4.0.27-LINUXDAR-8073":
+                release_version = "FTS 2023.4.0.30-LINUXDAR-8073"
             print(f"Fixed version name = {release_version}")
             if release_version in fixed_versions:
                 symlink_path = os.path.join(dest, release_version)
