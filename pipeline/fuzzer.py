@@ -25,6 +25,7 @@ FUZZ_SUPPORT_DIR = f'{TEST_DIR}/fuzz_support'
 FUZZ_LOG_DIR = f'{TEST_DIR}/log'
 FUZZ_LOG = f'{FUZZ_LOG_DIR}/fuzz-log.txt'
 ARTIFACT_OUTPUT_DIR = f'{TEST_DIR}/artifacts'
+SETUP_FUZZ_MACHINE = f'{FUZZ_SUPPORT_DIR}/setup_for_fuzzing.sh'
 CHECK_FUZZ_OUTPUT = f'{FUZZ_SUPPORT_DIR}/check_fuzzer_output.sh'
 
 COMMAND_BODY = ["2>&1", "-print_final_stats=1", "-timeout=60", "-detect_leaks=1", "-rss_limit_mb=2048",
@@ -37,6 +38,7 @@ FUZZER_TAG = "linux_x64_fuzzing"
 @tap.timeout(task_timeout=FUZZER_JOB_TIMEOUT)
 def run_fuzzer(machine: tap.Machine, fuzz_argument: str):
     try:
+        machine.run("bash", f'.{SETUP_FUZZ_MACHINE}')
         machine.run("mkdir", "-p", f'{ARTIFACT_OUTPUT_DIR}')
         machine.run("mkdir", "-p", f'{FUZZ_LOG_DIR}')
         machine.run("chmod", "+x", f'{FUZZ_TARGET_DIR}/{fuzz_argument}')
