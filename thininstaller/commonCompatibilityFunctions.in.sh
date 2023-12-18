@@ -30,11 +30,6 @@ function log_warn() {
     echo "WARN: ${1}"
 }
 
-function log_error() {
-    COMPATIBILITY_ERROR_FOUND=1
-    echo "ERROR: ${1}"
-}
-
 function curl_debug() {
     local curl_output
     curl_output="$1"
@@ -78,12 +73,14 @@ function check_install_path_has_correct_permissions()
             install_path="/"
         fi
     done
+    success
 }
 
 function verify_install_directory() {
     # No custom install location so use default or special case if SOPHOS_INSTALL is set to the default, then we just use it and don't append
     if [[ (-z "${SOPHOS_INSTALL}") || ("${SOPHOS_INSTALL}" == "/opt/sophos-spl") ]]; then
         export SOPHOS_INSTALL=/opt/sophos-spl
+        success
         return
     fi
 
@@ -112,6 +109,7 @@ function verify_install_directory() {
 
     # Check that the install path has valid permission on the existing directories
     check_install_path_has_correct_permissions
+    success
 }
 
 function verify_compatible_glibc_version() {
@@ -120,6 +118,7 @@ function verify_compatible_glibc_version() {
     if [[ "${lowest_version}" != "${BUILD_LIBC_VERSION}" ]]; then
         failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "ERROR: SPL installation will fail, can not install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
     fi
+    success
 }
 
 function verify_installed_packages() {
@@ -132,6 +131,7 @@ function verify_installed_packages() {
     for package in "${av_packages[@]}"; do
         [[ -z $(which "${package}") ]] && log_warn "AV Plugin requires ${package} to be installed on this server. SPL can be installed but AV will not work"
     done
+    success
 }
 
 function check_free_storage()
@@ -159,6 +159,7 @@ function check_free_storage()
     free_mb=$((free / 1024))
 
     if [[ ${free_mb} -gt ${space} ]]; then
+        success
         return 0
     fi
     failure ${EXITCODE_NOT_ENOUGH_SPACE} "ERROR: SPL installation will fail as there is not enough space in ${mountpoint} to install SPL. You need at least ${space}MiB to install SPL"
@@ -169,6 +170,7 @@ function check_total_mem() {
     local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
     if [ "${totalMemKiloBytes}" -gt "${neededMemKiloBytes}" ]; then
+        success
         return 0
     fi
     failure ${EXITCODE_NOT_ENOUGH_MEM} "ERROR: SPL installation will fail as this machine does not meet product requirements (total RAM: ${totalMemKiloBytes}kB). The product requires at least ${neededMemKiloBytes}kB of RAM"
@@ -184,6 +186,7 @@ function check_ca_certs() {
     else
         failure ${EXITCODE_INVALID_CA_PATHS} "ERROR: SPL installation will fail as the system CA path could not be found. SPL uses either '/etc/ssl/certs/ca-certificates.crt', '/etc/pki/tls/certs/ca-bundle.crt' or '/etc/ssl/ca-bundle.pem'"
     fi
+    success
 }
 
 function verify_system_requirements() {
@@ -221,6 +224,7 @@ function verify_system_requirements() {
 
     # Check System CA certificate locations
     check_ca_certs
+    success
 }
 
 function verify_connection_to_central() {
@@ -247,6 +251,7 @@ function verify_connection_to_central() {
             curl_debug "$curl_output"
         fi
     fi
+    success
 }
 
 function verify_connection_to_sus() {
@@ -273,6 +278,7 @@ function verify_connection_to_sus() {
             curl_debug "$curl_output"
         fi
     fi
+    success
 }
 
 function verify_connection_to_cdn() {
@@ -309,6 +315,7 @@ function verify_connection_to_cdn() {
             log_info "Connection verified to CDN server, server was able to download all SPL packages via ${proxy}"
         fi
     fi
+    success
 }
 
 function verify_network_connections() {
@@ -420,4 +427,5 @@ function verify_network_connections() {
         [[ -n "${PROXY}" ]] && verify_connection_to_cdn "${CDN_URL}" "${PROXY}"
     fi
     [[ "${VALID_CDN_CONNECTION}" == 0 && "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as the server is not able to download packages from the CDN server"
+    success
 }

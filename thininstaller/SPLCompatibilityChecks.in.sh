@@ -20,11 +20,21 @@ EXITCODE_INVALID_CA_PATHS=14
 
 @COMMON_SPL_COMPATIBILITY_FUNCTIONS@
 
+function log_error() {
+    COMPATIBILITY_ERROR_FOUND=1
+    echo "ERROR: ${1}"
+}
+
 function failure() {
     local code=$1
     shift
     echo "$@" >&2
     exit "${code}"
+}
+
+# Only the thin-installer version of this function needs to do something
+function success() {
+    :
 }
 
 # Copied from installer_header - decided not to make common since the ThinInstaller has the option to uninstall SAV

@@ -52,6 +52,7 @@ PROXY_CREDENTIALS=
 MAX_GROUP_NAME_SIZE=1024
 VALID_PRODUCTS=("antivirus" "mdr" "xdr")
 REQUEST_NO_PRODUCTS="none"
+SUMMARY="success"
 
 @COMMON_SPL_COMPATIBILITY_FUNCTIONS@
 
@@ -92,7 +93,106 @@ function cleanup_and_exit() {
     exit "${code}"
 }
 
+function write_check_result()
+{
+    key=${1}
+    shift
+    value="$@"
+    ini_file="${SOPHOS_TEMP_DIRECTORY}/compatibilityCheckResults.ini"
+    (umask 0177 && echo "${key} = ${value}" >> ${ini_file})
+}
+
+function checkFunctionToStr
+{
+    func_name=${1}
+    case $func_name in
+    
+      check_install_path_has_correct_permissions)
+        echo -n "installPathHasCorrectPerms"
+        ;;
+      
+      verify_install_directory)
+        echo -n "installPathVerified"
+        ;;
+      
+      verify_compatible_glibc_version)
+        echo -n "glibcVersionVerified"
+        ;;
+      
+      verify_installed_packages)
+        echo -n "installedPackagesVerified"
+        ;;
+      
+      check_free_storage)
+        echo -n "sufficientDiskSpace"
+        ;;
+      
+      verify_network_connections)
+        echo -n "networkConnectionsVerified"
+        ;;
+
+      verify_connection_to_cdn)
+        echo -n "cdnConnectionVerified"
+        ;;
+      
+      verify_connection_to_sus)
+        echo -n "susConnectionVerified"
+        ;;
+      
+      verify_connection_to_central)
+        echo -n "centralConnectionVerified"
+        ;;   
+
+      check_total_mem)
+        echo -n "sufficientMemory"
+        ;; 
+
+      check_ca_certs)
+        echo -n "cacertsVerified"
+        ;; 
+
+      verify_system_requirements)
+        echo -n "systemRequirementsVerified"
+        ;;  
+      
+      pre_install_checks)
+        echo -n "preInstallChecksPassed"
+        ;;
+      
+      check_for_existing_spl_install)
+        echo -n "splNotAlreadyInstalled"
+        ;;
+      
+      main)
+        echo -n "thinInstallerSucceeded"
+        ;;
+      
+    esac
+}
+
+function log_error() {
+    check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
+    write_check_result ${check_performed} "false"
+    COMPATIBILITY_ERROR_FOUND=1
+    [[ "${SUMMARY}" == "success" ]] && SUMMARY="${1}"
+    echo "ERROR: ${SUMMARY}"
+}
+
+function success()
+{
+    check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
+    [[ -z "${COMPATIBILITY_ERROR_FOUND}" ]] && write_check_result ${check_performed} "true"
+}
+
 function failure() {
+    check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
+    write_check_result ${check_performed} "false"
+    if [[ "${SUMMARY}" != "success" ]]
+    then
+        write_check_result "summary" "${SUMMARY}"
+    else
+        write_check_result "summary" "$2"
+    fi
     code=$1
     removeinstall=1
     if [[ -n "$3" ]]; then
@@ -521,6 +621,16 @@ function test_installation_executable()
       failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${SOPHOS_INSTALL} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
     }
     rm -r "$SOPHOS_INSTALL"
+    success
+}
+
+function check_for_existing_spl_install()
+{
+    # Check we have found the path for the existing installation.
+    if [ ! -d "$EXISTING_SSPL_PATH" ]; then
+        failure ${EXITCODE_INSTALLED_BUT_NO_PATH} "An existing installation of ${PRODUCT_NAME} was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
+    fi
+    success
 }
 
 test_installation_executable
@@ -676,10 +786,7 @@ elif is_sspl_installed; then
         fi
     done
 
-    # Check we have found the path for the existing installation.
-    if [ ! -d "$EXISTING_SSPL_PATH" ]; then
-        failure ${EXITCODE_INSTALLED_BUT_NO_PATH} "An existing installation of ${PRODUCT_NAME} was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
-    fi
+    check_for_existing_spl_install
 
     # If the user specified a different install dir to the existing one then they must remove the old install first.
     if [[ "${SOPHOS_INSTALL}" != "${EXISTING_SSPL_PATH}" ]]; then

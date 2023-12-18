@@ -312,6 +312,7 @@ class ThinInstallerUtils(object):
                                   proxy=None,
                                   installsh_path=None,
                                   cleanup=True,
+                                  temp_dir_to_unpack_to=None,
                                   thininstaller_args=[],
                                   sus_url="https://localhost:8080",
                                   cdn_url="https://localhost:8080",):
@@ -325,6 +326,7 @@ class ThinInstallerUtils(object):
                                force_certs_dir=force_certs_dir,
                                proxy=proxy,
                                cleanup=cleanup,
+                               temp_dir_to_unpack_to=temp_dir_to_unpack_to,
                                sus_url=sus_url,
                                cdn_url=cdn_url)
 
@@ -340,7 +342,9 @@ class ThinInstallerUtils(object):
                                expected_return_code,
                                override_path=override_path,
                                mcsurl=mcsurl,
-                               force_certs_dir=force_certs_dir)
+                               force_certs_dir=force_certs_dir,
+                               cleanup=False,
+                               temp_dir_to_unpack_to=self.tmp_path)
 
     def create_fake_savscan_in_tmp(self):
         os.makedirs("/tmp/i/am/fake/bin/")
@@ -391,14 +395,14 @@ exit 0""")
         print("Running installer with faked memory")
         bash_command_string = 'mount --bind ' + fake_mem_info_path + ' ' + mem_info_path + ' && bash -x ' + self.default_installsh_path
         command = ["unshare", "-m", "bash", "-x", "-c", bash_command_string]
-        self.run_thininstaller(command, 4)
+        self.run_thininstaller(command, 4, cleanup=False, temp_dir_to_unpack_to=self.tmp_path)
 
     def run_default_thininstaller_with_fake_small_disk(self):
         fake_small_disk_df_dir = os.path.join(PathManager.get_support_file_path(), "fake_system_scripts",
                                               "fake_df_small_disk")
         os.chmod(os.path.join(fake_small_disk_df_dir, "df"), 0o755)
         self.env["PATH"] = fake_small_disk_df_dir + ":" + os.environ['PATH']
-        self.run_thininstaller([self.default_installsh_path], 5)
+        self.run_thininstaller([self.default_installsh_path], 5, cleanup=False, temp_dir_to_unpack_to=self.tmp_path)
 
     def run_default_thininstaller_with_args(self, expectedReturnCode, *args, force_certs_dir=None):
         command = [self.default_installsh_path]
