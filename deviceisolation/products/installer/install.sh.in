@@ -77,6 +77,18 @@ mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" || failure ${EXIT_FAIL_C
 chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
 chmod -R 0600 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/"*
 
+# Plugin temp dir
+plugin_tmp="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/tmp"
+mkdir -p "$plugin_tmp" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} tmp dir"
+chmod 0700 "$plugin_tmp"
+chmod -R 0600 "${plugin_tmp}/"*
+
+# Plugin var dir
+plugin_var="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
+mkdir -p "$plugin_var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} var dir"
+chmod 0700 "$plugin_var"
+chmod -R 0600 "${plugin_var}/"*
+
 # Blanket plugin directory recursive chown
 chown -R root:root "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 

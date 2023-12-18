@@ -20,6 +20,7 @@ soph_cc_library(
     implementation_deps = [
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/FileSystem",
+        "//base/modules/Common/ProcessImpl",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/UtilityImpl:TimeUtils",

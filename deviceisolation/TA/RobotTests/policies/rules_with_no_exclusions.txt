@@ -1,0 +1,35 @@
+table inet sophos_device_isolation {
+    chain INPUT {
+            type filter hook input priority filter; policy drop;
+            ct state invalid counter packets 0 bytes 0 drop
+            iifname "lo" counter packets 0 bytes 0 accept
+            counter packets 0 bytes 0 jump states
+            ip protocol icmp counter packets 0 bytes 0 accept
+    }
+
+    chain FORWARD {
+            type filter hook forward priority filter; policy drop;
+    }
+
+    chain OUTPUT {
+            type filter hook output priority filter; policy drop;
+            counter packets 0 bytes 0 jump outgoing-services
+            oifname "lo" counter packets 0 bytes 0 accept
+            counter packets 0 bytes 0 jump states
+            counter packets 0 bytes 0 jump outgoing-services
+    }
+
+    chain outgoing-services {
+            tcp dport 53 counter packets 0 bytes 0 accept
+            udp dport 53 counter packets 0 bytes 0 accept
+
+            ip protocol icmp counter packets 0 bytes 0 accept
+    }
+
+    chain states {
+            ip protocol tcp ct state established,related counter packets 0 bytes 0 accept
+            ip protocol udp ct state established,related counter packets 0 bytes 0 accept
+            ip protocol icmp ct state established,related counter packets 0 bytes 0 accept
+            counter packets 0 bytes 0 return
+    }
+}

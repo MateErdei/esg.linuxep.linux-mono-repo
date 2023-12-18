@@ -24,6 +24,8 @@ Install Base For Component Tests
 Install Device Isolation Directly from SDDS
     ${DEVICE_ISOLATION_SDDS} =   get_sspl_device_isolation_plugin_sdds
     File Should Exist   ${DEVICE_ISOLATION_SDDS}/install.sh
+    File Should Exist   ${DEVICE_ISOLATION_SDDS}/files/plugins/deviceisolation/bin/deviceisolation
+    File Should Exist   ${DEVICE_ISOLATION_SDDS}/files/plugins/deviceisolation/bin/nft
     ${result} =   Run Process  bash  -x  ${DEVICE_ISOLATION_SDDS}/install.sh   timeout=120s   stderr=STDOUT
     log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install deviceisolation.\noutput: \n${result.stdout}"

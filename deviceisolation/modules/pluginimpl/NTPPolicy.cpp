@@ -23,7 +23,8 @@ namespace
 
     std::vector<IsolationExclusion> extractExclusions(const AttributesMap& attributeMap)
     {
-        auto selfIsolation = attributeMap.lookupMultiple(("policy/selfIsolation"));
+        LOGDEBUG("Extracting exclusions");
+        auto selfIsolation = attributeMap.lookupMultiple(("policy/configuration/selfIsolation"));
         if (selfIsolation.size() > 1)
         {
             throw NTPPolicyException(LOCATION, "Multiple selfIsolation in policy");
@@ -32,7 +33,7 @@ namespace
         {
             return {};
         }
-        auto exclusions = attributeMap.entitiesThatContainPath("policy/selfIsolation/exclusions/exclusion", false);
+        auto exclusions = attributeMap.entitiesThatContainPath("policy/configuration/selfIsolation/exclusions/exclusion", false);
         std::vector<IsolationExclusion> results;
         for (const auto& x : exclusions)
         {

@@ -18,3 +18,29 @@ std::string Plugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");
 }
+
+
+std::string Plugin::pluginBinDir()
+{
+    return fromRelative("bin");
+}
+
+std::string Plugin::pluginTempDir()
+{
+    return fromRelative("tmp");
+}
+
+std::string Plugin::pluginVarDir()
+{
+    return fromRelative("var");
+}
+
+std::string Plugin::networkRulesFile()
+{
+    return Common::FileSystem::join(pluginVarDir(), "nft_rules");
+}
+
+std::string Plugin::nftBinary()
+{
+    return Common::FileSystem::join(pluginBinDir(), "nft");
+}

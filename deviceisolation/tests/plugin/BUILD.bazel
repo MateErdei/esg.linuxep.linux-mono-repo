@@ -6,6 +6,7 @@ spl_independent_cc_tests(
     srcs = glob(["*.cpp"]),
     deps = [
         "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/ProcessImpl",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/XmlUtilities",
         "//base/tests/Common/Helpers",

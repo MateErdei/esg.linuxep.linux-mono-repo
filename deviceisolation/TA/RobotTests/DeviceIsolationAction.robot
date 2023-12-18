@@ -13,12 +13,19 @@ Test Teardown  Device Isolation Test Teardown
 
 *** Test Cases ***
 
-Device Isolation Logs Valid Enable Action
+Device Isolation Processes Enable Action
     ${mark} =  Get Device Isolation Log Mark
+    Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
     Send Enable Isolation Action  uuid=1
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${rules} =  Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${expected_rules} =  Get File    ${ROBOT_SCRIPTS_PATH}/policies/rules_with_no_exclusions.txt
+    Should Be Equal As Strings  ${rules}  ${expected_rules}
 
-Device Isolation Logs Valid Disable Action
+Device Isolation Processes Disable Action
     ${mark} =  Get Device Isolation Log Mark
     Send Disable Isolation Action  uuid=1
     Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation

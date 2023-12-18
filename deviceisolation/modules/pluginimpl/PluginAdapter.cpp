@@ -10,6 +10,7 @@
 
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"
+#include "deviceisolation/modules/pluginimpl/NftWrapper.h"
 
 #include <utility>
 
@@ -113,18 +114,32 @@ namespace Plugin
             LOGDEBUG("Ignoring invalid action: " << actionXml);
             return;
         }
+
         if (action.value())
         {
             LOGINFO("Enabling Device Isolation");
+            auto result = NftWrapper::applyIsolateRules(ntpPolicy_->exclusions());
+            if (result != NftWrapper::IsolateResult::SUCCESS)
+            {
+                LOGERROR("Failed to isolate device");
+                return;
+            }
             isolationEnabled_ = true;
+            LOGINFO("Device is now isolated");
         }
         else
         {
             LOGINFO("Disabling Device Isolation");
+            auto result = NftWrapper::clearIsolateRules();
+            if (result != NftWrapper::IsolateResult::SUCCESS)
+            {
+                LOGERROR("Failed to remove device from isolation");
+                return;
+            }
             isolationEnabled_ = false;
+            LOGINFO("Device is no longer isolated");
         }
     }
-
 
     void PluginAdapter::processPolicy(const std::string& appId, const std::string& policyXml)
     {
@@ -132,6 +147,7 @@ namespace Plugin
         if (appId == "NTP")
         {
             ntpPolicy_ = std::make_shared<NTPPolicy>(policyXml);
+            LOGINFO("Device Isolation policy applied (" << ntpPolicy_->revId() << ")");
         }
         else
         {

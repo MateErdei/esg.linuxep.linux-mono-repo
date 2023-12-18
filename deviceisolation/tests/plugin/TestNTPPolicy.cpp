@@ -81,10 +81,12 @@ TEST_F(TestNTPPolicy, multipleSelfIsolationElements)
     constexpr const auto* POLICY{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-</selfIsolation>
-<selfIsolation>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+    </selfIsolation>
+    <selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     EXPECT_THROW(NTPPolicy policy{POLICY};, std::runtime_error);
@@ -108,10 +110,12 @@ TEST_F(TestNTPPolicy, emptyExclusions)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -125,12 +129,14 @@ TEST_F(TestNTPPolicy, singleExclusionEverything)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-        </exclusion>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip">
+            </exclusion>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -149,12 +155,14 @@ TEST_F(TestNTPPolicy, doubleExclusionEverything)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-        <exclusion type="ip"/>
-        <exclusion type="ip"/>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip"/>
+            <exclusion type="ip"/>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -174,13 +182,15 @@ TEST_F(TestNTPPolicy, excludeIncoming)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-            <direction>in</direction>
-        </exclusion>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip">
+                <direction>in</direction>
+            </exclusion>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -197,15 +207,17 @@ TEST_F(TestNTPPolicy, noDirection)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-            <remoteAddress>REMOTE_ADDRESS</remoteAddress>
-            <localPort>22</localPort>
-            <remotePort>22</remotePort>
-        </exclusion>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip">
+                <remoteAddress>REMOTE_ADDRESS</remoteAddress>
+                <localPort>22</localPort>
+                <remotePort>22</remotePort>
+            </exclusion>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -219,14 +231,16 @@ TEST_F(TestNTPPolicy, multipleDirectionsInExclusion)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-            <direction>foo</direction>
-            <direction>bar</direction>
-        </exclusion>
-    </exclusions>
-</selfIsolation>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip">
+                <direction>foo</direction>
+                <direction>bar</direction>
+            </exclusion>
+        </exclusions>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -243,13 +257,15 @@ TEST_F(TestNTPPolicy, excludeHost)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <remoteAddress>REMOTE_ADDRESS</remoteAddress>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -267,7 +283,8 @@ TEST_F(TestNTPPolicy, noRemoteAddress)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <direction>in</direction>
@@ -275,7 +292,8 @@ TEST_F(TestNTPPolicy, noRemoteAddress)
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -289,13 +307,15 @@ TEST_F(TestNTPPolicy, excludeLocalPort)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <localPort>22</localPort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -313,7 +333,8 @@ TEST_F(TestNTPPolicy, noLocalPort)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <direction>in</direction>
@@ -321,7 +342,8 @@ TEST_F(TestNTPPolicy, noLocalPort)
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -335,13 +357,15 @@ TEST_F(TestNTPPolicy, excludeRemotePort)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -359,7 +383,8 @@ TEST_F(TestNTPPolicy, noRemotePort)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="ip">
             <direction>in</direction>
@@ -367,7 +392,8 @@ TEST_F(TestNTPPolicy, noRemotePort)
             <localPort>22</localPort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -381,13 +407,15 @@ TEST_F(TestNTPPolicy, ignoreExclusionOfNonIpType)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion type="foobar">
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
@@ -399,13 +427,15 @@ TEST_F(TestNTPPolicy, ignoreExclusionWithoutType)
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<selfIsolation>
+<configuration>
+    <selfIsolation>
     <exclusions>
         <exclusion>
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
-</selfIsolation>
+    </selfIsolation>
+</configuration>
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();

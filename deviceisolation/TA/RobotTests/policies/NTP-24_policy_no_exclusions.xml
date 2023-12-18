@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<policy xmlns="com.sophos\mansys\policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" policyType="24" RevID="fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd">
+        <enabled>true</enabled>
+        <connectionTracking>true</connectionTracking>
+        <exclusions>
+            <filePathSet>
+                <filePath>/tmp/eicar.com</filePath>
+                <filePath>/test1/</filePath>
+            </filePathSet>
+        </exclusions>
+        <selfIsolation>
+            <enabled>false</enabled>
+        </selfIsolation>
+        <ips>
+            <enabled>false</enabled>
+            <exclusions/>
+        </ips>
+    </configuration>
+</policy>

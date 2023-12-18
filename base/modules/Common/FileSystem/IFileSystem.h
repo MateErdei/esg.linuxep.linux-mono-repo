@@ -180,7 +180,7 @@ namespace Common::FileSystem
          * @param content, the string value to write into the given file.
          * @param tempDir, staging area where the file will be created before being moved to the correct place.
          * @param mode the chmod to be applied when the file is created (can be used to extend file to read group).
-         * If set to 0, no permisison will be changed.
+         * If set to 0, no permissions will be changed.
          */
         virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
             const = 0;
