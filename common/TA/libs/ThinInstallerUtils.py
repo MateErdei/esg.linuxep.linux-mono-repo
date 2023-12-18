@@ -12,7 +12,7 @@ import robot.api.logger as logger
 
 import PathManager
 import robot
-
+import LogUtils
 
 class ThinInstallerUtils(object):
     def __init__(self):
@@ -178,7 +178,8 @@ class ThinInstallerUtils(object):
                                               args=None,
                                               mcs_ca=None,
                                               force_certs_dir=None,
-                                              thininstaller_source=None):
+                                              thininstaller_source=None,
+                                              sophos_log_level=None):
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
@@ -190,7 +191,7 @@ class ThinInstallerUtils(object):
         self.create_default_credentials_file(message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
         self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus,
-                               cdn_url=cdn, force_certs_dir=force_certs_dir)
+                               cdn_url=cdn, force_certs_dir=force_certs_dir, sophos_log_level=sophos_log_level)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)
@@ -242,7 +243,8 @@ class ThinInstallerUtils(object):
                           temp_dir_to_unpack_to=None,
                           sus_url=None,
                           cdn_url=None,
-                          force_legacy_install=False):
+                          force_legacy_install=False,
+                          sophos_log_level=None):
         if not mcs_ca:
             env_cert = os.environ.get("MCS_CA", "")
             if os.path.isfile(env_cert):
@@ -283,6 +285,8 @@ class ThinInstallerUtils(object):
             self.env['OVERRIDE_SUS_LOCATION'] = sus_url
         if force_legacy_install:
             self.env['FORCE_LEGACY_INSTALL'] = "1"
+        if sophos_log_level:
+            self.env['SOPHOS_LOG_LEVEL'] = sophos_log_level
 
         logger.info(f"env: {self.env}")
         log = open(self.log_path, 'w+')

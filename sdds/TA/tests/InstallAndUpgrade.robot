@@ -63,8 +63,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Start Local Dogfood SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -108,8 +109,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
     ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    ${all_plugins_logs_mark} =    Mark All Plugin Logs
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_mark}
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -222,8 +225,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
 
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -257,6 +261,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Stop Local SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     Start Local Dogfood SDDS3 Server
 
     Start Process  tail -fn0 ${BASE_LOGS_DIR}/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
@@ -265,6 +270,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Prepared ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
@@ -361,8 +367,10 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local Current Shipping SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
+
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -400,9 +408,11 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     ${sul_mark} =    mark_log_size    ${SULDownloaderLog}
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
     check_suldownloader_log_contains    Running SDDS3 update
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
@@ -471,8 +481,10 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-    Override LogConf File as Global Level    DEBUG
+
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -499,6 +511,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     Stop Local SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     Start Local Current Shipping SDDS3 Server
     Create File  ${MCS_DIR}/action/testfile
     Should Exist  ${MCS_DIR}/action/testfile
@@ -511,6 +524,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
 
@@ -587,12 +601,13 @@ SDDS3 updating respects ALC feature codes
     [Tags]    RTD_CHECKED
     start_local_cloud_server
     Start Local SDDS3 Server
-    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
-
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
     ...   check_suldownloader_log_contains_string_n_times   Update success  1
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
@@ -694,12 +709,20 @@ SPL Can Be Installed To A Custom Location
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
-    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    # TODO: LINUXDAR-8494 use ALC policy containing all feature codes once RTD supports custom installs
     start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
     Start Local SDDS3 Server
+
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
+    ...    sophos_log_level=DEBUG
+
+    # TODO LINUXDAR-8494: Change to use "Wait For Plugins To Be Ready" once ALC policy with all feature codes is used
+    Wait For Av To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
+    Wait For Ej To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
+    Wait For Base To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -748,7 +771,7 @@ SPL Can Be Installed To A Custom Location
     # Checks for Event Journaler
     Check Event Journaler Executable Running
 
-    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
+    # TODO LINUXDAR-8489 add checks for RTD, EDR and LiveResponse
 
     Directory Should Not Exist    /opt/sophos-spl
     check_all_product_logs_do_not_contain_error
@@ -761,9 +784,14 @@ Installing New Plugins Respects Custom Installation Location
 
     start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
     Start Local SDDS3 Server
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
+
+    # TODO LINUXDAR-8494: Change to use "Wait For Plugins To Be Ready" once ALC policy with all feature codes is used
+    Wait For Base To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
+    Wait For Ej To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -785,7 +813,7 @@ Installing New Plugins Respects Custom Installation Location
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
 
-    # TODO: LINUXDAR-7773 use ALC policy containing all feature codes once RTD supports custom installs
+    # TODO: LINUXDAR-8489 use ALC policy containing all feature codes as RTD now supports custom installs
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
     Wait Until Keyword Succeeds
     ...   30 secs
@@ -813,7 +841,7 @@ Installing New Plugins Respects Custom Installation Location
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
 
-    # TODO LINUXDAR-7773 add checks for RTD, EDR and LiveResponse
+    # TODO LINUXDAR-8489 add checks for RTD, EDR and LiveResponse
 
 
 *** Keywords ***

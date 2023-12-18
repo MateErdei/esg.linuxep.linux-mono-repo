@@ -197,6 +197,7 @@ namespace Plugin
 
         bool threadsRunning = false;
 
+        LOGINFO("Completed initialization of AV");
         while (true)
         {
             Task task{};

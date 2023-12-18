@@ -519,6 +519,7 @@ namespace sspl::sophosthreatdetectorimpl
             { .fd = m_systemFileRestartTrigger.readFd(), .events = POLLIN, .revents = 0 },
         };
 
+        LOGINFO("Completed initialization of Sophos Threat Detector");
         while (true)
         {
             struct timespec timeout {};

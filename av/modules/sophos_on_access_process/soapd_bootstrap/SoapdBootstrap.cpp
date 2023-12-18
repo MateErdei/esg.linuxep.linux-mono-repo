@@ -103,6 +103,7 @@ void SoapdBootstrap::innerRun()
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
 
+    LOGINFO("Completed initialization of Sophos On Access Process");
     while (true)
     {
         timespec* timeout = onAccessRunner->getTimeout();

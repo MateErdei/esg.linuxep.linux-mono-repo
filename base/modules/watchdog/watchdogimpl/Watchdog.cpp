@@ -79,6 +79,7 @@ int Watchdog::initialiseAndRun()
         throw Common::UtilityImpl::ConfigException("Watchdog", ex.what());
     }
 
+    LOGINFO("Completed initialization of Watchdog");
     run();
 
     // Normal shutdown

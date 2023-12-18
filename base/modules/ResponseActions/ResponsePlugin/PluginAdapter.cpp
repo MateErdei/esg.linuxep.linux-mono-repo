@@ -28,7 +28,7 @@ namespace ResponsePlugin
 #ifdef SPL_BAZEL
         LOGINFO("Response Actions " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 #endif
-        LOGINFO("Entering the main loop");
+        LOGINFO("Completed initialization of Response Actions");
 
         while (true)
         {

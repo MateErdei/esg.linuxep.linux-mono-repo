@@ -35,9 +35,8 @@ namespace Plugin
         #ifdef SPL_BAZEL
         LOGINFO("Live Response " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
         #endif
-        LOGINFO("Entering the main loop");
         Plugin::Telemetry::initialiseTelemetry();
-
+        LOGINFO("Completed initialization of Live Response");
         while (true)
         {
             Task task = m_queueTask->pop();

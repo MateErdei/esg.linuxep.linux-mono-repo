@@ -32,7 +32,6 @@ namespace Plugin
         callback_->setRunning(true);
         using clock_t = std::chrono::steady_clock;
         auto start = clock_t::now();
-        LOGINFO("Entering the main loop");
         auto queue_timeout = queueTimeout_;
         bool logMissingPolicyWarning = false;
         bool logMissingPolicyDebug = false;
@@ -47,6 +46,7 @@ namespace Plugin
             // Ignore no Policy Available errors
         }
 
+        LOGINFO("Completed initialization of Device Isolation");
         while (true)
         {
             Task task;

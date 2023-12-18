@@ -67,7 +67,7 @@ Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Entering the main loop  ${mark}
+    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Completed initialization of Event Journaler  ${mark}
 
 Check Event Journaler Log contains
     [Arguments]  ${string_to_contain}

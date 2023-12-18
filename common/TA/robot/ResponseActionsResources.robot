@@ -30,7 +30,7 @@ Install Response Actions Directly
     ...  10 secs
     ...  1 secs
     ...  Check Response Actions Executable Running
-    wait_for_log_contains_from_mark  ${mark}  Entering the main loop
+    wait_for_log_contains_from_mark  ${mark}  Completed initialization of Response Actions
 
 Uninstall Response Actions
     ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
@@ -62,7 +62,7 @@ Restart Response Actions
     wait_for_log_contains_from_mark  ${mark}  responseactions <> Plugin Finished   30
     ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Start Response Actions
-    wait_for_log_contains_from_mark  ${mark}  Entering the main loop  30
+    wait_for_log_contains_from_mark  ${mark}  Completed initialization of Response Actions  30
 
 Check Response Actions Installed
     Wait Until Keyword Succeeds

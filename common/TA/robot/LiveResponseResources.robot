@@ -29,7 +29,7 @@ Check Live Response Plugin Installed
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Live Response Plugin Log Contains  liveresponse <> Entering the main loop
+    ...  Live Response Plugin Log Contains  liveresponse <> Completed initialization of Live Response
 
 Check Live Response Plugin Running
     ${result} =    Run Process  pgrep  liveresponse

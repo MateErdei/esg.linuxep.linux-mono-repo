@@ -35,7 +35,7 @@ namespace Plugin
         Common::UtilityImpl::FormattedTime time;
         uint64_t lastChecked = std::stoul(time.currentEpochTimeInSeconds());
         m_callback->setRunning(true);
-        LOGINFO("Entering the main loop");
+        LOGINFO("Completed initialization of Event Journaler");
         m_eventWriterWorker->start();
         m_subscriber->start();
         while (true)

@@ -65,19 +65,23 @@ class LogUtils(object):
 
         # Get Robot variables.
         self.install_path = get_variable("SOPHOS_INSTALL", os.path.join("/", "opt", "sophos-spl"))
-        self.router_path = get_variable("MCS_DIR", os.path.join(self.install_path, "base", "mcs"))
-        self.base_logs_dir = get_variable("BASE_LOGS_DIR", os.path.join(self.install_path, "logs", "base"))
+        self.router_path = os.path.join(self.install_path, "base", "mcs")
+        self.base_logs_dir = os.path.join(self.install_path, "logs", "base")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.suldownloader_log = os.path.join(self.base_logs_dir, "suldownloader.log")
         self.watchdog_log = os.path.join(self.base_logs_dir, "watchdog.log")
+        self.wdctl_log = os.path.join(self.base_logs_dir, "wdctl.log")
+        self.sdu_log = os.path.join(self.base_logs_dir, "sophosspl", "remote_diagnose.log")
+        self.diagnose_log = os.path.join(self.base_logs_dir, "diagnose.log")
         self.managementagent_log = os.path.join(self.base_logs_dir, "sophosspl", "sophos_managementagent.log")
         self.mcs_envelope_log = os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
         self.mcs_router_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
+        self.telemetry_log = os.path.join(self.base_logs_dir, "sophosspl", "telemetry.log")
         self.tscheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "tscheduler.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
-        self.safestore_log = os.path.join(self.install_path, "plugins", "av", "log", "safestore.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
+        self.scheduled_query_log = os.path.join(self.install_path, "plugins", "edr", "log", "scheduledquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
         self.ej_log = os.path.join(self.install_path, "plugins", "eventjournaler", "log", "eventjournaler.log")
         self.deviceisolation_log = os.path.join(self.install_path, "plugins", "deviceisolation", "log", "deviceisolation.log")
@@ -85,6 +89,7 @@ class LogUtils(object):
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
         self.rtd_log = os.path.join(self.install_path, "plugins", "runtimedetections", "log", "runtimedetections.log")
+        self.responseactions_log = os.path.join(self.install_path, "plugins", "responseactions", "log", "responseactions.log")
 
         # SSPL-AV chroot log files
         self.__m_chroot_logs_dir = os.path.join(self.install_path, "plugins", "av", "chroot", "log")
@@ -95,7 +100,8 @@ class LogUtils(object):
         self.av_plugin_logs_dir = os.path.join(self.install_path, "plugins", "av", "log")
         self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
-        self.__m_safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
+        self.safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
+        self.scheduled_scan_log = os.path.join(self.av_plugin_logs_dir, "Sophos Cloud Scheduled Scan.log")
 
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
@@ -180,11 +186,11 @@ class LogUtils(object):
             raise AssertionError(f"Remainder of {log_location} log doesn't contain {log_b}")
 
         return self.get_timestamp_of_log_line(contents[i], log_location)
-    
+
     def get_time_difference_between_two_log_lines_where_log_lines_are_in_order(self, string_to_contain1,
                                                                                string_to_contain2,
                                                                                path_to_log):
-        
+
         timestamp1 = self.get_timestamp_of_log_line(string_to_contain1, path_to_log)
         timestamp2 = self.get_timestamp_of_next_occurrence_log_b_after_log_a(path_to_log,
                                                                             string_to_contain1,
@@ -192,7 +198,7 @@ class LogUtils(object):
         difference = timestamp2 - timestamp1
 
         return difference.total_seconds()
-    
+
     def get_number_of_occurrences_of_substring_in_log(self, log_location, substring):
         contents = get_log_contents(log_location)
         return self.get_number_of_occurrences_of_substring_in_string(contents, substring)
@@ -572,7 +578,7 @@ class LogUtils(object):
     # SulDownloader Log Utils
     def get_suldownloader_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.suldownloader_log)
-        
+
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
 
@@ -998,7 +1004,7 @@ class LogUtils(object):
     # Event Journaler Log Utils
     def get_event_journaler_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.ej_log)
-        
+
     def check_event_journaler_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.ej_log, "Journaler")
 
@@ -1047,6 +1053,52 @@ class LogUtils(object):
         mark = handler.get_mark()
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
+
+    def mark_all_plugin_logs(self) -> dict:
+        plugin_log_marks = {
+            # AV
+            "sophos_threat_detector_mark": self.mark_log_size(self.sophos_threat_detector_log),
+            "susi_debug_mark": self.mark_log_size(self.susi_debug_log),
+            "av_mark": self.mark_log_size(self.av_log),
+            "oa_mark": self.mark_log_size(self.oa_log),
+            "safestore_mark": self.mark_log_size(self.safestore_log),
+            "scheduled_scan_mark": self.mark_log_size(self.scheduled_scan_log),
+
+            # Base
+            "watchdog_mark": self.mark_log_size(self.watchdog_log),
+            "wdctl_mark": self.mark_log_size(self.wdctl_log),
+            "managementagent_mark": self.mark_log_size(self.managementagent_log),
+            "mcs_router_mark": self.mark_log_size(self.mcs_router_log),
+            "mcs_envelop_mark": self.mark_log_size(self.mcs_envelope_log),
+            "telemetry_mark": self.mark_log_size(self.telemetry_log),
+            "tscheduler_mark": self.mark_log_size(self.tscheduler_log),
+            "update_scheduler_mark": self.mark_log_size(self.update_scheduler_log),
+            "diagnose_mark": self.mark_log_size(self.diagnose_log),
+            "sdu_mark": self.mark_log_size(self.sdu_log),
+
+            # RA
+            "response_actions_mark": self.mark_log_size(self.responseactions_log),
+
+            # DI
+            "deviceisolation_mark": self.mark_log_size(self.deviceisolation_log),
+
+            # EDR
+            "edr_mark": self.mark_log_size(self.edr_log),
+            "edr_osquery_mark": self.mark_log_size(self.edr_osquery_log),
+            "scheduled_query_mark": self.mark_log_size(self.scheduled_query_log),
+
+            # EJ
+            "ej_mark": self.mark_log_size(self.ej_log),
+
+            # LR
+            "liveresponse_mark": self.mark_log_size(self.liveresponse_log),
+            "sessions_mark": self.mark_log_size(self.sessions_log),
+
+            # RTD
+            "rtd_mark": self.mark_log_size(self.rtd_log)
+        }
+
+        return plugin_log_marks
 
     def wait_for_log_contains_from_mark(self,
                                         mark: LogHandler.LogMark,
@@ -1173,14 +1225,14 @@ class LogUtils(object):
         assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_n_times_from_mark(expected, times, timeout)
-    
+
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.oa_log))
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${AV_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.av_log))
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}",
-                                                            self.mark_log_size(self.__m_safestore_log))
+                                                            self.mark_log_size(self.safestore_log))
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${THREATDETECTOR_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.sophos_threat_detector_log))
 
@@ -1235,3 +1287,112 @@ class LogUtils(object):
             for path in matches:
                 if path != "/etc/ssl/openssl.cnf":
                     raise AssertionError(f"Found an unexpected instance of an openssl config" )
+
+    def wait_for_response_action_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 10):
+        response_actions_mark = log_marks["response_actions_mark"]
+
+        try:
+            response_actions_mark.wait_for_log_contains_from_mark("Completed initialization of Response Actions", timeout)
+        except:
+            response_actions_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
+
+    def wait_for_base_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 20):
+        watchdog_mark = log_marks["watchdog_mark"]
+        managementagent_mark = log_marks["managementagent_mark"]
+        update_scheduler_mark = log_marks["update_scheduler_mark"]
+        mcs_router_mark = log_marks["mcs_router_mark"]
+        tscheduler_mark = log_marks["tscheduler_mark"]
+
+        try:
+            # TODO: once this log line is in current shipping, simplify try/except statement
+            watchdog_mark.wait_for_log_contains_from_mark("Completed initialization of Watchdog", timeout)
+        except:
+            watchdog_mark.wait_for_log_contains_from_mark("Calling poller at", timeout)
+
+        try:
+            # TODO: once this log line is in current shipping, simplify try/except statement
+            update_scheduler_mark.wait_for_log_contains_from_mark("Completed initialization of Update Scheduler", timeout)
+        except:
+            update_scheduler_mark.wait_for_log_contains_from_mark("Update Scheduler Starting", timeout)
+
+        managementagent_mark.wait_for_log_contains_from_mark("Management Agent running", timeout)
+        mcs_router_mark.wait_for_log_contains_from_mark("Started with install directory set to", timeout)
+        tscheduler_mark.wait_for_log_contains_from_mark("Waiting for ALC policy before running Telemetry", timeout)
+
+    def wait_for_edr_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 20):
+        edr_mark = log_marks["edr_mark"]
+        edr_osquery_mark = log_marks["edr_osquery_mark"]
+
+        edr_mark.wait_for_log_contains_from_mark("Completed initialisation of EDR", timeout)
+        edr_osquery_mark.wait_for_log_contains_from_mark("osquery initialized", timeout)
+
+    def wait_for_ej_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 20):
+        ej_mark = log_marks["ej_mark"]
+
+        # TODO: once this log line is in current shipping, simplify try/except statement
+        try:
+            ej_mark.wait_for_log_contains_from_mark("Completed initialization of Event Journaler", timeout)
+        except:
+            ej_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
+
+    def wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 10):
+        # TODO: once deviceisolation is in current shipping, remove this if statement
+        if not os.path.isfile(self.deviceisolation_log):
+            return
+        deviceisolation_mark = log_marks["deviceisolation_mark"]
+
+        deviceisolation_mark.wait_for_log_contains_from_mark("Completed initialization of Device Isolation", timeout)
+
+    def wait_for_liveresponse_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 10):
+        liveresponse_mark = log_marks["liveresponse_mark"]
+
+        # TODO: once this log line is in current shipping, simplify try/except statement
+        try:
+            liveresponse_mark.wait_for_log_contains_from_mark("Completed initialization of Live Response", timeout)
+        except:
+            liveresponse_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
+
+    def wait_for_rtd_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 10):
+        rtd_mark = log_marks["rtd_mark"]
+
+        # Just try to find one or the other
+        try:
+            rtd_mark.wait_for_log_contains_from_mark("Sophos Linux Runtime Detections Agent", timeout)
+        except:
+            rtd_mark.wait_for_log_contains_from_mark("Sophos Runtime Detections Plugin version", timeout)
+
+    def wait_for_av_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 20):
+        sophos_threat_detector_mark = log_marks["sophos_threat_detector_mark"]
+        av_mark = log_marks["av_mark"]
+        oa_mark = log_marks["oa_mark"]
+        safestore_mark = log_marks["safestore_mark"]
+
+        try:
+            # TODO: once this log line is in current shipping, simplify try/except statement
+            sophos_threat_detector_mark.wait_for_log_contains_from_mark("Completed initialization of Sophos Threat Detector", timeout)
+        except:
+            sophos_threat_detector_mark.wait_for_log_contains_from_mark("Preparing to enter chroot at", timeout)
+
+        try:
+            # TODO: once this log line is in current shipping, simplify try/except statement
+            av_mark.wait_for_log_contains_from_mark("Completed initialization of AV", timeout)
+        except:
+            av_mark.wait_for_log_contains_from_mark("Starting the main program loop", timeout)
+
+        try:
+            # TODO: once this log line is in current shipping, simplify try/except statement
+            oa_mark.wait_for_log_contains_from_mark("Completed initialization of Sophos On Access Process", timeout)
+        except:
+            oa_mark.wait_for_log_contains_from_mark("Control Server Socket is at", timeout)
+
+        safestore_mark.wait_for_log_contains_from_mark("SafeStore started", timeout)
+
+    def wait_for_plugins_logs_to_indicate_plugins_are_ready(self, log_marks: dict, timeout: int = 20):
+        self.wait_for_ej_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_liveresponse_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_rtd_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_av_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_base_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_response_action_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+        self.wait_for_edr_logs_to_indicate_plugin_is_ready(log_marks, timeout)

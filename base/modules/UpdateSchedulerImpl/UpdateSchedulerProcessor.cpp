@@ -165,6 +165,7 @@ namespace UpdateSchedulerImpl
             LOGERROR("Unexpected error when requesting policy: " << apiException.what());
         }
 
+        LOGINFO("Completed initialization of Update Scheduler");
         while (true)
         {
             SchedulerTask task;

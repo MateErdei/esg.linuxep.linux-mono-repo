@@ -58,7 +58,7 @@ Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Entering the main loop  ${mark}
+    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Completed initialization of Event Journaler  ${mark}
 
 Mark File
     [Arguments]  ${path}
@@ -80,7 +80,7 @@ Check Event Journaler Installed
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains  Entering the main loop  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
+    ...  Check Log Contains  Completed initialization of Event Journaler  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
 
 Read First Event From Journal
     ${result1} =   Run Process  chmod  +x  ${EVENT_READER_TOOL}
