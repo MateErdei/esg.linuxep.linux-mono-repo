@@ -128,6 +128,7 @@ def setup_release_warehouse(dest, release_type, override_branch):
             if package.startswith(("DataSetA",
                                    "LocalRepData",
                                    "ML_MODEL3_LINUX_X86_64",
+                                   "ML_MODEL3_LINUX_ARM64",
                                    "RuntimeDetectionRules",
                                    "ScheduledQueryPack",
                                    "SSPLFLAGS")):
@@ -186,6 +187,7 @@ def setup_fixed_versions(dest, fixed_versions):
             if package.startswith(("DataSetA",
                                    "LocalRepData",
                                    "ML_MODEL3_LINUX_X86_64",
+                                   "ML_MODEL3_LINUX_ARM64",
                                    "RuntimeDetectionRules",
                                    "ScheduledQueryPack",
                                    "SSPLFLAGS")):
