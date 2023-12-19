@@ -11,6 +11,7 @@ ${EtcGroupFilePath}  /etc/group
 ${EtcGroupFileBackupPath}  /etc/group.bak
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
+${CUSTOM_THININSTALLER_REPORT_LOC} =    ${CUSTOM_TEMP_UNPACK_DIR}/thininstaller_report.ini
 
 *** Keywords ***
 Setup Update Tests

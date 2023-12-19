@@ -106,7 +106,11 @@ ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direc
 Thin Installer can download test file from warehouse and execute it
     [Tags]  SMOKE
 
-    Run Default Thininstaller  0
+    Run Default Thininstaller  0    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
+    log  ${compatibilityCheckResults}
+    Should Not Contain    ${compatibilityCheckResults}    false
+    Should Contain    ${compatibilityCheckResults}    summary = successfully installed product
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group

@@ -75,21 +75,31 @@ ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 ${BaseVUTPolicy}    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
+Thin Installer Fails to Install Due to Missing Package
+    Start Local Cloud Server
+    Run Default Thininstaller  18    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    ${errorMsg} =    Set Variable    Failed to install: Package source missing from repository
+
+    ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
+    log  ${compatibilityCheckResults}
+    Should Contain    ${compatibilityCheckResults}    productInstalled = false
+    Should Contain    ${compatibilityCheckResults}    ${errorMsg}
+
 Thin Installer fails to install on system without enough memory
     Run Default Thininstaller With Fake Memory Amount    234
     ${errorMsg} =    Set Variable    SPL installation will fail as this machine does not meet product requirements (total RAM: 234kB). The product requires at least 930000kB of RAM
     Check Thininstaller Log Contains    ${errorMsg}
-    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/compatibilityCheckResults.ini
+    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/thininstaller_report.ini
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    sufficientMemory = false
     Should Contain    ${compatibilityCheckResults}    ${errorMsg}
-    
+
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
     ${errorMsg} =    Set Variable    SPL installation will fail as there is not enough space in / to install SPL. You need at least 2048MiB to install SPL
     Check Thininstaller Log Contains    ${errorMsg}
-    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/compatibilityCheckResults.ini
+    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/thininstaller_report.ini
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    sufficientDiskSpace = false
     Should Contain    ${compatibilityCheckResults}    ${errorMsg}
@@ -221,7 +231,7 @@ Thin Installer Fails When System Has Glibc Less Than Build Machine
 
     ${errorMsg} =    Set Variable    SPL installation will fail, can not install on unsupported system. Detected GLIBC version 1.0 < required ${buildGlibcVersion}
     Check Thininstaller Log Contains    ${errorMsg}
-    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/compatibilityCheckResults.ini
+    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/thininstaller_report.ini
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    glibcVersionVerified = false
     Should Contain    ${compatibilityCheckResults}    ${errorMsg}
@@ -246,7 +256,7 @@ Thin Installer Fails When No Path In Systemd File
 
     Build Default Creds Thininstaller From Sections
 
-    Run Default Thininstaller  ${20}    cleanup=False    temp_dir_to_unpack_to=${EXECDIR}/tmp/thin_installer
+    Run Default Thininstaller  ${20}    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
 
     ${errorMsg} =    Set Variable    An existing installation of Sophos Protection for Linux was found but could not find the installed path.
     Check Thininstaller Log Contains    ${errorMsg}
@@ -254,7 +264,7 @@ Thin Installer Fails When No Path In Systemd File
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
-    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/compatibilityCheckResults.ini
+    ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    splNotAlreadyInstalled = false
     Should Contain    ${compatibilityCheckResults}    ${errorMsg}
@@ -509,7 +519,7 @@ Thin Installer Uses Baked In SUS and CDN URLs For Install Checks
     Check Thininstaller Log Contains    SPL installation will fail as a connection to a CDN server could not be established
     Check Thininstaller Log Does Not Contain    https://sdds3.sophosupd.com
     Check Thininstaller Log Does Not Contain    https://sdds3.sophosupd.net
-    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/compatibilityCheckResults.ini
+    ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/thininstaller_report.ini
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    networkConnectionsVerified = false
     Should Contain    ${compatibilityCheckResults}    SPL installation will fail as a connection to Sophos Central could not be established

@@ -98,35 +98,37 @@ function write_check_result()
     key=${1}
     shift
     value="$@"
-    ini_file="${SOPHOS_TEMP_DIRECTORY}/compatibilityCheckResults.ini"
-    (umask 0177 && echo "${key} = ${value}" >> ${ini_file})
+    ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstaller_report.ini"
+    if ! grep -q "${key}" "${ini_file}" ; then
+      (umask 0177 && echo "${key} = ${value}" >> "${ini_file}")
+    fi
 }
 
 function checkFunctionToStr
 {
     func_name=${1}
     case $func_name in
-    
+
       check_install_path_has_correct_permissions)
         echo -n "installPathHasCorrectPerms"
         ;;
-      
+
       verify_install_directory)
         echo -n "installPathVerified"
         ;;
-      
+
       verify_compatible_glibc_version)
         echo -n "glibcVersionVerified"
         ;;
-      
+
       verify_installed_packages)
         echo -n "installedPackagesVerified"
         ;;
-      
+
       check_free_storage)
         echo -n "sufficientDiskSpace"
         ;;
-      
+
       verify_network_connections)
         echo -n "networkConnectionsVerified"
         ;;
@@ -134,39 +136,51 @@ function checkFunctionToStr
       verify_connection_to_cdn)
         echo -n "cdnConnectionVerified"
         ;;
-      
+
       verify_connection_to_sus)
         echo -n "susConnectionVerified"
         ;;
-      
+
       verify_connection_to_central)
         echo -n "centralConnectionVerified"
-        ;;   
+        ;;
 
       check_total_mem)
         echo -n "sufficientMemory"
-        ;; 
+        ;;
 
       check_ca_certs)
         echo -n "cacertsVerified"
-        ;; 
+        ;;
 
       verify_system_requirements)
         echo -n "systemRequirementsVerified"
-        ;;  
-      
+        ;;
+
       pre_install_checks)
         echo -n "preInstallChecksPassed"
         ;;
-      
+
       check_for_existing_spl_install)
         echo -n "splNotAlreadyInstalled"
         ;;
-      
+
+      test_installation_executable)
+        echo -n "installationDirIsExecutable"
+        ;;
+
+      handle_register_errorcodes | register_central_with_previous_installation)
+        echo -n "registrationWithCentral"
+        ;;
+
+      handle_installer_errorcodes)
+        echo -n "productInstalled"
+        ;;
+
       main)
         echo -n "thinInstallerSucceeded"
         ;;
-      
+
     esac
 }
 
@@ -231,6 +245,7 @@ function handle_installer_errorcodes() {
 
     if [[ ${errcode} -eq 0 ]]; then
         echo "Successfully installed product"
+        success
     elif [[ ${errcode} -eq 103 ]]; then
         failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install at least one of the packages, see logs for details"
     elif [[ ${errcode} -eq 107 ]]; then
@@ -248,6 +263,7 @@ function handle_register_errorcodes() {
     errcode=$1
     if [[ ${errcode} -eq 0 ]]; then
         echo "Successfully registered with Sophos Central"
+        success
     elif [[ ${errcode} -eq 44 ]]; then
         failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
     elif [[ ${errcode} -eq ${EXITCODE_REGISTRATION_FAILED} ]]; then # Error code 51
@@ -475,6 +491,27 @@ function make_tmp_dir()
     fi
 
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
+}
+
+function register_central_with_previous_installation()
+{
+  if [ -d "${SOPHOS_INSTALL}" ]; then
+      if [ -f "$REGISTER_CENTRAL" ]; then
+          echo "Attempting to register existing installation with Sophos Central"
+          echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
+
+          # unset Customer Token if no product selection arguments given, so we don't potentially pass it to
+          # older versions of register central
+          [[ -n $PRODUCT_ARGUMENTS ]] || unset CUSTOMER_TOKEN_ARGUMENT
+          ${REGISTER_CENTRAL} "${CLOUD_TOKEN}" "${CLOUD_URL}" ${MESSAGE_RELAYS} $PRODUCT_ARGUMENTS $CUSTOMER_TOKEN_ARGUMENT
+          if [ $? -ne 0 ]; then
+              failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central with previous existing installation $?"
+          fi
+          cleanup_and_exit ${EXITCODE_SUCCESS}
+      else
+          echo "Existing installation failed validation and will be reinstalled"
+      fi
+  fi
 }
 
 declare -a INSTALL_OPTIONS_ARGS
@@ -794,23 +831,8 @@ elif is_sspl_installed; then
     fi
 
     # Check the existing installation is ok, if it is then register again with the creds from this installer.
-    if [ -d "${SOPHOS_INSTALL}" ]; then
-        if [ -f "$REGISTER_CENTRAL" ]; then
-            echo "Attempting to register existing installation with Sophos Central"
-            echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
+    register_central_with_previous_installation
 
-            # unset Customer Token if no product selection arguments given, so we don't potentially pass it to
-            # older versions of register central
-            [[ -n $PRODUCT_ARGUMENTS ]] || unset CUSTOMER_TOKEN_ARGUMENT
-            ${REGISTER_CENTRAL} "${CLOUD_TOKEN}" "${CLOUD_URL}" ${MESSAGE_RELAYS} $PRODUCT_ARGUMENTS $CUSTOMER_TOKEN_ARGUMENT
-            if [ $? -ne 0 ]; then
-                failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central - error $?"
-            fi
-            cleanup_and_exit ${EXITCODE_SUCCESS}
-        else
-            echo "Existing installation failed validation and will be reinstalled"
-        fi
-    fi
 elif [ -d "${SOPHOS_INSTALL}" ]; then
     # sspl not installed
     failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory." "Don't remove install directory"
@@ -894,6 +916,8 @@ INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.
 inst_ret=$?
 handle_installer_errorcodes ${inst_ret}
 
+# writing success to the thininstaller_report.ini
+(umask 0177 && echo "summary = successfully installed product" >> "${SOPHOS_TEMP_DIRECTORY}/thininstaller_report.ini")
 cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
 __ARCHIVE_BELOW__

@@ -404,12 +404,13 @@ exit 0""")
         self.env["PATH"] = fake_small_disk_df_dir + ":" + os.environ['PATH']
         self.run_thininstaller([self.default_installsh_path], 5, cleanup=False, temp_dir_to_unpack_to=self.tmp_path)
 
-    def run_default_thininstaller_with_args(self, expectedReturnCode, *args, force_certs_dir=None):
+    def run_default_thininstaller_with_args(self, expectedReturnCode, *args, force_certs_dir=None, cleanup=True,
+                                            temp_dir_to_unpack_to=None):
         command = [self.default_installsh_path]
         for arg in args:
             command.append(arg)
 
-        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, force_certs_dir=force_certs_dir)
+        self.run_thininstaller_with_localhost_sdds_urls(command, expectedReturnCode, force_certs_dir=force_certs_dir, cleanup=cleanup, temp_dir_to_unpack_to=temp_dir_to_unpack_to )
 
     def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode,
                                                                product_argument="", mcsurl=None):

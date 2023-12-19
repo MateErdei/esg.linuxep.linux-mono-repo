@@ -281,3 +281,12 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
     check_thininstaller_log_does_not_contain    ERROR
     Check Root Directory Permissions Are Not Changed
 
+SDDS3 Thin Installer Doesnt Repeat Field Due To Not Connecting to SUS and CDN
+    [Tags]  SMOKE
+
+    Create Directory    ${CUSTOM_TEMP_UNPACK_DIR}
+    Stop Local SDDS3 Server
+    Run Default Thininstaller  33    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
+    log  ${compatibilityCheckResults}
+    Should Contain X Times  ${compatibilityCheckResults}    networkConnectionsVerified = false    1
