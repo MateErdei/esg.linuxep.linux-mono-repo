@@ -31,6 +31,30 @@ def ensure_unicode(s, encoding="UTF-8"):
     return s
 
 
+def _generate_log_paths(log_path, rtd=False):
+    yield log_path
+    if rtd:
+        dirname = os.path.dirname(log_path)
+        basename = os.path.basename(log_path)
+        base = os.path.splitext(basename)[0]
+        available = os.listdir(dirname)
+        available.sort(reverse=True)
+        for f in available:
+            if not f.startswith(base):
+                continue
+            if f == basename:
+                continue
+            yield os.path.join(dirname, f)
+    else:
+        old_index = 1
+        while True:
+            p = log_path + ".%d" % old_index
+            if not os.path.isfile(p):
+                break
+            yield p
+            old_index += 1
+
+
 class LogMark:
     def __init__(self, log_path, position=-1, inode=None):
         self.__m_log_path = log_path
@@ -103,15 +127,8 @@ class LogMark:
         except OSError:
             return None
 
-    def __generate_log_paths(self):
-        yield self.__m_log_path
-        old_index = 1
-        while True:
-            yield self.__m_log_path + ".%d" % old_index
-            old_index += 1
-
-    def __generate_contents(self):
-        for log_path in self.__generate_log_paths():
+    def __generate_contents(self, rtd=False):
+        for log_path in _generate_log_paths(self.__m_log_path, rtd):
             try:
                 with open(log_path, "rb") as f:
                     stat = os.fstat(f.fileno())
@@ -129,8 +146,8 @@ class LogMark:
                     logger.error("Ran out of log files getting content for " + self.__m_log_path)
                 return
 
-    def __generate_full_contents(self):
-        for log_path in self.__generate_log_paths():
+    def __generate_full_contents(self, rtd=False):
+        for log_path in _generate_log_paths(self.__m_log_path, rtd):
             try:
                 with open(log_path, "rb") as f:
                     stat = os.fstat(f.fileno())
@@ -389,14 +406,13 @@ class LogHandler:
         except OSError:
             return b""
 
-    def __generate_log_file_names(self):
-        yield self.__m_log_path
-        for n in range(1, 10):
-            yield "%s.%d" % (self.__m_log_path, n)
+    def __generate_log_file_names(self, rtd=False):
+        for p in _generate_log_paths(self.__m_log_path, rtd):
+            yield p
 
-    def __generate_reversed_lines(self, mark=None):
+    def __generate_reversed_lines(self, mark=None, rtd=False):
         if mark is None:
-            for file_path in self.__generate_log_file_names():
+            for file_path in self.__generate_log_file_names(rtd):
                 lines = self.__readlines(file_path)
                 lines = reversed(lines)  # read the newest first
                 for line in lines:
@@ -417,7 +433,7 @@ class LogHandler:
         if rtd:
             START_RE = re.compile(rb"\d* *\[.*\]    INFO \[\d*\] runtimedetections <> Sophos Runtime Detections Plugin")
 
-        for line in self.__generate_reversed_lines(mark):  # read the newest first
+        for line in self.__generate_reversed_lines(mark, rtd):  # read the newest first
             mo = START_RE.match(line)
             results.append(line)
             if mo:
