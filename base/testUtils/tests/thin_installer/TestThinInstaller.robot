@@ -83,15 +83,21 @@ Get System Path
     [Return]  ${PATH}
 
 Run Thin Installer And Check Argument Is Saved To Install Options File
-    [Arguments]  ${argument}
+    [Arguments]  ${arguments}    ${expectedIniFileKeys}
     ${install_location}=  get_default_install_script_path
-    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
+    ${thin_installer_cmd}=  Create List    ${install_location}   @{arguments}
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     run_thininstaller_with_localhost_sdds_urls  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    Should Contain  ${contents}  ${argument}
+    ${install_options} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    FOR    ${argument}    IN    @{arguments}
+        Should Contain X Times    ${install_options}    ${argument}    ${1}
+    END
+    ${thininstallerArgsIni} =    Get File    ${CUSTOM_TEMP_UNPACK_DIR}/thininstallerArgs.ini
+    FOR    ${key}    IN    @{expectedIniFileKeys}
+        Should Contain X Times    ${thininstallerArgsIni}    ${key} = true    ${1}
+    END
 
 
 *** Variables ***
@@ -246,13 +252,15 @@ Thin Installer Installs Product Successfully With Product Arguments
     Setup warehouse With sdds3 base
 
     Should Not Exist    ${SOPHOS_INSTALL}
-
-    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
+    Create Directory    ${CUSTOM_TEMP_UNPACK_DIR}
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}    cleanup=False
 
     Check MCS Router Running
     Check Correct MCS Password And ID For Local Cloud Saved
     Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+    ${content} =    Get File    ${CUSTOM_TEMP_UNPACK_DIR}/thininstallerArgs.ini
+    Should Contain X Times    ${content}    products = true    ${1}
 
 Thin Installer Repairs Broken Existing Installation
     [Teardown]  Restore warehouse with fake sdds3 base
@@ -288,18 +296,25 @@ Thin Installer Force Works
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true
     ${time} =  Subtract Time From Date  ${time}  1s  exclude_millis=true
-    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0
+    Create Directory    ${CUSTOM_TEMP_UNPACK_DIR}
+    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}    cleanup=False
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Successfully installed product
     Should Have A Stopped Sophos Message In Journalctl Since Certain Time  ${time}
     Should Have Set KillMode To Mixed
     Check Root Directory Permissions Are Not Changed
+    ${content} =    Get File    ${CUSTOM_TEMP_UNPACK_DIR}/thininstallerArgs.ini
+    Should Contain X Times    ${content}    force = true    ${1}
 
 Thin Installer Saves Group Names To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File  --group=Group Name
+    @{expectedIniFileKeys} =    Create List    group
+    @{installerArgs} =    Create List    --group=Group Name
+    Run Thin Installer And Check Argument Is Saved To Install Options File    arguments=@{installerArgs}    expectedIniFileKeys=@{expectedIniFileKeys}
 
 Thin Installer Saves Requested GID and UIDs To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File    --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:104 --group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106
+    @{expectedIniFileKeys} =    Create List    user-ids-to-configure    group-ids-to-configure
+    @{installerArgs} =    Create List    --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:104    --group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106
+    Run Thin Installer And Check Argument Is Saved To Install Options File    arguments=@{installerArgs}    expectedIniFileKeys=@{expectedIniFileKeys}
 
 Thin Installer Succeeds When System Has Glibc Greater Than Build Machine
     ${HighGlibcVersion} =  Set Variable  999.999
@@ -351,10 +366,14 @@ Thin Installer Passes No Products Args To Base Installer When None Are Given
     Check Thininstaller Log Does Not Contain  Carrying out Preregistration for selected products:
 
 Disable Auditd Argument Saved To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File  --disable-auditd
+    @{expectedIniFileKeys} =    Create List    disable-auditd
+    @{installerArgs} =    Create List    --disable-auditd
+    Run Thin Installer And Check Argument Is Saved To Install Options File    arguments=@{installerArgs}    expectedIniFileKeys=@{expectedIniFileKeys}
 
 Do Not Disable Auditd Argument Saved To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
+    @{expectedIniFileKeys} =    Create List    do-not-disable-auditd
+    @{installerArgs} =    Create List    --do-not-disable-auditd
+    Run Thin Installer And Check Argument Is Saved To Install Options File    arguments=@{installerArgs}    expectedIniFileKeys=@{expectedIniFileKeys}
 
 Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registration Call Made
     Start Message Relay

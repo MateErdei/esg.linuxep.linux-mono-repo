@@ -104,6 +104,14 @@ function write_check_result()
     fi
 }
 
+function write_arg_to_file()
+{
+    key=${1#"--"}
+    key=${key%=*}
+    ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstallerArgs.ini"
+    (umask 0177 && echo "${key} = true" >> ${ini_file})
+}
+
 function checkFunctionToStr
 {
     func_name=${1}
@@ -522,7 +530,9 @@ FORCE_INSTALL=0
 UNEXPECTED_ARGUMENT=0
 HELP_FLAG=0
 VERSION_FLAG=0
+make_tmp_dir
 for i in "$@"; do
+    write_arg_to_file $i
     case $i in
     --install-dir=*)
         SOPHOS_INSTALL="${i#*=}"
@@ -639,7 +649,6 @@ fi
 
 verify_install_directory
 
-make_tmp_dir
 # Check that the tmp directory we're using allows execution
 echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
 $SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR:-/tmp} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
