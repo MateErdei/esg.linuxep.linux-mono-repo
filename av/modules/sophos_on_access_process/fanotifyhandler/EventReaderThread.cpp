@@ -339,7 +339,7 @@ void EventReaderThread::innerRun()
     }
 }
 
-void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& exclusions)
+void EventReaderThread::setExclusions(const common::ExclusionList& exclusions)
 {
     if (exclusionCache_.setExclusions(exclusions))
     {

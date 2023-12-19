@@ -255,6 +255,15 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_FALSE(appliesToCpFile(regexMetaCharExcl2, "/tmp/eiccar.com"));
 }
 
+TEST(Exclusion, MiddleGlobDoesNotMatchLongerString)
+{
+    Exclusion ex{"/tmp/a*b"};
+    EXPECT_TRUE(ex.appliesToPath("/tmp/aab", false, true));
+    EXPECT_TRUE(ex.appliesToPath("/tmp/accccddddb", false, true));
+    EXPECT_FALSE(ex.appliesToPath("/tmp/accccddddb/another_thing", false, true));
+    EXPECT_TRUE(ex.appliesToPath("/tmp/accccddddb/another_thing_b", false, true));
+}
+
 TEST(Exclusion, AbsolutePathWithDirectoryNameSuffix)
 {
     // /directory/*.directorynamesuffix/
@@ -486,4 +495,25 @@ TEST(Exclusion, home1)
     Exclusion ex{"/home1/"};
     fs::path mp{"/home1"};
     EXPECT_TRUE(ex.appliesToPath(mp, true, false));
+}
+
+TEST(Exclusion, twoGlobAreEqual)
+{
+    const std::string glob{"/tmp/*/foo"};
+    Exclusion one{glob};
+    Exclusion two{glob};
+    ASSERT_EQ(one.type(), GLOB);
+    EXPECT_EQ(one, two);
+}
+
+TEST(Exclusion, combinedGlobs)
+{
+    Exclusion one{"/a/*/b"};
+    Exclusion two{"/c/*/d"};
+    std::vector<Exclusion> exclusions{one, two};
+    Exclusion combined{exclusions};
+    EXPECT_TRUE(one.appliesToPath("/a/foo/b", false, true));
+    EXPECT_TRUE(combined.appliesToPath("/a/foo/b", false, true));
+    EXPECT_EQ(combined.path(), "/a/.*/b|/c/.*/d");
+    EXPECT_EQ(combined.displayPath(), "/a/.*/b|/c/.*/d");
 }

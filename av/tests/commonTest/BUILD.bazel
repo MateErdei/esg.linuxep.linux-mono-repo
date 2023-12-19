@@ -1,11 +1,11 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 
-load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_test")
 
 soph_cc_test(
     name = "TestCommon",
     srcs = glob([
-        "*.cpp",
+        "Test*.cpp",
         "*.h",
     ]),
     deps = [
@@ -23,5 +23,16 @@ soph_cc_test(
         "//base/tests/Common/Helpers:MockFileSystem",
         "//imports/thirdparty/nlohmann-json",
         "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_binary(
+    name = "PerformanceTestExclusionList",
+    srcs = ["PerformanceTestExclusionList.cpp"],
+    deps = [
+        "//av/modules/common:Exclusion",
+        "//av/modules/datatypes:Print",
+        "//base/modules/Common/Logging",
+        "//common/modules/Common/Main",
     ],
 )

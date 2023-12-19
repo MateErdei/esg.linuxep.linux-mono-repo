@@ -689,8 +689,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntSkipEventsInSimilarDirToPluginLogD
 TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    std::vector<common::Exclusion> exclusions;
-    exclusions.emplace_back("/excluded/");
+    common::ExclusionList exclusions{{"/excluded/"}};
     auto metadata = getMetaData();
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))

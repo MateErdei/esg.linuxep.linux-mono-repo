@@ -1,6 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "Exclusion.h"
+#include "Logger.h"
 
 #include "common/PathUtils.h"
 
@@ -8,10 +9,72 @@
 
 using namespace common;
 
+namespace
+{
+    void escapeRegexMetaCharacters(std::string& text)
+    {
+        std::string buffer;
+        buffer.reserve(text.size());
+        for(size_t pos = 0; pos != text.size(); ++pos) {
+            switch(text[pos]) {
+                case '\\': buffer.append("\\\\");          break;
+                case '^': buffer.append("\\^");            break;
+                case '$': buffer.append("\\$");            break;
+                case '.': buffer.append("\\.");            break;
+                case '|': buffer.append("\\|");            break;
+                case '+': buffer.append("\\+");            break;
+                case '(': buffer.append("\\(");            break;
+                case ')': buffer.append("\\)");            break;
+                case '{': buffer.append("\\{");            break;
+                case '[': buffer.append("\\[");            break;
+                default: buffer.push_back(text[pos]);         break;
+            }
+        }
+        text.swap(buffer);
+    }
 
-Exclusion::Exclusion(const std::string& path):
-    m_exclusionPath(path),
-    m_exclusionDisplayPath(path)
+    bool applyRegexToPath(const char* path, const Exclusion::regex_t& regex)
+    {
+#ifdef EXCLUSION_USE_RE2
+        return RE2::FullMatch(path, *regex);
+#else
+        return std::regex_match(path, regex);
+#endif
+    }
+
+    Exclusion::regex_t compileRegex(const std::string regexStr)
+    {
+#ifdef EXCLUSION_USE_RE2
+        return std::make_shared<RE2>(regexStr);
+#else /* ! EXCLUSION_USE_RE2 */
+        return std::regex(regexStr);
+#endif /* EXCLUSION_USE_RE2 */
+    }
+}
+
+std::string ExclusionBase::path() const
+{
+    return m_exclusionPath.string_;
+}
+
+std::string ExclusionBase::displayPath() const
+{
+    return m_exclusionDisplayPath;
+}
+
+ExclusionType ExclusionBase::type() const
+{
+    return m_type;
+}
+
+ExclusionBase::ExclusionBase(const std::string& path):
+        m_exclusionPath(path),
+        m_exclusionDisplayPath(path)
+{
+}
+
+Exclusion::Exclusion(const std::string& path)
+    : ExclusionBase(path)
 {
     std::string exclusionPath(path);
 
@@ -98,6 +161,28 @@ Exclusion::Exclusion(const std::string& path):
     }
 }
 
+
+Exclusion::Exclusion(const std::vector<Exclusion>& exclusions)
+    : ExclusionBase("<multi-glob>")
+{
+    m_type = MULTI_GLOB;
+    for (const auto& excl : exclusions)
+    {
+        if (excl.isGlobExclusion())
+        {
+            if (!pathRegexString_.empty())
+            {
+                pathRegexString_.push_back('|');
+            }
+            pathRegexString_ += excl.pathRegexString_;
+        }
+    }
+    LOGDEBUG("Creating multi-regex exclusion from " << pathRegexString_);
+    m_exclusionPath = CachedPath{pathRegexString_};
+    m_exclusionDisplayPath = pathRegexString_;
+    m_pathRegex = compileRegex(pathRegexString_);
+}
+
 auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
@@ -148,8 +233,9 @@ auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isF
         }
         case GLOB:
         case RELATIVE_GLOB:
+        case MULTI_GLOB:
         {
-            if (std::regex_match(path.c_str(), m_pathRegex))
+            if (applyRegexToPath(path.c_str(), m_pathRegex))
             {
                 return true;
             }
@@ -178,44 +264,7 @@ bool Exclusion::appliesToPath(const fs::path& path, bool isDirectory) const
     return appliesToPath(path, false, true);
 }
 
-std::string Exclusion::path() const
-{
-    return m_exclusionPath.string_;
-}
-
-std::string Exclusion::displayPath() const
-{
-    return m_exclusionDisplayPath;
-}
-
-ExclusionType Exclusion::type() const
-{
-    return m_type;
-}
-
-void Exclusion::escapeRegexMetaCharacters(std::string& text)
-{
-    std::string buffer;
-    buffer.reserve(text.size());
-    for(size_t pos = 0; pos != text.size(); ++pos) {
-        switch(text[pos]) {
-            case '\\': buffer.append("\\\\");          break;
-            case '^': buffer.append("\\^");            break;
-            case '$': buffer.append("\\$");            break;
-            case '.': buffer.append("\\.");            break;
-            case '|': buffer.append("\\|");            break;
-            case '+': buffer.append("\\+");            break;
-            case '(': buffer.append("\\(");            break;
-            case ')': buffer.append("\\)");            break;
-            case '{': buffer.append("\\{");            break;
-            case '[': buffer.append("\\[");            break;
-            default: buffer.push_back(text[pos]);         break;
-        }
-    }
-    text.swap(buffer);
-}
-
-std::regex Exclusion::convertGlobToRegex(const CachedPath& glob)
+std::string Exclusion::convertGlobToRegexString(const CachedPath& glob)
 {
     std::string regexStr = glob.string_;
     escapeRegexMetaCharacters(regexStr);
@@ -233,8 +282,13 @@ std::regex Exclusion::convertGlobToRegex(const CachedPath& glob)
         regexStr.insert(found, 1, '.');
         found = regexStr.find_first_of('*', found+2);
     }
+    return regexStr;
+}
 
-    return std::regex(regexStr);
+Exclusion::regex_t Exclusion::convertGlobToRegex(const CachedPath& glob)
+{
+    pathRegexString_ = convertGlobToRegexString(glob);
+    return compileRegex(pathRegexString_);
 }
 
 bool Exclusion::operator==(const Exclusion& rhs) const
@@ -259,4 +313,9 @@ bool Exclusion::operator<(const Exclusion& rhs) const
     }
 
     return m_exclusionDisplayPath < rhs.m_exclusionDisplayPath;
+}
+
+bool Exclusion::isGlobExclusion() const
+{
+    return m_type == GLOB || m_type == RELATIVE_GLOB || m_type == MULTI_GLOB;
 }

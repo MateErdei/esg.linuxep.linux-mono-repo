@@ -152,9 +152,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
 
     constexpr const char* excludedMount{"/test"};
     constexpr const char* exclusion{"/test/"};
-
-    std::vector<common::Exclusion> exclusions;
-    exclusions.emplace_back(exclusion);
+    const common::ExclusionList exclusions{{exclusion}};
 
     auto localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
@@ -184,8 +182,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     const char* excludedMount = "/test/";
-    std::vector<common::Exclusion> exclusions;
-    exclusions.emplace_back(excludedMount);
+    const common::ExclusionList exclusions{{excludedMount}};
 
     std::shared_ptr<NiceMock<MockMountPoint>> localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
@@ -214,7 +211,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config{};
     config.enabled = true;
     config.excludeRemoteFiles = true;
-    config.exclusions = exclusions;
+    config.exclusions = std::move(exclusions);
     mountMonitor.updateConfig(config);
     EXPECT_TRUE(appenderContains("OA config changed, re-enumerating mount points"));
 

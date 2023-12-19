@@ -242,11 +242,7 @@ namespace sophos_on_access_process::OnAccessConfig
             LOGDEBUG("On-access scan network: " << scanNetwork);
             if (parsedConfig.contains("exclusions"))
             {
-                for (const auto& exclusion : parsedConfig["exclusions"])
-                {
-                    configuration.exclusions.emplace_back(exclusion);
-                }
-                std::sort(configuration.exclusions.begin(), configuration.exclusions.end());
+                configuration.exclusions = common::ExclusionList(parsedConfig["exclusions"].get<std::vector<std::string>>());
                 LOGDEBUG("On-access exclusions: " << parsedConfig["exclusions"]);
             }
 

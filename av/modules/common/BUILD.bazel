@@ -76,11 +76,19 @@ soph_cc_library(
 
 soph_cc_library(
     name = "Exclusion",
-    srcs = ["Exclusion.cpp"],
-    hdrs = ["Exclusion.h"],
+    srcs = [
+        "Exclusion.cpp",
+        "ExclusionList.cpp",
+    ],
+    hdrs = [
+        "Exclusion.h",
+        "ExclusionList.h",
+    ],
     visibility = ["//av:__subpackages__"],
     deps = [
+        ":Logger",
         ":PathUtils",
+        "@com_googlesource_code_re2//:re2",
     ],
 )
 

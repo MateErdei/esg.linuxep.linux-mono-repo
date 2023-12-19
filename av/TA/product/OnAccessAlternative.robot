@@ -322,7 +322,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     ${mark} =  get_on_access_log_mark
     Send Complete Policies    ["testdir/folder_without_wildcard/","do*er/","dir/su*ir/"]
     wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","do*er/","dir/su*ir/"]  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/do*er/*"] ["*/dir/su*ir/*"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] [".*/do.*er/.*|.*/dir/su.*ir/.*"]  mark=${mark}
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_with_wildcard
     Create Directory  ${TEST_DIR_WITHOUT_WILDCARD}
@@ -341,12 +341,12 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Create File     ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com                  ${EICAR_STRING}
     Create File     ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com                 ${CLEAN_STRING}
 
-    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_file will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com will not be scanned due to exclusion: dir/su*ir/  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR_WITHOUT_WILDCARD}/clean_file will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com will not be scanned due to exclusion: .*/do.*er/.*|.*/dir/su.*ir/.*  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/eicar.com  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com will not be scanned due to exclusion: do*er/  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com will not be scanned due to exclusion: .*/do.*er/.*|.*/dir/su.*ir/.*  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com  mark=${mark}
 
 
@@ -361,7 +361,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/fullpath.com","${TEST_DIR}/*.js","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*"]
     Send Complete Policies    ${exclusionList}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["${TEST_DIR}/fullpath.com"] ["/eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["${TEST_DIR}/fullpath.com"] ["/eicar"] ["${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*"]  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
@@ -381,16 +381,16 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Create File     ${TEST_DIR}/exe.js                     ${EICAR_STRING}
     Create File     ${TEST_DIR}/clean_file.jss             ${CLEAN_STRING}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/clean_file.txt  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/fullpath.com will not be scanned due to exclusion: ${TEST_DIR}/fullpath.com  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/eicar.???  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/fullpath.com will not be scanned due to exclusion: ${TEST_DIR}/fullpath.com  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.comm  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.co  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/hi_i_am_dangerous.txt will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/hi_i_am_dangerous.exe will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/hi_i_am_dangerous.txt will not be scanned due to exclusion: ${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/hi_i_am_dangerous.exe will not be scanned due to exclusion: ${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/hi_i_am_dangerous  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/bird.js will not be scanned due to exclusion: ${TEST_DIR}/*.js  mark=${mark}
-    wait for on access log contains after mark  File access on ${TEST_DIR}/exe.js will not be scanned due to exclusion: ${TEST_DIR}/*.js  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/bird.js will not be scanned due to exclusion: ${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*  mark=${mark}
+    wait for on access log contains after mark  ${TEST_DIR}/exe.js will not be scanned due to exclusion: ${TEST_DIR}/.*\\.js|${TEST_DIR}/eicar\\....|${TEST_DIR}/hi_i_am_dangerous\\..*  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/clean_file.jss  mark=${mark}
 
 

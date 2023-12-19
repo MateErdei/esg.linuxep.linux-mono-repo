@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "common/Exclusion.h"
+#include "common/ExclusionList.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
@@ -18,7 +18,7 @@ namespace sophos_on_access_process::OnAccessConfig
 
     struct OnAccessConfiguration
     {
-        std::vector<common::Exclusion> exclusions;
+        common::ExclusionList exclusions;
         bool enabled = false;
         bool excludeRemoteFiles = false;
         bool detectPUAs = true;

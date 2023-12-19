@@ -24,6 +24,11 @@ namespace
 {
     class TestOnAccessConfigurationUtils : public SoapMemoryAppenderUsingTests
     {
+    public:
+        TestOnAccessConfigurationUtils()
+            :
+                m_defaultTestExclusions{{"/mnt/", "/uk-filer5/"}}
+        {}
     protected:
         fs::path m_testDir;
         void SetUp() override
@@ -43,8 +48,6 @@ namespace
             m_oaLocalSettingsPath = m_testDir / "var/on_access_local_settings.json";
             m_oaFlagsPath = m_testDir / "var/oa_flag.json";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-            m_defaultTestExclusions.emplace_back("/mnt/");
-            m_defaultTestExclusions.emplace_back("/uk-filer5/");
             m_localSettingsNotUsedMessage = "Some or all local settings weren't set from file: Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: false, Uncache detections: true";
             m_binaryFile = std::string{"\x00\x72\x6c\x5f\x69\x6e\x69\x74\x69\x61\x6c\x69\x7a\x65\x5f\x66\x75\x6e\x6d\x61"
                                       "\x70\x00\x72\x6c\x5f\x63\x6f\x6d\x70\x6c\x65\x74\x69\x6f\x6e\x5f\x73\x75\x70\x70\x72"
@@ -70,7 +73,7 @@ namespace
         std::string m_oaFlagsPath;
         std::string m_localSettingsNotUsedMessage;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
-        std::vector<common::Exclusion> m_defaultTestExclusions;
+        common::ExclusionList m_defaultTestExclusions;
         std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
         //hardware_concurrency syscall default return value will result in defaultThreads below
@@ -193,7 +196,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsManyExclusions
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     std::stringstream exclusionStr;
-    std::vector<common::Exclusion> expectedExclusion;
+    std::vector<std::string> expectedExclusion;
     exclusionStr << R"({"exclusions":[)";
 
     for (uint excCount = 0; excCount < 400; excCount ++)
@@ -205,8 +208,10 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsManyExclusions
     exclusionStr.seekp(-1, std::ios_base::cur);
     exclusionStr << "]}";
 
+    const common::ExclusionList expectedExclusionList{expectedExclusion};
+
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(exclusionStr.str(), m_testConfig), true);
-    EXPECT_EQ(m_testConfig.exclusions, expectedExclusion);
+    EXPECT_EQ(m_testConfig.exclusions, expectedExclusionList);
 
     EXPECT_FALSE(appenderContains("Failed to parse json configuration, keeping existing settings"));
     EXPECT_TRUE(appenderContains(R"(On-access exclusions: ["/tmp0/","/tmp1/","/tmp2/","/tmp3/","/tmp4/")"));

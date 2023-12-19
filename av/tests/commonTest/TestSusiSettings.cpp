@@ -15,7 +15,7 @@ using namespace common;
 
 namespace
 {
-    class TestSusiSettings : public LogInitializedTests
+    class TestSusiSettings : public LogOffInitializedTests
     {};
 }
 

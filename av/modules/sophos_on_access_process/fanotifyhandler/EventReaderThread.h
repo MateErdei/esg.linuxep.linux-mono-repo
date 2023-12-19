@@ -11,7 +11,7 @@
 #include "IFanotifyHandler.h"
 
 #include "common/AbstractThreadPluginInterface.h"
-#include "common/Exclusion.h"
+#include "common/ExclusionList.h"
 #include "common/LockableData.h"
 #include "common/UsernameSetting.h"
 #include "datatypes/sophos_filesystem.h"
@@ -49,7 +49,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
         void run() override;
 
-        void setExclusions(const std::vector<common::Exclusion>& exclusions);
+        void setExclusions(const common::ExclusionList& exclusions);
         void setDetectPUAs(bool detectPUAs);
 
         void setCacheAllEvents(bool enable);
