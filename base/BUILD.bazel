@@ -76,5 +76,6 @@ soph_build_asset_pkg(
 soph_build_asset(
     name = "fuzz_test_assets",
     asset = "//base/tests:fuzz_test_assets",
+    tags = ["manual"],
     visibility = ["//products:__pkg__"],
 )

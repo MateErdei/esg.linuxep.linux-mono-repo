@@ -12,6 +12,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":actionrunner_pb_h",
@@ -31,6 +32,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":simplefunction_pb_h",
@@ -57,6 +59,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":message_pb_h",
@@ -79,6 +82,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":vectorstrings_pb_h",
@@ -101,6 +105,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":watchdogmessage_pb_h",
@@ -130,6 +135,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//base/tests:__pkg__"],
     deps = [
         ":zmqparts_pb_h",

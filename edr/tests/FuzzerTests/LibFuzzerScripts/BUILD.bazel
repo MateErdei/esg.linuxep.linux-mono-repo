@@ -12,6 +12,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//edr/tests/FuzzerTests:__pkg__"],
     deps = [
         ":livequery_pb_h",
@@ -32,6 +33,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//edr/tests/FuzzerTests:__pkg__"],
     deps = [
         ":livequery_pb_h",

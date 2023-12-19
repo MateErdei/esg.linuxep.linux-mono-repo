@@ -74,6 +74,7 @@ soph_export_assets(
     name = "export_fuzz_assets",
     output_folder = ".output",
     release_package = "//build:release-package.xml",
+    tags = ["manual"],
     deps = select({
         "//tools/config:linux_x64_clang": FUZZ_DEPS,
         #        Todo, will this generate a empty artifact

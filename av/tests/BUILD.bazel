@@ -23,5 +23,6 @@ zip_asset(
         "//av/tests/unixsocket:threatDetectorServerExecutable",
         "//av/tests/unixsocket:threatReporterServerExecutable",
     ],
+    tags = ["manual"],
     visibility = ["//av:__pkg__"],
 )

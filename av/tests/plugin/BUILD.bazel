@@ -81,6 +81,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:sophos_filesystem",
@@ -97,6 +98,7 @@ soph_cc_binary(
     copts = ["-fsanitize=fuzzer"],
     defines = ["USING_LIBFUZZER"],
     linkopts = ["-fsanitize=fuzzer"],
+    tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
         "//av/modules/datatypes:sophos_filesystem",

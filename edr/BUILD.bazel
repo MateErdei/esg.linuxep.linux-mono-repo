@@ -45,5 +45,6 @@ soph_build_asset(
 soph_build_asset(
     name = "fuzz_test_assets",
     asset = "//edr/tests/FuzzerTests:fuzz_test_assets",
+    tags = ["manual"],
     visibility = ["//products:__pkg__"],
 )

@@ -10,5 +10,6 @@ zip_asset(
         "//base/tests/LibFuzzerTests:WatchdogApiTest",
         "//base/tests/LibFuzzerTests:ZMQtests",
     ],
+    tags = ["manual"],
     visibility = ["//base:__pkg__"],
 )
