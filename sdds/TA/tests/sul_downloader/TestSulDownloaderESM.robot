@@ -23,6 +23,7 @@ Resource    ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource    ../ProductResources.robot
 
 Force Tags  TAP_PARALLEL1  SULDOWNLOADER
 
@@ -326,7 +327,7 @@ Install all plugins static-999 then downgrade to all plugins static
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
-    Check Current Release With AV Installed Correctly
+    Check VUT Installed Correctly
 
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -384,6 +385,7 @@ Install all plugins static-999 then downgrade to all plugins static
 
 Install all plugins static then upgrade to all plugins static-999
     [Tags]  BASE_DOWNGRADE  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    [Timeout]    10 minutes
 
     Setup SUS static
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -399,7 +401,7 @@ Install all plugins static then upgrade to all plugins static-999
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
-    Check Current Release With AV Installed Correctly
+    Check VUT Installed Correctly
 
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -445,7 +447,7 @@ Install all plugins static then upgrade to all plugins static-999
     ...  Check Suldownloader Is Not Running
     Mark Known Upgrade Errors
 
-    Check Current Release With AV Installed Correctly
+    Check VUT Installed Correctly
 
 *** Keywords ***
 Check MCS Envelope Contains Event with Update cache

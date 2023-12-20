@@ -22,9 +22,6 @@ Suite Teardown   LiveResponse Suite Teardown
 
 Default Tags   LIVERESPONSE_PLUGIN
 
-*** Variables ***
-${Thumbprint}               F00ADD36235CD85DF8CA4A98DE979BDD3C48537EBEB4ADB1B31F9292105A5CA0
-${websocket_server_url}     wss://localhost
 *** Test Cases ***
 Liveresponse Plugin Proxy
     [Documentation]    Check Watchdog Telemetry When Liveresponse Is Present

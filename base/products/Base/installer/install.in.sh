@@ -188,6 +188,7 @@ function createUpdaterSystemdService()
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart="${SOPHOS_INSTALL}/base/bin/SulDownloader" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json"
 Restart=no
+Group=sophos-spl-group
 
 [Unit]
 Description=Sophos Server Protection Update Service
@@ -216,9 +217,9 @@ function createDiagnoseSystemdService()
         cat > "${STARTUP_DIR}/${service_name}" << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
-
 ExecStart="${SOPHOS_INSTALL}/bin/sophos_diagnose" --remote
 Restart=no
+Group=sophos-spl-group
 
 [Unit]
 Description=Sophos Server Protection Diagnose

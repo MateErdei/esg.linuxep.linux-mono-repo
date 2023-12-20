@@ -3,6 +3,7 @@ Library     OperatingSystem
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/DiagnoseUtils.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     Process
 
 Resource    GeneralTeardownResource.robot
 
@@ -175,3 +176,10 @@ Mimic Base Component Files
     Create Directory  ${installLocation}/logs/base/downgrade-backup
     Create File  ${installLocation}/logs/base/downgrade-backup/watchdog.log
     Create File  ${installLocation}/logs/base/downgrade-backup/backup.log
+
+Simulate SDU Action Now
+    [Arguments]  ${action_suffix}=1  ${action_xml_file_name}=SDUAction.xml
+    Copy File   ${SUPPORT_FILES}/CentralXml/${action_xml_file_name}  ${MCS_TMP_DIR}
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${MCS_TMP_DIR}/${action_xml_file_name}   shell=True
+    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
+    Move File   ${MCS_TMP_DIR}/${action_xml_file_name}    ${MCS_DIR}/action/SDU_action_${action_suffix}.xml

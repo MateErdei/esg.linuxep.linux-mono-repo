@@ -8,6 +8,8 @@ Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 *** Variables ***
 ${LIVE_RESPONSE_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/liveresponse
 ${LIVE_RESPONSE_LOG_FILE} =                   ${LIVE_RESPONSE_PLUGIN_PATH}/log/liveresponse.log
+${websocket_server_url}                       wss://localhost
+${Thumbprint}                                 F00ADD36235CD85DF8CA4A98DE979BDD3C48537EBEB4ADB1B31F9292105A5CA0
 
 *** Keywords ***
 Install Live Response Directly

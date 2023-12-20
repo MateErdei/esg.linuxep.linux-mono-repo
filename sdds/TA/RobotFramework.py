@@ -108,6 +108,7 @@ def main(argv):
         "report": "/opt/test/logs/report.html",
         "variable": [
             f"COMMON_TEST_LIBS:{os.path.join(INPUT_DIRECTORY, 'common_test_libs')}",
+            f"RTD_FAILING:{'1' if 'RTD_CHECKED' in args.exclude else '0'}",
         ],
     }
 
@@ -132,6 +133,7 @@ def main(argv):
     os.environ['SSPL_RA_PLUGIN_SDDS'] = os.path.join(INPUT_DIRECTORY, "ra")
     os.environ['THIN_INSTALLER_OVERRIDE'] = os.path.join(INPUT_DIRECTORY, "thin_installer")
     os.environ['WEBSOCKET_SERVER'] = os.path.join(INPUT_DIRECTORY, "websocket_server")
+    os.environ['LT_UTILS'] = os.path.join(INPUT_DIRECTORY, "liveterminal_test_scripts")
     os.environ['SYSTEMPRODUCT_TEST_INPUT'] = INPUT_DIRECTORY
     os.environ['SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS'] = os.path.join(INPUT_DIRECTORY, "ej_manual_tools", "JournalReader")
     shutil.rmtree(os.path.join(os.environ['SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS'], "content_rules"), ignore_errors=True)

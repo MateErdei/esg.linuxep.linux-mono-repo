@@ -83,7 +83,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -154,7 +154,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check VUT Installed Correctly     ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -255,7 +255,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check VUT Installed Correctly     ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -314,7 +314,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -409,7 +409,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -472,7 +472,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check VUT Installed Correctly        ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -535,7 +535,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check VUT Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -598,7 +598,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -641,7 +641,6 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 SDDS3 updating respects ALC feature codes
-    [Tags]    RTD_CHECKED
     start_local_cloud_server
     Start Local SDDS3 Server
     ${all_plugins_logs_marks} =    Mark All Plugin Logs
@@ -677,7 +676,7 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...   Check VUT Installed Correctly        ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Directory Should Exist   ${AV_DIR}
 
     Directory Should Exist   ${EDR_DIR}
@@ -885,7 +884,6 @@ Installing New Plugins Respects Custom Installation Location
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
 
     # TODO LINUXDAR-8489 add checks for RTD, EDR and LiveResponse
-
 
 *** Keywords ***
 Replace Group in package config

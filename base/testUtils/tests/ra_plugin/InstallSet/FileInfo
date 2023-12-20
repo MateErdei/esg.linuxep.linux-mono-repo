@@ -1,5 +1,5 @@
-o600, root, root, /opt/sophos-spl/plugins/responseactions/log/responseactions.log
 o600, root, root, /opt/sophos-spl/plugins/responseactions/VERSION.ini.0
+o600, sophos-spl-group, root, /opt/sophos-spl/plugins/responseactions/log/responseactions.log
 o750, root, root, /opt/sophos-spl/plugins/responseactions/bin/responseactions.0
 o750, root, root, /opt/sophos-spl/plugins/responseactions/bin/sophos_actions.0
 o750, root, root, /opt/sophos-spl/plugins/responseactions/bin/uninstall.sh.0

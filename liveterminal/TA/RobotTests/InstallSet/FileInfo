@@ -1,5 +1,5 @@
-o600, root, root, /opt/sophos-spl/plugins/liveresponse/log/liveresponse.log
 o600, root, root, /opt/sophos-spl/plugins/liveresponse/VERSION.ini.0
+o600, sophos-spl-group, root, /opt/sophos-spl/plugins/liveresponse/log/liveresponse.log
 o750, root, root, /opt/sophos-spl/plugins/liveresponse/bin/liveresponse.0
 o750, root, root, /opt/sophos-spl/plugins/liveresponse/bin/sophos-live-terminal.0
 o750, root, root, /opt/sophos-spl/plugins/liveresponse/bin/uninstall.sh.0

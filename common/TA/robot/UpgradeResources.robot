@@ -173,13 +173,6 @@ Check For downgraded logs
     # RTD logs
     File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/downgrade-backup/runtimedetections.log
 
-Check Current Release With AV Installed Correctly
-    Check MCS Router Running
-    Check AV Plugin Installed
-    Check SafeStore Installed Correctly
-    Check Installed Correctly
-    Check Comms Component Is Not Present
-
 Check Comms Component Is Not Present
     Verify Group Removed    sophos-spl-network
     Verify User Removed    sophos-spl-network

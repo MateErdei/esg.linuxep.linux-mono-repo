@@ -79,7 +79,9 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         int exitCode = 0;
         try
         {
-            process->exec(installShFile, installArgs, envVariables);
+            // Non-thininstaller SulDownloader will now run as root:sophos-spl-group, so run installers as root:root to
+            // avoid breaking any assumptions they may have
+            process->exec(installShFile, installArgs, envVariables, 0, 0);
             auto status = process->wait(Common::Process::Milliseconds(1000), 600);
             if (status != Common::Process::ProcessStatus::FINISHED)
             {

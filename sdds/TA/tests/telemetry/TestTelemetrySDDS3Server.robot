@@ -10,6 +10,7 @@ Test Teardown    Run Keywords
 Resource    ${COMMON_TEST_ROBOT}/SDDS3Resources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource    ../ProductResources.robot
 
 Force Tags    TAP_PARALLEL2
 
@@ -34,7 +35,7 @@ Telemetry Executable Moves All Top Level Telemetry Items ESM Enabled
     ...   80 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SULDownloaderLog}    suldownloader_log   Update success  1
-    Check Current Release With AV Installed Correctly
+    Check VUT Installed Correctly
 
     File Should Exist     ${SOPHOS_INSTALL}/base/update/var/package_config.xml
     Prepare To Run Telemetry Executable

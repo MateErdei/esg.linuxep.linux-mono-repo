@@ -45,19 +45,26 @@ Get SafeStore PID
     ${pid} =     Run Process    pgrep    safestore
     [Return]    ${pid.stdout}
 
+# TODO remove before_2024_1_group_changes once it isn't applicable to any available version
 Check SafeStore Permissions And Owner
+    [Arguments]    ${before_2024_1_group_changes}=${False}
     ${safeStorePid} =    Get SafeStore PID
 
     ${user} =    Run Process    ps -o user -p ${safeStorePid}    shell=True
     ${group} =    Run Process    ps -o group -p ${safeStorePid}    shell=True
     Should Contain    ${user.stdout}    root
-    Should Contain    ${group.stdout}    root
+    IF    ${before_2024_1_group_changes}
+        Should Contain    ${group.stdout}    root
+    ELSE
+        Should Contain    ${group.stdout}    sophos-spl-group
+    END
 
     ${safestoreparentpid} =    Run Process    ps -o ppid\= -p ${safeStorePid}    shell=True
     ${parentPid} =    Run Process    ps -e | grep ${safestoreparentpid.stdout}    shell=True
     Should Contain    ${parentPid.stdout}    sophos_watchdog
 
 Check SafeStore Installed Correctly
+    [Arguments]    ${before_2024_1_group_changes}=${False}
 
     File Should Exist    ${SAFESTORE_BIN}
     Wait Until Keyword Succeeds
@@ -72,14 +79,22 @@ Check SafeStore Installed Correctly
     ...    30 secs
     ...    2 secs
     ...    Check SafeStore Log Contains    SafeStore started
-    Check SafeStore Database Exists
-    Check SafeStore Permissions And Owner
+    Check SafeStore Database Exists    before_2024_1_group_changes=${before_2024_1_group_changes}
+    Check SafeStore Permissions And Owner    before_2024_1_group_changes=${before_2024_1_group_changes}
 
+# TODO remove before_2024_1_group_changes once it isn't applicable to any available version
 Check SafeStore Database Exists
+    [Arguments]    ${before_2024_1_group_changes}=${False}
+
     Directory Should Exist    ${SAFESTORE_DB_DIR}
 
-    File Exists With Permissions    ${SAFESTORE_DB_PATH}    root    root    -rw-------
-    File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    root    -rw-------
+    IF    ${before_2024_1_group_changes}
+        File Exists With Permissions    ${SAFESTORE_DB_PATH}    root    root    -rw-------
+        File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    root    -rw-------
+    ELSE
+        File Exists With Permissions    ${SAFESTORE_DB_PATH}    root    sophos-spl-group    -rw-------
+        File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    sophos-spl-group    -rw-------
+    END
 
 Toggle SafeStore Flag in MCS Policy
     [Arguments]    ${enabled}

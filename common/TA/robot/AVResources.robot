@@ -7,6 +7,7 @@ Library     ${COMMON_TEST_LIBS}/OnFail.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    GeneralTeardownResource.robot
+Resource    SafeStoreResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
@@ -18,6 +19,7 @@ ${THREAT_REPORT_SOCKET_PATH}        ${AV_PLUGIN_PATH}/chroot/var/threat_report_s
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detector
 ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
+${ON_ACCESS_BIN}                    ${AV_PLUGIN_PATH}/sbin/soapd
 ${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${QUERY_PACKS_PATH}                 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
 ${OSQUERY_CONF_PATH}                ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
@@ -65,6 +67,19 @@ Check AV Plugin Executable Not Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Wait Until On Access Running
+    Wait For Pid    ${ON_ACCESS_BIN}    ${30}
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  2 secs
+        ...  Check Log Contains    Sophos on access process    ${ON_ACCESS_LOG_PATH}    soapd.log
+
+Check All Persistent Av Processes Are Started
+    Check AV Plugin Running
+    Check SafeStore Installed Correctly
+    Wait Until Threat Detector Running
+    Wait Until On Access Running
 
 Stop AV Plugin
     ${result} =    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av

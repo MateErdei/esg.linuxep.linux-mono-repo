@@ -111,7 +111,7 @@ Check Upgrade From Fixed Version to VUT
     Trigger Update Now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
@@ -167,7 +167,7 @@ Check Upgrade From Fixed Version to VUT
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check Current Release Installed Correctly
+    Check VUT Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Wait For RuntimeDetections to be Installed
@@ -226,7 +226,7 @@ Check Downgrade From VUT to Fixed Version
     trigger_update_now
     Wait For Log Contains From Mark    ${sul_mark}    Update success    120
 
-    Check Current Release Installed Correctly
+    Check VUT Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -272,7 +272,7 @@ Check Downgrade From VUT to Fixed Version
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check EAP Release Installed Correctly
+    Check Current Shipping Installed Correctly
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs

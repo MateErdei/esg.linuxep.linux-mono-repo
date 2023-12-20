@@ -1,4 +1,4 @@
 o700, root, root, /opt/sophos-spl/plugins/responseactions
 o700, root, root, /opt/sophos-spl/plugins/responseactions/bin
-o700, root, root, /opt/sophos-spl/plugins/responseactions/log
 o700, root, root, /opt/sophos-spl/plugins/responseactions/tmp
+o700, sophos-spl-group, root, /opt/sophos-spl/plugins/responseactions/log

@@ -223,6 +223,7 @@ Check Expected Base Processes Are Running
     Check Telemetry Scheduler Is Running
     Check SDU Running
     Verify Watchdog Config
+    # TODO mcsrouter
 
 Check Expected Base Processes Except SDU Are Running
     Check Watchdog Running

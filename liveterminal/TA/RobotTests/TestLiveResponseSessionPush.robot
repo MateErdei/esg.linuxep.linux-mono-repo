@@ -26,10 +26,6 @@ Suite Teardown   Liveresponse Suite Teardown
 # TODO: SLES does not have "root@" in the command prompt so difficult to confirm live terminal session is working
 Force Tags   LIVERESPONSE_PLUGIN  MANAGEMENT_AGENT  MCSROUTER  SMOKE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
-*** Variables ***
-${Thumbprint}               F00ADD36235CD85DF8CA4A98DE979BDD3C48537EBEB4ADB1B31F9292105A5CA0
-${websocket_server_url}     wss://localhost
-
 *** Test Cases ***
 Verify Liveresponse Works End To End LiveResponse Session Command Via Push
     Check Connected To Fake Cloud

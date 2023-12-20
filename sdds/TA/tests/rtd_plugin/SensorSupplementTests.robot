@@ -10,7 +10,7 @@ Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${COMMON_TEST_LIBS}/OnFail.py
 Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 
-Force Tags    TAP_PARALLEL2
+Force Tags    TAP_PARALLEL2    RTD_CHECKED
 
 Suite Setup     Sdds3 Suite Setup
 Suite Teardown  Sdds3 Suite Teardown

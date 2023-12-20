@@ -114,18 +114,27 @@ Wait For Version Files to Update
     ...  5 secs
     ...  version_number_in_ini_file_should_be    ${InstalledRTDPluginVersionFile}    ${expectedVersions["rtdVersion"]}
 
-Check EAP Release Installed Correctly
-    Check Installed Correctly
-
-    Check AV Plugin Installed
-    Check Event Journaler Executable Running
-
-Check Current Release Installed Correctly
+# Actually for Current Shipping or Dogfood
+Check Current Shipping Installed Correctly
     [Arguments]    ${kernel_verion_too_old_for_rtd}=${False}
     Check Installed Correctly
     Check Comms Component Is Not Present
+    Check MCS Router Running
 
     Check AV Plugin Installed
+    Check SafeStore Installed Correctly    before_2024_1_group_changes=${True}
+    Check Event Journaler Executable Running
+    Run Keyword Unless    ${kernel_verion_too_old_for_rtd}    Check RuntimeDetections Installed Correctly
+    Check MDR Is Not Installed
+
+Check VUT Installed Correctly
+    [Arguments]    ${kernel_verion_too_old_for_rtd}=${False}
+    Check Installed Correctly
+    Check Comms Component Is Not Present
+    Check MCS Router Running
+
+    Check AV Plugin Installed
+    Check SafeStore Installed Correctly    before_2024_1_group_changes=${False}
     Check Event Journaler Executable Running
     Run Keyword Unless    ${kernel_verion_too_old_for_rtd}    Check RuntimeDetections Installed Correctly
     Check MDR Is Not Installed

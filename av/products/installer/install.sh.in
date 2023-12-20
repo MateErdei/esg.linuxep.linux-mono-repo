@@ -242,7 +242,7 @@ function apply_permissions()
         chown root:${GROUP_NAME} ${VAR}/disable_safestore
     fi
     mkdir -p "$SAFESTORE_DB_PATH"
-    chown -R root:root "${SAFESTORE_DB_PATH}"
+    chown -R root:sophos-spl-group "${SAFESTORE_DB_PATH}"
     [[ "$(ls -A "${SAFESTORE_DB_PATH}")" ]] && chmod -R 0400 "${SAFESTORE_DB_PATH}"
     chmod 0700 "${SAFESTORE_DB_PATH}"
     [[ -f "${SAFESTORE_DB_PATH}/safestore.db" ]] && chmod 0600 "${SAFESTORE_DB_PATH}/safestore.db"

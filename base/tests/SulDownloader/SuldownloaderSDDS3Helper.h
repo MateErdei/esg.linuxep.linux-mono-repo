@@ -434,8 +434,7 @@ public:
     auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
     EXPECT_CALL(
         *mockProcess,
-        exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _,
-             _))
+        exec(HasSubstr("ServerProtectionLinux-Base-component/install.sh"), _, _, 0, 0))
         .Times(1);
     EXPECT_CALL(*mockProcess, wait(_, _))
         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
@@ -451,7 +450,7 @@ public:
     auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
     EXPECT_CALL(
         *mockProcess,
-        exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _))
+        exec(HasSubstr("ServerProtectionLinux-Plugin-EDR/install.sh"), _, _, 0, 0))
         .Times(1);
     EXPECT_CALL(*mockProcess, wait(_, _))
         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));

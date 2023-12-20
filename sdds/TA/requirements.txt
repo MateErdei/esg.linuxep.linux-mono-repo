@@ -5,3 +5,4 @@ psutil
 dirsync
 distro
 sseclient
+websockets >= 11.0.3

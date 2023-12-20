@@ -38,6 +38,7 @@ def main():
     os.environ['BASE_DIST'] = os.path.join(os.environ["INPUT_DIRECTORY"], "base")
     os.environ['SSPL_LIVERESPONSE_PLUGIN_SDDS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "liveresponse")
     os.environ['WEBSOCKET_SERVER'] = os.path.join(os.environ["INPUT_DIRECTORY"], "pytest_scripts/utils/websocket_server")
+    os.environ['LT_UTILS'] = os.path.join(os.environ["INPUT_DIRECTORY"], "pytest_scripts/utils")
     os.environ['SYSTEMPRODUCT_TEST_INPUT'] = os.environ["INPUT_DIRECTORY"]
     os.environ["SOPHOS_INSTALL"] = "/opt/sophos-spl"
 

@@ -13,6 +13,7 @@ Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
+Resource    ProductAcceptanceTestsResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
@@ -26,6 +27,7 @@ ${STRACE}   /usr/bin/strace
 
 *** Test Cases ***
 Verify That There Are No Existing Configs to Openssl
+    [Tags]    RTD_CHECKED
     File Should Exist  ${STRACE}
 	# Install VUT product
     Start Local Cloud Server

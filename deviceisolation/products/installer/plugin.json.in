@@ -18,7 +18,7 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "root:root",
+  "executableUserAndGroup": "root:sophos-spl-group",
   "secondsToShutDown":20,
   "displayPluginName": "@PRODUCT_PRETTY_NAME@"
 }

@@ -11,6 +11,7 @@ Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
+Resource    ProductAcceptanceTestsResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
