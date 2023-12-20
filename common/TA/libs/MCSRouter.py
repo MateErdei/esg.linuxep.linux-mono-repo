@@ -301,6 +301,7 @@ class MCSRouter(object):
     # Fake Cloud Utils
     def start_local_cloud_server(self, *args):
         self.stop_local_cloud_server()
+        self.cleanup_local_cloud_server_logs()
         command = [sys.executable, os.path.join(self.cloud_server_path, "cloudServer.py")]
         self._launch_local_fake_cloud_process(command, args)
         self.__ensure_server_started(self.cloud_server_process, self.cloud_server_log, 'START')
