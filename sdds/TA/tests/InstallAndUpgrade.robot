@@ -84,7 +84,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -139,14 +141,23 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log    managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log    managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+    END
+
     Run Keyword And Expect Error  *
     ...     check_log_contains_string_n_times  ${AV_DIR}/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -169,7 +180,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     ${watchdog_pid_after_upgrade}=     Run Process    pgrep    -f    sophos_watchdog
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
-    Check RuntimeDetections Installed Correctly
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check RuntimeDetections Installed Correctly
 
     # TODO: To be removed once dogfood does not have these certs
     File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
@@ -244,8 +255,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -293,11 +306,18 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+    END
+
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
     Check EAP Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
@@ -350,8 +370,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     # no cgroup check because we downgrade to aggressive mode
     Verify RTD Component Permissions
-    Verify Running RTD Component Permissions
-    Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Verify Running RTD Component Permissions
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
 
 
     # TODO: To be removed once dogfood does not have these certs
@@ -388,7 +410,9 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Check EAP Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
     # TODO: This will fail once current shipping no longer has these. Then this check and the one below can be removed.
@@ -437,11 +461,21 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log    managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log    managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+    END
+
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Wait Until Keyword Succeeds
@@ -452,7 +486,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Enable On Access Via Policy
     Check On Access Detects Threats
 
-    Check RuntimeDetections Installed Correctly
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check RuntimeDetections Installed Correctly
 
     Check Update Reports Have Been Processed
 
@@ -501,8 +535,10 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     # TODO: To be removed once current shipping does not have these certs
@@ -554,11 +590,18 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+    END
+
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
     Check EAP Release Installed Correctly
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
     Check For downgraded logs
 
@@ -575,7 +618,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check AV Plugin Can Scan Files
     Enable On Access Via Policy
     Check On Access Detects Threats
-    Check RuntimeDetections Installed Correctly
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check RuntimeDetections Installed Correctly
 
     # The query pack should have been re-installed
     Wait Until Created    ${Sophos_Scheduled_Query_Pack}    timeout=20s
@@ -634,7 +677,7 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Current Release Installed Correctly
+    ...   Check Current Release Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Directory Should Exist   ${AV_DIR}
 
     Directory Should Exist   ${EDR_DIR}

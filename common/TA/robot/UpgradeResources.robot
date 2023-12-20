@@ -56,6 +56,8 @@ Upgrade Resources Suite Setup
     Set Suite Variable    ${GL_handle}       ${EMPTY}
     Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
     Setup_MCS_Cert_Override
+    ${kernel_version_too_old_for_rtd} =    Check Kernel Version Is Older    5.3    aarch64
+    Set Suite Variable    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    ${kernel_version_too_old_for_rtd}
 
 
 

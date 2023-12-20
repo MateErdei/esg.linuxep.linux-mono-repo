@@ -121,12 +121,13 @@ Check EAP Release Installed Correctly
     Check Event Journaler Executable Running
 
 Check Current Release Installed Correctly
+    [Arguments]    ${kernel_verion_too_old_for_rtd}=${False}
     Check Installed Correctly
     Check Comms Component Is Not Present
 
     Check AV Plugin Installed
     Check Event Journaler Executable Running
-    Check RuntimeDetections Installed Correctly
+    Run Keyword Unless    ${kernel_verion_too_old_for_rtd}    Check RuntimeDetections Installed Correctly
     Check MDR Is Not Installed
 
 Check MDR Is Not Installed

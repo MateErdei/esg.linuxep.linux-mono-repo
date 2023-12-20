@@ -18,6 +18,7 @@ import tarfile
 import psutil
 import platform
 import re
+from packaging import version
 
 from robot.api import logger
 
@@ -731,3 +732,22 @@ def get_cwd_then_change_directory(path):
 
 def get_robot_pid():
     return os.getpid()
+
+
+def get_platform_uname_info():
+    return platform.uname()
+
+
+def check_kernel_version_is_older(min_kernel_version: str, arch_to_check: str = None) -> bool:
+    uname_info = get_platform_uname_info()
+    kernel_version = uname_info.release.split('-')[0]
+    machine_arch = uname_info.machine
+
+    logger.info(f"Reported kernel_version: {kernel_version}")
+    logger.info(f"Reported machine arch: {machine_arch}")
+
+    if arch_to_check is not None:
+        if machine_arch.lower() != arch_to_check.lower():
+            return False
+
+    return version.parse(kernel_version) < version.parse(min_kernel_version)

@@ -37,7 +37,9 @@ Verify That There Are No Existing Configs to Openssl
     Configure And Run SDDS3 Thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    ${150}
-    wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${20}
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
 
     Run Process   systemctl stop sophos-spl   shell=yes
 

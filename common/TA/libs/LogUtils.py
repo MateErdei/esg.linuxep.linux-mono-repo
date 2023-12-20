@@ -434,6 +434,25 @@ class LogUtils(object):
                     newlog.write(line)
         os.remove(tmp_log)
 
+    def mark_expected_fatal_in_log(self, log_location, error_message):
+        error_string = "FATAL"
+        mark_string = "expected-error"
+        tmp_log = "/tmp/log.log"
+        shutil.copy(log_location, tmp_log)
+        with open(log_location, "w") as log:
+            log.write("")
+        with open(tmp_log, "r") as log:
+            while True:
+                # Get next line from file
+                line = log.readline()
+                if not line:
+                    break
+                if error_message in line:
+                    line = line.replace(error_string, mark_string)
+                with open(log_location, "a") as newlog:
+                    newlog.write(line)
+        os.remove(tmp_log)
+
     def log_string_if_found(self, string_to_contain, path_to_log):
         with open(path_to_log, "rb") as file:
             contents = file.read()

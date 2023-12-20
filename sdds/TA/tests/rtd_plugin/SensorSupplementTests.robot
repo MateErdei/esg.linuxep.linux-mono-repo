@@ -45,7 +45,7 @@ Sdds3 Supplement Update Changes Content
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
 
-    Check Installed and Running
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check Installed and Running
 
     File Should Not Exist    ${CONTENT_BPF_DIR}/test-a.bpf.o
     File Should Not Exist    ${CONTENT_BPF_DIR}/test-b.bpf.o
@@ -65,7 +65,7 @@ Sdds3 Supplement Update Changes Content
 #    Add dev updating certs to installation
     Run Update Now
 
-    Check Installed and Running
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check Installed and Running
 
     Grep File    ${RUNTIME_DETECTIONS_CONTENT}    \#first update
     Files Should Be Identical
@@ -88,7 +88,7 @@ Sdds3 Supplement Update Changes Content
 
     Run Update Now
 
-    Check Installed and Running
+    Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check Installed and Running
 
     Grep File    ${RUNTIME_DETECTIONS_CONTENT}    \#second update
     Files Should Be Identical
@@ -110,6 +110,9 @@ Sdds3 Suite Setup
     Remove Directory  /var/lib/sophos  recursive=True
     Remove Directory  /var/run/sophos  recursive=True
 
+    ${kernel_version_too_old_for_rtd} =    Check Kernel Version Is Older    5.3    aarch64
+    Set Suite Variable    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    ${kernel_version_too_old_for_rtd}
+
     start local cloud server
 
 Sdds3 Suite Teardown
@@ -122,6 +125,18 @@ Sdds3 Test Setup
 
 Sdds3 Test Teardown
     [Timeout]   2 mins
+
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${BASE_LOGS}/watchdog.log   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+        Mark Expected Error In Log    ${BASE_LOGS}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+        Mark Expected Error In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Fatal In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    kernel is unsupported because it is too old
+        Mark Expected Fatal In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    kernel is unsupported because it is too old
+        Mark Expected Fatal In Log    ${RUNTIME_DETECTIONS_LOG_PATH}    kernel is unsupported because it is too old
+    END
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain String    FATAL
 
