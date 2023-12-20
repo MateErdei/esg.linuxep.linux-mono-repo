@@ -160,7 +160,10 @@ TEST_F(TestNftWrapper, clearIsolateRulesSucceeds)
                         .WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(0));
 
-                std::vector<std::string> args = { "flush", "table", "inet", "sophos_device_isolation" };
+                std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+
+                args = { "flush", "table", "inet", "sophos_device_isolation" };
                 EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
 
                 args = { "delete", "table", "inet", "sophos_device_isolation" };
@@ -211,7 +214,7 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangs)
             {
                 auto mockProcess = new StrictMock<MockProcess>();
 
-                std::vector<std::string> args = { "flush", "table", "inet", "sophos_device_isolation" };
+                std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
                 EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillRepeatedly(Return(Common::Process::ProcessStatus::RUNNING));

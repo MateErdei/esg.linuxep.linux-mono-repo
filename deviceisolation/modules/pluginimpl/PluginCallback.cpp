@@ -5,6 +5,7 @@
 #include "ApplicationPaths.h"
 #include "Logger.h"
 #include "Telemetry.h"
+#include "TelemetryConsts.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -72,7 +73,7 @@ namespace Plugin
         std::optional<std::string> version = Plugin::getVersion();
         if (version)
         {
-            telemetry.set("version", version.value());
+            telemetry.set(DeviceIsolation::Telemetry::versionKey, version.value());
         }
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
@@ -92,9 +93,10 @@ namespace Plugin
 
     uint PluginCallback::getHealthInner()
     {
-        // TODO: Set health
+        // DI returns 0 as health regardless of everything else
         uint health = 0;
-        Common::Telemetry::TelemetryHelper::getInstance().set("health", static_cast<u_long>(health));
+        Common::Telemetry::TelemetryHelper::getInstance().set(DeviceIsolation::Telemetry::healthKey,
+                                                              static_cast<u_long>(health));
         return health;
     }
 

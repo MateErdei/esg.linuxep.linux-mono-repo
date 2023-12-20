@@ -6,6 +6,8 @@ Library         String
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
 Library   ${COMMON_TEST_LIBS}/OnFail.py
 Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library   ${COMMON_TEST_LIBS}/FakeMCS.py
+Library   ${COMMON_TEST_LIBS}/ActionUtils.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
@@ -64,7 +66,7 @@ Restart Device Isolation
 
     ${di_mark} =    Get Device Isolation Log Mark
     Start Device Isolation
-    Wait For Log Contains From Mark    ${di_mark}    Entering the main loop
+    Wait For Log Contains From Mark    ${di_mark}    Completed initialization of Device Isolation
 
 
 List File In Test Dir
@@ -92,3 +94,17 @@ Device Isolation Test Setup
 Device Isolation Test Teardown
 	Run teardown functions
 
+Send Enable Isolation Action
+    [Arguments]  ${uuid}
+    Send Isolation Action  enable_isolation.xml  ${uuid}
+
+Send Disable Isolation Action
+    [Arguments]  ${uuid}
+    Send Isolation Action  disable_isolation.xml  ${uuid}
+
+Send Isolation Action
+    [Arguments]  ${filename}  ${uuid}
+    ${creation_time_and_ttl} =  get_valid_creation_time_and_ttl
+    ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/SHS_action_${creation_time_and_ttl}.xml
+    ${srcFileName} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/actions/${filename}
+    send_action  ${srcFileName}  ${actionFileName}  UUID=${uuid}

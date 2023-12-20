@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "deviceisolation/modules/pluginimpl/IsolationExclusion.h"
+#include "IsolationExclusion.h"
 
 namespace Plugin
 {
@@ -18,6 +18,7 @@ namespace Plugin
         enum class IsolateResult
         {
             SUCCESS,
+            WARN,
             FAILED
         };
 

@@ -5,12 +5,14 @@
 #include "ActionProcessor.h"
 #include "ApplicationPaths.h"
 #include "Logger.h"
+#include "NftWrapper.h"
 #include "NTPPolicy.h"
 #include "NTPStatus.h"
+#include "TelemetryConsts.h"
 
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/PluginApi/NoPolicyAvailableException.h"
-#include "deviceisolation/modules/pluginimpl/NftWrapper.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
 
@@ -45,6 +47,14 @@ namespace Plugin
             LOGINFO("NTP policy not available immediately");
             // Ignore no Policy Available errors
         }
+
+        Common::Telemetry::TelemetryHelper::getInstance().set(
+                DeviceIsolation::Telemetry::activatedInPast24HoursKey, false);
+
+        Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
+        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_));
+        Common::Telemetry::TelemetryHelper::getInstance().set(
+                DeviceIsolation::Telemetry::currentlyActiveKey, isolationEnabledTelemetry, true);
 
         LOGINFO("Completed initialization of Device Isolation");
         while (true)
@@ -125,20 +135,40 @@ namespace Plugin
                 return;
             }
             isolationEnabled_ = true;
+            Common::Telemetry::TelemetryHelper::getInstance().set(
+                    DeviceIsolation::Telemetry::activatedInPast24HoursKey, true);
             LOGINFO("Device is now isolated");
         }
         else
         {
             LOGINFO("Disabling Device Isolation");
             auto result = NftWrapper::clearIsolateRules();
-            if (result != NftWrapper::IsolateResult::SUCCESS)
+            if (result == NftWrapper::IsolateResult::FAILED)
             {
                 LOGERROR("Failed to remove device from isolation");
                 return;
             }
+            else if (result == NftWrapper::IsolateResult::WARN)
+            {
+                // TODO: uncomment once isolation rules are enforced, otherwise this would result in isolationEnabled_
+                // never being set to false
+//                if (isolationEnabled_)
+//                {
+//                    LOGERROR("Failed to list nft table but isolation is enabled");
+//                    return;
+//                }
+//                LOGWARN("Tried to disable isolation but it was not enabled in the first place");
+            }
             isolationEnabled_ = false;
             LOGINFO("Device is no longer isolated");
         }
+
+        Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
+        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_));
+        Common::Telemetry::TelemetryHelper::getInstance().set(
+                DeviceIsolation::Telemetry::currentlyActiveKey, isolationEnabledTelemetry, true);
+
+        LOGDEBUG("Finished processing action");
     }
 
     void PluginAdapter::processPolicy(const std::string& appId, const std::string& policyXml)

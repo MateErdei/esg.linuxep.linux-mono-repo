@@ -14,9 +14,92 @@ Test Teardown  Device Isolation Test Teardown
 
 *** Test Cases ***
 Check Health Telemetry Is Written
+    Restart Device Isolation
     ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
     Log  ${telemetry_json}
     ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
 
     Dictionary Should Contain Key  ${telemetry_dict}  health
     Should Be Equal As Integers  ${telemetry_dict["health"]}  0
+
+Check Is Isolation Active Telemetry Is Written
+    Restart Device Isolation
+    ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
+    Log  ${telemetry_json}
+    ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
+
+    Dictionary Should Contain Key  ${telemetry_dict}  currently-active
+    Should Be Equal As Strings    ${telemetry_dict["currently-active"]}    False
+
+Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
+    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
+    Restart Device Isolation
+    Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Enable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
+    Wait For Log Contains From Mark    ${di_mark}    Finished processing action
+
+    ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
+    Log  ${telemetry_json}
+    ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
+
+    Dictionary Should Contain Key  ${telemetry_dict}  currently-active
+    Should Be Equal As Strings    ${telemetry_dict["currently-active"]}    True
+
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Disable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation
+
+Check Is Isolation Active Telemetry Is Updated When Disable Isolation Action Received After Enable Isolate Action
+    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
+    Restart Device Isolation
+    Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Enable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
+    Wait For Log Contains From Mark    ${di_mark}    Finished processing action
+
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Disable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation
+    Wait For Log Contains From Mark    ${di_mark}    Finished processing action
+
+    ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
+    Log  ${telemetry_json}
+    ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
+
+    Dictionary Should Contain Key  ${telemetry_dict}  currently-active
+    Should Be Equal As Strings    ${telemetry_dict["currently-active"]}    False
+
+Check Was Isolation Activated In Last 24 Hours Telemetry Is Written
+    Restart Device Isolation
+    ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
+    Log  ${telemetry_json}
+    ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
+
+    Dictionary Should Contain Key  ${telemetry_dict}  activated-last-24-hours
+    Should Be Equal As Strings    ${telemetry_dict["activated-last-24-hours"]}    False
+
+Check Was Isolation Activated In Last 24 Hours Is Updated When Isolate Action Received
+    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
+    Restart Device Isolation
+    Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Enable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
+    Wait For Log Contains From Mark    ${di_mark}    Finished processing action
+
+    ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
+    Log  ${telemetry_json}
+    ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
+
+    Dictionary Should Contain Key  ${telemetry_dict}  activated-last-24-hours
+    Should Be Equal As Strings    ${telemetry_dict["activated-last-24-hours"]}    True
+
+    ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
+    Send Disable Isolation Action    uuid=1
+    Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation

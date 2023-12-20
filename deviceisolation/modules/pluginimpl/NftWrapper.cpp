@@ -1,8 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "NftWrapper.h"
-#include "base/modules/Common/FileSystem/IFileSystem.h"
-#include "deviceisolation/modules/pluginimpl/ApplicationPaths.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "ApplicationPaths.h"
 #include "Logger.h"
 #include "Common/Process/IProcess.h"
 
@@ -128,9 +128,27 @@ namespace Plugin
 
         auto process = ::Common::Process::createProcess();
 
+        // Check table exists
+        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME});
+        auto status = process->wait(std::chrono::milliseconds(100), 500);
+        if (status != Common::Process::ProcessStatus::FINISHED)
+        {
+            LOGERROR("The nft list table command did not complete in time");
+            process->kill();
+            return IsolateResult::FAILED;
+        }
+
+        int exitCode = process->exitCode();
+        if (exitCode != 0)
+        {
+            LOGERROR("Failed to list table, nft exit code: " << exitCode);
+            LOGDEBUG("nft output: " << process->output());
+            return IsolateResult::WARN;
+        }
+
         // Flush table
         process->exec(Plugin::nftBinary(), {"flush", "table", "inet", TABLE_NAME});
-        auto status = process->wait(std::chrono::milliseconds(100), 500);
+        status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
             LOGERROR("The nft flush table command did not complete in time");
@@ -138,7 +156,7 @@ namespace Plugin
             return IsolateResult::FAILED;
         }
 
-        int exitCode = process->exitCode();
+        exitCode = process->exitCode();
         if (exitCode != 0)
         {
             LOGERROR("Failed to flush table, nft exit code: " << exitCode);
