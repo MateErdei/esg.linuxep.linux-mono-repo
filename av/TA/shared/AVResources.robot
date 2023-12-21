@@ -964,6 +964,8 @@ Check avscanner can detect eicar
     File should exist  ${LOCAL_AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}
+    ...  Failed to remove ${SCAN_DIRECTORY}/eicar.com while quarantining due to: Failed to delete file using directory FD: (relative path)eicar.com. Cause: No such file or directory
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
 Create eicar on read only mount
