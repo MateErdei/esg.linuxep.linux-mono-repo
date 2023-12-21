@@ -111,7 +111,7 @@ Check Upgrade From Fixed Version to VUT
     Trigger Update Now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Shipping Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
@@ -164,14 +164,22 @@ Check Upgrade From Fixed Version to VUT
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N times  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+    END
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check VUT Installed Correctly
+    Check VUT Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     Wait For RuntimeDetections to be Installed
-    Check RuntimeDetections Installed Correctly
+    Run Keyword Unless
+    ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    ...  Check RuntimeDetections Installed Correctly
 
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -226,7 +234,7 @@ Check Downgrade From VUT to Fixed Version
     trigger_update_now
     Wait For Log Contains From Mark    ${sul_mark}    Update success    120
 
-    Check VUT Installed Correctly
+    Check VUT Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -269,10 +277,16 @@ Check Downgrade From VUT to Fixed Version
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
+        Mark Expected Error In Log    ${BASE_LOGS_DIR}/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with exit code 1
+    END
+
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Shipping Installed Correctly
+    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
