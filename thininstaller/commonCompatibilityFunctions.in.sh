@@ -76,10 +76,15 @@ function check_install_path_has_correct_permissions()
     success
 }
 
+function is_sspl_installed() {
+    systemctl list-unit-files | grep -q sophos-spl
+}
+
 function verify_install_directory() {
     # No custom install location so use default or special case if SOPHOS_INSTALL is set to the default, then we just use it and don't append
     if [[ (-z "${SOPHOS_INSTALL}") || ("${SOPHOS_INSTALL}" == "/opt/sophos-spl") ]]; then
         export SOPHOS_INSTALL=/opt/sophos-spl
+        [ ${FORCE_INSTALL} -eq 0 ] && ! is_sspl_installed && [ -d "${SOPHOS_INSTALL}" ] && failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory."
         success
         return
     fi
@@ -251,7 +256,23 @@ function verify_connection_to_central() {
             curl_debug "$curl_output"
         fi
     fi
-    success
+}
+
+function verify_all_possible_connections_to_central()
+{
+    # Check connection to Central
+    log_info "Verifying connections to Sophos Central"
+    verify_connection_to_central
+    [[ -n "${PROXY}" ]] && verify_connection_to_central "${PROXY}"
+    for message_relay in "${MESSAGE_RELAYS[@]}"; do
+        verify_connection_to_central "${message_relay}"
+    done
+    if [[ "${VALID_CENTRAL_CONNECTION}" == 0 ]]
+    then
+        log_error "SPL installation will fail as a connection to Sophos Central could not be established"
+    else
+        success
+    fi
 }
 
 function verify_connection_to_sus() {
@@ -278,7 +299,34 @@ function verify_connection_to_sus() {
             curl_debug "$curl_output"
         fi
     fi
-    success
+}
+
+function verify_all_possible_connections_to_sus()
+{
+      # Check connection to SUS
+      log_info "Verifying connections to Sophos Update Service (SUS) server"
+      if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
+          SUS_URL="$OVERRIDE_SUS_LOCATION"
+          echo "Using SUS URL override: $OVERRIDE_SUS_LOCATION"
+      elif [[ -n $sus_url_arg ]]; then
+          SUS_URL="$sus_url_arg"
+          log_debug "Using SUS URL from Central"
+      else
+          SUS_URL="https://sus.sophosupd.com"
+          log_debug "Using default SUS URL"
+      fi
+      verify_connection_to_sus
+      [[ -n "${PROXY}" ]] && verify_connection_to_sus "${PROXY}"
+      for message_relay in "${MESSAGE_RELAYS[@]}"; do
+          verify_connection_to_sus "${message_relay}"
+      done
+      
+      if [[ "${VALID_SUS_CONNECTION}" == 0 ]] 
+      then
+          log_error "SPL installation will fail as a connection to the SUS server could not be established"
+      else
+          success
+      fi
 }
 
 function verify_connection_to_cdn() {
@@ -315,7 +363,66 @@ function verify_connection_to_cdn() {
             log_info "Connection verified to CDN server, server was able to download all SPL packages via ${proxy}"
         fi
     fi
-    success
+}
+
+function verify_all_possible_connections_to_cdn()
+{
+    # Check connection to CDN
+    log_info "Verifying connections to the CDN server"
+    if [[ -n $OVERRIDE_CDN_LOCATION ]]; then
+        CDN_URLS=("$OVERRIDE_CDN_LOCATION")
+        echo "Using CDN URL override: $OVERRIDE_CDN_LOCATION"
+    elif [[ ${#cdn_urls_arg[@]} != 0 ]]
+    then
+        CDN_URLS=("${cdn_urls_arg[@]}")
+        log_debug "Using CDN URLs from Central"
+    else
+        CDN_URLS=("https://sdds3.sophosupd.com:443" "https://sdds3.sophosupd.net:443")
+        log_debug "Using default CDN URLs"
+    fi
+    CDN_URL=""
+    for url in "${CDN_URLS[@]}"; do
+        if curl --tlsv1.2 --noproxy '*' -is ${url} -m 60 >/dev/null 2>&1; then
+            CDN_URL="${url}"
+            log_info "Server can connect to CDN address (${CDN_URL}) directly"
+            break
+        else
+            log_debug "Server cannot connect to CDN address (${url}) directly"
+        fi
+    done
+    if [[ -z "$CDN_URL" ]]
+    then
+        if [[ -z "${PROXY}" ]]; then
+            if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 1 ]]; then
+                log_warn "A direct connection to a CDN server could not be established"
+            else
+                log_error "SPL installation will fail as a connection to a CDN server could not be established" "verify_connection_to_cdn"
+            fi
+        else
+            for url in "${CDN_URLS[@]}"; do
+               if curl --tlsv1.2 --proxy "${PROXY}" -is ${url} -m 60 >/dev/null 2>&1; then
+                   log_debug "Server can connect to CDN address (${url}) via ${PROXY}"
+                   CDN_URL="${url}"
+                   break
+               else
+                   log_warn "Server cannot connect to any CDN address via ${PROXY}"
+               fi
+            done
+            [[ -z "${CDN_URL}" ]] && log_error "SPL installation will fail as the server cannot connect to any CDN server directly or via a proxy" "verify_connection_to_cdn"
+        fi
+    fi
+
+    if [[ -n "${CDN_URL}" ]]; then
+        verify_connection_to_cdn "${CDN_URL}"
+        [[ -n "${PROXY}" ]] && verify_connection_to_cdn "${CDN_URL}" "${PROXY}"
+    fi
+    
+    if [[ "${VALID_CDN_CONNECTION}" == 0 && "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]] 
+    then
+        log_error "SPL installation will fail as the server is not able to download packages from the CDN server"
+    else
+        success
+    fi
 }
 
 function verify_network_connections() {
@@ -348,84 +455,8 @@ function verify_network_connections() {
         log_debug "Network connections will be tested with the configured http_proxy: ${http_proxy}"
         PROXY="${http_proxy}"
     fi
-
-    # Check connection to Central
-    log_info "Verifying connections to Sophos Central"
-    verify_connection_to_central
-    [[ -n "${PROXY}" ]] && verify_connection_to_central "${PROXY}"
-    for message_relay in "${MESSAGE_RELAYS[@]}"; do
-        verify_connection_to_central "${message_relay}"
-    done
-    [[ "${VALID_CENTRAL_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as a connection to Sophos Central could not be established"
-
-    # Check connection to SUS
-    log_info "Verifying connections to Sophos Update Service (SUS) server"
-    if [[ -n $OVERRIDE_SUS_LOCATION ]]; then
-        SUS_URL="$OVERRIDE_SUS_LOCATION"
-        echo "Using SUS URL override: $OVERRIDE_SUS_LOCATION"
-    elif [[ -n $sus_url_arg ]]; then
-        SUS_URL="$sus_url_arg"
-        log_debug "Using SUS URL from Central"
-    else
-        SUS_URL="https://sus.sophosupd.com"
-        log_debug "Using default SUS URL"
-    fi
-    verify_connection_to_sus
-    [[ -n "${PROXY}" ]] && verify_connection_to_sus "${PROXY}"
-    for message_relay in "${MESSAGE_RELAYS[@]}"; do
-        verify_connection_to_sus "${message_relay}"
-    done
-    [[ "${VALID_SUS_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as a connection to the SUS server could not be established"
-
-    # Check connection to CDN
-    log_info "Verifying connections to the CDN server"
-    if [[ -n $OVERRIDE_CDN_LOCATION ]]; then
-        CDN_URLS=("$OVERRIDE_CDN_LOCATION")
-        echo "Using CDN URL override: $OVERRIDE_CDN_LOCATION"
-    elif [[ ${#cdn_urls_arg[@]} != 0 ]]
-    then
-        CDN_URLS=("${cdn_urls_arg[@]}")
-        log_debug "Using CDN URLs from Central"
-    else
-        CDN_URLS=("https://sdds3.sophosupd.com:443" "https://sdds3.sophosupd.net:443")
-        log_debug "Using default CDN URLs"
-    fi
-    CDN_URL=""
-    for url in "${CDN_URLS[@]}"; do
-        if curl --tlsv1.2 --noproxy '*' -is ${url} -m 60 >/dev/null 2>&1; then
-            CDN_URL="${url}"
-            log_info "Server can connect to CDN address (${CDN_URL}) directly"
-            break
-        else
-            log_debug "Server cannot connect to CDN address (${url}) directly"
-        fi
-    done
-    if [[ -z "$CDN_URL" ]]
-    then
-        if [[ -z "${PROXY}" ]]; then
-            if [[ "${VALID_UPDATE_CACHE_CONNECTION}" == 1 ]]; then
-                log_warn "A direct connection to a CDN server could not be established"
-            else
-                log_error "SPL installation will fail as a connection to a CDN server could not be established"
-            fi
-        else
-            for url in "${CDN_URLS[@]}"; do
-               if curl --tlsv1.2 --proxy "${PROXY}" -is ${url} -m 60 >/dev/null 2>&1; then
-                   log_debug "Server can connect to CDN address (${url}) via ${PROXY}"
-                   CDN_URL="${url}"
-                   break
-               else
-                   log_warn "Server cannot connect to any CDN address via ${PROXY}"
-               fi
-            done
-            [[ -z "${CDN_URL}" ]] && log_error "SPL installation will fail as the server cannot connect to any CDN server directly or via a proxy"
-        fi
-    fi
-
-    if [[ -n "${CDN_URL}" ]]; then
-        verify_connection_to_cdn "${CDN_URL}"
-        [[ -n "${PROXY}" ]] && verify_connection_to_cdn "${CDN_URL}" "${PROXY}"
-    fi
-    [[ "${VALID_CDN_CONNECTION}" == 0 && "${VALID_UPDATE_CACHE_CONNECTION}" == 0 ]] && log_error "SPL installation will fail as the server is not able to download packages from the CDN server"
-    success
+    
+    verify_all_possible_connections_to_central
+    verify_all_possible_connections_to_sus
+    verify_all_possible_connections_to_cdn
 }

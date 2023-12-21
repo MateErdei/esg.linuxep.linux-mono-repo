@@ -521,5 +521,5 @@ Thin Installer Uses Baked In SUS and CDN URLs For Install Checks
     Check Thininstaller Log Does Not Contain    https://sdds3.sophosupd.net
     ${compatibilityCheckResults} =  Get File    ./tmp/thin_installer/thininstaller_report.ini
     log  ${compatibilityCheckResults}
-    Should Contain    ${compatibilityCheckResults}    networkConnectionsVerified = false
+    Should Contain    ${compatibilityCheckResults}    centralConnectionVerified = false
     Should Contain    ${compatibilityCheckResults}    SPL installation will fail as a connection to Sophos Central could not be established

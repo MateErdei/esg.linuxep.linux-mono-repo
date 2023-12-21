@@ -289,4 +289,4 @@ SDDS3 Thin Installer Doesnt Repeat Field Due To Not Connecting to SUS and CDN
     Run Default Thininstaller  33    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
     log  ${compatibilityCheckResults}
-    Should Contain X Times  ${compatibilityCheckResults}    networkConnectionsVerified = false    1
+    Should Contain X Times  ${compatibilityCheckResults}    susConnectionVerified = false    1

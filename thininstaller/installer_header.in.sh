@@ -95,21 +95,30 @@ function cleanup_and_exit() {
 
 function write_check_result()
 {
-    key=${1}
-    shift
-    value="$@"
-    ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstaller_report.ini"
-    if ! grep -q "${key}" "${ini_file}" ; then
-      (umask 0177 && echo "${key} = ${value}" >> "${ini_file}")
+    if [[ -z ${PRE_INSTALL_TEST_ONLY} ]]
+    then
+        key=${1}
+        shift
+        value="$@"
+        ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstaller_report.ini"
+        if ! grep -q "${key}" "${ini_file}" 2>/dev/null
+        then
+          (umask 0177 && echo "${key} = ${value}" >> "${ini_file}")
+        fi
     fi
 }
 
-function write_arg_to_file()
+function write_args_to_file()
 {
-    key=${1#"--"}
-    key=${key%=*}
-    ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstallerArgs.ini"
-    (umask 0177 && echo "${key} = true" >> ${ini_file})
+    if [[ -z ${PRE_INSTALL_TEST_ONLY} ]]
+    then
+        args=("$@")
+        ini_file="${SOPHOS_TEMP_DIRECTORY}/thininstallerArgs.ini"
+        for key in "${args[@]}"
+        do
+            (umask 0177 && echo "${key} = true" >> ${ini_file})
+        done
+    fi
 }
 
 function checkFunctionToStr
@@ -141,15 +150,15 @@ function checkFunctionToStr
         echo -n "networkConnectionsVerified"
         ;;
 
-      verify_connection_to_cdn)
+      verify_all_possible_connections_to_cdn)
         echo -n "cdnConnectionVerified"
         ;;
 
-      verify_connection_to_sus)
+      verify_all_possible_connections_to_sus)
         echo -n "susConnectionVerified"
         ;;
 
-      verify_connection_to_central)
+      verify_all_possible_connections_to_central)
         echo -n "centralConnectionVerified"
         ;;
 
@@ -193,7 +202,9 @@ function checkFunctionToStr
 }
 
 function log_error() {
-    check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
+    func_name=${FUNCNAME[1]}
+    [[ -n "$2" ]] && func_name="$2"
+    check_performed=$(checkFunctionToStr ${func_name})
     write_check_result ${check_performed} "false"
     COMPATIBILITY_ERROR_FOUND=1
     [[ "${SUMMARY}" == "success" ]] && SUMMARY="${1}"
@@ -203,11 +214,13 @@ function log_error() {
 function success()
 {
     check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
-    [[ -z "${COMPATIBILITY_ERROR_FOUND}" ]] && write_check_result ${check_performed} "true"
+    [[ -z ${COMPATIBILITY_ERROR_FOUND} ]] && write_check_result ${check_performed} "true"
 }
 
 function failure() {
-    check_performed=$(checkFunctionToStr ${FUNCNAME[1]})
+    func_name=${FUNCNAME[1]}
+    [[ -n "$3" ]] && func_name="$3"
+    check_performed=$(checkFunctionToStr ${func_name})
     write_check_result ${check_performed} "false"
     if [[ "${SUMMARY}" != "success" ]]
     then
@@ -346,10 +359,6 @@ function sophos_mktempdir() {
     fi
 
     echo "${_tmpdir}"
-}
-
-function is_sspl_installed() {
-    systemctl list-unit-files | grep -q sophos-spl
 }
 
 function check_for_duplicate_arguments() {
@@ -515,6 +524,7 @@ function register_central_with_previous_installation()
           if [ $? -ne 0 ]; then
               failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central with previous existing installation $?"
           fi
+          write_check_result "summary" "successfully re-registered existing installation"
           cleanup_and_exit ${EXITCODE_SUCCESS}
       else
           echo "Existing installation failed validation and will be reinstalled"
@@ -523,6 +533,7 @@ function register_central_with_previous_installation()
 }
 
 declare -a INSTALL_OPTIONS_ARGS
+declare -a ARGS_FOR_TELEMETRY
 # Handle arguments
 check_for_duplicate_arguments "$@"
 FORCE_UNINSTALL_SAV=0
@@ -530,9 +541,9 @@ FORCE_INSTALL=0
 UNEXPECTED_ARGUMENT=0
 HELP_FLAG=0
 VERSION_FLAG=0
-make_tmp_dir
 for i in "$@"; do
-    write_arg_to_file $i
+    key=${i#"--"}
+    ARGS_FOR_TELEMETRY+=("${key%=*}")
     case $i in
     --install-dir=*)
         SOPHOS_INSTALL="${i#*=}"
@@ -634,6 +645,8 @@ then
   failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $UNEXPECTED_ARG_VAL --- aborting install. Please see '--help' output for list of valid arguments"
 fi
 
+make_tmp_dir
+write_args_to_file "${ARGS_FOR_TELEMETRY[@]}"
 if [[ ${NO_PRE_INSTALL_TESTS} != 1 ]]
 then
     pre_install_checks
@@ -841,10 +854,6 @@ elif is_sspl_installed; then
 
     # Check the existing installation is ok, if it is then register again with the creds from this installer.
     register_central_with_previous_installation
-
-elif [ -d "${SOPHOS_INSTALL}" ]; then
-    # sspl not installed
-    failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory." "Don't remove install directory"
 fi
 
 tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
@@ -925,8 +934,7 @@ INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.
 inst_ret=$?
 handle_installer_errorcodes ${inst_ret}
 
-# writing success to the thininstaller_report.ini
-(umask 0177 && echo "summary = successfully installed product" >> "${SOPHOS_TEMP_DIRECTORY}/thininstaller_report.ini")
+write_check_result "summary" "successfully installed product"
 cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
 __ARCHIVE_BELOW__
