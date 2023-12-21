@@ -57,6 +57,46 @@ Device Isolation Applies Network Filtering Rules
     Should Be Equal As Integers  ${result.rc}  ${0}   "nft list ruleset failed with rc=${result.rc}"
 
 
+Device Isolation Allows Localhost
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Baseline - should be able to access sophos.com before isolation but not after.
+    Can Curl Url    https://sophos.com
+
+    ${simple_server} =	Start Process	python3    -m    http.server    8001    -d  ${ROBOT_SCRIPTS_PATH}/actions/misc
+    Register Cleanup   Terminate Process	${simple_server}
+    Wait Until Keyword Succeeds    10s    1s    Can Curl Url    http://localhost:8001
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+    # Check we can access localhost
+    Can Curl Url    http://localhost:8001
+
+    # Disable isolation
+    Send Disable Isolation Action  uuid=1
+    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+    Wait Until Keyword Succeeds    10s    1s    Can Curl Url    https://sophos.com
+    Can Curl Url    http://localhost:8001
+
+    # Network filtering rules should be empty
+    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Be Equal As Strings  ${result.stdout}    ${EMPTY}
+
+
 *** Keywords ***
 
 Send Enable Isolation Action
