@@ -8,10 +8,13 @@
 
 namespace Plugin
 {
-    // TODO LINUXDAR-7964 Remove [[maybe_unused]]
     NftWrapper::IsolateResult
-    NftWrapper::applyIsolateRules([[maybe_unused]] const std::vector<Plugin::IsolationExclusion> &allowList)
+    NftWrapper::applyIsolateRules(const std::vector<Plugin::IsolationExclusion> &allowList)
     {
+
+        // TODO LINUXDAR-7962 get all the needed GIDs.
+        // add multiple lines like "meta skgid REPLACE_WITH_GID! accept" to the OUTPUT chain.
+
         auto fs = Common::FileSystem::fileSystem();
 
         if (!fs->exists(Plugin::nftBinary()))
@@ -31,20 +34,127 @@ namespace Plugin
         std::string outgoingAllowListString;
         std::string incomingAllowListString;
 
-        // TODO LINUXDAR-7964 Apply exclusions.
+        LOGDEBUG("Processing " << allowList.size() << " allow-listed exclusions");
+        const std::string indent = "            ";
+        for (const auto &exclusion: allowList)
+        {
+            // Generate outbound rules
+            if (exclusion.direction() == Plugin::IsolationExclusion::OUT ||
+                exclusion.direction() == Plugin::IsolationExclusion::BOTH)
+            {
+                // If there are no addresses specified, then we allow all specified ports to all addresses
+                if (exclusion.remoteAddresses().empty())
+                {
+                    for (const auto &localPort: exclusion.localPorts())
+                    {
+                        outgoingAllowListString += indent + "tcp sport " + localPort + " accept\n";
+                        outgoingAllowListString += indent + "udp sport " + localPort + " accept\n";
+                    }
+                    for (const auto &remotePort: exclusion.remotePorts())
+                    {
+                        outgoingAllowListString += indent + "tcp dport " + remotePort + " accept\n";
+                        outgoingAllowListString += indent + "udp dport " + remotePort + " accept\n";
+                    }
+                }
+                else
+                {
+                    // If there are remote addresses specified, then we only allow ports to those remote addresses
+                    for (const auto &remoteAddress: exclusion.remoteAddresses())
+                    {
+                        if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
+                        {
+                            outgoingAllowListString += indent + "ip daddr " + remoteAddress + " accept\n";
+                        }
+                        else
+                        {
+                            for (const auto &remotePort: exclusion.remotePorts())
+                            {
+                                outgoingAllowListString +=
+                                        indent + "ip daddr " + remoteAddress + " tcp dport " + remotePort + " accept\n";
+                                outgoingAllowListString +=
+                                        indent + "ip daddr " + remoteAddress + " udp dport " + remotePort + " accept\n";
+                            }
+                            for (const auto &localPort: exclusion.localPorts())
+                            {
+                                outgoingAllowListString +=
+                                        indent + "ip daddr " + remoteAddress + " tcp sport " + localPort + " accept\n";
+                                outgoingAllowListString +=
+                                        indent + "ip daddr " + remoteAddress + " udp sport " + localPort + " accept\n";
+                            }
+                        }
+                    }
+                }
+            }
 
-        LOGDEBUG("Incoming allow list: " << incomingAllowListString);
-        LOGDEBUG("Outgoing allow list: " << outgoingAllowListString);
+            // Generate inbound rules
+            if (exclusion.direction() == Plugin::IsolationExclusion::IN ||
+                exclusion.direction() == Plugin::IsolationExclusion::BOTH)
+            {
+                // If there are no addresses specified, then we allow all specified remote ports in
+                if (exclusion.remoteAddresses().empty())
+                {
+                    for (const auto &localPort: exclusion.localPorts())
+                    {
+                        incomingAllowListString +=
+                                indent + "tcp dport " + localPort + " accept\n";
+                        incomingAllowListString +=
+                                indent + "udp dport " + localPort + " accept\n";
+                    }
+                    for (const auto &remotePort: exclusion.remotePorts())
+                    {
+                        incomingAllowListString +=
+                                indent + "tcp sport " + remotePort + " accept\n";
+                        incomingAllowListString +=
+                                indent + "udp sport " + remotePort + " accept\n";
+                    }
+                }
+                else
+                {
+                    // If there are remote addresses, then we only allow ports from those remote addresses
+                    for (const auto &remoteAddress: exclusion.remoteAddresses())
+                    {
+                        if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
+                        {
+                            incomingAllowListString += indent + "ip saddr " + remoteAddress + " accept\n";
+                        }
+                        else
+                        {
+                            for (const auto &remotePort: exclusion.remotePorts())
+                            {
+                                incomingAllowListString +=
+                                        indent + "ip saddr " + remoteAddress + " tcp sport " + remotePort +
+                                        " accept\n";
+                                incomingAllowListString +=
+                                        indent + "ip saddr " + remoteAddress + " udp sport " + remotePort +
+                                        " accept\n";
+                            }
+                            for (const auto &localPort: exclusion.localPorts())
+                            {
+                                incomingAllowListString +=
+                                        indent + "ip saddr " + remoteAddress + " tcp dport " + localPort +
+                                        " accept\n";
+                                incomingAllowListString +=
+                                        indent + "ip saddr " + remoteAddress + " udp dport " + localPort +
+                                        " accept\n";
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // TODO LINUXDAR-7964 Apply sophos GID exclusion.
+
+        // Note - Some platforms automatically convert icmp to 1 and vice versa
 
         rules << "table inet " << TABLE_NAME << R"( {
     chain INPUT {
             type filter hook input priority filter; policy drop;
-            ct state invalid counter packets 0 bytes 0 drop
-            iifname "lo" counter packets 0 bytes 0 accept
-            counter packets 0 bytes 0 jump states
-            ip protocol icmp counter packets 0 bytes 0 accept
+            ct state invalid drop
+            iifname "lo" accept
+            jump states
+            ip protocol icmp accept
+)" << incomingAllowListString << R"(
     }
 
     chain FORWARD {
@@ -53,24 +163,24 @@ namespace Plugin
 
     chain OUTPUT {
             type filter hook output priority filter; policy drop;
-            counter packets 0 bytes 0 jump outgoing-services
-            oifname "lo" counter packets 0 bytes 0 accept
-            counter packets 0 bytes 0 jump states
-            counter packets 0 bytes 0 jump outgoing-services
+            jump outgoing-services
+            oifname "lo" accept
+            jump states
+            jump outgoing-services
     }
 
     chain outgoing-services {
-            tcp dport 53 counter packets 0 bytes 0 accept
-            udp dport 53 counter packets 0 bytes 0 accept
+            tcp dport 53 accept
+            udp dport 53 accept
+            ip protocol icmp accept
 )" << outgoingAllowListString << R"(
-            ip protocol icmp counter packets 0 bytes 0 accept
     }
 
     chain states {
-            ip protocol tcp ct state established,related counter packets 0 bytes 0 accept
-            ip protocol udp ct state established,related counter packets 0 bytes 0 accept
-            ip protocol icmp ct state established,related counter packets 0 bytes 0 accept
-            counter packets 0 bytes 0 return
+            ip protocol tcp ct state established,related accept
+            ip protocol udp ct state established,related accept
+            ip protocol icmp ct state established,related accept
+            return
     }
 })";
 
@@ -80,12 +190,7 @@ namespace Plugin
         fs->writeFileAtomically(rulesFile, rules.str(), Plugin::pluginTempDir(), mode);
 
         auto process = ::Common::Process::createProcess();
-
-
-
-
-        // TODO LINUXDAR-7964 Remove -c option once we have allow listing working.
-        process->exec(Plugin::nftBinary(), {"-c", "-f", rulesFile});
+        process->exec(Plugin::nftBinary(), {"-f", rulesFile});
         auto status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {

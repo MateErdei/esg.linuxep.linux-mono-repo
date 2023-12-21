@@ -174,7 +174,7 @@ TEST_F(PluginAdapterTests, logsWhenIsolationEnabled)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = { "-c", "-f", "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules"};
+                std::vector<std::string> args = {"-f", "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules"};
                 EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                     .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));

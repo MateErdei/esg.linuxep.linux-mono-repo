@@ -13,10 +13,10 @@ namespace Plugin
         [[nodiscard]] std::string xml() const;
         [[nodiscard]] std::string xmlWithoutTimestamp() const;
 
-        static std::string generate_xml(const std::string& revId, bool adminIsolationEnabled, const std::string& timestamp);
+        static std::string generateXml(const std::string& revId, bool adminIsolationEnabled, const std::string& timestamp);
         using clock_t = std::chrono::system_clock;
         using timepoint_t = clock_t::time_point;
-        static std::string generate_xml(const std::string& revId, bool adminIsolationEnabled, const timepoint_t& timestamp);
+        static std::string generateXml(const std::string& revId, bool adminIsolationEnabled, const Plugin::NTPStatus::timepoint_t &timepoint);
     private:
         std::string revId_;
         bool adminIsolationEnabled_;

@@ -13,12 +13,12 @@ using namespace Plugin;
 std::string Plugin::NTPStatus::xml() const
 {
     auto now = NTPStatus::clock_t::now();
-    return generate_xml(revId_, adminIsolationEnabled_, now);
+    return generateXml(revId_, adminIsolationEnabled_, now);
 }
 
 std::string Plugin::NTPStatus::xmlWithoutTimestamp() const
 {
-    return generate_xml(revId_, adminIsolationEnabled_, "");
+    return generateXml(revId_, adminIsolationEnabled_, "");
 }
 
 Plugin::NTPStatus::NTPStatus(std::string revId, bool adminIsolationEnabled)
@@ -27,16 +27,16 @@ Plugin::NTPStatus::NTPStatus(std::string revId, bool adminIsolationEnabled)
 {
 }
 
-std::string Plugin::NTPStatus::generate_xml(const std::string& revId, bool adminIsolationEnabled,
-                                            const Plugin::NTPStatus::timepoint_t& timepoint)
+std::string Plugin::NTPStatus::generateXml(const std::string& revId, bool adminIsolationEnabled,
+                                           const Plugin::NTPStatus::timepoint_t& timepoint)
 {
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(timepoint, Common::UtilityImpl::Granularity::seconds);
-    return generate_xml(revId, adminIsolationEnabled, timestamp);
+    return generateXml(revId, adminIsolationEnabled, timestamp);
 }
 
-std::string Plugin::NTPStatus::generate_xml(const std::string& revId,
-                                            bool adminIsolationEnabled,
-                                            const std::string& timestamp)
+std::string Plugin::NTPStatus::generateXml(const std::string& revId,
+                                           bool adminIsolationEnabled,
+                                           const std::string& timestamp)
 {
     const static std::string TEMPLATE=R"SOPHOS(<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <status xmlns:csc='com.sophos\msys\csc' xmlns='com.sophos\mansys\status' type='NetworkThreatProtection'>

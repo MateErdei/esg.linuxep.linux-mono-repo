@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <netdb.h>
 
 namespace Common::UtilityImpl
 {
@@ -426,6 +427,15 @@ namespace Common::UtilityImpl
             std::transform(
                 string.begin(), string.end(), string.begin(), [](unsigned char c) { return std::tolower(c); });
             return string;
+        }
+
+        static bool isValidIpAddress(const std::string& address)
+        {
+            struct addrinfo* result { nullptr };
+            struct addrinfo hints { };
+            hints.ai_flags = AI_NUMERICHOST; // do not perform network lookup, address is assumed to be an IP
+            hints.ai_family = AF_UNSPEC;
+            return (::getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0);
         }
     };
 } // namespace Common::UtilityImpl

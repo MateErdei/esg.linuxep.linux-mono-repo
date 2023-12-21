@@ -471,3 +471,37 @@ TEST(TestStringUtils, isPositiveInteger)
     ASSERT_EQ(StringUtils::isPositiveInteger("123e"), false);
     ASSERT_EQ(StringUtils::isPositiveInteger("e"), false);
 }
+
+TEST(TestStringUtils, isValidIpAddressValidatesIpv4Addresses)
+{
+    EXPECT_TRUE(StringUtils::isValidIpAddress("1.2.3.4"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("11.22.33.44"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("111.222.111.222"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("1.2.3")); // last number can be treated as 16bits!
+
+    EXPECT_FALSE(StringUtils::isValidIpAddress("a string"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("1.2.3."));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("1.2.3.4.5"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("1.2.3.266"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("500.500.500.500"));
+}
+
+TEST(TestStringUtils, isValidIpAddressValidatesIpv6Addresses)
+{
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2001:0db8:85a3:0000:0000:8a2e:0370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2002:db8:85a3:0:0:8a2e:370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2003:db8:85a3:ffff:8a2e:370:7334:8"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2004:0db8:85a3:0000:0000:8a2e:0370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2005:db8:85a3:0::8a2e:370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2222:db8:85a3::8a2e:370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("1:2:3:4:5:6:7:8"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("::2:3:4:5:6:7:8"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2001:db8:85a3::8a2e:370:7334"));
+    EXPECT_TRUE(StringUtils::isValidIpAddress("2001:db8:85a3::8a2e:370:7334:1234"));
+
+    EXPECT_FALSE(StringUtils::isValidIpAddress("a string"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("2001:db8:85a3::8a2e:370:7334:1234:1234"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("2001:db8:85a3::8a2e:370:7334:1234:1234:1234"));
+    EXPECT_FALSE(StringUtils::isValidIpAddress("2001:db8:85a3::8a2e:370:7334:1234:1234:1234:1234"));
+}
+

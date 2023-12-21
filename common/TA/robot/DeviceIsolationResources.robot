@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 
+Library   ${COMMON_TEST_LIBS}/OSUtils.py
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
 Library   ${COMMON_TEST_LIBS}/OnFail.py
 Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
@@ -89,9 +90,13 @@ Device Isolation Test Setup
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Register on fail  dump log  ${DEVICE_ISOLATION_LOG_PATH}
-    Register on fail  List File In Test Dir
 
 Device Isolation Test Teardown
+    # Just in case disabling isolation fails, clear all the network filter rules
+    ${nft_binary_exists} =    Does File Exist    ${COMPONENT_ROOT_PATH}/bin/nft
+    Run Keyword If
+    ...    ${nft_binary_exists}
+    ...    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    flush    ruleset
 	Run teardown functions
 
 Send Enable Isolation Action

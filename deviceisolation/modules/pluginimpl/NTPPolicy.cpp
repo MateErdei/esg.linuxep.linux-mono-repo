@@ -4,19 +4,27 @@
 #include "Logger.h"
 
 #include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 using namespace Plugin;
 
 namespace
 {
     using Common::XmlUtilities::AttributesMap;
-    std::vector<std::string> getContents(const AttributesMap& attributeMap, const std::string& entityPath)
+    std::vector<std::string> getContents(const AttributesMap& attributeMap, const std::string& entityPath, const std::function<bool(const std::string&)>& verifier = [](const std::string&){return true;} )
     {
         auto entities = attributeMap.lookupMultiple(entityPath);
         std::vector<std::string> results;
         for (const auto& m : entities)
         {
-            results.emplace_back(m.contents());
+            if (verifier(m.contents()))
+            {
+                results.emplace_back(m.contents());
+            }
+            else
+            {
+                throw Common::Exceptions::IException(LOCATION, "Invalid value " + m.contents() + " for " + entityPath);
+            }
         }
         return results;
     }
@@ -33,6 +41,7 @@ namespace
         {
             return {};
         }
+
         auto exclusions = attributeMap.entitiesThatContainPath("policy/configuration/selfIsolation/exclusions/exclusion", false);
         std::vector<IsolationExclusion> results;
         for (const auto& x : exclusions)
@@ -57,9 +66,41 @@ namespace
                 }
             }
 
-            temp.setRemoteAddresses(getContents(attributeMap, x + "/remoteAddress"));
-            temp.setLocalPorts(getContents(attributeMap, x + "/localPort"));
-            temp.setRemotePorts(getContents(attributeMap, x + "/remotePort"));
+            // Extract and validate any remote addresses
+            try
+            {
+                auto isValidAddress = [](const std::string &s){
+                    return Common::UtilityImpl::StringUtils::isValidIpAddress(s);
+                };
+                temp.setRemoteAddresses(getContents(attributeMap, x + "/remoteAddress", isValidAddress));
+            }
+            catch (std::runtime_error& exception)
+            {
+                LOGWARN("Invalid exclusion remote address: " << exception.what());
+                continue;
+            }
+
+            // Extract and validate any ports
+            auto isNumber = [](const std::string& s){return Common::UtilityImpl::StringUtils::isPositiveInteger(s);};
+            try
+            {
+                temp.setLocalPorts(getContents(attributeMap, x + "/localPort", isNumber));
+            }
+            catch(const std::runtime_error& exception)
+            {
+                LOGWARN("Invalid exclusion local port: " << exception.what());
+                continue;
+            }
+
+            try
+            {
+                temp.setRemotePorts(getContents(attributeMap, x + "/remotePort", isNumber));
+            }
+            catch(const std::runtime_error& exception)
+            {
+                LOGWARN("Invalid exclusion remote port: " << exception.what());
+                continue;
+            }
 
             results.push_back(temp);
         }
@@ -74,7 +115,7 @@ NTPPolicy::NTPPolicy(const std::string& xml)
     auto compAttr = attributeMap.lookupMultiple("policy/csc:Comp");
     if (compAttr.size() != 1)
     {
-        throw NTPPolicyException(LOCATION, "Incorrect number of csc:Comp in policy");
+        throw NTPPolicyException(LOCATION, "Incorrect number of csc:Comp in policy, found: " + std::to_string(compAttr.size()) + ", expected: 1");
     }
     auto comp = compAttr.at(0);
     if (comp.value("policyType") != "24")

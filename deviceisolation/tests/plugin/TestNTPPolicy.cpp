@@ -211,7 +211,7 @@ TEST_F(TestNTPPolicy, noDirection)
     <selfIsolation>
         <exclusions>
             <exclusion type="ip">
-                <remoteAddress>REMOTE_ADDRESS</remoteAddress>
+                <remoteAddress>1.2.3.4</remoteAddress>
                 <localPort>22</localPort>
                 <remotePort>22</remotePort>
             </exclusion>
@@ -261,7 +261,7 @@ TEST_F(TestNTPPolicy, excludeHost)
     <selfIsolation>
     <exclusions>
         <exclusion type="ip">
-            <remoteAddress>REMOTE_ADDRESS</remoteAddress>
+            <remoteAddress>10.10.10.10</remoteAddress>
         </exclusion>
     </exclusions>
     </selfIsolation>
@@ -273,7 +273,7 @@ TEST_F(TestNTPPolicy, excludeHost)
     auto exclusion = exclusions.at(0);
     ASSERT_FALSE(exclusion.remoteAddresses().empty());
     auto address = exclusion.remoteAddresses().at(0);
-    EXPECT_EQ(address, "REMOTE_ADDRESS");
+    EXPECT_EQ(address, "10.10.10.10");
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
 }
@@ -338,7 +338,7 @@ TEST_F(TestNTPPolicy, noLocalPort)
     <exclusions>
         <exclusion type="ip">
             <direction>in</direction>
-            <remoteAddress>REMOTE_ADDRESS</remoteAddress>
+            <remoteAddress>11.11.11.11</remoteAddress>
             <remotePort>22</remotePort>
         </exclusion>
     </exclusions>
@@ -350,6 +350,103 @@ TEST_F(TestNTPPolicy, noLocalPort)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     EXPECT_TRUE(exclusion.localPorts().empty());
+}
+
+TEST_F(TestNTPPolicy, localPortIsNotNumeric)
+{
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>12.12.12.12</remoteAddress>
+            <localPort>not a number!</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+
+TEST_F(TestNTPPolicy, remoteAddressIsMalformed)
+{
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>not an ip</remoteAddress>
+            <localPort>not a number!</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+
+TEST_F(TestNTPPolicy, remoteAddressIsMalformedAndOneIsValid)
+{
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>not an ip</remoteAddress>
+            <localPort>not a number!</localPort>
+        </exclusion>
+        <exclusion type="ip">
+            <direction>out</direction>
+            <remoteAddress>1.2.3.4</remoteAddress>
+            <localPort>80</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    ASSERT_EQ(exclusions.at(0).localPorts().size(), 1);
+    ASSERT_EQ(exclusions.at(0).remotePorts().size(), 0);
+    ASSERT_EQ(exclusions.at(0).direction(), Plugin::IsolationExclusion::OUT);
+}
+
+TEST_F(TestNTPPolicy, remotePortIsNotNumeric)
+{
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>3.3.3.3</remoteAddress>
+            <remotePort>not a number!</remotePort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    ASSERT_EQ(policy.exclusions().size(), 0);
 }
 
 TEST_F(TestNTPPolicy, excludeRemotePort)
@@ -388,7 +485,7 @@ TEST_F(TestNTPPolicy, noRemotePort)
     <exclusions>
         <exclusion type="ip">
             <direction>in</direction>
-            <remoteAddress>REMOTE_ADDRESS</remoteAddress>
+            <remoteAddress>4.4.4.4</remoteAddress>
             <localPort>22</localPort>
         </exclusion>
     </exclusions>
@@ -493,4 +590,56 @@ TEST_F(TestNTPPolicy, examplePolicy)
 </policy>)SOPHOS";
     NTPPolicy policy{POLICY};
     EXPECT_EQ(policy.revId(), "{{revId}}");
+}
+
+TEST_F(TestNTPPolicy, examplePolicyFromCentral)
+{
+    constexpr const auto examplePolicy = R"SOPHOS(<?xml version="1.0"?>
+<policy xmlns="com.sophos\mansys\policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" policyType="24" RevID="fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd">
+        <enabled>true</enabled>
+        <connectionTracking>true</connectionTracking>
+        <exclusions>
+            <filePathSet>
+                <filePath>/tmp/eicar.com</filePath>
+                <filePath>/test1/</filePath>
+            </filePathSet>
+        </exclusions>
+        <selfIsolation>
+            <enabled>false</enabled>
+            <exclusions>
+                <exclusion type="ip">
+                    <direction>in</direction>
+                    <localPort>443</localPort>
+                </exclusion>
+                <exclusion type="ip">
+                    <direction>out</direction>
+                    <remoteAddress>192.168.1.9</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.1</remoteAddress>
+                    <localPort>22</localPort>
+                </exclusion>
+            </exclusions>
+        </selfIsolation>
+        <ips>
+            <enabled>false</enabled>
+            <exclusions/>
+        </ips>
+    </configuration>
+</policy>)SOPHOS";
+    NTPPolicy policy{examplePolicy};
+    EXPECT_EQ(policy.revId(), "fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15");
+
+    EXPECT_EQ(policy.exclusions().size(), 3);
+
+    EXPECT_EQ(policy.exclusions().at(0).direction(), Plugin::IsolationExclusion::IN);
+    EXPECT_EQ(policy.exclusions().at(0).localPorts().at(0), "443");
+
+    EXPECT_EQ(policy.exclusions().at(1).direction(), Plugin::IsolationExclusion::OUT);
+    EXPECT_EQ(policy.exclusions().at(1).remoteAddresses().at(0), "192.168.1.9");
+
+    EXPECT_EQ(policy.exclusions().at(2).remoteAddresses().at(0), "192.168.1.1");
+    EXPECT_EQ(policy.exclusions().at(2).localPorts().at(0), "22");
 }
