@@ -104,7 +104,7 @@ namespace Plugin
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
 
         inline static const unsigned long MAXIMUM_EVENTED_RECORDS_ALLOWED = 100000;
-        inline static const unsigned long DEFAULT_WATCHDOG_MEMORY_LIMIT_MB = 250;
+        inline static const unsigned long DEFAULT_WATCHDOG_MEMORY_LIMIT_MB = 300;
         inline static const unsigned long DEFAULT_WATCHDOG_CPU_PERCENTAGE = 30;
         inline static const unsigned long DEFAULT_WATCHDOG_DELAY_SECONDS = 60;
         inline static const unsigned long DEFAULT_WATCHDOG_LATENCY_SECONDS = 0;

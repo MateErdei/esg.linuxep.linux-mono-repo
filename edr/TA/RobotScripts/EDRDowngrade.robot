@@ -6,7 +6,7 @@ Library         OperatingSystem
 Library         Collections
 
 Library         ../Libs/XDRLibs.py
-Library         ../Libs/FileSystemLibs.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot

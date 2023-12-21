@@ -729,7 +729,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     Osquery Flag File Should Contain    --logger_min_status=1
     Osquery Flag File Should Contain    --disable_watchdog=false
     Osquery Flag File Should Contain    --watchdog_level=0
-    Osquery Flag File Should Contain    --watchdog_memory_limit=250
+    Osquery Flag File Should Contain    --watchdog_memory_limit=300
     Osquery Flag File Should Contain    --watchdog_utilization_limit=30
     Osquery Flag File Should Contain    --watchdog_delay=60
     Osquery Flag File Should Contain    --enable_extensions_watchdog=true

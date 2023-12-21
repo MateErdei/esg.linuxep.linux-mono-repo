@@ -3,12 +3,12 @@ Documentation    Suite description
 
 Library         Process
 Library         OperatingSystem
-Library         ../Libs/FileSystemLibs.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/rsyslogUtils.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
+Resource        ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall All
@@ -88,6 +88,7 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     ...   Check Rsyslog Started Without Error
 
 EDR Restarts If File Descriptor Limit Hit
+    Register Cleanup        Cleanup Telemetry Server
     ${is_sles12} =      Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
     Pass Execution If  ${is_sles12}  LINUXDAR-7106 - test broken on SLES12 - wont be fixed
     Check EDR Plugin Installed With Base
@@ -105,11 +106,17 @@ EDR Restarts If File Descriptor Limit Hit
     ${mark} =   Mark Log Size   ${EDR_LOG_PATH}
     Send Plugin Actions  edr  LiveQuery  corr  ${actionContent}  ${100}
 
-    Wait For Log Contains From Mark    ${mark}    Early request to stop found.       ${60}
+    Wait For Log Contains From Mark    ${mark}    Restarting due to having too many file descriptors    ${60}
     Wait For Log Contains From Mark    ${mark}    Completed initialisation of EDR    ${240}
 
     # LINUXDAR-8109 - Until fixed it is possible that we lose a couple of actions while EDR is restarting
     Wait For Log Contains N Times From Mark   ${mark}   Received new Action   ${95}
+    
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should Contain    ${telemetryFileContents}    "edr-restarts-filedescriptor":1
+    Should Contain    ${telemetryFileContents}    "edr-unexpected-restarts-11008":1
 
 
 EDR Plugin Can Have Logging Level Changed Individually

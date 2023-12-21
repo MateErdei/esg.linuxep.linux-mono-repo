@@ -6,10 +6,11 @@ Library         DateTime
 
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ../Libs/OSLibs.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/XDRLibs.py
-Library         ../Libs/FileSystemLibs.py
 
 Resource    ComponentSetup.robot
 
@@ -317,6 +318,7 @@ EDR And Base Teardown Without Starting EDR
 
 EDR And Base Teardown
     EDR And Base Teardown Without Starting EDR
+    Run Cleanup Functions
     Start EDR
 
 EDR And Base Teardown No Stop

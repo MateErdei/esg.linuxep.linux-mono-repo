@@ -5,7 +5,7 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/MockSystemExecutables.py
 Library         ../Libs/rsyslogUtils.py
 Library         ../Libs/UserUtils.py
-Library         ../Libs/FileSystemLibs.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot

@@ -96,7 +96,7 @@ namespace Plugin
             m_osqueryConfigurator()
     {
         updateExtensions();
-        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback(TELEMETRY_CALLBACK_COOKIE, [this](Common::Telemetry::TelemetryHelper& telemetry){ telemetryResetCallback(telemetry); });
+        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback(EdrCommon::TELEMETRY_CALLBACK_COOKIE, [this](Common::Telemetry::TelemetryHelper& telemetry){ telemetryResetCallback(telemetry); });
     }
 
     void PluginAdapter::updateExtensions()
@@ -123,12 +123,18 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::mainLoop()
+    void PluginAdapter::abortQueriesAndClearQueue()
     {
-
+        m_parallelQueryProcessor.abortQueries();
+        m_callback->setOsqueryShouldBeRunning(false);
+        m_queueTask->clearQueue();
+    }
+    
+    int PluginAdapter::mainLoop()
+    {
+        int ret = 0;
         m_callback->setRunning(true);
-
-
+        
         try
         {
             m_baseService->requestPolicies("LiveQuery");
@@ -159,19 +165,26 @@ namespace Plugin
 
         try
         {
-            innerMainLoop();
+            ret = innerMainLoop();
         }
         catch (DetectRequestToStop& ex)
         {
             LOGINFO("Early request to stop found.");
-            m_parallelQueryProcessor.abortQueries();
-            m_callback->setOsqueryShouldBeRunning(false);
-            m_queueTask->clearQueue();
+            abortQueriesAndClearQueue();
+            ret = EdrCommon::RESTART_EXIT_CODE;
         }
+        catch (FileDescriptorLimitReached& ex)
+        {
+            LOGWARN(ex.what());
+            abortQueriesAndClearQueue();
+            ret = EdrCommon::E_FD_LIMIT_REACHED;
+        }
+        return ret;
     }
 
-    void PluginAdapter::innerMainLoop()
+    int PluginAdapter::innerMainLoop()
     {
+        int ret = EdrCommon::RESTART_EXIT_CODE;
         LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
@@ -180,7 +193,7 @@ namespace Plugin
 
         processFlags(flagsPolicy, true);
         processLiveQueryPolicy(liveQueryPolicy, true);
-//      Send Status On Startup
+        // Send Status On Startup
         sendLiveQueryStatus();
         cleanUpOldOsqueryFiles();
         LOGSUPPORT("Start Osquery");
@@ -265,12 +278,13 @@ namespace Plugin
                 lastMemoryCheckTime = timeNow;
                 if (pluginMemoryAboveThreshold())
                 {
-                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << EdrCommon::MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
                     Common::Telemetry::TelemetryHelper::getInstance().increment(
                         plugin::telemetryEdrRestartsMemory, 1UL);
                     // Push stop task onto the task queue, to ensure shutdown cleanly, and ensures a
                     // constant flow of tasks being put onto the queue does not prevent shutdown.
                     m_queueTask->pushStop();
+                    return EdrCommon::E_MEMORY_LIMIT_REACHED;
                 }
             }
 
@@ -293,7 +307,7 @@ namespace Plugin
                         LOGDEBUG("Process task STOP");
                         osqueryDataRetentionCheckState->enabled = false;
                         stopOsquery();
-                        return;
+                        return ret;
                     case Task::TaskType::START_OSQUERY:
                         LOGDEBUG("Process task START_OSQUERY");
                         LOGINFO("Restarting osquery");
@@ -359,12 +373,14 @@ namespace Plugin
 
             int fdCount = Proc::getNumberOfOwnFileDescriptors();
             LOGDEBUG("Number of File Descriptors EDR has: " << fdCount);
-            if (fdCount > 500)
+            if (fdCount > EdrCommon::MAX_PLUGIN_FD_COUNT)
             {
-                LOGWARN("Restarting due to having too many file descriptors");
-                throw DetectRequestToStop("");
+                Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        plugin::telemetryEdrRestartsFD, 1UL);
+                throw FileDescriptorLimitReached("Restarting due to having too many file descriptors");
             }
         }
+        return ret;
     }
 
     void PluginAdapter::ensureMCSCanReadOldResponses()
@@ -557,7 +573,7 @@ namespace Plugin
         }
         // safe to clean up.
         m_queueTask->clearQueue();
-        Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(TELEMETRY_CALLBACK_COOKIE);
+        Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(EdrCommon::TELEMETRY_CALLBACK_COOKIE);
 
     }
 
@@ -644,7 +660,7 @@ namespace Plugin
             statStream >> vsize >> rssPages;
             unsigned long rssBytes = rssPages * getpagesize();
             LOGDEBUG("Plugin memory usage: " << rssBytes/1024 << "kB");
-            return rssBytes > MAX_PLUGIN_MEM_BYTES;
+            return rssBytes > EdrCommon::MAX_PLUGIN_MEM_BYTES;
         }
         catch (std::exception& exception)
         {

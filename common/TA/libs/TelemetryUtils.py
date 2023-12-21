@@ -181,8 +181,12 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_osquery_restarts_cpu,
+    def generate_edr_telemetry_dict(self,
+                                    num_osquery_restarts,
+                                    num_osquery_restarts_cpu,
                                     num_osquery_restarts_memory,
+                                    num_osquery_restarts_config_refresh,
+                                    num_osquery_restarts_config_ext_mgr_error,
                                     xdr_is_enabled,
                                     events_max,
                                     failed_count,
@@ -194,15 +198,19 @@ class TelemetryUtils:
             "version": version,
             "events-max": events_max,
             "xdr-is-enabled": xdr_is_enabled,
-            "reached-max-process-events" : True,
-            "reached-max-selinux-events" : True,
-            "reached-max-socket-events" : True,
-            "reached-max-user-events" : True
+            "reached-max-process-events": True,
+            "reached-max-selinux-events": True,
+            "reached-max-socket-events": True,
+            "reached-max-user-events": True,
         }
         if int(num_osquery_restarts_cpu) > -1:
             telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
         if int(num_osquery_restarts_memory) > -1:
             telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
+        if int(num_osquery_restarts_config_refresh) > -1:
+            telemetry["osquery-restarts-config-refresh"] = int(num_osquery_restarts_config_refresh)
+        if int(num_osquery_restarts_config_ext_mgr_error) > -1:
+            telemetry["osquery-restarts-ext-mgr-error"] = int(num_osquery_restarts_config_ext_mgr_error)
         if folded_query:
             telemetry['foldable-queries'] = ['running_processes_windows_sophos', 'stopped_processes_windows_sophos']
 
@@ -480,6 +488,8 @@ class TelemetryUtils:
                                             num_osquery_restarts=0,
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
+                                            num_osquery_restarts_config_refresh=0,
+                                            num_osquery_restarts_config_ext_mgr_error=0,
                                             xdr_is_enabled=False,
                                             events_max='100000',
                                             ignore_cpu_restarts=False,
@@ -496,6 +506,8 @@ class TelemetryUtils:
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
+                                                                       num_osquery_restarts_config_refresh,
+                                                                       num_osquery_restarts_config_ext_mgr_error,
                                                                        xdr_is_enabled,
                                                                        events_max,
                                                                        failed_count,

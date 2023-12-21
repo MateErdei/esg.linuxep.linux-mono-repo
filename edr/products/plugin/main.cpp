@@ -2,6 +2,7 @@
 
 #include "livequery/config.h"
 #include "EdrCommon/ApplicationPaths.h"
+#include "EdrCommon/EdrConstants.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
 
@@ -132,17 +133,17 @@ static int inner_main()
 
         try
         {
-            pluginAdapter.mainLoop();
+            ret = pluginAdapter.mainLoop();
         }
         catch (const std::exception &ex)
         {
             LOGERROR("Plugin threw an exception at top level: " << ex.what());
-            ret = 40;
+            ret = EdrCommon::E_STD_EXCEPTION_AT_TOP_LEVEL;
         }
         catch (...)
         {
             LOGERROR("Plugin threw an unhandled exception at top level");
-            ret = 41;
+            ret = EdrCommon::E_NON_EXCEPTION_AT_TOP_LEVEL;
         }
         pluginAdapter.stop();
         sharedPluginCallBack->setRunning(false); // This must be set before pluginAdapter is deleted!

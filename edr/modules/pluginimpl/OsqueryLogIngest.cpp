@@ -91,6 +91,16 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
         LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
         telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
     }
+    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Refreshing configuration state"))
+    {
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsConfigRefresh);
+        telemetry.increment(plugin::telemetryOSQueryRestartsConfigRefresh, 1L);
+    }
+    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "An error occurred during extension manager startup"))
+    {
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsExtMgrError);
+        telemetry.increment(plugin::telemetryOSQueryRestartsExtMgrError, 1L);
+    }
 }
 
 bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine)

@@ -31,6 +31,12 @@ namespace Plugin
         using std::runtime_error::runtime_error;
     };
 
+    class FileDescriptorLimitReached : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+    
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -74,7 +80,7 @@ namespace Plugin
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback);
 
-        void mainLoop();
+        int mainLoop();
         ~PluginAdapter();
 
         bool hasScheduleEpochEnded(time_t now);
@@ -110,9 +116,8 @@ namespace Plugin
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
 
     private:
-        void innerMainLoop();
+        int innerMainLoop();
         OsqueryDataManager m_DataManager;
-        size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
 
         // Scheduled queries enabled or not.
@@ -121,14 +126,6 @@ namespace Plugin
 
         std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
-
-        // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
-        static const int MAX_PLUGIN_MEM_BYTES = 100000000;
-
-        static constexpr const char * TELEMETRY_CALLBACK_COOKIE = "EDR plugin";
-
-
-
         void processQuery(const std::string& query, const std::string& correlationId);
 
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
@@ -141,6 +138,7 @@ namespace Plugin
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
         void updateExtensions();
+        void abortQueriesAndClearQueue();
 
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
