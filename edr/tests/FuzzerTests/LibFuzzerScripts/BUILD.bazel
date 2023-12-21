@@ -66,3 +66,13 @@ proto_library(
     name = "livequeryinput_proto",
     srcs = ["livequeryinput.proto"],
 )
+
+#Supporting files
+filegroup(
+    name = "fuzz_test_dicts",
+    srcs = [
+        "LiveQueryInputTests.dict",
+        "LiveQueryTests.dict",
+    ],
+    visibility = ["//edr/tests/FuzzerTests:__pkg__"],
+)

@@ -13,8 +13,12 @@ from pipeline.common import (
 )
 
 #Binary must finish first, so it provides results and log
-FUZZER_JOB_TIMEOUT = 48 * 60 * 60
-FUZZER_BINARY_TIMEOUT = 48 * 60 * 59
+FUZZER_JOB_TIMEOUT = 12 * 60 * 60
+FUZZER_BINARY_TIMEOUT = 11 * 60 * 60
+
+#For Testing
+#FUZZER_JOB_TIMEOUT = 11 * 60
+#FUZZER_BINARY_TIMEOUT = 10 * 60
 
 #Inputs
 TEST_DIR = "/opt/test/inputs"
@@ -70,7 +74,8 @@ def stage_fuzz_tests(
     targets_to_fuzz = {
         'av': ['CorcPolicyProcessorFuzzer', 'CorePolicyProcessorFuzzer', 'ProcessControlServerExecutable',
                 'threatDetectorClientExecutable'],
-        'base': ['ActionRunnerTest', 'SimpleFunctionTests', 'PluginApiTest', 'ManagementAgentApiTest']
+        'base': ['ActionRunnerTest', 'SimpleFunctionTests', 'PluginApiTest', 'ManagementAgentApiTest'],
+        'edr': ['LiveQueryInputTests', 'LiveQueryTests']
         }
 
 

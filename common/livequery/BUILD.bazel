@@ -5,7 +5,7 @@ cc_library(
     name = "OsquerySDK",
     srcs = select({
         "//tools/config:linux_x64": ["linux_x64_release/OsquerySDK/libOsquerySDK.a"],
-        "//tools/config:linux_x64_clang": ["linux_x64_release/OsquerySDK/libOsquerySDK.a"],
+        "//tools/config:linux_x64_clang": ["linux_x64_clang/OsquerySDK/libOsquerySDK.a"],
         "//tools/config:linux_arm64": ["linux_arm64_release/OsquerySDK/libOsquerySDK.a"],
     }),
     hdrs = glob(["include/OsquerySDK/*.h"]),
@@ -22,7 +22,7 @@ cc_library(
     name = "gen-cpp-linux",
     srcs = select({
         "//tools/config:linux_x64": ["linux_x64_release/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.a"],
-        "//tools/config:linux_x64_clang": ["linux_x64_release/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.a"],
+        "//tools/config:linux_x64_clang": ["linux_x64_clang/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.a"],
         "//tools/config:linux_arm64": ["linux_arm64_release/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.a"],
     }),
     hdrs = glob(["include/OsquerySDK/gen-cpp/*.h"]),
@@ -38,7 +38,7 @@ cc_library(
     name = "LoggerPlugin",
     srcs = select({
         "//tools/config:linux_x64": ["linux_x64_release/LoggerPlugin/libLoggerPlugin.a"],
-        "//tools/config:linux_x64_clang": ["linux_x64_release/LoggerPlugin/libLoggerPlugin.a"],
+        "//tools/config:linux_x64_clang": ["linux_x64_clang/LoggerPlugin/libLoggerPlugin.a"],
         "//tools/config:linux_arm64": ["linux_arm64_release/LoggerPlugin/libLoggerPlugin.a"],
     }),
     hdrs = glob(["include/LoggerPlugin/*.h"]),

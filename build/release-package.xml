@@ -17,6 +17,7 @@
             <include artifact-path="common/journal/linux_arm64_rel/libs" dest-dir="common/journal/linux_arm64_release"/>
             <include artifact-path="common/journal/linux_arm64_rel/tools" dest-dir="common/journal/linux_arm64_release"/>
             <include artifact-path="common/livequery/linux_x64_rel/lib" dest-dir="common/livequery/linux_x64_release"/>
+            <include artifact-path="common/livequery/linux_x64_clang/lib" dest-dir="common/livequery/linux_x64_clang"/>
             <include artifact-path="common/livequery/linux_arm64_rel/lib" dest-dir="common/livequery/linux_arm64_release"/>
             <include artifact-path="common/livequery/include" dest-dir="common/livequery/include"/>
             <include artifact-path="common/safestore/linux_x64_rel/safestore" dest-dir="common/safestore/linux_x64_rel"/>
@@ -575,7 +576,7 @@
         <!-- fuzz -->
         <build-asset artifact-path="av/linux_x64_clang/fuzz_test_assets" source-zip=".output/av/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>
         <build-asset artifact-path="base/linux_x64_clang/fuzz_test_assets" source-zip=".output/base/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>
-<!--        <build-asset artifact-path="edr/linux_x64_clang/fuzz_test_assets" source-zip=".output/edr/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>-->
+        <build-asset artifact-path="edr/linux_x64_clang/fuzz_test_assets" source-zip=".output/edr/linux_x64_clang/fuzz_test_assets.zip" mode="all_lx64f"/>
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

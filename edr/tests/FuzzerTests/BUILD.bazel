@@ -6,6 +6,8 @@ zip_asset(
     srcs = [
         "//edr/tests/FuzzerTests/LibFuzzerScripts:LiveQueryInputTests",
         "//edr/tests/FuzzerTests/LibFuzzerScripts:LiveQueryTests",
+        "//edr/tests/FuzzerTests/LibFuzzerScripts:fuzz_test_dicts",
+        "//imports/thirdparty/osquery:osqueryd",
     ],
     tags = ["manual"],
     visibility = ["//edr:__pkg__"],

@@ -27,6 +27,13 @@
 #include <future>
 #include <unistd.h>
 
+namespace {
+    Path getOsqueryPath() {
+        auto fs = Common::FileSystem::fileSystem();
+        return fs->currentWorkingDirectory() + "/osqueryd";
+    }
+}
+
 namespace livequery
 {
     class DummyDispatcher : public livequery::ResponseDispatcher
@@ -37,10 +44,9 @@ namespace livequery
             auto content = serializeToJson(response);
             nlohmann::json jsonContent = nlohmann::json::parse(content);
             // uncomment to see the response from osquery
-            //std::cout << jsonContent.dump(2) << std::endl;
+            std::cout << jsonContent.dump(2) << std::endl;
         }
     };
-
 } // namespace livequery
 
 class OsqueryOutputErrorDetector {
@@ -50,7 +56,7 @@ public:
         if (output.empty()) {
             return;
         }
-
+        std::cout << "Output is " << output << std::endl;
         if (lastChar == '\n' && output[0] == 'E') {
             // detected error...
             std::cerr << "Error detected: " << output << std::endl;
@@ -93,7 +99,7 @@ public:
                                                "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
         // add if you want more information from osquery
-        //arguments.push_back("--verbose");
+        arguments.push_back("--verbose");
         m_osqueryProc->setOutputLimit(10);
         m_osqueryProc->setOutputTrimmedCallback(OsqueryOutputErrorDetector{});
         m_osqueryProc->exec(getOsqueryPath(), arguments, {});
@@ -104,6 +110,7 @@ public:
 
     ~OsqueryRunnerSingleton()
     {
+        std::cout << Common::FileSystem::fileSystem()->readFile( m_tempDir.absPath("plugins/edr/log/edr.log") ) << std::endl;
         m_osqueryProc->kill(5);
         std::cout << m_osqueryProc->output() << std::endl;
         std::string syslogpipe = m_tempDir.absPath("./plugins/edr/var/syslog_pipe");
@@ -114,24 +121,6 @@ public:
             std::cerr << "Failed to unlink: " << strerror(err) << std::endl;
         }
         m_loggingSetup.reset();
-
-        // add if you want to see the full log file.
-        //std::cout << Common::FileSystem::fileSystem()->readFile( m_tempDir.absPath("plugins/edr/log/edr.log") ) << std::endl;
-    }
-
-    std::string getRedistOsqueryPath()
-    {
-        const char * redist = getenv("REDIST");
-        if (redist == nullptr)
-        {
-            throw std::runtime_error("No REDIST environment variable defined");
-        }
-        return Common::FileSystem::join(redist,"osquery/opt/osquery/bin/osqueryd") ;
-    }
-
-    std::string getOsqueryPath()
-    {
-        return m_tempDir.absPath("fuzz/bin/osqueryd");
     }
 
     livequery::IQueryProcessor & queryProcessor()
@@ -147,12 +136,7 @@ public:
 private:
     void setupForTest()
     {
-        m_tempDir.makeDirs("fuzz/bin");
-
-        std::string sourcePath = getRedistOsqueryPath();
-        std::string destPath = getOsqueryPath();
-        Common::FileSystem::fileSystem()->copyFile(sourcePath,destPath);
-        Common::FileSystem::filePermissions()->chmod(destPath, 0700);
+        Common::FileSystem::filePermissions()->chmod(getOsqueryPath(), 0700);
         time_t epoch =  Common::UtilityImpl::TimeUtils::getCurrTime();
         Plugin::OsqueryConfigurator::regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), true,false,epoch);
         Plugin::OsqueryConfigurator::regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());

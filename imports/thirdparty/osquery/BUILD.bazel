@@ -6,6 +6,7 @@ alias(
     actual = select({
         "//tools/config:linux_x64": "linux_x64_rel/osquery/opt/osquery/bin/osqueryd",
         "//tools/config:linux_arm64": "linux_arm64_rel/osquery/opt/osquery/bin/osqueryd",
+        "//tools/config:linux_x64_clang": "linux_x64_rel/osquery/opt/osquery/bin/osqueryd",
     }),
     visibility = [
         "//edr:__subpackages__",

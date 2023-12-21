@@ -34,8 +34,7 @@ RELEASE_MODE_DEPS = [
 FUZZ_DEPS = [
     "//av:fuzz_test_assets",
     "//base:fuzz_test_assets",
-    #Todo osquery is built with gcc currently. Causes build failure LINUXDAR-7869 to remedy
-    #    "//edr:fuzz_test_assets",
+    "//edr:fuzz_test_assets",
 ]
 
 generate_sbom(
