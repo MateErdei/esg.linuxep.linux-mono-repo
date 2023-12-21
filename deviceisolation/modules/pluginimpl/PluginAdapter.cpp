@@ -148,16 +148,14 @@ namespace Plugin
                 LOGERROR("Failed to remove device from isolation");
                 return;
             }
-            else if (result == NftWrapper::IsolateResult::WARN)
+            else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
             {
-                // TODO: uncomment once isolation rules are enforced, otherwise this would result in isolationEnabled_
-                // never being set to false
-//                if (isolationEnabled_)
-//                {
-//                    LOGERROR("Failed to list nft table but isolation is enabled");
-//                    return;
-//                }
-//                LOGWARN("Tried to disable isolation but it was not enabled in the first place");
+                if (isolationEnabled_)
+                {
+                    LOGERROR("Failed to list sophos rules table but isolation is enabled");
+                    return;
+                }
+                LOGWARN("Tried to disable isolation but it was not enabled in the first place");
             }
             isolationEnabled_ = false;
             LOGINFO("Device is no longer isolated");

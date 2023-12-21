@@ -18,7 +18,8 @@ namespace Plugin
         enum class IsolateResult
         {
             SUCCESS,
-            WARN,
+            // The rules were not present when trying to remove them
+            RULES_NOT_PRESENT,
             FAILED
         };
 

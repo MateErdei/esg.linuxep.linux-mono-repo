@@ -248,7 +248,7 @@ namespace Plugin
         {
             LOGERROR("Failed to list table, nft exit code: " << exitCode);
             LOGDEBUG("nft output: " << process->output());
-            return IsolateResult::WARN;
+            return IsolateResult::RULES_NOT_PRESENT;
         }
 
         // Flush table
