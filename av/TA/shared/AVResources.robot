@@ -698,7 +698,7 @@ Create ext2 mount
 
 Remove ext2 mount
     [Arguments]  ${source}  ${destination}
-    Run Shell Process   umount ${destination}   OnError=Failed to unmount ext2 fs
+    Unmount Image Internal    ${destination}    Failed to unmount ext2 fs
     Remove file   ${source}
 
 Debug NFS Server
@@ -1122,11 +1122,11 @@ Unmount Image
     deregister cleanup  Unmount Image Internal  ${where}
 
 Unmount Image Internal
-    [Arguments]  ${where}
+    [Arguments]  ${where}   ${errmsg}=Failed to unmount local NFS share
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
+    ...  Run Shell Process   umount ${where}   OnError=${errmsg}
 
     Wait Until Keyword Succeeds
     ...  30 secs
