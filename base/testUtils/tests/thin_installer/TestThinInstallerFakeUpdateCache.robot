@@ -33,6 +33,7 @@ Teardown
     Teardown Reset Original Path
     Run Keyword If Test Failed    Dump Thininstaller Log
     Cleanup Files
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     Clear Environment Proxy
 
 
@@ -97,7 +98,7 @@ Thin Installer can Install via Update Cache Overriden by Argument
     create_default_credentials_file  update_caches=localhost:1235,1,1
     build_default_creds_thininstaller_from_sections
 
-    run_default_thininstaller_with_args    ${0}    --update-caches=localhost:8080
+    run_default_thininstaller_with_args    ${0}    --update-caches=localhost:8080    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     check_thininstaller_log_contains    List of update caches to install from: localhost:8080,0,overridden-update-cache
 
     check_suldownloader_log_contains_in_order
@@ -106,5 +107,10 @@ Thin Installer can Install via Update Cache Overriden by Argument
 
     check_suldownloader_log_should_not_contain    Connecting to update source directly
     check_suldownloader_log_should_not_contain    Trying update via update cache: https://localhost:1235
+
+    ${cdnCheckResults} =  Get File    ${CUSTOM_CDN_COMMS_CHECK_LOC}
+    log  ${cdnCheckResults}
+    Should Contain    ${cdnCheckResults}    usedUpdateCache = true
+    Should Contain    ${cdnCheckResults}    usedProxy = false
 
 

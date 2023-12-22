@@ -10,7 +10,9 @@
 #include "SusResponseParseException.h"
 #include "SusResponseVerificationException.h"
 
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/SslImpl/Digest.h"
+#include "Common/UpdateUtilities/CommsDataUtil.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <nlohmann/json.hpp>
@@ -39,6 +41,7 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
         if (parameters.proxy.empty())
         {
             LOGINFO("Trying SUS request (" << parameters.baseUrl << ") without proxy");
+            writeToIni(false, false);
         }
         else
         {
@@ -51,7 +54,12 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
             }
             else
             {
+                // save method atm they would both be set to true, but ideally want to distinguish them like in registration
+                // do seperate files for registration, sus, and cdn. Let the telemety binaries do what it needs to do
                 httpRequest.proxy = parameters.proxy.getUrl();
+
+                writeToIni(true, true, parameters.proxy.getUrl());
+
                 LOGINFO("Trying SUS request (" << parameters.baseUrl << ") with proxy: " << httpRequest.proxy.value());
                 if (!parameters.proxy.getCredentials().getUsername().empty() &&
                     !parameters.proxy.getCredentials().getPassword().empty())
@@ -264,5 +272,17 @@ void SulDownloader::SDDS3::SusRequester::parseSUSResponse(const std::string& res
         errorMessage << "Failed to parse SUS response with error: " << exception.what()
                      << ", JSON content: " << response;
         std::throw_with_nested(SusResponseParseException(LOCATION, errorMessage.str()));
+    }
+}
+
+void SulDownloader::SDDS3::SusRequester::writeToIni(bool usedProxy, bool usedMessageRelay, const std::string& proxyOrMessageRelayURL)
+{
+    try 
+    {
+        Common::UpdateUtilities::CommsDataUtil::writeCommsTelemetryIniFile("sus_comms_check.ini", usedProxy, false, usedMessageRelay, proxyOrMessageRelayURL);
+    }
+    catch (Common::FileSystem::IFileSystemException& ex)
+    {
+        LOGWARN("Failed to write to SUS Requester telemetry file: " << ex.what());
     }
 }

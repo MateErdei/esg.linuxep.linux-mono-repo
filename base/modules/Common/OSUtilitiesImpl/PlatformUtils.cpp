@@ -28,7 +28,7 @@ namespace Common::OSUtilitiesImpl
 
     void PlatformUtils::populateVendorDetails()
     {
-        ::OSUtilitiesImpl::SystemUtils systemUtils;
+        ::OSUtilities::SystemUtilsImpl systemUtils;
         std::string osReleasePath = "/etc/os-release";
         auto* fs = FileSystem::fileSystem();
 

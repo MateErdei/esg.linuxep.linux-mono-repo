@@ -16,10 +16,12 @@
 #include "sophlib/sdds3/PackageRef.h"
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/SystemUtilsReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockHttpRequester.h"
 #include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/Helpers/MockSystemUtils.h"
 #include "tests/SulDownloader/JwtUtils.h"
 #include "tests/SulDownloader/MockSignatureVerifierWrapper.h"
 #include "tests/SulDownloader/MockVersig.h"
@@ -47,9 +49,22 @@ public:
 protected:
     Sdds3RepositoryTest() : MemoryAppenderUsingTests("SulDownloaderSDDS3"), usingMemoryAppender_(*this) {}
 
+    void SetUp() override
+    {
+        mockFileSystem_ = std::make_unique<NiceMock<MockFileSystem>>();
+        mockSusRequester_ = std::make_unique<NiceMock<MockSusRequester>>();
+    }
+
+    void TearDown() override
+    {
+        Tests::restoreSystemUtils();
+        Tests::restoreFileSystem();
+        Tests::restoreSdds3Wrapper();
+    }
+
     Tests::ScopedReplaceSdds3Wrapper replacer_;
-    std::unique_ptr<MockFileSystem> mockFileSystem_ = std::make_unique<MockFileSystem>();
-    std::unique_ptr<MockSusRequester> mockSusRequester_ = std::make_unique<MockSusRequester>();
+    std::unique_ptr<NiceMock<MockFileSystem>> mockFileSystem_;
+    std::unique_ptr<NiceMock<MockSusRequester>> mockSusRequester_ ;
     UsingMemoryAppender usingMemoryAppender_;
 };
 
@@ -659,6 +674,110 @@ TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestReturnsNoSuitesAndNoSubsc
     EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
     EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: Product doesn't match any suite: "));
 }
+
+TEST_F(Sdds3RepositoryTest, synchronizeWritesToFileIniWhenDirect)
+{
+    setupSdds3WrapperAndGetMock();
+
+    const std::string expectedOutputToFile = "usedProxy = false\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n";
+
+    auto mockSdds3Wrapper = std::make_unique<MockSdds3Wrapper>();
+    EXPECT_CALL(*mockSdds3Wrapper, sync).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackagesToInstall(_,_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackages(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, saveConfig(_,_)).Times(1);
+    Tests::replaceSdds3Wrapper(std::move(mockSdds3Wrapper));
+
+    EXPECT_CALL(*mockFileSystem_, exists(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem_, writeFile(_,expectedOutputToFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    auto mockSystemUtils = std::make_unique<StrictMock<MockSystemUtils>>();
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable(_)).WillOnce(Return("imnotempty"));
+    Tests::ScopedReplaceSystemUtils scopedSystemUtils (std::move(mockSystemUtils));
+
+    ConnectionSetup connectionSetup("direct");
+
+    Common::Policy::UpdateSettings configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.synchronize(configurationData, connectionSetup, true));
+    EXPECT_EQ(repository.getError().status, RepositoryStatus::SUCCESS);
+}
+
+TEST_F(Sdds3RepositoryTest, synchronizeWritesToFileIniWhenUpdateCache)
+{
+    setupSdds3WrapperAndGetMock();
+
+    const std::string expectedOutputToFile = "usedProxy = false\nusedUpdateCache = true\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n";
+
+    auto mockSdds3Wrapper = std::make_unique<MockSdds3Wrapper>();
+    EXPECT_CALL(*mockSdds3Wrapper, sync).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackagesToInstall(_,_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackages(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, saveConfig(_,_)).Times(1);
+    Tests::replaceSdds3Wrapper(std::move(mockSdds3Wrapper));
+
+    EXPECT_CALL(*mockFileSystem_, exists(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem_, writeFile(_,expectedOutputToFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    auto mockSystemUtils = std::make_unique<StrictMock<MockSystemUtils>>();
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable(_)).WillOnce(Return("imnotempty"));
+    Tests::ScopedReplaceSystemUtils scopedSystemUtils (std::move(mockSystemUtils));
+
+    ConnectionSetup connectionSetup("direct", true);
+    Common::Policy::UpdateSettings configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.synchronize(configurationData, connectionSetup, true));
+    EXPECT_EQ(repository.getError().status, RepositoryStatus::SUCCESS);
+}
+
+TEST_F(Sdds3RepositoryTest, synchronizeWritesToFileIniWhenProxy)
+{
+    setupSdds3WrapperAndGetMock();
+
+    const std::string expectedOutputToFile = "usedProxy = true\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n";
+
+    auto mockSdds3Wrapper = std::make_unique<MockSdds3Wrapper>();
+    EXPECT_CALL(*mockSdds3Wrapper, sync).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackagesToInstall(_,_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getPackages(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(*mockSdds3Wrapper, saveConfig(_,_)).Times(1);
+    Tests::replaceSdds3Wrapper(std::move(mockSdds3Wrapper));
+
+    EXPECT_CALL(*mockFileSystem_, exists(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem_, writeFile(_,expectedOutputToFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem (std::move(mockFileSystem_));
+
+    auto mockSystemUtils = std::make_unique<StrictMock<MockSystemUtils>>();
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable(_)).WillOnce(Return("imnotempty"));
+    Tests::ScopedReplaceSystemUtils scopedSystemUtils (std::move(mockSystemUtils));
+
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    Common::Policy::Proxy proxy("Im a proxy");
+    ConnectionSetup connectionSetup("direct", false, proxy);
+
+    Common::Policy::UpdateSettings configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.synchronize(configurationData, connectionSetup, true));
+    EXPECT_EQ(repository.getError().status, RepositoryStatus::SUCCESS);
+}
+
 
 class TestSdds3Repository : public LogInitializedTests
 {

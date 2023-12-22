@@ -8,6 +8,9 @@
 #include "cmcsrouter/Config.h"
 #include "cmcsrouter/MCSApiCalls.h"
 
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UpdateUtilities/CommsDataUtil.h"
+
 #include <nlohmann/json.hpp>
 
 namespace CentralRegistration
@@ -67,6 +70,9 @@ namespace CentralRegistration
             if (registrationFunction(configOptions, statusXml, proxy, httpClient))
             {
                 configOptions.config[MCS::MCS_CONNECTED_PROXY] = proxy;
+
+                //message relays
+                writeToIni(false, true, proxy);
                 return true;
             }
         }
@@ -74,17 +80,22 @@ namespace CentralRegistration
         {
             if (registrationFunction(configOptions, statusXml, configOptions.config[MCS::MCS_PROXY], httpClient))
             {
+                //proxy
                 configOptions.config[MCS::MCS_CONNECTED_PROXY] = configOptions.config[MCS::MCS_PROXY];
+                writeToIni(true, false);
                 return true;
             }
         }
+        //direct
+        writeToIni(false, false);
         return registrationFunction(configOptions, statusXml, "", httpClient);
     }
 
     void CentralRegistration::preregistration(
         MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
-        const std::shared_ptr<MCS::MCSHttpClient>& httpClient)
+        const std::shared_ptr<MCS::MCSHttpClient>& httpClient
+        )
     {
         // Check options are all there: customer token + selected products
         if (configOptions.config.empty() || configOptions.config[MCS::MCS_CUSTOMER_TOKEN].empty() ||
@@ -138,6 +149,7 @@ namespace CentralRegistration
         httpClient->setCertPath(configOptions.config[MCS::MCS_CERT]);
 
         // This check saves retrying all proxies if preregistration succeeded on a given proxy
+        // if this MCS_CONNecteD_proxy is set, then we have pre registered
         if (!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() &&
             tryRegistration(configOptions, statusXml, configOptions.config[MCS::MCS_CONNECTED_PROXY], httpClient))
         {
@@ -158,6 +170,17 @@ namespace CentralRegistration
         else
         {
             LOGERROR("Product registration failed");
+        }
+    }
+    void CentralRegistration::writeToIni(bool usedProxy, bool usedMessageRelay, const std::string& proxyOrMessageRelayURL)
+    {
+        try
+        {
+            Common::UpdateUtilities::CommsDataUtil::writeCommsTelemetryIniFile("registration_comms_check.ini", usedProxy, false, usedMessageRelay, proxyOrMessageRelayURL);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Failed to write to Central Registration telemetry file: " << ex.what());
         }
     }
 } // namespace CentralRegistration

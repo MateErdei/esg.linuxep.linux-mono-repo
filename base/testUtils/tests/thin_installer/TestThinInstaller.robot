@@ -403,10 +403,22 @@ Thin Installer Passes Proxy Used By Registration To Suldownloader During Install
     Start Message Relay
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller    0    cleanup=${False}
+    Run Default Thininstaller  0    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     Check Thininstaller Log Contains    Successfully installed product
     Check Suldownloader Log Contains  Trying SUS request (https://localhost:8080) with proxy: localhost:20000
     Check Suldownloader Log Contains  SUS Request was successful
+
+    ${commsResult} =  Get File    ${CUSTOM_REGISTRATION_COMMS_CHECK_LOC}
+    log  ${commsResult}
+    Should Contain    ${commsResult}    usedMessageRelay = true
+
+    ${susCheckResults} =  Get File    ${CUSTOM_SUS_COMMS_CHECK_LOC}
+    log  ${susCheckResults}
+    Should Contain    ${susCheckResults}    usedProxy = true
+    Should Contain    ${susCheckResults}    usedUpdateCache = false
+    Should Contain    ${susCheckResults}    usedMessageRelay = true
+    Should Contain    ${susCheckResults}    proxyOrMessageRelayURL = localhost:20000
+
 
 
 Thin Installer Passes Basic Auth Proxy Used By Registration To Suldownloader During Install

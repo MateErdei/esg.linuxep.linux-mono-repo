@@ -12,6 +12,9 @@ ${EtcGroupFileBackupPath}  /etc/group.bak
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 ${CUSTOM_THININSTALLER_REPORT_LOC} =    ${CUSTOM_TEMP_UNPACK_DIR}/thininstaller_report.ini
+${CUSTOM_REGISTRATION_COMMS_CHECK_LOC} =    ${CUSTOM_TEMP_UNPACK_DIR}/registration_comms_check.ini
+${CUSTOM_SUS_COMMS_CHECK_LOC} =    ${CUSTOM_TEMP_UNPACK_DIR}/sus_comms_check.ini
+${CUSTOM_CDN_COMMS_CHECK_LOC} =    ${CUSTOM_TEMP_UNPACK_DIR}/cdn_comms_check.ini
 
 *** Keywords ***
 Setup Update Tests

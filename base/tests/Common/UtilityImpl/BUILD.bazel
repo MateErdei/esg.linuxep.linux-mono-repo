@@ -29,6 +29,18 @@ spl_independent_cc_tests(
 )
 
 spl_independent_cc_tests(
+    name = "FileUtilsTests",
+    srcs = [
+        "TestFileUtils.cpp",
+    ],
+    deps = [
+        "//base/modules/Common/UtilityImpl:FileUtils",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+spl_independent_cc_tests(
     name = "OrderedSetTests",
     srcs = [
         "TestOrderedSet.cpp",

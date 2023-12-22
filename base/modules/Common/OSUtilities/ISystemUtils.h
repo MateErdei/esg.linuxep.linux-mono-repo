@@ -18,4 +18,14 @@ namespace OSUtilities
          */
         virtual std::string getEnvironmentVariable(const std::string& key) const = 0;
     };
+
+
+    /**
+    * Return a BORROWED pointer to a static ISystemUtils instance.
+    *
+    * Do not delete this yourself.
+    *
+    * @return BORROWED ISystemUtils pointer
+    */
+    ISystemUtils* systemUtils();
 } // namespace OSUtilities

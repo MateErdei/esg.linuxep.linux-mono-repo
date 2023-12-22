@@ -8,8 +8,11 @@
 #include "SulDownloader/sdds3/SusRequester.h"
 #include "sophlib/crypto/Base64.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/SystemUtilsReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockHttpRequester.h"
+#include "tests/Common/Helpers/MockSystemUtils.h"
 
 #include <gtest/gtest.h>
 
@@ -18,8 +21,19 @@ namespace
     class SusRequesterTest : public LogInitializedTests
     {
     protected:
-        std::unique_ptr<MockSignatureVerifierWrapper> verifier_ =
-            std::make_unique<StrictMock<MockSignatureVerifierWrapper>>();
+        void SetUp() override
+        {
+            verifier_ = std::make_unique<StrictMock<MockSignatureVerifierWrapper>>();
+            mockFileSystem_ = std::make_unique<StrictMock<MockFileSystem>>();
+        }
+
+        void TearDown() override
+        {
+            Tests::restoreSystemUtils();
+            Tests::restoreFileSystem();
+        }
+        std::unique_ptr<StrictMock<MockSignatureVerifierWrapper>> verifier_;
+        std::unique_ptr<StrictMock<MockFileSystem>> mockFileSystem_;
     };
 } // namespace
 
@@ -397,4 +411,52 @@ TEST_F(SusRequesterTest, ValidJwtButSignaturesFailToBeVerified)
     auto response = susRequester.request(requestParameters);
     EXPECT_FALSE(response.success);
     EXPECT_EQ(response.error, "Failed to verify JWT in SUS response: invalid signature");
+}
+
+TEST_F(SusRequesterTest, writesToIniProxyInfoWhenProxyParameterProvided)
+{
+    const std::string expectedOutputToFile = "usedProxy = true\nusedUpdateCache = false\nusedMessageRelay = true\nproxyOrMessageRelayURL = theurl\n";
+
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    EXPECT_CALL(*mockHttpRequester, post(_)).Times(1);
+    EXPECT_CALL(*verifier_, Verify(_, _)).Times(0);
+
+    EXPECT_CALL(*mockFileSystem_, writeFile(_,expectedOutputToFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    auto mockSystemUtils = std::make_unique<StrictMock<MockSystemUtils>>();
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable(_)).WillOnce(Return("imnotempty"));
+    Tests::ScopedReplaceSystemUtils scopedSystemUtils (std::move(mockSystemUtils));
+
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester, std::move(verifier_));
+    SulDownloader::SUSRequestParameters requestParameters;
+    Common::Policy::Proxy proxy ("theurl");
+    requestParameters.proxy = proxy;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
+}
+
+TEST_F(SusRequesterTest, writesToIniNoProxyInfoWhenNoProxyParameter)
+{
+    const std::string expectedOutputToFile = "usedProxy = false\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n";
+
+    auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    EXPECT_CALL(*mockHttpRequester, post(_)).Times(1);
+    EXPECT_CALL(*verifier_, Verify(_, _)).Times(0);
+
+    EXPECT_CALL(*mockFileSystem_, writeFile(_,expectedOutputToFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    auto mockSystemUtils = std::make_unique<StrictMock<MockSystemUtils>>();
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable(_)).WillOnce(Return("imnotempty"));
+    Tests::ScopedReplaceSystemUtils scopedSystemUtils (std::move(mockSystemUtils));
+
+    SulDownloader::SDDS3::SusRequester susRequester(mockHttpRequester, std::move(verifier_));
+    SulDownloader::SUSRequestParameters requestParameters;
+    auto response = susRequester.request(requestParameters);
+    ASSERT_FALSE(response.success);
+    ASSERT_TRUE(response.data.releaseGroups.empty());
+    ASSERT_TRUE(response.data.suites.empty());
 }

@@ -57,6 +57,7 @@ namespace SulDownloader
         void setFeatures(const std::vector<std::string>& configfeatures);
 
     private:
+        static void writeToIni(bool usedProxy, bool usedUpdateCache);
         void setupSdds3LibLogger();
         void populateConfigFromFile();
         SDDS3::SusData getDataToSync(

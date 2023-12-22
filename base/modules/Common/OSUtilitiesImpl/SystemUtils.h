@@ -3,11 +3,15 @@
 
 #include "Common/OSUtilities/ISystemUtils.h"
 
-namespace OSUtilitiesImpl
+#include <memory>
+
+namespace OSUtilities
 {
-    class SystemUtils : public OSUtilities::ISystemUtils
+    class SystemUtilsImpl : public ISystemUtils
     {
     public:
         std::string getEnvironmentVariable(const std::string& key) const override;
     };
+
+    std::unique_ptr<ISystemUtils>& systemUtilsStaticPointer();
 } // namespace OSUtilitiesImpl

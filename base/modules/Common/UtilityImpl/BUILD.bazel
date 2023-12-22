@@ -132,6 +132,7 @@ soph_cc_library(
     hdrs = ["FileUtils.h"],
     implementation_deps = [
         "//base/modules/Common/FileSystem",
+        "//base/modules/Common/OSUtilitiesImpl",
         "@boost//:property_tree",
     ],
     visibility = ["//common:spl_packages"],

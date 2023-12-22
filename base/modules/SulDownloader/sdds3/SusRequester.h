@@ -33,6 +33,8 @@ namespace SulDownloader::SDDS3
         void parseSUSResponse(const std::string& response, SusData& data);
 
     private:
+        static void writeToIni(bool usedProxy, bool usedMessageRelay, const std::string& proxyOrMessageRelayURL = "");
+
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_httpClient;
         std::shared_ptr<ISignatureVerifierWrapper> verifier_;
     };

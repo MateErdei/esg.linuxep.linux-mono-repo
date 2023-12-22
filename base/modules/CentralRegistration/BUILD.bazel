@@ -15,6 +15,7 @@ soph_cc_library(
         "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/Obfuscation",
         "//base/modules/Common/ObfuscationImpl",
+        "//base/modules/Common/UpdateUtilities",
         "//imports/thirdparty/nlohmann-json:nlohmann-json",
     ],
     visibility = [

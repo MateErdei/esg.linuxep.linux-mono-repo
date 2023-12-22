@@ -180,7 +180,7 @@ namespace MCS
                           << "<osMajorVersion>" << m_platformUtils->getOsMajorVersion() << "</osMajorVersion>"
                           << "<osMinorVersion>" << m_platformUtils->getOsMinorVersion() << "</osMinorVersion>";
 
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilities::SystemUtilsImpl>();
         if (systemUtils->getEnvironmentVariable("FORCE_UNINSTALL_SAV") == "1")
         {
             platformStatusXml << "<migratedFromSAV>1</migratedFromSAV>";

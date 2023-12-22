@@ -7,8 +7,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include <string>
-
 namespace Common::UtilityImpl
 {
     std::pair<std::string, std::string> FileUtils::extractValueFromFile(

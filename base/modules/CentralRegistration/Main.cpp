@@ -194,7 +194,7 @@ namespace CentralRegistration
 
     MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args, const std::string& mcsCertPath)
     {
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilities::SystemUtilsImpl>();
 
         MCS::ConfigOptions configOptions = processCommandLineOptions(args, systemUtils);
         if (configOptions.config.empty())

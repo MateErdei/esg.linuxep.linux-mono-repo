@@ -76,6 +76,7 @@ soph_cc_library(
         "//base/modules/Common/CurlWrapper",
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
+        "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/PluginApi",
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//base/modules/Common/WatchdogRequest",

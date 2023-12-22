@@ -15,6 +15,7 @@ soph_cc_library(
         "//base/modules/Common/HttpRequestsImpl",
         "//base/modules/Common/Logging",
         "//base/modules/Common/UpdateUtilities",
+        "//base/modules/Common/UtilityImpl:FileUtils",
         "//base/modules/Common/UtilityImpl:ProjectNames",
         "//base/modules/Common/UtilityImpl:StringUtils",
     ],
@@ -24,6 +25,7 @@ soph_cc_library(
     ],
     deps = [
         "//base/modules/Common/HttpRequests",
+        "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/SulDownloader/suldownloaderdata",
         "//common/sophlib/sdds3",
         "//imports/thirdparty/nlohmann-json",

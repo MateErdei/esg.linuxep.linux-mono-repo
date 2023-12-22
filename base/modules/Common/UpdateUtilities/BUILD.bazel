@@ -8,6 +8,7 @@ soph_cc_library(
         "*.h",
     ]),
     hdrs = [
+        "CommsDataUtil.h",
         "ConfigurationDataUtil.h",
         "DownloadReports.h",
         "InstalledFeatures.h",
@@ -16,6 +17,7 @@ soph_cc_library(
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
+        "//base/modules/Common/OSUtilitiesImpl",
         "//base/modules/Common/UtilityImpl:ProjectNames",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//imports/thirdparty/nlohmann-json:nlohmann-json",

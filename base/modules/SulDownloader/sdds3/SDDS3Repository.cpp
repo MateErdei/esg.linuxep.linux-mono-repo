@@ -11,6 +11,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
+#include "Common/UpdateUtilities/CommsDataUtil.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/StringUtilsException.h"
@@ -28,6 +29,13 @@ class applicationPathManager;
 
 namespace SulDownloader
 {
+    enum class ConnectionMethod
+    {
+        updateCache,
+        proxy,
+        direct,
+    };
+    
     SDDS3Repository::SDDS3Repository(
         std::unique_ptr<SDDS3::ISusRequester> susRequester,
         const std::string& repoDir,
@@ -347,6 +355,7 @@ namespace SulDownloader
 #endif
         }
 
+        ConnectionMethod connectionMethod = ConnectionMethod::direct;
         if (connectionSetup.isCacheUpdate())
         {
             if (!Common::UtilityImpl::StringUtils::startswith(srcUrl, "http://") &&
@@ -356,6 +365,7 @@ namespace SulDownloader
             }
             srcUrl = srcUrl + "/v3";
             LOGINFO("Trying update via update cache: " << srcUrl);
+            connectionMethod = ConnectionMethod::updateCache;
             m_session->httpConfig.useSophosCertificateStore = true;
             m_session->httpConfig.useUpdateCache = true;
             if (updateSetting.getUpdateCacheCertPath().empty())
@@ -373,6 +383,7 @@ namespace SulDownloader
             m_session->httpConfig.proxy.address_ = connectionSetup.getProxy().getUrl();
             std::stringstream message;
             message << "Trying to update via proxy " << connectionSetup.getProxy().getUrl() << " to " << srcUrl;
+            connectionMethod = ConnectionMethod::proxy;
             LOGINFO(message.str());
             m_session->httpConfig.proxy.username_ = connectionSetup.getProxy().getCredentials().getUsername();
             m_session->httpConfig.proxy.password_ = connectionSetup.getProxy().getCredentials().getPassword();
@@ -418,6 +429,21 @@ namespace SulDownloader
 
         if (!hasError())
         {
+            switch (connectionMethod)
+            {
+                case ConnectionMethod::updateCache:
+                    writeToIni(false, true);
+                    break;
+                case ConnectionMethod::proxy:
+                    writeToIni(true, false);
+                    break;
+                case ConnectionMethod::direct:
+                    writeToIni(false, false);
+                    break;
+                default:
+                    throw std::logic_error("Unexpected connection method");
+                    break;
+            }
             generateProductListFromSdds3PackageInfo(updateSetting.getPrimarySubscription().rigidName());
             return true;
         }
@@ -646,4 +672,15 @@ namespace SulDownloader
         }
     }
 
+    void SDDS3Repository::writeToIni(bool usedProxy, bool usedUpdateCache)
+    {
+        try
+        {
+            Common::UpdateUtilities::CommsDataUtil::writeCommsTelemetryIniFile("cdn_comms_check.ini", usedProxy, usedUpdateCache, false);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Failed to write to SDDS3 Repository telemetry file: " << ex.what());
+        }
+    }
 } // namespace SulDownloader

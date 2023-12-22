@@ -48,5 +48,7 @@ namespace CentralRegistration
                 const std::string& statusXml,
                 const std::string& proxy,
                 const std::shared_ptr<MCS::MCSHttpClient>& httpClient));
+
+        static void writeToIni(bool usedProxy, bool usedMessageRelay, const std::string& proxyOrMessageRelayURL = "");
     };
 } // namespace CentralRegistration

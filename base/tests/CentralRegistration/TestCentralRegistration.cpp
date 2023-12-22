@@ -7,12 +7,23 @@
 #include "cmcsrouter/Config.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockHttpRequester.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 
 class CentralRegistrationTests : public LogInitializedTests
 {
-    public:
+public:
+    void SetUp() override
+    {
+        setenv("SOPHOS_TEMP_DIRECTORY", "/tmp", 1);
+    }
+    
+    void TearDown() override
+    {
+        unsetenv("SOPHOS_TEMP_DIRECTORY");
+    }
 
     MCS::ConfigOptions basicMcsConfigOptions()
     {
@@ -167,6 +178,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds)
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
     EXPECT_CALL(*mockHttpRequester, post(
@@ -178,6 +190,8 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds)
                                             configOptions.config[MCS::MCS_PROXY_USERNAME],
                                             configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
+    EXPECT_CALL(*mockFileSystem, writeFile("/tmp/registration_comms_check.ini", "usedProxy = true\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n")).WillOnce(Return());
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
     CentralRegistration::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);

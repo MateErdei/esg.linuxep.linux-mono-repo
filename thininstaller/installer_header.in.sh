@@ -510,7 +510,7 @@ function make_tmp_dir()
 {
     # Create Sophos temp directory (unless overridden with an existing dir)
     if [ -z "${SOPHOS_TEMP_DIRECTORY}" ]; then
-        SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp directory in ${TMPDIR:-/tmp}"
+        export SOPHOS_TEMP_DIRECTORY=$(sophos_mktempdir SophosCentralInstall) || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp directory in ${TMPDIR:-/tmp}"
     fi
 
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}"
