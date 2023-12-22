@@ -253,4 +253,6 @@ namespace Common::HttpRequests
 
         virtual Response options(RequestConfig) = 0;
     };
+
+    using IHttpRequesterPtr = std::shared_ptr<IHttpRequester>;
 } // namespace Common::HttpRequests

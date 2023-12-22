@@ -1,0 +1,14 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ConfigFile",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    strip_include_prefix = "/common/modules",
+    visibility = ["//common:spl_packages"],
+    deps = [
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+    ],
+)

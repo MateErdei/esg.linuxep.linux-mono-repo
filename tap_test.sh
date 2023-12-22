@@ -75,9 +75,8 @@ then
         # Just print the tap command
         echo TAP_PARAMETER_ROBOT_TEST=\""$TAP_PARAMETER_ROBOT_TEST"\" ./spl-tools/tests/qemu_do.py tap run "${stage}"
     else
-        ./spl-tools/tests/qemu_do.py tap run "${stage}"
+        exec ./spl-tools/tests/qemu_do.py tap run "${stage}"
     fi
-
 fi
 
 

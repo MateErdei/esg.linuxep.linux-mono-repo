@@ -56,6 +56,8 @@ namespace Common::UtilityImpl
     class TimeUtils
     {
     public:
+        using clock_t = std::chrono::system_clock;
+        using timepoint_t = clock_t::time_point;
         /**
          *
          * A time stamp for use in messages (e.g. entries in a log file).
@@ -64,7 +66,7 @@ namespace Common::UtilityImpl
          * The time stamp is composed of ASCII characters so may be used in UTF-8 files.
          */
         static std::string MessageTimeStamp(
-            const std::chrono::system_clock::time_point& time_point,
+            const timepoint_t& time_point,
             Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
 
         /*

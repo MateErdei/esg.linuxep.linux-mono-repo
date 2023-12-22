@@ -1,6 +1,8 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 #pragma once
 
+#include "IIPUtils.h"
+
 #include "Common/HttpRequests/IHttpRequester.h"
 
 #include <string>

@@ -35,6 +35,7 @@ strip(
         "//common/versig": "bin/versig",
         "//base/products/Base/SulDownloader": "bin/SulDownloader",
         ":installer": "bin/installer",
+        "//thininstaller/products/telemetry:installer_telemetry": "bin/telemetry",
         "certs/mcs_rootca.crt": "mcs_rootca.crt",
         "certs/rootca384.crt": "rootca384.crt",
     },

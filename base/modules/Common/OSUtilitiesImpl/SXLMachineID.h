@@ -24,7 +24,7 @@ namespace Common::OSUtilitiesImpl
          * The calculated md5 of the resulted string.
          * @return machine id string
          */
-        std::string generateMachineID();
+        static std::string generateMachineID();
 
     private:
         std::string machineIDPath() const;

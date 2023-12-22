@@ -4,7 +4,7 @@ umask 077
 
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited: https://www.sophos.com/en-us/legal/sophos-end-user-terms-of-use"
 
-VERSION=@PRODUCT_VERSION@
+export VERSION=@PRODUCT_VERSION@
 PRODUCT_NAME="Sophos Protection for Linux"
 INSTALL_FILE=$0
 
@@ -82,6 +82,12 @@ function get_help_text() {
 
 function cleanup_and_exit() {
     code=$1
+
+    if [[ -n "$BIN" && -x "${BIN}/telemetry" ]]
+    then
+        RESULT_CODE="$code" \
+          "${BIN}/telemetry" "$CREDENTIALS_FILE_PATH" "${SOPHOS_TEMP_DIRECTORY}"/*.ini
+    fi
 
     if [[ "${code}" -eq "${EXITCODE_SUCCESS}" ]]; then
         [[ -z "${OVERRIDE_INSTALLER_CLEANUP}" ]] && rm -rf "${SOPHOS_TEMP_DIRECTORY}"
@@ -646,6 +652,8 @@ then
 fi
 
 make_tmp_dir
+CREDENTIALS_FILE_PATH=${SOPHOS_TEMP_DIRECTORY}/credentials.txt
+
 write_args_to_file "${ARGS_FOR_TELEMETRY[@]}"
 if [[ ${NO_PRE_INSTALL_TESTS} != 1 ]]
 then
@@ -734,7 +742,6 @@ else
     MIDDLEBIT_SIZE=$((ARCHIVE - MIDDLEBIT - 1))
 fi
 
-CREDENTIALS_FILE_PATH=${SOPHOS_TEMP_DIRECTORY}/credentials.txt
 tail -n+"${MIDDLEBIT}" "${INSTALL_FILE}" | head -"${MIDDLEBIT_SIZE}" >"${CREDENTIALS_FILE_PATH}"
 
 if [[ $(uname -m) = "x86_64" ]]; then
@@ -856,11 +863,6 @@ elif is_sspl_installed; then
     register_central_with_previous_installation
 fi
 
-tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
-rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "ERROR: Failed to delete packed thin installer: $?"
-
-export LD_LIBRARY_PATH=installer/bin64:installer/bin32
-
 echo "Installation process for ${PRODUCT_NAME} started"
 MCS_TOKEN="$CLOUD_TOKEN"
 MCS_URL="$CLOUD_URL"
@@ -891,6 +893,9 @@ fi
 # Avoid new-line at end of file
 echo -n $(hostname -f) >${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
 export SOPHOS_HOSTNAME_F=${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
+
+tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
+rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "ERROR: Failed to delete packed thin installer: $?"
 
 FORCE_UNINSTALL_SAV=$FORCE_UNINSTALL_SAV ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} "${REGISTRATION_GROUP_ARGS}" ${SOPHOS_LOG_LEVEL}
 handle_register_errorcodes $?

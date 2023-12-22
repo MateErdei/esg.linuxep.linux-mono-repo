@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 #tap fetch linux_mono_repo.products.linux_rel_x86_64
-tap fetch linux_mono_repo.products.sdds
+exec tap fetch linux_mono_repo.products.sdds

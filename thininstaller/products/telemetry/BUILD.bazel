@@ -1,0 +1,40 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library")
+
+soph_cc_library(
+    name = "installer_telemetry_lib",
+    srcs = glob(
+        ["*.cpp"],
+        exclude = ["main.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
+    strip_include_prefix = "/thininstaller/products",
+    visibility = [
+        "//common:spl_packages",
+    ],
+    deps = [
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/OSUtilitiesImpl",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//common/modules/Common/ConfigFile",
+        "//common/modules/Common/Datatypes:Print",
+        "//imports/thirdparty/nlohmann-json",
+    ],
+)
+
+soph_cc_binary(
+    name = "installer_telemetry",
+    srcs = ["main.cpp"],
+    visibility = [
+        "//common:spl_packages",
+    ],
+    deps = [
+        ":installer_telemetry_lib",
+        "//base/modules/Common/CurlWrapper",
+        "//base/modules/Common/HttpRequestsImpl",
+        "//common/modules/Common/Main",
+        "@log4cplus",
+    ],
+)

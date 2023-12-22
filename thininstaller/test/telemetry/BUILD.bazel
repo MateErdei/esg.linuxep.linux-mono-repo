@@ -1,0 +1,26 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
+
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestTelemetryEnabled",
+    srcs = [
+        "TestTelemetryEnabled.cpp",
+    ],
+    deps = [
+        "//thininstaller/products/telemetry:installer_telemetry_lib",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestJsonBuilder",
+    srcs = [
+        "TestJsonBuilder.cpp",
+    ],
+    deps = [
+        "//base/tests/Common/Helpers",
+        "//thininstaller/products/telemetry:installer_telemetry_lib",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
