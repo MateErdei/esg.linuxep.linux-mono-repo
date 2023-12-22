@@ -2,9 +2,23 @@ import json
 import os
 import shutil
 import subprocess
-
-import FileInfo
 import sys
+
+try:
+    import FileInfo
+except ModuleNotFoundError:
+    print("Failed to import FileInfo!", file=sys.stderr)
+    print(f"sys.path={sys.path}", file=sys.stderr)
+    print(f"pwd={os.getcwd()}", file=sys.stderr)
+    files = os.listdir(os.getcwd())
+    print(f"pwd files={files}", file=sys.stderr)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    files = os.listdir(script_dir)
+    print(f"scriptdir={script_dir}", file=sys.stderr)
+    print(f"scriptdir files={files}", file=sys.stderr)
+    sys.path.append(script_dir)
+
+    import FileInfo
 
 
 def main(argv):

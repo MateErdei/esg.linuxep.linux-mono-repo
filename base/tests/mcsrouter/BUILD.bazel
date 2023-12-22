@@ -5,6 +5,7 @@ load("@rules_python//python:defs.bzl", "py_library", "py_test")
 py_library(
     name = "helpers",
     srcs = [
+        "FakeCommand.py",
         "PathManager.py",
         "TestMCSResponse.py",
         "TestUtils.py",
@@ -22,5 +23,5 @@ py_library(
             "//base/modules/mcsrouter",
         ],
     )
-    for test in glob(["*.py"])
+    for test in glob(["Test*.py"])
 ]

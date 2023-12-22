@@ -4,8 +4,12 @@
 
 import logging
 import os
+import sys
 import unittest
 from unittest import mock
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(script_dir)
 
 from FakeCommand import FakeCommand
 import PathManager

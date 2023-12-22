@@ -44,7 +44,7 @@ namespace livequery
             auto content = serializeToJson(response);
             nlohmann::json jsonContent = nlohmann::json::parse(content);
             // uncomment to see the response from osquery
-            std::cout << jsonContent.dump(2) << std::endl;
+//            std::cout << jsonContent.dump(2) << std::endl;
         }
     };
 } // namespace livequery
@@ -56,18 +56,20 @@ public:
         if (output.empty()) {
             return;
         }
-        std::cout << "Output is " << output << std::endl;
+
         if (lastChar == '\n' && output[0] == 'E') {
-            // detected error...
-            std::cerr << "Error detected: " << output << std::endl;
-            std::terminate();
+            std::cout << "Error1: Output is " << output << std::endl;
+//            // detected error...
+//            std::cerr << "Error detected: " << output << std::endl;
+//            std::terminate();
         }
 
         auto pos = output.find("\nE");
         if ( pos != std::string::npos) {
-            // detected error...
-            std::cerr << "Error detected: " << output << std::endl;
-            std::terminate();
+            std::cout << "Error2: Output is " << output << std::endl;
+//            // detected error...
+//            std::cerr << "Error detected: " << output << std::endl;
+//            std::terminate();
         }
 
         lastChar = output[output.size()-1];
@@ -98,8 +100,6 @@ public:
         std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
                                                "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
-        // add if you want more information from osquery
-        arguments.push_back("--verbose");
         m_osqueryProc->setOutputLimit(10);
         m_osqueryProc->setOutputTrimmedCallback(OsqueryOutputErrorDetector{});
         m_osqueryProc->exec(getOsqueryPath(), arguments, {});

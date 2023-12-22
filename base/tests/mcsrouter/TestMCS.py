@@ -11,6 +11,9 @@ import xml.dom.minidom
 import logging
 logger = logging.getLogger("TestMCS")
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(script_dir)
+
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 
