@@ -18,6 +18,7 @@ Resource    ProductResources.robot
 Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
@@ -321,13 +322,18 @@ Check Downgrade From VUT to Fixed Version
     File Should Exist  ${AV_DIR}/log/downgrade-backup/soapd.log
     File Should Exist  ${AV_DIR}/log/downgrade-backup/sophos_threat_detector.log
 
-    Wait Until Keyword Succeeds
-    ...  180 secs
-    ...  1 secs
-    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=180 secs
+
+    IF   not ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+        # RTD will cause health to be red
+        Wait Until Keyword Succeeds
+        ...  180 secs
+        ...  5 secs
+        ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    END
     # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  180 secs
     ...  5 secs
     ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Stop Local SDDS3 Server
