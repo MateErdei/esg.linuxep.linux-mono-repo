@@ -4,7 +4,7 @@
         <workingdir>.</workingdir>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.49" build-id="20231201093435-9f7e8eaf2d8e9592eb69a700f0c195304f0446a0-XQSkfC"/>
+            <release-version branch="release/SPRINT-2023.52" build-id="20231222112556-98219b2fb91cbc2c6ebc009358a25ba35e9563a1-L7h5FB"/>
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
