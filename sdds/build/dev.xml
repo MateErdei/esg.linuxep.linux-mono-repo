@@ -40,6 +40,7 @@
         <intermediate artifact-path="deviceisolation/linux_arm64_rel/installer" dest-dir="sdds/redist/deviceisolation/latest/arm64" mode="dev,prod,999"/>
 
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
+            <release-version branch="release--sensor--2023-52" build-id="20231228112017-4a85c5721cccccf6b0008194ac588258dd6baa44-Pbpd8Q"/>
             <development-version branch="develop"/>
             <include artifact-path="SDDS-COMPONENT" dest-dir="sdds/redist/runtimedetections/latest/x64" mode="dev,999"/>
             <include artifact-path="SDDS-COMPONENT-arm64" dest-dir="sdds/redist/runtimedetections/latest/arm64" mode="dev,999"/>
@@ -63,8 +64,8 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-<!--            <release-version branch="release/SPRINT-2023.37-linux"-->
-<!--                             build-id="20230908150721-2a0223e80f68f92a13cf494ec53ad2f70eb6d01e-jQCcwz"/>-->
+            <release-version branch="release/SPRINT-2023.52"
+                             build-id="20231222112556-98219b2fb91cbc2c6ebc009358a25ba35e9563a1-L7h5FB"/>
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>

@@ -24,7 +24,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/LINUX-2023.4" build-id="20231020071347-6b2fd64f4c73f770fa390965a0fd8c53fb203755-9VIsCw"/>
+            <release-version branch="release/SPRINT-2023.52" build-id="20231222112556-98219b2fb91cbc2c6ebc009358a25ba35e9563a1-L7h5FB"/>
             <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="/build/redist/sophlib/lib64"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
