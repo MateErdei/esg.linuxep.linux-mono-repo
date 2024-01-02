@@ -1,9 +1,11 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "NftWrapper.h"
-#include "Common/FileSystem/IFileSystem.h"
 #include "ApplicationPaths.h"
 #include "Logger.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/Process/IProcess.h"
 
 namespace Plugin
@@ -11,10 +13,6 @@ namespace Plugin
     NftWrapper::IsolateResult
     NftWrapper::applyIsolateRules(const std::vector<Plugin::IsolationExclusion> &allowList)
     {
-
-        // TODO LINUXDAR-7962 get all the needed GIDs.
-        // add multiple lines like "meta skgid REPLACE_WITH_GID! accept" to the OUTPUT chain.
-
         auto fs = Common::FileSystem::fileSystem();
 
         if (!fs->exists(Plugin::nftBinary()))
@@ -143,7 +141,10 @@ namespace Plugin
             }
         }
 
-        // TODO LINUXDAR-7964 Apply sophos GID exclusion.
+        auto fp = Common::FileSystem::filePermissions();
+        auto groupId = fp->getGroupId("sophos-spl-group");
+
+        outgoingAllowListString += indent + "meta skgid " + std::to_string(groupId) + " accept\n";
 
         // Note - Some platforms automatically convert icmp to 1 and vice versa
 
@@ -189,8 +190,11 @@ namespace Plugin
                       static_cast<int>(std::filesystem::perms::owner_write);
         fs->writeFileAtomically(rulesFile, rules.str(), Plugin::pluginTempDir(), mode);
 
+        Common::Process::EnvPairVector env;
+        env.emplace_back(std::make_pair<std::string, std::string>("LD_LIBRARY_PATH", Plugin::pluginLibDir()));
+
         auto process = ::Common::Process::createProcess();
-        process->exec(Plugin::nftBinary(), {"-f", rulesFile});
+        process->exec(Plugin::nftBinary(), {"-f", rulesFile}, env);
         auto status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
@@ -231,10 +235,13 @@ namespace Plugin
             return IsolateResult::FAILED;
         }
 
+        Common::Process::EnvPairVector env;
+        env.emplace_back(std::make_pair<std::string, std::string>("LD_LIBRARY_PATH", Plugin::pluginLibDir()));
+
         auto process = ::Common::Process::createProcess();
 
         // Check table exists
-        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME});
+        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME}, env);
         auto status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
@@ -252,7 +259,7 @@ namespace Plugin
         }
 
         // Flush table
-        process->exec(Plugin::nftBinary(), {"flush", "table", "inet", TABLE_NAME});
+        process->exec(Plugin::nftBinary(), {"flush", "table", "inet", TABLE_NAME}, env);
         status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
@@ -270,7 +277,7 @@ namespace Plugin
         }
 
         // Delete table
-        process->exec(Plugin::nftBinary(), {"delete", "table", "inet", TABLE_NAME});
+        process->exec(Plugin::nftBinary(), {"delete", "table", "inet", TABLE_NAME}, env);
         status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {

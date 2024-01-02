@@ -2,4 +2,7 @@ o600, root, root, /opt/sophos-spl/plugins/deviceisolation/log/deviceisolation.lo
 o700, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/uninstall.sh.0
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation.0
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/nft.0
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation/lib64/libmnl.so.0.0
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation/lib64/libnftables.so.1.0
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation/lib64/libnftnl.so.11.0
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation/VERSION.ini.0

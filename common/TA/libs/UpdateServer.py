@@ -167,15 +167,20 @@ class UpdateServer(object):
         return os.system(command)
 
 
-    def curl_url(self, url, proxy=None):
+    def curl_url(self, url, proxy=None, prefix=""):
         print(f"Trying to curl {url}, proxy: {proxy}")
         # use the system curl with its library
         proxy_arg = ""
         if proxy:
             proxy_arg = f"--proxy {proxy}"
         capath = str(os.path.join(self.server_path, 'https', 'ca'))
-        return os.system(f"LD_LIBRARY_PATH='' curl -m 10 -s -k -4 --capath {capath} {proxy_arg} {url}  > /dev/null")
+        return os.system(f"LD_LIBRARY_PATH='' {prefix} curl -m 10 -s -k -4 --capath {capath} {proxy_arg} {url}  > /dev/null")
 
     def can_curl_url(self, url, proxy=None):
         if self.curl_url(url, proxy) != 0:
+            raise AssertionError("cannot reach url: {}".format(url))
+
+    def can_curl_url_as_group(self, url, proxy=None, group="sophos-spl-group"):
+        # Unfortunately this only works on certain distros
+        if self.curl_url(url, proxy, f"sudo --group={group}") != 0:
             raise AssertionError("cannot reach url: {}".format(url))

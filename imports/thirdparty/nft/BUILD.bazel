@@ -1,8 +1,35 @@
 alias(
     name = "nft_binary",
     actual = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/nft",
-        "@bazel_tools//src/conditions:linux_aarch64": "arm64/nft",
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/bin/nft",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/bin/nft",
+    }),
+    visibility = ["//deviceisolation/products/installer:__pkg__"],
+)
+
+alias(
+    name = "nft_libmnl",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libmnl.so.0.2.0",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libmnl.so.0.2.0",
+    }),
+    visibility = ["//deviceisolation/products/installer:__pkg__"],
+)
+
+alias(
+    name = "nft_libnftables",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libnftables.so.1.1.0",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libnftables.so.1.1.0",
+    }),
+    visibility = ["//deviceisolation/products/installer:__pkg__"],
+)
+
+alias(
+    name = "nft_libnftnl",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/lib/libnftnl.so.11.6.0",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/lib/libnftnl.so.11.6.0",
     }),
     visibility = ["//deviceisolation/products/installer:__pkg__"],
 )

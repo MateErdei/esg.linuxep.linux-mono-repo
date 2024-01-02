@@ -90,6 +90,7 @@ Device Isolation Test Setup
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Register on fail  dump log  ${DEVICE_ISOLATION_LOG_PATH}
+    Set Environment Variable    LD_LIBRARY_PATH    ${COMPONENT_ROOT_PATH}/lib64
 
 Device Isolation Test Teardown
     # Just in case disabling isolation fails, clear all the network filter rules

@@ -5,19 +5,18 @@
 #include "pluginimpl/config.h"
 
 #include "Common/XmlUtilities/AttributesMap.h"
-
-#include "base/tests/Common/Helpers/MemoryAppender.h"
-#include "base/tests/Common/Helpers/MockApiBaseServices.h"
-#include "tests/Common/Helpers/MockProcess.h"
-#include "base/modules/Common/ProcessImpl/ProcessImpl.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/Helpers/MemoryAppender.h"
+#include "Common/Helpers/MockApiBaseServices.h"
+#include "Common/Helpers/MockProcess.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 
 #include <gtest/gtest.h>
-
 #include <future>
 #include <memory>
 #include <thread>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 
 using namespace testing;
 
@@ -156,6 +155,7 @@ TEST_F(PluginAdapterTests, pluginPutsRevidInStatus)
 
 TEST_F(PluginAdapterTests, logsWhenIsolationEnabled)
 {
+    gid_t testGid = 123;
     UsingMemoryAppender appender(*this);
     auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
     EXPECT_CALL(*mockBaseService, requestPolicies("NTP")).Times(1);
@@ -167,15 +167,21 @@ TEST_F(PluginAdapterTests, logsWhenIsolationEnabled)
     EXPECT_CALL(*mockFileSystem, isExecutable("/opt/sophos-spl/plugins/deviceisolation/bin/nft")).WillRepeatedly(Return(true));
     mode_t mode = static_cast<int>(std::filesystem::perms::owner_read) |
                   static_cast<int>(std::filesystem::perms::owner_write);
-    EXPECT_CALL(*mockFileSystem, writeFileAtomically("/opt/sophos-spl/plugins/deviceisolation/var/nft_rules", _, "/opt/sophos-spl/plugins/deviceisolation/tmp", mode)).WillOnce(Return());
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically("/opt/sophos-spl/plugins/deviceisolation/var/nft_rules", HasSubstr("meta skgid " + std::to_string(testGid) + " accept"), "/opt/sophos-spl/plugins/deviceisolation/tmp", mode)).WillOnce(Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFilePermissions, getGroupId("sophos-spl-group")).WillOnce(Return(gid_t{testGid}));
+    Tests::ScopedReplaceFilePermissions replaceFilePermissions{
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions)
+    };
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
                 std::vector<std::string> args = {"-f", "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules"};
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                     .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -225,13 +231,13 @@ TEST_F(PluginAdapterTests, logsWhenIsolationDisabled)
 
                 // Flush
                 std::vector<std::string> args = { "flush", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args));
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _));
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500)).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(0));
 
                 // Delete
                 args = { "delete", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args));
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _));
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 

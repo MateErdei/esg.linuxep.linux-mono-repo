@@ -1,20 +1,19 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "Common/XmlUtilities/AttributesMap.h"
-
-#include "base/tests/Common/Helpers/MemoryAppender.h"
-
+#include "pluginimpl/NTPPolicy.h"
 #include "pluginimpl/config.h"
-#include "deviceisolation/modules/pluginimpl/NftWrapper.h"
+#include "pluginimpl/NftWrapper.h"
 
-#include <gtest/gtest.h>
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/Helpers/MemoryAppender.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockProcess.h"
+
 #include <include/gmock/gmock-matchers.h>
-
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include "tests/Common/Helpers/MockProcess.h"
-#include "base/modules/Common/ProcessImpl/ProcessImpl.h"
-#include "deviceisolation/modules/pluginimpl/NTPPolicy.h"
+#include <gtest/gtest.h>
 
 namespace
 {
@@ -33,22 +32,29 @@ using namespace Plugin;
 
 TEST_F(TestNftWrapper, applyIsolateRulesDefaultRuleset)
 {
+    gid_t testGid = 123;
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, exists(NFT_BINARY)).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, isExecutable(NFT_BINARY)).WillRepeatedly(Return(true));
     mode_t mode = static_cast<int>(std::filesystem::perms::owner_read) |
                   static_cast<int>(std::filesystem::perms::owner_write);
-    EXPECT_CALL(*mockFileSystem, writeFileAtomically(RULES_FILE, _,
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(RULES_FILE, HasSubstr("meta skgid " + std::to_string(testGid) + " accept"),
                                                      "/opt/sophos-spl/plugins/deviceisolation/tmp", mode)).WillOnce(
             Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFilePermissions, getGroupId("sophos-spl-group")).WillOnce(Return(testGid));
+    Tests::ScopedReplaceFilePermissions replaceFilePermissions{
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions)
+    };
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
                 std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -100,12 +106,18 @@ TEST_F(TestNftWrapper, applyIsolateRulesTimesOutIfNftHangs)
             Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFilePermissions, getGroupId("sophos-spl-group")).WillOnce(Return(gid_t{1}));
+    Tests::ScopedReplaceFilePermissions replaceFilePermissions{
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions)
+    };
+
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
                 std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
                 EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
@@ -129,12 +141,18 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNftFailure)
             Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFilePermissions, getGroupId("sophos-spl-group")).WillOnce(Return(gid_t{1}));
+    Tests::ScopedReplaceFilePermissions replaceFilePermissions{
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions)
+    };
+
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
                 std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(123));
@@ -281,6 +299,7 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
             ip daddr 100.78.0.45 udp dport 443 accept
             ip daddr 100.78.0.46 tcp dport 443 accept
             ip daddr 100.78.0.46 udp dport 443 accept
+            meta skgid 1 accept
 
     }
 
@@ -296,12 +315,18 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
             Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFilePermissions, getGroupId("sophos-spl-group")).WillOnce(Return(gid_t{1}));
+    Tests::ScopedReplaceFilePermissions replaceFilePermissions{
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions)
+    };
+
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
                 std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -330,13 +355,13 @@ TEST_F(TestNftWrapper, clearIsolateRulesSucceeds)
                 EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(0));
 
                 std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
 
                 args = { "flush", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
 
                 args = { "delete", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
 
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
@@ -384,7 +409,7 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangs)
                 auto mockProcess = new StrictMock<MockProcess>();
 
                 std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillRepeatedly(Return(Common::Process::ProcessStatus::RUNNING));
                 EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));

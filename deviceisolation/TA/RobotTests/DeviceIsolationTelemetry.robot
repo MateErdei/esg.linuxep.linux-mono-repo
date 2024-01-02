@@ -32,7 +32,6 @@ Check Is Isolation Active Telemetry Is Written
     Should Be Equal As Strings    ${telemetry_dict["currently-active"]}    False
 
 Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
-    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
@@ -53,7 +52,6 @@ Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
     Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation
 
 Check Is Isolation Active Telemetry Is Updated When Disable Isolation Action Received After Enable Isolate Action
-    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
@@ -84,7 +82,6 @@ Check Was Isolation Activated In Last 24 Hours Telemetry Is Written
     Should Be Equal As Strings    ${telemetry_dict["activated-last-24-hours"]}    False
 
 Check Was Isolation Activated In Last 24 Hours Is Updated When Isolate Action Received
-    [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules

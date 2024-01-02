@@ -3,3 +3,4 @@ o700, root, root, /opt/sophos-spl/plugins/deviceisolation/tmp
 o700, root, root, /opt/sophos-spl/plugins/deviceisolation/var
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation/bin
+o750, root, root, /opt/sophos-spl/plugins/deviceisolation/lib64

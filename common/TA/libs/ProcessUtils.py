@@ -11,6 +11,7 @@ import subprocess
 import PathManager
 import psutil
 import time
+import grp
 
 import robot.api.logger as logger
 
@@ -202,3 +203,7 @@ class ProcessUtils(object):
         actual_nice = self.get_nice_value(pid)
         if actual_nice != expected_nice:
             raise AssertionError("PID: %d has nice value %d rather than %d" % (pid, actual_nice, expected_nice))
+
+    def get_group_id_by_name(self, group_name: str):
+        group_info = grp.getgrnam(group_name)
+        return group_info.gr_gid

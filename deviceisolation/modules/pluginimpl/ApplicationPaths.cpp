@@ -35,6 +35,11 @@ std::string Plugin::pluginVarDir()
     return fromRelative("var");
 }
 
+std::string Plugin::pluginLibDir()
+{
+    return fromRelative("lib64");
+}
+
 std::string Plugin::networkRulesFile()
 {
     return Common::FileSystem::join(pluginVarDir(), "nft_rules");

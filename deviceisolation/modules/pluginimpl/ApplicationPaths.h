@@ -9,6 +9,7 @@ namespace Plugin
     std::string pluginBinDir();
     std::string pluginTempDir();
     std::string pluginVarDir();
+    std::string pluginLibDir();
     std::string networkRulesFile();
     std::string nftBinary();
 } // namespace Plugin

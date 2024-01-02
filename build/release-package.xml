@@ -26,7 +26,7 @@
 
         <!-- Device Isolation imports -->
         <build-asset project="linuxep" repo="netfilter_isolator">
-            <release-version branch="release/version_1_0_9" build-id="20231214085524-fa6031a3c836296e2e4948878bc351536371689e-UUcYSd"/>
+            <release-version branch="release/version_1_0_9" build-id="20240102105204-66445636ef5c3fcaa365818e0b62f7e41793fc7f-Ux5jTT"/>
             <development-version branch="develop"/>
             <include artifact-path="x64" dest-dir="imports/thirdparty/nft/x86_64"/>
             <include artifact-path="arm64" dest-dir="imports/thirdparty/nft/arm64"/>
