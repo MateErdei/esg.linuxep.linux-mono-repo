@@ -79,6 +79,7 @@ TEST_F(QuarantineManagerTests, initDbWithExistingPassword)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -101,6 +102,7 @@ TEST_F(QuarantineManagerTests, initDbAndGeneratePassword)
     EXPECT_CALL(*filesystemMock, isDirectory(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getSafeStorePasswordFilePath(), _)).Times(1);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), _))
@@ -120,6 +122,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbIsInitialisedAfterSuccessfulInitCa
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -143,6 +146,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
     EXPECT_CALL(
         *filesystemMock,
         writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database uninitialised", "/tmp/tmp"));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -163,6 +167,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBErrorAndDbIsMarkedCorrupt)
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("a password"));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(10);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -199,6 +204,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBOpenFailureAndDbIsMarkedCorrupt)
         writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database corrupt", "/tmp/tmp"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("a password"));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(10);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -230,6 +236,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -250,7 +257,6 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     *objectHandle2.getRawHandlePtr() = rawHandle2;
     auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
-
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle1))));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, handleAsArg1))
@@ -267,7 +273,6 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     searchResults.push_back(std::move(objectHandle2));
     EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter{ m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
         .WillOnce(Return(ByMove(std::move(searchResults))));
-
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
     auto quarantineManager = createQuarantineManager();
@@ -299,6 +304,7 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -353,6 +359,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
@@ -401,6 +408,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
@@ -449,6 +457,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(-1));
 
@@ -485,6 +494,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(-1));
@@ -534,6 +544,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "1"));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return("1"));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
 
@@ -595,6 +606,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, _));
@@ -658,6 +670,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::OK));
@@ -760,6 +773,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::OK));
@@ -861,6 +875,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -921,6 +936,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
     EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
@@ -1592,6 +1608,7 @@ TEST_F(QuarantineManagerTests, QuarantineFileFailsIfReadlinkFails)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 
@@ -1630,6 +1647,7 @@ TEST_F(QuarantineManagerTests, QuarantineSucceedsIfFileDeleted)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 
@@ -1669,6 +1687,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileRenamedToHaveDeletedAtEnd)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 
@@ -1709,6 +1728,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileMoved)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 

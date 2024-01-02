@@ -14,6 +14,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/Uuid.h"
@@ -234,6 +235,17 @@ namespace safestore::QuarantineManager
         {
             LOGDEBUG("Quarantine Manager already initialised, not initialising again");
             return;
+        }
+
+        // Ensure tempUnpack location is empty after startup
+        try
+        {
+            m_fileSystem->removeFilesInDirectory(
+                    Common::FileSystem::join(Plugin::getPluginVarDirPath(), "tempUnpack"));
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Unable to remove previously unpacked files with error: " << ex.what());
         }
 
         LOGDEBUG("Initialising Quarantine Manager");
@@ -538,7 +550,7 @@ namespace safestore::QuarantineManager
         {
             if (unpackedFiles.size() > 1)
             {
-                LOGERROR("Failed to clean up previous unpacked file");
+                LOGWARN("Failed to clean up previous unpacked file");
             }
             if (unpackedFiles.empty())
             {

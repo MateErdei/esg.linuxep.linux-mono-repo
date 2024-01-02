@@ -99,6 +99,7 @@ TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAl
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
     auto quarantineManager = createQuarantineManager();
     quarantineManager->initialise();
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -124,6 +125,7 @@ TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantine
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(1);
     auto quarantineManager = createQuarantineManager();
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
@@ -178,6 +180,7 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .WillOnce(Return(InitReturnCode::DB_ERROR))
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(2);
     auto quarantineManager = createQuarantineManager();
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -234,6 +237,7 @@ TEST_F(StateMonitorTests, stateMonitorIncrementsErrorCountOnInternalError)
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .WillOnce(Return(InitReturnCode::FAILED))
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(2);
     auto quarantineManager = createQuarantineManager();
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -294,6 +298,7 @@ TEST_F(StateMonitorTests, stateMonitorIgnoresSpecificInitErrorCodes)
         .WillOnce(Return(InitReturnCode::OUT_OF_MEMORY))
         .WillOnce(Return(InitReturnCode::DB_ERROR))
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(6);
     auto quarantineManager = createQuarantineManager();
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -396,6 +401,7 @@ TEST_F(StateMonitorTests, stateMonitorTriesToRemoveFilesystemLockIfItExistsAndDb
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .WillOnce(Return(InitReturnCode::FAILED))
         .WillOnce(Return(InitReturnCode::OK));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(2);
     auto quarantineManager = createQuarantineManager();
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -456,6 +462,7 @@ TEST_F(
         .WillOnce(Return(InitReturnCode::FAILED)) // Go into corrupt state
         .WillOnce(Return(InitReturnCode::FAILED)) // 2nd one for when we try to initialise after waiting for lock dir
         .WillOnce(Return(InitReturnCode::OK));    // Then "OK" for once we have deleted the DB
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/tempUnpack")).Times(3);
     auto quarantineManager = createQuarantineManager();
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);

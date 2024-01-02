@@ -34,6 +34,7 @@ ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_R
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
+${SAFESTORE_UNPACK_DIR}              ${SOPHOS_INSTALL}/plugins/av/var/tempUnpack
 
 *** Test Cases ***
 
@@ -151,6 +152,24 @@ SafeStore Recovers From Database With Erroneous Lock Dir
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: INTERNAL_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
+
+SafeStore Recovers From Left Over Unpacked File
+
+    Wait Until SafeStore running
+    Wait Until SafeStore Log Contains   Quarantine Manager initialised
+    ${ss_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Create File  ${SAFESTORE_UNPACK_DIR}/leftover_unpacked_file
+
+    Stop SafeStore
+    File Should Exist  ${SAFESTORE_UNPACK_DIR}/leftover_unpacked_file
+
+    Start SafeStore
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantine Manager initialised OK  200
+
+    File Should Not Exist  ${SAFESTORE_UNPACK_DIR}/leftover_unpacked_file
+
+    Check Log Does Not Contain After Mark  ${SAFESTORE_LOG_PATH}  Quarantine Manager failed to initialise  ${ss_mark}
+    Check Log Does Not Contain After Mark  ${SAFESTORE_LOG_PATH}  Failed to clean up previous unpacked file  ${ss_mark}
 
 
 SafeStore Quarantines When It Receives A File To Quarantine
