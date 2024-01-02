@@ -168,6 +168,14 @@ TEST_F(PluginAdapterTests, logsWhenIsolationEnabled)
     mode_t mode = static_cast<int>(std::filesystem::perms::owner_read) |
                   static_cast<int>(std::filesystem::perms::owner_write);
     EXPECT_CALL(*mockFileSystem, writeFileAtomically("/opt/sophos-spl/plugins/deviceisolation/var/nft_rules", HasSubstr("meta skgid " + std::to_string(testGid) + " accept"), "/opt/sophos-spl/plugins/deviceisolation/tmp", mode)).WillOnce(Return());
+
+    // During initialization
+    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, writeFile("/opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled", "0")).Times(1);
+
+    // After getting isolate action
+    EXPECT_CALL(*mockFileSystem, writeFile("/opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled", "1")).Times(2);
+
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
     auto mockFilePermissions = new StrictMock<MockFilePermissions>();
@@ -180,28 +188,56 @@ TEST_F(PluginAdapterTests, logsWhenIsolationEnabled)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = {"-f", "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules"};
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _)).Times(1);
+
+                std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                     .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-
-
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("Table does not exist"));
 
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
     auto queue = std::make_shared<Plugin::TaskQueue>();
+    TestablePluginAdapter plugin(queue, mockBaseService);
+    auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &plugin);
+
+    ASSERT_TRUE(waitForLog("Completed initialization of Device Isolation"));
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        []()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+
+            {
+                InSequence s;
+
+                std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(1));
+
+                args = {"-f", "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules"};
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            }
+
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
     queue->push(Plugin::Task{
-       .taskType = Plugin::Task::TaskType::Action,
-       .Content = R"SOPHOS(<?xml version="1.0" ?>
-    <action type="sophos.mgt.action.IsolationRequest">
-         <enabled>true</enabled>
-    </action>)SOPHOS"
+            .taskType = Plugin::Task::TaskType::Action,
+            .Content = R"SOPHOS(<?xml version="1.0" ?>
+        <action type="sophos.mgt.action.IsolationRequest">
+             <enabled>true</enabled>
+        </action>)SOPHOS"
     });
     queue->pushStop();
-    TestablePluginAdapter plugin(queue, mockBaseService);
-    plugin.mainLoop();
+    mainLoopFuture.get();
 
     // Check we have logged
     ASSERT_TRUE(waitForLog("Enabling Device Isolation"));
@@ -224,20 +260,25 @@ TEST_F(PluginAdapterTests, logsWhenIsolationDisabled)
     std::string status;
     EXPECT_CALL(*mockBaseService, sendStatus("NTP", _, _)).WillRepeatedly(SaveArg<2>(&status));
 
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/deviceisolation/bin/nft")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/opt/sophos-spl/plugins/deviceisolation/bin/nft")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, writeFile("/opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled", "0")).Times(3);
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
 
-                // Flush
-                std::vector<std::string> args = { "flush", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _));
-                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500)).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
-                EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(0));
+                // List
+                std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
+                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args));
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("Table does not exist"));
 
-                // Delete
-                args = { "delete", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec("/opt/sophos-spl/plugins/deviceisolation/bin/nft", args, _));
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 

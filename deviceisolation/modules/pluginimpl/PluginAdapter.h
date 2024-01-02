@@ -7,6 +7,7 @@
 #include "TaskQueue.h"
 
 #include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PersistentValue/PersistentValue.h"
 
 namespace Plugin
 {
@@ -23,12 +24,14 @@ namespace Plugin
         void processAction(const std::string& actionXml);
         void processPolicy(const std::string& appId, const std::string& policyXml);
         void sendStatus();
+        void enableIsolation();
+        void disableIsolation();
 
         std::shared_ptr<TaskQueue> taskQueue_;
         std::shared_ptr<Common::PluginApi::IBaseServiceApi> baseService_;
         std::shared_ptr<PluginCallback> callback_;
         std::shared_ptr<NTPPolicy> ntpPolicy_;
-        bool isolationEnabled_{false};
+        Common::PersistentValue<bool> isolationEnabled_;
 
     protected:
         static constexpr std::chrono::milliseconds DEFAULT_QUEUE_TIMEOUT = std::chrono::seconds{5};

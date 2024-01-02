@@ -25,7 +25,6 @@ namespace Plugin
             LOGERROR("nft binary is not executable");
             return IsolateResult::FAILED;
         }
-
         const auto rulesFile = Plugin::networkRulesFile();
         std::stringstream rules;
 
@@ -190,12 +189,28 @@ namespace Plugin
                       static_cast<int>(std::filesystem::perms::owner_write);
         fs->writeFileAtomically(rulesFile, rules.str(), Plugin::pluginTempDir(), mode);
 
-        Common::Process::EnvPairVector env;
-        env.emplace_back(std::make_pair<std::string, std::string>("LD_LIBRARY_PATH", Plugin::pluginLibDir()));
-
         auto process = ::Common::Process::createProcess();
-        process->exec(Plugin::nftBinary(), {"-f", rulesFile}, env);
+
+        // Check table exists
+        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME});
         auto status = process->wait(std::chrono::milliseconds(100), 500);
+        if (status != Common::Process::ProcessStatus::FINISHED)
+        {
+            LOGERROR("The nft list table command did not complete in time");
+            process->kill();
+            return IsolateResult::FAILED;
+        }
+
+        int exitCode = process->exitCode();
+        // Checking for 0 as if table exists then isolation rules have already been enforced, no need to repeat
+        if (exitCode == 0)
+        {
+            LOGDEBUG("nft output: " << process->output());
+            return IsolateResult::RULES_NOT_PRESENT;
+        }
+
+        process->exec(Plugin::nftBinary(), {"-f", rulesFile});
+        status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
             LOGERROR("The nft command did not complete in time, killing process");
@@ -203,8 +218,7 @@ namespace Plugin
             return IsolateResult::FAILED;
         }
 
-        int exitCode = process->exitCode();
-
+        exitCode = process->exitCode();
         if (exitCode != 0)
         {
             LOGERROR("Failed to set network rules, nft exit code: " << exitCode);
@@ -235,13 +249,10 @@ namespace Plugin
             return IsolateResult::FAILED;
         }
 
-        Common::Process::EnvPairVector env;
-        env.emplace_back(std::make_pair<std::string, std::string>("LD_LIBRARY_PATH", Plugin::pluginLibDir()));
-
         auto process = ::Common::Process::createProcess();
 
         // Check table exists
-        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME}, env);
+        process->exec(Plugin::nftBinary(), {"list", "table", "inet", TABLE_NAME});
         auto status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
@@ -253,13 +264,12 @@ namespace Plugin
         int exitCode = process->exitCode();
         if (exitCode != 0)
         {
-            LOGERROR("Failed to list table, nft exit code: " << exitCode);
             LOGDEBUG("nft output: " << process->output());
             return IsolateResult::RULES_NOT_PRESENT;
         }
 
         // Flush table
-        process->exec(Plugin::nftBinary(), {"flush", "table", "inet", TABLE_NAME}, env);
+        process->exec(Plugin::nftBinary(), {"flush", "table", "inet", TABLE_NAME});
         status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
@@ -277,7 +287,7 @@ namespace Plugin
         }
 
         // Delete table
-        process->exec(Plugin::nftBinary(), {"delete", "table", "inet", TABLE_NAME}, env);
+        process->exec(Plugin::nftBinary(), {"delete", "table", "inet", TABLE_NAME});
         status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {

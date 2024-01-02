@@ -36,8 +36,13 @@ Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
-    Send Enable Isolation Action    uuid=1
-    Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${di_mark}  Device Isolation policy applied
+
+    Enable Device Isolation
     Wait For Log Contains From Mark    ${di_mark}    Finished processing action
 
     ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
@@ -56,13 +61,18 @@ Check Is Isolation Active Telemetry Is Updated When Disable Isolation Action Rec
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
-    Send Enable Isolation Action    uuid=1
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${di_mark}  Device Isolation policy applied
+
+    Enable Device Isolation
     Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
     Wait For Log Contains From Mark    ${di_mark}    Finished processing action
 
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
     Send Disable Isolation Action    uuid=1
-    Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation
     Wait For Log Contains From Mark    ${di_mark}    Finished processing action
 
     ${telemetry_json} =  Get Plugin Telemetry  deviceisolation
@@ -86,8 +96,13 @@ Check Was Isolation Activated In Last 24 Hours Is Updated When Isolate Action Re
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
     Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
-    Send Enable Isolation Action    uuid=1
-    Wait For Log Contains From Mark  ${di_mark}  Enabling Device Isolation
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${di_mark}  Device Isolation policy applied
+
+    Enable Device Isolation
     Wait For Log Contains From Mark    ${di_mark}    Finished processing action
 
     ${telemetry_json} =  Get Plugin Telemetry  deviceisolation

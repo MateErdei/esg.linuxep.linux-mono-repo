@@ -32,6 +32,7 @@ soph_cc_library(
     ],
     deps = [
         "//base/modules/Common/Logging",
+        "//base/modules/Common/PersistentValue",
         "//base/modules/Common/PluginApi",
     ],
 )

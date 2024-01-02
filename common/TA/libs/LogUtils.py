@@ -1307,7 +1307,7 @@ class LogUtils(object):
                 if path != "/etc/ssl/openssl.cnf":
                     raise AssertionError(f"Found an unexpected instance of an openssl config" )
 
-    def wait_for_response_action_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_response_action_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         response_actions_mark = log_marks["response_actions_mark"]
 
         try:
@@ -1315,7 +1315,7 @@ class LogUtils(object):
         except:
             response_actions_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
 
-    def wait_for_base_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_base_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         watchdog_mark = log_marks["watchdog_mark"]
         managementagent_mark = log_marks["managementagent_mark"]
         update_scheduler_mark = log_marks["update_scheduler_mark"]
@@ -1338,14 +1338,14 @@ class LogUtils(object):
         mcs_router_mark.wait_for_log_contains_from_mark("Started with install directory set to", timeout)
         tscheduler_mark.wait_for_log_contains_from_mark("Waiting for ALC policy before running Telemetry", timeout)
 
-    def wait_for_edr_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_edr_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         edr_mark = log_marks["edr_mark"]
         edr_osquery_mark = log_marks["edr_osquery_mark"]
 
         edr_mark.wait_for_log_contains_from_mark("Completed initialisation of EDR", timeout)
         edr_osquery_mark.wait_for_log_contains_from_mark("osquery initialized", timeout)
 
-    def wait_for_ej_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_ej_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         ej_mark = log_marks["ej_mark"]
 
         # TODO: once this log line is in current shipping, simplify try/except statement
@@ -1354,7 +1354,7 @@ class LogUtils(object):
         except:
             ej_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
 
-    def wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         # TODO: once deviceisolation is in current shipping, remove this if statement
         if not os.path.isfile(self.deviceisolation_log):
             return
@@ -1362,7 +1362,7 @@ class LogUtils(object):
 
         deviceisolation_mark.wait_for_log_contains_from_mark("Completed initialization of Device Isolation", timeout)
 
-    def wait_for_liveresponse_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_liveresponse_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         liveresponse_mark = log_marks["liveresponse_mark"]
 
         # TODO: once this log line is in current shipping, simplify try/except statement
@@ -1371,7 +1371,7 @@ class LogUtils(object):
         except:
             liveresponse_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
 
-    def wait_for_rtd_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_rtd_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         rtd_mark = log_marks["rtd_mark"]
 
         # Just try to find one or the other
@@ -1380,7 +1380,7 @@ class LogUtils(object):
         except:
             rtd_mark.wait_for_log_contains_from_mark("Sophos Runtime Detections Plugin version", timeout)
 
-    def wait_for_av_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_av_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
         sophos_threat_detector_mark = log_marks["sophos_threat_detector_mark"]
         av_mark = log_marks["av_mark"]
         oa_mark = log_marks["oa_mark"]
@@ -1406,7 +1406,7 @@ class LogUtils(object):
 
         safestore_mark.wait_for_log_contains_from_mark("SafeStore started", timeout)
 
-    def wait_for_plugins_logs_to_indicate_plugins_are_ready(self, log_marks: dict, timeout: int = 60):
+    def wait_for_plugins_logs_to_indicate_plugins_are_ready(self, log_marks: dict, timeout: int = 30):
         self.wait_for_ej_logs_to_indicate_plugin_is_ready(log_marks, timeout)
         self.wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(log_marks, timeout)
         self.wait_for_liveresponse_logs_to_indicate_plugin_is_ready(log_marks, timeout)

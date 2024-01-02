@@ -53,12 +53,20 @@ TEST_F(TestNftWrapper, applyIsolateRulesDefaultRuleset)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
-                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
-                        .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
+                InSequence s;
+
+                std::vector<std::string> args = {"list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+
+                args = {"-f", RULES_FILE};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
@@ -116,11 +124,13 @@ TEST_F(TestNftWrapper, applyIsolateRulesTimesOutIfNftHangs)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+
+                std::vector<std::string> args = {"list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
                 EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
+
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
@@ -151,12 +161,22 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNftFailure)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+
+                InSequence s;
+
+                std::vector<std::string> args = {"list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(123));
+
+                args = {"-f", RULES_FILE};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(123));
                 EXPECT_CALL(*mockProcess, output()).WillOnce(Return("nft failed"));
+
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
@@ -325,10 +345,19 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
             []()
             {
                 auto mockProcess = new StrictMock<MockProcess>();
-                std::vector<std::string> args = {"-f", RULES_FILE};
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+
+                InSequence s;
+
+                std::vector<std::string> args = {"list", "table", "inet", "sophos_device_isolation"};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
-                        .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+
+                args = {"-f", RULES_FILE};
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
 
@@ -355,13 +384,13 @@ TEST_F(TestNftWrapper, clearIsolateRulesSucceeds)
                 EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(0));
 
                 std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
 
                 args = { "flush", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
 
                 args = { "delete", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
 
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
@@ -409,7 +438,7 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangs)
                 auto mockProcess = new StrictMock<MockProcess>();
 
                 std::vector<std::string> args = { "list", "table", "inet", "sophos_device_isolation" };
-                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, args)).Times(1);
                 EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 500))
                         .WillRepeatedly(Return(Common::Process::ProcessStatus::RUNNING));
                 EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));

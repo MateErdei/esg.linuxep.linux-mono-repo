@@ -9,6 +9,10 @@ Library   ${COMMON_TEST_LIBS}/OnFail.py
 Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library   ${COMMON_TEST_LIBS}/FakeMCS.py
 Library   ${COMMON_TEST_LIBS}/ActionUtils.py
+Library   ${COMMON_TEST_LIBS}/PolicyUtils.py
+
+# For can curl url
+Library         ${COMMON_TEST_LIBS}/UpdateServer.py
 
 Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
@@ -90,7 +94,6 @@ Device Isolation Test Setup
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Register on fail  dump log  ${DEVICE_ISOLATION_LOG_PATH}
-    Set Environment Variable    LD_LIBRARY_PATH    ${COMPONENT_ROOT_PATH}/lib64
 
 Device Isolation Test Teardown
     # Just in case disabling isolation fails, clear all the network filter rules
@@ -114,3 +117,45 @@ Send Isolation Action
     ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/SHS_action_${creation_time_and_ttl}.xml
     ${srcFileName} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/actions/${filename}
     send_action  ${srcFileName}  ${actionFileName}  UUID=${uuid}
+
+Enable Device Isolation
+    ${mark} =  Get Device Isolation Log Mark
+    Send Enable Isolation Action  uuid=123
+    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Device is now isolated
+
+Send Device Isolation Policy
+    [Arguments]  ${policyFile}
+    ${srcFileName} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/policies/${policyFile}
+    send_policy  ${srcFileName}    NTP-24_policy.xml
+
+Send Isolation Policy With CI Exclusions
+    generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
+    Send Device Isolation Policy    NTP-24_policy_generated.xml
+
+Check Rules Have Been Applied
+    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
+    log  ${result.stdout}
+    log  ${result.stderr}
+
+    @{rules} =    Create List
+        ...    tcp dport 443 accept
+        ...    udp dport 443 accept
+        ...    ip saddr 192.168.1.1 tcp dport 22 accept
+        ...    ip saddr 192.168.1.1 udp dport 22 accept
+        ...    tcp dport 53 accept
+        ...    udp dport 53 accept
+        ...    ip daddr 192.168.1.9 accept
+        ...    ip daddr 192.168.1.1 tcp sport 22 accept
+        ...    ip daddr 192.168.1.1 udp sport 22 accept
+
+    FOR  ${rule}  IN  @{rules}
+       Should Contain      ${result.stdout}    ${rule}
+    END
+
+    # On some platforms "icmp" is converted to "1" and "1" is converted to "icmp" so check one of them exists.
+    ${contains_icmp}=  Evaluate   "ip protocol icmp accept" in """${result.stdout}"""
+    ${contains_icmp_as_1}=  Evaluate   "ip protocol 1 accept" in """${result.stdout}"""
+    IF    not (${contains_icmp} or ${contains_icmp_as_1})
+          Fail    Could not find "ip protocol icmp accept" or "ip protocol 1 accept" in ruleset.
+    END

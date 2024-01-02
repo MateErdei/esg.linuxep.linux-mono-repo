@@ -26,6 +26,7 @@ namespace Plugin
             , baseService_(std::move(baseService))
             , callback_(std::move(callback))
             , ntpPolicy_(std::make_shared<NTPPolicy>())
+            , isolationEnabled_(Plugin::pluginVarDir(), "isolationEnabled", false)
     {
     }
 
@@ -52,9 +53,18 @@ namespace Plugin
                 DeviceIsolation::Telemetry::activatedInPast24HoursKey, false);
 
         Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
-        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_));
+        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_.getValue()));
         Common::Telemetry::TelemetryHelper::getInstance().set(
                 DeviceIsolation::Telemetry::currentlyActiveKey, isolationEnabledTelemetry, true);
+
+        if (isolationEnabled_.getValue())
+        {
+            enableIsolation();
+        }
+        else
+        {
+            disableIsolation();
+        }
 
         LOGINFO("Completed initialization of Device Isolation");
         while (true)
@@ -127,42 +137,15 @@ namespace Plugin
 
         if (action.value())
         {
-            LOGINFO("Enabling Device Isolation");
-            auto result = NftWrapper::applyIsolateRules(ntpPolicy_->exclusions());
-            if (result != NftWrapper::IsolateResult::SUCCESS)
-            {
-                LOGERROR("Failed to isolate device");
-                return;
-            }
-            isolationEnabled_ = true;
-            Common::Telemetry::TelemetryHelper::getInstance().set(
-                    DeviceIsolation::Telemetry::activatedInPast24HoursKey, true);
-            LOGINFO("Device is now isolated");
+            enableIsolation();
         }
         else
         {
-            LOGINFO("Disabling Device Isolation");
-            auto result = NftWrapper::clearIsolateRules();
-            if (result == NftWrapper::IsolateResult::FAILED)
-            {
-                LOGERROR("Failed to remove device from isolation");
-                return;
-            }
-            else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
-            {
-                if (isolationEnabled_)
-                {
-                    LOGERROR("Failed to list sophos rules table but isolation is enabled");
-                    return;
-                }
-                LOGWARN("Tried to disable isolation but it was not enabled in the first place");
-            }
-            isolationEnabled_ = false;
-            LOGINFO("Device is no longer isolated");
+            disableIsolation();
         }
 
         Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
-        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_));
+        isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_.getValue()));
         Common::Telemetry::TelemetryHelper::getInstance().set(
                 DeviceIsolation::Telemetry::currentlyActiveKey, isolationEnabledTelemetry, true);
 
@@ -185,9 +168,56 @@ namespace Plugin
 
     void PluginAdapter::sendStatus()
     {
-        auto status = NTPStatus(ntpPolicy_->revId(), isolationEnabled_);
+        auto status = NTPStatus(ntpPolicy_->revId(), isolationEnabled_.getValue());
         // Only sends status to Central if xml_without_timestamp changes:
         baseService_->sendStatus("NTP", status.xml(), status.xmlWithoutTimestamp());
+    }
+
+    void PluginAdapter::enableIsolation()
+    {
+        LOGINFO("Enabling Device Isolation");
+        auto result = NftWrapper::applyIsolateRules(ntpPolicy_->exclusions());
+        if (result == NftWrapper::IsolateResult::FAILED)
+        {
+            LOGERROR("Failed to isolate device");
+            return;
+        }
+        else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
+        {
+            // Check if isolation shouldn't be enabled but our table is in the nft ruleset
+            if (!isolationEnabled_.getValue())
+            {
+                LOGERROR("Sophos rules are being enforced but isolation is not enabled yet");
+            }
+            LOGWARN("Tried to enable isolation but it was already enabled in the first place");
+        }
+        isolationEnabled_.setValueAndForceStore(true);
+        Common::Telemetry::TelemetryHelper::getInstance().set(
+                DeviceIsolation::Telemetry::activatedInPast24HoursKey, true);
+        LOGINFO("Device is now isolated");
+    }
+
+    void PluginAdapter::disableIsolation()
+    {
+        LOGINFO("Disabling Device Isolation");
+        auto result = NftWrapper::clearIsolateRules();
+        if (result == NftWrapper::IsolateResult::FAILED)
+        {
+            LOGERROR("Failed to remove device from isolation");
+            return;
+        }
+        else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
+        {
+            // Check if isolation should be enabled but our table is not in the nft ruleset
+            if (isolationEnabled_.getValue())
+            {
+                LOGERROR("Failed to list sophos rules table but isolation is enabled");
+                return;
+            }
+            LOGWARN("Tried to disable isolation but it was already disabled in the first place");
+        }
+        isolationEnabled_.setValueAndForceStore(false);
+        LOGINFO("Device is no longer isolated");
     }
 
 } // namespace Plugin
