@@ -15,7 +15,7 @@ Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
-Resource    ProductAcceptanceTestsResources.robot
+Resource    ${COMMON_TEST_ROBOT}/ProductAcceptanceTestsResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 

@@ -137,10 +137,12 @@ def setup_release_warehouse(dest, release_type, override_branch):
                                 os.path.join(release_sdds3_package_path, package))
 
 
-def setup_fixed_versions(dest, fixed_versions):
+def setup_fixed_versions(dest, fixed_version):
     # Find the warehouse branch that matched fixed_versions and then create a symlink to it with that name
-    current_year = datetime.date.today().year
-    branch_filter = f"release--{current_year}"
+    #get year of fixed version
+    year = fixed_version.split(" ")[1][:4]
+
+    branch_filter = f"release--{year}"
     release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, None, None, True)
     print(release_branches)
     for release_branch in release_branches:
@@ -154,16 +156,16 @@ def setup_fixed_versions(dest, fixed_versions):
             if release_version == "FTS 2023.4.0.27-LINUXDAR-8073":
                 release_version = "FTS 2023.4.0.30-LINUXDAR-8073"
             print(f"Fixed version name = {release_version}")
-            if release_version in fixed_versions:
+            if release_version in fixed_version:
                 symlink_path = os.path.join(dest, release_version)
                 if not os.path.exists(symlink_path):
                     os.symlink(output_dir, symlink_path)
-                fixed_versions.remove(release_version)
+                fixed_version = ""
                 print(f"Found desired fixed version {release_version}")
-        if not fixed_versions:
-            print("Found all desired fixed versions")
+        if not fixed_version:
+            print("Found fixed versionK")
             break
-    if fixed_versions:
+    if fixed_version:
         print(f"Failed to find fixed versions: {fixed_versions}")
 
     vut_sdds3_repo_path = os.path.join(dest, "repo")
@@ -202,11 +204,11 @@ def main():
                         default=os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs"))
     parser.add_argument("--dogfood-override", default=os.environ.get("SDDS3_DOGFOOD", default=None))
     parser.add_argument("--current-shipping-override", default=os.environ.get("SDDS3_CURRENT_SHIPPING", default=None))
-    parser.add_argument("--fixed-versions", nargs='+', default=None)
+    parser.add_argument("--fixed-version",  default=None)
     args = parser.parse_args()
 
-    if args.fixed_versions:
-        setup_fixed_versions(args.dest, args.fixed_versions)
+    if args.fixed_version:
+        setup_fixed_versions(args.dest, args.fixed_version)
     else:
         setup_release_warehouse(args.dest, "dogfood", args.dogfood_override)
         setup_release_warehouse(args.dest, "current_shipping", args.current_shipping_override)
