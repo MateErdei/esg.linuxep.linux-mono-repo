@@ -15,7 +15,7 @@ JsonBuilder::JsonBuilder(const Common::ConfigFile::ConfigFile& settings,
                             : settings_(settings)
                             , results_(results)
 {
-    tenantId_ = settings_.get("TENANT_ID", "<unknown-tenant-id>");
+    tenantId_ = settings_.get("TENANT_ID", "");
     machineId_ = Common::OSUtilitiesImpl::SXLMachineID::generateMachineID();
 }
 
@@ -130,6 +130,12 @@ static void addSystemInfo(nlohmann::json& json, const Common::OSUtilities::IPlat
 }
 std::string JsonBuilder::build(const Common::OSUtilities::IPlatformUtils& platform)
 {
+    if (tenantId_.empty())
+    {
+        LOGERROR("Refusing to send telemetry with empty tenant ID");
+        return "";
+    }
+
     timestamp_ = generateTimeStamp();
 
     const auto* resultCode = ::getenv("RESULT_CODE");

@@ -11,5 +11,6 @@ namespace Common::Logging
         ConsoleLoggingSetup(const std::string&);
         ~ConsoleLoggingSetup();
         static void consoleSetupLogging();
+        static void loggingShutdown();
     };
 } // namespace Common::Logging

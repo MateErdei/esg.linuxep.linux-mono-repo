@@ -17,7 +17,7 @@ Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup()
 
 Common::Logging::ConsoleLoggingSetup::~ConsoleLoggingSetup()
 {
-    log4cplus::Logger::shutdown();
+    loggingShutdown();
 }
 
 void Common::Logging::ConsoleLoggingSetup::consoleSetupLogging()
@@ -34,4 +34,9 @@ Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup(const std::string& log
 {
     consoleSetupLogging();
     applyGeneralConfig(log);
+}
+
+void Common::Logging::ConsoleLoggingSetup::loggingShutdown()
+{
+    log4cplus::Logger::shutdown();
 }

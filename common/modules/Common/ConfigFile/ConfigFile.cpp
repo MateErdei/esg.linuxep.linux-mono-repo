@@ -14,7 +14,7 @@
 
 using namespace Common::ConfigFile;
 
-ConfigFile::ConfigFile(Common::FileSystem::IFileSystem* fs, const std::string& filePath)
+ConfigFile::ConfigFile(Common::FileSystem::IFileSystem* fs, const std::string& filePath, bool ignoreMissingFile)
 {
     assert(fs != nullptr);
     try
@@ -25,6 +25,10 @@ ConfigFile::ConfigFile(Common::FileSystem::IFileSystem* fs, const std::string& f
     catch (const Common::FileSystem::IFileNotFoundException&)
     {
         // Ignore
+        if (!ignoreMissingFile)
+        {
+            throw;
+        }
     }
 }
 

@@ -28,6 +28,7 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
         LOGERROR("No configuration specified");
         return 1;
     }
+    assert(fs);
     ConfigFile config = ConfigFile(fs, args_[0]);
 
     // Determine if we should send telemetry
@@ -60,6 +61,10 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
     // Craft JSON
     thininstaller::telemetry::JsonBuilder builder{config, results};
     auto json = builder.build(platform);
+    if (json.empty())
+    {
+        return 0;
+    }
 
     LOGDEBUG("Sending telemetry: " << json);
 
@@ -72,7 +77,9 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
                  << ".json";
 
     // Send Telemetry
-    sendTelemetry(telemetryUrl.str(), json);
+    url_ = telemetryUrl.str();
+    json_ = json;
+    sendTelemetry(url_, json_);
 
     return 0;
 }
@@ -83,6 +90,7 @@ void thininstaller::telemetry::Telemetry::sendTelemetry(const std::string& url, 
 
     Common::HttpRequests::Headers headers;
     headers.emplace("Content-Type", "application/json");
+    headers.emplace("Expect", "100-continue");
 
     Common::HttpRequests::RequestConfig requestConfig;
     requestConfig.url = url;
@@ -95,4 +103,15 @@ void thininstaller::telemetry::Telemetry::sendTelemetry(const std::string& url, 
     // Do request
     assert(requester_);
     requester_->put(requestConfig);
+    LOGDEBUG("Sent telemetry");
+}
+
+std::string thininstaller::telemetry::Telemetry::json()
+{
+    return json_;
+}
+
+std::string thininstaller::telemetry::Telemetry::url()
+{
+    return url_;
 }

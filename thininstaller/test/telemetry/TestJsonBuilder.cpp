@@ -38,18 +38,11 @@ TEST_F(TestJsonBuilder, emptyConfig)
     JsonBuilder::ConfigFile config{{}};
     JsonBuilder builder(config, {});
 
-    const std::string expectedTenantId = "<unknown-tenant-id>";
-    const std::string expectedMachineIdSize = "3c233cfadef60213fd374b7971a89687";
-
     auto json = builder.build(*platform_);
-    PRINT(json);
-    auto actual = nlohmann::json::parse(json);
-    EXPECT_EQ(actual["tenantId"], expectedTenantId);
-    EXPECT_EQ(actual["machineId"].get<std::string>().size(), expectedMachineIdSize.size());
-    EXPECT_FALSE(actual["linuxInstaller"]["installSuccess"].get<bool>());
+    EXPECT_EQ(json, "");
 
     auto tenant_id = builder.tenantId();
-    EXPECT_EQ(tenant_id, expectedTenantId);
+    EXPECT_EQ(tenant_id, "");
 }
 
 TEST_F(TestJsonBuilder, tenantId)
@@ -59,11 +52,14 @@ TEST_F(TestJsonBuilder, tenantId)
     JsonBuilder builder(config, {});
 
     const std::string expectedTenantId = "ABC";
+    const std::string expectedMachineIdSize = "3c233cfadef60213fd374b7971a89687";
 
     auto json = builder.build(*platform_);
     PRINT(json);
     auto actual = nlohmann::json::parse(json);
     EXPECT_EQ(actual["tenantId"], expectedTenantId);
+    EXPECT_EQ(actual["machineId"].get<std::string>().size(), expectedMachineIdSize.size());
+    EXPECT_FALSE(actual["linuxInstaller"]["installSuccess"].get<bool>());
 
     auto tenant_id = builder.tenantId();
     EXPECT_EQ(tenant_id, expectedTenantId);

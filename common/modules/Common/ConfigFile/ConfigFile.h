@@ -16,7 +16,7 @@ namespace Common::ConfigFile
         using key_t = std::string;
         using value_t = std::string;
 
-        ConfigFile(Common::FileSystem::IFileSystem* fs, const std::string& path);
+        ConfigFile(Common::FileSystem::IFileSystem* fs, const std::string& path, bool ignoreMissingFile=true);
         ConfigFile(const lines_t& lines);
         value_t at(const key_t& key) const;
         value_t get(const key_t& key, const value_t& defaultValue) const;
