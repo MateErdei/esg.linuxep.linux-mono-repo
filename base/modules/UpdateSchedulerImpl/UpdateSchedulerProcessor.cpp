@@ -107,7 +107,6 @@ namespace UpdateSchedulerImpl
         mcsPolicyProcessed_(false),
         m_forceUpdate(false),
         m_forcePausedUpdate(false),
-        m_useSDDS3DeltaV2(false),
         m_useSDDS3DeltaV3(false),
         m_featuresCurrentlyInstalled(readInstalledFeatures())
     {
@@ -348,7 +347,6 @@ namespace UpdateSchedulerImpl
             updateSettings.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
             updateSettings.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             updateSettings.configurationData.setDoForcedUpdate(m_forceUpdate);
-            updateSettings.configurationData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             updateSettings.configurationData.setUseSdds3DeltaV3(m_useSDDS3DeltaV3);
             writeConfigurationData(updateSettings.configurationData);
             weeklySchedule_ = updateSettings.weeklySchedule;
@@ -500,21 +498,6 @@ namespace UpdateSchedulerImpl
             changed = true;
         }
 
-        currentFlag = m_useSDDS3DeltaV2;
-        m_useSDDS3DeltaV2 =
-            Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG, flagsContent);
-        LOGDEBUG(
-            "Received " << UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG << " flag value: " << m_useSDDS3DeltaV2);
-
-        if (currentFlag == m_useSDDS3DeltaV2)
-        {
-            LOGDEBUG(UpdateSchedulerUtils::SDDS3_DELTA_V2_ENABLED_FLAG << " flag value still: " << m_useSDDS3DeltaV2);
-        }
-        else
-        {
-            changed = true;
-        }
-
         currentFlag = m_useSDDS3DeltaV3;
         m_useSDDS3DeltaV3 =
                 Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_DELTA_V3_ENABLED_FLAG, flagsContent);
@@ -537,7 +520,6 @@ namespace UpdateSchedulerImpl
             auto currentConfigData = config.value();
             currentConfigData.setDoForcedUpdate(m_forceUpdate);
             currentConfigData.setDoForcedPausedUpdate(m_forcePausedUpdate);
-            currentConfigData.setUseSdds3DeltaV2(m_useSDDS3DeltaV2);
             currentConfigData.setUseSdds3DeltaV3(m_useSDDS3DeltaV3);
             writeConfigurationData(currentConfigData);
         }

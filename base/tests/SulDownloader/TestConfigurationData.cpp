@@ -127,11 +127,6 @@ public:
             return ::testing::AssertionFailure() << s.str() << "forcePausedUpdate differs";
         }
 
-        if (expected.getUseSdds3DeltaV2() != resulted.getUseSdds3DeltaV2())
-        {
-            return ::testing::AssertionFailure() << s.str() << "useSdds3DeltaV2 differs";
-        }
-
         if (expected.getUseSdds3DeltaV3() != resulted.getUseSdds3DeltaV3())
         {
             return ::testing::AssertionFailure() << s.str() << "useSdds3DeltaV3 differs";

@@ -339,15 +339,10 @@ namespace SulDownloader
         }
 
 #ifdef SPL_BAZEL
-        else if (updateSetting.getUseSdds3DeltaV2())
-        {
-
-            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V2;
-            LOGDEBUG("Enabling sdds3 delta V2 usage");
-        }
         else
         {
-            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::None;
+            m_session->deltaVersion = sophlib::sdds3::DeltaVersion::V2;
+            LOGDEBUG("Enabling sdds3 delta V2 usage");
 #else
         else
         {
