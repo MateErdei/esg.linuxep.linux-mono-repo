@@ -65,7 +65,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     ${all_plugins_logs_marks} =    Mark All Plugin Logs
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    old_version=${TRUE}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -283,7 +283,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    old_version=${TRUE}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Prepared ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
@@ -392,7 +392,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
 
     ${all_plugins_logs_marks} =    Mark All Plugin Logs
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}      old_version=${TRUE}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -560,7 +560,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}     old_version=${TRUE}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
 

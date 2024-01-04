@@ -6,7 +6,7 @@ Library    ${COMMON_TEST_LIBS}/OnFail.py
 Library    ${COMMON_TEST_LIBS}/UserAndGroupReconfigurationUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
-Resource    ${COMMON_TEST_ROBOT}/ProductAcceptanceTestsResources.robot
+Resource    ProductAcceptanceTestsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot

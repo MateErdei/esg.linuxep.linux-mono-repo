@@ -186,6 +186,6 @@ Check Plugin Processes Are Running
     Verify RA Process Is Running    ${install_path}
 
 Wait For Plugins To Be Ready
-    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
-    Wait For Plugins Logs To Indicate Plugins Are Ready    log_marks=${log_marks}
+    [Arguments]    ${log_marks}    ${old_version}=${FALSE}     ${install_path}=${SOPHOS_INSTALL}
+    Wait For Plugins Logs To Indicate Plugins Are Ready    log_marks=${log_marks}    timeout=${60}    oldcode=${old_version}
     Check Plugin Processes Are Running    ${install_path}

@@ -450,7 +450,6 @@ def stage_task(
     func: Callable,
     **kwargs,
 ):
-    print(task_name)
     coverage = build == "linux_x64_bullseye"
     if coverage:
         coverage_tasks.append(f"{group_name}.{task_name}")
