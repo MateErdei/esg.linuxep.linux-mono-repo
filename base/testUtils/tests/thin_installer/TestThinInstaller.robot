@@ -99,7 +99,6 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
         Should Contain X Times    ${thininstallerArgsIni}    ${key} = true    ${1}
     END
 
-
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -195,7 +194,7 @@ Thin Installer Registers Existing Installation
     # Force an installation
     Run Default Thininstaller  expected_return_code=0
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
@@ -225,7 +224,7 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
     # Force an installation
     Run Default Thininstaller  expected_return_code=0
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
     # Register central arguments should not contain --customer-token by default, as older installations may not
     # Be able to process the argument
@@ -241,7 +240,7 @@ Thin Installer Registers Existing Installation With Product Args
     # Force an installation
     Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
 
@@ -275,7 +274,7 @@ Thin Installer Repairs Broken Existing Installation
 
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     Should Exist  ${REGISTER_CENTRAL}
 
     Check Root Directory Permissions Are Not Changed

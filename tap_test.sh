@@ -34,7 +34,8 @@ then
     # that has the same name as another. This could be improved later if people use this script.
     test_file=$(grep -riIl --include \*.robot "$TAP_PARAMETER_ROBOT_TEST" | head -1)
     echo "File: \"$test_file\""
-    parallel_job=$(grep -h -o -m 1 -E "TAP_PARALLEL[0-9]"  "$test_file" || echo -n "")
+    package_file=${test_file%/*}/__init__.robot
+    parallel_job=$(grep -h -o -m 1 -E "TAP_PARALLEL[0-9]"  "$test_file" "$package_file" || echo -n "")
     echo "Job (if applicable): \"$parallel_job\""
 
     if [[ "$test_file" == *"sdds/"* ]]

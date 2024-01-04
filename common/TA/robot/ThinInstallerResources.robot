@@ -5,6 +5,7 @@ Resource    McsRouterResources.robot
 Resource    SDDS3Resources.robot
 
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 
 *** Variables ***
 ${EtcGroupFilePath}  /etc/group
@@ -137,3 +138,8 @@ Find IP Address With Distance
     ${tail} =  Get Regexp Matches  ${ipaddresses[0]}  10\.[^\.]*\.[^\.]*\.([^\.]*)  1
     ${tail_xored} =  Evaluate  ${tail[0]} ^ (2 ** ${dist})
     [return]  ${head[0]}${tail_xored}
+
+Check Thininstaller Log Does Not Contain Error
+    ${log} =  ThinInstallerUtils.get_thin_installer_log_path
+    Mark Expected Error In Log    ${log}    ERROR Refusing to send telemetry with empty tenant ID
+    Check Thininstaller Log Does Not Contain  ERROR

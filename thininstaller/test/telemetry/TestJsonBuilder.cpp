@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "telemetry/JsonBuilder.h"
 
@@ -173,4 +173,93 @@ TEST_F(TestJsonBuilder, compatibilityFailed)
     auto actual = nlohmann::json::parse(json);
     EXPECT_FALSE(actual["command"]["compatabilityChecksCommand"]["success"]);
     EXPECT_EQ(actual["command"]["compatabilityChecksCommand"]["error_message"], expectedMessage);
+}
+
+TEST_F(TestJsonBuilder, proxyFalse)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("usedProxy = false");
+    lines.emplace_back("usedUpdateCache = false");
+    lines.emplace_back("usedMessageRelay = false");
+    lines.emplace_back("proxyOrMessageRelayURL = ");
+    JsonBuilder::map_t results;
+    results.emplace("registration_comms_check.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_FALSE(actual["linuxInstaller"]["usedProxy"]);
+}
+
+TEST_F(TestJsonBuilder, proxyTrue)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("usedProxy = true");
+    lines.emplace_back("usedUpdateCache = false");
+    lines.emplace_back("usedMessageRelay = false");
+    lines.emplace_back("proxyOrMessageRelayURL = ");
+    JsonBuilder::map_t results;
+    results.emplace("registration_comms_check.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_TRUE(actual["linuxInstaller"]["usedProxy"]);
+}
+
+TEST_F(TestJsonBuilder, updateCacheTrue)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("usedProxy = false");
+    lines.emplace_back("usedUpdateCache = true");
+    lines.emplace_back("usedMessageRelay = false");
+    lines.emplace_back("proxyOrMessageRelayURL = ");
+    JsonBuilder::map_t results;
+    results.emplace("cdn_comms_check.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_TRUE(actual["linuxInstaller"]["usedUpdateCache"]);
+}
+
+TEST_F(TestJsonBuilder, messageRelayTrue)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("usedProxy = false");
+    lines.emplace_back("usedUpdateCache = false");
+    lines.emplace_back("usedMessageRelay = true");
+    lines.emplace_back("proxyOrMessageRelayURL = ");
+    JsonBuilder::map_t results;
+    results.emplace("registration_comms_check.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_TRUE(actual["linuxInstaller"]["usedMessageRelay"]);
+}
+
+TEST_F(TestJsonBuilder, proxyUrl)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("usedProxy = false");
+    lines.emplace_back("usedUpdateCache = false");
+    lines.emplace_back("usedMessageRelay = false");
+    lines.emplace_back("proxyOrMessageRelayURL = http://proxy:8000");
+    JsonBuilder::map_t results;
+    results.emplace("registration_comms_check.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    EXPECT_EQ(builder.proxy(), "http://proxy:8000");
 }

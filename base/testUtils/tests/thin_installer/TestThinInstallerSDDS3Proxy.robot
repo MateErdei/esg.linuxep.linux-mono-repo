@@ -108,7 +108,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     Check suldownloader log contains   Trying to update via proxy localhost:20000 to https://localhost:8080
     check_suldownloader_log_should_not_contain  Connecting to update source directly
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Root Directory Permissions Are Not Changed
 
     Check suldownloader log contains   Trying SUS request (https://localhost:8080) with proxy: localhost:20000
@@ -131,7 +131,7 @@ SDDS3 Thin Installer Digest Proxy
     Check Proxy Log Contains  "CONNECT localhost:8080 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
     Check MCS Config Contains  proxy=http://username:password@localhost:10000  MCS Config does not have proxy present
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
 
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
@@ -160,7 +160,7 @@ SDDS3 Thin Installer Environment Proxy
     Check Proxy Log Contains  "CONNECT localhost:8080 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
     Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
 
-    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
     Wait Until Keyword Succeeds
@@ -211,7 +211,7 @@ SDDS3 Thin Installer Respects Message Relay Override Set to None
     check_suldownloader_log_should_not_contain    Trying to update via proxy localhost:20000 to https://localhost:8080
     check_suldownloader_log_contains    Connecting to update source directly
 
-    check_thininstaller_log_does_not_contain    ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Root Directory Permissions Are Not Changed
 
 SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overriden By Argument
@@ -278,7 +278,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays Overri
     check_suldownloader_log_contains    Trying to update via proxy localhost:20000 to https://localhost:8080
     check_suldownloader_log_should_not_contain    Connecting to update source directly
 
-    check_thininstaller_log_does_not_contain    ERROR
+    Check Thininstaller Log Does Not Contain Error
     Check Root Directory Permissions Are Not Changed
 
 SDDS3 Thin Installer Doesnt Repeat Field Due To Not Connecting to SUS and CDN

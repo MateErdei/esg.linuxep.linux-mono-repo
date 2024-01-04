@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "Common/FileSystem/IFileSystem.h"
@@ -24,6 +24,6 @@ namespace thininstaller::telemetry
         std::string url_;
         std::vector<std::string> args_;
         Common::HttpRequests::IHttpRequesterPtr requester_;
-        void sendTelemetry(const std::string& url, const std::string& json);
+        void sendTelemetry(const std::string& url, const std::string& json, const std::string& proxy="");
     };
 }

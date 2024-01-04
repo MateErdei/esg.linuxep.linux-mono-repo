@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "Common/ConfigFile/ConfigFile.h"
@@ -20,12 +20,13 @@ namespace thininstaller::telemetry
         std::string tenantId();
         std::string machineId();
         static std::string generateTimeStamp();
+        std::string proxy();
     private:
         const Common::ConfigFile::ConfigFile& settings_;
         const map_t& results_;
         std::string timestamp_;
         std::string tenantId_;
         std::string machineId_;
+        std::string proxy_;
     };
 }
-

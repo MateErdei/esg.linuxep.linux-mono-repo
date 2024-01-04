@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 #include "Telemetry.h"
 
 #include "JsonBuilder.h"
@@ -63,6 +63,7 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
     auto json = builder.build(platform);
     if (json.empty())
     {
+        LOGDEBUG("config == " << fs->readFile(args_[0]));
         return 0;
     }
 
@@ -79,12 +80,12 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
     // Send Telemetry
     url_ = telemetryUrl.str();
     json_ = json;
-    sendTelemetry(url_, json_);
+    sendTelemetry(url_, json_, builder.proxy());
 
     return 0;
 }
 
-void thininstaller::telemetry::Telemetry::sendTelemetry(const std::string& url, const std::string& telemetryJson)
+void thininstaller::telemetry::Telemetry::sendTelemetry(const std::string& url, const std::string& telemetryJson, const std::string& proxy)
 {
     LOGDEBUG("Sending telemetry to " << url);
 
@@ -98,12 +99,25 @@ void thininstaller::telemetry::Telemetry::sendTelemetry(const std::string& url, 
     requestConfig.data = telemetryJson;
     requestConfig.headers = std::move(headers);
 
-    // TODO Proxy options
+    if (!proxy.empty())
+    {
+        requestConfig.proxy = proxy;
+    }
 
     // Do request
     assert(requester_);
-    requester_->put(requestConfig);
-    LOGDEBUG("Sent telemetry");
+    auto response = requester_->put(requestConfig);
+    if (response.errorCode != Common::HttpRequests::ResponseErrorCode::OK ||
+        response.status != Common::HttpRequests::HTTP_STATUS_OK)
+    {
+        if (!proxy.empty())
+        {
+            // Retry without proxy
+            requestConfig.proxy = std::nullopt;
+            response = requester_->put(requestConfig);
+        }
+    }
+    LOGDEBUG("Request result ec: " << response.errorCode << ", HTTP status: " << response.status);
 }
 
 std::string thininstaller::telemetry::Telemetry::json()

@@ -45,6 +45,9 @@ class ThinInstallerUtils(object):
 
         self.default_credentials_file_location = os.path.join(self.installer_files, "credentials.txt")
 
+    def get_thin_installer_log_path(self):
+        return self.log_path
+
     def get_default_install_script_path(self):
         return self.default_installsh_path
 

@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 #include "JsonBuilder.h"
 
 #include "Logger.h"
@@ -120,6 +120,47 @@ static void addCommand(nlohmann::json& json, const JsonBuilder::map_t& results)
     }
 }
 
+static void addCdnProxy(nlohmann::json& json, const Common::ConfigFile::ConfigFile& report)
+{
+    json["linuxInstaller"]["usedUpdateCache"] = report.getBoolean("usedUpdateCache", false);
+}
+
+static std::string addRegistrationProxy(nlohmann::json& json, const Common::ConfigFile::ConfigFile& report)
+{
+    json["linuxInstaller"]["usedProxy"] = report.getBoolean("usedProxy", false);
+    json["linuxInstaller"]["usedMessageRelay"] = report.getBoolean("usedMessageRelay", false);
+
+    return report.get("proxyOrMessageRelayURL", "");
+}
+
+/**
+ * Add Proxy information to json
+ * @param json
+ * @param results
+ * @return Proxy or message relay URL
+ */
+static std::string addProxy(nlohmann::json& json, const JsonBuilder::map_t& results)
+{
+    try
+    {
+        addCdnProxy(json, results.at("cdn_comms_check.ini"));
+    }
+    catch (const std::out_of_range&)
+    {
+        LOGINFO("No CDN proxy telemetry");
+    }
+
+    try
+    {
+        return addRegistrationProxy(json, results.at("registration_comms_check.ini"));
+    }
+    catch (const std::out_of_range&)
+    {
+        LOGINFO("No Registration proxy telemetry");
+    }
+    return "";
+}
+
 static void addSystemInfo(nlohmann::json& json, const Common::OSUtilities::IPlatformUtils& platform)
 {
     json["systemInfo"] = {
@@ -128,6 +169,7 @@ static void addSystemInfo(nlohmann::json& json, const Common::OSUtilities::IPlat
             {"arch", platform.getArchitecture()},
     };
 }
+
 std::string JsonBuilder::build(const Common::OSUtilities::IPlatformUtils& platform)
 {
     if (tenantId_.empty())
@@ -168,6 +210,7 @@ std::string JsonBuilder::build(const Common::OSUtilities::IPlatformUtils& platfo
     addCommandLine(json, results_);
     addCommand(json, results_);
     addSystemInfo(json, platform);
+    proxy_ = addProxy(json, results_);
 
     return json.dump();
 }
@@ -191,4 +234,9 @@ std::string JsonBuilder::tenantId()
 std::string JsonBuilder::machineId()
 {
     return machineId_;
+}
+
+std::string JsonBuilder::proxy()
+{
+    return proxy_;
 }
