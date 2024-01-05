@@ -53,6 +53,7 @@ def main():
         'test': '*',
         "variable": [
             "COMMON_TEST_LIBS:/opt/test/inputs/common_test_libs",
+            "COMMON_TEST_ROBOT:/opt/test/inputs/common_test_robot",
         ],
     }
 

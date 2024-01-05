@@ -210,7 +210,7 @@ Sophos SafeStore Crashing Triggers Bad Health
     Ignore Coredumps and Segfaults
     Register Cleanup    Exclude SafeStore Died With 11
 
-    ${pid} =   Record SafeStore Plugin PID
+    ${pid} =   Get SafeStore PID
     Run Process   /bin/kill   -SIGSEGV   ${pid}
     Stop SafeStore
 

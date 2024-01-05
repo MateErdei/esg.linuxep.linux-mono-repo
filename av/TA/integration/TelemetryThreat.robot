@@ -10,7 +10,7 @@ Library         ../Libs/FileSampleObfuscator.py
 Resource        ../shared/OnAccessResources.robot
 Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/AVAndBaseResources.robot
-Resource        ../shared/SafeStoreResources.robot
+Resource        ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Telemetry Suite Teardown

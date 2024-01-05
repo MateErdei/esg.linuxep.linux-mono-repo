@@ -211,17 +211,3 @@ Check AV Telemetry
     Log    ${telemetryJson}
     Dictionary Should Contain Key    ${telemetryJson}    av
     Dictionary Should Contain Item   ${telemetryJson["av"]}   ${telemetryKey}   ${telemetryValue}
-
-
-Dump All Sophos Processes
-    ${result}=  Run Process    ps -elf | grep sophos    shell=True
-    Log  ${result.stdout}
-
-Log Status Of Sophos Spl
-    ${result} =  Run Process    systemctl  status  sophos-spl
-    Log  ${result.stdout}
-    ${result} =  Run Process    systemctl  status  sophos-spl-update
-    Log  ${result.stdout}
-    ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
-    Log  ${result.stdout}
-

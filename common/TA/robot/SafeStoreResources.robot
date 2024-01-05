@@ -34,16 +34,27 @@ Start SafeStore
     Should Be Equal As Integers    ${result.rc}    ${0}
 
 Check SafeStore Running
-    ${result} =    Run Process    pgrep    safestore
-    Should Be Equal As Integers    ${result.rc}    ${0}
+    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    Should Not Be Equal As Integers  ${result}  ${-1}
 
 Check SafeStore Not Running
-    ${result} =    Run Process    pgrep    safestore
-    Should Be Equal As Integers    ${result.rc}    ${-1}
+    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    Should Be Equal As Integers  ${result}  ${-1}
+
+Check SafeStore PID File Does Not Exist
+    Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
+    Remove File  ${SAFESTORE_PID_FILE}
+
+Wait Until SafeStore not running
+    [Arguments]  ${timeout}=30
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  Check SafeStore Not Running
 
 Get SafeStore PID
-    ${pid} =     Run Process    pgrep    safestore
-    [Return]    ${pid.stdout}
+    ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
+    [Return]   ${PID}
 
 # TODO remove before_2024_1_group_changes once it isn't applicable to any available version
 Check SafeStore Permissions And Owner

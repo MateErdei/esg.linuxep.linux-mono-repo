@@ -2,11 +2,11 @@
 
 Library         OperatingSystem
 Library         Process
-Library         /opt/test/inputs/common_test_libs/OSUtils.py
-Library         ../Libs/PathManager.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
+Library         ${COMMON_TEST_LIBS}/PathManager.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/InstallSet.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/TeardownTools.py
@@ -33,14 +33,15 @@ ${TESTGROUP}        testgroup
 
 *** Keywords ***
 Global Setup Tasks
-    Add Ta Dir To Sys Path
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable              SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}                  ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
+    Set Environment Variable  SAFESTORE_TOOL_PATH           ${SOPHOS_INSTALL}/plugins/av/sbin/ssr
 
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
     Set Global Variable  ${COMMON_TEST_LIBS}                ${TEST_INPUT_PATH}/common_test_libs
+    Set Global Variable  ${COMMON_TEST_ROBOT}               ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${COMMON_TEST_UTILS}               ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${LIBS_PATH}                       ${TEST_SCRIPTS_PATH}/Libs
     Set Global Variable  ${BASH_SCRIPTS_PATH}               ${LIBS_PATH}/bashScripts

@@ -210,7 +210,7 @@ SUSI Is Given Non-Permission EndpointId
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Register Cleanup  Create Default Machine Id
     Register Cleanup  Remove File  ${MACHINEID_FILE}
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait until threat detector running after mark  ${threat_detector_mark}
     Run Process  chmod  000  ${MACHINEID_CHROOT_FILE}
     Register Cleanup    Remove File  ${MACHINEID_CHROOT_FILE}
@@ -534,7 +534,7 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
     Force SUSI to be initialized
 
     # restart AV to force policy to be applied & sent to threat detector
-    Stop AV Plugin Process
+    Stop AV Plugin
 
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
@@ -543,7 +543,7 @@ Sophos Threat Detector Is Shutdown On LiveProtection Change
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     ${av_mark} =  Get Av Log Mark
 
-    Start AV Plugin Process
+    Start AV Plugin And Threat Detector
     wait_for_log_contains_from_mark  ${av_mark}  Restarting sophos_threat_detector as the configuration has changed
     ${threat_detector_mark}=  Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is restarting to pick up changed   ${threat_detector_mark}
     wait_for_log_contains_from_mark  ${threat_detector_mark}  Logger av configured for level:
@@ -1007,7 +1007,7 @@ Sophos Threat Detector Is Not Shutdown On A New Policy
 
 *** Keywords ***
 Start AV Plugin and Force SUSI to be initialized
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait until threat detector running
     Force SUSI to be initialized
 

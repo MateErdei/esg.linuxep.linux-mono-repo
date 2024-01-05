@@ -270,8 +270,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${myscan_mark} =  Mark Log Size  ${myscan_log}
     Wait until scheduled scan updated After Mark  ${av_mark}
 
+    Wait For AV Log Contains After Mark  Starting scan MyScan   ${av_mark}  timeout=240
     Wait For AV Log Contains After Mark  Completed scan MyScan  ${av_mark}  timeout=240
-    AV Plugin Log Contains  Starting scan MyScan
 
     # Thread Detector should still be running:
     Check Sophos Threat Detector Running

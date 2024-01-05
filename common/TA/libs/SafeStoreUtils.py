@@ -25,7 +25,7 @@ def get_safestore_db_password_as_hexadecimal():
         return hex_string.encode('utf-8').hex()
 
 
-def run_safestore_tool_with_args(*args):
+def run_safestore_tool_with_args(tool_path, *args):
     """
     Usage:
     -h               List this help.
@@ -45,8 +45,10 @@ def run_safestore_tool_with_args(*args):
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = os.path.join(SOPHOS_INSTALL, "base", "lib64")
     password = get_safestore_db_password_as_hexadecimal()
-    os.chmod(SAFESTORE_TOOL_PATH, 0o755)
-    cmd = [SAFESTORE_TOOL_PATH, f"-dbpath={SAFESTORE_DB_PATH}", f"-pass={password}", *args]
+    if not tool_path:
+        tool_path = SAFESTORE_TOOL_PATH
+    os.chmod(tool_path, 0o755)
+    cmd = [tool_path, f"-dbpath={SAFESTORE_DB_PATH}", f"-pass={password}", *args]
 
     result = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -56,9 +58,9 @@ def run_safestore_tool_with_args(*args):
     return result.stdout.decode()
 
 
-def get_contents_of_safestore_database():
-    return run_safestore_tool_with_args("-l")
+def get_contents_of_safestore_database(tool_path=None):
+    return run_safestore_tool_with_args(tool_path, "-l")
 
 
-def restore_threat_in_safestore_database_by_threatid(threat_id):
-    return run_safestore_tool_with_args(f"-threatid={threat_id}")
+def restore_threat_in_safestore_database_by_threatid(threat_id, tool_path=None):
+    return run_safestore_tool_with_args(tool_path, f"-threatid={threat_id}")

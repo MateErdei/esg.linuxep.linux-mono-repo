@@ -21,7 +21,8 @@ Library         ../Libs/serialisationtools/CapnpHelper.py
 Resource    ComponentSetup.robot
 Resource    GlobalSetup.robot
 Resource    RunShellProcess.robot
-Resource    SafeStoreResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
+Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}                               ${COMPONENT_ROOT_PATH}
@@ -86,12 +87,6 @@ ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${350}
 
 
 *** Keywords ***
-Check Plugin Running
-    ${result} =   ProcessUtils.pidof_or_fail  ${PLUGIN_BINARY}
-
-Check AV Plugin Running
-    Check Plugin Running
-
 Check Sophos Threat Detector Running
     ${result} =   ProcessUtils.pidof_or_fail  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=${1}
 
@@ -170,10 +165,6 @@ File Log Does Not Contain
     ...    15 secs
     ...    1 secs
     ...    ${logCheck}  ${input}
-
-AV Plugin Log Contains
-    [Arguments]  ${input}
-    LogUtils.File Log Contains  ${AV_LOG_PATH}   ${input}
 
 On Access Log Contains
     [Arguments]  ${input}
@@ -414,26 +405,10 @@ Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}
     ProcessUtils.wait_for_no_pid  ${PLUGIN_BINARY}  ${timeout}
 
-Wait Until On Access running
-    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
-    Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  2 secs
-        ...  On Access Log Contains  ProcessPolicy
-
 Wait Until On Access Running After Mark
     [Arguments]  ${mark}
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
-
-
-Wait until threat detector running
-    [Arguments]  ${timeout}=${60}
-    # wait for sophos_threat_detector to initialize
-    ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  Common <> Starting USR1 monitor  ${timeout}
-    # Only output in debug mode:
-    # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
 Wait until threat detector running after mark
     [Arguments]  ${mark}  ${timeout}=${60}
@@ -543,13 +518,6 @@ Require Plugin Installed and Running
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
     Log  sophos_threat_detector PID = ${pid}
-
-Display All SSPL Files Installed
-    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
-    ${handle}=  Start Process  find ${installDir} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
 
 register on fail dump logs
     register on fail  dump log  ${WATCHDOG_LOG}
@@ -952,22 +920,6 @@ Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     ${result} =     Check If The Logs Are Close To Rotating
     run keyword if  ${result}  Restart AV Plugin And Clear The Logs For Integration Tests
 
-Check avscanner can detect eicar in
-    [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${LOCAL_AVSCANNER} ${EICAR_PATH}
-    Log   ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
-
-Check avscanner can detect eicar
-    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-    File should exist  ${LOCAL_AVSCANNER}
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}
-    ...  Failed to remove ${SCAN_DIRECTORY}/eicar.com while quarantining due to: Failed to delete file using directory FD: (relative path)eicar.com. Cause: No such file or directory
-    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
-
 Create eicar on read only mount
     [Arguments]   ${dir_path}=${SCAN_DIRECTORY}
     Create File     ${dir_path}/eicar.com    ${EICAR_STRING}
@@ -1088,6 +1040,7 @@ Start AV
     start_sophos_threat_detector_under_fake_watchdog
     Register Cleanup   stop_sophos_threat_detector_under_fake_watchdog_if_running
 
+    ${safestore_mark} =  LogUtils.mark_log_size  ${safestore_log_path}
     ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
     Set Suite Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
     Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
@@ -1101,7 +1054,7 @@ Start AV
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
     Check AV Plugin Installed from Marks  ${fake_management_mark}
 
-    Wait Until Safestore Log Contains   SafeStore started
+    Wait for log contains from mark   ${safestore_mark}    SafeStore started
 
 Copy And Extract Image
     [Arguments]  ${imagename}

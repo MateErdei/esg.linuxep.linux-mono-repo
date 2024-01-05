@@ -2,6 +2,7 @@
 Resource    AVResources.robot
 Resource    BaseResources.robot
 Resource    GlobalSetup.robot
+Resource    ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
 
 *** Variables ***
 ${SAFESTORE_BIN}                      ${COMPONENT_ROOT_PATH}/sbin/safestore
@@ -20,33 +21,6 @@ ${THREAT_DATABASE_PATH}               ${COMPONENT_VAR_DIR}/persist-threatDatabas
 
 
 *** Keywords ***
-Stop SafeStore
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
-    Should Be Equal As Integers    ${result.rc}    ${0}
-    Wait Until SafeStore not running
-
-
-Start SafeStore
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
-    Should Be Equal As Integers    ${result.rc}    ${0}
-    Wait Until SafeStore running
-
-
-Check SafeStore Not Running
-    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
-    Should Be Equal As Integers  ${result}  ${-1}
-
-
-Check SafeStore PID File Does Not Exist
-    Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
-    Remove File  ${SAFESTORE_PID_FILE}
-
-
-Record SafeStore Plugin PID
-    ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
-    [Return]   ${PID}
-
-
 Start SafeStore Manually
     ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
     Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
@@ -79,32 +53,9 @@ Wait Until SafeStore Started Successfully
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=5
 
-
-Wait Until SafeStore not running
-    [Arguments]  ${timeout}=30
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  3 secs
-    ...  Check SafeStore Not Running
-
-
-Mark SafeStore Log
-    [Arguments]  ${mark}=""
-    ${count} =  Count Optional File Log Lines  ${SAFESTORE_LOG_PATH}
-    Set Suite Variable   ${SAFESTORE_LOG_MARK}  ${count}
-    Log  "SAFESTORE LOG MARK = ${SAFESTORE_LOG_MARK}"
-    [Return]  ${count}
-
-
 SafeStore Log Contains
     [Arguments]  ${input}
     File Log Contains     ${SAFESTORE_LOG_PATH}   ${input}
-
-
-SafeStore Log Does Not Contain
-    [Arguments]  ${input}
-    LogUtils.Over next 15 seconds ensure log does not contain   ${SAFESTORE_LOG_PATH}  ${input}
-
 
 Wait Until SafeStore Log Contains
     [Arguments]  ${input}  ${timeout}=15  ${interval}=0

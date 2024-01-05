@@ -77,6 +77,7 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
         test_scripts=context.artifact.from_folder("./av/TA"),
         SupportFiles=context.artifact.from_folder("./base/testUtils/SupportFiles"),
         common_test_libs=context.artifact.from_folder("./common/TA/libs"),
+        common_test_robot=context.artifact.from_folder("./common/TA/robot"),
         common_test_utils=context.artifact.from_folder("./common/TA/utils"),
         sdds3_tools=context.artifact.from_component("em.esg", "develop", org="", storage="esg-build-tested") / "build" / "sophlib" / f"linux_{arch}_rel" / "sdds3_tools",
     )

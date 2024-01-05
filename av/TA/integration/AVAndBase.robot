@@ -209,9 +209,9 @@ AV plugin runs multiple scheduled scans
 
 AV plugin runs scheduled scan after restart
     Send Sav Policy With Imminent Scheduled Scan To Base
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     ${av_mark} =  Get AV Log Mark
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark  ${av_mark}
     Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
@@ -219,21 +219,21 @@ AV plugin runs scheduled scan after restart
     Exclude Communication Between AV And Base Due To No Incoming Data
 
 AV plugin reports an info message if no policy is received
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     Remove File     ${MCS_PATH}/policy/ALC-1_policy.xml
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
 
     ${av_mark} =  Get AV Log Mark
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait For AV Log Contains After Mark  Failed to request SAV policy at startup (No Policy Available)  ${av_mark}
     Wait For AV Log Contains After Mark  Failed to request ALC policy at startup (No Policy Available)  ${av_mark}
 
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
     ${av_mark} =  Get AV Log Mark
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
 
     Wait until AV Plugin running after mark  ${av_mark}
 
@@ -268,11 +268,11 @@ AV Gets SAV Policy When Plugin Restarts
     register cleanup  remove file   ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait For Log Contains From Mark  ${av_mark}  SAV policy received for the first time.
     Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
     Wait Until Created  ${SUSI_STARTUP_SETTINGS_FILE}
@@ -281,14 +281,14 @@ AV Gets SAV Policy When Plugin Restarts
     Wait For Log Contains From Mark  ${av_mark}  Configured number of Scheduled Scans: 0
 
 AV Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     Remove File    ${SUSI_STARTUP_SETTINGS_FILE}
     Remove File    ${MCS_PATH}/policy/SAV-2_policy.xml
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait For Log Contains From Mark  ${av_mark}  SAV policy has not been sent to the plugin
     Send Sav Policy With No Scheduled Scans
     Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
@@ -300,12 +300,12 @@ AV Gets ALC Policy When Plugin Restarts
 
     Send Alc Policy
     File Should Exist  ${MCS_PATH}/policy/ALC-1_policy.xml
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     Wait until AV Plugin running after mark  ${av_mark}
     Wait until threat detector running after mark  ${td_mark}
 
@@ -764,15 +764,15 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Reset ThreatDatabase
 
     Run  chmod 444 ${AV_LOG_PATH}
-    Register Cleanup  Stop AV Plugin
+    Register Cleanup  Stop AV Plugin And Threat Detector
     Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
 
     ${INITIAL_AV_PID} =  Record AV Plugin PID
     Log  Initial PID: ${INITIAL_AV_PID}
-    Stop AV Plugin
+    Stop AV Plugin And Threat Detector
     # Ensure threat reporting socket is deleted before restarting AV Plugin
     Remove File  ${COMPONENT_ROOT_PATH}/chroot/var/threat_report_socket
-    Start AV Plugin
+    Start AV Plugin And Threat Detector
     ${END_AV_PID} =  Record AV Plugin PID
     Log  Restarted PID: ${END_AV_PID}
     # Verify the restart actually happened
@@ -846,7 +846,7 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     ${av_mark} =  Get AV Log Mark
-    Restart AV Plugin
+    Restart AV Plugin And Threat Detector
     Wait For AV Log Contains After Mark  SAV policy has not been sent to the plugin  ${av_mark}
 
     ${av_mark} =  Get AV Log Mark

@@ -1092,7 +1092,7 @@ Threat Can Be Restored From Persisted SafeStore Database
     Wait For Log Contains From Mark  ${avMark}  Threat cleaned up at path:
     File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
 
-    ${dbContent} =    Get Contents of SafeStore Database
+    ${dbContent} =    Get Contents of SafeStore Database    ${COMPONENT_ROOT_PATH}/sbin/ssr
 
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
@@ -1105,14 +1105,14 @@ Threat Can Be Restored From Persisted SafeStore Database
     Verify SafeStore Database Exists
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
-    ${dbContentBeforeRestore} =    Get Contents of SafeStore Database
+    ${dbContentBeforeRestore} =    Get Contents of SafeStore Database    ${COMPONENT_ROOT_PATH}/sbin/ssr
     Should Contain    ${dbContentBeforeRestore}    ${threatId}
     Should Be Equal    ${dbContent}    ${dbContentBeforeRestore}
     File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
 
-    Restore Threat In SafeStore Database By ThreatId    ${threatId}
+    Restore Threat In SafeStore Database By ThreatId    ${threatId}    ${COMPONENT_ROOT_PATH}/sbin/ssr
 
-    ${dbContentAfterRestore} =    Get Contents of SafeStore Database
+    ${dbContentAfterRestore} =    Get Contents of SafeStore Database    ${COMPONENT_ROOT_PATH}/sbin/ssr
     Should Not Be Equal    ${dbContentBeforeRestore}    ${dbContentAfterRestore}
     File Should Exist    ${SCAN_DIRECTORY}/eicar.com
 

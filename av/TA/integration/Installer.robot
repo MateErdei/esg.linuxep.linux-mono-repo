@@ -14,7 +14,7 @@ Library         Collections
 Library         Process
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileUtils.py
-Library         ../Libs/FullInstallerUtils.py
+Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
@@ -37,7 +37,7 @@ ${MOCKED_INSTALL_SET}    /tmp/mocked_install_set
 AV Plugin Installs With Version Ini File
     Wait Until AV Plugin running
     File Should Exist   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
-    VERSION Ini File Contains Proper Format   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini    SPL-Anti-Virus-Plugin
 
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
@@ -766,7 +766,7 @@ AV Plugin Restores Downgrade Logs
     File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
 
 AV Plugin Restores Downgrade SafeStore Databases
-    Restart AV Plugin
+    Restart AV Plugin And Threat Detector
     Wait Until File exists    ${THREAT_DATABASE_PATH}
 
     Run plugin uninstaller with downgrade flag

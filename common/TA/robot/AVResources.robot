@@ -58,22 +58,19 @@ Check AV Plugin Installed Directly
     ...  Check AV Plugin Running
 
 Check AV Plugin Running
-    ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Should Be Equal As Integers    ${result.rc}    0
+    ${result} =   ProcessUtils.pidof_or_fail  ${PLUGIN_BINARY}
 
 Check AV Plugin Executable Not Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
-Wait Until On Access Running
-    Wait For Pid    ${ON_ACCESS_BIN}    ${30}
+Wait Until On Access running
+    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  Check Log Contains    Sophos on access process    ${ON_ACCESS_LOG_PATH}    soapd.log
+        ...  Check Log Contains    Completed initialization of Sophos On Access Process    ${ON_ACCESS_LOG_PATH}    soapd.log
 
 Check All Persistent Av Processes Are Started
     Check AV Plugin Running
@@ -109,10 +106,12 @@ Threat Detector Log Contains
     Should Contain  ${fileContent}    ${input}
 
 Wait until threat detector running
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  2 secs
-    ...  Threat Detector Log Contains    Starting USR1 monitor
+    [Arguments]  ${timeout}=${60}
+    # wait for sophos_threat_detector to initialize
+    Wait For PID  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
+    Wait For Log contains After Last Restart  ${THREAT_DETECTOR_LOG_PATH}  Common <> Starting USR1 monitor  ${timeout}
+    # Only output in debug mode:
+    # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
 Check AV Plugin Permissions
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
@@ -140,7 +139,6 @@ Enable On Access Via Policy
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
     wait for on access log contains after mark   On-access scanning enabled  mark=${mark}  timeout=${15}
 
-#TODO: LINUXDAR-8471 Clean up Duplicate AV Keywords from AVResources
 Check avscanner can detect eicar in
     [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
     ${rc}   ${output} =    Run And Return Rc And Output   ${LOCAL_AVSCANNER} ${EICAR_PATH}

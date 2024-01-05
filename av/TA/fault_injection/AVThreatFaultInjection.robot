@@ -9,7 +9,7 @@ Library         ../Libs/TapTestOutput.py
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
-Resource    ../shared/SafeStoreResources.robot
+Resource    ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
 Resource    ../shared/ErrorMarkers.robot
 
 Test Setup     Fault Injection Test Setup
