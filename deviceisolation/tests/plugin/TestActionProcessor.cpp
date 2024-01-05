@@ -79,6 +79,28 @@ TEST_F(TestActionProcessor, invalidEnabledElement)
     EXPECT_FALSE(result);
 }
 
+TEST_F(TestActionProcessor, invalidContentsOfEnabledElement)
+{
+    auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
+    <action type="sophos.mgt.action.IsolationRequest">
+         <enabled>not true or false</enabled>
+    </action>)SOPHOS");
+    ASSERT_EQ(result, std::nullopt);
+}
+
+TEST_F(TestActionProcessor, additionalFields)
+{
+    auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
+    <action type="sophos.mgt.action.IsolationRequest">
+         <anotherField>abc</anotherField>
+         <enabled>true</enabled>
+         <field3>false</field3>
+    </action>)SOPHOS");
+    ASSERT_NE(result, std::nullopt);
+    ASSERT_TRUE(result);
+    EXPECT_TRUE(result.value());
+}
+
 TEST_F(TestActionProcessor, duplicateEnabledElement)
 {
     auto result = Plugin::ActionProcessor::processIsolateAction(R"SOPHOS(<?xml version="1.0" ?>
