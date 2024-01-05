@@ -38,9 +38,7 @@ Device Isolation Applies Network Filtering Rules
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
 
     # Disable isolation
-    Send Disable Isolation Action  uuid=1
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+    Disable Device Isolation
     Wait Until Keyword Succeeds    10s    1s    Can Curl Url    https://sophos.com
 
     # Network filtering rules should be empty
@@ -68,16 +66,16 @@ Disable Device Isolation While already Disabled
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Disable isolation
-    Send Disable Isolation Action  uuid=1
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+    Disable Device Isolation
     Wait Until Keyword Succeeds    10s    1s    Can Curl Url    https://sophos.com
 
-    # Network filtering rules should be empty
-    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
-    log  ${result.stdout}
-    log  ${result.stderr}
-    Should Be Equal As Strings  ${result.stdout}    ${EMPTY}
+    # Network filtering rules should not contain our rules
+    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    log    ${result.stdout}
+    log    ${result.stderr}
+    Should Contain    ${result.stderr}    Error: No such file or directory
+    Should Contain    ${result.stderr}    list table inet sophos_device_isolation
+    Should Be Equal As Integers  ${result.rc}  ${1}   "nft list ruleset failed incorrectly with rc=${result.rc}"
 
     # Disable isolation again
     Send Disable Isolation Action  uuid=1
@@ -85,7 +83,7 @@ Disable Device Isolation While already Disabled
     Wait For Log Contains From Mark  ${mark}  Tried to disable isolation but it was already disabled in the first place
     Wait Until Keyword Succeeds    10s    1s    Can Curl Url    https://sophos.com
 
-    # Network filtering rules should be empty
+    # Network filtering rules should not contain our rules
     ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     log    ${result.stdout}
     log    ${result.stderr}
@@ -120,17 +118,18 @@ Device Isolation Allows Localhost
     Can Curl Url    http://localhost:8001
 
     # Disable isolation
-    Send Disable Isolation Action  uuid=1
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+    Disable Device Isolation
     Wait Until Keyword Succeeds    10s    1s    Can Curl Url    https://sophos.com
     Can Curl Url    http://localhost:8001
 
-    # Network filtering rules should be empty
-    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
+    # Network filtering rules should not contain our rules
+    ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     log  ${result.stdout}
     log  ${result.stderr}
     Should Be Equal As Strings  ${result.stdout}    ${EMPTY}
+    Should Contain    ${result.stderr}    Error: No such file or directory
+    Should Contain    ${result.stderr}    list table inet sophos_device_isolation
+    Should Be Equal As Integers  ${result.rc}  ${1}   "nft list ruleset failed incorrectly with rc=${result.rc}"
 
 Device Isolation Allows Sophos Processes
     # LINUXDAR-8529: sudo --group does not seem to be available on all distros
@@ -161,9 +160,7 @@ Device Isolation Allows Sophos Processes
     Run Keyword And Expect Error    cannot reach url: ${external_url}    Can Curl Url As Group    ${external_url}    group=nogroup
 
     # Disable isolation
-    Send Disable Isolation Action  uuid=1
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+    Disable Device Isolation
     Wait Until Keyword Succeeds    10s    1s    Can Curl Url As Group    ${external_url}    group=nogroup
 
     # Network filtering rules should be empty
@@ -171,3 +168,107 @@ Device Isolation Allows Sophos Processes
     log  ${result.stdout}
     log  ${result.stderr}
     Should Be Equal As Strings  ${result.stdout}    ${EMPTY}
+
+Device Isolation Updates Network Filtering Rules With New Exclusion
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Baseline - should be able to access sophos.com before isolation but not after.
+    Can Curl Url    https://sophos.com
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+    ${mark} =  Get Device Isolation Log Mark
+    # Send policy with new exclusion and check it gets added to ruleset
+    Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Check Endpoint is still isolated and new ip exclusion was added
+    Wait For Log Contains From Mark    ${mark}    Device is now isolated
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${nft_rules_file_content} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Should Contain    ${nft_rules_file_content}    ip daddr 8.8.8.8 accept
+    Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
+    Should Contain    ${nft_rules_table.stdout}    ip daddr 8.8.8.8 accept
+
+    # Check we cannot access sophos.com because the EP should still be isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+    ${mark} =  Get Device Isolation Log Mark
+    # Send policy with exclusions but not extra IP exclusion to check it gets removed from ruleset
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Check Endpoint is still isolated and new ip exclusion was removed
+    Wait For Log Contains From Mark    ${mark}    Device is now isolated
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${nft_rules_file_content} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Should Not Contain    ${nft_rules_file_content}    ip daddr 8.8.8.8 accept
+    Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
+    Should Not Contain    ${nft_rules_table.stdout}    ip daddr 8.8.8.8 accept
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+    Disable Device Isolation
+
+Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate Policy
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Baseline - should be able to access sophos.com before isolation but not after.
+    Can Curl Url    https://sophos.com
+    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+    ${mark} =  Get Device Isolation Log Mark
+    ${old_nft_rules_file} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${old_nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Should Be Equal As Integers    ${old_nft_rules_table.rc}    ${0}
+    # Send Duplicate Policy
+    Send Device Isolation Policy    NTP-24_policy_generated.xml
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Check Endpoint is still isolated and new ip exclusion was added
+    Check Log Does Not Contain After Mark    ${DEVICE_ISOLATION_LOG_PATH}    Enabling Device Isolation    ${mark}
+    Check Log Does Not Contain After Mark    ${DEVICE_ISOLATION_LOG_PATH}    Disabling Device Isolation    ${mark}
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${new_nft_rules_file} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    ${new_nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Should Be Equal As Strings    ${new_nft_rules_file}    ${old_nft_rules_file}
+    Should Be Equal As Integers    ${new_nft_rules_table.rc}    ${0}
+    Should Be Equal As Strings    ${old_nft_rules_table.stdout}    ${new_nft_rules_table.stdout}
+
+    # Check we cannot access sophos.com because the EP should still be isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+    Disable Device Isolation

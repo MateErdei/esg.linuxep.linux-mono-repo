@@ -23,6 +23,7 @@ namespace Plugin
     private:
         void processAction(const std::string& actionXml);
         void processPolicy(const std::string& appId, const std::string& policyXml);
+        void updateIsolationRules(const std::shared_ptr<NTPPolicy> newPolicy);
         void sendStatus();
         void enableIsolation();
         void disableIsolation();

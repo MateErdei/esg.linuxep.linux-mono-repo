@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 namespace Plugin
 {
@@ -52,6 +53,12 @@ namespace Plugin
          */
         [[nodiscard]] port_list_t remotePorts() const;
         void setRemotePorts(port_list_t);
+
+        friend bool operator==(const IsolationExclusion& lhs, const IsolationExclusion& rhs)
+        {
+            return std::tie(lhs.direction_, lhs.remoteAddresses_, lhs.localPorts_, lhs.remotePorts_)
+                == std::tie(rhs.direction_, rhs.remoteAddresses_, rhs.localPorts_, rhs.remotePorts_);
+        }
     protected:
         Direction direction_{Direction::BOTH};
         address_list_t remoteAddresses_;

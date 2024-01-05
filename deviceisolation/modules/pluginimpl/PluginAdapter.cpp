@@ -15,6 +15,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <utility>
+#include <algorithm>
 
 namespace Plugin
 {
@@ -138,6 +139,12 @@ namespace Plugin
         if (action.value())
         {
             enableIsolation();
+            if (isolationEnabled_.getValue())
+            {
+                // If isolation enabling was successful then update telemetry
+                Common::Telemetry::TelemetryHelper::getInstance().set(
+                        DeviceIsolation::Telemetry::activatedInPast24HoursKey, true);
+            }
         }
         else
         {
@@ -159,7 +166,9 @@ namespace Plugin
         {
             try
             {
-                ntpPolicy_ = std::make_shared<NTPPolicy>(policyXml);
+                auto newPolicy = std::make_shared<NTPPolicy>(policyXml);
+                updateIsolationRules(newPolicy);
+                ntpPolicy_ = newPolicy;
                 LOGINFO("Device Isolation policy applied (" << ntpPolicy_->revId() << ")");
             }
             catch (const NTPPolicyException& e)
@@ -180,6 +189,30 @@ namespace Plugin
             LOGERROR("Received unexpected policy: " << appId);
         }
     }
+
+    void PluginAdapter::updateIsolationRules(const std::shared_ptr<Plugin::NTPPolicy> newPolicy)
+    {
+        // If isolation is not enabled then we don't need to check existing vs new policy
+        if (!isolationEnabled_.getValue())
+        {
+            return;
+        }
+
+        // Check if any exclusions were updated in new policy
+        // Preliminary check as if the size is different then exclusions definitely changed,
+        // otherwise check all exclusions
+        if (newPolicy->exclusions().size() ==  ntpPolicy_->exclusions().size() &&
+            std::equal(newPolicy->exclusions().begin(), newPolicy->exclusions().end(), ntpPolicy_->exclusions().begin()))
+        {
+            return;
+        }
+
+        ntpPolicy_ = newPolicy;
+        LOGINFO("Updating network filtering rules with new policy");
+        disableIsolation();
+        enableIsolation();
+    }
+
 
     void PluginAdapter::sendStatus()
     {
@@ -207,8 +240,6 @@ namespace Plugin
             LOGWARN("Tried to enable isolation but it was already enabled in the first place");
         }
         isolationEnabled_.setValueAndForceStore(true);
-        Common::Telemetry::TelemetryHelper::getInstance().set(
-                DeviceIsolation::Telemetry::activatedInPast24HoursKey, true);
         LOGINFO("Device is now isolated");
     }
 

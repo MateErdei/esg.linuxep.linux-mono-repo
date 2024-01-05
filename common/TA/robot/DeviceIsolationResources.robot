@@ -100,7 +100,7 @@ Device Isolation Test Teardown
     ${nft_binary_exists} =    Does File Exist    ${COMPONENT_ROOT_PATH}/bin/nft
     Run Keyword If
     ...    ${nft_binary_exists}
-    ...    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    flush    ruleset
+    ...    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    delete    table    inet    sophos_device_isolation
 	Run teardown functions
 
 Send Enable Isolation Action
@@ -124,6 +124,12 @@ Enable Device Isolation
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     Wait For Log Contains From Mark  ${mark}  Device is now isolated
 
+Disable Device Isolation
+    ${mark} =  Get Device Isolation Log Mark
+    Send Disable Isolation Action    uuid=123
+    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
+
 Send Device Isolation Policy
     [Arguments]  ${policyFile}
     ${srcFileName} =  Set Variable  ${ROBOT_SCRIPTS_PATH}/policies/${policyFile}
@@ -131,6 +137,10 @@ Send Device Isolation Policy
 
 Send Isolation Policy With CI Exclusions
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
+    Send Device Isolation Policy    NTP-24_policy_generated.xml
+
+Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions_and_extra_ip_exclusion.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
 
 Check Rules Have Been Applied

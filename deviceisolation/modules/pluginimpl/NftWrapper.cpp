@@ -265,7 +265,7 @@ namespace Plugin
         int exitCode = process->exitCode();
         if (exitCode != 0)
         {
-            LOGERROR("Failed to list table, nft exit code: " << exitCode);
+            LOGINFO("Failed to list table, nft exit code: " << exitCode);
             LOGDEBUG("nft output for list table: " << process->output());
             return IsolateResult::RULES_NOT_PRESENT;
         }
