@@ -196,7 +196,7 @@ namespace Plugin
         auto status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
         {
-            LOGERROR("The nft list table command did not complete in time");
+            LOGERROR("The nft list table command did not complete in time, killing process");
             process->kill();
             return IsolateResult::FAILED;
         }
@@ -205,10 +205,11 @@ namespace Plugin
         // Checking for 0 as if table exists then isolation rules have already been enforced, no need to repeat
         if (exitCode == 0)
         {
-            LOGDEBUG("nft output: " << process->output());
+            LOGINFO("nft list table output while applying rules: " << process->output());
             return IsolateResult::RULES_NOT_PRESENT;
         }
 
+        //Read rules in from rulesFile
         process->exec(Plugin::nftBinary(), {"-f", rulesFile});
         status = process->wait(std::chrono::milliseconds(100), 500);
         if (status != Common::Process::ProcessStatus::FINISHED)
@@ -222,7 +223,7 @@ namespace Plugin
         if (exitCode != 0)
         {
             LOGERROR("Failed to set network rules, nft exit code: " << exitCode);
-            LOGDEBUG("nft output: " << process->output());
+            LOGDEBUG("nft output for set network: " << process->output());
             return IsolateResult::FAILED;
         }
 
@@ -264,7 +265,8 @@ namespace Plugin
         int exitCode = process->exitCode();
         if (exitCode != 0)
         {
-            LOGDEBUG("nft output: " << process->output());
+            LOGERROR("Failed to list table, nft exit code: " << exitCode);
+            LOGDEBUG("nft output for list table: " << process->output());
             return IsolateResult::RULES_NOT_PRESENT;
         }
 
@@ -282,7 +284,7 @@ namespace Plugin
         if (exitCode != 0)
         {
             LOGERROR("Failed to flush table, nft exit code: " << exitCode);
-            LOGDEBUG("nft output: " << process->output());
+            LOGDEBUG("nft output for flush table: " << process->output());
             return IsolateResult::FAILED;
         }
 
@@ -300,7 +302,7 @@ namespace Plugin
         if (exitCode != 0)
         {
             LOGERROR("Failed to delete table, nft exit code: " << exitCode);
-            LOGDEBUG("nft output: " << process->output());
+            LOGDEBUG("nft output for delete table: " << process->output());
             return IsolateResult::FAILED;
         }
 

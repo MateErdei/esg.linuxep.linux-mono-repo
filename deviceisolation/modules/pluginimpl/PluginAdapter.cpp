@@ -157,8 +157,23 @@ namespace Plugin
         LOGDEBUG("Received policy: " << appId);
         if (appId == "NTP")
         {
-            ntpPolicy_ = std::make_shared<NTPPolicy>(policyXml);
-            LOGINFO("Device Isolation policy applied (" << ntpPolicy_->revId() << ")");
+            try
+            {
+                ntpPolicy_ = std::make_shared<NTPPolicy>(policyXml);
+                LOGINFO("Device Isolation policy applied (" << ntpPolicy_->revId() << ")");
+            }
+            catch (const NTPPolicyException& e)
+            {
+                LOGERROR("NTPPolicyException encountered while parsing " << appId << " policy XML: " << e.what());
+            }
+            catch (const NTPPolicyIgnoreException& e)
+            {
+                LOGINFO("NTPPolicyIgnoreException encountered while parsing " << appId << " policy XML: " << e.what());
+            }
+            catch (const std::exception& e)
+            {
+                LOGERROR("General Exception encountered while processing " << appId << " policy: " << e.what());
+            }
         }
         else
         {

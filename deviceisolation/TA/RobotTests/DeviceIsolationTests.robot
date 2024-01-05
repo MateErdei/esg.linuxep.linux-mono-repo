@@ -32,6 +32,7 @@ Device Isolation Plugin Installs With Version Ini File
     File Should Exist   ${SOPHOS_INSTALL}/plugins/deviceisolation/VERSION.ini
     VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/deviceisolation/VERSION.ini   SPL-Device-Isolation-Plugin
 
+
 Device Isolation Remains Isolated After SPL Restart
     [Tags]    EXCLUDE_CENTOS7    EXCLUDE_RHEL79
     ${di_mark} =    Mark Log Size    ${SOPHOS_INSTALL}/plugins/deviceisolation/log/deviceisolation.log

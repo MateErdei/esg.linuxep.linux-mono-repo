@@ -119,7 +119,6 @@ TEST_F(PluginAdapterTests, logsDebugForMissingPolicy)
     queue->pushStop();
     mainLoopFuture.get();
 
-
     EXPECT_TRUE(status.empty());
 }
 
@@ -306,4 +305,63 @@ TEST_F(PluginAdapterTests, logsWhenIsolationDisabled)
     auto comp = elements.at(0);
     EXPECT_EQ(comp.value("self"), "false");
     EXPECT_EQ(comp.value("admin"), "false");
+}
+
+TEST_F(PluginAdapterTests, pluginHandlesInvalidPolicyXML)
+{
+    UsingMemoryAppender appender(*this);
+
+    std::string policy{R"SOPHOS(<?xml version="1.0"?>
+                        <policy>
+                        <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+                        <configuration>
+                            <selfIsolation>
+                            <exclusions>
+                                <exclusion type=1234>
+                                    <remotePort>22</remotePort>
+                                </exclusion>
+                            </exclusions>
+                            </selfIsolation>
+                        </configuration>
+                        </policy>
+                        )SOPHOS"};
+
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, requestPolicies("NTP")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus("NTP", _, _)).Times(1);
+    auto queue = std::make_shared<Plugin::TaskQueue>();
+    queue->push(Plugin::Task{
+            .taskType = Plugin::Task::TaskType::Policy,
+            .Content = policy,
+            .appId = "NTP",
+            });
+    queue->pushStop();
+
+    TestablePluginAdapter plugin(queue, mockBaseService);
+
+    EXPECT_NO_THROW(plugin.mainLoop());
+    EXPECT_TRUE(waitForLog("NTPPolicyException encountered while parsing "));
+}
+
+TEST_F(PluginAdapterTests, pluginHandlesInvalidJsonPolicySilently)
+{
+    UsingMemoryAppender appender(*this);
+
+    std::string jsonString = R"({"json": "contents"})";
+
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, requestPolicies("NTP")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus("NTP", _, _)).Times(1);
+    auto queue = std::make_shared<Plugin::TaskQueue>();
+    queue->push(Plugin::Task{
+            .taskType = Plugin::Task::TaskType::Policy,
+            .Content = jsonString,
+            .appId = "NTP",
+    });
+    queue->pushStop();
+
+    TestablePluginAdapter plugin(queue, mockBaseService);
+
+    EXPECT_NO_THROW(plugin.mainLoop());
+    EXPECT_TRUE(waitForLog("Ignoring Json policy"));
 }

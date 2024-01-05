@@ -6,6 +6,10 @@
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
+#include <nlohmann/json.hpp>
+
+#include <cassert>
+
 using namespace Plugin;
 
 namespace
@@ -23,7 +27,7 @@ namespace
             }
             else
             {
-                throw Common::Exceptions::IException(LOCATION, "Invalid value " + m.contents() + " for " + entityPath);
+                throw Common::Exceptions::IException(LOCATION, "Invalid value \"" + m.contents() + "\" for " + entityPath);
             }
         }
         return results;
@@ -64,6 +68,16 @@ namespace
                 {
                     temp.setDirection(IsolationExclusion::Direction::OUT);
                 }
+                else
+                {
+                    LOGERROR("Invalid direction entry: " << direction.contents() << ", expect in or out");
+                    continue;
+                }
+            }
+            else if (directions.size() > 1)
+            {
+                LOGERROR("Invalid number of direction parameters: " << directions.size());
+                continue;
             }
 
             // Extract and validate any remote addresses
@@ -109,22 +123,50 @@ namespace
     }
 }
 
-NTPPolicy::NTPPolicy(const std::string& xml)
+NTPPolicy::NTPPolicy(const std::string& policy)
 {
-    auto attributeMap = Common::XmlUtilities::parseXml(xml);
-    auto compAttr = attributeMap.lookupMultiple("policy/csc:Comp");
-    if (compAttr.size() != 1)
-    {
-        throw NTPPolicyException(LOCATION, "Incorrect number of csc:Comp in policy, found: " + std::to_string(compAttr.size()) + ", expected: 1");
-    }
-    auto comp = compAttr.at(0);
-    if (comp.value("policyType") != "24")
-    {
-        throw NTPPolicyException(LOCATION, "NTP Policy not type 24");
-    }
-    revId_ = comp.value("RevID", "unknown");
+    auto attributeMap = openPolicy(policy);
 
-    exclusions_ = extractExclusions(attributeMap);
+    if (attributeMap.has_value())
+    {
+        auto compAttr = attributeMap.value().lookupMultiple("policy/csc:Comp");
+        if (compAttr.size() != 1) {
+            throw NTPPolicyException(LOCATION, "Incorrect number of csc:Comp in policy, found: " +
+                                               std::to_string(compAttr.size()) + ", expected: 1");
+        }
+        auto comp = compAttr.at(0);
+        if (comp.value("policyType") != "24") {
+            throw NTPPolicyException(LOCATION, "NTP Policy not type 24");
+        }
+        revId_ = comp.value("RevID", "unknown");
+
+        exclusions_ = extractExclusions(attributeMap.value());
+    }
+}
+
+std::optional<Common::XmlUtilities::AttributesMap> NTPPolicy::openPolicy(const std::string& policy)
+{
+    std::optional<Common::XmlUtilities::AttributesMap> attributeMap;
+    try
+    {
+        attributeMap = Common::XmlUtilities::parseXml(policy);
+        return attributeMap;
+    }
+    catch (const Common::XmlUtilities::XmlUtilitiesException& ex)
+    {
+        //Should not report error if JSON
+        try
+        {
+            nlohmann::json j = nlohmann::json::parse(policy);
+            throw NTPPolicyIgnoreException(LOCATION, "Ignoring Json policy");
+        }
+        catch (const nlohmann::json::exception &)
+        {
+            std::stringstream ss;
+            ss << "Unable to parse policy xml: " << policy;
+            throw NTPPolicyException(LOCATION, ss.str());
+        }
+    }
 }
 
 const std::string& NTPPolicy::revId() const

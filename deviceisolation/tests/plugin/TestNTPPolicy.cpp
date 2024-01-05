@@ -24,7 +24,15 @@ using namespace Plugin;
 
 TEST_F(TestNTPPolicy, emptyString)
 {
-    EXPECT_THROW(NTPPolicy policy{""};, Common::XmlUtilities::XmlUtilitiesException);
+    try
+    {
+        NTPPolicy policy{""};
+        FAIL() << "Empty policy should throw a NTPPolicyException";
+    }
+    catch (const NTPPolicyException& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Unable to parse policy xml: ");
+    }
 }
 
 TEST_F(TestNTPPolicy, minimalValidPolicy)
@@ -120,7 +128,37 @@ TEST_F(TestNTPPolicy, emptyExclusions)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     EXPECT_EQ(exclusions.size(), 0);
-    EXPECT_TRUE(waitForLog("Device Isolation using 0 exclusions"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+
+TEST_F(TestNTPPolicy, excludeHost)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remoteAddress>10.10.10.10</remoteAddress>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    auto exclusion = exclusions.at(0);
+    ASSERT_FALSE(exclusion.remoteAddresses().empty());
+    auto address = exclusion.remoteAddresses().at(0);
+    EXPECT_EQ(address, "10.10.10.10");
+    EXPECT_TRUE(exclusion.localPorts().empty());
+    EXPECT_TRUE(exclusion.remotePorts().empty());
+    EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, singleExclusionEverything)
@@ -146,7 +184,7 @@ TEST_F(TestNTPPolicy, singleExclusionEverything)
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
     EXPECT_TRUE(exclusion.remoteAddresses().empty());
-    EXPECT_TRUE(waitForLog("Device Isolation using 1 exclusions"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, doubleExclusionEverything)
@@ -174,11 +212,12 @@ TEST_F(TestNTPPolicy, doubleExclusionEverything)
         EXPECT_TRUE(exclusion.remotePorts().empty());
         EXPECT_TRUE(exclusion.remoteAddresses().empty());
     }
-    EXPECT_TRUE(waitForLog("Device Isolation using 2 exclusions"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 2 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, excludeIncoming)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -200,10 +239,13 @@ TEST_F(TestNTPPolicy, excludeIncoming)
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
     EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
-TEST_F(TestNTPPolicy, noDirection)
+//Direction Exclusion Parameter
+TEST_F(TestNTPPolicy, absentDirectionParameterResultsInDirectionBoth)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -211,8 +253,8 @@ TEST_F(TestNTPPolicy, noDirection)
     <selfIsolation>
         <exclusions>
             <exclusion type="ip">
-                <remoteAddress>1.2.3.4</remoteAddress>
-                <localPort>22</localPort>
+                <remoteAddress>12.12.12.12</remoteAddress>
+                <localPort>80</localPort>
                 <remotePort>22</remotePort>
             </exclusion>
         </exclusions>
@@ -224,10 +266,38 @@ TEST_F(TestNTPPolicy, noDirection)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
+
+TEST_F(TestNTPPolicy, directionsIsNotString)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+        <exclusions>
+            <exclusion type="ip">
+                <direction>124</direction>
+                <remoteAddress>12.12.12.12</remoteAddress>
+                <localPort>80</localPort>
+            </exclusion>
+        </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+    EXPECT_TRUE(appenderContains("Invalid direction entry: 124, expect in or out"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
 
 TEST_F(TestNTPPolicy, multipleDirectionsInExclusion)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -244,26 +314,32 @@ TEST_F(TestNTPPolicy, multipleDirectionsInExclusion)
 </policy>
 )SOPHOS"};
     auto exclusions = policy.exclusions();
-    ASSERT_EQ(exclusions.size(), 1);
-    auto exclusion = exclusions.at(0);
-    EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
-    EXPECT_TRUE(exclusion.localPorts().empty());
-    EXPECT_TRUE(exclusion.remotePorts().empty());
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    ASSERT_EQ(exclusions.size(), 0);
+    EXPECT_TRUE(appenderContains("Invalid number of direction parameters: 2"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
 }
 
-TEST_F(TestNTPPolicy, excludeHost)
+
+TEST_F(TestNTPPolicy, multipleExclusionsOneValidDirectionOneInvalidDirection)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
 <configuration>
     <selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-            <remoteAddress>10.10.10.10</remoteAddress>
-        </exclusion>
-    </exclusions>
+        <exclusions>
+            <exclusion type="ip">
+                <direction>foo</direction>
+                <remoteAddress>12.12.12.12</remoteAddress>
+                <localPort>80</localPort>
+            </exclusion>
+            <exclusion type="ip">
+                <direction>in</direction>
+                <remoteAddress>124.124.124.124</remoteAddress>
+                <localPort>100</localPort>
+            </exclusion>
+        </exclusions>
     </selfIsolation>
 </configuration>
 </policy>
@@ -271,15 +347,16 @@ TEST_F(TestNTPPolicy, excludeHost)
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
-    ASSERT_FALSE(exclusion.remoteAddresses().empty());
-    auto address = exclusion.remoteAddresses().at(0);
-    EXPECT_EQ(address, "10.10.10.10");
-    EXPECT_TRUE(exclusion.localPorts().empty());
-    EXPECT_TRUE(exclusion.remotePorts().empty());
+    EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::IN);
+    EXPECT_TRUE(appenderContains("Invalid direction entry: foo, expect in or out"));
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
+
+//RemoteAddress Exclusion Parameter
 TEST_F(TestNTPPolicy, noRemoteAddress)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -300,10 +377,129 @@ TEST_F(TestNTPPolicy, noRemoteAddress)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
+TEST_F(TestNTPPolicy, remoteAddressIsMalformed)
+{
+    UsingMemoryAppender appender(*this);
+
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>not an ip</remoteAddress>
+            <localPort>80</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+
+    auto expectStr = R"(Invalid exclusion remote address: Invalid value "not an ip" for policy/configuration/selfIsolation/exclusions/exclusion/remoteAddress)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+
+TEST_F(TestNTPPolicy, remoteAddressIsMalformedInOneExclusionAndValidInAnother)
+{
+    UsingMemoryAppender appender(*this);
+
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <direction>in</direction>
+            <remoteAddress>not an ip</remoteAddress>
+            <localPort>66</localPort>
+        </exclusion>
+        <exclusion type="ip">
+            <direction>out</direction>
+            <remoteAddress>1.2.3.4</remoteAddress>
+            <localPort>80</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    EXPECT_EQ(exclusions.at(0).remoteAddresses(), IsolationExclusion::address_list_t { "1.2.3.4" });
+    auto expectStr = R"(Invalid exclusion remote address: Invalid value "not an ip" for policy/configuration/selfIsolation/exclusions/exclusion/remoteAddress)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, allowMultipleRemoteAddresses)
+{
+    UsingMemoryAppender appender(*this);
+
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remoteAddress>1.2.3.4</remoteAddress>
+            <remoteAddress>5.6.7.8</remoteAddress>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    auto exclusion = exclusions.at(0);
+    IsolationExclusion::address_list_t addresses { "1.2.3.4", "5.6.7.8" };
+    EXPECT_EQ(exclusion.remoteAddresses(), addresses);
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, ignoreAllRemoteAddressesInExclusionIfOneIsInvalid)
+{
+    UsingMemoryAppender appender(*this);
+
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remoteAddress>1.2.3.4</remoteAddress>
+            <remoteAddress>notaddress</remoteAddress>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+    auto expectStr = R"(Invalid exclusion remote address: Invalid value "notaddress" for policy/configuration/selfIsolation/exclusions/exclusion/remoteAddress)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+//Local Port Exclusion Parameter
 TEST_F(TestNTPPolicy, excludeLocalPort)
 {
+    UsingMemoryAppender appender(*this);
+
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -322,14 +518,13 @@ TEST_F(TestNTPPolicy, excludeLocalPort)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     ASSERT_FALSE(exclusion.localPorts().empty());
-    auto port = exclusion.localPorts().at(0);
-    EXPECT_EQ(port, "22");
-    EXPECT_TRUE(exclusion.remotePorts().empty());
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_EQ(exclusion.localPorts(), IsolationExclusion::port_list_t {"22"});
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, noLocalPort)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -350,10 +545,13 @@ TEST_F(TestNTPPolicy, noLocalPort)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     EXPECT_TRUE(exclusion.localPorts().empty());
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
+
 
 TEST_F(TestNTPPolicy, localPortIsNotNumeric)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -372,11 +570,15 @@ TEST_F(TestNTPPolicy, localPortIsNotNumeric)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 0);
+    auto expectStr = R"(Invalid exclusion local port: Invalid value "not a number!" for policy/configuration/selfIsolation/exclusions/exclusion/localPort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
 }
 
-
-TEST_F(TestNTPPolicy, remoteAddressIsMalformed)
+TEST_F(TestNTPPolicy, allowMultipleLocalPorts)
 {
+    UsingMemoryAppender appender(*this);
+
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -384,37 +586,8 @@ TEST_F(TestNTPPolicy, remoteAddressIsMalformed)
     <selfIsolation>
     <exclusions>
         <exclusion type="ip">
-            <direction>in</direction>
-            <remoteAddress>not an ip</remoteAddress>
-            <localPort>not a number!</localPort>
-        </exclusion>
-    </exclusions>
-    </selfIsolation>
-</configuration>
-</policy>
-)SOPHOS"};
-    auto exclusions = policy.exclusions();
-    ASSERT_EQ(exclusions.size(), 0);
-}
-
-
-TEST_F(TestNTPPolicy, remoteAddressIsMalformedAndOneIsValid)
-{
-    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
-<policy>
-<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
-<configuration>
-    <selfIsolation>
-    <exclusions>
-        <exclusion type="ip">
-            <direction>in</direction>
-            <remoteAddress>not an ip</remoteAddress>
-            <localPort>not a number!</localPort>
-        </exclusion>
-        <exclusion type="ip">
-            <direction>out</direction>
-            <remoteAddress>1.2.3.4</remoteAddress>
-            <localPort>80</localPort>
+            <localPort>22</localPort>
+            <localPort>44</localPort>
         </exclusion>
     </exclusions>
     </selfIsolation>
@@ -423,13 +596,71 @@ TEST_F(TestNTPPolicy, remoteAddressIsMalformedAndOneIsValid)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
-    ASSERT_EQ(exclusions.at(0).localPorts().size(), 1);
-    ASSERT_EQ(exclusions.at(0).remotePorts().size(), 0);
-    ASSERT_EQ(exclusions.at(0).direction(), Plugin::IsolationExclusion::OUT);
+    auto exclusion = exclusions.at(0);
+    IsolationExclusion::port_list_t ports { "22", "44" };
+    EXPECT_EQ(exclusion.localPorts(), ports);
+
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
+TEST_F(TestNTPPolicy, ignoreAllLocalPortsIfOneIsInvalid)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <localPort>22</localPort>
+            <localPort>not a port</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+    auto expectStr = R"(Invalid exclusion local port: Invalid value "not a port" for policy/configuration/selfIsolation/exclusions/exclusion/localPort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, allowOneExclusionIfPortIsValidIgnoreOtherWithInvalidPort)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <localPort>not a port</localPort>
+        </exclusion>
+        <exclusion type="ip">
+            <localPort>22</localPort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    auto exclusion = exclusions.at(0);
+    EXPECT_EQ(exclusion.localPorts(), IsolationExclusion::port_list_t { "22" });
+    auto expectStr = R"(Invalid exclusion local port: Invalid value "not a port" for policy/configuration/selfIsolation/exclusions/exclusion/localPort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
+}
+
+//Remote Port Exclusion Parameter
 TEST_F(TestNTPPolicy, remotePortIsNotNumeric)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -447,10 +678,14 @@ TEST_F(TestNTPPolicy, remotePortIsNotNumeric)
 </policy>
 )SOPHOS"};
     ASSERT_EQ(policy.exclusions().size(), 0);
+    auto expectStr = R"(Invalid exclusion remote port: Invalid value "not a number!" for policy/configuration/selfIsolation/exclusions/exclusion/remotePort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, excludeRemotePort)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -468,15 +703,95 @@ TEST_F(TestNTPPolicy, excludeRemotePort)
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
-    ASSERT_FALSE(exclusion.remotePorts().empty());
-    auto port = exclusion.remotePorts().at(0);
-    EXPECT_EQ(port, "22");
-    EXPECT_TRUE(exclusion.localPorts().empty());
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_EQ( exclusion.remotePorts(), IsolationExclusion::port_list_t {"22"});
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, allowMultipleRemotePorts)
+{
+    UsingMemoryAppender appender(*this);
+
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remotePort>22</remotePort>
+            <remotePort>44</remotePort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    auto exclusion = exclusions.at(0);
+    IsolationExclusion::port_list_t ports { "22", "44" };
+    EXPECT_EQ(exclusion.remotePorts(), ports);
+
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, ignoreAllRemotePortsIfOneIsInvalid)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remotePort>22</remotePort>
+            <remotePort>not a port</remotePort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+    auto expectStr = R"(Invalid exclusion remote port: Invalid value "not a port" for policy/configuration/selfIsolation/exclusions/exclusion/remotePort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, allowOneExclusionIfRemotePortIsValidIgnoreOtherWithInvalidRemotePort)
+{
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type="ip">
+            <remotePort>not a port</remotePort>
+        </exclusion>
+        <exclusion type="ip">
+            <remotePort>22</remotePort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS"};
+    auto exclusions = policy.exclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    auto exclusion = exclusions.at(0);
+    EXPECT_EQ(exclusion.remotePorts(), IsolationExclusion::port_list_t { "22" });
+    auto expectStr = R"(Invalid exclusion remote port: Invalid value "not a port" for policy/configuration/selfIsolation/exclusions/exclusion/remotePort)";
+    EXPECT_TRUE(appenderContains(expectStr));
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
 TEST_F(TestNTPPolicy, noRemotePort)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -497,10 +812,13 @@ TEST_F(TestNTPPolicy, noRemotePort)
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
     EXPECT_TRUE(exclusion.remotePorts().empty());
+    EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
+//Exclusion Type
 TEST_F(TestNTPPolicy, ignoreExclusionOfNonIpType)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -517,10 +835,42 @@ TEST_F(TestNTPPolicy, ignoreExclusionOfNonIpType)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     EXPECT_EQ(exclusions.size(), 0);
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, ignoreExclusionOfNonStringType)
+{
+    auto policyStr = R"SOPHOS(<?xml version="1.0"?>
+<policy>
+<csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
+<configuration>
+    <selfIsolation>
+    <exclusions>
+        <exclusion type=1234>
+            <remotePort>22</remotePort>
+        </exclusion>
+    </exclusions>
+    </selfIsolation>
+</configuration>
+</policy>
+)SOPHOS";
+
+    try
+    {
+        NTPPolicy policy{policyStr};
+        FAIL() << "Did not throw with invalid exclusion type";
+    }
+    catch (const NTPPolicyException& ex)
+    {
+        std::stringstream ss;
+        ss << "Unable to parse policy xml: " << policyStr;
+        EXPECT_EQ(ex.what(), ss.str());
+    }
 }
 
 TEST_F(TestNTPPolicy, ignoreExclusionWithoutType)
 {
+    UsingMemoryAppender appender(*this);
     NTPPolicy policy{R"SOPHOS(<?xml version="1.0"?>
 <policy>
 <csc:Comp xmlns:csc="com.sophos\\msys\\csc" policyType="24" RevID="ThisIsARevID"/>
@@ -537,8 +887,10 @@ TEST_F(TestNTPPolicy, ignoreExclusionWithoutType)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     EXPECT_EQ(exclusions.size(), 0);
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
 }
 
+//Full Policy
 TEST_F(TestNTPPolicy, examplePolicy)
 {
     constexpr const auto* POLICY=R"SOPHOS(<?xml version="1.0"?>
