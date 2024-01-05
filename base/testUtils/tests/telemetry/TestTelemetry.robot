@@ -407,17 +407,11 @@ Telemetry Executable Handles Errors When Reading Machine ID With Invalid Permiss
 Telemetry Executable Generates Watchdog Telemetry That Increments When Plugins Die And Are Restarted
     [Documentation]    Telemetry Executable Generates Watchdog Telemetry
 
-    Wait Until Keyword Succeeds
-    ...  30s
-    ...  3s
-    ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router    ${30}
 
     Kill Sophos Processes That Arent Watchdog
 
-    Wait Until Keyword Succeeds
-    ...  40s
-    ...  5s
-    ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router    ${40}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

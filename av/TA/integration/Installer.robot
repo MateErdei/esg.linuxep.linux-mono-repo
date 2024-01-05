@@ -143,7 +143,7 @@ IDE update during command line scan
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
-        ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
+        ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] INFO Scanning /
         Should Be True   ${1} <= ${line_count}
     END
 

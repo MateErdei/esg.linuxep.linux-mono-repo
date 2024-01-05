@@ -17,16 +17,11 @@ ${TELEMETRY_CACHE_DIR}  ${SOPHOS_INSTALL}/base/telemetry/cache
 
 *** Test Cases ***
 Check Save And Restore Correctly Persists Telemetry Through SSPL Restarts
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  1s
-    ...  Check Expected Base Processes Are Running
 
+    # MCS Router won't be running because it has not been registered, so it exits.
+    Wait For Base Processes To Be Running Except MCS Router
     Kill Sophos Processes That Arent Watchdog
-    Wait Until Keyword Succeeds
-    ...  30s
-    ...  3s
-    ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router    ${30}
 
     Stop Watchdog
     Wait Until Keyword Succeeds  5 seconds  1 seconds   Check Telemetry Scheduler Plugin Not Running
@@ -38,10 +33,7 @@ Check Save And Restore Correctly Persists Telemetry Through SSPL Restarts
     Check Watchdog Saved Json Strings Are Equal  ${watchdogTelemetryContent}  1
 
     Start Watchdog
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  2s
-    ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router    ${30}
 
     Wait Until Keyword Succeeds
     ...  10s
@@ -49,10 +41,7 @@ Check Save And Restore Correctly Persists Telemetry Through SSPL Restarts
     ...  Check All Base Saved Telemetry Files Are Cleanup After Restore Exists
 
     Kill Sophos Processes That Arent Watchdog
-    Wait Until Keyword Succeeds
-    ...  30s
-    ...  3s
-    ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router    ${30}
 
     Stop Watchdog
     Wait Until Keyword Succeeds  5 seconds  1 seconds   Check Telemetry Scheduler Plugin Not Running

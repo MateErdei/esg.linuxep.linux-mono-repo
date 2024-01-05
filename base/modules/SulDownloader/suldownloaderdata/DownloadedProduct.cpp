@@ -12,6 +12,7 @@
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
 #include "Common/UtilityImpl/StrError.h"
+#include "sophlib/string/StringUtils.h"
 
 #include <cassert>
 #include <cstring>
@@ -76,6 +77,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
             "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
 
         auto process = ::Common::Process::createProcess();
+        std::string output;
         int exitCode = 0;
         try
         {
@@ -88,9 +90,10 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
                 LOGERROR("Timeout waiting for installer " << installShFile << " to finish");
                 process->kill();
             }
-            auto output = process->output();
-            fileSystem->writeFile(installOutputFile, output);
+            output = process->output();
             exitCode = process->exitCode();
+            fileSystem->writeFile(installOutputFile, output);
+            LOGDEBUG("Written " << productName << " installer output to " << installOutputFile);
         }
         catch (const Common::Process::IProcessException& ex)
         {
@@ -103,7 +106,17 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         }
         if (exitCode != 0)
         {
-            LOGERROR("Installation failed");
+            const auto installOutputBasename = Common::FileSystem::basename(installOutputFile);
+            LOGERROR("Installation of " << productName << " failed.");
+            const auto parts = sophlib::string::Split(output, sophlib::string::Is('\n'));
+            for (const auto& part : parts)
+            {
+                if (!part.empty() && !sophlib::string::StartsWith(part, "+"))
+                {
+                    LOGERROR(productName << ": " << part);
+                }
+            }
+            LOGERROR("See " << installOutputBasename << " for the full installer output.");
             // cppcheck-suppress shiftNegative
             LOGDEBUG("Installer exit code: " << exitCode);
             LOGDEBUG("Possible reason: " << Common::UtilityImpl::StrError(exitCode));

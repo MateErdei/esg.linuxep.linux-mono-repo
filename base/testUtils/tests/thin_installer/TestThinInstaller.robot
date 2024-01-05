@@ -281,7 +281,7 @@ Thin Installer Repairs Broken Existing Installation
     #there is a race condition where the mcsrouter can restart when
     #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
 
 Thin Installer Force Works

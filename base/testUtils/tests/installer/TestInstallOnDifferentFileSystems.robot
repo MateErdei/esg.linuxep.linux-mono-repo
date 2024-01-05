@@ -40,7 +40,7 @@ Install On XFS With ftype Disabled
     Should Be Equal As Integers    ${result.rc}    0   msg=Could not mount XFS filesystem device onto mount point.
 
     Run Full Installer  --instdir  ${xfsMountPoint}
-    Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
 
 *** Keywords ***
 XFS Install Tests Teardown

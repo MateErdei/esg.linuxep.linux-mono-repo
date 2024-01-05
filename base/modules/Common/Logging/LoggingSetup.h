@@ -18,7 +18,7 @@ namespace Common::Logging
         /**
          * Simplified pattern for release Console output.
          */
-        static inline constexpr const char* const GL_CONSOLE_PATTERN = "[%d{%H:%M:%S}] %m%n";
+        static inline constexpr const char* const GL_CONSOLE_PATTERN = "[%d{%H:%M:%S}] %p %m%n";
 
         static void applyDefaultPattern(AppenderPtr& appender);
 

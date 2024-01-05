@@ -34,7 +34,7 @@ Liveresponse Plugin Unexpected Restart Telemetry Is Reported Correctly
     Wait Until Keyword Succeeds
     ...  40s
     ...  5s
-    ...  Check Expected Base Processes Are Running
+    ...  Check Expected Base Processes Are Running Except MCS Router
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

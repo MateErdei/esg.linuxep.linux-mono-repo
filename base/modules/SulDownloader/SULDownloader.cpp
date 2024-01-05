@@ -33,11 +33,11 @@
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
 
+#include <nlohmann/json.hpp>
 #include <sys/stat.h>
 
 #include <algorithm>
 #include <cassert>
-#include <nlohmann/json.hpp>
 #include <thread>
 
 using namespace Common::Policy;
@@ -457,6 +457,13 @@ namespace SulDownloader
                             << exception.what());
                     }
                     copyConfig = false;
+                }
+
+                // If base failed to install, don't attempt to install anything else
+                if (product.getLine() == "ServerProtectionLinux-Base-component" && product.hasError())
+                {
+                    LOGERROR("Base installation failed, not installing any plugins");
+                    break;
                 }
             }
             else

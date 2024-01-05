@@ -25,7 +25,7 @@ Force Tags  INSTALLER  TAP_PARALLEL2
 #    [Tags]    DEBUG  INSTALLER  TESTFAILURE
 #    Require Fresh Install
 #
-#    Check Expected Base Processes Are Running
+#    Check Expected Base Processes Are Running Except MCS Router
 #    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get_file_info_for_installation_debug
 #
 #    ## Check Directory Structure
@@ -52,7 +52,7 @@ Verify that the full installer works correctly
     [Tags]    DEBUG  INSTALLER  SMOKE  TAP_PARALLEL2  BREAKS_DEBUG
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
 #    ${r} =  Run Process  systemctl  stop  sophos-spl
 #    Should Be Equal As Strings  ${r.rc}  0
@@ -87,7 +87,7 @@ Verify Sockets Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
 
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Sockets And Permissions
     ${ExpectedDictOfSockets} =  Get Dictionary Of Expected Sockets And Permissions
@@ -96,11 +96,11 @@ Verify Sockets Have Correct Permissions
 
 Running installer without /usr/sbin in PATH works
     run_full_installer_with_truncated_path
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
 Verify Base Processes Have Correct Permissions
     Require Fresh Install
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
     Check owner of process   sophos_managementagent   sophos-spl-user    sophos-spl-group
     Check owner of process   sdu   sophos-spl-user    sophos-spl-group
     Check owner of process   UpdateScheduler   sophos-spl-updatescheduler   sophos-spl-group
@@ -113,7 +113,7 @@ Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
 
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
     ${ActualDictOfSockets} =    Get Dictionary Of Actual Mcs Folders And Permissions
     ${ExpectedDictOfSockets} =  Get Directory Of Expected Mcs Folders And Permissions
@@ -124,7 +124,7 @@ Verify Base Logs Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
 
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
     ${ActualDictOfLogs} =    Get Dictionary Of Actual Base Logs And Permissions
     ${ExpectedDictOfLogs} =  Get Dictionary Of Expected Base Logs And Permissions
@@ -282,7 +282,7 @@ Installer Resets Bad Permissions On Current Proxy file
 Installer Resets Ownership Of Stale MCS Router Process ID File
     [Tags]    DEBUG  INSTALLER
     Require Fresh Install
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
     ${mcs_router_pid_file} =    Set Variable    ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid
     Wait Until Created  ${mcs_router_pid_file}
     Wdctl Stop Plugin   mcsrouter

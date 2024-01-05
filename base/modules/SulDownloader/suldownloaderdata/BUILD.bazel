@@ -20,6 +20,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StrError",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/UtilityImpl:TimeUtils",
+        "//common/sophlib/string",
         "@com_google_protobuf//:protobuf",
     ],
     visibility = [

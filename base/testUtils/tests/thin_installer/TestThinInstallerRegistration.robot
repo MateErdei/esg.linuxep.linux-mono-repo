@@ -57,6 +57,7 @@ Thin Installer Exits Without Installing If Registration Fails
     Run Default Thininstaller  51    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     ${errorMsg} =    Set Variable    Failed to register with Sophos Central, aborting installation
     Check Thininstaller Log Contains    ${errorMsg}
+    Check Thininstaller Log Contains    Please see https://support.sophos.com/support/s/article/KB-000041952 for troubleshooting help
     ${compatibilityCheckResults} =  Get File    ${CUSTOM_THININSTALLER_REPORT_LOC}
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    registrationWithCentral = false

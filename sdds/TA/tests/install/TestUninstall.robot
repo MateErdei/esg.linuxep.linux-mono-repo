@@ -14,7 +14,7 @@ Uninstallation of base removes all plugins cleanly
     [Tags]  LIVERESPONSE_PLUGIN   EDR_PLUGIN
     Require Fresh Install
 
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
     Install EDR Directly
     Wait For EDR to be Installed
@@ -100,7 +100,7 @@ Test Edr Plugin downgrades properly with plugin conf
 Test Uninstall Script Gives Return Code Zero
     [Tags]  SMOKE
     Require Fresh Install
-    Check Expected Base Processes Are Running
+    Check Expected Base Processes Are Running Except MCS Router
 
     ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
     Should Be Equal As Strings  ${result.rc}  0  "Return code was not 0, instead: ${result.rc}\nstdout: ${result.stdout}\nstderr: ${result.stderr}

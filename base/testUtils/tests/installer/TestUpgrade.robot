@@ -43,7 +43,7 @@ Simple Upgrade Test
     ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
 
-    Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
     Should Have Set KillMode To Mixed
@@ -84,7 +84,7 @@ Simple Upgrade Test with a Breaking Update
     Should Exist  /tmp/stuff
     Should Not exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
-    Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
     Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
@@ -159,7 +159,7 @@ Simple Downgrade Test
     ${BaseDevVersion2} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
 
-    Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
     Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
@@ -175,7 +175,7 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
     ${expected_local_file_contents} =  Set Variable  [global]\nVERBOSITY = DEBUG\n
 
     Require Fresh Install
-    Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     Wait Until Keyword Succeeds
     ...  10 secs

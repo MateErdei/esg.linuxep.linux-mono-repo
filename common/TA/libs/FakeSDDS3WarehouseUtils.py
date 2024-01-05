@@ -6,16 +6,16 @@ import sys
 
 from robot.api import logger
 
-BASE_SUITE_TEMPLATE="""
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<suite name="ServerProtectionLinux-Base" version="2022.7.22.7" nonce="3b1805f739" marketing-version="2022.7.22.7 (develop)">
-  <package-ref src="@FILENAME@" size="@SIZE@" sha256="@SHA@">
-    <name>SPL-Base-Component</name>
+FLAGS_SUPPLEMENT_REF = """    <supplement-ref src="SSPLFLAGS" tag="2022-1" decode-path="sspl_flags/files/base/etc/sophosspl" />
+"""
+
+PACKAGE_REF_TEMPLATE = """  <package-ref src="@FILENAME@" size="@SIZE@" sha256="@SHA@">
+    <name>@NAME@</name>
     <version>@VERSION@</version>
-    <line-id>ServerProtectionLinux-Base-component</line-id>
+    <line-id>@LINE_ID@</line-id>
     <nonce>@NONCE@</nonce>
     <description>Sophos Linux Protection Base Component v1.0.0</description>
-    <decode-path>ServerProtectionLinux-Base-component</decode-path>
+    <decode-path>@LINE_ID@</decode-path>
     <features>
       <feature name="CORE" />
     </features>
@@ -23,9 +23,12 @@ BASE_SUITE_TEMPLATE="""
       <platform name="LINUX_INTEL_LIBC6" />
       <platform name="LINUX_ARM64" />
     </platforms>
-    <supplement-ref src="SSPLFLAGS" tag="2022-1" decode-path="sspl_flags/files/base/etc/sophosspl" />
-  </package-ref>
-</suite>
+@SUPPLEMENT_REFS@  </package-ref>
+"""
+BASE_SUITE_TEMPLATE="""
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<suite name="ServerProtectionLinux-Base" version="2022.7.22.7" nonce="3b1805f739" marketing-version="2022.7.22.7 (develop)">
+@PACKAGE_REFS@</suite>
 """
 SUPPLEMENT_XML="""
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -54,21 +57,40 @@ default_package_path="/tmp/sdds3FakeWarehouse/fakerepo/package/SPL-Base-Componen
 default_output_path="/tmp/sdds3FakeWarehouse/fakerepo"
 default_flag_path="/tmp/sdds3FakeWarehouse/fakeflag"
 
-def write_sdds3_suite_xml(package_path=default_package_path,output_path=default_output_path):
+
+def create_package_ref_for_sdds3_suite_xml(package_path, name, line_id, has_flags_supplement=False):
     size = os.path.getsize(package_path)
-    sha = 0
     with open(package_path, "rb") as f:
         content = f.read()
         sha = hashlib.sha256(content).hexdigest()
     filename = os.path.basename(package_path)
-    version = filename[19:-15]
+    version = ".".join(filename.split("_")[1].split(".")[:4])
     nonce = filename.split(".")[4]
 
     print(version)
     print(nonce)
-    suite_xml = BASE_SUITE_TEMPLATE.replace("@SIZE@", str(size)).replace("@SHA@", sha).replace("@FILENAME@", filename).replace("@VERSION@",version).replace("@NONCE@", nonce)
-    with open(os.path.join(output_path ,"suite.xml"), "w") as f:
+
+    supplement_refs = ""
+    if has_flags_supplement:
+        supplement_refs += FLAGS_SUPPLEMENT_REF
+
+    return (
+        PACKAGE_REF_TEMPLATE.replace("@SIZE@", str(size))
+        .replace("@SHA@", sha)
+        .replace("@FILENAME@", filename)
+        .replace("@VERSION@", version)
+        .replace("@NONCE@", nonce)
+        .replace("@NAME@", name)
+        .replace("@LINE_ID@", line_id)
+        .replace("@SUPPLEMENT_REFS@", supplement_refs)
+    )
+
+
+def write_sdds3_suite_xml(package_refs, output_path=default_output_path):
+    suite_xml = BASE_SUITE_TEMPLATE.replace("@PACKAGE_REFS@", "".join(package_refs))
+    with open(os.path.join(output_path, "suite.xml"), "w") as f:
         f.write(suite_xml)
+
 
 def write_sdds3_supplement_xml(package_path,output_path=default_output_path):
     size = os.path.getsize(package_path)

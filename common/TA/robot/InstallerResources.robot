@@ -8,6 +8,7 @@ Library     UpgradeUtils.py
 Library     Watchdog.py
 
 Resource    GeneralTeardownResource.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 
 *** Variables ***
 ${MCSROUTER_PROCESS_NAME}  /opt/sophos-spl/base/bin/python3 -m mcsrouter
@@ -216,6 +217,13 @@ Wait For Base Processes To Be Running
     ...  1 secs
     ...  Check Expected Base Processes Are Running
 
+Wait For Base Processes To Be Running Except MCS Router
+    [Arguments]    ${secondsToWait}=10
+    Wait Until Keyword Succeeds
+    ...  ${secondsToWait} secs
+    ...  1 secs
+    ...  Check Expected Base Processes Are Running Except MCS Router
+
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
@@ -223,7 +231,17 @@ Check Expected Base Processes Are Running
     Check Telemetry Scheduler Is Running
     Check SDU Running
     Verify Watchdog Config
-    # TODO mcsrouter
+    Check MCS Router Running
+
+# To be used when side loading - Ignores MCS Router not running because an installation that cannot register will
+# succeed but MCS Router will keep exiting because it cannot register, so will not be running.
+Check Expected Base Processes Are Running Except MCS Router
+    Check Watchdog Running
+    Check Management Agent Running
+    Check Update Scheduler Running
+    Check Telemetry Scheduler Is Running
+    Check SDU Running
+    Verify Watchdog Config
 
 Check Expected Base Processes Except SDU Are Running
     Check Watchdog Running

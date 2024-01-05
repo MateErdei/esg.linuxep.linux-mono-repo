@@ -17,11 +17,11 @@ Force Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE 
 Test Components Shutdown Cleanly
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
-    Wait For Base Processes To Be Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [watchdog]\nVERBOSITY=DEBUG\n
     Run Process   systemctl  restart  sophos-spl
-    Wait For Base Processes To Be Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     Install Device Isolation Directly from SDDS
     Install Live Response Directly

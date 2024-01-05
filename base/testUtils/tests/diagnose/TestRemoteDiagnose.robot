@@ -31,10 +31,7 @@ Test Remote Diagnose can process SDU action with no URL value
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
-    Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  1 secs
-        ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
@@ -135,10 +132,7 @@ Test Remote Diagnose can process SDU action with malformed URL
     [Arguments]    ${input_action_xml_file_name}
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
-    Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  1 secs
-        ...  Check Expected Base Processes Are Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     ${remote_diagnose_log_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log

@@ -235,25 +235,33 @@ function failure() {
         write_check_result "summary" "$2"
     fi
     code=$1
-    removeinstall=1
-    if [[ -n "$3" ]]; then
-        removeinstall=0
-    fi
-    if [[ $CREATED_INSTALL_DIRECTORY == 0 ]]; then
-        removeinstall=0
-    fi
 
     echo "$2" >&2
-    if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]; then
-        echo "-- Output from suldownloader log:"
-        cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
-        cat "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log"
+
+    # Dump logs which may be useful for support/developers to troubleshoot issues
+    if [[ -n "${DEBUG_THIN_INSTALLER}" ]]
+    then
+        if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]
+        then
+            echo "-- Output from ${SOPHOS_INSTALL}/logs/base/suldownloader.log:"
+            cat "${SOPHOS_INSTALL}/logs/base/suldownloader.log"
+        fi
+        if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log" ]]
+        then
+            echo "-- Output from ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log:"
+            cat "${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log"
+        fi
     fi
 
-    # only remove files if we didnt get far enough through the process to install or
-    # the install directory existed already and we didnt create it
-    if [[ ${removeinstall} -eq 1 ]] && ! is_sspl_installed; then
-        if [[ -n "${SOPHOS_INSTALL}" ]]; then
+    # Only remove files if we created the install directory but didnt get far enough through the process to install (to
+    # create the service files)
+    if [[ $CREATED_INSTALL_DIRECTORY == 1 ]]
+    then
+        if is_sspl_installed
+        then
+            echo "Warning: the product has been partially installed and not all functionality may be present"
+            echo "Logs are available at ${SOPHOS_INSTALL}/logs and ${SOPHOS_INSTALL}/plugins/*/log"
+        else
             if [[ -d ${SOPHOS_TEMP_DIRECTORY} ]]; then
                 echo "Copying SPL logs to ${SOPHOS_TEMP_DIRECTORY}/logs"
                 cp -Lr "${SOPHOS_INSTALL}/logs" "${SOPHOS_TEMP_DIRECTORY}" 2>/dev/null
@@ -261,9 +269,20 @@ function failure() {
                 cp -Lr "${SOPHOS_INSTALL}/plugins/*/log/*" "${SOPHOS_TEMP_DIRECTORY}/logs/plugins" 2>/dev/null
             fi
             echo "Removing ${SOPHOS_INSTALL}"
+            # Try to uninstall base if we have its uninstaller
+            if [[ -f "${SOPHOS_INSTALL}/bin/uninstall.sh" ]]
+            then
+                "${SOPHOS_INSTALL}/bin/uninstall.sh" --force
+            elif [[ -f "${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/files/bin/uninstall.sh" ]]
+            then
+                "${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/files/bin/uninstall.sh" --force
+            fi
             rm -rf "${SOPHOS_INSTALL}"
         fi
     fi
+
+    echo "Please see https://support.sophos.com/support/s/article/KB-000041952 for troubleshooting help"
+
     cleanup_and_exit ${code}
 }
 
@@ -935,6 +954,7 @@ elif [[ -n ${http_proxy} ]]; then
     echo -n "${http_proxy}" >"${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
+echo "Downloading and installing ${PRODUCT_NAME}..."
 INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json"
 inst_ret=$?
 handle_installer_errorcodes ${inst_ret}

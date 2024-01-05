@@ -64,6 +64,8 @@ Test Watchdog Reconfigures User and Group IDs
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   ${requested_user_and_group_ids}
     # waiting for updatescheduler to finish reporting update success to central otherwise watchdog might need to kill it when the restart is done
     wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
+
+    Wait For Base Processes To Be Running
     Restart Product
     Wait For Base Processes To Be Running
 
@@ -173,6 +175,8 @@ Test Watchdog Can Reconfigure a Singular Group ID
     Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   {"groups":{"sophos-spl-group":1996}}
     # waiting for updatescheduler to finish reporting update success to central otherwise watchdog might need to kill it when the restart is done
     wait_for_log_contains_from_mark    ${update_scheduler_mark}    Sending status to Central    ${5}
+
+    Wait For Base Processes To Be Running
     Restart Product
     Wait For Base Processes To Be Running
 
@@ -215,7 +219,7 @@ Requested Config Created From ThinInstaller Args Is Used To Configure Users And 
     Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
 
     Run Full Installer Expecting Code  0
-    Wait For Base Processes To Be Running
+    Wait For Base Processes To Be Running Except MCS Router
 
     # Check product UIDs and GIDs
     # Users
@@ -240,7 +244,7 @@ Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInsta
     Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
 
     Run Full Installer Expecting Code  0
-    Wait For Base Processes To Be Running
+    Wait For Base Processes To Be Running Except MCS Router
     Stripped Requested User Group Config Matches Actual Config
 
     ${sspl_local_uid} =              Get UID From Username    sophos-spl-local
@@ -287,6 +291,7 @@ Verify Product is Running Without Error After ID Change
 
     Wait Until Created    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed.
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/watchdog.log   Update Service (sophos-spl-update.service) failed.
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical

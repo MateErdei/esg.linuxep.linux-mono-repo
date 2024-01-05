@@ -112,7 +112,7 @@ Simulate Live Query
     ${requestFile} =  Set Variable  ${EXAMPLE_DATA_PATH}/${name}
     File Should Exist  ${requestFile}
     Copy File   ${requestFile}  ${SOPHOS_INSTALL}/tmp
-    Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
+    EDRResources.Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
     ${creation_time} =  Get Current Date
     ${eptime} =  Get Time  epoch
     Log To Console  ${eptime}
@@ -161,13 +161,13 @@ Uninstall And Revert Setup
 
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
-    Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+    EDRResources.Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
+    Run Keyword and Ignore Error   EDRResources.Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
     # Force telemetry to be rescheduled to 24 hours in the future so that it doesn't interfere with this test run
     Create File    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
     Log    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop tscheduler   OnError=failed to stop tscheduler
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
+    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop tscheduler   OnError=failed to stop tscheduler
+    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
 
 Install EDR Directly from SDDS
     [Arguments]  ${interval}=5  ${debug}=
@@ -412,12 +412,12 @@ Stop EDR
     ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${EDR_PLUGIN_PATH}/bin/edr
     Return From Keyword If    ${file_exists} == ${False}
     ${mark} =  mark_log_size  ${EDR_LOG_PATH}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
+    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
     wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${timeout}
 
 Start EDR
     ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
     wait for log contains from mark  ${mark}  Plugin preparation complete  ${30}
 
 Apply Live Query Policy And Wait For Query Pack Changes
