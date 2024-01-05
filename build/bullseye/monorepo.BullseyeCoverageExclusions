@@ -11,5 +11,6 @@ exclude folder tools/
 exclude folder bazel-out/x64_linux-dbg/bin/base/tests/
 exclude folder bazel-out/x64_linux-dbg/bin/common/journal/
 exclude folder bazel-out/x64_linux-dbg/bin/external/
+exclude folder bazel-out/x64_linux-dbg/bin/imports/
 exclude source **/*.pb.*
 exclude source **/*.capnp.h
