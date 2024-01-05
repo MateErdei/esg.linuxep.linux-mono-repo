@@ -890,18 +890,6 @@ File Log Contains
             with open(filepath, 'a') as log_file:
                 log_file.write('-{}----------------------------------------------------------\n'.format(tag))
 
-    def get_version_number_from_ini_file(self, file):
-        with open(file) as ini_file:
-            lines = ini_file.readlines()
-            version_text = "PRODUCT_VERSION = "
-            for line in lines:
-                if version_text in line:
-                    version_string = line[len(version_text):]
-                    logger.info("Found version string: {}".format(version_string))
-                    return version_string.strip()
-        logger.error("Version String Not Found")
-        raise AssertionError("Version String Not Found")
-
     @staticmethod
     def all_should_be_equal(*args):
         assert len(args) > 1, "Error: should have more than 1 argument"

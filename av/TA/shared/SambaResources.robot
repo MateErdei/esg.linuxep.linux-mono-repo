@@ -4,8 +4,6 @@ Library         OperatingSystem
 Library         ../Libs/SambaUtils.py
 Library         ../Libs/OnFail.py
 
-Resource    RunShellProcess.robot
-
 *** Variables ***
 ${SAMBA_CONFIG}    /etc/samba/smb.conf
 

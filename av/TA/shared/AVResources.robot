@@ -20,7 +20,6 @@ Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ComponentSetup.robot
 Resource    GlobalSetup.robot
-Resource    RunShellProcess.robot
 Resource    ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
 
