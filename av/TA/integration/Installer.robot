@@ -1037,6 +1037,7 @@ Installer Test Setup
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
 
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
