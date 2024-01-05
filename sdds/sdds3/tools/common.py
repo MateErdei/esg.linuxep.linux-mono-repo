@@ -241,7 +241,7 @@ def change_version_to_999(dist):
     env['OPENSSL_PATH'] = "/usr/bin/openssl"
 
     result = subprocess.run(
-        ['sb_manifest_sign','-l', '--folder', dist, '--output', manifest, '--exclusions', exclusions]
+        ['sb_manifest_sign', '--folder', dist, '--output', manifest, '--exclusions', exclusions]
         , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
         timeout=60
     )
