@@ -29,8 +29,7 @@
 
 namespace {
     Path getOsqueryPath() {
-        auto fs = Common::FileSystem::fileSystem();
-        return fs->currentWorkingDirectory() + "/osqueryd";
+        return fuzzer::targetdir + "/osqueryd";
     }
 }
 

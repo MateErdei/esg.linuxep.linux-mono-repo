@@ -12,6 +12,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <pthread.h>
 #include <thread>
 
+//Todo extend namespace to entire contents of file
+namespace fuzzer
+{
+    static const std::string testdir = "/opt/test/inputs";
+    static const std::string targetdir = testdir + "/fuzz_targets";
+}
+
 enum class ThreadStatus
 {
     NOTSTARTED,
