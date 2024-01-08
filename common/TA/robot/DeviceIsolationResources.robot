@@ -19,6 +19,8 @@ Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 *** Variables ***
 ${DEVICE_ISOLATION_PLUGIN_PATH}     ${SOPHOS_INSTALL}/plugins/deviceisolation
 ${DEVICE_ISOLATION_LOG_PATH}     ${DEVICE_ISOLATION_PLUGIN_PATH}/log/deviceisolation.log
+${NTP_STATUS_XML}                ${SOPHOS_INSTALL}/base/mcs/status/NTP_status.xml
+${PERSISTENT_STATE_FILE}         ${DEVICE_ISOLATION_PLUGIN_PATH}/var/persist-isolationEnabled
 ${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
 
 

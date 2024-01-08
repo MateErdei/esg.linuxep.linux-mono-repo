@@ -272,3 +272,22 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
 
     Disable Device Isolation
+
+
+Device Isolation Represents State Correctly When Isolation State Changes
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    Enable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
+    File Should Contain    ${PERSISTENT_STATE_FILE}    1
+
+    Disable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
+    File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="false"
+    File Should Contain    ${PERSISTENT_STATE_FILE}    0
