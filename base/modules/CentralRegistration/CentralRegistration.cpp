@@ -78,11 +78,12 @@ namespace CentralRegistration
         }
         if (configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && !configOptions.config[MCS::MCS_PROXY].empty())
         {
-            if (registrationFunction(configOptions, statusXml, configOptions.config[MCS::MCS_PROXY], httpClient))
+            auto proxy = configOptions.config[MCS::MCS_PROXY];
+            if (registrationFunction(configOptions, statusXml, proxy, httpClient))
             {
                 //proxy
-                configOptions.config[MCS::MCS_CONNECTED_PROXY] = configOptions.config[MCS::MCS_PROXY];
-                writeToIni(true, false);
+                configOptions.config[MCS::MCS_CONNECTED_PROXY] = proxy;
+                writeToIni(true, false, proxy);
                 return true;
             }
         }

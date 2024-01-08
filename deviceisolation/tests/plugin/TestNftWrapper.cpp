@@ -593,8 +593,35 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesTableExistReturningNonZero)
     NftWrapper::IsolateResult result;
     EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
     EXPECT_EQ(result, NftWrapper::IsolateResult::RULES_NOT_PRESENT);
-    EXPECT_TRUE(appenderContains("Failed to list table, nft exit code: 1"));
+    EXPECT_TRUE(appenderContains("nft exit code 1: rules probably not present"));
     EXPECT_TRUE(appenderContains("nft output for list table: process failure output"));
+}
+
+TEST_F(TestNftWrapper, clearIsolateRulesHandlesTableExistReturningNonOne)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, exists(NFT_BINARY)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, isExecutable(NFT_BINARY)).WillOnce(Return(true));
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            []()
+            {
+                auto mockProcess = new StrictMock<MockProcess>();
+                EXPECT_CALL(*mockProcess, exec(NFT_BINARY, _)).Times(1);
+                EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
+                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("process failure output 2"));
+                return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            });
+
+    NftWrapper::IsolateResult result;
+    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
+    EXPECT_EQ(result, NftWrapper::IsolateResult::RULES_NOT_PRESENT);
+    EXPECT_TRUE(appenderContains("Failed to list table, nft exit code: 2"));
+    EXPECT_TRUE(appenderContains("nft output for list table: process failure output 2"));
 }
 
 TEST_F(TestNftWrapper, clearIsolateRulesHandlesFlushTableReturningNonZero)

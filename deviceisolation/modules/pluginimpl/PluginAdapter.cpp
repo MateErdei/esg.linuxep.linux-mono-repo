@@ -260,7 +260,7 @@ namespace Plugin
                 LOGERROR("Failed to list sophos rules table but isolation is enabled");
                 return;
             }
-            LOGWARN("Tried to disable isolation but it was already disabled in the first place");
+            LOGDEBUG("Tried to disable isolation but it was already disabled in the first place");
         }
         isolationEnabled_.setValueAndForceStore(false);
         LOGINFO("Device is no longer isolated");

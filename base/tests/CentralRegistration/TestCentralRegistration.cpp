@@ -190,7 +190,9 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds)
                                             configOptions.config[MCS::MCS_PROXY_USERNAME],
                                             configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
-    EXPECT_CALL(*mockFileSystem, writeFile("/tmp/registration_comms_check.ini", "usedProxy = true\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = \n")).WillOnce(Return());
+    std::string expected_ini = "usedProxy = true\nusedUpdateCache = false\nusedMessageRelay = false\nproxyOrMessageRelayURL = "+configOptions.config[MCS::MCS_PROXY]+'\n';
+
+    EXPECT_CALL(*mockFileSystem, writeFile("/tmp/registration_comms_check.ini", expected_ini)).WillOnce(Return());
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
     CentralRegistration::CentralRegistration centralRegistration;
