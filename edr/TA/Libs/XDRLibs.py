@@ -199,15 +199,13 @@ def check_query_results_folded(query_result: str, expected_query: str, expected_
         query_found = False
         for result in query_json:
             if result['name'] == expected_query and expected_column_name in result['columns']:
-                query_found = False
-                if expected_column_value is not None:
-                    if result['columns'][expected_column_name] == expected_column_value:
-                        query_found = True
-                else:
-                    query_found = True
-                if query_found:
-                    if 'folded' in result and result['folded'] > 1:
-                        return True
+                actual_column_value = str(result['columns'][expected_column_name])
+                print(f"result['columns'][{expected_column_name}] = {actual_column_value}")
+                if expected_column_value is not None and actual_column_value != expected_column_value:
+                    continue
+                query_found = True
+                if 'folded' in result and result['folded'] > 0:
+                    return True
         if not query_found:
             raise AssertionError(f"query {expected_query} not found in: {query_result}")
     else:

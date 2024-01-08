@@ -138,7 +138,7 @@ EDR Plugin Applies Folding Rules Based Column Value
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
-    # Inject policy with folding rules
+    # Inject policy with folding rules (fold all results from query "random" where the value of "number" is 0)
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
 
     # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
