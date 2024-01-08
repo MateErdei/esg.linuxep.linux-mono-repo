@@ -696,7 +696,71 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
 
+Safestore rescans files in sequence not parallel
+    Wait Until threat detector running
+    Wait Until SafeStore running
 
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
+
+    # Create threat to scan
+    ${allow_listed_threat_file1} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore1.exe
+    ${allow_listed_threat_file2} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore2.exe
+    ${allow_listed_threat_file3} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore3.exe
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file1}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file2}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file3}
+    Register Cleanup  Remove File  ${allow_listed_threat_file1}
+    Register Cleanup  Remove File  ${allow_listed_threat_file2}
+    Register Cleanup  Remove File  ${allow_listed_threat_file3}
+    Should Exist  ${allow_listed_threat_file1}
+    Should Exist  ${allow_listed_threat_file2}
+    Should Exist  ${allow_listed_threat_file3}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file1} successfully
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file2} successfully
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file3} successfully
+    Should Not Exist  ${allow_listed_threat_file1}
+    Should Not Exist  ${allow_listed_threat_file2}
+    Should Not Exist  ${allow_listed_threat_file3}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy.xml
+
+    Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark  ${td_mark}  Triggering rescan of SafeStore database
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
+
+    Wait For Log Contains From Mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file1}
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file2}
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file3}
+    # Check that each rescan completes in sequence rather than in parallel
+    ${list}=  create list
+    ...    Requesting metadata rescan of quarantined file
+    ...    Successfully restored object to original path
+    ...    Requesting metadata rescan of quarantined file
+    ...    Successfully restored object to original path
+    ...    Requesting metadata rescan of quarantined file
+    ...    Successfully restored object to original path
+    Check Log Contains In Order After Mark    ${SAFESTORE_LOG_PATH}    ${list}    mark=${ss_mark}
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file1}
+    Should Exist  ${allow_listed_threat_file2}
+    Should Exist  ${allow_listed_threat_file3}
 
 Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive Containing Errors
     Exclude As Corrupted

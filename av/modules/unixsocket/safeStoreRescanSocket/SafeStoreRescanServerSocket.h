@@ -7,6 +7,8 @@
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerSocket.h"
 
+static const int MAX_RESCAN_CLIENT_CONNECTIONS = 1;
+
 namespace unixsocket
 {
     using rescanSafeStoreServerSocketBase = ImplServerSocket<SafeStoreRescanServerConnectionThread>;

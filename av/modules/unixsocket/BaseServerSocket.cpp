@@ -35,9 +35,10 @@ static void throwIfBadFd(int fd, const std::string& message)
     throw unixsocket::UnixSocketException(LOCATION, message);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::string name, const mode_t mode)
-    : m_socketPath(path),
-    m_socketName(std::move(name))
+unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::string name, const mode_t mode, size_t maxClientConns)
+    : m_socketPath(path)
+    , m_socketName(std::move(name))
+    , m_max_threads(maxClientConns)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
