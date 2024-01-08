@@ -37,6 +37,10 @@ SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE
 OLDMANIFESTDIR="$BASEDIR/base/update/${PRODUCT_LINE_ID}"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
 
+# Linux kernels earlier than 3.18 require you to flush the table content first.
+"$BASEDIR/plugins/${PLUGIN_NAME}/bin/nft" flush table inet sophos_device_isolation
+"$BASEDIR/plugins/${PLUGIN_NAME}/bin/nft" delete table inet sophos_device_isolation
+
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
 if [[ ${DOWNGRADE} == 1 ]]
