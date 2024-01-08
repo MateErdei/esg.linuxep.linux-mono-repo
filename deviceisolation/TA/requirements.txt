@@ -3,3 +3,4 @@ pyzmq
 protobuf==4.24.0
 datetime
 python-dateutil
+psutil

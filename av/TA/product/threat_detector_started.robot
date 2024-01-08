@@ -145,9 +145,11 @@ Threat Detector Restarts If Sometimes-symlinked System File Contents Change
     Append To File  ${SOMETIMES_SYMLINKED_SYSPATH}   "#NewLine"
 
     wait_for_av_log_contains_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
+    #Mark now as system can revert file, but that should not fail test if we log it.
+    ${av_mark} =  LogUtils.Get Av Log Mark
+
     Wait until threat detector running after mark  ${td_mark}
 
-    ${av_mark} =  LogUtils.Get Av Log Mark
     Revert Sometimes-symlinked System File To Original
     Deregister On Fail   Revert Sometimes-symlinked System File To Original
 
