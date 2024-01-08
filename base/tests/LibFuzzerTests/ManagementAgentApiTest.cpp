@@ -125,7 +125,7 @@ void setupTestFiles()
  *
  */
 
-class ManagementRunner : public Runner
+class ManagementRunner : public fuzzer::Runner
 {
 public:
     ManagementRunner() : Runner(), m_consoleSetup{Common::Logging::LOGOFFFORTEST()}

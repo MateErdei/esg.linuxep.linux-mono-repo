@@ -263,7 +263,7 @@ void setupTestFiles(Tests::TempDir& tempdir)
  *
  */
 
-class WatchdogRunner : public Runner
+class WatchdogRunner : public fuzzer::Runner
 {
 public:
     WatchdogRunner() : Runner(), m_consoleSetup{Common::Logging::LOGOFFFORTEST()}, m_tempdir{ "/tmp" }

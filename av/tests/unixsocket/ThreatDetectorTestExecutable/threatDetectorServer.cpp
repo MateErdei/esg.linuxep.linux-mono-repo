@@ -57,6 +57,8 @@ namespace
 
 static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 {
+    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+
     // create a socket pair
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);

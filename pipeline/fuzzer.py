@@ -40,6 +40,7 @@ FUZZER_BUILD = "linux_x64_clang"
 FUZZER_TAG = "linux_x64_fuzzing"
 
 @tap.timeout(task_timeout=FUZZER_JOB_TIMEOUT)
+@tap.cache(ttl=0)
 def run_fuzzer(machine: tap.Machine, fuzz_argument: str):
     try:
         machine.run("bash", f'.{SETUP_FUZZ_MACHINE}')

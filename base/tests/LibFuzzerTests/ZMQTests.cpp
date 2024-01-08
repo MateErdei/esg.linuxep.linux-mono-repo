@@ -131,7 +131,7 @@ namespace
 
 } // namespace
 
-class ReplierRun : public Runner
+class ReplierRun : public fuzzer::Runner
 {
 public:
     ReplierRun()

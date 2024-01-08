@@ -5,6 +5,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "common/fuzzer/FuzzerUtils.h"
 
+using namespace fuzzer;
+
 Runner::Runner() : m_thread_status{ ThreadStatus::NOTSTARTED } {}
 
 void Runner::setMainLoop(std::function<void()> mainLoop)

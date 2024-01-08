@@ -17,38 +17,39 @@ namespace fuzzer
 {
     static const std::string testdir = "/opt/test/inputs";
     static const std::string targetdir = testdir + "/fuzz_targets";
-}
 
-enum class ThreadStatus
-{
-    NOTSTARTED,
-    RUNNING,
-    FINISHED
-};
 
-class ThreadGuard
-{
-    std::atomic<ThreadStatus>& m_thread_status;
-
-public:
-    ThreadGuard(std::atomic<ThreadStatus>& thread_status) : m_thread_status(thread_status)
+    enum class ThreadStatus
     {
-        m_thread_status = ThreadStatus::RUNNING;
-    }
-    ~ThreadGuard() { m_thread_status = ThreadStatus::FINISHED; }
-};
+        NOTSTARTED,
+        RUNNING,
+        FINISHED
+    };
+    
+    class ThreadGuard
+    {
+        std::atomic<ThreadStatus>& m_thread_status;
 
-class Runner
-{
-public:
-    Runner();
-    void setMainLoop(std::function<void()> mainLoop);
+    public:
+        ThreadGuard(std::atomic<ThreadStatus>& thread_status) : m_thread_status(thread_status)
+        {
+            m_thread_status = ThreadStatus::RUNNING;
+        }
+        ~ThreadGuard() { m_thread_status = ThreadStatus::FINISHED; }
+    };
 
-    bool threadRunning() const;
+    class Runner
+    {
+    public:
+        Runner();
+        void setMainLoop(std::function<void()> mainLoop);
 
-    virtual ~Runner();
+        bool threadRunning() const;
 
-private:
-    std::atomic<ThreadStatus> m_thread_status;
-    std::thread m_thread;
-};
+        virtual ~Runner();
+
+    private:
+        std::atomic<ThreadStatus> m_thread_status;
+        std::thread m_thread;
+    };
+}

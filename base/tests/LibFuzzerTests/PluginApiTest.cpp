@@ -111,7 +111,7 @@ public:
 
 };
 
-class DummyPluginRunner : public Runner
+class DummyPluginRunner : public fuzzer::Runner
 {
 
 public:
