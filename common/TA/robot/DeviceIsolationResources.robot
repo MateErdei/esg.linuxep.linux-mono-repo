@@ -18,10 +18,10 @@ Library         ${COMMON_TEST_LIBS}/UpdateServer.py
 Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 *** Variables ***
-${DEVICE_ISOLATION_PLUGIN_PATH}     ${SOPHOS_INSTALL}/plugins/deviceisolation
-${DEVICE_ISOLATION_LOG_PATH}     ${DEVICE_ISOLATION_PLUGIN_PATH}/log/deviceisolation.log
+${DEVICE_ISOLATION_BIN_PATH}     ${COMPONENT_ROOT_PATH}/bin/deviceisolation
+${DEVICE_ISOLATION_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/deviceisolation.log
+${PERSISTENT_STATE_FILE}         ${COMPONENT_ROOT_PATH}/var/persist-isolationEnabled
 ${NTP_STATUS_XML}                ${SOPHOS_INSTALL}/base/mcs/status/NTP_status.xml
-${PERSISTENT_STATE_FILE}         ${DEVICE_ISOLATION_PLUGIN_PATH}/var/persist-isolationEnabled
 ${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
 
 
@@ -56,10 +56,22 @@ Check Device Isolation Executable Running
     ${result} =    Run Process  pgrep deviceisolation | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    ${1}       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
+Wait For Device Executable Running
+    Wait Until Keyword Succeeds
+    ...  14 secs
+    ...  1 secs
+    ...  Check Device Isolation Executable Running
+
 Check Device Isolation Executable Not Running
     ${result} =    Run Process  pgrep  -a  deviceisolation
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    ${0}     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Wait For Device Executable Not Running
+    Wait Until Keyword Succeeds
+    ...  14 secs
+    ...  1 secs
+    ...  Check Device Isolation Executable Not Running
 
 Stop Device Isolation
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop deviceisolation   OnError=failed to stop deviceisolation  timeout=35s
@@ -128,9 +140,12 @@ Enable Device Isolation
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     Wait For Log Contains From Mark  ${mark}  Device is now isolated
 
+Disable Device Isolation No Wait
+    Send Disable Isolation Action    uuid=123
+
 Disable Device Isolation
     ${mark} =  Get Device Isolation Log Mark
-    Send Disable Isolation Action    uuid=123
+    Disable Device Isolation No Wait
     Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     Wait For Log Contains From Mark  ${mark}  Device is no longer isolated
 

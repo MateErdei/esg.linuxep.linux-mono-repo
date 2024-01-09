@@ -69,8 +69,7 @@ TEST_F(TestNTPPolicy, missingCscCompThrowsException)
 
 TEST_F(TestNTPPolicy, missingPolicyThrowsException)
 {
-    constexpr const auto* POLICY{R"SOPHOS(<?xml version="1.0"?>
-)SOPHOS"};
+    constexpr const auto* POLICY{R"SOPHOS(<?xml version="1.0"?>)SOPHOS"};
     EXPECT_THROW(NTPPolicy policy{POLICY};, std::runtime_error);
 }
 

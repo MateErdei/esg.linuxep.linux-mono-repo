@@ -291,3 +291,25 @@ Device Isolation Represents State Correctly When Isolation State Changes
     Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="false"
     File Should Contain    ${PERSISTENT_STATE_FILE}    0
+
+
+Failure To Remove Isolation Results in Isolated Status
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    Enable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
+
+    Stop Device Isolation
+    Check Device Isolation Executable Not Running
+
+    ${mgmt_mark} =    Mark Managementagent Log
+    Disable Device Isolation No Wait
+    Wait For Log Contains From Mark  ${mgmt_mark}  Process new action from mcsrouter: SHS_action
+
+    File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"

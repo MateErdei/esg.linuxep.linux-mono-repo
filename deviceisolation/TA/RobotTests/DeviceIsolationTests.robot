@@ -1,5 +1,7 @@
 *** Settings ***
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OSUtils.py
+Library     ${COMMON_TEST_LIBS}/ProcessUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 
@@ -27,6 +29,7 @@ Device Isolation Log Files Are Saved When Downgrading
     Log  ${backup_dir_files}
     Length Should Be  ${backup_dir_files}  ${1}  downgrade-backup directory contains more than deviceisolation.log
     Should Contain  ${backup_dir_files}  deviceisolation.log
+
 
 Device Isolation Plugin Installs With Version Ini File
     File Should Exist   ${SOPHOS_INSTALL}/plugins/deviceisolation/VERSION.ini
@@ -59,6 +62,7 @@ Device Isolation Remains Isolated After SPL Restart
     # Check we cannot access sophos.com because the EP is isolated.
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
 
+
 Diagnose Tool Gathers nft_rules File
     # Isolate the endpoint
     Enable Device Isolation
@@ -81,3 +85,15 @@ Diagnose Tool Gathers nft_rules File
     ${TarContents} =  Query Tarfile For Contents  ${TarTempDir}/${Files[0]}
     Log  ${TarContents}
     Should Contain 	${TarContents}  PluginFiles/deviceisolation/var/nft_rules.conf
+
+
+
+Watchdog Restarts Device Isolation
+    Check Device Isolation Executable Running
+
+    ${PID} =  ProcessUtils.wait for pid  ${DEVICE_ISOLATION_BIN_PATH}
+    Kill Process    ${PID}    9
+
+    Wait For Device Executable Not Running
+    Register Cleanup     Start Device Isolation
+    Wait For Device Executable Running

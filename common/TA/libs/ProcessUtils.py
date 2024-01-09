@@ -61,7 +61,7 @@ class ProcessUtils(object):
         rc = process.wait()
         return rc, stdout, stderr
 
-    def kill_process(self, pid, signal_to_send=signal.SIGINT):
+    def kill_process(self, pid: int, signal_to_send=signal.SIGINT):
         os.kill(pid, signal_to_send)
         wait_until = int(time.time()) + 30
         while psutil.pid_exists(pid) and int(time.time()) < wait_until:
