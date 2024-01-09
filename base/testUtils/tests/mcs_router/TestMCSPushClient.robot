@@ -105,6 +105,22 @@ MCSRouter Can Start and Receive Clone Challenge Command From Push Client
     Wait For Log Contains From Mark    ${mcsrouter_mark}    Received clone challenge command
     Wait For Log Contains From Mark    ${mcsrouter_mark}    Sending clone challenge response
 
+MCSRouter Can Start and Receive Clone Challenge Command From Push Client with proxy
+    Start Proxy Server With Basic Auth    1235   username   password
+    Set Environment Variable  https_proxy   http://username:password@localhost:1235
+    Start MCS Push Server
+
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/MCS_Clone_Challenge_command.xml
+
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received command from Push Server
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received clone challenge command
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Sending clone challenge response
+
+
+
 MCSRouter Can Start and Receive Clone Detected Command From Push Client
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
@@ -133,6 +149,26 @@ MCSRouter Increases Polling Frequency When Sent Clone Detected Command and Decre
     Wait For Log Contains From Mark    ${mcsrouter_mark}    Endpoint re-registered
     # Check polling frequency has reverted back to the default lower value of pushFallbackPollInterval following re-register
     Wait For Log Contains From Mark    ${mcsrouter_mark}    Using pushFallbackPollInterval. Set command poll interval to 
+
+MCSRouter Increases Polling Frequency When Sent Clone Detected Command and Decreases Following Re-register with Proxy
+    Start Proxy Server With Basic Auth    1235   username   password
+    Set Environment Variable  https_proxy   http://username:password@localhost:1235
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Message To Push Server From File   ${SUPPORT_FILES}/CentralXml/MCS_Clone_Detected_command.xml
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Received command from Push Server
+    # Check polling frequency has increased following Clone Detected command in order to respond quickly to re-register
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    This endpoint has been detected as a clone, increasing polling frequency to every
+
+    ${mcsrouter_mark} =  Get Mark For Mcsrouter Log
+    Send Cmd To Fake Cloud  controller/reregisterNext
+
+    Wait EndPoint Report It Has Re-registered
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Endpoint re-registered
+    # Check polling frequency has reverted back to the default lower value of pushFallbackPollInterval following re-register
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Using pushFallbackPollInterval. Set command poll interval to
 
 MCSRouter Can Start and Receive Wakeup Command From Push Client
     Start MCS Push Server
@@ -545,6 +581,7 @@ Push Connection Closes Cleanly When MCSRouter Is Stopped
 
 *** Keywords ***
 Test Teardown
+    Remove Environment Variable  https_proxy
     Push Client Test Teardown
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
