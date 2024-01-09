@@ -36,7 +36,7 @@ namespace safestore
 {
     int Main::run()
     {
-        LOGDEBUG("SafeStore " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " starting");
+        LOGINFO("SafeStore " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " starting");
         auto instance = Main();
 
         try
