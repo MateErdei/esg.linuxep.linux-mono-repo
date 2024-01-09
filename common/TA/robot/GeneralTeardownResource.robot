@@ -38,6 +38,15 @@ Dump All Logs
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-liveresponse_install.log
     Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-responseactions_install.log
 
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Base-component_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-AV_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-DeviceIsolation_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-EDR_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-EventJournaler_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-RuntimeDetections_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-liveresponse_install_failed.log
+    Dump Teardown Log    ${installDir}/logs/installation/ServerProtectionLinux-Plugin-responseactions_install_failed.log
+
     Dump Teardown Log    ${installDir}/base/update/var/updatescheduler/update_config.json
     Dump Teardown Log    ${installDir}/base/mcs/policy/ALC-1_policy.xml
     Dump Teardown Log    ${installDir}/base/mcs/policy/CORE_policy.xml

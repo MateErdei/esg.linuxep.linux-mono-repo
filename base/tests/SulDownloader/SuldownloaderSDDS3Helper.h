@@ -455,7 +455,7 @@ public:
     EXPECT_CALL(*mockProcess, wait(_, _))
         .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-    EXPECT_CALL(mockFileSystem, writeFile(_, "installing plugin"))
+    EXPECT_CALL(mockFileSystem, writeFile(HasSubstr("_install.log"), "installing plugin"))
         .WillOnce(Return());
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(exitCode));
     return mockProcess;

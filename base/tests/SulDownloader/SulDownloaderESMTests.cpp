@@ -147,7 +147,7 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
   EXPECT_CALL(*mockFileSystem, listFiles(_))
       .WillOnce(Return(std::vector<Path>{}));
   EXPECT_CALL(*mockFileSystem, currentWorkingDirectory()).Times(1);
-  EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(2);
+  EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(3);
   EXPECT_CALL(*mockFileSystem, makeExecutable(_)).Times(1);
   EXPECT_CALL(*mockFileSystem, getSystemCommandExecutablePath(_)).Times(3);
   m_replacer.replace(std::move(mockFileSystem));

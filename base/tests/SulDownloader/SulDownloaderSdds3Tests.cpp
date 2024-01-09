@@ -1084,6 +1084,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
+    EXPECT_CALL(fileSystemMock, writeFile(HasSubstr("failed"), "installing plugin")).WillOnce(Return());
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
     setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgrade to 10.3.5

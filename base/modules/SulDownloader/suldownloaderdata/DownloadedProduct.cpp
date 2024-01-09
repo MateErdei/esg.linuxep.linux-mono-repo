@@ -119,7 +119,16 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
             LOGERROR("See " << installOutputBasename << " for the full installer output.");
             // cppcheck-suppress shiftNegative
             LOGDEBUG("Installer exit code: " << exitCode);
-            LOGDEBUG("Possible reason: " << Common::UtilityImpl::StrError(exitCode));
+            std::string installFailedOutputFile =
+                    Common::ApplicationConfiguration::applicationPathManager().getProductInstallFailedLogFilePath(productName);
+            try
+            {
+                fileSystem->writeFile(installFailedOutputFile, output);
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to write installer output to " << installFailedOutputFile << ": " << ex.what());
+            }
             if (exitCode == ENOEXEC)
             {
                 LOGERROR("Failed to run the installer. Hint: check first line starts with #!/bin/bash");

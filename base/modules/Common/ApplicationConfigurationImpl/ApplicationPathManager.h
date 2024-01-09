@@ -105,6 +105,7 @@ namespace Common::ApplicationConfigurationImpl
 
         [[nodiscard]] std::string getOutbreakModeStatusFilePath() const override;
         [[nodiscard]] std::string getProductInstallLogFilePath(const std::string& productName) const override;
+        [[nodiscard]] std::string getProductInstallFailedLogFilePath(const std::string& productName) const override;
 
     private:
         std::string socketPath(const std::string& relative) const;

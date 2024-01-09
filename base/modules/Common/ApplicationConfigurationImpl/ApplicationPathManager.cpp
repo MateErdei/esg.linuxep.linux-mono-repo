@@ -462,6 +462,12 @@ namespace Common::ApplicationConfigurationImpl
         std::string fileName = productName + "_install.log";
         return Common::FileSystem::join(sophosInstall(), "logs/installation", fileName);
     }
+
+    std::string ApplicationPathManager::getProductInstallFailedLogFilePath(const std::string& productName) const
+    {
+        std::string fileName = productName + "_install_failed.log";
+        return Common::FileSystem::join(sophosInstall(), "logs/installation", fileName);
+    }
 } // namespace Common::ApplicationConfigurationImpl
 
 namespace Common::ApplicationConfiguration

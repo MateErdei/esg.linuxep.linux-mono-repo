@@ -51,6 +51,7 @@ Thin Installer Installs Working Base But Failing Plugin And Base Is Persisted Wh
     Check Thininstaller Log Contains    Please see https://support.sophos.com/support/s/article/KB-000041952 for troubleshooting help
 
     Check Installed Correctly
+    File should exist       ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install_failed.log
 
 Thin Installer Installs Failing Base And Fails And Base Error is Logged And Product Is Removed
     Clean up fake warehouse
