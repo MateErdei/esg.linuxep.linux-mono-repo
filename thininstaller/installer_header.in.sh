@@ -86,7 +86,9 @@ function cleanup_and_exit() {
     if [[ -n "$BIN" && -x "${BIN}/telemetry" ]]
     then
         RESULT_CODE="$code" \
-          "${BIN}/telemetry" "$CREDENTIALS_FILE_PATH" "${SOPHOS_TEMP_DIRECTORY}"/*.ini
+          "${BIN}/telemetry" "$CREDENTIALS_FILE_PATH" \
+          "${SOPHOS_TEMP_DIRECTORY}"/*.ini \
+          "${SOPHOS_TEMP_DIRECTORY}/mcsPolicy.config"
     fi
 
     if [[ "${code}" -eq "${EXITCODE_SUCCESS}" ]]; then

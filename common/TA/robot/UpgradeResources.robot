@@ -84,6 +84,8 @@ Mark Known Upgrade Errors
 Mark Known Downgrade Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file:
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 2] No such file or directory:
 
 Create Local SDDS3 Override
     [Arguments]  ${URLS}=https://localhost:8080  ${CDN_URL}=https://localhost:8080

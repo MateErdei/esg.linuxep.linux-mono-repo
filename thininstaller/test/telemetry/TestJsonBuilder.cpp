@@ -60,6 +60,7 @@ TEST_F(TestJsonBuilder, tenantId)
     EXPECT_EQ(actual["tenantId"], expectedTenantId);
     EXPECT_EQ(actual["machineId"].get<std::string>().size(), expectedMachineIdSize.size());
     EXPECT_FALSE(actual["linuxInstaller"]["installSuccess"].get<bool>());
+    EXPECT_FALSE(actual.contains("deviceId"));
 
     auto tenant_id = builder.tenantId();
     EXPECT_EQ(tenant_id, expectedTenantId);
@@ -310,4 +311,17 @@ TEST_F(TestJsonBuilder, commandLineAllTrue)
     EXPECT_TRUE(actual["commandLine"]["updateCaches"]);
     EXPECT_TRUE(actual["commandLine"]["installDir"]);
     EXPECT_TRUE(actual["commandLine"]["disableAuditd"]);
+}
+
+TEST_F(TestJsonBuilder, deviceId)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::map_t results;
+    results.emplace("mcsPolicy.config", JsonBuilder::ConfigFile{{"device_id=09d55f7c-b73b-4dd5-9b7f-9e5e625bc59d"}});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_EQ(actual["deviceId"], "09d55f7c-b73b-4dd5-9b7f-9e5e625bc59d");
 }

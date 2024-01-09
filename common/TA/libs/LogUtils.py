@@ -419,7 +419,11 @@ class LogUtils(object):
         error_string = "ERROR"
         mark_string = "expected-error"
         tmp_log = "/tmp/log.log"
-        shutil.copy(log_location, tmp_log)
+        try:
+            shutil.copy(log_location, tmp_log)
+        except FileNotFoundError:
+            # log file doesn't exist
+            return
         with open(log_location, "w") as log:
             log.write("")
         with open(tmp_log, "r") as log:

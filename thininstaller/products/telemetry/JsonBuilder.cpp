@@ -172,6 +172,19 @@ static void addSystemInfo(nlohmann::json& json, const Common::OSUtilities::IPlat
     };
 }
 
+static void addDeviceId(nlohmann::json& json, const JsonBuilder::map_t& results)
+{
+    try
+    {
+        auto config = results.at("mcsPolicy.config");
+        json["deviceId"] = config.at("device_id");
+    }
+    catch (const std::out_of_range&)
+    {
+        LOGINFO("No Device ID");
+    }
+}
+
 std::string JsonBuilder::build(const Common::OSUtilities::IPlatformUtils& platform)
 {
     if (tenantId_.empty())
@@ -209,6 +222,7 @@ std::string JsonBuilder::build(const Common::OSUtilities::IPlatformUtils& platfo
         {"installSuccess", installSuccess},
     };
 
+    addDeviceId(json, results_);
     addCommandLine(json, results_);
     addCommand(json, results_);
     addSystemInfo(json, platform);

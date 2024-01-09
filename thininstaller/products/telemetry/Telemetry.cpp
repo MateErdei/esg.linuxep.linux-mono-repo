@@ -51,11 +51,14 @@ int thininstaller::telemetry::Telemetry::run(Common::FileSystem::IFileSystem* fs
     for (unsigned pos=1; pos<args_.size(); pos++)
     {
         std::string path = args_[pos];
-        std::string basename = Common::FileSystem::basename(path);
-        results.emplace(basename, ConfigFile{fs, path});
+        if (fs->isFile(path))
+        {
+            std::string basename = Common::FileSystem::basename(path);
+            results.emplace(basename, ConfigFile{fs, path, false});
 
-        auto contents = fs->readFile(path);
-        LOGDEBUG(path << " == " << contents);
+            auto contents = fs->readFile(path);
+            LOGDEBUG(path << " == " << contents);
+        }
     }
 
     // Craft JSON

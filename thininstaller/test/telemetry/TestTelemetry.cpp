@@ -58,6 +58,7 @@ static std::string expectFile(MockFileSystem& fs, const std::string& path, const
 {
     EXPECT_CALL(fs, readLines(path)).WillRepeatedly(Return(lines));
     EXPECT_CALL(fs, readFile(path)).WillRepeatedly(Return(path));
+    EXPECT_CALL(fs, isFile(path)).WillRepeatedly(Return(true));
     return path;
 }
 
@@ -90,11 +91,13 @@ TEST_F(TestTelemetry, proxyFailureFallsbackToDirect)
         Common::HttpRequests::Response response;
         if (request.proxy)
         {
+            PRINT("Put request with proxy " << request.proxy.value());
             response.status = 500;
             response.errorCode = ResponseErrorCode::FAILED;
         }
         else
         {
+            PRINT("Put request without proxy!");
             response.status = HTTP_STATUS_OK;
             response.errorCode = ResponseErrorCode::OK;
         }
