@@ -58,7 +58,7 @@
             <include artifact-path="scheduled-query-pack-scit" dest-dir="sdds/inputs/supplements/scheduled-query-pack" mode="dev,prod,999"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-flags">
-            <release-version branch="release/2023-4" build-id="20231107103135-3ad7197a39740d52dc6d557aa0a121f2e9421125-aRq3QY"/>
+            <release-version branch="release/2024-1" build-id="20240108135852-73bca61800e9e6ed2754b886585b88c712d3b361-92BSgA"/>
             <development-version branch="develop" />
             <include artifact-path="sspl-flags/scit-supplement" dest-dir="sdds/inputs/supplements/sspl-flags" mode="dev,999,prod"/>
         </build-asset>

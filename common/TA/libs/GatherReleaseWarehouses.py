@@ -11,16 +11,19 @@ from build_scripts.artisan_fetch import artisan_fetch
 warehouse_repo_url = "https://artifactory.sophos-ops.com/artifactory/esg-build-candidate/linuxep.linux-mono-repo"
 no_static_suite = ['release--2023-37', 'release--2023-40', 'release--2023.4-non-arm64-thin-installer']
 
-def get_warehouse_artifact(release_branch, output_dir):
+def get_warehouse_artifact(release_branch, output_dir,build_id=None):
 
     release_package_path = os.path.join(output_dir, "release-package.xml")
+    id_code = ""
+    if build_id:
+        id_code = f'build-id="{build_id}"'
     with open(release_package_path, 'w') as release_package_file:
         contents = f"""<?xml version="1.0" encoding="utf-8"?>
     <package name="system-product-tests">
         <inputs>
             <workingdir>.</workingdir>
             <build-asset project="linuxep" repo="linux-mono-repo">
-                <development-version branch="{release_branch}" />
+                <development-version branch="{release_branch}" {id_code}/>
                 <include artifact-path="prod-sdds3-repo" dest-dir="{output_dir}/repo" />
                 <include artifact-path="prod-sdds3-launchdarkly" dest-dir="{output_dir}/launchdarkly" />
             </build-asset>
@@ -40,7 +43,7 @@ def get_warehouse_artifact(release_branch, output_dir):
     artisan_fetch(release_package_path, build_mode="not_used", production_build=False)
 
 
-def get_warehouse_artifact_static_suite(release_branch, output_dir,):
+def get_warehouse_artifact_static_suite(release_branch, output_dir):
 
     release_package_path = os.path.join(output_dir, "release-suite.xml")
     with open(release_package_path, 'w') as release_package_file:
@@ -166,34 +169,45 @@ def setup_fixed_versions(dest, fixed_version):
     #get year of fixed version
     year = fixed_version.split(" ")[1][:4]
 
-    branch_filter = f"release--{year}"
-    release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, None, None, True)
-    print(release_branches)
-    for release_branch in release_branches:
+    if fixed_version != "FTS 2023.4.0.14":
+        branch_filter = f"release--{year}"
+        release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, None, None, True)
+        print(release_branches)
+        for release_branch in release_branches:
+            output_dir = os.path.join(dest, f"sdds3-{release_branch}")
+            if not os.path.isdir(output_dir):
+                os.makedirs(output_dir)
+            get_warehouse_artifact_static_suite(release_branch, output_dir)
+
+            with open(os.path.join(output_dir, "static-suites", "linuxep.json")) as f:
+                release_version = json.load(f)["name"]
+                # Special handling for mis-matching version numbers for LINUXDAR-8073
+                if release_version == "FTS 2023.4.0.27-LINUXDAR-8073":
+                    release_version = "FTS 2023.4.0.30-LINUXDAR-8073"
+                print(f"Fixed version name = {release_version}")
+                if release_version in fixed_version:
+                    get_warehouse_artifact(release_branch, output_dir)
+                    symlink_path = os.path.join(dest, release_version)
+                    if not os.path.exists(symlink_path):
+                        os.symlink(output_dir, symlink_path)
+                    fixed_version = ""
+                    print(f"Found desired fixed version {release_version}")
+            if not fixed_version:
+                print("Found fixed versionK")
+                break
+        if fixed_version:
+            print(f"Failed to find fixed version: {fixed_version}")
+    else:
+        release_branch = "release--2023.4"
+        release_version = "FTS 2023.4.0.14"
+        build_id = "20231117142146-704d26b9d2f10d7bbc843d378c6c700dcf500074-1rARjl"
         output_dir = os.path.join(dest, f"sdds3-{release_branch}")
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
-        get_warehouse_artifact_static_suite(release_branch, output_dir)
-
-        with open(os.path.join(output_dir, "static-suites", "linuxep.json")) as f:
-            release_version = json.load(f)["name"]
-            # Special handling for mis-matching version numbers for LINUXDAR-8073
-            if release_version == "FTS 2023.4.0.27-LINUXDAR-8073":
-                release_version = "FTS 2023.4.0.30-LINUXDAR-8073"
-            print(f"Fixed version name = {release_version}")
-            if release_version in fixed_version:
-                get_warehouse_artifact(release_branch, output_dir)
-                symlink_path = os.path.join(dest, release_version)
-                if not os.path.exists(symlink_path):
-                    os.symlink(output_dir, symlink_path)
-                fixed_version = ""
-                print(f"Found desired fixed version {release_version}")
-        if not fixed_version:
-            print("Found fixed versionK")
-            break
-    if fixed_version:
-        print(f"Failed to find fixed version: {fixed_version}")
-
+        get_warehouse_artifact(release_branch, output_dir, build_id)
+        symlink_path = os.path.join(dest, release_version)
+        if not os.path.exists(symlink_path):
+            os.symlink(output_dir, symlink_path)
     vut_sdds3_repo_path = os.path.join(dest, "repo")
     vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
     vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
