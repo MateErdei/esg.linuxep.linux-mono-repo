@@ -3,13 +3,14 @@ Library         Process
 Library         OperatingSystem
 Library         String
 
-Library   ${COMMON_TEST_LIBS}/OSUtils.py
+Library   ${COMMON_TEST_LIBS}/ActionUtils.py
+Library   ${COMMON_TEST_LIBS}/FakeMCS.py
+Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
 Library   ${COMMON_TEST_LIBS}/OnFail.py
-Library   ${COMMON_TEST_LIBS}/FullInstallerUtils.py
-Library   ${COMMON_TEST_LIBS}/FakeMCS.py
-Library   ${COMMON_TEST_LIBS}/ActionUtils.py
+Library   ${COMMON_TEST_LIBS}/OSUtils.py
 Library   ${COMMON_TEST_LIBS}/PolicyUtils.py
+Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 
 # For can curl url
 Library         ${COMMON_TEST_LIBS}/UpdateServer.py
@@ -104,6 +105,7 @@ Device Isolation Test Teardown
     ...    ${nft_binary_exists}
     ...    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    delete    table    inet    sophos_device_isolation
 	Run teardown functions
+	Cleanup Temporary Folders
 
 Send Enable Isolation Action
     [Arguments]  ${uuid}

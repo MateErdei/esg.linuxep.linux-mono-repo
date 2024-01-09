@@ -43,8 +43,8 @@ Device Isolation Remains Isolated After SPL Restart
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
     Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Check we cannot access sophos.com because the EP is isolated.
@@ -58,3 +58,26 @@ Device Isolation Remains Isolated After SPL Restart
 
     # Check we cannot access sophos.com because the EP is isolated.
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+
+Diagnose Tool Gathers nft_rules File
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Disable Device Isolation
+
+    ${TarTempDir} =  Add Temporary Directory  tarTempdir
+    Run Process  chmod  700  ${TarTempDir}
+
+    ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TarTempDir}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    ${Files} =  List Files In Directory  ${TarTempDir}
+    ${LengthOfFiles} =  Get Length  ${Files}
+    should Be Equal As Numbers  1  ${LengthOfFiles}
+
+    ${TarContents} =  Query Tarfile For Contents  ${TarTempDir}/${Files[0]}
+    Log  ${TarContents}
+    Should Contain 	${TarContents}  PluginFiles/deviceisolation/var/nft_rules.conf

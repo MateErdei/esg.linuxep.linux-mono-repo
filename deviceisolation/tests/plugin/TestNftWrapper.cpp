@@ -26,7 +26,7 @@ namespace
     };
 
     constexpr auto NFT_BINARY = "/opt/sophos-spl/plugins/deviceisolation/bin/nft";
-    constexpr auto RULES_FILE = "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules";
+    constexpr auto RULES_FILE = "/opt/sophos-spl/plugins/deviceisolation/var/nft_rules.conf";
 }
 
 using namespace Plugin;

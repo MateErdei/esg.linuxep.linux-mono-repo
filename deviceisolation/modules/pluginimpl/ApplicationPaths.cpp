@@ -42,7 +42,7 @@ std::string Plugin::pluginLibDir()
 
 std::string Plugin::networkRulesFile()
 {
-    return Common::FileSystem::join(pluginVarDir(), "nft_rules");
+    return Common::FileSystem::join(pluginVarDir(), "nft_rules.conf");
 }
 
 std::string Plugin::nftBinary()
