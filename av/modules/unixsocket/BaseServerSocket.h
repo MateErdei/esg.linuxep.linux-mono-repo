@@ -34,7 +34,7 @@ namespace unixsocket
          * @param path
          * @param mode
          */
-        explicit BaseServerSocket(const sophos_filesystem::path& path, std::string name, mode_t mode, size_t maxClientConns=MAX_CLIENT_CONNECTIONS);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, std::string name, mode_t mode);
 
     public:
         void run() override;
@@ -43,7 +43,7 @@ namespace unixsocket
             return m_returnCode;
         }
 
-        [[nodiscard]] size_t maxClientConnections() const
+        [[nodiscard]] int maxClientConnections() const
         {
             return m_max_threads;
         }
@@ -66,8 +66,8 @@ namespace unixsocket
         void logDebug(const std::string&);
 
         datatypes::AutoFd m_socket_fd;
+        static const int m_max_threads = MAX_CLIENT_CONNECTIONS;
         const std::string m_socketName;
-        const size_t m_max_threads;
 
         /**
          * Kill any extra threads started to handle incoming connections
