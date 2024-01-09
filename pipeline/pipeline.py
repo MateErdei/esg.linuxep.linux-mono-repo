@@ -85,7 +85,13 @@ def bazel_pipeline(stage: tap.Root, context: tap.PipelineContext, parameters: ta
 
     if is_fuzzing_enabled(parameters):
         stage_fuzzing(stage, context, component, parameters, BUILD_TEMPLATE_BAZEL, PACKAGE_PATH)
-
+    #     We need to build and test base while RTD relies on pulling that into its builds
+        coverage_tasks = []
+        rel_build = {}
+        rel_build[common.x86_64] = ["san_lsnty", "all_lx64r"]
+        rel_build[common.arm64] = ["all_la64r"]
+        build = builds_unified(stage, component, "rel", rel_build)
+        stage_base_tests(stage, context, component, parameters, build, coverage_tasks)
     else:
         rel_build = {}
         dbg_build = {}
