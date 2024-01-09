@@ -27,6 +27,8 @@ static void addCommandLine(nlohmann::json& json, const Common::ConfigFile::Confi
             {"group", thininstallerArgs.contains("group")},
             {"messageRelays", thininstallerArgs.contains("message-relays")},
             {"updateCaches", thininstallerArgs.contains("update-caches")},
+            {"installDir", thininstallerArgs.contains("install-dir")},
+            {"disableAuditd", thininstallerArgs.getBoolean("disable-auditd", false)},
     };
 }
 

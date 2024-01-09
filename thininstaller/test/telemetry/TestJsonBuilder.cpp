@@ -263,3 +263,51 @@ TEST_F(TestJsonBuilder, proxyUrl)
     auto json = builder.build(*platform_);
     EXPECT_EQ(builder.proxy(), "http://proxy:8000");
 }
+
+TEST_F(TestJsonBuilder, commandLineDefaultValues)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    JsonBuilder::map_t results;
+    results.emplace("thininstallerArgs.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+    EXPECT_FALSE(actual["commandLine"]["forceInstall"]);
+    EXPECT_FALSE(actual["commandLine"]["products"]);
+    EXPECT_FALSE(actual["commandLine"]["group"]);
+    EXPECT_FALSE(actual["commandLine"]["messageRelays"]);
+    EXPECT_FALSE(actual["commandLine"]["updateCaches"]);
+    EXPECT_FALSE(actual["commandLine"]["installDir"]);
+    EXPECT_FALSE(actual["commandLine"]["disableAuditd"]);
+}
+
+TEST_F(TestJsonBuilder, commandLineAllTrue)
+{
+    using namespace thininstaller::telemetry;
+    JsonBuilder::ConfigFile config{{"TENANT_ID=ABC"}};
+    JsonBuilder::ConfigFile::lines_t lines;
+    lines.emplace_back("force = true");
+    lines.emplace_back("products = true");
+    lines.emplace_back("group = true");
+    lines.emplace_back("message-relays = true");
+    lines.emplace_back("update-caches = true");
+    lines.emplace_back("install-dir = true");
+    lines.emplace_back("disable-auditd = true");
+    JsonBuilder::map_t results;
+    results.emplace("thininstallerArgs.ini", JsonBuilder::ConfigFile{lines});
+
+    JsonBuilder builder(config, results);
+    auto json = builder.build(*platform_);
+    auto actual = nlohmann::json::parse(json);
+
+    EXPECT_TRUE(actual["commandLine"]["forceInstall"]);
+    EXPECT_TRUE(actual["commandLine"]["products"]);
+    EXPECT_TRUE(actual["commandLine"]["group"]);
+    EXPECT_TRUE(actual["commandLine"]["messageRelays"]);
+    EXPECT_TRUE(actual["commandLine"]["updateCaches"]);
+    EXPECT_TRUE(actual["commandLine"]["installDir"]);
+    EXPECT_TRUE(actual["commandLine"]["disableAuditd"]);
+}
