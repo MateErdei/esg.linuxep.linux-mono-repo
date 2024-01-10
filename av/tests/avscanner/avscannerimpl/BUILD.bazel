@@ -1,13 +1,64 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 
-load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
+
+soph_cc_test(
+    name = "TestNamedScanRunner",
+    srcs = [
+        "ScanRunnerMemoryAppenderUsingTests.h",
+        "TestNamedScanRunner.cpp",
+    ],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/common:AbortScanException",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_test(
+    name = "TestNamedScanRunnerExclusions",
+    srcs = [
+        "ScanRunnerMemoryAppenderUsingTests.h",
+        "TestNamedScanRunnerExclusions.cpp",
+    ],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/common:AbortScanException",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_binary(
+    name = "PerfTestNamedScanRunner",
+    srcs = [
+        "PerfTestNamedScanRunner.cpp",
+    ],
+    deps = [
+        "//av/modules/avscanner/avscannerimpl",
+        "//av/modules/common:AbortScanException",
+        "//av/tests/common",
+        "//base/tests/Common/Helpers",
+        "@capnproto//:capnp",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
 
 soph_cc_test(
     name = "TestAVScannerImpl",
-    srcs = glob([
-        "*.cpp",
-        "*.h",
-    ]),
+    srcs = glob(
+        [
+            "Test*.cpp",
+            "*.h",
+        ],
+        exclude = [
+            "TestNamedScanRunner.cpp",
+            "TestNamedScanRunnerExclusions.cpp",
+        ],
+    ),
     deps = [
         "//av/modules/avscanner/avscannerimpl",
         "//av/modules/common:AbortScanException",

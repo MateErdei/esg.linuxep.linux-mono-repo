@@ -43,6 +43,11 @@ EOF
             shift
             exec bash $BASE/av/TA/packageArmBuild.sh "$@"
             ;;
+          --run)
+            shift
+            exec bazel run --tool_tag=ijwb:CLion --curses=yes --color=yes --config=linux_x64_dbg --test_output=all \
+                   "$@"
+            ;;
           *)
             echo "Unknown option"
             exit 2

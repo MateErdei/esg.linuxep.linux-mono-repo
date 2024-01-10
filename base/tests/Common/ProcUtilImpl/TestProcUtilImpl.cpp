@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ProcUtilImpl/ProcUtilities.h"
@@ -41,8 +41,7 @@ namespace
         }
     };
 
-    // cppcheck-suppress syntaxError
-    TEST_F(ProcUtilImplTests, testParseProcStatRetrievesCorrectValues) // NOLINT
+    TEST_F(ProcUtilImplTests, testParseProcStatRetrievesCorrectValues)
     {
         std::string statContents = "21 (migration/2) S 2 0 0 0 -1 69238848 0 0 0 0 2 7 0 0 -100 0 1 0 2 0 0 18446744073709551615 0 0 0 0 0 0 0 2147483647 0 0 0 0 17 2 99 1 0 0 0 0 0 0 0 0 0 0 0";
         std::optional<Proc::ProcStat> procStat = Proc::parseProcStat(statContents);
@@ -53,15 +52,15 @@ namespace
         EXPECT_EQ(procStat.value().ppid,2);
     }
 
-    TEST_F(ProcUtilImplTests, testParseProcStatReturnsEmptyOptionalOnBadProcFile) // NOLINT
+    TEST_F(ProcUtilImplTests, testParseProcStatReturnsEmptyOptionalOnBadProcFile)
     {
         // stat file is shorter than it should be
-        std::string statContents = "21 (migration/2)";
+        static const std::string statContents = "21 (migration/2)";
         std::optional<Proc::ProcStat> procStat = Proc::parseProcStat(statContents);
         EXPECT_FALSE(procStat.has_value());
     }
 
-    TEST_F(ProcUtilImplTests, testParseProcStatRetrievesCorrectStateOfProcess) // NOLINT
+    TEST_F(ProcUtilImplTests, testParseProcStatRetrievesCorrectStateOfProcess)
     {
         std::string statContents1 = "21 (migration/2) S 2 0 0 0 -1 69238848 0 0 0 0 2 7 0 0 -100 0 1 0 2 0 0 18446744073709551615 0 0 0 0 0 0 0 2147483647 0 0 0 0 17 2 99 1 0 0 0 0 0 0 0 0 0 0 0";
         std::string statContents2 = "21 (migration/2) Z 2 0 0 0 -1 69238848 0 0 0 0 2 7 0 0 -100 0 1 0 2 0 0 18446744073709551615 0 0 0 0 0 0 0 2147483647 0 0 0 0 17 2 99 1 0 0 0 0 0 0 0 0 0 0 0";
@@ -77,7 +76,7 @@ namespace
         EXPECT_EQ(procStat4.value().state,Proc::ProcStat::ProcState::Finished);
     }
 
-    TEST_F(ProcUtilImplTests, testParseProcStatWithInvalidFieldsReturnsEmptyOptional) // NOLINT
+    TEST_F(ProcUtilImplTests, testParseProcStatWithInvalidFieldsReturnsEmptyOptional)
     {
         // twentyone is not an int
         std::string statContents = "twentyone (migration/2) S 2 0 0 0 -1 69238848 0 0 0 0 2 7 0 0 -100 0 1 0 2 0 0 18446744073709551615 0 0 0 0 0 0 0 2147483647 0 0 0 0 17 2 99 1 0 0 0 0 0 0 0 0 0 0 0";
@@ -101,7 +100,7 @@ namespace
     }
 
 
-    TEST_F(ProcUtilImplTests, testgetUserIdFromStatusRetrievesCorrectUserId) // NOLINT
+    TEST_F(ProcUtilImplTests, testgetUserIdFromStatusRetrievesCorrectUserId)
     {
         int pid = 24;
         int uid = 119;
@@ -120,7 +119,7 @@ namespace
     }
 
 
-    TEST_F(ProcUtilImplTests, testgetUserIdFromStatusHandlesInvalidFormat) // NOLINT
+    TEST_F(ProcUtilImplTests, testgetUserIdFromStatusHandlesInvalidFormat)
     {
         //bad format of UserId
         int pid = 26;
@@ -153,7 +152,7 @@ namespace
         EXPECT_EQ(Proc::getUserIdFromStatus(27),-1);
     }
 
-    TEST_F(ProcUtilImplTests, testListProcWithUserNameRetrievesCorrectPids) // NOLINT
+    TEST_F(ProcUtilImplTests, testListProcWithUserNameRetrievesCorrectPids)
     {
         std::vector<Path> mockPaths = {
             "/proc/21",

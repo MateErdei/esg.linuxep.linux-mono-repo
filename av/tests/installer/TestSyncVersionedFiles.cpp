@@ -4,11 +4,15 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 
+#include "datatypes/sophos_filesystem.h"
+
 #include <gtest/gtest.h>
 
 #include <fstream>
 
 using namespace sync_versioned_files;
+
+namespace fs = sophos_filesystem;
 
 namespace
 {
@@ -32,19 +36,19 @@ namespace
             fs::remove_all(m_testDir);
         }
 
-        void create_file(const fs::path& p)
+        static void create_file(const fs::path& p)
         {
             std::ofstream(p).close();
         }
 
-        void create_file(const fs::path& p, const std::string& contents)
+        static void create_file(const fs::path& p, const std::string& contents)
         {
             std::ofstream s(p);
             s << contents;
             s.close();
         }
 
-        std::string read_file(const fs::path& p)
+        static std::string read_file(const fs::path& p)
         {
             return Common::FileSystem::fileSystem()->readFile(p);
         }

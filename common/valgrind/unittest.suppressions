@@ -1,0 +1,46 @@
+{
+    RE2 sparse set Cond
+    Memcheck:Cond
+    fun:_ZNK3re210SparseSetTIvE8containsEi
+}
+{
+    RE2 sparse set Value8
+    Memcheck:Value8
+    fun:_ZNK3re210SparseSetTIvE8containsEi
+}
+{
+    RE2 sparse set has_index Cond
+    Memcheck:Cond
+    fun:_ZNK3re211SparseArrayIiE9has_indexEi
+}
+{
+    RE2 sparse set has_index Value8
+    Memcheck:Value8
+    fun:_ZNK3re211SparseArrayIiE9has_indexEi
+}
+{
+   gmock printing structures
+   Memcheck:Cond
+   fun:__vfprintf_internal
+   fun:__vsnprintf_internal
+   fun:snprintf
+   fun:_ZN7testing12_GLOBAL__N_126PrintByteSegmentInObjectToEPKhmmPSo
+}
+{
+   gmock printing structures 2
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:__vfprintf_internal
+   fun:__vsnprintf_internal
+   fun:snprintf
+   fun:_ZN7testing12_GLOBAL__N_126PrintByteSegmentInObjectToEPKhmmPSo
+}
+{
+   gmock printing structures 3
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:__vfprintf_internal
+   fun:__vsnprintf_internal
+   fun:snprintf
+   fun:_ZN7testing12_GLOBAL__N_126PrintByteSegmentInObjectToEPKhmmPSo
+}

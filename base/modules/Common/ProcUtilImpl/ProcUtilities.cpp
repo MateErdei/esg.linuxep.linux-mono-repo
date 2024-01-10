@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "ProcUtilities.h"
 
@@ -41,8 +41,8 @@ namespace
 
 std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfProcStat)
 {
-    static std::string finishedStates = "xXZ";
-    static std::string validStates = "RSDZTtWXxKWP";
+    static const std::string finishedStates = "xXZ";
+    static const std::string validStates = "RSDZTtWXxKWP";
 
     std::stringstream sstream;
     sstream.str(contentOfProcStat);
@@ -52,7 +52,7 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
     sstream >> procStat.comm;
     char state;
     sstream >> state;
-    if (validStates.find(state) != std::string::npos)
+    if (sstream.good() && validStates.find(state) != std::string::npos)
     {
         if (finishedStates.find(state) != std::string::npos)
         {

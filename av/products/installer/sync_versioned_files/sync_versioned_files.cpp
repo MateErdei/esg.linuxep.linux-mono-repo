@@ -86,6 +86,37 @@ int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::pa
     return 0;
 }
 
+static bool compare_contents(int srcFile, int destFile)
+{
+    constexpr int BUFFER_SIZE = 128*1024;
+
+    char srcBuffer[BUFFER_SIZE];
+    char destBuffer[BUFFER_SIZE];
+
+    while (true)
+    {
+        auto srcRead = ::read(srcFile, srcBuffer, BUFFER_SIZE);
+        auto destRead = ::read(destFile, destBuffer, BUFFER_SIZE);
+        if (srcRead != destRead)
+        {
+            return false;
+        }
+        if (srcRead <= 0)
+        {
+            break;
+        }
+        assert(srcRead <= BUFFER_SIZE);
+        auto cmpRet = memcmp(srcBuffer, destBuffer, srcRead);
+        if (cmpRet != 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+
 /**
  * Compare two files, that should both exist
  * @param src
@@ -112,32 +143,7 @@ static bool are_identical(const path_t& src, const path_t& dest)
         // Different sizes means they are different...
         return false;
     }
-    constexpr int BUFFER_SIZE = 1024*1024;
-
-    char srcBuffer[BUFFER_SIZE];
-    char destBuffer[BUFFER_SIZE];
-
-    while (true)
-    {
-        auto srcRead = ::read(srcFile.fd(), srcBuffer, BUFFER_SIZE);
-        auto destRead = ::read(destFile.fd(), destBuffer, BUFFER_SIZE);
-        if (srcRead != destRead)
-        {
-            return false;
-        }
-        if (srcRead <= 0)
-        {
-            break;
-        }
-        assert(srcRead <= BUFFER_SIZE);
-        auto cmpRet = memcmp(srcBuffer, destBuffer, srcRead);
-        if (cmpRet != 0)
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return compare_contents(srcFile.fd(), destFile.fd());
 }
 
 static bool copyFile(const path_t& src, const path_t& dest)
