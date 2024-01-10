@@ -34,7 +34,7 @@ Check Is Isolation Active Telemetry Is Written
 Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
 
     # Send policy with exclusions
@@ -59,7 +59,7 @@ Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
 Check Is Isolation Active Telemetry Is Updated When Disable Isolation Action Received After Enable Isolate Action
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
 
     # Send policy with exclusions
@@ -94,7 +94,7 @@ Check Was Isolation Activated In Last 24 Hours Telemetry Is Written
 Check Was Isolation Activated In Last 24 Hours Is Updated When Isolate Action Received
     Restart Device Isolation
     Should Exist   ${COMPONENT_ROOT_PATH}/bin/nft
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
 
     # Send policy with exclusions

@@ -14,14 +14,14 @@ void IsolationExclusion::setDirection(IsolationExclusion::Direction direction)
     direction_ = direction;
 }
 
-IsolationExclusion::address_list_t IsolationExclusion::remoteAddresses() const
+IsolationExclusion::address_iptype_list_t IsolationExclusion::remoteAddressesAndIpTypes() const
 {
-    return remoteAddresses_;
+    return remoteAddressesAndIpTypes_;
 }
 
-void IsolationExclusion::setRemoteAddresses(address_list_t remoteAddresses)
+void IsolationExclusion::setRemoteAddressesAndIpTypes(IsolationExclusion::address_iptype_list_t remoteAddressesAndIpTypes)
 {
-    remoteAddresses_ = std::move(remoteAddresses);
+    remoteAddressesAndIpTypes_ = std::move(remoteAddressesAndIpTypes);
 }
 
 IsolationExclusion::port_list_t IsolationExclusion::localPorts() const

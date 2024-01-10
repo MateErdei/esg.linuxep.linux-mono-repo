@@ -80,6 +80,7 @@ soph_cc_library(
     ],
     visibility = ["//common:spl_packages"],
     deps = [
+        "//base/modules/Common/Exceptions",
         "//base/modules/Common/FileSystem",
     ],
 )

@@ -151,9 +151,10 @@ TEST_F(TestNTPPolicy, excludeHost)
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
-    ASSERT_FALSE(exclusion.remoteAddresses().empty());
-    auto address = exclusion.remoteAddresses().at(0);
-    EXPECT_EQ(address, "10.10.10.10");
+    ASSERT_FALSE(exclusion.remoteAddressesAndIpTypes().empty());
+    auto addressAndIpType = exclusion.remoteAddressesAndIpTypes().at(0);
+    EXPECT_EQ(addressAndIpType.first, "10.10.10.10");
+    EXPECT_EQ(addressAndIpType.second, "ip");
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
     EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
@@ -182,7 +183,7 @@ TEST_F(TestNTPPolicy, singleExclusionEverything)
     EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_TRUE(exclusion.remoteAddressesAndIpTypes().empty());
     EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
@@ -209,7 +210,7 @@ TEST_F(TestNTPPolicy, doubleExclusionEverything)
         EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::BOTH);
         EXPECT_TRUE(exclusion.localPorts().empty());
         EXPECT_TRUE(exclusion.remotePorts().empty());
-        EXPECT_TRUE(exclusion.remoteAddresses().empty());
+        EXPECT_TRUE(exclusion.remoteAddressesAndIpTypes().empty());
     }
     EXPECT_TRUE(appenderContains("Device Isolation using 2 exclusions"));
 }
@@ -237,7 +238,7 @@ TEST_F(TestNTPPolicy, excludeIncoming)
     EXPECT_EQ(exclusion.direction(), Plugin::IsolationExclusion::Direction::IN);
     EXPECT_TRUE(exclusion.localPorts().empty());
     EXPECT_TRUE(exclusion.remotePorts().empty());
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_TRUE(exclusion.remoteAddressesAndIpTypes().empty());
     EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
@@ -375,7 +376,7 @@ TEST_F(TestNTPPolicy, noRemoteAddress)
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
-    EXPECT_TRUE(exclusion.remoteAddresses().empty());
+    EXPECT_TRUE(exclusion.remoteAddressesAndIpTypes().empty());
     EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
@@ -435,7 +436,8 @@ TEST_F(TestNTPPolicy, remoteAddressIsMalformedInOneExclusionAndValidInAnother)
 )SOPHOS"};
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
-    EXPECT_EQ(exclusions.at(0).remoteAddresses(), IsolationExclusion::address_list_t { "1.2.3.4" });
+    EXPECT_EQ(exclusions.at(0).remoteAddressesAndIpTypes().at(0).first, "1.2.3.4");
+    EXPECT_EQ(exclusions.at(0).remoteAddressesAndIpTypes().at(0).second, "ip");
     auto expectStr = R"(Invalid exclusion remote address: Invalid value "not an ip" for policy/configuration/selfIsolation/exclusions/exclusion/remoteAddress)";
     EXPECT_TRUE(appenderContains(expectStr));
     EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
@@ -463,8 +465,8 @@ TEST_F(TestNTPPolicy, allowMultipleRemoteAddresses)
     auto exclusions = policy.exclusions();
     ASSERT_EQ(exclusions.size(), 1);
     auto exclusion = exclusions.at(0);
-    IsolationExclusion::address_list_t addresses { "1.2.3.4", "5.6.7.8" };
-    EXPECT_EQ(exclusion.remoteAddresses(), addresses);
+    IsolationExclusion::address_iptype_list_t addresses { {"1.2.3.4", "ip"}, {"5.6.7.8", "ip"} };
+    EXPECT_EQ(exclusion.remoteAddressesAndIpTypes(), addresses);
     EXPECT_TRUE(appenderContains("Device Isolation using 1 exclusions"));
 }
 
@@ -989,8 +991,10 @@ TEST_F(TestNTPPolicy, examplePolicyFromCentral)
     EXPECT_EQ(policy.exclusions().at(0).localPorts().at(0), "443");
 
     EXPECT_EQ(policy.exclusions().at(1).direction(), Plugin::IsolationExclusion::OUT);
-    EXPECT_EQ(policy.exclusions().at(1).remoteAddresses().at(0), "192.168.1.9");
+    EXPECT_EQ(policy.exclusions().at(1).remoteAddressesAndIpTypes().at(0).first, "192.168.1.9");
+    EXPECT_EQ(policy.exclusions().at(1).remoteAddressesAndIpTypes().at(0).second, "ip");
 
-    EXPECT_EQ(policy.exclusions().at(2).remoteAddresses().at(0), "192.168.1.1");
+    EXPECT_EQ(policy.exclusions().at(2).remoteAddressesAndIpTypes().at(0).first, "192.168.1.1");
+    EXPECT_EQ(policy.exclusions().at(2).remoteAddressesAndIpTypes().at(0).second, "ip");
     EXPECT_EQ(policy.exclusions().at(2).localPorts().at(0), "22");
 }

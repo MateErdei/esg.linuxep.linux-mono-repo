@@ -4,6 +4,7 @@
 
 #include "StringUtilsException.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/Exceptions/IException.h"
 
 #include <algorithm>
 #include <cstring>
@@ -429,12 +430,17 @@ namespace Common::UtilityImpl
             return string;
         }
 
-        static bool isValidIpAddress(const std::string& address)
+        static bool isValidIpAddress(const std::string& address, const int aiFamily)
         {
+            if (aiFamily != AF_INET && aiFamily != AF_INET6)
+            {
+                throw Common::Exceptions::IException("Incorrect value given for aiFamily, it must be either AF_INET or AF_INET6");
+            }
+
             struct addrinfo* result { nullptr };
             struct addrinfo hints { };
             hints.ai_flags = AI_NUMERICHOST; // do not perform network lookup, address is assumed to be an IP
-            hints.ai_family = AF_UNSPEC;
+            hints.ai_family = aiFamily;
             return (::getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0);
         }
     };

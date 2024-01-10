@@ -40,7 +40,7 @@ namespace Plugin
                 exclusion.direction() == Plugin::IsolationExclusion::BOTH)
             {
                 // If there are no addresses specified, then we allow all specified ports to all addresses
-                if (exclusion.remoteAddresses().empty())
+                if (exclusion.remoteAddressesAndIpTypes().empty())
                 {
                     for (const auto &localPort: exclusion.localPorts())
                     {
@@ -56,27 +56,27 @@ namespace Plugin
                 else
                 {
                     // If there are remote addresses specified, then we only allow ports to those remote addresses
-                    for (const auto &remoteAddress: exclusion.remoteAddresses())
+                    for (const auto& [remoteAddress, ipType] : exclusion.remoteAddressesAndIpTypes())
                     {
                         if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
                         {
-                            outgoingAllowListString += indent + "ip daddr " + remoteAddress + " accept\n";
+                            outgoingAllowListString += indent + ipType + " daddr " + remoteAddress + " accept\n";
                         }
                         else
                         {
                             for (const auto &remotePort: exclusion.remotePorts())
                             {
                                 outgoingAllowListString +=
-                                        indent + "ip daddr " + remoteAddress + " tcp dport " + remotePort + " accept\n";
+                                        indent + ipType + " daddr " + remoteAddress + " tcp dport " + remotePort + " accept\n";
                                 outgoingAllowListString +=
-                                        indent + "ip daddr " + remoteAddress + " udp dport " + remotePort + " accept\n";
+                                        indent + ipType + " daddr " + remoteAddress + " udp dport " + remotePort + " accept\n";
                             }
                             for (const auto &localPort: exclusion.localPorts())
                             {
                                 outgoingAllowListString +=
-                                        indent + "ip daddr " + remoteAddress + " tcp sport " + localPort + " accept\n";
+                                        indent + ipType + " daddr " + remoteAddress + " tcp sport " + localPort + " accept\n";
                                 outgoingAllowListString +=
-                                        indent + "ip daddr " + remoteAddress + " udp sport " + localPort + " accept\n";
+                                        indent + ipType + " daddr " + remoteAddress + " udp sport " + localPort + " accept\n";
                             }
                         }
                     }
@@ -88,7 +88,7 @@ namespace Plugin
                 exclusion.direction() == Plugin::IsolationExclusion::BOTH)
             {
                 // If there are no addresses specified, then we allow all specified remote ports in
-                if (exclusion.remoteAddresses().empty())
+                if (exclusion.remoteAddressesAndIpTypes().empty())
                 {
                     for (const auto &localPort: exclusion.localPorts())
                     {
@@ -108,30 +108,30 @@ namespace Plugin
                 else
                 {
                     // If there are remote addresses, then we only allow ports from those remote addresses
-                    for (const auto &remoteAddress: exclusion.remoteAddresses())
+                    for (const auto& [remoteAddress, ipType] : exclusion.remoteAddressesAndIpTypes())
                     {
                         if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
                         {
-                            incomingAllowListString += indent + "ip saddr " + remoteAddress + " accept\n";
+                            incomingAllowListString += indent + ipType + " saddr " + remoteAddress + " accept\n";
                         }
                         else
                         {
                             for (const auto &remotePort: exclusion.remotePorts())
                             {
                                 incomingAllowListString +=
-                                        indent + "ip saddr " + remoteAddress + " tcp sport " + remotePort +
+                                        indent + ipType + " saddr " + remoteAddress + " tcp sport " + remotePort +
                                         " accept\n";
                                 incomingAllowListString +=
-                                        indent + "ip saddr " + remoteAddress + " udp sport " + remotePort +
+                                        indent + ipType + " saddr " + remoteAddress + " udp sport " + remotePort +
                                         " accept\n";
                             }
                             for (const auto &localPort: exclusion.localPorts())
                             {
                                 incomingAllowListString +=
-                                        indent + "ip saddr " + remoteAddress + " tcp dport " + localPort +
+                                        indent + ipType + " saddr " + remoteAddress + " tcp dport " + localPort +
                                         " accept\n";
                                 incomingAllowListString +=
-                                        indent + "ip saddr " + remoteAddress + " udp dport " + localPort +
+                                        indent + ipType + " saddr " + remoteAddress + " udp dport " + localPort +
                                         " accept\n";
                             }
                         }

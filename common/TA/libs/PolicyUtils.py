@@ -5,7 +5,7 @@ import os
 import socket
 import xml.etree.ElementTree as ET
 
-from typing import List
+from typing import List, Union, Tuple
 
 import PathManager
 import xml.dom.minidom
@@ -91,9 +91,14 @@ def read_name_from_warehouse_linuxep_json(path: str) -> str:
         return name
 
 
-def get_ips(url: str) -> List[str]:
+def get_ips(url: str, family: int) -> List[str]:
+    if family not in [socket.AF_UNSPEC, socket.AF_INET, socket.AF_INET6]:
+        logger.error(f"Incorrect 'family' argument: {family}, "
+                     f"it must be one of 'socket.AF_UNSPEC, socket.AF_INET or socket.AF_INET6")
+        return []
+
     try:
-        addr_info = socket.getaddrinfo(url, None)
+        addr_info = socket.getaddrinfo(url, None, family=family)
         ips = list(set([i[4][0] for i in addr_info]))
         return ips
     except socket.gaierror:
@@ -110,30 +115,15 @@ def remove_namespace(doc, namespace):
             elem.tag = elem.tag[ns_length:]
 
 
-def generate_isolation_policy_with_ci_exclusions(base_policy_path: str, generated_policy_path: str):
-    # The following need to be allow-listed so we don't orphan any CI machines.
-    urls_to_allow = [
-        ("rabbitmq.sophos-ops.com", 5671),
-        ("dev.rabbitmq.sophos-ops.com", 5671),
-        ("stag.rabbitmq.sophos-ops.com", 5671),
-        ("authproxy.sophos-ops.com", 443),
-        ("dev.authproxy.sophos-ops.com", 443),
-        ("stag.authproxy.sophos-ops.com", 443)
-    ]
-
+def generate_isolation_policy_with_exclusions(base_policy_path: str, generated_policy_path: str,
+                                              exclusions: List[Tuple[str, int]]):
     ET.register_namespace('csc', "com.sophos\msys\csc")
-
-    to_allow = []
-    for url, port in urls_to_allow:
-        ips = get_ips(url)
-        for ip in ips:
-            to_allow.append((ip, port))
 
     policy_root = ET.parse(base_policy_path).getroot()
 
     for child in policy_root.find(".//{http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd}selfIsolation"):
         if "exclusions" in child.tag:
-            for host, port in to_allow:
+            for host, port in exclusions:
                 exclusion = ET.SubElement(child, "exclusion", type="ip")
                 # direction = ET.SubElement(exclusion, "direction")
                 # direction.text = "out"
@@ -141,8 +131,9 @@ def generate_isolation_policy_with_ci_exclusions(base_policy_path: str, generate
                 remote_address.text = host
                 # local_port = ET.SubElement(exclusion, "localPort")
                 # local_port.text = str(port)
-                remote_port = ET.SubElement(exclusion, "remotePort")
-                remote_port.text = str(port)
+                if port is not None:
+                    remote_port = ET.SubElement(exclusion, "remotePort")
+                    remote_port.text = str(port)
 
     # TODO use indent once we're on python 3.9+
     # ET.indent(policy, space="\t", level=0)
@@ -155,3 +146,31 @@ def generate_isolation_policy_with_ci_exclusions(base_policy_path: str, generate
 
     policy = ET.ElementTree(policy_root)
     policy.write(generated_policy_path, encoding="utf-8")
+
+
+def add_url_exclusions_to_policy(base_policy_path: str, generated_policy_path: str,
+                                 urls_ports_to_allow: Union[List[Tuple[str, int]], Tuple[str, int]]):
+    if not isinstance(urls_ports_to_allow, List):
+        urls_ports_to_allow = [urls_ports_to_allow]
+
+    to_allow = []
+    for url, port in urls_ports_to_allow:
+        ips = get_ips(url, socket.AF_UNSPEC)
+        for ip in ips:
+            to_allow.append((ip, port))
+
+    generate_isolation_policy_with_exclusions(base_policy_path, generated_policy_path, to_allow)
+
+
+def generate_isolation_policy_with_ci_exclusions(base_policy_path: str, generated_policy_path: str):
+    # The following need to be allow-listed, so we don't orphan any CI machines.
+    urls_ports_to_allow = [
+        ("rabbitmq.sophos-ops.com", 5671),
+        ("dev.rabbitmq.sophos-ops.com", 5671),
+        ("stag.rabbitmq.sophos-ops.com", 5671),
+        ("authproxy.sophos-ops.com", 443),
+        ("dev.authproxy.sophos-ops.com", 443),
+        ("stag.authproxy.sophos-ops.com", 443)
+    ]
+
+    add_url_exclusions_to_policy(base_policy_path, generated_policy_path, urls_ports_to_allow)

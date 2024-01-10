@@ -14,13 +14,12 @@ Test Teardown  Device Isolation Test Teardown
 
 
 *** Test Cases ***
-
 Device Isolation Applies Network Filtering Rules
     ${mark} =  Get Device Isolation Log Mark
 
     # Baseline - should be able to access sophos.com before isolation but not after.
     Can Curl Url    https://sophos.com
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
 
     # Send policy with exclusions
@@ -30,8 +29,8 @@ Device Isolation Applies Network Filtering Rules
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Check we cannot access sophos.com because the EP is isolated.
@@ -61,8 +60,8 @@ Disable Device Isolation While already Disabled
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Disable isolation
@@ -108,8 +107,8 @@ Device Isolation Allows Localhost
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Check we cannot access sophos.com because the EP is isolated.
@@ -148,8 +147,8 @@ Device Isolation Allows Sophos Processes
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    ${nft_rules} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    ${nft_rules} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
     ${sophos_gid} =    Get Gid From Groupname    sophos-spl-group
     Should Contain    ${nft_rules}    meta skgid ${sophos_gid} accept
@@ -174,7 +173,7 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Baseline - should be able to access sophos.com before isolation but not after.
     Can Curl Url    https://sophos.com
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
 
     # Send policy with exclusions
@@ -184,8 +183,8 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
 
     # Check we cannot access sophos.com because the EP is isolated.
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
@@ -198,8 +197,8 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Check Endpoint is still isolated and new ip exclusion was added
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    ${nft_rules_file_content} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    ${nft_rules_file_content} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     Should Contain    ${nft_rules_file_content}    ip daddr 8.8.8.8 accept
     Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
@@ -216,8 +215,8 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Check Endpoint is still isolated and new ip exclusion was removed
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    ${nft_rules_file_content} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    ${nft_rules_file_content} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     Should Not Contain    ${nft_rules_file_content}    ip daddr 8.8.8.8 accept
     Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
@@ -233,7 +232,7 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     # Baseline - should be able to access sophos.com before isolation but not after.
     Can Curl Url    https://sophos.com
-    Remove File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
 
     # Send policy with exclusions
@@ -243,14 +242,14 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
 
     # Check we cannot access sophos.com because the EP is isolated.
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
 
     ${mark} =  Get Device Isolation Log Mark
-    ${old_nft_rules_file} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    ${old_nft_rules_file} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${old_nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     Should Be Equal As Integers    ${old_nft_rules_table.rc}    ${0}
     # Send Duplicate Policy
@@ -261,8 +260,8 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
     # Check Endpoint is still isolated and new ip exclusion was added
     Check Log Does Not Contain After Mark    ${DEVICE_ISOLATION_LOG_PATH}    Enabling Device Isolation    ${mark}
     Check Log Does Not Contain After Mark    ${DEVICE_ISOLATION_LOG_PATH}    Disabling Device Isolation    ${mark}
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    ${new_nft_rules_file} =    Get File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    ${new_nft_rules_file} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     ${new_nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
     Should Be Equal As Strings    ${new_nft_rules_file}    ${old_nft_rules_file}
     Should Be Equal As Integers    ${new_nft_rules_table.rc}    ${0}
@@ -273,6 +272,55 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     Disable Device Isolation
 
+Device Isolation Can Handle IPv6 exclusion
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Baseline - should be able to access sophos.com and google.com before isolation but not after.
+    Can Curl Url    https://sophos.com
+    Can Curl Url    https://google.com
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+    Run Keyword And Expect Error    cannot reach url: https://google.com    Can Curl Url    https://google.com
+
+    ${mark} =  Get Device Isolation Log Mark
+
+    Add Exclusion To Isolation Policy    ${{ ("google.com", None) }}
+    @{google_ipv6_address_list} =    Get Ips    google.com    ${{ socket.AF_INET6 }}
+    Log    ${google_ipv6_address_list}
+    ${google_ipv6_address} =    Set Variable    ${google_ipv6_address_list}[0]
+
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+
+    Wait For Log Contains From Mark  ${mark}  Updating network filtering rules with new policy
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    ${rules_file} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Should Contain    ${rules_file}    ip6 daddr ${google_ipv6_address} accept
+    Should Contain    ${rules_file}    ip6 saddr ${google_ipv6_address} accept
+
+    ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Log    ${nft_rules_table.stdout}
+    Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
+    Should Contain    ${nft_rules_table.stdout}    ip6 daddr ${google_ipv6_address} accept
+    Should Contain    ${nft_rules_table.stdout}    ip6 saddr ${google_ipv6_address} accept
+
+    Can Curl Url    google.com
+
+    Disable Device Isolation
 
 Device Isolation Represents State Correctly When Isolation State Changes
     ${mark} =  Get Device Isolation Log Mark
@@ -291,7 +339,6 @@ Device Isolation Represents State Correctly When Isolation State Changes
     Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="false"
     File Should Contain    ${PERSISTENT_STATE_FILE}    0
-
 
 Failure To Remove Isolation Results in Isolated Status
     ${mark} =  Get Device Isolation Log Mark

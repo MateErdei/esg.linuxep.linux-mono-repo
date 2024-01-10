@@ -46,8 +46,8 @@ Device Isolation Remains Isolated After SPL Restart
 
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Check we cannot access sophos.com because the EP is isolated.
@@ -66,8 +66,8 @@ Device Isolation Remains Isolated After SPL Restart
 Diagnose Tool Gathers nft_rules File
     # Isolate the endpoint
     Enable Device Isolation
-    Wait Until Created  ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-    Log File    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Disable Device Isolation
 
     ${TarTempDir} =  Add Temporary Directory  tarTempdir

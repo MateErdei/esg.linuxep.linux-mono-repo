@@ -84,9 +84,24 @@ namespace
             try
             {
                 auto isValidAddress = [](const std::string &s){
-                    return Common::UtilityImpl::StringUtils::isValidIpAddress(s);
+                    return Common::UtilityImpl::StringUtils::isValidIpAddress(s, AF_INET)
+                        || Common::UtilityImpl::StringUtils::isValidIpAddress(s, AF_INET6);
                 };
-                temp.setRemoteAddresses(getContents(attributeMap, x + "/remoteAddress", isValidAddress));
+                std::vector<std::string> remoteAddresses = getContents(attributeMap, x + "/remoteAddress", isValidAddress);
+
+                std::vector<std::pair<std::string, std::string>> remoteAddressesAndIpTypes;
+                for (const auto& remoteAddress : remoteAddresses)
+                {
+                    if (Common::UtilityImpl::StringUtils::isValidIpAddress(remoteAddress, AF_INET))
+                    {
+                        remoteAddressesAndIpTypes.push_back(std::pair<std::string, std::string>(remoteAddress, "ip"));
+                    }
+                    else
+                    {
+                        remoteAddressesAndIpTypes.push_back(std::pair<std::string, std::string>(remoteAddress, "ip6"));
+                    }
+                }
+                temp.setRemoteAddressesAndIpTypes(remoteAddressesAndIpTypes);
             }
             catch (std::runtime_error& exception)
             {
