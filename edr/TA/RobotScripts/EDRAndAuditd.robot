@@ -6,7 +6,8 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/OSLibs.py
 
-Resource        EDRResources.robot
+Resource    EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 Suite Setup      Suite Setup For EDR And Auditd
 Suite Teardown   Suite Teardown For EDR and Auditd

@@ -53,6 +53,8 @@ def attempt_backtrace_of_core(filepath):
 
 
 class CoreDumps(object):
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
+
     def __init__(self):
         self.__m_ignore_cores_segfaults = False
         self.__m_log_keyword = "Dump Logs"

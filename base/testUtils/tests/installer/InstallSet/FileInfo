@@ -8,12 +8,17 @@ o600, root, root, /opt/sophos-spl/base/etc/user-group-ids-requested.conf
 o600, root, root, /opt/sophos-spl/base/update/rootcerts/rootca384.crt.0
 o600, root, root, /opt/sophos-spl/base/update/ServerProtectionLinux-Base-component/manifest.dat
 o600, root, root, /opt/sophos-spl/base/update/var/installedComponentTracker
+o600, root, root, /opt/sophos-spl/logs/base/watchdog.log
+o600, root, root, /opt/sophos-spl/logs/base/wdctl.log
 o600, root, root, /opt/sophos-spl/.sophos
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
 o600, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/etc/datafeed-config-scheduled_query.json.0
+o600, sophos-spl-group, sophos-spl-updatescheduler, /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log
+o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log
+o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl/tscheduler.log
 o640, sophos-spl-group, root, /opt/sophos-spl/base/etc/machine_id.txt
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/managementagent.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/mcsrouter.json

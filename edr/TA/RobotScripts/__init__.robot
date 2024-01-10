@@ -4,6 +4,8 @@ Suite Teardown  Global Teardown Tasks
 
 Library         /opt/test/inputs/common_test_libs/OSUtils.py
 Library         OperatingSystem
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
+
 Resource        ComponentSetup.robot
 
 Test Timeout    5 minutes
@@ -31,7 +33,6 @@ Global Setup Tasks
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts
     Set Global Variable  ${SUPPORT_FILES}           ${TEST_INPUT_PATH}/SupportFiles
-    Set Global Variable  ${COMMON_TEST_LIBS}        ${TEST_INPUT_PATH}/common_test_libs
     Set Global Variable  ${COMMON_TEST_UTILS}       ${TEST_INPUT_PATH}/common_test_utils
     Set Global Variable  ${COMMON_TEST_ROBOT}       ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
@@ -50,6 +51,8 @@ Global Setup Tasks
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
     evaluate    sys.path.append("${COMMON_TEST_LIBS}")    modules=sys
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    Enable Core Files    Dump EDR Logs
 
 Global Teardown Tasks
     Uninstall All

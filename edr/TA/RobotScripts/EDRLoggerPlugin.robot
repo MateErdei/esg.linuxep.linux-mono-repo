@@ -6,12 +6,13 @@ Library         OperatingSystem
 Library         Collections
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/XDRLibs.py
-Library         ../Libs/InstallerUtils.py
+Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
+Resource        ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 Suite Setup     Install With Base SDDS Debug
 Suite Teardown  Uninstall ALL

@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
 #include "QueryRunnerImpl.h"
@@ -20,20 +20,20 @@ namespace
 }
 
 namespace queryrunner{
-    QueryRunnerImpl::QueryRunnerImpl(const std::string &osquerySocketPath, const std::string &executablePath)
-    : m_osquerySocketPath{osquerySocketPath}, m_executablePath(executablePath), m_runnerStatus({})
+    QueryRunnerImpl::QueryRunnerImpl(const std::string &osquerySocketPath, const std::string &executablePath) :
+        m_osquerySocketPath{osquerySocketPath},
+        m_executablePath(executablePath),
+        m_process{ Common::Process::createProcess() },
+        m_runnerStatus({})
     {
-        
-
     } 
     void QueryRunnerImpl::triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished)
     {
-        m_correlationId = correlationid; 
+        m_correlationId = correlationid;
         m_fut = std::async( std::launch::async, [this, correlationid, query, notifyFinished]()
         {
             try
             {
-                this->m_process = Common::Process::createProcess(); 
                 LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid);
                 std::vector<std::string> arguments = {correlationid, query, this->m_osquerySocketPath};            
                 this->m_process->exec(this->m_executablePath, arguments, {});

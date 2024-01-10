@@ -4,6 +4,7 @@
 Library     Process
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall All

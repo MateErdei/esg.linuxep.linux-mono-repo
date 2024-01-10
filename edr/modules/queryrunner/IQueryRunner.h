@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019-2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2024 Sophos Limited. All rights reserved.
 #pragma once
 #include "ResponseStatus.h"
 
@@ -24,7 +20,8 @@ namespace queryrunner
     public:
         virtual ~IQueryRunner() = default;
         /*Trigger the query and expect the query runner to call 'notifyFinished' when the query is finished. 
-        NOTE: the call can not be in the body of 'triggerQuery' inline with the thread or deadlock will occur. 
+        NOTE: the call can not be in the body of 'triggerQuery' inline with the thread or deadlock will occur.
+         Subsequent calls must wait until notifyFinished has been invoked by the previous call.
          */
         virtual void triggerQuery(const std::string& correlationid, const std::string& query, std::function<void(std::string id)> notifyFinished) = 0;
         /*Method to request the current query to abort 'as soon as possible' */

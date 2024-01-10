@@ -5,7 +5,7 @@ Test Teardown    Run Keywords
 ...              EDR And Base Teardown  AND
 ...              Uninstall EDR
 
-Library    ../Libs/InstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 
 Resource    EDRResources.robot
 
@@ -30,7 +30,7 @@ EDR Installer Directories And Files
         ...  1 secs
         ...  EDR Plugin Log Contains      Creating osquery options config file
 
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  Get File Info For Installation
+    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  Get File Info For Installation    ${COMPONENT_NAME}
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
     Set Test Variable  ${SymbolicLinkInfo}

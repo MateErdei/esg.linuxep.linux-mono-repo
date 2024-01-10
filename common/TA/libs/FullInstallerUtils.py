@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2018-2023 Sophos Limited. All rights reserved.
+# Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 import logging
 import os
@@ -649,7 +649,7 @@ def get_file_info_for_installation(plugin=None):
         for f in files:
             include = True
             for e in exclusions:
-                if e in f or e in base:
+                if e in os.path.join(base, f):
                     include = False
                     break
             if include:
@@ -657,7 +657,7 @@ def get_file_info_for_installation(plugin=None):
         for d in dirs:
             include = True
             for e in exclusions:
-                if e in d or e in base:
+                if e in os.path.join(base, d):
                     include = False
                     break
             if include:

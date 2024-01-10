@@ -50,6 +50,9 @@ def main():
         'report': log_files[2],
         'test': '*',
         'suite': '*',
+        "variable": [
+            "COMMON_TEST_LIBS:/opt/test/inputs/common_test_libs",
+        ],
     }
 
     if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):

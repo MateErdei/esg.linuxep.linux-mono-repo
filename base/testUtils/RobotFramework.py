@@ -46,7 +46,10 @@ def main():
         'log': log_files[0],
         'output': log_files[1],
         'report': log_files[2],
-        'suite': '*'
+        'suite': '*',
+        "variable": [
+            "COMMON_TEST_ROBOT:/opt/test/inputs/common_test_robot",
+        ],
     }
 
     if os.path.isfile("/tmp/BullseyeCoverageEnv.txt"):

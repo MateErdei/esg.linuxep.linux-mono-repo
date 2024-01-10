@@ -89,7 +89,6 @@ Global Setup Tasks
 
     Set Global Variable  ${COMMON_TEST_LIBS}    ${TEST_INPUT_PATH}/common_test_libs
     Set Global Variable  ${COMMON_TEST_UTILS}    ${TEST_INPUT_PATH}/common_test_utils
-    Set Global Variable  ${COMMON_TEST_ROBOT}   ${TEST_INPUT_PATH}/common_test_robot
     Set Global Variable  ${BASE_SDDS_SCRIPTS}  ${TEST_INPUT_PATH}/base_sdds_scripts
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}    ${TEST_INPUT_PATH}/SystemProductTestOutput
 

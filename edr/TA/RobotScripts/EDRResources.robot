@@ -12,7 +12,9 @@ Library         ../Libs/OSLibs.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/XDRLibs.py
 
+Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ComponentSetup.robot
+Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 *** Variables ***
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
@@ -25,11 +27,6 @@ ${BASE_SDDS}        ${TEST_INPUT_PATH}/base_sdds/
 ${EDR_SDDS}         ${COMPONENT_SDDS}
 
 *** Keywords ***
-Run Shell Process
-    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
-    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
-
 Check EDR Plugin Running
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep ${COMPONENT_NAME}
     Should Be Equal As Integers    ${rc}    0    EDR not running
@@ -112,7 +109,7 @@ Simulate Live Query
     ${requestFile} =  Set Variable  ${EXAMPLE_DATA_PATH}/${name}
     File Should Exist  ${requestFile}
     Copy File   ${requestFile}  ${SOPHOS_INSTALL}/tmp
-    EDRResources.Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
+    Run Shell Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/${name}  OnError=Failed to change ownership
     ${creation_time} =  Get Current Date
     ${eptime} =  Get Time  epoch
     Log To Console  ${eptime}
@@ -138,7 +135,6 @@ Install With Base SDDS Inner
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
-    CoreDumps.enable_core_files  Dump EDR Logs
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
     ${ALCContent}=  Get ALC Policy Without MTR
@@ -161,13 +157,13 @@ Uninstall And Revert Setup
 
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
-    EDRResources.Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
-    Run Keyword and Ignore Error   EDRResources.Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+    Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
+    Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
     # Force telemetry to be rescheduled to 24 hours in the future so that it doesn't interfere with this test run
     Create File    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
     Log    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
-    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop tscheduler   OnError=failed to stop tscheduler
-    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop tscheduler   OnError=failed to stop tscheduler
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
 
 Install EDR Directly from SDDS
     [Arguments]  ${interval}=5  ${debug}=
@@ -261,12 +257,6 @@ Check Osquery Not Running
     ${result} =    Run Process  pgrep  -a  osqueryd
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nstderr: ${result.stderr}\nAt least one of the two instances of osqueryd are still running (check pid)"
 
-Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v comms | grep -v primarywarehouse | grep -v comms | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-
 Log Status Of Sophos Spl
     ${result} =  Run Process    systemctl  status  sophos-spl
     Log  ${result.stdout}
@@ -301,6 +291,7 @@ Common Teardown
     Run Keyword If Test Failed  Dump EDR Logs
     Run Keyword If Test Failed  Get all sophos processes
     Run Keyword If Test Failed  Display All SSPL Files Installed
+    Run Keyword If Test Failed  Display All SSPL Plugins Files Installed
     Run Keyword If Test Failed  Dump Threads   ${EDR_PLUGIN_BIN}
 
 EDR And Base Teardown Without Stopping Or Starting EDR
@@ -361,11 +352,6 @@ Restart EDR
     Stop EDR
     Start EDR
 
-File Should Contain
-    [Arguments]  ${file}  ${string_to_contain}
-    ${content} =  Get File  ${file}
-    Should Contain  ${content}   ${string_to_contain}
-
 File Should Contain Only
     [Arguments]  ${file}  ${string}
     ${content} =  Get File  ${file}
@@ -412,12 +398,12 @@ Stop EDR
     ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${EDR_PLUGIN_PATH}/bin/edr
     Return From Keyword If    ${file_exists} == ${False}
     ${mark} =  mark_log_size  ${EDR_LOG_PATH}
-    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
     wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${timeout}
 
 Start EDR
     ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
-    EDRResources.Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
     wait for log contains from mark  ${mark}  Plugin preparation complete  ${30}
 
 Apply Live Query Policy And Wait For Query Pack Changes
