@@ -490,7 +490,7 @@ class MCSEndpointManager(object):
         self.__m_policyID = "INITIAL_MCS_POLICY_ID"
         self.__m_policy = INITIAL_MCS_POLICY
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
-        self.__m_migration = None
+        self.__m_migration = False
 
     def policyPending(self):
         return self.__m_policyID is not None
@@ -500,14 +500,18 @@ class MCSEndpointManager(object):
 
     def commandDeleted(self):
         self.__m_policyID = None
-        self.__m_migration = None
+        self.__m_migration = False
 
     def migrationPending(self):
-        return self.__m_migration is not None
+        return self.__m_migration
 
-    def migrate(self):
+    def migrate_on_next_cmd(self):
         logger.info("Triggering a migration action")
         self.__m_migration = True
+
+    def clear_migrate_on_next_cmd(self):
+        logger.info("Migration action on next cmd poll disabled")
+        self.__m_migration = False
 
     def updatePolicy(self, body):
         self.__m_policyID = f"MCS{time.time()}"
@@ -996,6 +1000,7 @@ class Endpoint(object):
             commands.append(self.policyCommand(app="MCS", policyID=self.__mcs.policyID(), policyType=25))
         if "APPSPROXY" in apps and self.__mcs.migrationPending():
             commands.append(self.migrateCommand())
+            self.__mcs.clear_migrate_on_next_cmd()
         if "CORE" in apps and self.__core.resetHealthPending():
             commands.append(self.resetHealthCommand())
         if "CORE" in apps and self.__core.commandPending():
@@ -1082,7 +1087,7 @@ class Endpoint(object):
             self.__corc.updatePolicy(body)
 
     def migrate(self):
-        self.__mcs.migrate()
+        self.__mcs.migrate_on_next_cmd()
 
     def updateNow(self):
         self.__alc.updateNow()
@@ -1735,7 +1740,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             REGISTER_401 = not REGISTER_401
             return self.ret("")
         elif self.path == "/controller/migrate401on":
-
             MIGRATE_401 = True
             return self.ret("")
         elif self.path == "/controller/migrate401off":

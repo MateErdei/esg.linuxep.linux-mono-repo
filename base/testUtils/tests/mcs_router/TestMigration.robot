@@ -177,11 +177,11 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Log File  ${MCS_POLICY_CONFIG}
     ${mcs_policy_config_ts_orig}    Get Modified Time   ${MCS_POLICY_CONFIG}
 
-     Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
-     ${mcs_root_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
+    Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
+    ${mcs_root_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
 
-     Log File  ${MCS_CONFIG}
-     ${mcs_config_content_orig}   get file   ${MCS_CONFIG}
+    Log File  ${MCS_CONFIG}
+    ${mcs_config_content_orig}   get file   ${MCS_CONFIG}
 
     # Populate some of the purge directories with garbage to prove they are purged during a migration
     # Events and datfeed rsults not included here beacuse the product removes them if they are invalid
@@ -191,20 +191,16 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  Please recycle
 
     Set Migrate To Reply With 401 Flag
+
+    ${mcsrouter_mark} =  mark_log_size    ${MCS_ROUTER_LOG}
     Trigger Migration Now
 
     # Long wait due to Push Server triggering reduced polling
-    Wait Until Keyword Succeeds
-    ...  120s
-    ...  10s
-    ...  Check MCS Router Log Contains  Attempting Central migration
+    wait_for_log_contains_from_mark  ${mcsrouter_mark}    Attempting Central migration    timeout=120
 
     File Should Not Exist  ${MCS_TMP_DIR}/migration_action.xml
 
-    Wait Until Keyword Succeeds
-    ...  60s
-    ...  5s
-    ...  Check MCS Router Log Contains  Migration request failed:
+    wait_for_log_contains_from_mark  ${mcsrouter_mark}    Migration request failed:    timeout=60
 
     Wait Until Created  ${MCS_CONFIG}  timeout=20 seconds
     Wait Until Created  ${MCS_POLICY_CONFIG}  timeout=20 seconds
@@ -236,16 +232,15 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
 
     # Check push connection has been re-established
+    # The test server does not have keep alive enabled so the normal MCS connection will drop, when this happens
+    # the push connection is stopped and then restarted, by design. So we need to check that it has reconnected ok.
     ${push_server_address} =  Set Variable  localhost:4443
-    #TODO renable LINUXDAR-5589
-#    Wait Until Keyword Succeeds
-#    ...  30 secs
-#    ...  5 secs
-#    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Established MCS Push Connection   1
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
+    wait_for_log_contains_from_mark  ${mcsrouter_mark}    Push client successfully connected to ${push_server_address} directly    timeout=60
+
+    # Check that we can still receive actions after a failed migration.
+    Should Not Exist    ${MCS_DIR}/action/ALC_action_FakeTime.xml
+    Trigger Update Now
+    Wait Until Created    ${MCS_DIR}/action/ALC_action_FakeTime.xml    timeout=1min
 
 
 Migrate From Account With Message Relay To One Without

@@ -596,6 +596,7 @@ File Log Contains
         contents = _get_log_contents(mcs_envelope_log)
         self.marked_mcs_envelope_logs = len(contents)
 
+    # Deprecated, use wait_for_log_contains_from_mark from common/TA/libs/LogHandler.py instead.
     def mark_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
         contents = _get_log_contents(mcsrouter_log)
