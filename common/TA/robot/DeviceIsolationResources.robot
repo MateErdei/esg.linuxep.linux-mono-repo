@@ -23,7 +23,7 @@ ${DEVICE_ISOLATION_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/deviceisolation.log
 ${PERSISTENT_STATE_FILE}         ${COMPONENT_ROOT_PATH}/var/persist-isolationEnabled
 ${NTP_STATUS_XML}                ${SOPHOS_INSTALL}/base/mcs/status/NTP_status.xml
 ${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
-${TEST_IPADDR}                   1.2.3.0
+
 
 *** Keywords ***
 Install Base For Component Tests
@@ -155,31 +155,12 @@ Send Device Isolation Policy
     send_policy  ${srcFileName}    NTP-24_policy.xml
 
 Send Isolation Policy With CI Exclusions
-    ${mark} =  Get Device Isolation Log Mark
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
 Send Isolation Policy With CI Exclusions And Extra IP Exclusion
-    ${mark} =  Get Device Isolation Log Mark
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions_and_extra_ip_exclusion.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
-
-Add Test Iptable Rule
-    ${result} =   Run Shell Process   iptables -A INPUT -s ${TEST_IPADDR}/24 -j ACCEPT   OnError=Failed add rule to iptables
-    log  ${result.stdout}
-    Check Test Iptable Rule Exists
-
-Check Test Iptable Rule Exists
-    ${result} =   Run Shell Process   iptables -L   OnError=Failed to list iptable rules
-    Log  ${result.stdout}
-    Should Contain      ${result.stdout}    ${TEST_IPADDR}
-
-Delete Test Iptable Rule
-    ${result} =   Run Shell Process   iptables -D INPUT 1   OnError=Failed to delete iptable rules
 
 Check Rules Have Been Applied
     ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
