@@ -25,8 +25,6 @@ Device Isolation Applies Network Filtering Rules
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -56,8 +54,6 @@ Disable Device Isolation While already Disabled
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -103,8 +99,6 @@ Device Isolation Allows Localhost
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -143,8 +137,6 @@ Device Isolation Allows Sophos Processes
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -179,8 +171,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -193,8 +183,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
     ${mark} =  Get Device Isolation Log Mark
     # Send policy with new exclusion and check it gets added to ruleset
     Send Isolation Policy With CI Exclusions And Extra IP Exclusion
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Check Endpoint is still isolated and new ip exclusion was added
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
@@ -211,8 +199,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
     ${mark} =  Get Device Isolation Log Mark
     # Send policy with exclusions but not extra IP exclusion to check it gets removed from ruleset
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Check Endpoint is still isolated and new ip exclusion was removed
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
@@ -238,8 +224,6 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -279,8 +263,6 @@ Device Isolation Represents State Correctly When Isolation State Changes
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     Enable Device Isolation
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
@@ -298,14 +280,13 @@ Failure To Remove Isolation Results in Isolated Status
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     Enable Device Isolation
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
 
     Stop Device Isolation
+    Register Cleanup    Start Device Isolation
     Check Device Isolation Executable Not Running
 
     ${mgmt_mark} =    Mark Managementagent Log
@@ -313,3 +294,29 @@ Failure To Remove Isolation Results in Isolated Status
     Wait For Log Contains From Mark  ${mgmt_mark}  Process new action from mcsrouter: SHS_action
 
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
+
+
+Existing Rules Are Not Removed During Isolation and DeIsolation
+    ${mark} =  Get Device Isolation Log Mark
+
+    Add Test Iptable Rule
+    Register Cleanup    Delete Test Iptable Rule
+    Send Isolation Policy With CI Exclusions
+
+    #Enable
+    Enable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    Check Test Iptable Rule Exists
+
+    #Add exclusion
+    Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    Check Test Iptable Rule Exists
+
+    #Remove exclusion
+    Send Isolation Policy With CI Exclusions
+    Check Test Iptable Rule Exists
+
+    #Disable
+    Disable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
+    Check Test Iptable Rule Exists
