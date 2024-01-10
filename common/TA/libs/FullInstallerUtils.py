@@ -901,9 +901,9 @@ def adjust_base_install_set_expected_file_info_for_platform(expected, install_di
         for i, line in enumerate(expected[:]):
             # These libraries are not present on the ARM64 distribution of pycryptodome
             if line.endswith("_raw_aes.abi3.so.0"):
-                expected.insert(i + 1, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aesni.abi3.so.0")
+                expected.insert(i + 1, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.12/site-packages/Crypto/Cipher/_raw_aesni.abi3.so.0")
             if line.endswith("_BLAKE2s.abi3.so.0"):
-                expected.insert(i + 2, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_clmul.abi3.so.0")
+                expected.insert(i + 2, f"o750, sophos-spl-group, root, {install_dir}/base/lib/python3.12/site-packages/Crypto/Hash/_ghash_clmul.abi3.so.0")
                 break
         expected = "\n".join(expected)
     return expected
@@ -916,9 +916,9 @@ def adjust_base_install_set_expected_symbolic_link_info_for_platform(expected, i
         for i, line in enumerate(expected[:]):
             # These libraries are not present on the ARM64 distribution of pycryptodome
             if line.endswith("_raw_aes.abi3.so"):
-                expected.insert(i + 1, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Cipher/_raw_aesni.abi3.so")
+                expected.insert(i + 1, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.12/site-packages/Crypto/Cipher/_raw_aesni.abi3.so")
             if line.endswith("_BLAKE2s.abi3.so"):
-                expected.insert(i + 2, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.11/site-packages/Crypto/Hash/_ghash_clmul.abi3.so")
+                expected.insert(i + 2, f"o777, sophos-spl-group, root, {install_dir}/base/lib/python3.12/site-packages/Crypto/Hash/_ghash_clmul.abi3.so")
                 break
         expected = "\n".join(expected)
     return expected

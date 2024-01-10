@@ -29,8 +29,8 @@ rm -rf imports/thirdparty/python/x64
 rm -rf imports/thirdparty/python/arm64
 mkdir -p imports/thirdparty/python/x64
 mkdir -p imports/thirdparty/python/arm64
-tar -zxf $(ls imports/thirdparty/python/cpython-3.11.5*-x86_64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/x64
-tar -zxf $(ls imports/thirdparty/python/cpython-3.11.5*-aarch64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/arm64
+tar -zxf $(ls imports/thirdparty/python/cpython-*-x86_64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/x64
+tar -zxf $(ls imports/thirdparty/python/cpython-*-aarch64-*.tar.gz) --strip-components=1 -C imports/thirdparty/python/arm64
 
 if ! ( git apply --check --reverse build/bazel_tools.patch 2>/dev/null && echo "OK - patch already applied" )
 then

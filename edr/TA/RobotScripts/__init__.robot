@@ -23,6 +23,7 @@ Global Setup Tasks
     Set Global Variable  ${REGISTER_CENTRAL}        ${SOPHOS_INSTALL}/base/bin/registerCentral
     Set Global Variable  ${EDR_DIR}                 ${SOPHOS_INSTALL}/plugins/edr
     Set Global Variable  ${ETC_DIR}                 ${SOPHOS_INSTALL}/base/etc
+    Set Global Variable  ${PLUGIN_CONF}             ${EDR_DIR}/etc/plugin.conf
     Set Global Variable  ${MCS_TMP_DIR}             ${MCS_DIR}/tmp
     Set Global Variable  ${MCS_CONFIG}              ${ETC_DIR}/sophosspl/mcs.config
     Set Global Variable  ${MCS_POLICY_CONFIG}       ${ETC_DIR}/sophosspl/mcs_policy.config

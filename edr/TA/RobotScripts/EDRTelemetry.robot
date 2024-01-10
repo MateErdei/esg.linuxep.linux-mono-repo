@@ -6,6 +6,7 @@ Library     OperatingSystem
 Library     Process
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/LiveQueryUtils.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
 Library     ../Libs/XDRLibs.py
 
 Resource    ComponentSetup.robot
@@ -156,11 +157,16 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
+    Create File  ${PLUGIN_CONF}  watchdog_utilization_limit=10
+    Register Cleanup        Remove File  ${PLUGIN_CONF}
+
+    Restart EDR Plugin
+    Wait Until EDR OSQuery Running  20
     ${edr_mark} =   Mark Log Size   ${EDR_LOG_PATH}
     ${lq_mark} =    Mark Log Size   ${LIVEQUERY_LOG_FILE}
     Run Live Query  ${CRASH_QUERY}  Crash
 
-    Wait For Log Contains From Mark    ${lq_mark}    Extension exited while running    100
+    Wait For Log Contains From Mark    ${lq_mark}    Extension exited while running    200
     Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -203,6 +209,10 @@ EDR Reports Telemetry Correctly When Events Max Limit Is Hit For A Table
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
+    Create File  ${PLUGIN_CONF}  watchdog_utilization_limit=10
+    Register Cleanup        Remove File  ${PLUGIN_CONF}
+
+    Restart EDR Plugin
     Wait Until EDR OSQuery Running  20
     # osquery will take longer to restart if it is killed before the socket is created
     Wait Until Osquery Socket Exists
@@ -235,8 +245,8 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
 EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
     Prepare To Run Telemetry Executable
 
-    Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  events_max=345678
+    Create File  ${PLUGIN_CONF}  events_max=345678
+    Register Cleanup        Remove File  ${PLUGIN_CONF}
 
     Restart EDR Plugin
     Wait Until EDR OSQuery Running  20
@@ -277,6 +287,7 @@ EDR Telemetry Test Setup With Debug Logging
     Wait Until EDR OSQuery Running  20
 
 EDR Telemetry Test Teardown
+    Run Teardown Functions
     Run Keyword And Ignore Error   LogUtils.Dump Log  ${TELEMETRY_OUTPUT_JSON}
     General Test Teardown
     Remove file  ${TELEMETRY_OUTPUT_JSON}

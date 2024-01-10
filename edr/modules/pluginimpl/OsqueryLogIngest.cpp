@@ -51,7 +51,7 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
                 "Refreshing configuration state",
 
                 // CPU OSQuery restart
-                "Maximum sustainable CPU utilization limit exceeded",
+                "stopping: Maximum sustainable CPU utilization limit",
 
                 // Memory OSQuery restarts
                 "Memory limits exceeded",
@@ -81,7 +81,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     if (Common::UtilityImpl::StringUtils::isSubstring(
-        logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
+        logLine, "stopping: Maximum sustainable CPU utilization limit"))
     {
         LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
         telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);

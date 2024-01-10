@@ -68,8 +68,8 @@ zip_asset(
     name = "python_standard_libs_zip",
     srcs = [":python_standard_libs"],
     strip_prefix = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "/imports/thirdparty/python/x64/lib/python3.11",
-        "@bazel_tools//src/conditions:linux_aarch64": "/imports/thirdparty/python/arm64/lib/python3.11",
+        "@bazel_tools//src/conditions:linux_x86_64": "/imports/thirdparty/python/x64/lib/python3.12",
+        "@bazel_tools//src/conditions:linux_aarch64": "/imports/thirdparty/python/arm64/lib/python3.12",
     }),
 )
 
@@ -96,7 +96,7 @@ genrule(
     #    tools = ["//base/build:sseclient.patch"],
 )
 
-PYTHON_VERSION = "3.11"
+PYTHON_VERSION = "3.12"
 
 python_thirdparties = [
     "certifi",

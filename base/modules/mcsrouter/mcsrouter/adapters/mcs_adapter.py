@@ -18,7 +18,7 @@ from mcsrouter.mcsclient.mcs_exception import MCSException
 LOGGER = logging.getLogger(__name__)
 
 # pylint: disable=anomalous-backslash-in-string
-TEMPLATE_STATUS_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+TEMPLATE_STATUS_XML = r"""<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
  <ns:mcsStatus xmlns:ns="http://www.sophos.com/xml/mcs/status">
         <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="" RevID="" policyType="25" />
         <meta protocolVersion="1.0" timestamp="0" />
@@ -58,7 +58,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         return self.app_id
 
     def __set_compliance(self, comp_node):
-        """
+        r"""
 <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="" RevID="" policyType=""/>
         """
         policy_info = self.__m_policy_handler.get_policy_info()
