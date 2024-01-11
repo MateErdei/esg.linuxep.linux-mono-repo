@@ -125,9 +125,6 @@ Disable OA Scanning
     wait for on access log contains after mark  On-access scanning disabled   mark=${mark}
     wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  disabled
 
-Wait for OA Scanning enabled in status file
-    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  enabled
-
 Enable OA Scanning
     [Arguments]  ${mark}=${None}
     IF   $mark is None
