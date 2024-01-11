@@ -13,7 +13,7 @@ chmod +x tools/src/bullseye/shim_ar.sh tools/src/bullseye/shim_gcc_compile.sh to
 # sophlib is exported so that e.g. sdds3 is accessible as //common/sophlib:sdds3
 # but bazel-tools requires it to be accessible as //common/sophlib/sdds3
 # So we need to create some aliases to allow that to work
-for lib in sdds3 string zip rapidjson crypto hostname time raii file pugixml
+for lib in commandLine crypto file hostname http logging manifest pugixml raii rapidjson sdds3 string testing thread time version zip
 do
   mkdir -p common/sophlib/$lib
   cat >common/sophlib/$lib/BUILD.bazel <<EOF
