@@ -38,7 +38,7 @@ namespace sophos_on_access_process::local_settings
     //Performance
     constexpr bool defaultDumpPerfData = false;
 
-    constexpr bool defaultCacheAllEvents = false;
+    constexpr bool defaultCacheAllEvents = true;
     constexpr bool defaultUncacheDetections = true;
     constexpr bool defaultHighPrioritySoapd = false;
     constexpr bool defaultHighPriorityThreatDetector = false;

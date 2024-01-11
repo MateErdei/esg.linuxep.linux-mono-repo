@@ -22,6 +22,26 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
+    std::string cacheAllEventsDefaultAsString()
+    {
+        return defaultCacheAllEvents?"true":"false";
+    }
+
+    std::string cacheAllEventsDefaultMessage()
+    {
+        std::ostringstream ost;
+        ost << "cacheAllEvents from default: " << cacheAllEventsDefaultAsString();
+        return ost.str();
+    }
+
+    std::string createLocalSettingsNotUsedMessage()
+    {
+        std::ostringstream ost;
+        ost << "Some or all local settings weren't set from file: "
+            << "Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: " << cacheAllEventsDefaultAsString() << ", Uncache detections: true";
+        return ost.str();
+    }
+
     class TestOnAccessConfigurationUtils : public SoapMemoryAppenderUsingTests
     {
     public:
@@ -48,7 +68,7 @@ namespace
             m_oaLocalSettingsPath = m_testDir / "var/on_access_local_settings.json";
             m_oaFlagsPath = m_testDir / "var/oa_flag.json";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-            m_localSettingsNotUsedMessage = "Some or all local settings weren't set from file: Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: false, Uncache detections: true";
+            m_localSettingsNotUsedMessage = createLocalSettingsNotUsedMessage();
             m_binaryFile = std::string{"\x00\x72\x6c\x5f\x69\x6e\x69\x74\x69\x61\x6c\x69\x7a\x65\x5f\x66\x75\x6e\x6d\x61"
                                       "\x70\x00\x72\x6c\x5f\x63\x6f\x6d\x70\x6c\x65\x74\x69\x6f\x6e\x5f\x73\x75\x70\x70\x72"
                                       "\x65\x73\x73\x5f\x71\x75\x6f\x74\x65\x00\x73\x75\x62\x73\x68\x65\x6c\x6c\x5f", 120};
@@ -938,7 +958,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettings_missingFields)
     EXPECT_EQ(result.numScanThreads, 20);
 
     EXPECT_TRUE(appenderContains("Setting dumpPerfData from default: false"));
-    EXPECT_TRUE(appenderContains("cacheAllEvents from default: false"));
+    EXPECT_TRUE(appenderContains(cacheAllEventsDefaultMessage()));
     EXPECT_TRUE(appenderContains("Queue size from default: 100000"));
 
     EXPECT_TRUE(appenderContains("uncacheDetections from file: true"));

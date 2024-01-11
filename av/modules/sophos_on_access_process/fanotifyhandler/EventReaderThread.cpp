@@ -46,6 +46,7 @@ EventReaderThread::EventReaderThread(
 {
     assert(m_fanotify);
     m_processExclusionStem = pluginInstall.string() + "/";
+    debugLoggingEnabled_ =(getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL));
 }
 
 bool EventReaderThread::skipScanningOfEvent(
@@ -158,7 +159,7 @@ bool EventReaderThread::handleFanotifyEvent()
 #endif
 
             std::string escapedPath;
-            if (getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
+            if (debugLoggingEnabled_)
             {
                 escapedPath = common::escapePathForLogging(filePath);
             }
@@ -177,16 +178,22 @@ bool EventReaderThread::handleFanotifyEvent()
             }
             else if (metadata->mask & FAN_CLOSE_WRITE)
             {
-                LOGDEBUG(
-                    "On-close event for " << escapedPath << " from Process " << executablePath
-                                          << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                if (debugLoggingEnabled_)
+                {
+                    LOGDEBUG(
+                            "On-close event for " << escapedPath << " from Process " << executablePath
+                                                  << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                }
                 eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
             }
             else if (metadata->mask & FAN_OPEN)
             {
-                LOGDEBUG(
-                    "On-open event for " << escapedPath << " from Process " << executablePath
-                                         << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                if (debugLoggingEnabled_)
+                {
+                    LOGDEBUG(
+                            "On-open event for " << escapedPath << " from Process " << executablePath
+                                                 << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                }
                 eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
             }
             else
@@ -578,6 +585,14 @@ bool EventReaderThread::cacheIfAllowed(const scan_request_t& request)
     {
         return false;
     }
+
+    if (debugLoggingEnabled_)
+    {
+        auto scanType = scan_messages::getScanTypeAsStr(request.getScanType());
+        LOGDEBUG("EventReaderThread caching " << common::escapePathForLogging(request.getPath()) << " (" << scanType
+                                              << ")");
+    }
+
     int ret = m_fanotify->cacheFd(request.getFd(), request.getPath(), false);
     return ret == 0;
 }

@@ -88,5 +88,6 @@ namespace sophos_on_access_process::fanotifyhandler
         int m_readFailureCount = 0;
         bool m_cacheAllEvents = false;
         const int m_logNotFullThreshold;
+        bool debugLoggingEnabled_ = false;
     };
 }
