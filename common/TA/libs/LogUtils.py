@@ -437,7 +437,7 @@ class LogUtils(object):
     def mark_expected_critical_in_log(self, log_location, error_message):
         error_string = "CRITICAL"
         mark_string = "expected-critical"
-        return _mark_expected_errors_in_log(log_location, error_string, mark_string, error_message)
+        return _mark_expected_lines_in_log(log_location, error_string, mark_string, error_message)
 
     def mark_expected_error_in_log(self, log_location, error_message):
         self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
@@ -446,7 +446,7 @@ class LogUtils(object):
     def mark_expected_fatal_in_log(self, log_location, error_message):
         error_string = "FATAL"
         mark_string = "expected-fatal"
-        return _mark_expected_errors_in_log(log_location, error_string, mark_string, error_message)
+        return _mark_expected_lines_in_log(log_location, error_string, mark_string, error_message)
 
     def log_string_if_found(self, string_to_contain, path_to_log):
         with open(path_to_log, "rb") as file:
