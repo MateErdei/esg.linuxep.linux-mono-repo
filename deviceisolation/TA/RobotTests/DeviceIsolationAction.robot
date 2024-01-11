@@ -297,7 +297,7 @@ Device Isolation Can Handle IPv6 exclusion
 
     ${mark} =  Get Device Isolation Log Mark
 
-    Add Exclusion To Isolation Policy    ${{ ("google.com", None) }}
+    Add Exclusion To Isolation Policy Using URL And Port    ${{ ("google.com", None) }}
     @{google_ipv6_address_list} =    Get Ips    google.com    ${{ socket.AF_INET6 }}
     Log    ${google_ipv6_address_list}
     ${google_ipv6_address} =    Set Variable    ${google_ipv6_address_list}[0]
@@ -339,6 +339,73 @@ Device Isolation Represents State Correctly When Isolation State Changes
     Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="false"
     File Should Contain    ${PERSISTENT_STATE_FILE}    0
+
+Device Isolation Can Handle CIDR exclusions
+    ${mark} =  Get Device Isolation Log Mark
+
+    # Baseline - should be able to access sophos.com and google.com before isolation but not after.
+    Can Curl Url    https://sophos.com
+    Remove File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Should Exist    ${COMPONENT_ROOT_PATH}/bin/nft
+
+    # Send policy with exclusions
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    # Isolate the endpoint
+    Enable Device Isolation
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+
+    # Check we cannot access sophos.com because the EP is isolated.
+    Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
+    Run Keyword And Expect Error    cannot reach url: https://google.com    Can Curl Url    https://google.com
+
+    ${mark} =  Get Device Isolation Log Mark
+
+    @{google_ipv4_address_list} =    Get Ips    google.com    ${{ socket.AF_INET }}
+    @{google_ipv6_address_list} =    Get Ips    google.com    ${{ socket.AF_INET6 }}
+    Log    ${google_ipv4_address_list}
+    Log    ${google_ipv6_address_list}
+    ${google_ipv4_address} =    Set Variable    ${google_ipv4_address_list}[0]
+    ${google_ipv6_address} =    Set Variable    ${google_ipv6_address_list}[0]
+
+    ${google_ipv6_cidr_exclusion_ip_port} =    Create List    ${google_ipv6_address}/32    ${None}
+    ${google_ipv4_cidr_exclusion_ip_port} =    Create List    ${google_ipv4_address}/16    ${None}
+    ${random_ipv4_cidr_exclusion_ip_port} =    Create List    8.8.8.8/8    ${None}
+    ${cidr_exclusions_list} =    Create List    ${google_ipv6_cidr_exclusion_ip_port}    ${random_ipv4_cidr_exclusion_ip_port}    ${google_ipv4_cidr_exclusion_ip_port}
+    Add Exclusion To Isolation Policy Using IP And Port    ${cidr_exclusions_list}
+
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+
+    Wait For Log Contains From Mark  ${mark}  Updating network filtering rules with new policy
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    ${rules_file} =    Get File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Should Contain    ${rules_file}    ip6 daddr ${google_ipv6_cidr_exclusion_ip_port[0]} accept
+    Should Contain    ${rules_file}    ip6 saddr ${google_ipv6_cidr_exclusion_ip_port[0]} accept
+    Should Contain    ${rules_file}    ip daddr ${random_ipv4_cidr_exclusion_ip_port[0]} accept
+    Should Contain    ${rules_file}    ip saddr ${random_ipv4_cidr_exclusion_ip_port[0]} accept
+
+    ${nft_rules_table} =    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    table    inet    sophos_device_isolation
+    Log    ${nft_rules_table.stdout}
+    Should Be Equal As Integers    ${nft_rules_table.rc}    ${0}
+    # NFT changes the rule slightly if it is a CIDR rule internally/when listing table
+    # We may be expecting to see 8.8.8.8/8 or ${google_ipv6_address}/32
+    # but nft will end up changing the rule to what it would be after evaluating "/..." part
+    # So 8.8.8.8/8 shows up as 8.0.0.0/8 and tail part of ${google_ipv6_address} gets cut off
+    # IPv6 of google.com can change based on the machine the test runs on so can't have a
+    # "Should Contain    ${nft_rules_table.stdout}    ip6 saddr <shortened google.com ipv6>/32 accept" check
+    # as the <shortened google.com ipv6> would change and calculating it out is not worth the effort
+    # If CIDR ipv4 rule is correct then ipv6 rule is most likely correct too
+    Should Contain    ${nft_rules_table.stdout}    ip daddr 8.0.0.0/8 accept
+    Should Contain    ${nft_rules_table.stdout}    ip saddr 8.0.0.0/8 accept
+
+    Can Curl Url    https://google.com
+
+    Disable Device Isolation
 
 Failure To Remove Isolation Results in Isolated Status
     ${mark} =  Get Device Isolation Log Mark

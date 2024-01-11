@@ -998,3 +998,180 @@ TEST_F(TestNTPPolicy, examplePolicyFromCentral)
     EXPECT_EQ(policy.exclusions().at(2).remoteAddressesAndIpTypes().at(0).second, "ip");
     EXPECT_EQ(policy.exclusions().at(2).localPorts().at(0), "22");
 }
+
+TEST_F(TestNTPPolicy, examplePolicyFromCentralUsingCorrectCIDRAddresses)
+{
+    constexpr const auto examplePolicy = R"SOPHOS(<?xml version="1.0"?>
+<policy xmlns="com.sophos\mansys\policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" policyType="24" RevID="fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd">
+        <enabled>true</enabled>
+        <connectionTracking>true</connectionTracking>
+        <exclusions>
+            <filePathSet>
+                <filePath>/tmp/eicar.com</filePath>
+                <filePath>/test1/</filePath>
+            </filePathSet>
+        </exclusions>
+        <selfIsolation>
+            <enabled>false</enabled>
+            <exclusions>
+                <exclusion type="ip">
+                    <direction>out</direction>
+                    <remoteAddress>192.168.1.9/8</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.1/16</remoteAddress>
+                    <localPort>22</localPort>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/128</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/64</remoteAddress>
+                    <localPort>22</localPort>
+                </exclusion>
+            </exclusions>
+        </selfIsolation>
+        <ips>
+            <enabled>false</enabled>
+            <exclusions/>
+        </ips>
+    </configuration>
+</policy>)SOPHOS";
+    NTPPolicy policy{examplePolicy};
+    EXPECT_EQ(policy.revId(), "fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15");
+
+    EXPECT_EQ(policy.exclusions().size(), 4);
+
+    EXPECT_EQ(policy.exclusions().at(0).remoteAddressesAndIpTypes().at(0).first, "192.168.1.9/8");
+    EXPECT_EQ(policy.exclusions().at(0).remoteAddressesAndIpTypes().at(0).second, "ip");
+
+    EXPECT_EQ(policy.exclusions().at(1).remoteAddressesAndIpTypes().at(0).first, "192.168.1.1/16");
+    EXPECT_EQ(policy.exclusions().at(1).remoteAddressesAndIpTypes().at(0).second, "ip");
+    EXPECT_EQ(policy.exclusions().at(1).localPorts().at(0), "22");
+
+    EXPECT_EQ(policy.exclusions().at(2).remoteAddressesAndIpTypes().at(0).first, "2a00::/128");
+    EXPECT_EQ(policy.exclusions().at(2).remoteAddressesAndIpTypes().at(0).second, "ip6");
+
+    EXPECT_EQ(policy.exclusions().at(3).remoteAddressesAndIpTypes().at(0).first, "2a00::/64");
+    EXPECT_EQ(policy.exclusions().at(3).remoteAddressesAndIpTypes().at(0).second, "ip6");
+    EXPECT_EQ(policy.exclusions().at(3).localPorts().at(0), "22");
+}
+
+TEST_F(TestNTPPolicy, examplePolicyFromCentralUsingOutOfRangeCIDRAddresses)
+{
+    constexpr const auto examplePolicy = R"SOPHOS(<?xml version="1.0"?>
+<policy xmlns="com.sophos\mansys\policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" policyType="24" RevID="fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd">
+        <enabled>true</enabled>
+        <connectionTracking>true</connectionTracking>
+        <exclusions>
+            <filePathSet>
+                <filePath>/tmp/eicar.com</filePath>
+                <filePath>/test1/</filePath>
+            </filePathSet>
+        </exclusions>
+        <selfIsolation>
+            <enabled>false</enabled>
+            <exclusions>
+                <exclusion type="ip">
+                    <direction>out</direction>
+                    <remoteAddress>192.168.1.9/-8</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.1/33</remoteAddress>
+                    <localPort>22</localPort>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/129</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/-1</remoteAddress>
+                    <localPort>22</localPort>
+                </exclusion>
+            </exclusions>
+        </selfIsolation>
+        <ips>
+            <enabled>false</enabled>
+            <exclusions/>
+        </ips>
+    </configuration>
+</policy>)SOPHOS";
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{examplePolicy};
+    EXPECT_EQ(policy.revId(), "fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15");
+
+    EXPECT_EQ(policy.exclusions().size(), 0);
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.9/-8\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.1/33\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/129\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/-1\""));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}
+
+TEST_F(TestNTPPolicy, examplePolicyFromCentralUsingIncorrectlyFormattedCIDRAddresses)
+{
+    constexpr const auto examplePolicy = R"SOPHOS(<?xml version="1.0"?>
+<policy xmlns="com.sophos\mansys\policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" policyType="24" RevID="fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15"/>
+    <configuration xmlns="http://www.sophos.com/xml/msys/NetworkThreatProtection.xsd">
+        <enabled>true</enabled>
+        <connectionTracking>true</connectionTracking>
+        <exclusions>
+            <filePathSet>
+                <filePath>/tmp/eicar.com</filePath>
+                <filePath>/test1/</filePath>
+            </filePathSet>
+        </exclusions>
+        <selfIsolation>
+            <enabled>false</enabled>
+            <exclusions>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.9/1.1</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.9/2a00::</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.1/32/1</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>192.168.1.1/a</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/1.1</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/8.8.8.8</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/128/1</remoteAddress>
+                </exclusion>
+                <exclusion type="ip">
+                    <remoteAddress>2a00::/a</remoteAddress>
+                </exclusion>
+            </exclusions>
+        </selfIsolation>
+        <ips>
+            <enabled>false</enabled>
+            <exclusions/>
+        </ips>
+    </configuration>
+</policy>)SOPHOS";
+    UsingMemoryAppender appender(*this);
+    NTPPolicy policy{examplePolicy};
+    EXPECT_EQ(policy.revId(), "fb3fb6e2889efd2e694ab1c64b0c488f0c09b29017835676802a19da94cecb15");
+
+    EXPECT_EQ(policy.exclusions().size(), 0);
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.9/1.1\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.9/2a00::\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.1/32/1\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"192.168.1.1/a\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/1.1\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/8.8.8.8\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/128/1\""));
+    EXPECT_TRUE(appenderContains("Invalid exclusion remote address: Invalid value \"2a00::/a\""));
+    EXPECT_TRUE(appenderContains("Device Isolation using 0 exclusions"));
+}

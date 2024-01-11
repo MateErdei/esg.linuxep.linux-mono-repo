@@ -12,7 +12,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
 #include <netdb.h>
 
 namespace Common::UtilityImpl
@@ -441,7 +440,53 @@ namespace Common::UtilityImpl
             struct addrinfo hints { };
             hints.ai_flags = AI_NUMERICHOST; // do not perform network lookup, address is assumed to be an IP
             hints.ai_family = aiFamily;
-            return (::getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0);
+
+            // Check if CIDR address (i.e. <ipv4 address part>/<integer> or <ipv6 address part>/<integer>)
+            if (std::count(address.begin(), address.end(), '/') > 1)
+            {
+                return false;
+            }
+
+            auto slashPosition = address.find('/');
+            if (slashPosition != std::string::npos)
+            {
+                const std::string ipAddressPart = address.substr(0, slashPosition);
+                const std::string cidrPartString = address.substr(slashPosition + 1);
+
+                if (cidrPartString.find('.') != std::string::npos || cidrPartString.find(':') != std::string::npos)
+                {
+                    // Somehow have <ip part>/<different partial ip part> rather than <ip part>/<integer>
+                    return false;
+                }
+
+                try
+                {
+                    const auto cidrPart = std::stoi(cidrPartString);
+                    if (cidrPart < 0)
+                    {
+                        return false;
+                    }
+                    else if (aiFamily == AF_INET && cidrPart > 32)
+                    {
+                        return false;
+                    }
+                    else if (aiFamily == AF_INET6 && cidrPart > 128)
+                    {
+                        return false;
+                    }
+
+                    return (::getaddrinfo(ipAddressPart.c_str(), nullptr, &hints, &result) == 0);
+                }
+                catch (const std::exception& ex)
+                {
+                    // std::stoi can throw std::out_of_range or std::invalid_format
+                    return false;
+                }
+            }
+            else
+            {
+                return (::getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0);
+            }
         }
     };
 } // namespace Common::UtilityImpl

@@ -385,6 +385,12 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
 				<exclusion type="ip">
 					<remoteAddress>2a00:1450:4009:823::200e</remoteAddress>
 				</exclusion>
+				<exclusion type="ip">
+					<remoteAddress>2a00::/32</remoteAddress>
+				</exclusion>
+				<exclusion type="ip">
+					<remoteAddress>8.8.8.8/16</remoteAddress>
+				</exclusion>
 			</exclusions>
 		</selfIsolation>
 		<ips>
@@ -425,6 +431,8 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
             ip saddr 100.78.0.46 tcp sport 443 accept
             ip saddr 100.78.0.46 udp sport 443 accept
             ip6 saddr 2a00:1450:4009:823::200e accept
+            ip6 saddr 2a00::/32 accept
+            ip saddr 8.8.8.8/16 accept
 
     }
 
@@ -460,6 +468,8 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
             ip daddr 100.78.0.46 tcp dport 443 accept
             ip daddr 100.78.0.46 udp dport 443 accept
             ip6 daddr 2a00:1450:4009:823::200e accept
+            ip6 daddr 2a00::/32 accept
+            ip daddr 8.8.8.8/16 accept
             meta skgid 1 accept
 
     }

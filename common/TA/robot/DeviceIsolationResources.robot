@@ -163,7 +163,7 @@ Send Isolation Policy With CI Exclusions And Extra IP Exclusion
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions_and_extra_ip_exclusion.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
 
-Add Exclusion To Isolation Policy
+Add Exclusion To Isolation Policy Using URL And Port
     [Arguments]   ${exclusions}
     # This will work with both adding a single exclusion and multiple
     # The ${exclusions} can be a tuple - (url, port) or a list of tuples [(url1, port1), (url2, port2), ...]
@@ -174,6 +174,15 @@ Add Exclusion To Isolation Policy
     ...    ${exclusions}
     Send Device Isolation Policy    NTP-24_policy_generated.xml
 
+Add Exclusion To Isolation Policy Using IP and Port
+    [Arguments]    ${exclusions}
+    # The ${exclusions} needs to be a list of tuples [(url1, port1), (url2, port2), ...]
+    # Port can be None
+    generate isolation policy with exclusions
+    ...    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions.xml
+    ...    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
+    ...    ${exclusions}
+    Send Device Isolation Policy    NTP-24_policy_generated.xml
 
 Check Rules Have Been Applied
     ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
