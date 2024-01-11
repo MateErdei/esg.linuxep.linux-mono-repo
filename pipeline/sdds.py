@@ -216,7 +216,8 @@ def stage_sdds_tests(
         if fts.device_class == 'LINUXEP':
             print(f"FTS name: {fts.name}, expiry: {fts.eol_date}, token: {fts.token}")
             # FTS 2023.3 is not available in Linux Mono-repo of with ARM64 build
-            if fts.name != "FTS 2023.3.0.23":
+            # Also do not test special FTS releases (ie. those with JIRA ticket ID in their name)
+            if fts.name != "FTS 2023.3.0.23" and "LINUXDAR" not in fts.name:
                 fixed_versions_x86.append(fts.name)
                 fixed_versions_arm64.append(fts.name)
 
