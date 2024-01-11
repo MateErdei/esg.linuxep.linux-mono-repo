@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<policy RevID="InitialCorePolicyId" policyType="36">
+<policy RevID="{{revisionId}}" policyType="36">
 
     <!-- Core Features -->
     <coreFeatures>
@@ -15,7 +15,7 @@
 
     <!-- Linux (SSPL) Features -->
     <linuxFeatures>
-        <linuxBehaviouralEnabled>true</linuxBehaviouralEnabled>
+        <linuxBehaviouralEnabled>{{rtdEnabled}}</linuxBehaviouralEnabled>
     </linuxFeatures>
 
     <!-- New EDR/RCA/FIM hashing exclusions -->
@@ -33,7 +33,7 @@
 
     <!-- From SAV policy -->
     <onAccessScan>
-        <enabled>false</enabled>
+        <enabled>{{onAccessEnabled}}</enabled>
         <!-- START New (for finer control over on-access scans) -->
         <onRead>true</onRead>
         <onWrite>true</onWrite>
@@ -60,7 +60,7 @@
 
     <!-- Aggressive Activity Classification policy -->
     <aggressiveActivityClassification>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </aggressiveActivityClassification>
 
     <!-- Account Preferences Privacy options -->

@@ -18,7 +18,7 @@ except ImportError:
     import LogHandler
 
 
-def get_log_contents(path_to_log):
+def _get_log_contents(path_to_log):
     try:
         with open(path_to_log, "r") as log:
             contents = log.read()
@@ -39,8 +39,9 @@ def get_log_length(path_to_log):
         contents = log.read()
     return len(contents)
 
+
 def log_contains_in_order(log_location, log_name, args, log_finds=True):
-    contents = get_log_contents(log_location)
+    contents = _get_log_contents(log_location)
     index = 0
     for string in args:
         index = contents.find(string, index)
@@ -57,6 +58,43 @@ def get_variable(var_name, default_value=None):
         return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % var_name, default_value)
     except robot.libraries.BuiltIn.RobotNotRunningError:
         return os.environ.get(var_name, default_value)
+
+
+def _mark_expected_lines_in_log(log_location, error_string, mark_string, *error_messages):
+    changed = False
+    for logfile in glob.glob(log_location + "*"):
+        logger.info("Attempting to mark: " + logfile)
+        contents = _get_log_contents(logfile)
+        if contents is None:
+            logger.debug("File {} is empty no errors to exclude!".format(logfile))
+            continue
+
+        original_contents = contents
+
+        old_lines = contents.splitlines()
+        new_lines = []
+
+        for line in old_lines:
+            for error_message in error_messages:
+                if error_message in line:
+                    line = line.replace(error_string, mark_string)
+                    break  # Don't need to look any further
+            new_lines.append(line + "\n")
+        contents = u"".join(new_lines)
+
+        if contents != original_contents:
+            logger.info("Marking: " + logfile)
+            with open(logfile, "wb") as log:
+                log.write(contents.encode("UTF-8"))
+            changed = True
+
+    return changed
+
+
+def _mark_expected_errors_in_log(log_location, *error_messages):
+    error_string = "ERROR"
+    mark_string = "expected-error"
+    return _mark_expected_lines_in_log(log_location, error_string, mark_string, *error_messages)
 
 
 class LogUtils(object):
@@ -200,7 +238,7 @@ class LogUtils(object):
         return difference.total_seconds()
 
     def get_number_of_occurrences_of_substring_in_log(self, log_location, substring):
-        contents = get_log_contents(log_location)
+        contents = _get_log_contents(log_location)
         return self.get_number_of_occurrences_of_substring_in_string(contents, substring)
 
     def get_number_of_occurrences_of_substring_in_string(self, string, substring, use_regex=False):
@@ -219,7 +257,7 @@ class LogUtils(object):
     def check_string_matching_regex_in_file(self, file_path, reg_expression_str):
         if not os.path.exists(file_path):
             raise AssertionError(f"File not found '{file_path}'")
-        if self.get_number_of_occurrences_of_regex_in_string(get_log_contents(file_path), reg_expression_str) < 1:
+        if self.get_number_of_occurrences_of_regex_in_string(_get_log_contents(file_path), reg_expression_str) < 1:
             self.dump_log(file_path)
             raise AssertionError(f"The file: '{file_path}', did not have any lines match the regex: '{reg_expression_str}'")
 
@@ -264,7 +302,7 @@ class LogUtils(object):
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {log_name} at location {path_to_log} does not exist ")
 
-        contents = get_log_contents(path_to_log)
+        contents = _get_log_contents(path_to_log)
         if string_to_contain not in contents:
             self.dump_log(path_to_log)
             raise AssertionError(f"{log_name} Log at \"{path_to_log}\" does not contain: {string_to_contain}")
@@ -273,13 +311,13 @@ class LogUtils(object):
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {log_name} at location {path_to_log} does not exist ")
 
-        contents = get_log_contents(path_to_log)
+        contents = _get_log_contents(path_to_log)
         if string_not_to_contain in contents:
             self.dump_log(path_to_log)
             raise AssertionError(f"{log_name} Log at \"{path_to_log}\" does contain: {string_not_to_contain}")
 
     def check_log_contains_string_n_times(self, log_path, log_name, string_to_contain, expected_occurrence):
-        contents = get_log_contents(log_path)
+        contents = _get_log_contents(log_path)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain)
         if num_occurrences != int(expected_occurrence):
@@ -295,7 +333,7 @@ class LogUtils(object):
             raise AssertionError()
 
     def check_log_contains_string_at_least_n_times(self, log_path, log_name, string_to_contain, expected_occurrence):
-        contents = get_log_contents(log_path)
+        contents = _get_log_contents(log_path)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain)
         if num_occurrences < int(expected_occurrence):
@@ -310,7 +348,7 @@ class LogUtils(object):
 
         occurs_int = int(occurs)
 
-        contents = get_log_contents(path_to_log)
+        contents = _get_log_contents(path_to_log)
 
         index2 = 0
         while True:
@@ -341,7 +379,7 @@ class LogUtils(object):
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {log_name} at location {path_to_log} does not exist")
 
-        contents = get_log_contents(path_to_log)
+        contents = _get_log_contents(path_to_log)
 
         first = True
         index2 = 0
@@ -398,64 +436,17 @@ class LogUtils(object):
 
     def mark_expected_critical_in_log(self, log_location, error_message):
         error_string = "CRITICAL"
-        mark_string = "expected-error"
-        tmp_log = "/tmp/log.log"
-        shutil.copy(log_location, tmp_log)
-        with open(log_location, "w") as log:
-            log.write("")
-        with open(tmp_log, "r") as log:
-            while True:
-                # Get next line from file
-                line = log.readline()
-                if not line:
-                    break
-                if error_message in line:
-                    line = line.replace(error_string, mark_string)
-                with open(log_location, "a") as new_log:
-                    new_log.write(line)
-        os.remove(tmp_log)
+        mark_string = "expected-critical"
+        return _mark_expected_errors_in_log(log_location, error_string, mark_string, error_message)
 
     def mark_expected_error_in_log(self, log_location, error_message):
-        error_string = "ERROR"
-        mark_string = "expected-error"
-        tmp_log = "/tmp/log.log"
-        try:
-            shutil.copy(log_location, tmp_log)
-        except FileNotFoundError:
-            # log file doesn't exist
-            return
-        with open(log_location, "w") as log:
-            log.write("")
-        with open(tmp_log, "r") as log:
-            while True:
-                # Get next line from file
-                line = log.readline()
-                if not line:
-                    break
-                if error_message in line:
-                    line = line.replace(error_string, mark_string)
-                with open(log_location, "a") as newlog:
-                    newlog.write(line)
-        os.remove(tmp_log)
+        self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
+        return _mark_expected_errors_in_log(log_location, error_message)
 
     def mark_expected_fatal_in_log(self, log_location, error_message):
         error_string = "FATAL"
-        mark_string = "expected-error"
-        tmp_log = "/tmp/log.log"
-        shutil.copy(log_location, tmp_log)
-        with open(log_location, "w") as log:
-            log.write("")
-        with open(tmp_log, "r") as log:
-            while True:
-                # Get next line from file
-                line = log.readline()
-                if not line:
-                    break
-                if error_message in line:
-                    line = line.replace(error_string, mark_string)
-                with open(log_location, "a") as newlog:
-                    newlog.write(line)
-        os.remove(tmp_log)
+        mark_string = "expected-fatal"
+        return _mark_expected_errors_in_log(log_location, error_string, mark_string, error_message)
 
     def log_string_if_found(self, string_to_contain, path_to_log):
         with open(path_to_log, "rb") as file:
@@ -466,13 +457,14 @@ class LogUtils(object):
                     logger.info("{} contains: {} in {}".format(os.path.basename(path_to_log), string_to_contain, line))
 
     def replace_all_in_file(self, log_location, target, replacement):
-        contents = get_log_contents(log_location)
+        contents = _get_log_contents(log_location)
         contents = contents.replace(target, replacement)
         with open(log_location, "w") as log:
             log.write(contents)
 
-    def check_all_product_logs_do_not_contain_string(self, string_to_find):
-        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*"]
+    def check_all_product_logs_do_not_contain_string(self, string_to_find, search_list=None):
+        if search_list is None:
+            search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
         combined_files = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
         flat_files = [item for sublist in combined_files for item in sublist]
@@ -498,10 +490,22 @@ class LogUtils(object):
             raise AssertionError(f"These program logs contain {string_to_find}:\n {list_of_logs_containing_string}")
 
     def check_all_product_logs_do_not_contain_critical(self):
-        self.check_all_product_logs_do_not_contain_string("CRITICAL")
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
+        self.check_all_product_logs_do_not_contain_string("CRITICAL", search_list)
+
+    def check_all_product_logs_do_not_contain_fatal(self):
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
+        self.check_all_product_logs_do_not_contain_string("FATAL", search_list)
 
     def check_all_product_logs_do_not_contain_error(self):
-        self.check_all_product_logs_do_not_contain_string("ERROR")
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*",
+                       "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
+        logger.info("Re-apply expected errors")
+        for log_location, error_messages in self.__m_pending_mark_expected_errors.items():
+            _mark_expected_errors_in_log(log_location, *error_messages)
+        self.__m_pending_mark_expected_errors = {}
+
+        self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
 
     def verify_message_relay_failure_in_order(self, *messagerelays, **kwargs):
         mcs_address = kwargs.get("MCS_ADDRESS", "mcs.sandbox.sophos:443")
@@ -612,7 +616,7 @@ class LogUtils(object):
         log_contains_in_order(self.suldownloader_log, "Suldownloader", args)
 
     def check_suldownloader_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.suldownloader_log)
+        contents = _get_log_contents(self.suldownloader_log)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain,
                                                                                use_regex=False)
@@ -625,7 +629,7 @@ class LogUtils(object):
 
     def check_marked_sul_log_contains(self, string_to_contain):
         sul_log = self.suldownloader_log
-        contents = get_log_contents(sul_log)
+        contents = _get_log_contents(sul_log)
 
         contents = contents[self.marked_sul_logs:]
 
@@ -635,7 +639,7 @@ class LogUtils(object):
 
     def check_marked_sul_log_does_not_contain(self, string_to_not_contain):
         sul_log = self.suldownloader_log
-        contents = get_log_contents(sul_log)
+        contents = _get_log_contents(sul_log)
 
         contents = contents[self.marked_sul_logs:]
 
@@ -658,7 +662,7 @@ class LogUtils(object):
         self.check_log_does_not_contain(string_to_not_contain, self.watchdog_log, "Watchdog")
 
     def check_marked_watchdog_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.watchdog_log)
+        contents = _get_log_contents(self.watchdog_log)
 
         contents = contents[self.marked_watchdog_logs:]
 
@@ -667,7 +671,7 @@ class LogUtils(object):
             raise AssertionError(f"Marked watchdog log did not contain: {string_to_contain}")
 
     def check_marked_watchdog_log_does_not_contain(self, string_to_contain):
-        contents = get_log_contents(self.watchdog_log)
+        contents = _get_log_contents(self.watchdog_log)
 
         contents = contents[self.marked_watchdog_logs:]
 
@@ -713,7 +717,7 @@ class LogUtils(object):
 
     def check_mcs_envelope_log_contains_string_n_times(self, string_to_contain, expected_occurrence, use_regex=False):
         mcs_envelope_log = os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
-        contents = get_log_contents(mcs_envelope_log)
+        contents = _get_log_contents(mcs_envelope_log)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain, use_regex)
         if num_occurrences != int(expected_occurrence):
@@ -758,7 +762,7 @@ class LogUtils(object):
         self.marked_mcs_envelope_logs = get_log_length(self.mcs_envelope_log)
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.mcs_envelope_log)
+        contents = _get_log_contents(self.mcs_envelope_log)
 
         contents = contents[self.marked_mcs_envelope_logs:]
 
@@ -794,7 +798,7 @@ class LogUtils(object):
         logger.info(f"mcsrouter log marked at char: {self.marked_mcsrouter_logs}")
 
     def check_marked_mcsrouter_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.mcs_router_log)
+        contents = _get_log_contents(self.mcs_router_log)
 
         contents = contents[self.marked_mcsrouter_logs:]
 
@@ -803,7 +807,7 @@ class LogUtils(object):
             raise AssertionError(f"MCS Router log did not contain: {string_to_contain}")
 
     def check_marked_mcsrouter_log_does_not_contain(self, string_not_to_contain):
-        contents = get_log_contents(self.mcs_router_log)
+        contents = _get_log_contents(self.mcs_router_log)
         contents = contents[self.marked_mcsrouter_logs:]
 
         if string_not_to_contain in contents:
@@ -811,7 +815,7 @@ class LogUtils(object):
             raise AssertionError(f"MCS Router log contained: {string_not_to_contain}")
 
     def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.mcs_router_log)
+        contents = _get_log_contents(self.mcs_router_log)
 
         contents = contents[self.marked_mcsrouter_logs:]
 
@@ -835,7 +839,7 @@ class LogUtils(object):
         logger.info(log)
 
     def check_marked_managementagent_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.managementagent_log)
+        contents = _get_log_contents(self.managementagent_log)
 
         contents = contents[self.marked_managementagent_log:]
 
@@ -844,7 +848,7 @@ class LogUtils(object):
             raise AssertionError(f"Marked managementagent log did not contain: {string_to_contain}")
 
     def check_managementagent_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.managementagent_log)
+        contents = _get_log_contents(self.managementagent_log)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain, use_regex=False)
         if num_occurrences != int(expected_occurrence):
@@ -852,7 +856,7 @@ class LogUtils(object):
                                  f"times not the requested {expected_occurrence} times")
 
     def check_marked_managementagent_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.managementagent_log)
+        contents = _get_log_contents(self.managementagent_log)
 
         contents = contents[self.marked_managementagent_log:]
 
@@ -887,7 +891,7 @@ class LogUtils(object):
         log_contains_in_order(self.update_scheduler_log, "UpdateScheduler", args)
 
     def check_updatescheduler_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.update_scheduler_log)
+        contents = _get_log_contents(self.update_scheduler_log)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain, use_regex=False)
         if num_occurrences != int(expected_occurrence):
@@ -900,7 +904,7 @@ class LogUtils(object):
 
     def check_marked_update_scheduler_log_contains(self, string_to_contain):
         update_scheduler_log = self.update_scheduler_log
-        contents = get_log_contents(update_scheduler_log)
+        contents = _get_log_contents(update_scheduler_log)
 
         contents = contents[self.marked_update_scheduler_logs:]
 
@@ -914,7 +918,7 @@ class LogUtils(object):
 
     def check_marked_av_log_contains(self, string_to_contain):
         av_log = self.av_log
-        contents = get_log_contents(av_log)
+        contents = _get_log_contents(av_log)
 
         contents = contents[self.marked_av_log:]
 
@@ -933,7 +937,7 @@ class LogUtils(object):
 
     def check_marked_safestore_log_contains(self, string_to_contain):
         safestore_log = self.safestore_log
-        contents = get_log_contents(safestore_log)
+        contents = _get_log_contents(safestore_log)
 
         contents = contents[self.marked_safestore_log:]
 
@@ -946,7 +950,7 @@ class LogUtils(object):
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain):
         sophos_threat_detector_log = self.sophos_threat_detector_log
-        contents = get_log_contents(sophos_threat_detector_log)
+        contents = _get_log_contents(sophos_threat_detector_log)
 
         contents = contents[self.marked_sophos_threat_detector_log:]
 
@@ -965,7 +969,7 @@ class LogUtils(object):
     def check_edr_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
 
         log = self.edr_log
-        contents = get_log_contents(log)
+        contents = _get_log_contents(log)
 
         num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain, use_regex=False)
         if num_occurrences != int(expected_occurrence):
@@ -976,7 +980,7 @@ class LogUtils(object):
         self.marked_edr_log = get_log_length(self.edr_log)
 
     def check_marked_edr_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.edr_log)
+        contents = _get_log_contents(self.edr_log)
 
         contents = contents[self.marked_edr_log:]
 
@@ -987,7 +991,7 @@ class LogUtils(object):
         self.marked_edr_osquery_log = get_log_length(self.edr_osquery_log)
 
     def check_marked_edr_osquery_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.edr_osquery_log)
+        contents = _get_log_contents(self.edr_osquery_log)
 
         contents = contents[self.marked_edr_osquery_log:]
 
@@ -1005,7 +1009,7 @@ class LogUtils(object):
         logger.info(f"livequery log marked at char: {self.marked_livequery_log}")
 
     def check_marked_livequery_log_contains(self, string_to_contain):
-        contents = get_log_contents(self.livequery_log)
+        contents = _get_log_contents(self.livequery_log)
 
         contents = contents[self.marked_livequery_log:]
 
@@ -1014,7 +1018,7 @@ class LogUtils(object):
             raise AssertionError(f"Marked livequery log did not contain: {string_to_contain}")
 
     def check_marked_livequery_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        contents = get_log_contents(self.livequery_log)
+        contents = _get_log_contents(self.livequery_log)
 
         contents = contents[self.marked_livequery_log:]
 

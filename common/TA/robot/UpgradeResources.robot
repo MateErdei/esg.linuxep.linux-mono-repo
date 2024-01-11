@@ -58,8 +58,8 @@ Upgrade Resources Suite Setup
     Setup_MCS_Cert_Override
     ${kernel_version_too_old_for_rtd} =    Check Kernel Version Is Older    5.3    aarch64
     Set Suite Variable    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    ${kernel_version_too_old_for_rtd}
-
-
+    ${kernel_version_new_enough_for_rtd} =  invert boolean  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Set Suite Variable    ${KERNEL_VERSION_NEW_ENOUGH_FOR_RTD}    ${kernel_version_new_enough_for_rtd}
 
 Cleanup Local Warehouse And Thininstaller
     Stop Proxy Servers
@@ -77,6 +77,9 @@ Log XDR Intermediary File
 Mark Known Upgrade Errors
     # TODO: LINUXDAR-7318 - expected till bugfix is in released version
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
+
+    # Something seems to trigger this in the shipping version as of 2024-01-10
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  /opt/sophos-spl/plugins/av/sbin/av died with signal 9
 
     #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 from datetime import datetime
 import subprocess
 import sys
@@ -641,12 +642,16 @@ class MCSRouter(object):
         # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
         conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
         conn.request("PUT", "/controller/{}/policy".format(policy_type), data.encode('utf-8'), headers)
-        conn.getresponse()
+        response = conn.getresponse()
         conn.close()
+        if response.status != 200:
+            logger.error(f"Failed to send policy to /controller/{policy_type}/policy: code: {response.status}")
+            body = response.read()
+            logger.error(f"Body: {body}")
 
     def send_policy_file(self, policy_type, policy_path, wait_for_policy=False, install_dir=None):
-        f = open(policy_path, 'r')
-        policy_contents = f.read()
+        with open(policy_path, 'r') as f:
+            policy_contents = f.read()
         self.send_policy(policy_type, policy_contents)
         if wait_for_policy:
             timeout = 20
@@ -659,6 +664,38 @@ class MCSRouter(object):
                 time.sleep(1)
             else:
                 raise AssertionError(f"Policy {policy_path} not written to policy dir within {timeout} seconds")
+
+    def send_policy_template(self, policy_type, policy_path, **params):
+        with open(policy_path, 'r') as f:
+            policy_contents = f.read()
+        if policy_type == "core":
+            params.setdefault("rtdEnabled", "true")
+            params.setdefault("onAccessEnabled", "true")
+
+        for key, value in params.items():
+            key = "{{%s}}" % key
+            if isinstance(value, bool):
+                value = "true" if value else "false"
+            policy_contents = policy_contents.replace(key, value)
+        logger.debug(f"Sending {policy_type} policy: {policy_contents}")
+        self.send_policy(policy_type, policy_contents)
+
+    def create_policy_from_template(self, policy_type, template_path, destination_path, **params):
+        with open(template_path, 'r') as f:
+            policy_contents = f.read()
+        if policy_type == "core":
+            params.setdefault("rtdEnabled", "true")
+            params.setdefault("onAccessEnabled", "true")
+
+        for key, value in params.items():
+            key = "{{%s}}" % key
+            if isinstance(value, bool):
+                value = "true" if value else "false"
+            policy_contents = policy_contents.replace(key, value)
+
+        with open(destination_path, "w") as f:
+            f.write(policy_contents)
+        return destination_path
 
     def send_flags(self, data):
         headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}

@@ -1,6 +1,7 @@
 *** Settings ***
 Library     Process
 Library     ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
+Library     ${COMMON_TEST_LIBS}/FileUtils.py
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/OnFail.py
@@ -11,6 +12,9 @@ Resource    SafeStoreResources.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
+${EDR_PLUGIN_PATH}                  ${SOPHOS_INSTALL}/plugins/edr
+${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+
 ${AV_LOG_PATH}                      ${AV_PLUGIN_PATH}/log/
 ${AV_LOG_FILE}                      ${AV_PLUGIN_PATH}/log/av.log
 ${ON_ACCESS_LOG_PATH}               ${AV_PLUGIN_PATH}/log/soapd.log
@@ -20,9 +24,10 @@ ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detecto
 ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
 ${ON_ACCESS_BIN}                    ${AV_PLUGIN_PATH}/sbin/soapd
-${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-${QUERY_PACKS_PATH}                 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
-${OSQUERY_CONF_PATH}                ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
+${ONACCESS_STATUS_FILE}             ${AV_PLUGIN_PATH}/var/on_access_status
+
+${QUERY_PACKS_PATH}                 ${EDR_PLUGIN_PATH}/etc/query_packs
+${OSQUERY_CONF_PATH}                ${EDR_PLUGIN_PATH}/etc/osquery.conf.d
 
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
@@ -124,6 +129,7 @@ Check AV Plugin Can Scan Files
     Create File     ${dirty_file}    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${avscanner_path} /tmp/clean_file ${dirty_file}
+    Run Keyword If    ${rc} != ${VIRUS_DETECTED_RESULT}    Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 Check On Access Detects Threats
@@ -134,10 +140,28 @@ Check On Access Detects Threats
 
     wait for on access log contains after mark  etected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
 
+Send Core Policy To enable on Access
+    [Arguments]  ${revisionId}=EnableOAPolicy
+    send_policy_template  core  ${SUPPORT_FILES}/CentralXml/CORE_policy/CORE-36_template.xml
+    ...   onAccessEnabled=true  rtdEnabled=${KERNEL_VERSION_NEW_ENOUGH_FOR_RTD}
+    ...   revisionId=${revisionId}
+
+Create Core Policy To enable on Access
+    [Arguments]  ${revisionId}=EnableOAPolicy
+    ${policy} =  create_policy_from_template  core  ${SUPPORT_FILES}/CentralXml/CORE_policy/CORE-36_template.xml
+    ...   /tmp/CORE_enable_on_access.xml
+    ...   onAccessEnabled=true  rtdEnabled=${KERNEL_VERSION_NEW_ENOUGH_FOR_RTD}
+    ...   revisionId=${revisionId}
+    [Return]  ${policy}
+
+Wait for OA Scanning enabled in status file
+    [Arguments]  ${installDir}=${SOPHOS_INSTALL}
+    wait_for_file_to_contain  ${installDir}/plugins/av/var/on_access_status  enabled
+
 Enable On Access Via Policy
-    ${mark} =  get_on_access_log_mark
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-    wait for on access log contains after mark   On-access scanning enabled  mark=${mark}  timeout=${15}
+    [Arguments]  ${installDir}=${SOPHOS_INSTALL}
+    Send Core Policy To enable on Access
+    Wait for OA Scanning enabled in status file  ${installDir}
 
 Check avscanner can detect eicar in
     [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}

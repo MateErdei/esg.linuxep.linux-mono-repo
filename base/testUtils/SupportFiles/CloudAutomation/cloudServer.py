@@ -632,7 +632,7 @@ class CoreEndpointManager(object):
 
     def clearCommand(self):
         self.__command = ""
-        self.__id = ""
+        self.__command_id = ""
 
 
 # CORC POLICY
@@ -1085,6 +1085,11 @@ class Endpoint(object):
             self.__core.updatePolicy(body)
         elif adapter == "CORC":
             self.__corc.updatePolicy(body)
+        else:
+            logger.error(f"Unknown adapter in updatePolicy: {adapter}")
+            return False
+
+        return True
 
     def migrate(self):
         self.__mcs.migrate_on_next_cmd()
@@ -1254,8 +1259,12 @@ class Endpoints(object):
     def updatePolicy(self, adapter, policy):
         assert policy is not None
         assert policy != ""
+        failed = False
         for e in self.__m_endpoints.values():
-            e.updatePolicy(adapter, policy)
+            if not e.updatePolicy(adapter, policy):
+                failed = True
+                logger.error("Failed to update policy for endpoint!")
+        return not failed
 
     def setQuery(self, adapter, query, command_id):
         logger.info(f"LiveQuery command {query}")

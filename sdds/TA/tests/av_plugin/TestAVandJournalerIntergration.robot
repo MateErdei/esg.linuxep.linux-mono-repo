@@ -153,8 +153,9 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  1 secs
     ...  check_log_contains    Fanotify successfully initialised  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
 
-    Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
-    wait_for_log_contains_from_mark    ${av_mark}    Threat cleaned up at path: '/tmp/dirty_excluded_file'     20
+    # File needs to be detected by on-access
+    Create File     /tmp/dirty_included_file    ${EICAR_STRING}
+    wait_for_log_contains_from_mark    ${av_mark}    Threat cleaned up at path: '/tmp/dirty_included_file'     20
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -171,6 +172,7 @@ Test av can publish events for onaccess and that journaler can receive them
     Check Marked Livequery Log Contains  processPath
     Check Marked Livequery Log Contains  process_path
     Check Marked Livequery Log Contains  on_access
+
 *** Keywords ***
 Wait Until Threat Report Socket Exists
     [Arguments]    ${time_to_wait}=5
@@ -217,6 +219,7 @@ Check Logs Detected EICAR Event
     Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":true  ${EXPECTED_EICARS}
 
 Detect EICAR And Read With Livequery Via Event Journaler
+    # dirty_file is scanned with avscanner, so we don't want on-access to detect it
     [Arguments]  ${dirty_file}=/tmp/dirty_excluded_file   ${journal_string}=${JOURNALED_EICAR}
     Check AV Plugin Can Scan Files  ${dirty_file}
     Wait Until Keyword Succeeds

@@ -57,9 +57,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedDogfoodVersions} =    Get Expected Versions For Recommended Tag    ${DOGFOOD_WAREHOUSE_REPO_ROOT}    ${DOGFOOD_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
-    start_local_cloud_server
-    # Enable OnAccess
-    send_policy_file    core    ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    ${policy} =  Create Core Policy To enable on Access  revisionId=EnableOnAccessPolicy
+    start_local_cloud_server  --initial-core-policy  ${policy}
 
     Start Local Dogfood SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
@@ -232,7 +231,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     start_local_cloud_server
     # Enable OnAccess
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    Send Core Policy To enable on Access
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
 
@@ -384,9 +383,9 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
 
-    start_local_cloud_server
-    # Enable OnAccess
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    ${policy} =  Create Core Policy To enable on Access  revisionId=EnableOnAccessPolicy
+    start_local_cloud_server  --initial-core-policy  ${policy}
+
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local Current Shipping SDDS3 Server
 
@@ -511,7 +510,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
 
     start_local_cloud_server
     # Enable OnAccess
-    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    Send Core Policy To enable on Access
 
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Start Local SDDS3 Server
@@ -801,7 +800,7 @@ SPL Can Be Installed To A Custom Location
     ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
     Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
     Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    Enable On Access Via Policy
+    Enable On Access Via Policy  ${CUSTOM_INSTALL_DIRECTORY}
     Check On Access Detects Threats
     SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
     # Threat health returns to good after threat is cleaned up
@@ -874,7 +873,7 @@ Installing New Plugins Respects Custom Installation Location
     ${result} =    Run Process  pgrep  -f  ${CUSTOM_INSTALL_DIRECTORY}/plugins/av/sbin/av
     Should Be Equal As Integers    ${result.rc}    0    msg="stdout:${result.stdout}\nerr: ${result.stderr}"
     Check AV Plugin Can Scan Files    avscanner_path=${CUSTOM_INSTALL_DIRECTORY}/plugins/av/bin/avscanner
-    Enable On Access Via Policy
+    Enable On Access Via Policy  ${CUSTOM_INSTALL_DIRECTORY}
     Check On Access Detects Threats
     SHS Status File Contains  ${HealthyShsStatusXmlContents}    ${CUSTOM_INSTALL_DIRECTORY}/base/mcs/status/SHS_status.xml
     # Threat health returns to good after threat is cleaned up

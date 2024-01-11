@@ -390,7 +390,7 @@ File Log Contains
             num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
             if num_occurrence > 0:
                 self.log_string_if_found(string_to_find, filepath)
-                list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurrence))
+                list_of_logs_containing_string.append(f"{filepath} - {num_occurrence} times")
                 robot.libraries.BuiltIn.BuiltIn().run_keyword("LogUtils.Dump Log", filepath)
                 # Edit file to avoid cascading failures
                 replacement = "KNOWN" + "!" * len(string_to_find)

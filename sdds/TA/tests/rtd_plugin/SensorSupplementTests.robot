@@ -104,14 +104,13 @@ Sdds3 Supplement Update Changes Content
 
 *** Keywords ***
 Sdds3 Suite Setup
-    Setup_MCS_Cert_Override
+    Upgrade Resources Suite Setup
     Run Keyword And Ignore Error    Uninstall Base
+
     Remove Directory   ${SENSOR_ETC_FOLDER}   recursive=True
     Remove Directory  /var/lib/sophos  recursive=True
-    Remove Directory  /var/run/sophos  recursive=True
-
-    ${kernel_version_too_old_for_rtd} =    Check Kernel Version Is Older    5.3    aarch64
-    Set Suite Variable    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    ${kernel_version_too_old_for_rtd}
+    # May have temporary files left behind
+    Run Keyword And Ignore Error    Remove Directory  /var/run/sophos  recursive=True
 
     start local cloud server
 
@@ -158,7 +157,7 @@ Run Update Now
 
 Uninstall Base
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 
 Uninstall SPL
     Directory Should Exist    ${SOPHOS_INSTALL}
@@ -220,7 +219,7 @@ Check Installed and Running
 
     Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
     Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain String    FATAL
+    check all product logs do not contain fatal
 
 Copy Supplement
     [Arguments]

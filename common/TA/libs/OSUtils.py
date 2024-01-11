@@ -751,3 +751,6 @@ def check_kernel_version_is_older(min_kernel_version: str, arch_to_check: str = 
             return False
 
     return version.parse(kernel_version) < version.parse(min_kernel_version)
+
+def invert_boolean(value: bool) -> bool:
+    return not value
