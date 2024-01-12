@@ -74,8 +74,9 @@ def stage_fuzz_tests(
 
     targets_to_fuzz = {
         'av': ['CorcPolicyProcessorFuzzer', 'CorePolicyProcessorFuzzer', 'ProcessControlServerExecutable',
-                'threatDetectorClientExecutable'],
-        'base': ['ActionRunnerTest', 'SimpleFunctionTests', 'PluginApiTest', 'ManagementAgentApiTest'],
+                'threatDetectorClientExecutable', 'threatReporterServerExecutable', 'threatDetectorServerExecutable'],
+        'base': ['ActionRunnerTest', 'SimpleFunctionTests', 'PluginApiTest', 'ManagementAgentApiTest',
+                'WatchdogApiTest'],
         'edr': ['LiveQueryInputTests', 'LiveQueryTests']
         }
 
