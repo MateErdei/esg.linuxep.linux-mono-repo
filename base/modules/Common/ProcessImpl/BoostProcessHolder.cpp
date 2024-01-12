@@ -296,6 +296,8 @@ namespace Common::ProcessImpl
             std::error_code ec;
             m_child->wait(ec);
             LOGDEBUG(m_path << " Process main loop: Wait finished");
+            LOGDEBUG("Error code from wait: " << ec.value());
+
             try
             {
                 // give some extra time to the ioservice to capture any remaining data

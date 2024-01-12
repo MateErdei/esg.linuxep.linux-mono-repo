@@ -126,7 +126,9 @@ namespace ResponsePlugin
 
     void ActionRunner::killAction()
     {
-        kill("plugin received stop request");
+        // secondsToShutdown is 30 seconds in plugin.json
+        // -1 to give response actions plugin some time to cleanup after action runner stopped
+        kill("plugin received stop request", 30 - 1);
         awaitPostAction();
     }
 
@@ -135,9 +137,19 @@ namespace ResponsePlugin
         return m_isRunning;
     }
 
-    bool ActionRunner::kill(const std::string& msg)
+    bool ActionRunner::kill(const std::string& msg, const int timeout)
     {
-        if (this->m_process->kill())
+        bool ret;
+        if (timeout != -1) // -1 is default value set in ActionRunner.h
+        {
+            ret = this->m_process->kill(timeout);
+        }
+        else
+        {
+            ret = this->m_process->kill();
+        }
+
+        if (ret)
         {
             LOGWARN("Action Runner had to be killed after " + msg);
             return true;
