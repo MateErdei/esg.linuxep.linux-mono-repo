@@ -1413,3 +1413,13 @@ class LogUtils(object):
         self.wait_for_base_logs_to_indicate_plugin_is_ready(log_marks, timeout, oldcode)
         self.wait_for_response_action_logs_to_indicate_plugin_is_ready(log_marks, timeout, oldcode)
         self.wait_for_edr_logs_to_indicate_plugin_is_ready(log_marks, timeout)
+
+    def clear_log_marks(self, log_marks: dict):
+        # This is for the specific case in a downgrade test where, after downgrading the plugin log file has the same
+        # inode as before downgrading and the original log mark does not end up outside the new log file.
+        # Resulting in no errors being thrown but the log mark can end up after the completed initialization log line
+        # for the plugin.
+        # Setting __m_stat and __m_inode to None will force looking through the entire file when looking for log lines
+        for mark in log_marks.values():
+            mark.__m_stat = None
+            mark.__m_inode = None

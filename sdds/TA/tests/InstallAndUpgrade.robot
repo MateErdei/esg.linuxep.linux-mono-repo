@@ -282,6 +282,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Clear Log Marks    ${all_plugins_logs_marks}
     Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    old_version=${TRUE}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Prepared ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
@@ -559,6 +560,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Clear Log Marks    ${all_plugins_logs_marks}
     Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}     old_version=${TRUE}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Preparing ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade  backedup suldownloader log
     ${ma_mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
