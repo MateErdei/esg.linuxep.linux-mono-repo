@@ -10,14 +10,25 @@
 
 #include <atomic>
 
+static constexpr const int HEALTH_CHECK_DELAY_SECONDS = 3;
+
 namespace Plugin
 {
+    enum class Health
+    {
+        GOOD,
+        BAD
+    };
+    
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
         std::shared_ptr<TaskQueue> m_task;
 
     public:
-        PluginCallback(std::shared_ptr<TaskQueue> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat);
+        PluginCallback(
+                std::shared_ptr<TaskQueue> task, 
+                std::shared_ptr<Heartbeat::IHeartbeat> heartbeat, 
+                uint64_t healthCheckDelay = HEALTH_CHECK_DELAY_SECONDS);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
@@ -28,7 +39,7 @@ namespace Plugin
 
         std::string getTelemetry() override;
         std::string getHealth() override;
-        virtual uint getHealthInner();
+        virtual Health getHealthInner();
 
         void setRunning(bool running);
         bool isRunning();
@@ -37,5 +48,7 @@ namespace Plugin
     private:
         std::atomic_bool m_running = false;
         std::shared_ptr<Heartbeat::IHeartbeat> m_heartbeat;
+        uint64_t m_startTime;
+        uint64_t m_healthCheckDelay;
     };
 }; // namespace Plugin

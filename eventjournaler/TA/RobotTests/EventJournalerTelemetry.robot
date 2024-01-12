@@ -17,6 +17,8 @@ Default Tags    TAP_PARALLEL3
 
 *** Test Cases ***
 Check Health Telemetry Is Written
+    # Wait for Event Journaler to be ready to return actual health (defined by HEALTH_CHECK_DELAY_SECONDS in PluginCallback.h)
+    Sleep    3s
     Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 1"}
 
     ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler
@@ -42,6 +44,8 @@ Check Health Telemetry Is Written
     Should Be True  ${threadHealthDict["Writer"]}
 
 Check Socket Missing Is True When Socket Deleted
+    # Wait for Event Journaler to be ready to return actual health (defined by HEALTH_CHECK_DELAY_SECONDS in PluginCallback.h)
+    Sleep    3s
     Wait Until Created  ${SOPHOS_INSTALL}/var/ipc/events.ipc
 
     ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler

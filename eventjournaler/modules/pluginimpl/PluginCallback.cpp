@@ -10,6 +10,7 @@
 #include "Heartbeat/ThreadIdConsts.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <utility>
 
@@ -17,10 +18,16 @@
 
 namespace Plugin
 {
-    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat) :
-    m_task(std::move(task)),
-    m_heartbeat(heartbeat)
+    PluginCallback::PluginCallback(
+        std::shared_ptr<TaskQueue> task, 
+        std::shared_ptr<Heartbeat::IHeartbeat> heartbeat,
+        uint64_t healthCheckDelay)
+    : m_task(std::move(task))
+    , m_heartbeat(heartbeat)
+    , m_healthCheckDelay(healthCheckDelay)
     {
+        Common::UtilityImpl::FormattedTime time;
+        m_startTime = std::stoul(time.currentEpochTimeInSeconds());
         LOGDEBUG("Plugin Callback Started");
         std::vector<std::string> ids{Heartbeat::WriterThreadId, Heartbeat::SubscriberThreadId, Heartbeat::PluginAdapterThreadId};
         m_heartbeat->registerIds(ids);
@@ -81,9 +88,15 @@ namespace Plugin
         return m_running;
     }
 
-    uint PluginCallback::getHealthInner()
+    Health PluginCallback::getHealthInner()
     {
-        uint health = 0;
+        Health health = Health::GOOD;
+        Common::UtilityImpl::FormattedTime time;
+        auto currentTime = std::stoul(time.currentEpochTimeInSeconds());
+        if (currentTime < m_startTime + m_healthCheckDelay)
+        {
+            return Health::GOOD;
+        }
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
         // Check if any pingers have not been pinged by the owning thread/worker etc.
@@ -92,7 +105,7 @@ namespace Plugin
             if (!kv.second)
             {
                 LOGDEBUG("A heartbeat ping was missed by: " << kv.first);
-                health = 1;
+                health = Health::BAD;
             }
             telemetry.set(JournalerCommon::Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
         }
@@ -102,7 +115,7 @@ namespace Plugin
                       !subscriberSocketExists);
         if (!subscriberSocketExists)
         {
-            health = 1;
+            health = Health::BAD;
         }
 
         bool maxAcceptableDroppedEventsExceeded = m_heartbeat->getNumDroppedEventsInLast24h() > getAcceptableDailyDroppedEvents();
@@ -111,7 +124,7 @@ namespace Plugin
                       maxAcceptableDroppedEventsExceeded);
         if (maxAcceptableDroppedEventsExceeded)
         {
-            health = 1;
+            health = Health::BAD;
         }
 
         Common::Telemetry::TelemetryHelper::getInstance().set(JournalerCommon::Telemetry::pluginHealthStatus, static_cast<u_long>(health));
@@ -121,7 +134,7 @@ namespace Plugin
     std::string PluginCallback::getHealth()
     {
         LOGDEBUG("Received health request");
-        return "{'Health': " + std::to_string(getHealthInner()) + "}";
+        return "{'Health': " + std::to_string(static_cast<uint>(getHealthInner())) + "}";
     }
 
     uint PluginCallback::getAcceptableDailyDroppedEvents()

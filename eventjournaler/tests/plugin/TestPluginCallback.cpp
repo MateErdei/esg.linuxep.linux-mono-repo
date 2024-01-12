@@ -48,7 +48,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
-    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
+    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat, 0);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -72,7 +72,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDropp
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
-    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
+    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat, 0);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -97,7 +97,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenSocketMissing)
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
-    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
+    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat, 0);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -122,7 +122,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenThreadsDead)
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
-    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
+    auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat, 0);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -144,7 +144,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenThreadsDead)
 
 class PluginCallbackWithMockedHealthInner : public  Plugin::PluginCallback {
 public:
-    MOCK_METHOD0(getHealthInner, uint());
+    MOCK_METHOD0(getHealthInner, Plugin::Health());
 
     PluginCallbackWithMockedHealthInner(std::shared_ptr<Plugin::TaskQueue> task,
                                         std::shared_ptr<StrictMock<Heartbeat::MockHeartbeat>> heartbeat)

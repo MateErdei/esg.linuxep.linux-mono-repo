@@ -35,9 +35,9 @@ namespace Plugin
         Common::UtilityImpl::FormattedTime time;
         uint64_t lastChecked = std::stoul(time.currentEpochTimeInSeconds());
         m_callback->setRunning(true);
-        LOGINFO("Completed initialization of Event Journaler");
         m_eventWriterWorker->start();
         m_subscriber->start();
+        LOGINFO("Completed initialization of Event Journaler");
         while (true)
         {
             m_heartbeatPinger->ping();
