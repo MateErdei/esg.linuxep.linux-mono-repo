@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -298,7 +298,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     m_status.addPluginHealth("testpluginDetectionOne", pluginDetectionStatusOne);
     m_status.addPluginHealth("testpluginDetectionTwo", pluginDetectionStatusTwo);
 
-    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Service One" value="2" /><detail name="Test Plugin Service Two" value="1" /></item><item name="threatService" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Threat One" value="2" /><detail name="Test Plugin Threat Two" value="1" /></item><item name="threat" value="3" /></health>)";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="admin" value="1" /><item name="service" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Service One" value="2" /><detail name="Test Plugin Service Two" value="1" /></item><item name="threatService" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Threat One" value="2" /><detail name="Test Plugin Threat Two" value="1" /></item><item name="threat" value="3" /></health>)";
 
     std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     EXPECT_EQ(expectedXml, xmlString);
@@ -397,6 +397,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" "
                               "activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"3\" />"
+                              "<item name=\"admin\" value=\"1\" />"
                               "<item name=\"service\" value=\"3\" >"
                               "<detail name=\"Plugin With Service Health\" value=\"3\" /></item>"
                               "<item name=\"threatService\" value=\"3\" >"
@@ -435,6 +436,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleT
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
                               "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"1\" />"
+                              "<item name=\"admin\" value=\"1\" />"
                               "<item name=\"threat\" value=\"1\" />"
                               "</health>";
 
@@ -487,6 +489,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
                               "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"3\" />"
+                              "<item name=\"admin\" value=\"1\" />"
                               "<item name=\"service\" value=\"3\" >"
                               "<detail name=\"Test Plugin Service And Threat One\" value=\"2\" />"
                               "<detail name=\"Test Plugin Service One\" value=\"2\" />"
@@ -565,6 +568,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
                               "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"1\" />"
+                              "<item name=\"admin\" value=\"1\" />"
                               "<item name=\"threat\" value=\"1\" /></health>";
 
     ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo pairResult = m_status.generateHealthStatusXml();
@@ -702,7 +706,7 @@ TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName)
     m_status.addPluginHealth("", pluginStatusOne);
 
     std::string xmlString = m_status.generateHealthStatusXml().statusXML;
-    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="admin" value="1" /><item name="threat" value="1" /></health>)";
     ASSERT_EQ(xmlString, expectedXml);
     ASSERT_EQ("", m_status.generateHealthStatusXml().healthJson);
 }
@@ -740,6 +744,7 @@ TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation)
     std::string expectedXmlOne = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" "
                                  "activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                                  "<item name=\"health\" value=\"3\" />"
+                                 "<item name=\"admin\" value=\"1\" />"
                                  "<item name=\"service\" value=\"3\" >"
                                  "<detail name=\"Plugin One\" value=\"1\" /></item>"
                                  "<item name=\"threat\" value=\"1\" /></health>";
@@ -747,6 +752,7 @@ TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation)
     std::string expectedXmlTwo = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" "
                                   "activeHeartbeat=\"true\" activeHeartbeatUtmId=\"some-random-utm-id\">"
                                   "<item name=\"health\" value=\"3\" />"
+                                  "<item name=\"admin\" value=\"1\" />"
                                   "<item name=\"service\" value=\"3\" >"
                                   "<detail name=\"Plugin One\" value=\"1\" />"
                                   "<detail name=\"Plugin Two\" value=\"3\" /></item>"
@@ -755,6 +761,7 @@ TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation)
     std::string expectedXmlThree = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" "
                                      "activeHeartbeat=\"true\" activeHeartbeatUtmId=\"some-random-utm-id\">"
                                      "<item name=\"health\" value=\"3\" />"
+                                     "<item name=\"admin\" value=\"1\" />"
                                      "<item name=\"service\" value=\"3\" >"
                                      "<detail name=\"Plugin One\" value=\"1\" />"
                                      "<detail name=\"Plugin Three\" value=\"3\" />"
@@ -774,4 +781,42 @@ TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation)
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+}
+
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForIsolation)
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;
+    pluginServiceStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginServiceStatusOne.healthValue = 2;
+    pluginServiceStatusOne.isolated = false;
+    pluginServiceStatusOne.displayName = "Test Plugin Service One";
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusTwo;
+    pluginServiceStatusTwo.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginServiceStatusTwo.healthValue = 1;
+    pluginServiceStatusTwo.isolated = true;
+    pluginServiceStatusTwo.displayName = "Test Plugin Service Two";
+
+    m_status.addPluginHealth("testpluginServiceOne", pluginServiceStatusOne);
+    m_status.addPluginHealth("testpluginServiceTwo", pluginServiceStatusTwo);
+
+
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="admin" value="3" /><item name="service" value="3" ><detail name="Test Plugin Service One" value="2" /><detail name="Test Plugin Service Two" value="1" /></item><item name="threat" value="1" /></health>)";
+
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    auto attributes = xmlMap.lookup("health");
+    auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 0);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "3"), 0);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
 }

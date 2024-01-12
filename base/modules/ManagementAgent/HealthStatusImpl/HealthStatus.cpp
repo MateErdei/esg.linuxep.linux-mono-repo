@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "HealthStatus.h"
 
@@ -97,6 +97,7 @@ namespace ManagementAgent::HealthStatusImpl
         healthValue_t healthValue = 1;
         std::string activeHeartbeatUtmId; //  = ""
         bool activeHeartbeat = false;
+        bool isolated = false;
         for (const auto& health : m_pluginServiceHealth)
         {
             healthValue = std::max(convertDetailedValueToOverallValue(health.second.healthValue), healthValue);
@@ -108,6 +109,21 @@ namespace ManagementAgent::HealthStatusImpl
             {
                 activeHeartbeat = true;
             }
+            if (health.second.isolated)
+            {
+                isolated = true;
+            }
+        }
+        if (isolated)
+        {
+            LOGDEBUG("Server is isolated so setting health to RED");
+            isolated_ = true;
+            healthValue = 3;
+        }
+        else if (isolated_ && !isolated)
+        {
+            LOGDEBUG("Server is no longer isolated");
+            isolated_ = false;
         }
         m_overallPluginServiceHealth = healthValue;
         m_activeHeartbeat = activeHeartbeat;
@@ -163,10 +179,13 @@ namespace ManagementAgent::HealthStatusImpl
         updateOverallHealthStatus();
         std::stringstream statusXml;
 
+        int adminVal = isolated_ ? 3 : 1;
         statusXml << R"(<?xml version="1.0" encoding="utf-8" ?>)"
                   << R"(<health version="3.0.0" activeHeartbeat=")" << (m_activeHeartbeat ? "true" : "false")
                   << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
-                  << R"(<item name="health" value=")" << m_overallHealth << R"(" />)";
+                  << R"(<item name="health" value=")" << m_overallHealth << R"(" />)"
+                    //Central expects an isolation status title admin
+                  << R"(<item name="admin" value=")" << adminVal << R"(" />)";
 
         if (!m_pluginServiceHealth.empty())
         {

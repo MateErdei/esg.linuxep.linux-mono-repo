@@ -420,6 +420,8 @@ Failure To Remove Isolation Results in Isolated Status
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
 
     Stop Device Isolation
+    Register Cleanup    Disable Device Isolation If Not Already
+    Register Cleanup    Start Device Isolation
     Check Device Isolation Executable Not Running
 
     ${mgmt_mark} =    Mark Managementagent Log
@@ -427,3 +429,33 @@ Failure To Remove Isolation Results in Isolated Status
     Wait For Log Contains From Mark  ${mgmt_mark}  Process new action from mcsrouter: SHS_action
 
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
+
+
+Device Isolation Sets Health To Bad If Isolated
+    ${mark} =  Get Device Isolation Log Mark
+    ${isolatedstring} =    Set Variable      <item name="health" value="3" /><item name="admin" value="3" />
+    ${unisolatedstring} =    Set Variable      <item name="health" value="1" /><item name="admin" value="1" />
+
+    Send Isolation Policy With CI Exclusions
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
+    #If run with other tests, make health is run first. If run independently, make sure file exists
+    ${mgmt_mark} =    Mark Managementagent Log
+    Wait Until Created    ${MCS_DIR}/status/SHS_status.xml     timeout=240
+    Wait For Log Contains From Mark  ${mgmt_mark}  Process health task    timeout=30
+    File Should Contain   ${MCS_DIR}/status/SHS_status.xml  ${unisolatedstring}
+
+    ${mgmt_mark} =    Mark Managementagent Log
+    Enable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
+    Wait For Log Contains From Mark  ${mgmt_mark}  Process health task    timeout=30
+    Wait For Log Contains From Mark  ${mgmt_mark}  Server is isolated so setting health to RED
+    File Should Contain   ${MCS_DIR}/status/SHS_status.xml  ${isolatedstring}
+
+    ${mgmt_mark} =    Mark Managementagent Log
+    Disable Device Isolation
+    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
+    Wait For Log Contains From Mark  ${mgmt_mark}  Process health task    timeout=30
+    Wait For Log Contains From Mark  ${mgmt_mark}  Server is no longer isolated
+    File Should Contain   ${MCS_DIR}/status/SHS_status.xml  ${unisolatedstring}

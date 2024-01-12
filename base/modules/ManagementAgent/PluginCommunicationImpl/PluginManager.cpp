@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "PluginManager.h"
 
@@ -457,6 +457,10 @@ namespace ManagementAgent::PluginCommunicationImpl
                 pluginHealthStatus.activeHeartbeatUtmId = healthResult["activeHeartbeatUtmId"];
                 pluginHealthStatus.activeHeartbeat = healthResult["activeHeartbeat"];
             }
+            if (healthResult.contains("Isolation"))
+            {
+                pluginHealthStatus.isolated = healthResult["Isolation"];
+            }
         }
         catch (const std::exception& ex)
         {
@@ -466,6 +470,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         }
         return pluginHealthStatus;
     }
+
     std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> PluginManager::getSharedHealthStatusObj()
     {
         return m_healthStatus;

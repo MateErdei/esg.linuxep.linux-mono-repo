@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -87,5 +87,6 @@ namespace ManagementAgent::HealthStatusImpl
         std::string m_cachedHealthStatusXml;
         bool m_activeHeartbeat = false;
         bool outbreakStatus_ = false;
+        bool isolated_ = false;
     };
 } // namespace ManagementAgent::HealthStatusImpl

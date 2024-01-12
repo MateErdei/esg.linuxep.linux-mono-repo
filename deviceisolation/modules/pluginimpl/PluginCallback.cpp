@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "PluginCallback.h"
 
@@ -103,6 +103,12 @@ namespace Plugin
     std::string PluginCallback::getHealth()
     {
         LOGDEBUG("Received health request");
-        return "{'Health': " + std::to_string(getHealthInner()) + "}";
+        auto isolatedState = isolated_.load() == true ? "true" : "false";
+        return R"({"Health":)" + std::to_string(getHealthInner()) + R"(,"Isolation":)" + isolatedState + "}";
+    }
+
+    void PluginCallback::setIsolated(const bool isolated)
+    {
+        isolated_.store(isolated);
     }
 } // namespace Plugin

@@ -210,3 +210,7 @@ Check Rules Have Been Applied
     IF    not (${contains_icmp} or ${contains_icmp_as_1})
           Fail    Could not find "ip protocol icmp accept" or "ip protocol 1 accept" in ruleset.
     END
+
+Disable Device Isolation If Not Already
+    ${is_disabled} =  Does File Contain Word  ${PERSISTENT_STATE_FILE}  0
+    Run Keyword If   ${is_disabled} is ${FALSE}    Disable Device Isolation

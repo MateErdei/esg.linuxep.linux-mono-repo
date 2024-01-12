@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
 
@@ -27,6 +27,7 @@ namespace Plugin
             , baseService_(std::move(baseService))
             , callback_(std::move(callback))
             , ntpPolicy_(std::make_shared<NTPPolicy>())
+            , nftWrapper_(std::make_shared<NftWrapper>())
             , isolationEnabled_(Plugin::pluginVarDir(), "isolationEnabled", false)
     {
     }
@@ -60,11 +61,11 @@ namespace Plugin
 
         if (isolationEnabled_.getValue())
         {
-            enableIsolation();
+            enableIsolation(nftWrapper_);
         }
         else
         {
-            disableIsolation();
+            disableIsolation(nftWrapper_);
         }
 
         LOGINFO("Completed initialization of Device Isolation");
@@ -138,7 +139,7 @@ namespace Plugin
 
         if (action.value())
         {
-            enableIsolation();
+            enableIsolation(nftWrapper_);
             if (isolationEnabled_.getValue())
             {
                 // If isolation enabling was successful then update telemetry
@@ -148,7 +149,7 @@ namespace Plugin
         }
         else
         {
-            disableIsolation();
+            disableIsolation(nftWrapper_);
         }
 
         Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
@@ -209,8 +210,8 @@ namespace Plugin
 
         ntpPolicy_ = newPolicy;
         LOGINFO("Updating network filtering rules with new policy");
-        disableIsolation();
-        enableIsolation();
+        disableIsolation(nftWrapper_);
+        enableIsolation(nftWrapper_);
     }
 
 
@@ -221,16 +222,16 @@ namespace Plugin
         baseService_->sendStatus("NTP", status.xml(), status.xmlWithoutTimestamp());
     }
 
-    void PluginAdapter::enableIsolation()
+    void PluginAdapter::enableIsolation(const INftWrapperPtr& nftWrapper)
     {
         LOGINFO("Enabling Device Isolation");
-        auto result = NftWrapper::applyIsolateRules(ntpPolicy_->exclusions());
-        if (result == NftWrapper::IsolateResult::FAILED)
+        auto result = nftWrapper->applyIsolateRules(ntpPolicy_->exclusions());
+        if (result == IsolateResult::FAILED)
         {
             LOGERROR("Failed to isolate device");
             return;
         }
-        else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
+        else if (result == IsolateResult::RULES_NOT_PRESENT)
         {
             // Check if isolation shouldn't be enabled but our table is in the nft ruleset
             if (!isolationEnabled_.getValue())
@@ -240,19 +241,20 @@ namespace Plugin
             LOGWARN("Tried to enable isolation but it was already enabled in the first place");
         }
         isolationEnabled_.setValueAndForceStore(true);
+        callback_->setIsolated(true);
         LOGINFO("Device is now isolated");
     }
 
-    void PluginAdapter::disableIsolation()
+    void PluginAdapter::disableIsolation(const INftWrapperPtr& nftWrapper)
     {
         LOGINFO("Disabling Device Isolation");
-        auto result = NftWrapper::clearIsolateRules();
-        if (result == NftWrapper::IsolateResult::FAILED)
+        auto result = nftWrapper->clearIsolateRules();
+        if (result == IsolateResult::FAILED)
         {
             LOGERROR("Failed to remove device from isolation");
             return;
         }
-        else if (result == NftWrapper::IsolateResult::RULES_NOT_PRESENT)
+        else if (result == IsolateResult::RULES_NOT_PRESENT)
         {
             // Check if isolation should be enabled but our table is not in the nft ruleset
             if (isolationEnabled_.getValue())
@@ -263,6 +265,7 @@ namespace Plugin
             LOGDEBUG("Tried to disable isolation but it was already disabled in the first place");
         }
         isolationEnabled_.setValueAndForceStore(false);
+        callback_->setIsolated(false);
         LOGINFO("Device is no longer isolated");
     }
 

@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h"
@@ -32,7 +32,7 @@ TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCre
     ASSERT_EQ(
         result.statusXML,
         "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" "
-        "activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"123\" /><item name=\"threat\" value=\"123\" "
+        "activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"123\" /><item name=\"admin\" value=\"1\" /><item name=\"threat\" value=\"123\" "
         "/></health>");
 }
 

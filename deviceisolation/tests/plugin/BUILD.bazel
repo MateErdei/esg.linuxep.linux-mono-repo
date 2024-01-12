@@ -1,10 +1,12 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 spl_independent_cc_tests(
     name = "TestPlugin",
     srcs = glob(["*.cpp"]),
     deps = [
+        ":PluginCommon",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/ProcessImpl",
         "//base/modules/Common/TelemetryHelperImpl",
@@ -12,5 +14,17 @@ spl_independent_cc_tests(
         "//base/tests/Common/Helpers",
         "//deviceisolation/modules/pluginimpl",
         "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_library(
+    name = "PluginCommon",
+    hdrs = ["MockNftWrapper.h"],
+    visibility = [
+        "//deviceisolation/tests:__subpackages__",
+    ],
+    deps = [
+        "//deviceisolation/modules/plugin",
+        "@com_google_googletest//:gtest",
     ],
 )

@@ -1,10 +1,16 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #pragma once
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 #include "NTPPolicy.h"
 #include "PluginCallback.h"
 #include "TaskQueue.h"
+
+#include "deviceisolation/modules/plugin/INftWrapper.h"
 
 #include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PersistentValue/PersistentValue.h"
@@ -20,18 +26,22 @@ namespace Plugin
                 std::shared_ptr<PluginCallback> callback);
         void mainLoop();
 
+    TEST_PUBLIC:
+        void enableIsolation(const INftWrapperPtr& nftWrapper);
+        void disableIsolation(const INftWrapperPtr& nftWrapper);
+
+
     private:
         void processAction(const std::string& actionXml);
         void processPolicy(const std::string& appId, const std::string& policyXml);
         void updateIsolationRules(const std::shared_ptr<NTPPolicy> newPolicy);
         void sendStatus();
-        void enableIsolation();
-        void disableIsolation();
 
         std::shared_ptr<TaskQueue> taskQueue_;
         std::shared_ptr<Common::PluginApi::IBaseServiceApi> baseService_;
         std::shared_ptr<PluginCallback> callback_;
         std::shared_ptr<NTPPolicy> ntpPolicy_;
+        INftWrapperPtr nftWrapper_;
         Common::PersistentValue<bool> isolationEnabled_;
 
     protected:

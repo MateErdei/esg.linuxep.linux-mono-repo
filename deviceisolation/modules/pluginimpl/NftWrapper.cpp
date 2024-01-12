@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "NftWrapper.h"
 #include "ApplicationPaths.h"
@@ -10,8 +10,7 @@
 
 namespace Plugin
 {
-    NftWrapper::IsolateResult
-    NftWrapper::applyIsolateRules(const std::vector<Plugin::IsolationExclusion> &allowList)
+    IsolateResult NftWrapper::applyIsolateRules(const std::vector<Plugin::IsolationExclusion> &allowList)
     {
         auto fs = Common::FileSystem::fileSystem();
 
@@ -231,7 +230,7 @@ namespace Plugin
         return IsolateResult::SUCCESS;
     }
 
-    NftWrapper::IsolateResult NftWrapper::clearIsolateRules()
+    IsolateResult NftWrapper::clearIsolateRules()
     {
         //https://wiki.nftables.org/wiki-nftables/index.php/Configuring_tables
         // Linux kernels earlier than 3.18 require you to flush the table's contents first.

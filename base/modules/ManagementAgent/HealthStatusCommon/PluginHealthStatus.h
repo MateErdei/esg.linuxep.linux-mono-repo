@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -45,6 +45,7 @@ namespace ManagementAgent::PluginCommunication
         HealthType healthType;
         healthValue_t healthValue;
         std::string activeHeartbeatUtmId = "";
+        bool isolated = false;
         bool activeHeartbeat = false;
     };
 } // namespace ManagementAgent::PluginCommunication

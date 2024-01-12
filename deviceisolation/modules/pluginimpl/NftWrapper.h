@@ -1,34 +1,27 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #pragma once
-
 
 #include <string>
 #include <vector>
 
 #include "IsolationExclusion.h"
 
+#include "deviceisolation/modules/plugin/INftWrapper.h"
+
 namespace Plugin
 {
-    class NftWrapper
+    static constexpr auto TABLE_NAME = "sophos_device_isolation";
+
+    class NftWrapper : public INftWrapper
     {
-        static constexpr auto TABLE_NAME = "sophos_device_isolation";
 
     public:
-        enum class IsolateResult
-        {
-            SUCCESS,
-            // The rules were not present when trying to remove them
-            RULES_NOT_PRESENT,
-            FAILED
-        };
-
         // Isolate the endpoint and allow the specified IP exclusions
-        static IsolateResult
-        applyIsolateRules(const std::vector<Plugin::IsolationExclusion>& allowList);
+        IsolateResult applyIsolateRules(const std::vector<Plugin::IsolationExclusion>& allowList) override;
 
         // Flush all Sophos isolation rules
-        static IsolateResult clearIsolateRules();
+        IsolateResult clearIsolateRules() override;
 
     };
 } // namespace Plugin

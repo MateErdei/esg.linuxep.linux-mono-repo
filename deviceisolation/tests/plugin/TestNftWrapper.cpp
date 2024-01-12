@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "pluginimpl/ApplicationPaths.h"
 #include "pluginimpl/NTPPolicy.h"
@@ -74,8 +74,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesDefaultRuleset)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::SUCCESS);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::SUCCESS);
     EXPECT_TRUE(appenderContains("Successfully set network filtering rules"));
 }
 
@@ -90,9 +91,10 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesMissingNftBinary)
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(_, _, _, _)).Times(0);
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::applyIsolateRules({}));
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.applyIsolateRules({}));
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("nft binary does not exist: /opt/sophos-spl/plugins/deviceisolation/bin/nft"));
 }
 
@@ -106,9 +108,10 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNftBinaryThatIsNotExecutable)
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(_, _, _, _)).Times(0);
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::applyIsolateRules({}));
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.applyIsolateRules({}));
+    EXPECT_EQ(result, IsolateResult::FAILED);
 
     EXPECT_TRUE(appenderContains("nft binary is not executable"));
 }
@@ -147,8 +150,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesTimesOutIfNftHangsListTable)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("The nft list table command did not complete in time, killing process"));
 }
 
@@ -192,8 +196,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesTimesOutIfNftReadingFromRulesFile)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("The nft command did not complete in time, killing process"));
 }
 
@@ -234,8 +239,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNonZeroReturnFromNFTSettingRules)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("Failed to set network rules, nft exit code: 1"));
     EXPECT_TRUE(appenderContains("nft output for set network: process failure output"));
 }
@@ -270,8 +276,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNonZeroReturnFromNFTListRules)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::RULES_NOT_PRESENT);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::RULES_NOT_PRESENT);
     EXPECT_TRUE(appenderContains("nft list table output while applying rules: table exists already"));
 }
 
@@ -316,8 +323,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNftFailure)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules({});
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules({});
+    EXPECT_EQ(result, IsolateResult::FAILED);
 }
 
 TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
@@ -515,8 +523,9 @@ TEST_F(TestNftWrapper, applyIsolateRulesWithExclusions)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::applyIsolateRules(policy.exclusions());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::SUCCESS);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.applyIsolateRules(policy.exclusions());
+    EXPECT_EQ(result, IsolateResult::SUCCESS);
 }
 
 TEST_F(TestNftWrapper, clearIsolateRulesSucceeds)
@@ -548,8 +557,9 @@ TEST_F(TestNftWrapper, clearIsolateRulesSucceeds)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::clearIsolateRules();
-    EXPECT_EQ(result, NftWrapper::IsolateResult::SUCCESS);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.clearIsolateRules();
+    EXPECT_EQ(result, IsolateResult::SUCCESS);
     EXPECT_TRUE(appenderContains("Successfully cleared Sophos network filtering rules"));
 }
 
@@ -562,9 +572,10 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesMissingBinary)
     EXPECT_CALL(*mockFileSystem, isExecutable(NFT_BINARY)).Times(0);
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("nft binary does not exist: /opt/sophos-spl/plugins/deviceisolation/bin/nft"));
 }
 
@@ -579,9 +590,10 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesNftBinaryThatIsNotExecutable)
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(_, _, _, _)).Times(0);
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("nft binary is not executable"));
 }
 
@@ -605,9 +617,10 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesTableExistReturningNonZero)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::RULES_NOT_PRESENT);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::RULES_NOT_PRESENT);
     EXPECT_TRUE(appenderContains("nft exit code 1: rules probably not present"));
     EXPECT_TRUE(appenderContains("nft output for list table: process failure output"));
 }
@@ -632,9 +645,10 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesTableExistReturningNonOne)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::RULES_NOT_PRESENT);
+    IsolateResult result;
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::RULES_NOT_PRESENT);
     EXPECT_TRUE(appenderContains("Failed to list table, nft exit code: 2"));
     EXPECT_TRUE(appenderContains("nft output for list table: process failure output 2"));
 }
@@ -661,9 +675,11 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesFlushTableReturningNonZero)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("Failed to flush table, nft exit code: 1"));
     EXPECT_TRUE(appenderContains("nft output for flush table: process failure output"));
 }
@@ -692,9 +708,11 @@ TEST_F(TestNftWrapper, clearIsolateRulesHandlesDeleteTableReturningNonZero)
             });
 
 
-    NftWrapper::IsolateResult result;
-    EXPECT_NO_THROW(result = NftWrapper::clearIsolateRules());
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    IsolateResult result;
+
+    auto nftWrapper = NftWrapper();
+    EXPECT_NO_THROW(result = nftWrapper.clearIsolateRules());
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("Failed to delete table, nft exit code: 1"));
     EXPECT_TRUE(appenderContains("nft output for delete table: process failure output"));
 }
@@ -721,8 +739,9 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangsCheckingIfTableExists)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::clearIsolateRules();
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.clearIsolateRules();
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("The nft list table command did not complete in time"));
 }
 
@@ -754,8 +773,9 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangsFlushingTable)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::clearIsolateRules();
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.clearIsolateRules();
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("The nft flush table command did not complete in time"));
 }
 
@@ -788,7 +808,8 @@ TEST_F(TestNftWrapper, clearIsolateRulesTimesOutIfNftHangsDeletingTable)
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
             });
 
-    NftWrapper::IsolateResult result = NftWrapper::clearIsolateRules();
-    EXPECT_EQ(result, NftWrapper::IsolateResult::FAILED);
+    auto nftWrapper = NftWrapper();
+    IsolateResult result = nftWrapper.clearIsolateRules();
+    EXPECT_EQ(result, IsolateResult::FAILED);
     EXPECT_TRUE(appenderContains("The nft delete table command did not complete in time"));
 }

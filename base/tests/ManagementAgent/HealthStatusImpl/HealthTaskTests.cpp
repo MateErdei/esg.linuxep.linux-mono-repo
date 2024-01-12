@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -45,7 +45,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedV
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
         std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="admin" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_healthFilePath, _, m_tempDir, m_statusFileMode)).Times(1);
     EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillOnce(Return(true));
@@ -68,7 +68,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNot
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
         std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="admin" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
     EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath)).WillRepeatedly(Return("{\"health\":1,\"service\":1,\"threatService\":1,\"threat\":1}"));
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
@@ -93,8 +93,8 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
         std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    std::string expectedXmlGood = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
-    std::string expectedXmlBad = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="1" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXmlGood = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="admin" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXmlBad = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="admin" value="1" /><item name="service" value="3" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="1" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthGood;
     pluginHealthGood.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -140,8 +140,8 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformatio
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
             std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    std::string expectedXmlGood = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="some-random-utm-id-0"><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
-    std::string expectedXmlBad = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="1" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXmlGood = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="some-random-utm-id-0"><item name="health" value="1" /><item name="admin" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    std::string expectedXmlBad = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="admin" value="1" /><item name="service" value="3" ><detail name="Sophos MCS Client" value="0" /><detail name="Plugin One" value="1" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthGood;
     pluginHealthGood.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -201,7 +201,7 @@ TEST_F(HealthTaskTests, run_healthRemovesMissingPluginsIfNotFoundInRegistry)
 
     // No bad plugins, since they've been removed, results in good health
     std::string expectedXml =
-        R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+        R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="admin" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
 
     EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath))

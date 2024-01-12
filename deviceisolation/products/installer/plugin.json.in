@@ -18,6 +18,7 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
+  "serviceHealth": true,
   "executableUserAndGroup": "root:sophos-spl-group",
   "secondsToShutDown":20,
   "displayPluginName": "@PRODUCT_PRETTY_NAME@"

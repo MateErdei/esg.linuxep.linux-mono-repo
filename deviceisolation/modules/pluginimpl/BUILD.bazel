@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 load("//deviceisolation:substitutions.bzl", "SUBSTITUTIONS")
@@ -35,6 +35,7 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "//base/modules/Common/PersistentValue",
         "//base/modules/Common/PluginApi",
+        "//deviceisolation/modules/plugin",
     ],
 )
 

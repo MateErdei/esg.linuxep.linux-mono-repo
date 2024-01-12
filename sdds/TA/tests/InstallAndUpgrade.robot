@@ -39,6 +39,7 @@ ${SDDS3PrimaryRepository}             ${SOPHOS_INSTALL}/base/update/cache/sdds3p
 
 ${HealthyShsStatusXmlContents}        <item name="health" value="1" />
 ${GoodThreatHealthXmlContents}        <item name="threat" value="1" />
+${GoodIsolationXmlContents}           <item name="admin" value="1" />
 
 # Thin installer appends sophos-spl to the argument
 ${CUSTOM_INSTALL_DIRECTORY}    /home/parent/sophos-spl
@@ -491,6 +492,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    SHS Status File Contains  ${GoodIsolationXmlContents}
     # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
     ...  60 secs

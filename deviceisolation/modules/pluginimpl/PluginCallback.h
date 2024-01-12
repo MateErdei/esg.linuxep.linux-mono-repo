@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -32,8 +32,10 @@ namespace Plugin
 
         void setRunning(bool running);
         bool isRunning();
+        virtual void setIsolated(const bool isolated);
 
     private:
         std::atomic_bool m_running = false;
+        std::atomic_bool isolated_ = false;
     };
 }; // namespace Plugin
