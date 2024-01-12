@@ -40,12 +40,13 @@ Thin Installer Installs Working Base But Failing Plugin And Base Is Persisted Wh
     Generate Fake Sdds3 Warehouse With Real Base But Fake Failing Plugin
 
     Should Not Exist    ${SOPHOS_INSTALL}
-    Run Default Thininstaller  expected_return_code=${18}
+    # Run without debug logging to prove the logs are present without it
+    Run Default Thininstaller    expected_return_code=${18}    debug_thin_installer=${False}
 
+    Check Thininstaller Log Contains    Failed to install at least one of the packages, see logs for details
     Check Thininstaller Log Contains    ERROR Installation of ServerProtectionLinux-Plugin-AV failed.
     Check Thininstaller Log Contains    ERROR ServerProtectionLinux-Plugin-AV: THIS IS BAD
     Check Thininstaller Log Contains    ERROR See ServerProtectionLinux-Plugin-AV_install.log for the full installer output.
-    Check Thininstaller Log Contains    Failed to install at least one of the packages, see logs for details
     Check Thininstaller Log Contains    Warning: the product has been partially installed and not all functionality may be present
     Check Thininstaller Log Contains    Logs are available at /opt/sophos-spl/logs and /opt/sophos-spl/plugins/*/log
     Check Thininstaller Log Contains    Please see https://support.sophos.com/support/s/article/KB-000041952 for troubleshooting help
@@ -58,15 +59,16 @@ Thin Installer Installs Failing Base And Fails And Base Error is Logged And Prod
     Generate Fake Sdds3 Warehouse With Fake Failing Base
 
     Should Not Exist    ${SOPHOS_INSTALL}
-    Run Default Thininstaller  expected_return_code=${18}
+    # Run without debug logging to prove the logs are present without it
+    Run Default Thininstaller    expected_return_code=${18}    debug_thin_installer=${False}
     Should Not Exist    ${SOPHOS_INSTALL}
 
+    Check Thininstaller Log Contains    Failed to install at least one of the packages, see logs for details
     Check Thininstaller Log Contains    ERROR Installation of ServerProtectionLinux-Base-component failed.
     Check Thininstaller Log Contains    ERROR ServerProtectionLinux-Base-component: THIS IS BAD
     Check Thininstaller Log Contains    ERROR See ServerProtectionLinux-Base-component_install.log for the full installer output.
     Check Thininstaller Log Contains    ERROR Base installation failed, not installing any plugins
     Check Thininstaller Log Contains    ERROR Failed to start product
-    Check Thininstaller Log Contains    Failed to install at least one of the packages, see logs for details
     Check Thininstaller Log Contains    Copying SPL logs to
     Check Thininstaller Log Contains    Removing /opt/sophos-spl
     Check Thininstaller Log Contains    Please see https://support.sophos.com/support/s/article/KB-000041952 for troubleshooting help

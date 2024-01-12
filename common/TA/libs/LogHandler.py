@@ -56,7 +56,7 @@ def _generate_log_paths(log_path, rtd=False):
 
 
 class LogMark:
-    def __init__(self, log_path, position=-1, inode=None):
+    def __init__(self, log_path, position=-1, inode=None, rtd=False):
         self.__m_log_path = log_path
         self.__m_override_position = position
         if inode is not None:
@@ -73,6 +73,7 @@ class LogMark:
 
         self.__m_mark_time = time.time()
         # Line-count?
+        self.__rtd = rtd
 
     def __str__(self):
         mark_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(self.__m_mark_time))
@@ -127,8 +128,8 @@ class LogMark:
         except OSError:
             return None
 
-    def __generate_contents(self, rtd=False):
-        for log_path in _generate_log_paths(self.__m_log_path, rtd):
+    def __generate_contents(self):
+        for log_path in _generate_log_paths(self.__m_log_path, self.__rtd):
             try:
                 with open(log_path, "rb") as f:
                     stat = os.fstat(f.fileno())
@@ -146,8 +147,8 @@ class LogMark:
                     logger.error("Ran out of log files getting content for " + self.__m_log_path)
                 return
 
-    def __generate_full_contents(self, rtd=False):
-        for log_path in _generate_log_paths(self.__m_log_path, rtd):
+    def __generate_full_contents(self):
+        for log_path in _generate_log_paths(self.__m_log_path, self.__rtd):
             try:
                 with open(log_path, "rb") as f:
                     stat = os.fstat(f.fileno())
@@ -243,7 +244,7 @@ class LogMark:
                     if self.__m_inode == stat.st_ino:
                         # mark is within the current file, so pos must be as well
                         absolute_pos = pos + self.get_size()
-                        return LogMark(self.__m_log_path, absolute_pos, stat.st_ino)
+                        return LogMark(self.__m_log_path, absolute_pos, stat.st_ino, rtd=self.__rtd)
                     else:
                         # mark is is a previous log file
                         # pos might be in a previous file
@@ -251,11 +252,11 @@ class LogMark:
                             absolute_pos = self.__find_str_in_contents(expected, contents)  # see if we have a match
                             if absolute_pos > -1:
                                 # A match in this log file, so return if
-                                return LogMark(self.__m_log_path, absolute_pos, inode)
+                                return LogMark(self.__m_log_path, absolute_pos, inode, rtd=self.__rtd)
 
                         # No good match - log files must be rotating too fast - so use start of current file
                         logger.error("Failed to find matching mark for found contents - log files rotating too fast!")
-                        return LogMark(self.__m_log_path, 0)
+                        return LogMark(self.__m_log_path, 0, rtd=self.__rtd)
 
                 old_contents = contents
             time.sleep(sleep_time)
@@ -354,18 +355,22 @@ class LogMark:
         stat = os.stat(self.__m_log_path)
         if stat.st_size < absolute_pos:
             absolute_pos = stat.st_size
-        return LogMark(self.__m_log_path, absolute_pos)
+        return LogMark(self.__m_log_path, absolute_pos, rtd=self.__rtd)
 
 
 class LogHandler:
-    def __init__(self, log_path: str):
+    """
+    :param rtd: Use the RTD match string instead of the usual sophos plugin string
+    """
+    def __init__(self, log_path: str, rtd=False):
         self.__m_log_path = log_path
+        self.__rtd = rtd
 
     def get_mark(self) -> LogMark:
-        return LogMark(self.__m_log_path)
+        return LogMark(self.__m_log_path, rtd=self.__rtd)
 
     def get_mark_at_start_of_current_file(self) -> LogMark:
-        return LogMark(self.__m_log_path, 0)
+        return LogMark(self.__m_log_path, 0, rtd=self.__rtd)
 
     def assert_mark_is_good(self, mark: LogMark):
         assert isinstance(mark, LogMark)
@@ -406,13 +411,13 @@ class LogHandler:
         except OSError:
             return b""
 
-    def __generate_log_file_names(self, rtd=False):
-        for p in _generate_log_paths(self.__m_log_path, rtd):
+    def __generate_log_file_names(self):
+        for p in _generate_log_paths(self.__m_log_path, self.__rtd):
             yield p
 
-    def __generate_reversed_lines(self, mark=None, rtd=False):
+    def __generate_reversed_lines(self, mark=None):
         if mark is None:
-            for file_path in self.__generate_log_file_names(rtd):
+            for file_path in self.__generate_log_file_names():
                 lines = self.__readlines(file_path)
                 lines = reversed(lines)  # read the newest first
                 for line in lines:
@@ -422,7 +427,7 @@ class LogHandler:
             for line in mark.generate_reversed_lines():
                 yield line
 
-    def get_content_since_last_start(self, mark=None, rtd=False) -> list:
+    def get_content_since_last_start(self, mark=None) -> list:
         """
         Get the log file contents since the last start, assuming the process
         starts by logging: "Logger .* configured for level:"
@@ -430,10 +435,10 @@ class LogHandler:
         """
         results = []
         START_RE = re.compile(rb".*<> Logger .* configured for level: ")
-        if rtd:
+        if self.__rtd:
             START_RE = re.compile(rb"\d* *\[.*\]    INFO \[\d*\] runtimedetections <> Sophos Runtime Detections Plugin")
 
-        for line in self.__generate_reversed_lines(mark, rtd):  # read the newest first
+        for line in self.__generate_reversed_lines(mark):  # read the newest first
             mo = START_RE.match(line)
             results.append(line)
             if mo:
@@ -463,21 +468,20 @@ class LogHandler:
 
         return results
 
-    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None, rtd=False) -> None:
+    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
         """
         Need to look for the restart in the log, and check the log after that.
         A restart means the first digit resetting to 0
         :param mark: Optional Mark - only check log after mark
         :param expected: String expected in log
         :param timeout: Amount of time to wait for expected to appear
-        :param rtd: Use the RTD match string instead of the usual sophos plugin string
         :return: None
         """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         content_lines = []
         while time.time() < start + timeout:
-            content_lines = self.get_content_since_last_start(mark, rtd)
+            content_lines = self.get_content_since_last_start(mark)
             for line in content_lines:
                 if expected in line:
                     return

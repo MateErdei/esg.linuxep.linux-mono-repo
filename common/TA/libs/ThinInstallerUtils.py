@@ -247,7 +247,8 @@ class ThinInstallerUtils(object):
                           sus_url=None,
                           cdn_url=None,
                           force_legacy_install=False,
-                          sophos_log_level=None):
+                          sophos_log_level=None,
+                          debug_thin_installer=True):
         if not mcs_ca:
             env_cert = os.environ.get("MCS_CA", "")
             if os.path.isfile(env_cert):
@@ -273,7 +274,8 @@ class ThinInstallerUtils(object):
             command.append("--allow-override-mcs-ca")
         if mcsurl:
             self.env["OVERRIDE_CLOUD_URL"] = mcsurl
-        self.env["DEBUG_THIN_INSTALLER"] = "1"
+        if debug_thin_installer:
+            self.env["DEBUG_THIN_INSTALLER"] = "1"
         if proxy:
             self.env["https_proxy"] = proxy
         if override_path is not None:
@@ -318,7 +320,8 @@ class ThinInstallerUtils(object):
                                   temp_dir_to_unpack_to=None,
                                   thininstaller_args=[],
                                   sus_url="https://localhost:8080",
-                                  cdn_url="https://localhost:8080",):
+                                  cdn_url="https://localhost:8080",
+                                  debug_thin_installer=True):
 
         if not installsh_path:
             installsh_path = self.default_installsh_path
@@ -331,7 +334,8 @@ class ThinInstallerUtils(object):
                                cleanup=cleanup,
                                temp_dir_to_unpack_to=temp_dir_to_unpack_to,
                                sus_url=sus_url,
-                               cdn_url=cdn_url)
+                               cdn_url=cdn_url,
+                               debug_thin_installer=debug_thin_installer)
 
     def run_default_thininstaller_with_different_name(self, new_filename, *args, **kwargs):
         new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)

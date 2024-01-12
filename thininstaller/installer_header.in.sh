@@ -240,6 +240,12 @@ function failure() {
 
     echo "$2" >&2
 
+    # Log errors from SulDownloader
+    if [[ -s "${SOPHOS_INSTALL}/logs/base/suldownloader.log" ]]
+    then
+        grep -E 'ERROR|FATAL' "${SOPHOS_INSTALL}/logs/base/suldownloader.log" | sed -E -e 's/.*(ERROR|FATAL).*>(.*)/\1\2/'
+    fi
+
     # Dump logs which may be useful for support/developers to troubleshoot issues
     if [[ -n "${DEBUG_THIN_INSTALLER}" ]]
     then

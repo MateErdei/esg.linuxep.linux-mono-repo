@@ -1071,7 +1071,8 @@ class LogUtils(object):
     def get_log_handler(self, logpath) -> LogHandler.LogHandler:
         handler = self.__m_log_handlers.get(logpath, None)
         if handler is None:
-            handler = LogHandler.LogHandler(logpath)
+            rtd = logpath == self.rtd_log
+            handler = LogHandler.LogHandler(logpath, rtd=rtd)
             self.__m_log_handlers[logpath] = handler
         return handler
 
@@ -1267,7 +1268,7 @@ class LogUtils(object):
 # RTD Log
     def wait_for_rtd_log_contains_after_last_restart(self, log_path, expected, timeout: int = 20, mark=None):
         handler = self.get_log_handler(log_path)
-        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark, True)
+        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
 
 ########################################################################################################################
 # On-Access Soapd Log

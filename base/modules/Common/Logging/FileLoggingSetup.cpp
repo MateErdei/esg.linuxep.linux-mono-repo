@@ -64,9 +64,9 @@ void Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::stri
     Common::Logging::LoggingSetup::applyDefaultPattern(appender);
     log4cplus::Logger::getRoot().addAppender(appender);
 
-    // Log error messages to stderr
+    // Log fatal messages to stderr, assuming that we are unable to add them to the log file
     log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
-    stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
+    stderr_appender->setThreshold(log4cplus::FATAL_LOG_LEVEL);
     Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
     log4cplus::Logger::getRoot().addAppender(stderr_appender);
 }
