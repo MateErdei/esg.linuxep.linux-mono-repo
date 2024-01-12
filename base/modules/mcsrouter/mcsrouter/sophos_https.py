@@ -292,7 +292,10 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         connect = [
             "CONNECT %s:%d HTTP/1.1\r\n" %
             (self._tunnel_host, self._tunnel_port)]
-        for header, value in self._tunnel_headers.items():
+        headers = self._tunnel_headers.copy()
+        headers["Host"] = f"{self._tunnel_host}:{self._tunnel_port}"
+        headers["Proxy-Connection"] = "Keep-Alive"
+        for header, value in headers.items():
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
         debug("Connect message: {} ".format(str(connect)))

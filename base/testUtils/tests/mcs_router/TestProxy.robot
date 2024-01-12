@@ -74,6 +74,7 @@ MCS Requests To Connect Using HTTP 1.1
     Start MCSRouter
     Check MCS Router log contains proxy success  localhost:3333
     Wait for log contains from mark  ${mcs_router_mark}    CONNECT localhost:4443 HTTP/1.1
+    Wait For Log Contains From Mark    ${mcs_router_mark}    Host: localhost:4443
 
 Register in cloud through basic auth proxy
     [Documentation]  Derived from CLOUD.PROXY.007_basic_auth.sh

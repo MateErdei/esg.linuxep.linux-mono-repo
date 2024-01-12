@@ -59,7 +59,10 @@ class ReplaceConnection(OriginalVerifiedHTTPSConnection):
                                                       self._tunnel_port)
         connect_bytes = connect_str.encode("ascii")
         self.send(connect_bytes)
-        for header, value in self._tunnel_headers.items():
+        headers = self._tunnel_headers.copy()
+        headers["Host"] = f"{self._tunnel_host}:{self._tunnel_port}"
+        headers["Proxy-Connection"] = "Keep-Alive"
+        for header, value in headers.items():
             header_str = "%s: %s\r\n" % (header, value)
             header_bytes = header_str.encode("latin-1")
             self.send(header_bytes)

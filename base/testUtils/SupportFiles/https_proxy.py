@@ -178,6 +178,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         if self.request_version != "HTTP/1.1":
             self.send_response(418, 'HTTP version not supported')
+        elif "Host" not in self.headers or self.headers["Host"] != self.path:
+            self.send_response(400, "Invalid Host header")
         else:
             self.send_response(200, 'Connection Established')
         self.end_headers()
