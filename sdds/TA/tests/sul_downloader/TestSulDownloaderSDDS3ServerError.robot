@@ -283,7 +283,7 @@ SUS Fault Injection Server Responds With Empty Body
     ...   30 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
-        ...  Failed to connect to repository: SUS request failed with error: Transferred a partial file
+        ...  Failed to connect to repository: SUS request failed with error: Failure when receiving data from the peer
         ...  Update failed, with code: 107
 
 SUS Fault Injection Server response with static version not found
