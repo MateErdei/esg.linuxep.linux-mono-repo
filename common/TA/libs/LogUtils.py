@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 import glob
 import os
@@ -1312,9 +1312,12 @@ class LogUtils(object):
             contents = f.read()
             path_regex = re.compile(r"\"(.+openssl\.cnf)\"")
             matches = path_regex.findall(contents)
-            for path in matches:
-                if path != "/etc/ssl/openssl.cnf":
-                    raise AssertionError(f"Found an unexpected instance of an openssl config" )
+            exclusions = [
+                "/etc/ssl/openssl.cnf",
+            ]
+            unexpected_matches = [match for match in matches if match not in exclusions]
+            if len(unexpected_matches) > 0:
+                raise AssertionError(f"Found unexpected reads of openssl configs:\n" + "\n".join(unexpected_matches))
 
     def wait_for_response_action_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30, oldcode: bool = False):
         response_actions_mark = log_marks["response_actions_mark"]

@@ -1,9 +1,16 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load(":patch_osquery_for_openssl_config.bzl", "patch_osquery_for_openssl_config")
+load("@rules_python//python:defs.bzl", "py_binary")
 
-alias(
+py_binary(
+    name = "patch_osquery_for_openssl_config",
+    srcs = ["patch_osquery_for_openssl_config.py"],
+)
+
+patch_osquery_for_openssl_config(
     name = "osqueryd",
-    actual = select({
+    src = select({
         "//tools/config:linux_x64": "linux_x64_rel/osquery/opt/osquery/bin/osqueryd",
         "//tools/config:linux_arm64": "linux_arm64_rel/osquery/opt/osquery/bin/osqueryd",
         "//tools/config:linux_x64_clang": "linux_x64_rel/osquery/opt/osquery/bin/osqueryd",
