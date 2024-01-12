@@ -4,7 +4,7 @@
   "targetFile": "/tmp/largefile",
   "compress": false,
   "password": "",
-  "timeout": 0,
-  "maxUploadSizeBytes": 1000000,
+  "timeout": 1,
+  "maxUploadSizeBytes": 1000000000,
   "expiration": 144444000000004
 }

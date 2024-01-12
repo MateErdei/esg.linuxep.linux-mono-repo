@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
@@ -59,17 +59,11 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockIFilePermissions = std::make_unique<MockFilePermissions>();
-    EXPECT_CALL(*mockIFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group")).Times(1);
-    EXPECT_CALL(*mockIFilePermissions, chmod(_, _)).Times(1);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissions));
-
     auto* filesystemMock = new MockFileSystem();
-    EXPECT_CALL(*filesystemMock, writeFile(_, _)).Times(1);
-    EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-
+            filesystemMock) };
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
@@ -92,8 +86,7 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 2"));
     EXPECT_TRUE(waitForLog("Action runner reached time out of 100 secs, correlation ID: correlationid"));
-    EXPECT_TRUE(
-        waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
+
     EXPECT_EQ(queueTask->pop().m_taskType,
               ResponsePlugin::Task::TaskType::CHECK_QUEUE);
 }
@@ -110,6 +103,8 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, writeFile(_, _)).Times(1);
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
@@ -125,7 +120,7 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
             EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
-            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(10));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
@@ -134,7 +129,7 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
 
     actionRunner.runAction("action", "correlationid", UPLOAD_FILE_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
-    EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 2"));
+    EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 10"));
     EXPECT_TRUE(waitForLog("Action Runner had to be killed after it carried on running unexpectedly"));
     EXPECT_TRUE(waitForLog("Action runner reached time out of 100 secs, correlation ID: correlationid"));
     EXPECT_TRUE(
@@ -181,8 +176,10 @@ TEST_F(TestActionRunner, ProcessRunning_RequiresSIGKILL)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, writeFile(_, _)).Times(1);
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+            filesystemMock) };
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -221,10 +218,13 @@ TEST_F(TestActionRunner, runActionHandlesMissingBinaryWithInternalErrorResultCod
 
     // result 3 is INTERNAL_ERROR
     std::string expectedContent = R"({"result":3,"type":"sophos.mgt.response.RunCommands"})";
-    auto filesystemMock = std::make_unique<MockFileSystem>();
+    auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, writeFile(_, expectedContent)).Times(1);
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(filesystemMock) };
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+            filesystemMock) };
 
     auto mockAppManager = std::make_unique<MockedApplicationPathManager>();
     MockedApplicationPathManager& mock(*mockAppManager);
@@ -253,8 +253,12 @@ TEST_F(TestActionRunner, runActionHandlesNonExecutableBinaryWithInternalErrorRes
     std::string expectedContent = R"({"result":3,"type":"sophos.mgt.response.RunCommands"})";
     auto filesystemMock = std::make_unique<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFile(_, expectedContent)).Times(1);
+
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(filesystemMock) };
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(
+            filesystemMock) };
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -313,7 +317,7 @@ TEST_P(TestActionRunnerParameterized, SendFailedResponseAssignsCorrectTypes)
             EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
-            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(3));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
     auto queueTask = std::make_shared<TaskQueue>();
@@ -325,6 +329,8 @@ TEST_P(TestActionRunnerParameterized, SendFailedResponseAssignsCorrectTypes)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, writeFile(_, expected.str())).Times(1);
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
@@ -498,7 +504,11 @@ INSTANTIATE_TEST_SUITE_P(
 TEST_P(TestFailureTelemetry, Failed_Telemetry_Increments_Action)
 {
     auto [requestType, requestCountFieldName] = GetParam();
-
+    auto* filesystemMock = new MockFileSystem();
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+            filesystemMock) };
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
@@ -556,16 +566,11 @@ TEST_P(TestTimeoutTelemetry, Timeout_Telemetry_Increments_Action)
 {
     auto [requestType, requestCountFieldName] = GetParam();
 
-    auto mockIFilePermissions = std::make_unique<MockFilePermissions>();
-    EXPECT_CALL(*mockIFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group")).Times(1);
-    EXPECT_CALL(*mockIFilePermissions, chmod(_, _)).Times(1);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissions));
-
     auto* filesystemMock = new MockFileSystem();
-    EXPECT_CALL(*filesystemMock, writeFile(_, _)).Times(1);
-    EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+            filesystemMock) };
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -614,6 +619,8 @@ TEST_P(TestTimeoutTelemetry, Hang_Telemetry_Increments_Action)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, writeFile(_, _)).Times(1);
     EXPECT_CALL(*filesystemMock, moveFile(_, _)).Times(1);
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
@@ -677,7 +684,11 @@ INSTANTIATE_TEST_SUITE_P(
 TEST_P(TestExpiredTelemetry, Expired_Telemetry_Increments_Action)
 {
     auto [requestType, requestCountFieldName] = GetParam();
-
+    auto* filesystemMock = new MockFileSystem();
+    std::vector<Path> mockPaths = {};
+    EXPECT_CALL(*filesystemMock, listFilesAndDirectories(_,_)).WillOnce(Return(mockPaths));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+            filesystemMock) };
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {

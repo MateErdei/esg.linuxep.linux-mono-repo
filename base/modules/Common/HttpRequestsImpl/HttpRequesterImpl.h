@@ -1,10 +1,9 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 #include "Common/CurlWrapper/ICurlWrapper.h"
 #include "Common/HttpRequests/IHttpRequester.h"
+
 
 namespace Common::HttpRequestsImpl
 {
@@ -43,7 +42,7 @@ namespace Common::HttpRequestsImpl
         Common::HttpRequests::Response put(Common::HttpRequests::RequestConfig request) override;
         Common::HttpRequests::Response del(Common::HttpRequests::RequestConfig request) override;
         Common::HttpRequests::Response options(Common::HttpRequests::RequestConfig request) override;
-
+        void sendTerminate() override;
     private:
         Common::HttpRequests::Response performRequest(Common::HttpRequests::RequestConfig config);
         std::string curlEscape(const std::string& stringToEscape);

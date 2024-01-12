@@ -32,7 +32,7 @@ class RunCommandTests : public MemoryAppenderUsingTests
             setupMockSysCalls();
 
             m_runCommandAction =
-                std::make_unique<RunCommandAction>(m_mockSignalHandler, m_mockSysCallFactory);
+                std::make_unique<RunCommandAction>(m_mockSignalHandler, m_mockSysCallWrapper);
         }
 
         void setupMockSysCalls()
@@ -40,11 +40,8 @@ class RunCommandTests : public MemoryAppenderUsingTests
             m_mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             ON_CALL(*m_mockSysCallWrapper, ppoll).WillByDefault(pollReturnsWithRevents(1, POLLIN));
 
-            m_mockSysCallFactory = std::make_shared<NiceMock<MockSystemCallWrapperFactory>>();
-            ON_CALL(*m_mockSysCallFactory, createSystemCallWrapper).WillByDefault(Return(m_mockSysCallWrapper));
         }
 
-        std::shared_ptr<MockSystemCallWrapperFactory> m_mockSysCallFactory;
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
         std::shared_ptr<MockSignalHandler> m_mockSignalHandler;
         std::unique_ptr<RunCommandAction> m_runCommandAction;

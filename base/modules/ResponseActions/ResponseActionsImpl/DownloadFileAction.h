@@ -1,9 +1,11 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ActionStructs.h"
 
+#include "Common/ProcessMonitoring/ISignalHandler.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapperFactory.h"
 #include "Common/HttpRequests/IHttpRequester.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
@@ -21,7 +23,9 @@ namespace ResponseActionsImpl
     class DownloadFileAction
     {
     public:
-        DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
+        DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> requester,
+                           Common::ISignalHandlerSharedPtr sigHandler,
+                           Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
         [[nodiscard]] nlohmann::json run(const std::string& actionJson);
 
         TEST_PUBLIC : bool assessSpaceInfo(const DownloadInfo& info);
@@ -29,6 +33,7 @@ namespace ResponseActionsImpl
     private:
         bool initialChecks(const DownloadInfo& info);
         void download(const DownloadInfo& info);
+        Common::HttpRequests::Response doGetRequest(Common::HttpRequests::RequestConfig request);
         void handleHttpResponse(const Common::HttpRequests::Response& httpresponse);
         bool verifyFile(const DownloadInfo& info);
         void decompressAndMoveFile(const DownloadInfo& info);
@@ -67,6 +72,11 @@ namespace ResponseActionsImpl
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
         nlohmann::json m_response;
+
+        bool m_terminate = false;
+        bool m_timeout = false;
+        Common::ISignalHandlerSharedPtr m_SignalHandler;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_SysCallWrapper;
     };
 
 } // namespace ResponseActionsImpl

@@ -17,10 +17,10 @@ using namespace ResponseActionsImpl;
 
 RunCommandAction::RunCommandAction(
     Common::ISignalHandlerSharedPtr sigHandler,
-    Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory) :
-    m_SignalHandler(std::move(sigHandler))
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper) :
+    m_SignalHandler(std::move(sigHandler)),
+    m_SysCallWrapper(std::move(systemCallWrapper))
 {
-    m_SysCallWrapper = sysCallFactory->createSystemCallWrapper();
 }
 
 nlohmann::json RunCommandAction::run(const std::string& actionJson, const std::string& correlationId)

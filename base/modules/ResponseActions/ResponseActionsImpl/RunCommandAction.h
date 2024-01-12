@@ -32,7 +32,7 @@ namespace ResponseActionsImpl
     public:
         RunCommandAction(
             Common::ISignalHandlerSharedPtr sigHandler,
-            Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory);
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
         RunCommandAction() = delete;
 
         nlohmann::json run(const std::string& actionJson, const std::string& correlationId);

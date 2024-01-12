@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -37,4 +37,7 @@ public:
     static size_t curlFileReadFunc(char* ptr, size_t size, size_t nmemb, FILE* stream);
 
     static int curlSeekFileFunc(void* userp, curl_off_t offset, int origin);
+    static void sendTerminateRequest();
+    private:
+        static  std::atomic<bool> terminateRequested;
 };

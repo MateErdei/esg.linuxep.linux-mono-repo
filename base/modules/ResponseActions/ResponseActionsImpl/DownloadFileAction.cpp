@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "DownloadFileAction.h"
 
@@ -8,18 +8,23 @@
 
 #include "Common/FileSystem/IFileTooLargeException.h"
 #include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/Threads/NotifyPipe.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
 // For return value interpretation
 #include <minizip/mz_compat.h>
-
+#include <future>
 namespace FileSystem = Common::FileSystem;
 
 namespace ResponseActionsImpl
 {
-    DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :
-        m_client(std::move(client))
+    DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client,
+                                           Common::ISignalHandlerSharedPtr sigHandler,
+                                           Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper) :
+            m_client(std::move(client)),
+            m_SignalHandler(std::move(sigHandler)),
+            m_SysCallWrapper(std::move(systemCallWrapper))
     {
     }
 
@@ -179,9 +184,12 @@ namespace ResponseActionsImpl
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
         {
             LOGINFO("Downloading via proxy: " << request.proxy.value());
-            httpresponse = m_client->get(request);
+            httpresponse = doGetRequest(request);
             handleHttpResponse(httpresponse);
-
+            if (m_terminate || m_timeout)
+            {
+                return;
+            }
             if (m_response["result"] != 0)
             {
                 LOGWARN("Connection with proxy failed, going direct");
@@ -189,17 +197,74 @@ namespace ResponseActionsImpl
                 request.proxyPassword = "";
                 request.proxyUsername = "";
                 ActionsUtils::resetErrorInfo(m_response);
-                httpresponse = m_client->get(request);
+                httpresponse = doGetRequest(request);
                 handleHttpResponse(httpresponse);
             }
         }
         else
         {
             LOGINFO("Downloading directly");
-            httpresponse = m_client->get(request);
+            httpresponse = doGetRequest(request);
             handleHttpResponse(httpresponse);
         }
         m_response["httpStatus"] = httpresponse.status;
+    }
+
+    Common::HttpRequests::Response DownloadFileAction::doGetRequest(Common::HttpRequests::RequestConfig request)
+    {
+        std::unique_ptr<Common::Threads::NotifyPipe> notifyPipe = std::make_unique<Common::Threads::NotifyPipe>();
+        auto fut = std::async( std::launch::async, [this,request,&notifyPipe]()
+                               {
+                                   Common::HttpRequests::Response response = m_client->get(request);
+                                   notifyPipe->notify();
+                                   return  response;
+                               }
+        );
+
+        struct pollfd fds[]{ { .fd = m_SignalHandler->terminationFileDescriptor(), .events = POLLIN, .revents = 0 },
+                             { .fd = m_SignalHandler->usr1FileDescriptor(), .events = POLLIN, .revents = 0 } ,
+                                { .fd = notifyPipe->readFd(), .events = POLLIN, .revents = 0 }};
+        while (true)
+        {
+            auto ret = m_SysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
+
+            if (ret < 0)
+            {
+                int err = errno;
+                if (err == EINTR)
+                {
+                    LOGDEBUG("Ignoring EINTR from ppoll");
+                    continue;
+                }
+                LOGERROR(
+                        "Error from ppoll while waiting for command to finish: " << std::strerror(err) << "(" << err << ")");
+                break;
+            }
+            else
+            {
+                if ((fds[0].revents & POLLIN) != 0)
+                {
+                    LOGINFO("RunDownloadFileAction has received termination command");
+                    m_terminate = true;
+                    m_client->sendTerminate();
+                    break;
+                }
+                if ((fds[1].revents & POLLIN) != 0)
+                {
+                    LOGINFO("RunDownloadFileAction has received termination command due to timeout");
+                    m_timeout = true;
+                    m_client->sendTerminate();
+                    break;
+                }
+                if ((fds[2].revents & POLLIN) != 0)
+                {
+                    LOGDEBUG("Curl request finished");
+                    break;
+                }
+            }
+
+        }
+        return fut.get();
     }
 
     void DownloadFileAction::handleHttpResponse(const Common::HttpRequests::Response& httpresponse)
@@ -239,6 +304,11 @@ namespace ResponseActionsImpl
             error << "Failed to download, Error: " << httpresponse.error;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str(), "network_error");
+        }
+        if (m_timeout)
+        {
+            m_response["result"] = ResponseActions::RACommon::ResponseResult::TIMEOUT;
+            return;
         }
     }
 

@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 #include <map>
@@ -252,6 +252,11 @@ namespace Common::HttpRequests
         virtual Response del(RequestConfig) = 0;
 
         virtual Response options(RequestConfig) = 0;
+
+        /* this method is used to end a global terminate signal to curl
+         * all curl request being run by the object will terminate once this is sent
+         * */
+        virtual void sendTerminate() = 0;
     };
 
     using IHttpRequesterPtr = std::shared_ptr<IHttpRequester>;

@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "UploadFileAction.h"
 
@@ -10,14 +10,21 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileTooLargeException.h"
 #include "Common/Logging/LoggerConfig.h"
+#include "Common/Threads/NotifyPipe.h"
 #include "Common/ProxyUtils/ProxyUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
+#include <future>
+
 namespace ResponseActionsImpl
 {
-    UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :
-        m_client(std::move(client))
+    UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client,
+                                       Common::ISignalHandlerSharedPtr sigHandler,
+                                       Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper) :
+        m_client(std::move(client)),
+        m_SignalHandler(std::move(sigHandler)),
+        m_SysCallWrapper(std::move(systemCallWrapper))
     {
     }
 
@@ -180,8 +187,12 @@ namespace ResponseActionsImpl
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
         {
             LOGINFO("Uploading via proxy: " << request.proxy.value());
-            httpresponse = m_client->put(request);
+            httpresponse = doPutRequest(request);
             handleHttpResponse(httpresponse, response);
+            if (m_terminate || m_timeout)
+            {
+                return;
+            }
             if (response["result"] != 0)
             {
                 LOGWARN("Connection with proxy failed, going direct");
@@ -189,17 +200,75 @@ namespace ResponseActionsImpl
                 request.proxyPassword = "";
                 request.proxyUsername = "";
                 ActionsUtils::resetErrorInfo(response);
-                httpresponse = m_client->put(request);
+                httpresponse = doPutRequest(request);
                 handleHttpResponse(httpresponse, response);
             }
         }
         else
         {
             LOGINFO("Uploading directly");
-            httpresponse = m_client->put(request);
+            httpresponse = doPutRequest(request);
             handleHttpResponse(httpresponse, response);
         }
         response["httpStatus"] = httpresponse.status;
+    }
+
+    Common::HttpRequests::Response UploadFileAction::doPutRequest(Common::HttpRequests::RequestConfig request)
+    {
+        std::unique_ptr<Common::Threads::NotifyPipe> notifyPipe = std::make_unique<Common::Threads::NotifyPipe>();
+        auto fut = std::async( std::launch::async, [this,request,&notifyPipe]()
+                               {
+                                   Common::HttpRequests::Response response = m_client->put(request);
+                                   notifyPipe->notify();
+                                   return  response;
+                               }
+        );
+
+        struct pollfd fds[]{ { .fd = m_SignalHandler->terminationFileDescriptor(), .events = POLLIN, .revents = 0 },
+                             { .fd = m_SignalHandler->usr1FileDescriptor(), .events = POLLIN, .revents = 0 } ,
+                             { .fd = notifyPipe->readFd(), .events = POLLIN, .revents = 0 }};
+        while (true)
+        {
+
+            auto ret = m_SysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
+
+            if (ret < 0)
+            {
+                int err = errno;
+                if (err == EINTR)
+                {
+                    LOGDEBUG("Ignoring EINTR from ppoll");
+                    continue;
+                }
+                LOGERROR(
+                        "Error from ppoll while waiting for command to finish: " << std::strerror(err) << "(" << err << ")");
+                break;
+            }
+            else
+            {
+                if ((fds[0].revents & POLLIN) != 0)
+                {
+                    LOGINFO("RunUploadFileAction has received termination command");
+                    m_terminate = true;
+                    m_client->sendTerminate();
+                    break;
+                }
+                if ((fds[1].revents & POLLIN) != 0)
+                {
+                    LOGINFO("RunUploadFileAction has received termination command due to timeout");
+                    m_timeout = true;
+                    m_client->sendTerminate();
+                    break;
+                }
+                if ((fds[2].revents & POLLIN) != 0)
+                {
+                    LOGDEBUG("Curl request finished");
+                    break;
+                }
+            }
+
+        }
+        return fut.get();
     }
 
     void UploadFileAction::handleHttpResponse(
@@ -243,6 +312,11 @@ namespace ResponseActionsImpl
                 static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
                 error.str(),
                 "network_error");
+        }
+        if (m_timeout)
+        {
+            response["result"] = ResponseActions::RACommon::ResponseResult::TIMEOUT;
+            return;
         }
     }
 } // namespace ResponseActionsImpl

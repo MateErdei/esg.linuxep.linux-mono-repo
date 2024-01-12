@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #include "HttpRequesterImpl.h"
 
@@ -490,4 +490,8 @@ namespace Common::HttpRequestsImpl
         throw Common::HttpRequests::HttpRequestsException("Failed to escape string: " + stringToEscape);
     }
 
+    void HttpRequesterImpl::sendTerminate()
+    {
+        CurlFunctionsProvider::sendTerminateRequest();
+    }
 } // namespace Common::HttpRequestsImpl

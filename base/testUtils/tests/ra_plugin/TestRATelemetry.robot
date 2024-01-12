@@ -67,7 +67,6 @@ Telemetry Reported For Run Command Action Timeout Exceeded
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json    ${id}
     Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
-    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -117,12 +116,11 @@ Telemetry Reported For Upload File Action Expired
 Telemetry Reported For Upload File Action Timeout Exceeded
     ${id} =  Set Variable  id5
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
-    generate_file  /tmp/largefile  ${500}
+    generate_file  /tmp/largefile  ${99999}
     Register Cleanup  Remove File  /tmp/largefile
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
-    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -237,7 +235,6 @@ Telemetry Reported For Download File Action Timeout Exceeded
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
-    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}

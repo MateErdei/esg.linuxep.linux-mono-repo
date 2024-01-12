@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
 
@@ -14,6 +14,9 @@
 #include "tests/Common/Helpers/MockHttpRequester.h"
 #include "tests/Common/Helpers/MockZipUtils.h"
 #include "tests/Common/Helpers/TempDir.h"
+#include "tests/Common/Helpers/MockSignalHandler.h"
+#include "tests/Common/Helpers/MockSysCalls.h"
+#include "tests/Common/Helpers/MockSysCallsFactory.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -34,8 +37,20 @@ public:
     {
         m_mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
         m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+        m_mockSignalHandler = std::make_shared<NiceMock<MockSignalHandler>>();
+
+        setupMockSysCalls();
     }
 
+    void setupMockSysCalls()
+    {
+        m_mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+        ON_CALL(*m_mockSysCallWrapper, ppoll).WillByDefault(Return(-1));
+        
+    }
+    
+    std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
+    std::shared_ptr<MockSignalHandler> m_mockSignalHandler;
     virtual void TearDown()
     {
         Tests::restoreFileSystem();
@@ -220,7 +235,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -257,7 +272,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugeURL)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     action["url"] = largeURL;
@@ -293,7 +308,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     action["targetPath"] = largeTargetPath;
@@ -326,7 +341,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameIn
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(false, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -362,7 +377,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_RATmpAndExtr
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -390,7 +405,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -427,7 +442,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
@@ -468,7 +483,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_NoFileNameInTar
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -514,7 +529,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_RATmpAndExtract
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -550,7 +565,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     action["targetPath"] = destPath;
@@ -591,7 +606,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -633,7 +648,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -671,7 +686,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -716,7 +731,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -766,7 +781,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -813,7 +828,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -855,7 +870,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_Password)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, m_password);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -892,7 +907,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(true, m_password);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -933,7 +948,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_EmptyPassword)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(true, "");
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -968,7 +983,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_LargePassword)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(true, largePassword);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1003,7 +1018,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1043,7 +1058,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1085,7 +1100,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1131,7 +1146,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1152,7 +1167,7 @@ TEST_F(DownloadFileTests, DirectLargeExpiration)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     const std::string expectedMsg = "Download file action has expired";
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     std::string action (
         R"({"type": "sophos.mgt.action.DownloadFile"
@@ -1178,7 +1193,7 @@ TEST_F(DownloadFileTests, DirectLargeExpiration)
 TEST_F(DownloadFileTests, DirectLargeSizeBytes)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     std::string action (
         R"({"type" : "sophos.mgt.action.DownloadFile"
@@ -1203,7 +1218,7 @@ TEST_F(DownloadFileTests, DirectLargeSizeBytes)
 
 TEST_F(DownloadFileTests, DirectNegativeExpiration)
 {
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     action["expiration"] = -123456;
@@ -1221,7 +1236,7 @@ TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     action["sizeBytes"] = -123456;
@@ -1243,7 +1258,7 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
 
     std::string expectedErrMsg = "Downloading file to /path/to/download/to/testdownload.zip failed due to size: 3221225472 is too large";
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(false, "", 1024UL * 1024 * 1024 * 3);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1261,7 +1276,7 @@ TEST_F(DownloadFileTests, EmptyPath)
     UsingMemoryAppender memoryAppenderHolder(*this);
     const std::string expectedMsg = "Invalid command format. Failed to process DownloadInfo from action JSON: targetPath field is empty";
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
     action["targetPath"] = "";
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1279,7 +1294,7 @@ TEST_F(DownloadFileTests, InvalidAbsolutePath)
 
     const std::string expectedErrMsg = "notapath is not a valid absolute path";
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
     action["targetPath"] = "notapath";
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1301,7 +1316,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
     addDiskSpaceExpectsToMockFileSystem(1);
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1324,7 +1339,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
     addDiskSpaceExpectsToMockFileSystem(1024 * 1024, 1);
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1348,7 +1363,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1372,7 +1387,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
         .WillOnce(Throw(std::exception()));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1391,7 +1406,7 @@ TEST_F(DownloadFileTests, ErrorParsingJson)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json response = downloadFileAction.run("");
 
@@ -1406,7 +1421,7 @@ TEST_F(DownloadFileTests, actionExpired)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
     action["expiration"] = 0;
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1439,7 +1454,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressed)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1474,7 +1489,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_DecompressedSingleFile)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(true);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1513,7 +1528,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_AbortCopyingIfOne
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1553,7 +1568,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToAccess)
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1582,7 +1597,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToOtherReason)
         .WillOnce(Throw(std::exception()));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1612,7 +1627,7 @@ TEST_F(DownloadFileTests, Sha256IsWrong)
         .WillOnce(Return("adifferentshastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1643,7 +1658,7 @@ TEST_F(DownloadFileTests, Sha256IsHuge)
         .WillOnce(Return(largeSha));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     action["sha256"] = largeSha;
@@ -1674,7 +1689,7 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1701,7 +1716,7 @@ TEST_F(DownloadFileTests, FailureDueToTargetAlreadyExisting)
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1727,7 +1742,7 @@ TEST_F(DownloadFileTests, FailureDueToNetworkError)
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1753,7 +1768,7 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1779,7 +1794,7 @@ TEST_F(DownloadFileTests, FailureDueToServerCertError)
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDownloadObject();
 
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1815,7 +1830,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemExcepti
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1851,7 +1866,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1885,7 +1900,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_FileSystemEx
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1919,7 +1934,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_Exception)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1953,7 +1968,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -1987,7 +2002,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2029,7 +2044,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2072,7 +2087,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_Exception)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2105,7 +2120,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownload
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2138,7 +2153,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesInDown
 
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2178,7 +2193,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesUnzipped)
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
@@ -2209,7 +2224,7 @@ TEST_F(DownloadFileTests, DiskSpaceCheckReturningErrorCodeReturnsFalseOnRATmpDir
         .WillOnce(testing::DoAll(testing::SetArgReferee<1>(errCode),Return(spaceInfo)));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     ResponseActionsImpl::DownloadInfo info;
     EXPECT_EQ(downloadFileAction.assessSpaceInfo(info), false);
@@ -2233,7 +2248,7 @@ TEST_F(DownloadFileTests, DiskSpaceCheckReturningErrorCodeReturnsFalseOnDestDir)
         .WillOnce(testing::DoAll(testing::SetArgReferee<1>(errCode),Return(spaceInfo)));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
 
     ResponseActionsImpl::DownloadInfo info;
     info.targetPath = "/das/destination";
@@ -2241,4 +2256,76 @@ TEST_F(DownloadFileTests, DiskSpaceCheckReturningErrorCodeReturnsFalseOnDestDir)
 
     EXPECT_TRUE(appenderContains("Getting space info for " + m_raTmpDir));
     EXPECT_TRUE(appenderContains("Error calculating disk space for /das/destination: 16 message:Device or resource busy"));
+}
+
+TEST_F(DownloadFileTests, terminateSignal)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _)).WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    addResponseToMockRequester(26, ResponseErrorCode::OK);
+    EXPECT_CALL(*m_mockHttpRequester, sendTerminate());
+    addCleanupChecksToMockFileSystem();
+    addDiskSpaceExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
+    nlohmann::json action = getDownloadObject();
+
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["httpStatus"], 26);
+
+}
+
+TEST_F(DownloadFileTests, timeoutSignal)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _)).WillOnce(pollReturnsWithRevents(1, POLLIN));
+
+    addResponseToMockRequester(26, ResponseErrorCode::OK);
+    EXPECT_CALL(*m_mockHttpRequester, sendTerminate());
+    addCleanupChecksToMockFileSystem();
+    addDiskSpaceExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
+    nlohmann::json action = getDownloadObject();
+
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],ResponseResult::TIMEOUT);
+    EXPECT_EQ(response["httpStatus"], 26);
+
+}
+
+TEST_F(DownloadFileTests, PpollErrorContinueWhenEINTR)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _))
+            .WillOnce(SetErrnoAndReturn(EINTR, -1))
+            .WillOnce(pollReturnsWithRevents(1, POLLIN));
+
+    addResponseToMockRequester(26, ResponseErrorCode::OK);
+    EXPECT_CALL(*m_mockHttpRequester, sendTerminate());
+
+    addCleanupChecksToMockFileSystem();
+    addDiskSpaceExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
+    nlohmann::json action = getDownloadObject();
+
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],ResponseResult::TIMEOUT);
+    EXPECT_EQ(response["httpStatus"], 26);
+
 }

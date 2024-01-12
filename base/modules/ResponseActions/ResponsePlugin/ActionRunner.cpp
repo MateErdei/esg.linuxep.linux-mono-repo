@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "ActionRunner.h"
 
@@ -98,11 +98,19 @@ namespace ResponsePlugin
                 }
                 else
                 {
+                    auto fs  = Common::FileSystem::fileSystem();
+                    std::string raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
+                    auto fileNameVec = fs->listFilesAndDirectories(raTmpDir);
+                    if (!fileNameVec.empty())
+                    {
+                        fs->recursivelyDeleteContentsOfDirectory(raTmpDir);
+                    }
                     LOGWARN("Failed action " << correlationId << " with exit code " << code);
                     incrementFailedActions(type);
 
                     if (code != static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR) &&
-                        code != static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
+                        code != static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED) &&
+                        code != static_cast<int>(ResponseActions::RACommon::ResponseResult::TIMEOUT))
                     {
                         auto result = ResponseResult::INTERNAL_ERROR;
                         if (processStatus == ProcessStatus::TIMEOUT)
@@ -115,6 +123,10 @@ namespace ResponsePlugin
                     if (code == static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
                     {
                         incrementExpiredActions(type);
+                    }
+                    if (code == static_cast<int>(ResponseActions::RACommon::ResponseResult::TIMEOUT))
+                    {
+                        incrementTimedOutActions(type);
                     }
                 }
                 LOGINFO("Finished action: " << correlationId);

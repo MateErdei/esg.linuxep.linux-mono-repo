@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #include "CurlFunctionsProvider.h"
 
@@ -7,9 +7,15 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include <atomic>
 
+std::atomic<bool> CurlFunctionsProvider::terminateRequested = false;
 size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, void* voidBuffer)
 {
+    if (terminateRequested)
+    {
+        return CURL_WRITEFUNC_ERROR;
+    }
     auto* buffer = reinterpret_cast<WriteBackBuffer*>(voidBuffer);
     size_t totalSizeBytes = size * nmemb;
     if (buffer->tooBig_ || (buffer->maxSize_ > 0 && totalSizeBytes + buffer->buffer_.size() > buffer->maxSize_))
@@ -29,6 +35,11 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     size_t nmemb,
     Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
+    if (terminateRequested)
+    {
+        return CURL_WRITEFUNC_ERROR;
+    }
+
     if (responseBuffer->url.empty())
     {
         LOGERROR("Response buffer must contain the URL in case a file name needs to be generated from the URL");
@@ -181,12 +192,20 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
 
 size_t CurlFunctionsProvider::curlFileReadFunc(char* ptr, size_t size, size_t nmemb, FILE* stream)
 {
+    if (terminateRequested)
+    {
+        return CURL_WRITEFUNC_ERROR;
+    }
     size_t retCode = fread(ptr, size, nmemb, stream);
     return retCode;
 }
 
 int CurlFunctionsProvider::curlSeekFileFunc(void* userp, curl_off_t offset, int origin)
 {
+    if (terminateRequested)
+    {
+        return CURL_SEEKFUNC_CANTSEEK;
+    }
     try
     {
         FILE* upload_fd = (FILE*)userp;
@@ -197,4 +216,10 @@ int CurlFunctionsProvider::curlSeekFileFunc(void* userp, curl_off_t offset, int 
     {
         return CURL_SEEKFUNC_CANTSEEK;
     }
+}
+
+void CurlFunctionsProvider::sendTerminateRequest()
+{
+    LOGDEBUG("Sent terminate request to the curl command");
+    terminateRequested = true;
 }
