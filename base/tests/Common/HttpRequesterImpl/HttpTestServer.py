@@ -85,6 +85,7 @@ class TestServer(BaseHTTPRequestHandler):
             response_code = 404
             # print("not a valid test case name")
 
+        response_headers["Content-Length"] = len(response_body.encode('utf-8'))
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
@@ -125,7 +126,7 @@ class TestServer(BaseHTTPRequestHandler):
             response_body = "Not a valid test case!"
             logging.warning(f"Not a valid test case: PUT - '{resource_path}'")
             response_code = 404
-
+        response_headers["Content-Length"] = len(response_body.encode('utf-8'))
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
@@ -159,6 +160,7 @@ class TestServer(BaseHTTPRequestHandler):
             logging.warning(f"Not a valid test case: PUT - '{resource_path}'")
             response_code = 404
 
+        response_headers["Content-Length"] = len(response_body.encode('utf-8'))
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
@@ -188,6 +190,7 @@ class TestServer(BaseHTTPRequestHandler):
             logging.warning(f"Not a valid test case: DELETE - '{resource_path}'")
             response_code = 404
 
+        response_headers["Content-Length"] = len(response_body.encode('utf-8'))
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
@@ -217,6 +220,7 @@ class TestServer(BaseHTTPRequestHandler):
             logging.warning(f"Not a valid test case: OPTIONS - '{resource_path}'")
             response_code = 404
 
+        response_headers["Content-Length"] = len(response_body.encode('utf-8'))
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 

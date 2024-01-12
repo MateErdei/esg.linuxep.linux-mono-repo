@@ -37,9 +37,10 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == "/upload":
             with open("/tmp/upload.zip", 'wb') as f:
                 f.write(content)
-
+        self.protocol_version = 'HTTP/1.1'
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
+        self.send_header('Content-length', 0)
         self.end_headers()
 
     def handle_get_request(self):
