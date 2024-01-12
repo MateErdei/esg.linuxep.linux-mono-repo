@@ -29,6 +29,7 @@ namespace safestore::QuarantineManager
         std::condition_variable m_checkWakeUp;
         std::atomic<bool> m_stopRequested = false;
         const std::chrono::seconds m_maxReinitialiseBackoff = 86400s;
-        std::chrono::seconds m_reinitialiseBackoff = 60s;
+        const std::chrono::seconds m_minReinitialiseBackoff = 60s;
+        std::chrono::seconds m_reinitialiseBackoff = m_minReinitialiseBackoff;
     };
 } // namespace safestore::QuarantineManager

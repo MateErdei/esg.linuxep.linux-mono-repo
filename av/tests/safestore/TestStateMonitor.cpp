@@ -73,6 +73,11 @@ public:
         return m_maxReinitialiseBackoff;
     }
 
+    std::chrono::seconds getMinBackoffTime()
+    {
+        return m_minReinitialiseBackoff;
+    }
+
     void testableBackoffIncrease()
     {
         increaseBackOff();
@@ -340,6 +345,23 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
     EXPECT_TRUE(waitForLog("State Monitor stop requested"));
 }
 
+TEST_F(StateMonitorTests, testStateMonitorBackoffInitializedToCorrectValue)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
+    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+            filesystemMock) };
+    auto quarantineManager = createQuarantineManager();
+
+    TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+    stateMonitor.start();
+
+    EXPECT_EQ(stateMonitor.getMinBackoffTime(), 60s);
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 60s);
+}
+
 TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -353,11 +375,12 @@ TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     stateMonitor.start();
 
-    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 60s);
+    // Backoff time is doubled every time it increases
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), stateMonitor.getMinBackoffTime());
     stateMonitor.testableBackoffIncrease();
-    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 120s);
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 2 * stateMonitor.getMinBackoffTime());
     stateMonitor.testableBackoffIncrease();
-    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 240s);
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 4 * stateMonitor.getMinBackoffTime());
 
     for (; stateMonitor.getCurrentBackoffTime() < stateMonitor.getMaxBackoffTime();
          stateMonitor.testableBackoffIncrease())

@@ -57,7 +57,7 @@ namespace safestore::QuarantineManager
                 try
                 {
                     m_quarantineManager->initialise();
-                    m_reinitialiseBackoff = 60s;
+                    m_reinitialiseBackoff = m_minReinitialiseBackoff;
                 }
                 catch (const std::exception& ex)
                 {
@@ -66,7 +66,6 @@ namespace safestore::QuarantineManager
 
                 break;
             case QuarantineManagerState::INITIALISED:
-                m_reinitialiseBackoff = 60s;
                 LOGDEBUG("Quarantine Manager is initialised");
                 break;
             case QuarantineManagerState::UNINITIALISED:
@@ -75,7 +74,7 @@ namespace safestore::QuarantineManager
                 try
                 {
                     m_quarantineManager->initialise();
-                    m_reinitialiseBackoff = 60s;
+                    m_reinitialiseBackoff = m_minReinitialiseBackoff;
                 }
                 catch (const std::exception& ex)
                 {
@@ -98,7 +97,7 @@ namespace safestore::QuarantineManager
                         m_quarantineManager->initialise();
                         if (m_quarantineManager->getState() == QuarantineManagerState::INITIALISED)
                         {
-                            m_reinitialiseBackoff = 60s;
+                            m_reinitialiseBackoff = m_minReinitialiseBackoff;
                             break;
                         }
                     }
@@ -112,7 +111,7 @@ namespace safestore::QuarantineManager
                         m_quarantineManager->initialise();
                         if (m_quarantineManager->getState() == QuarantineManagerState::INITIALISED)
                         {
-                            m_reinitialiseBackoff = 60s;
+                            m_reinitialiseBackoff = m_minReinitialiseBackoff;
                         }
                         break;
                     }
@@ -135,5 +134,4 @@ namespace safestore::QuarantineManager
             m_reinitialiseBackoff = m_maxReinitialiseBackoff;
         }
     }
-
 } // namespace safestore::QuarantineManager
