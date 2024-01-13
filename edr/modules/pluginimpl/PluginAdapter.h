@@ -132,7 +132,7 @@ namespace Plugin
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
         void registerAndStartExtensionsPlugin();
-        void stopOsquery();
+        void stopOsqueryAndExtensions();
         void cleanUpOldOsqueryFiles();
         static bool pluginMemoryAboveThreshold();
         void dataFeedExceededCallback();
@@ -148,7 +148,7 @@ namespace Plugin
         bool m_restartNoDelay = false;
         bool m_expectedOsqueryRestart = false;
         std::map<std::string, std::string> m_currentPolicies {};
-
+        std::time_t m_osqueryStartTime = 0;
         std::map<std::string, std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>>
             m_extensionAndStateMap;
     };

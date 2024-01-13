@@ -193,4 +193,14 @@ namespace Plugin
     {
         Proc::ensureNoExecWithThisCommIsRunning(Plugin::osqueryBinaryName(), Plugin::osqueryPath());
     }
+
+    bool OsqueryProcessImpl::isRunning()
+    {
+        std::lock_guard<std::mutex> lock { m_processMonitorSharedResource };
+        if (m_processMonitorPtr)
+        {
+            return m_processMonitorPtr->getStatus() == Common::Process::ProcessStatus::RUNNING;
+        }
+        return false;
+    }
 } // namespace Plugin

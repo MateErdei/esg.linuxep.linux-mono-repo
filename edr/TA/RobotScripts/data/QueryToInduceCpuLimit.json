@@ -1,0 +1,5 @@
+{
+  "type": "sophos.mgt.action.RunLiveQuery",
+  "name": "Induce CPU Limit",
+  "query": "WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL SELECT next, curr+1 FROM counting LIMIT 10000000000 ) SELECT group_concat(curr) FROM counting;"
+}

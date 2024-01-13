@@ -340,6 +340,10 @@ Get Osquery pid
     ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     [Return]  ${edr_osquery_pid.stdout}
 
+Get Osquery WD PID
+    ${edr_osquery_wd_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep osquery.conf | head -n1 | cut -d " " -f1  shell=true
+    [Return]  ${edr_osquery_wd_pid.stdout}
+
 Get edr process info
     ${result} =  Run Process  ps -ef | grep edr  shell=true
     Log  ${result.stdout}

@@ -30,6 +30,7 @@ namespace Plugin
         virtual ~IOsqueryProcess() = default;
         virtual void keepOsqueryRunning(OsqueryStarted&) = 0;
         virtual void requestStop() = 0;
+        virtual bool isRunning() = 0;
     };
     using IOsqueryProcessPtr = std::unique_ptr<IOsqueryProcess>;
     extern IOsqueryProcessPtr createOsqueryProcess();

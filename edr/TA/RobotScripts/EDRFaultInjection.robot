@@ -1,6 +1,4 @@
 *** Settings ***
-
-
 Library     Process
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
@@ -16,6 +14,7 @@ Force Tags    TAP_PARALLEL1
 
 *** Variables ***
 ${OSQUERY_FLAGS_FILE}   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
+
 *** Test Cases ***
 EDR Plugin stops osquery when killed
     Check EDR Plugin Installed With Base
@@ -117,6 +116,82 @@ EDR Plugin Ignores Flags Unrelated to Plugin
 
     Check Osquery Has Not Restarted    ${startPid}    30s
     Marked File Does Not Contain    ${EDR_LOG_PATH}   Network table flag has changed. Restarting osquery to apply changes  ${edrMark}
+
+
+EDR Restarts Extensions If They Exit Due To OSQuery Being Killed
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Osquery Running
+    ${old_osquery_pid} =    Get Osquery pid
+    ${old_osquery_wd_pid} =    Get Osquery WD PID
+
+    # Run a live query to prove EDR is up and running
+    Copy File    ${EXAMPLE_DATA_PATH}/example_mcs.config    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Simulate Live Query    QueryEndpointIdFromServerTable.json    1001
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_1001_response.json    15 secs
+    File Should Contain  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_1001_response.json    d43688f6-c547-aaaa-eeee-5332f0ad9819
+
+    # Kill the osquery process (not the osquery WD process)
+    ${edr_mark} =  Mark Log Size    ${EDR_LOG_PATH}
+    ${result} =  Run Process  kill    -9    ${old_osquery_pid}
+    Should Be Equal    ${result.rc}    ${0}
+    Wait Until Keyword Succeeds
+    ...  25 secs
+    ...  1 secs
+    ...  Check Osquery Has Restarted  ${old_osquery_pid}
+    Wait For Log Contains From Mark    ${edr_mark}    Service extension stopped unexpectedly    ${30}
+    Wait For Log Contains From Mark    ${edr_mark}    Attempting to reconnect extensions to osquery after an unexpected extension exit    ${30}
+    Wait For Log Contains From Mark    ${edr_mark}    SophosExtension running    ${30}
+
+    # Check that osquery WD has not been restarted.
+    ${osquery_wd_pid} =    Get Osquery WD PID
+    should be equal as integers    ${old_osquery_wd_pid}    ${osquery_wd_pid}
+
+    # Run another live query to prove queries are working
+    Simulate Live Query    QueryEndpointIdFromServerTable.json    1002
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_1002_response.json    15 secs
+    File Should Contain  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_1002_response.json    d43688f6-c547-aaaa-eeee-5332f0ad9819
+
+
+EDR Restarts Extensions If They Exit Due To OSQuery Hitting CPU Limit
+    Check EDR Plugin Installed With Base
+    Create File  ${PLUGIN_CONF}  watchdog_utilization_limit=10
+    Register Cleanup        Remove File  ${PLUGIN_CONF}
+    Restart EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Osquery Running
+    ${old_osquery_pid} =    Get Osquery pid
+    ${old_osquery_wd_pid} =    Get Osquery WD PID
+
+    ${edr_mark} =  Mark Log Size    ${EDR_LOG_PATH}
+    ${edr_osquery_mark} =  Mark Log Size    ${EDR_PLUGIN_PATH}/log/edr_osquery.log
+    Simulate Live Query    QueryToInduceCpuLimit.json    2001
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  3 secs
+    ...  Check Osquery Has Restarted  ${old_osquery_pid}
+
+    Wait For Log Contains From Mark    ${edr_osquery_mark}    Maximum sustainable CPU utilization limit     ${60}
+    Wait For Log Contains From Mark    ${edr_mark}    Increment telemetry: osquery-restarts-cpu    ${60}
+    Wait For Log Contains From Mark    ${edr_mark}    Service extension stopped unexpectedly    ${30}
+    Wait For Log Contains From Mark    ${edr_mark}    Attempting to reconnect extensions to osquery after an unexpected extension exit    ${30}
+    Wait For Log Contains From Mark    ${edr_mark}    SophosExtension running    ${30}
+
+    # Check that osquery WD has not been restarted.
+    ${osquery_wd_pid} =    Get Osquery WD PID
+    should be equal as integers    ${old_osquery_wd_pid}    ${osquery_wd_pid}
+
+    # Run another live query to prove queries are working
+    Copy File    ${EXAMPLE_DATA_PATH}/example_mcs.config    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Simulate Live Query    QueryEndpointIdFromServerTable.json    2002
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_2002_response.json    15 secs
+    File Should Contain  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_2002_response.json    d43688f6-c547-aaaa-eeee-5332f0ad9819
+
 
 *** Keywords ***
 Check Osquery Has Restarted

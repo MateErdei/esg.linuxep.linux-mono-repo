@@ -61,16 +61,35 @@ void LoggerExtension::Start(
     LOGINFO("Starting LoggerExtension");
     if (m_stopped)
     {
+        auto oldExtension = accessExtension();
+        if (oldExtension)
+        {
+            LOGDEBUG("Stopping old LoggerExtension");
+            oldExtension->Stop();
+            waitForExtension(oldExtension);
+            oldExtension.reset();
+            resetExtension();
+        }
+
         m_flags.socket = socket;
         m_flags.verbose = verbose;
-        m_extension = OsquerySDK::CreateExtension(m_flags, "SophosLoggerPlugin", "1.1.0.1");
-        m_extension->AddLoggerPlugin(
+
+        LOGDEBUG("Creating LoggerExtension");
+        auto newExtension = resetExtension(
+                OsquerySDK::CreateExtension(m_flags, "SophosLoggerPlugin", "1.1.0.1")
+        );
+
+        newExtension->AddLoggerPlugin(
             std::make_unique<SophosLoggerPlugin>(m_resultsSender, m_foldingRules, m_batchTimer, m_maxBatchBytes, std::chrono::seconds(m_maxBatchSeconds)));
         LOGDEBUG("Logger Plugin Added");
-        m_extension->Start();
+        newExtension->Start();
         m_stopped = false;
         m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Logger Plugin running in thread");
+    }
+    else
+    {
+        LOGDEBUG("LoggerExtension Start() called when extension not stopped");
     }
 }
 
@@ -81,12 +100,19 @@ void LoggerExtension::Stop(long timeoutSeconds)
         LOGINFO("Stopping LoggerExtension");
         stopping(true);
 
-        m_extension->Stop();
+        auto extension = accessExtension();
+        if (extension)
+        {
+            extension->Stop();
+        }
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
             m_runnerThread.reset();
         }
+        waitForExtension(extension);
+        extension.reset(); // reset our local variable
+        resetExtension(); // reset the instance variable
         m_stopped = true;
         stopping(false);
         LOGINFO("LoggerExtension::Stopped");
@@ -115,22 +141,30 @@ void LoggerExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
     try
     {
         LOGINFO("LoggerExtension running");
+        auto extension = accessExtension();
+        if (extension == nullptr)
+        {
+            LOGERROR("Tried to run before initialising LoggerExtension");
+            return;
+        }
         // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
         if (!stopping())
         {
-            m_extension->Wait();
+            waitForExtension(extension);
         }
 
         if (!m_stopped && !stopping())
         {
-            const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
+            const auto healthCheckMessage = extension->GetHealthCheckFailureMessage();
             if (!healthCheckMessage.empty())
             {
-                LOGWARN(healthCheckMessage);
+                // A health check failure message indicates that osquery failed to reply to the extension in good time.
+                LOGWARN("Logger extension stopped unexpectedly due to failed osquery health check: " << healthCheckMessage);
             }
-
-            LOGWARN("Service extension stopped unexpectedly. Calling reset.");
-
+            else
+            {
+                LOGWARN("Logger extension stopped unexpectedly");
+            }
             extensionFinished->store(true);
         }
     }
@@ -213,5 +247,38 @@ std::vector<std::string> LoggerExtension::getFoldableQueries() const
 
 int LoggerExtension::GetExitCode()
 {
-    return m_extension->GetReturnCode();
+    auto locked = m_extension.lock();
+    if (locked->get())
+    {
+        return locked->get()->GetReturnCode();
+    }
+    return -1;
+}
+
+LoggerExtension::ExtensionTypePtr LoggerExtension::accessExtension()
+{
+    auto locked = m_extension.lock();
+    return *locked;
+}
+
+LoggerExtension::ExtensionTypePtr LoggerExtension::resetExtension(LoggerExtension::ExtensionTypePtr extension)
+{
+    auto locked = m_extension.lock();
+    *locked = std::move(extension);
+    return *locked;
+}
+
+void LoggerExtension::resetExtension()
+{
+    auto locked = m_extension.lock();
+    locked->reset();
+}
+
+void LoggerExtension::waitForExtension(ExtensionTypePtr& extension)
+{
+    std::lock_guard locked(waitForExtensionLock_);
+    if (extension)
+    {
+        extension->Wait();
+    }
 }

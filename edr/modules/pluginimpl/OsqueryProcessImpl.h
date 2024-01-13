@@ -17,6 +17,7 @@ namespace Plugin
         static void killAnyOtherOsquery();
         void keepOsqueryRunning(OsqueryStarted&) override;
         void requestStop() override;
+        bool isRunning() override;
 
     private:
         void startProcess(const std::string & processPath, const std::vector<std::string>& arguments);

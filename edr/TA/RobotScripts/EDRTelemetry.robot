@@ -167,12 +167,14 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Run Live Query  ${CRASH_QUERY}  Crash
 
     Wait For Log Contains From Mark    ${lq_mark}    Extension exited while running    200
-    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
+    Wait For Log Contains From Mark    ${edr_mark}    Increment telemetry: osquery-restarts-cpu
+    # Make sure extensions are running again before we collect telemetry, in case trying to reconnect causes problems
+    Wait For Log Contains From Mark    ${edr_mark}    SophosExtension running
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  0  failed_count=1
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  0  failed_count=1
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     ${lq_mark} =   Mark Log Size   ${LIVEQUERY_LOG_FILE}
@@ -230,8 +232,10 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     ${lq_mark} =   Mark Log Size   ${LIVEQUERY_LOG_FILE}
     Run Live Query  ${CRASH_QUERY}  Crash
     Wait For Log Contains From Mark    ${lq_mark}   Extension exited while running    100
-    Wait For Log Contains From Mark    ${edr_mark}   OSQUERY_PROCESS_FINISHED
-    
+    Wait For Log Contains From Mark    ${edr_mark}    Increment telemetry: osquery-restarts-cpu
+    # Make sure extensions are running again before we collect telemetry, in case trying to reconnect causes problems
+    Wait For Log Contains From Mark    ${edr_mark}    SophosExtension running
+
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

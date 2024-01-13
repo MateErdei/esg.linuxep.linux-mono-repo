@@ -1,0 +1,5 @@
+{
+  "type": "sophos.mgt.action.RunLiveQuery",
+  "name": "Endpoint ID",
+  "query": "SELECT endpoint_id FROM sophos_endpoint_info"
+}

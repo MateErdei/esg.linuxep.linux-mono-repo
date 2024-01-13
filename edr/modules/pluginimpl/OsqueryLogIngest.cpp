@@ -69,7 +69,10 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
             }
             if (!matchFound)
             {
-                LOGDEBUG_OSQUERY(line);
+                if (!line.empty())
+                {
+                    LOGDEBUG_OSQUERY(line);
+                }
             }
         }
 

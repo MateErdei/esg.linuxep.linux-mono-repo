@@ -70,7 +70,10 @@ void SophosExtension::Stop(long timeoutSeconds)
         LOGINFO("Stopping SophosExtension");
         stopping(true);
         auto extension = accessExtension();
-        extension->Stop();
+        if (extension)
+        {
+            extension->Stop();
+        }
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
@@ -89,6 +92,11 @@ void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
 {
     LOGINFO("SophosExtension running");
     auto extension = accessExtension();
+    if (extension == nullptr)
+    {
+        LOGERROR("Tried to run before initialising SophosExtension");
+        return;
+    }
 
     // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
     if (!stopping())
@@ -101,10 +109,13 @@ void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
         const auto healthCheckMessage = extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
         {
-            LOGWARN(healthCheckMessage);
+            // A health check failure message indicates that osquery failed to reply to the extension in good time.
+            LOGWARN("Service extension stopped unexpectedly due to failed osquery health check: " << healthCheckMessage);
         }
-
-        LOGWARN("Service extension stopped unexpectedly. Calling reset.");
+        else
+        {
+            LOGWARN("Service extension stopped unexpectedly");
+        }
         extensionFinished->store(true);
     }
 }
@@ -112,7 +123,11 @@ void SophosExtension::Run(const std::shared_ptr<std::atomic_bool>& extensionFini
 int SophosExtension::GetExitCode()
 {
     auto locked = m_extension.lock();
-    return locked->get()->GetReturnCode();
+    if (locked->get())
+    {
+        return locked->get()->GetReturnCode();
+    }
+    return -1;
 }
 
 SophosExtension::ExtensionTypePtr SophosExtension::accessExtension()
@@ -137,5 +152,8 @@ void SophosExtension::resetExtension()
 void SophosExtension::waitForExtension(ExtensionTypePtr& extension)
 {
     std::lock_guard locked(waitForExtensionLock_);
-    extension->Wait();
+    if (extension)
+    {
+        extension->Wait();
+    }
 }

@@ -82,9 +82,13 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Contains In Order
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:10000)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
-    ...  DEBUG - Performing request: https://localhost:4443/mcs/register\nDEBUG - cURL Info:   Trying 127.0.0.1:10000...\n\nDEBUG - cURL Info: connect to 127.0.0.1 port 10000 failed: Connection refused
+    ...  DEBUG - Performing request: https://localhost:4443/mcs/register
+    ...  DEBUG - cURL Info:   Trying 127.0.0.1:10000...\n\nDEBUG - cURL Info: connect to 127.0.0.1 port 10000
+    ...  failed: Connection refused
+    ...  Failed to connect to dummyhost1 port 10000
     ...  INFO - Product successfully registered via proxy: localhost:20000
-    ...  DEBUG - Performing request: https://localhost:4443/mcs/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint\nDEBUG - cURL Info:   Trying [::1]:20000...\n\nDEBUG - cURL Info: Connected to localhost (::1) port 20000
+    ...  DEBUG - Performing request: https://localhost:4443/mcs/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint
+    ...  DEBUG - cURL Info:   Trying [::1]:20000...\n\nDEBUG - cURL Info: Connected to localhost (::1) port 20000
 
     Should Exist    ${SOPHOS_INSTALL}
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}

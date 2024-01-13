@@ -116,7 +116,7 @@ namespace Plugin
         {
             if (!m_enableScheduledQueries && m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
-                LOGDEBUG("Removing LoggerExtension from list of extensions");
+                LOGINFO("Removing LoggerExtension from list of extensions");
                 m_extensionAndStateMap["LoggerExtension"].first->Stop(SVC_EXT_STOP_TIMEOUT);
                 m_extensionAndStateMap.erase("LoggerExtension");
             }
@@ -205,6 +205,7 @@ namespace Plugin
         auto lastMemoryCheckTime = std::chrono::steady_clock::now();
         auto memoryCheckPeriod = std::chrono::minutes (5);
         auto cleanupPeriod = std::chrono::minutes(10);
+        int extensionReconnectTries = 0;
 
         OsqueryDataManager osqueryDataManager;
         std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState =
@@ -215,19 +216,52 @@ namespace Plugin
         {
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
             bool anyStoppedExtensions = false;
-            for (auto& runningStatus : m_extensionAndStateMap)
+            for (auto& [extensionName, extensionAndState] : m_extensionAndStateMap)
             {
-                if (runningStatus.second.second->load())
+                if (extensionAndState.second->load())
                 {
+                    LOGDEBUG(extensionName << " is not running");
                     anyStoppedExtensions = true;
+                    // Need to call stop to clear up, even though it's now not running, Stop() has not been called yet.
+                    extensionAndState.first->Stop(SVC_EXT_STOP_TIMEOUT);
                     break;
                 }
             }
 
             if (anyStoppedExtensions)
             {
-                LOGINFO("Restarting OSQuery after unexpected extension exit");
-                stopOsquery();
+                // Don't stop osquery straight away because it is likely that osquery was stopped by its WD and will
+                // start again soon, so we can restart the stopped extensions.
+                std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+                if (m_osqueryProcess->isRunning())
+                {
+                    LOGDEBUG("OSQuery WD process is still running but one or more extensions have stopped");
+                    auto secondsOsqueryHasBeenUp = std::abs(now - m_osqueryStartTime);
+                    // Make sure osquery WD has been up and running for long enough before we try any reconnects
+                    if (secondsOsqueryHasBeenUp >= 10)
+                    {
+                        if (extensionReconnectTries++ < 10)
+                        {
+                            LOGINFO("Attempting to reconnect extensions to osquery after an unexpected extension exit");
+                            registerAndStartExtensionsPlugin();
+                        }
+                        else
+                        {
+                            LOGINFO("Extension reconnection attempts exceeded, restarting OSQuery and extensions after an unexpected extension exit");
+                            stopOsqueryAndExtensions();
+                        }
+                    }
+                }
+                else
+                {
+                    // Fall back to old behaviour of tearing everything down if osquery WD is not running.
+                    LOGINFO("Restarting OSQuery and extensions after unexpected extension exit");
+                    stopOsqueryAndExtensions();
+                }
+            }
+            else
+            {
+                extensionReconnectTries = 0;
             }
 
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
@@ -264,7 +298,7 @@ namespace Plugin
                 {
                     LOGINFO("Failed to reconfigure osquery.");
                     osqueryDataRetentionCheckState->numberOfRetries = 5;
-                    stopOsquery();
+                    stopOsqueryAndExtensions();
                     osqueryDataManager.purgeDatabase();
                     m_restartNoDelay = true;
                 }
@@ -306,7 +340,7 @@ namespace Plugin
                     case Task::TaskType::STOP:
                         LOGDEBUG("Process task STOP");
                         osqueryDataRetentionCheckState->enabled = false;
-                        stopOsquery();
+                        stopOsqueryAndExtensions();
                         return ret;
                     case Task::TaskType::START_OSQUERY:
                         LOGDEBUG("Process task START_OSQUERY");
@@ -318,7 +352,7 @@ namespace Plugin
                         LOGINFO("Restarting osquery, reason: " << task.m_content);
                         m_restartNoDelay = true;
                         m_expectedOsqueryRestart = true;
-                        stopOsquery();
+                        stopOsqueryAndExtensions();
                         break;
                     case Task::TaskType::OSQUERY_PROCESS_FINISHED:
                     {
@@ -423,12 +457,13 @@ namespace Plugin
     {
         LOGINFO("Prepare system for running osquery");
         m_osqueryConfigurator.prepareSystemForPlugin(m_enableScheduledQueries, m_scheduleEpoch.getValue());
-        stopOsquery();
+        stopOsqueryAndExtensions();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
         std::shared_ptr<Plugin::IOsqueryProcess> osqueryProcess { createOsqueryProcess() };
         m_osqueryProcess = osqueryProcess;
         OsqueryStarted osqueryStarted;
+        m_osqueryStartTime = Common::UtilityImpl::TimeUtils::getCurrTime();
         m_callback->setOsqueryShouldBeRunning(true);
         auto callback = m_callback;
         m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted, callback]() {
@@ -475,7 +510,7 @@ namespace Plugin
         {
             m_callback->setOsqueryRunning(false);
             LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting osquery");
-            stopOsquery();
+            stopOsqueryAndExtensions();
             m_restartNoDelay = true;
             return;
         }
@@ -497,12 +532,13 @@ namespace Plugin
             }
             catch (const std::exception& ex)
             {
+                extensionPair.second->store(true);
                 LOGERROR("Failed to start extension, extension.Start threw: " << ex.what());
             }
         }
     }
 
-    void PluginAdapter::stopOsquery()
+    void PluginAdapter::stopOsqueryAndExtensions()
     {
         try
         {
@@ -564,7 +600,7 @@ namespace Plugin
         {
             if (m_monitor.valid())
             {
-                stopOsquery(); // in case it reach this point without the request to stop being issued.
+                stopOsqueryAndExtensions(); // in case it reach this point without the request to stop being issued.
             }
         }
         catch (std::exception& ex)
