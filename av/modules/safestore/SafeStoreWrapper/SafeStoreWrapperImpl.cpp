@@ -813,7 +813,7 @@ namespace safestore::SafeStoreWrapper
         }
         else
         {
-            LOGERROR("Failed to initialise SafeStore database: " << safeStoreReturnCodeToString(result));
+            LOGDEBUG("Failed SafeStore_Init: " << safeStoreReturnCodeToString(result));
         }
 
         switch (result)

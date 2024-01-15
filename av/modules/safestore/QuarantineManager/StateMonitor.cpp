@@ -61,7 +61,7 @@ namespace safestore::QuarantineManager
                 }
                 catch (const std::exception& ex)
                 {
-                    LOGERROR("Failed to initialise SafeStore database: " << ex.what());
+                    LOGERROR("Failed to initialise SafeStore database during startup: " << ex.what());
                 }
 
                 break;
