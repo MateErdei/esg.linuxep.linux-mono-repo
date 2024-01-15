@@ -90,8 +90,8 @@ alias(
 alias(
     name = "libsavi",
     actual = select({
-        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/libsavi/release/libsavi.so.3.2.07.389.0",
-        "@bazel_tools//src/conditions:linux_aarch64": "arm64/libsavi/release/libsavi.so.3.2.07.389.0",
+        "@bazel_tools//src/conditions:linux_x86_64": "x86_64/libsavi/release/libsavi.so.3.2.07.390.0",
+        "@bazel_tools//src/conditions:linux_aarch64": "arm64/libsavi/release/libsavi.so.3.2.07.390.0",
     }),
 )
 

@@ -10,7 +10,7 @@ SUSI_SRCS_REMAPPED = {
 
 SUSI_SRCS_RENAMED = {
     "files/plugins/av/chroot/susi/update_source/libglobalrep/libglobalrep.so.1.4.1.1": "//imports/internal/susi:libglobalrep",
-    "files/plugins/av/chroot/susi/update_source/libsavi/libsavi.so.3.2.07.389.0": "//imports/internal/susi:libsavi",
+    "files/plugins/av/chroot/susi/update_source/libsavi/libsavi.so.3.2.07.390.0": "//imports/internal/susi:libsavi",
     "files/plugins/av/chroot/susi/update_source/libsophtainer/libsophtainer.so": "//imports/internal/susi:libsophtainer",
     "files/plugins/av/chroot/susi/update_source/libupdater/libupdater.so.2": "//imports/internal/susi:libupdater",
     "files/plugins/av/chroot/susi/update_source/lrlib/liblocalreputation.so": "//imports/internal/susi:liblocalreputation",
