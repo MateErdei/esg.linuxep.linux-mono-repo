@@ -153,6 +153,11 @@ Check Touch Creates Files Successfully From Liveresponse Session
     [Arguments]  ${path}
     Send Message With Newline   touch /tmp/test_${path}.txt   ${path}
     Wait Until Created    /tmp/test_${path}.txt  timeout=5 secs
+    ${rc}   ${output} =    Run And Return Rc And Output  ls -l /tmp/test_${path}.txt
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain    ${output}    -rw------- 1 root sophos-spl-group
+    Should Be Equal As Integers  ${rc}  ${0}
     Remove File   /tmp/test_${path}.txt
 
 Set Environment Variable In Session
