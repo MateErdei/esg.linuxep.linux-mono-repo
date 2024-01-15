@@ -112,8 +112,17 @@ IDE update during command line scan
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
+    # Generate enough files to scan that it takes at least as long as the IDE update takes.
+    ${dummy_path} =    Set Variable    /tmp/ide_terupt_scan_files
+    Create Directory   ${dummy_path}
+    Register Cleanup  Remove Directory    ${dummy_path}    ${True}
+    ${dummy_content} =     Evaluate    "".join(["a"] * 5000)
+    FOR   ${count}   IN RANGE   ${5000}
+       Create File  ${dummy_path}/${count}.txt    ${dummy_content}
+    END
+
     ${scan_log} =   Set Variable  /tmp/cli.log
-    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/share/  stdout=${scan_log}  stderr=STDOUT
+    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  ${dummy_path}  stdout=${scan_log}  stderr=STDOUT
     Register Cleanup  Remove File  ${scan_log}
     Register Cleanup  Dump Log  ${scan_log}
     Register Cleanup  Terminate Process  ${cls_handle}
