@@ -60,8 +60,8 @@ then
         stage="linux_mono_repo.products.testing.deviceisolation_tests.${ubuntu_x64}"
     elif [[ "$test_file" == *"liveterminal/"* ]]
     then
-        echo "LiveTerminal component test"
-        stage="linux_mono_repo.products.testing.liveterminal_tests.component_${ubuntu_x64}"
+        echo "LiveTerminal test"
+        stage="linux_mono_repo.products.testing.liveterminal_tests.integration_${ubuntu_x64}"
     elif [[ "$test_file" == *"eventjournaler/"* ]]
     then
         echo "Event Journaler component test"
