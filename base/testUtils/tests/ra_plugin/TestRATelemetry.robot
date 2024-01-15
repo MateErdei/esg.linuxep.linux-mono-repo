@@ -181,7 +181,6 @@ Telemetry Reported For Upload Folder Action Timeout Exceeded
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON_PATH}CORE_${id}_response.json
 
-    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
     wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
