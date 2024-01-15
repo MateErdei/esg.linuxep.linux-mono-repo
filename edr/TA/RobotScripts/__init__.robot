@@ -29,6 +29,7 @@ Global Setup Tasks
     Set Global Variable  ${MCS_TMP_DIR}             ${MCS_DIR}/tmp
     Set Global Variable  ${MCS_CONFIG}              ${ETC_DIR}/sophosspl/mcs.config
     Set Global Variable  ${MCS_POLICY_CONFIG}       ${ETC_DIR}/sophosspl/mcs_policy.config
+    Set Global Variable  ${MANAGEMENT_AGENT_LOG}    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
     Set Global Variable  ${UPDATE_CONFIG}           ${UPDATE_DIR}/var/updatescheduler/update_config.json
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotScripts

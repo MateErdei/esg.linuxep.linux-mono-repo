@@ -149,22 +149,16 @@ EDR Does Not Trigger Query On Update Now Action
     Install EDR Directly
     Wait Until EDR OSQuery Running
 
-    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    ${edr_length_1} =  Get Length  ${edr_log}
+    ${edr_mark} =  Mark Log Size  ${EDR_LOG_PATH}
+    ${ma_mark} =   Mark Log Size  ${MANAGEMENT_AGENT_LOG}
 
     create file  ${MCS_TMP_DIR}/ALC_action_timestamp.xml  content="content"
     move file  ${MCS_TMP_DIR}/ALC_action_timestamp.xml  ${MCS_DIR}/action
 
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Check Management Agent Log Contains  Action ALC_action_timestamp.xml sent to 1 plugins
+    Wait For Log Contains From Mark    ${ma_mark}    Action ALC_action_timestamp.xml sent to 1 plugins
 
-    ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    ${edr_length_2} =  Get Length  ${edr_log}
-
-    # Edr Should Not Have logged anything
-    Should Be Equal  ${edr_length_1}  ${edr_length_2}
+    # Edr Should Not Have logged that it started a query
+    Check Log Does Not Contain After Mark    ${EDR_LOG_PATH}   Process task QUERY   ${edr_mark}
 
 
 
