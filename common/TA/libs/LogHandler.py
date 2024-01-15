@@ -83,6 +83,9 @@ class LogMark:
             return "Missing file at %s" % mark_time
         return "%d bytes at %s" % (self.get_size(), mark_time)
 
+    def get_log_path(self) -> str:
+        return self.__m_log_path
+
     def get_inode(self) -> int:
         return self.__m_inode
 

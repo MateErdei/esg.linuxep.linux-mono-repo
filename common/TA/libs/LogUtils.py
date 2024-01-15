@@ -1423,7 +1423,8 @@ class LogUtils(object):
         # inode as before downgrading and the original log mark does not end up outside the new log file.
         # Resulting in no errors being thrown but the log mark can end up after the completed initialization log line
         # for the plugin.
-        # Setting __m_stat and __m_inode to None will force looking through the entire file when looking for log lines
-        for mark in log_marks.values():
-            mark.__m_stat = None
-            mark.__m_inode = None
+        # position argument being set to 0 will result in __m_override_position = 0
+        # When getting the contents of the file, __m_override_position will be used to seek through the file
+        # since it will be 0, the entire file will be read
+        for key, mark in log_marks.items():
+            log_marks[key] = LogHandler.LogMark(mark.get_log_path(), 0)
