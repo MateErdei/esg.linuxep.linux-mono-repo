@@ -28,7 +28,6 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
-${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
 ${DEFAULT_EXCLUSIONS}   ["/mnt/","/vagrant/","/uk-filer5/","/opt/test/inputs/test_scripts/","*excluded*"]
 
@@ -723,3 +722,22 @@ On Access does not scan on close when on write turned off without restarting soa
     check_on_access_log_does_not_contain_after_mark   detected "${testfile}" is infected with EICAR-AV-Test  mark=${oa_mark3}
 
     File Should Exist  ${testfile}
+
+
+On Access does not cache a file if scan fails
+    [Timeout]  10 minutes
+    Exclude Aborted On Access Scan Errors
+    Set number of scanning threads in product test    1
+
+    ${policyContent} =  Get Complete Core Policy  []  on_access_enabled=${True}  on_access_on_read=${True}  on_access_on_write=${True}
+    send av policy  CORE  ${policyContent}
+
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    ${oa_mark} =  get_on_access_log_mark
+    #Make sure there are 5 events
+
+    FOR  ${item}  IN RANGE  5
+        Generate Clean OnAccess Event    /tmp_test/cleanfile${item}.txt
+    END
+    ${oa_mark2} =  wait for on access log contains after mark  ScanRequestHandler-0 received error: Reached total maximum number of reconnection attempts. Aborting scan of /tmp_test/cleanfile    mark=${oa_mark}  timeout=300
+    wait for on access log contains after mark  un-caching /tmp_test/cleanfile  mark=${oa_mark2}

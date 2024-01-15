@@ -49,19 +49,25 @@ namespace sophos_on_access_process::onaccessimpl
 
     scan_messages::ScanResponse ClientSocketWrapper::scan(const scan_messages::ClientScanRequestPtr request)
     {
+        scan_messages::ScanResponse response;
+        std::string escapedPath(common::escapePathForLogging(request->getPath(), true));
+        std::stringstream errorMsg;
+
         bool retryErrorLogged = false;
         for (int attempt = 0; attempt < MAX_SCAN_RETRIES; attempt++)
         {
             if (m_reconnectAttempts >= TOTAL_MAX_RECONNECTS)
             {
-                throw common::AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
+                errorMsg << "Reached total maximum number of reconnection attempts. Aborting scan of " << escapedPath;
+                response.setErrorMsg(errorMsg.str());
+                return response;
             }
 
             checkIfScanAborted();
 
             try
             {
-                scan_messages::ScanResponse response = attemptScan(request);
+                response = attemptScan(request);
 
                 if (m_reconnectAttempts > 0)
                 {
@@ -90,10 +96,6 @@ namespace sophos_on_access_process::onaccessimpl
                 m_reconnectAttempts++;
             }
         }
-
-        scan_messages::ScanResponse response;
-        std::stringstream errorMsg;
-        std::string escapedPath(common::escapePathForLogging(request->getPath(), true));
 
         errorMsg << "Failed to scan file: " << escapedPath << " after " << MAX_SCAN_RETRIES << " retries";
         response.setErrorMsg(errorMsg.str());

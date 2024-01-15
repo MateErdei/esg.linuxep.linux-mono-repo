@@ -65,12 +65,13 @@ namespace
         }
 
         static ScanRequestPtr buildRequest(
-            scan_messages::E_SCAN_TYPE type = scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN
+            scan_messages::E_SCAN_TYPE type = scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN,
+            const char* path = "/expected"
             )
         {
             auto request = emptyRequest();
             request->setScanType(type);
-            request->setPath("/expected");
+            request->setPath(path);
             return request;
         }
 
@@ -134,6 +135,33 @@ TEST_F(TestScanRequestHandler, scan_error)
     std::stringstream logMsg;
     logMsg << "ScanRequestHandler-1 received error: Failed to scan file: " << filePath << " after " << MAX_SCAN_RETRIES << " retries";
     EXPECT_TRUE(appenderContains(logMsg.str()));
+}
+
+TEST_F(TestScanRequestHandler, scan_abortUncachesFile)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::vector<ScanRequestPtr> scanRequests;
+    for (uint i = 1; i <= 5; i++)
+    {
+        std::string filePath = "/tmp/test" + std::to_string(i);
+        auto scanRequest = buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE, filePath.c_str());
+        scanRequests.push_back(std::move(scanRequest));
+    }
+
+    auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
+    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+            nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
+
+    for (auto const& scanRequest : scanRequests)
+    {
+        scanHandler->scan(scanRequest, oneMillisecond);
+    }
+
+    std::stringstream logMsg;
+    logMsg << "Reached total maximum number of reconnection attempts. Aborting scan of " << scanRequests.back()->getPath();
+    EXPECT_TRUE(appenderContains(logMsg.str()));
+    EXPECT_TRUE(appenderContains("un-caching /tmp/test5 (Close-Write)"));
 }
 
 TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)

@@ -275,6 +275,9 @@ Exclude On Access Scan Errors
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           Failed to scan
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           fanotifyhandler <> Failed to add scan request to queue
 
+Exclude Aborted On Access Scan Errors
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           ScanRequestHandler-0 received error: Reached total maximum number of reconnection attempts. Aborting scan
+
 #Use only if you trigger this issue
 Exclude VDL Folder Missing Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Package not found: vdl: SUSI error 0xc0000015
