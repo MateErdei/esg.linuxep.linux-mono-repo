@@ -84,6 +84,9 @@ Mark Known Upgrade Errors
     #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process
 
+    #TODO LINUXDAR-8575 Once RTD <-> MA comms are stable remove this error mark line.
+    Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log     managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+
 Mark Known Downgrade Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "responseactions" not in registry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "liveresponse" not in registry
