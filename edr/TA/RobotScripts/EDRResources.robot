@@ -144,6 +144,8 @@ Uninstall EDR
     ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh
     Return From Keyword If    ${file_exists} == ${False}
     ${result} =   Run Process  bash -x ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=40s
+    Run Keyword If  ${result.rc} != 0   Dump EDR Logs
+    Run Keyword If  ${result.rc} != 0   Display All SSPL Plugins Files Installed
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}  ${result.stderr}
 
