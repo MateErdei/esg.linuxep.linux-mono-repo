@@ -76,6 +76,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getSavedEnvironmentProxyFilePath() const override;
 
         std::string getTelemetrySchedulerStatusFilePath() const override;
+        std::string getTelemetryStatusFilePath() const override;
         std::string getTelemetrySupplementaryFilePath() const override;
         std::string getTelemetryExeConfigFilePath() const override;
         std::string getTelemetryExecutableFilePath() const override;

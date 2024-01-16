@@ -4,6 +4,7 @@
 #include "Common/TelemetryConfigImpl/Constants.h"
 
 #include <chrono>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -14,20 +15,25 @@ namespace TelemetrySchedulerImpl
     class SchedulerStatus
     {
     public:
-        SchedulerStatus();
+        using clock = std::chrono::system_clock;
+        using time_point = clock::time_point;
 
-        system_clock::time_point getTelemetryScheduledTime() const;
-        void setTelemetryScheduledTime(system_clock::time_point scheduledTime);
+        [[nodiscard]] std::optional<time_point> getLastTelemetryStartTime() const;
+        void setLastTelemetryStartTime(time_point time);
 
-        int getTelemetryScheduledTimeInSecondsSinceEpoch() const;
-        void setTelemetryScheduledTimeInSecondsSinceEpoch(int scheduledTime);
+        [[nodiscard]] time_point getTelemetryScheduledTime() const;
+        void setTelemetryScheduledTime(time_point scheduledTime);
 
         bool operator==(const SchedulerStatus& rhs) const;
         bool operator!=(const SchedulerStatus& rhs) const;
 
-        bool isValid() const;
+        [[nodiscard]] bool isValid() const;
 
     private:
-        int m_telemetryScheduledTime{};
+        [[nodiscard]] int getTelemetryScheduledTimeInSecondsSinceEpoch() const;
+        void setTelemetryScheduledTimeInSecondsSinceEpoch(int scheduledTime);
+
+        std::optional<time_point> lastTelemetryStartTime_{};
+        std::optional<time_point> m_telemetryScheduledTime{};
     };
 } // namespace TelemetrySchedulerImpl

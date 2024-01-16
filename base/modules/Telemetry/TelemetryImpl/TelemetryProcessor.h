@@ -9,6 +9,7 @@
 #include "Common/TelemetryConfigImpl/Config.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
+#include <chrono>
 #include <utility>
 
 using namespace Common::Telemetry;
@@ -33,6 +34,7 @@ namespace Telemetry
         virtual void sendTelemetry(const std::string& telemetryJson);
         virtual void saveTelemetry(const std::string& telemetryJson) const;
         virtual void addTelemetry(const std::string& sourceName, const std::string& json);
+        void updateStatusFile(const std::chrono::system_clock::time_point& lastRunTime) const;
 
     private:
         Common::HttpRequests::Response doHTTPCall(

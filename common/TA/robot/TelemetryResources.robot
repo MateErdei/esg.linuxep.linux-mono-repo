@@ -18,6 +18,7 @@ Resource    WatchdogResources.robot
 
 *** Variables ***
 ${STATUS_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
+${TELEMETRY_STATUS_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-status.json
 ${SUPPLEMENTARY_FILE}   ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 ${EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
 ${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json

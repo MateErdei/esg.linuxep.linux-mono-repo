@@ -19,6 +19,8 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "TelemetryScheduler/LoggerImpl/Logger.h"
 
+#include <cassert>
+
 namespace TelemetrySchedulerImpl
 {
     using namespace Common::TelemetryConfigImpl;
@@ -99,7 +101,7 @@ namespace TelemetrySchedulerImpl
             try
             {
                 std::string statusJsonString = Common::FileSystem::fileSystem()->readFile(
-                    m_pathManager.getTelemetrySchedulerStatusFilePath(), DEFAULT_MAX_JSON_SIZE);
+                        m_pathManager.getTelemetrySchedulerStatusFilePath(), DEFAULT_MAX_JSON_SIZE);
                 SchedulerStatus schedulerStatus = SchedulerStatusSerialiser::deserialise(statusJsonString);
                 return std::make_tuple(schedulerStatus, true);
             }
@@ -160,40 +162,101 @@ namespace TelemetrySchedulerImpl
         return std::make_tuple(Config{}, false);
     }
 
-    void SchedulerProcessor::updateStatusFile(const system_clock::time_point& scheduledTime) const
+    void SchedulerProcessor::saveStatusFile(const SchedulerStatus& schedulerStatus) const
     {
-        SchedulerStatus schedulerStatus;
-        schedulerStatus.setTelemetryScheduledTime(scheduledTime);
-
         try
         {
             Common::FileSystem::fileSystem()->writeFile(
-                m_pathManager.getTelemetrySchedulerStatusFilePath(),
-                SchedulerStatusSerialiser::serialise(schedulerStatus));
+                    m_pathManager.getTelemetrySchedulerStatusFilePath(),
+                    SchedulerStatusSerialiser::serialise(schedulerStatus));
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGERROR(
-                "File access error writing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
-                                             << e.what());
+                    "File access error writing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
+                                                 << e.what());
         }
     }
 
-    system_clock::time_point SchedulerProcessor::getNextScheduledTime(
-        system_clock::time_point previousScheduledTime,
-        unsigned int intervalSeconds) const
+    void SchedulerProcessor::saveLastStartTimeStatus(const time_point& startTime) const
     {
-        const system_clock::time_point epoch;
-        system_clock::time_point scheduledTime = epoch;
+        auto const& [schedulerStatusTemp, schedulerStatusFileValid] = getStatusFromFile();
+        assert(schedulerStatusFileValid); // Can't serialise if not valid
+        auto schedulerStatus = schedulerStatusTemp;
+        schedulerStatus.setLastTelemetryStartTime(startTime);
+        saveStatusFile(schedulerStatus);
+    }
 
-        scheduledTime = previousScheduledTime + seconds(intervalSeconds);
+    SchedulerProcessor::time_point SchedulerProcessor::getNextScheduledTime(
+        time_point previousScheduledTime,
+        unsigned int intervalSeconds,
+        time_point now
+        )
+    {
+        system_clock::time_point scheduledTime = previousScheduledTime + seconds(intervalSeconds);
 
-        if (scheduledTime < system_clock::now())
+        if (scheduledTime < now)
         {
-            scheduledTime = system_clock::now() + seconds(intervalSeconds);
+            scheduledTime = now + seconds(intervalSeconds);
         }
 
         return scheduledTime;
+    }
+
+    SchedulerProcessor::time_point SchedulerProcessor::calculateScheduledTimeFromtheStatusFile(
+            const std::optional<SchedulerStatus> schedulerStatus,
+            bool newInstall,
+            unsigned int interval,
+            bool runScheduledInPastNow,
+            system_clock::time_point timePointNow
+    )
+    {
+        if (schedulerStatus)
+        {
+            auto lastStart = schedulerStatus.value().getLastTelemetryStartTime();
+            if (lastStart)
+            {
+                // Normal case - we recorded when we last started telemetry,
+                // run interval amount later
+                return lastStart.value() + seconds{interval};
+            }
+            else
+            {
+                // No last start time - upgrade
+                auto previousScheduledTime = schedulerStatus.value().getTelemetryScheduledTime();
+                if (runScheduledInPastNow)
+                {
+                    // at start of scheduler execution after upgrade, so run at the specified time
+                    // even if in the last
+                    // runScheduledInPastNow means that if telemetry status has a time which is in the past, we should run telemetry
+                    // immediately, rather than select a new time in the future and wait for that.
+                    // This logic is dependent on the logic that checks whether telemetry is disabled.
+                    return previousScheduledTime;
+                }
+                else if (previousScheduledTime > timePointNow)
+                {
+                    // Scheduled time is still in the future, so use this time
+                    return previousScheduledTime;
+                }
+                else
+                {
+                    // Scheduled time has ended up in the past, but not just started
+                    return getNextScheduledTime(previousScheduledTime, interval, timePointNow);
+                }
+            }
+        }
+        else if (newInstall)
+        {
+            LOGINFO("This is first time tscheduler is running");
+            // run telemetry in ten minutes when first update should have finished
+            return timePointNow + minutes{10};
+        }
+        else
+        {
+            // Status file is corrupt but was present - now deleted
+            // run in one day
+            return timePointNow + seconds{interval};
+        }
     }
 
     void SchedulerProcessor::delayBeforeQueueingTask(
@@ -206,22 +269,22 @@ namespace TelemetrySchedulerImpl
             return; // already running, so don't restart thread
         }
 
-        delayThread = std::make_unique<SleepyThread>(delayUntil, task, m_taskQueue);
+        delayThread = std::make_unique<SleepyThread>(delayUntil, std::move(task), m_taskQueue);
         delayThread->start();
     }
 
     bool SchedulerProcessor::isTelemetryDisabled(
         const system_clock::time_point& previousScheduledTime,
-        bool statusFileValid,
+        bool schedulerStatusFileValid,
         unsigned int interval,
         bool configFileValid)
     {
         // Telemetry can be disabled remotely by setting the interval to zero. Telemetry can be disabled locally be
         // setting the scheduled time in the status file to the epoch.
 
-        const system_clock::time_point epoch;
+        const time_point epoch;
 
-        return (statusFileValid && previousScheduledTime == epoch) || !configFileValid || interval == 0 ||
+        return (schedulerStatusFileValid && previousScheduledTime == epoch) || !configFileValid || interval == 0 ||
                m_telemetryHost.empty();
     }
 
@@ -231,12 +294,12 @@ namespace TelemetrySchedulerImpl
         // externally updated.
         bool newInstall =
             !(Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()));
-        auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
+        auto const& [schedulerStatus, schedulerStatusFileValid] = getStatusFromFile();
         auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
         auto interval = telemetryConfig.getInterval();
 
-        if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, configFileValid))
+        if (isTelemetryDisabled(previousScheduledTime, schedulerStatusFileValid, interval, configFileValid))
         {
             LOGINFO(
                 "Telemetry reporting is currently disabled - will check again in " << m_configurationCheckDelay.count()
@@ -249,31 +312,21 @@ namespace TelemetrySchedulerImpl
         }
 
         const system_clock::time_point epoch;
-        system_clock::time_point scheduledTime;
 
-        // runScheduledInPastNow means that if telemetry status has a time which is in the past, we should run telemetry
-        // immediately, rather than select a new time in the future and wait for that.
-        // This logic is dependent on the logic that checks whether telemetry is disabled.
-        if (statusFileValid && (previousScheduledTime > system_clock::now() || runScheduledInPastNow))
+        std::optional<SchedulerStatus> status;
+        if (schedulerStatusFileValid)
         {
-            scheduledTime = previousScheduledTime;
+            status = schedulerStatus;
         }
-        else if (newInstall)
-        {
-            LOGINFO("This is first time tscheduler is running");
-            Common::UtilityImpl::FormattedTime time;
-            // run telemetry in ten minutes when first update should have finished
-            auto currentTime = std::chrono::seconds{ time.currentEpochTimeInSecondsAsInteger() + 600 };
-            scheduledTime = std::chrono::system_clock::time_point(currentTime);
-            updateStatusFile(scheduledTime);
-        }
-        else
-        {
-            scheduledTime = getNextScheduledTime(previousScheduledTime, interval);
-            updateStatusFile(scheduledTime);
-        }
-
+        system_clock::time_point scheduledTime = calculateScheduledTimeFromtheStatusFile(status,
+                                                                                          newInstall, interval, runScheduledInPastNow,
+                                                 system_clock::now());
         assert(scheduledTime != epoch);
+        {
+            auto statusCopy = schedulerStatus;
+            statusCopy.setTelemetryScheduledTime(scheduledTime);
+            saveStatusFile(statusCopy);
+        }
 
         // Do the following whether the time scheduled is in the past or in the future.
 
@@ -290,12 +343,12 @@ namespace TelemetrySchedulerImpl
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
         // externally updated.
 
-        auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
+        auto const& [schedulerStatus, schedulerStatusFileValid] = getStatusFromFile();
         auto [telemetryConfig, configFileValid] = getConfigFromFile();
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
         auto interval = telemetryConfig.getInterval();
 
-        if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, configFileValid))
+        if (isTelemetryDisabled(previousScheduledTime, schedulerStatusFileValid, interval, configFileValid))
         {
             // Waits until either the scheduled time, or updates the scheduled time to be in the future again and waits
             // until then
@@ -334,6 +387,10 @@ namespace TelemetrySchedulerImpl
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(), Serialiser::serialise(telemetryExeConfig));
+
+            // Record we are about to launch telemetry
+            auto now = clock::now();
+            saveLastStartTimeStatus(now);
 
             m_telemetryExeProcess = Common::Process::createProcess();
 

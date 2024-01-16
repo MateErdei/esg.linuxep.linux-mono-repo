@@ -99,6 +99,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
 
         [[nodiscard]] virtual std::string getTelemetrySchedulerStatusFilePath() const = 0;
+        [[nodiscard]] virtual std::string getTelemetryStatusFilePath() const = 0;
         [[nodiscard]] virtual std::string getTelemetrySupplementaryFilePath() const = 0;
         [[nodiscard]] virtual std::string getTelemetryExeConfigFilePath() const = 0;
         [[nodiscard]] virtual std::string getTelemetryExecutableFilePath() const = 0;

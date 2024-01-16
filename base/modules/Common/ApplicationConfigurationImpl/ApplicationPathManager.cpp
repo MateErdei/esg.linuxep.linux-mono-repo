@@ -327,6 +327,11 @@ namespace Common::ApplicationConfigurationImpl
         return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/tscheduler-status.json");
     }
 
+    std::string ApplicationPathManager::getTelemetryStatusFilePath() const
+    {
+        return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/telemetry-status.json");
+    }
+
     std::string ApplicationPathManager::getTelemetrySupplementaryFilePath() const
     {
         return Common::FileSystem::join(sophosInstall(), "base/etc/telemetry-config.json");

@@ -26,6 +26,7 @@ class TelemetryProcessorTest : public LogInitializedTests
 public:
     const char* m_defaultServer = "t1.sophosupd.com";
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
+    const std::string m_telemetryStatusFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry-status.json";
 
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
@@ -133,6 +134,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile)
     response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
 
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
@@ -160,6 +162,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorSucessFullyUsesProxy)
     response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
 
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
     std::string obfuscatedCreds =
         "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
@@ -194,6 +197,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyFails
     failed.status = 500;
     failed.errorCode = Common::HttpRequests::ResponseErrorCode::REQUEST_FAILED;
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
     std::string obfuscatedCreds =
         "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
@@ -220,7 +224,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyFails
 TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyReturnsNon200status)
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
-
     Common::HttpRequests::Response response;
     response.status = 200;
     response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
@@ -228,6 +231,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorFallsbackToDirectWhenProxyRetur
     failed.status = 500;
     failed.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(HasSubstr("current_proxy"))).WillOnce(Return(true));
     std::string obfuscatedCreds =
         "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
@@ -288,6 +292,8 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMult
 
     EXPECT_CALL(*mockTelemetryProvider2, getName()).WillOnce(Return("Mock2"));
     EXPECT_CALL(*mockTelemetryProvider2, getTelemetry()).WillOnce(Return(ss.str()));
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _)).Times(testing::AtLeast(1));
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider1);

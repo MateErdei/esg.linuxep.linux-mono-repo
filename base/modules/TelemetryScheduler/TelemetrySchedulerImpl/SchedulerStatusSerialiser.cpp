@@ -5,6 +5,7 @@
 #include "Common/Exceptions/IException.h"
 #include "Common/TelemetryConfigImpl/Serialiser.h"
 
+#include <chrono>
 #include <climits>
 #include <nlohmann/json.hpp>
 #include <sstream>
@@ -12,13 +13,31 @@
 namespace TelemetrySchedulerImpl
 {
     const std::string TELEMETRY_SCHEDULED_TIME_KEY = "scheduled-time";
+    const std::string TELEMETRY_LAST_START_TIME_KEY = "last-start-time";
 
     void to_json(nlohmann::json& j, const SchedulerStatus& config);
     void from_json(const nlohmann::json& j, SchedulerStatus& config);
 
+    static time_t toEpochSeconds(const SchedulerStatus::time_point& time)
+    {
+        return std::chrono::system_clock::to_time_t(time);
+    }
+
+    static SchedulerStatus::time_point fromEpochSeconds(const time_t time)
+    {
+        return std::chrono::system_clock::from_time_t(time);
+    }
+
     void to_json(nlohmann::json& j, const SchedulerStatus& config)
     {
-        j = nlohmann::json{ { TELEMETRY_SCHEDULED_TIME_KEY, config.getTelemetryScheduledTimeInSecondsSinceEpoch() } };
+        j = nlohmann::json{
+            { TELEMETRY_SCHEDULED_TIME_KEY, toEpochSeconds(config.getTelemetryScheduledTime()) },
+        };
+        auto lastTime = config.getLastTelemetryStartTime();
+        if (lastTime)
+        {
+            j[TELEMETRY_LAST_START_TIME_KEY] = toEpochSeconds(lastTime.value());
+        }
     }
 
     void from_json(const nlohmann::json& j, SchedulerStatus& config)
@@ -29,7 +48,20 @@ namespace TelemetrySchedulerImpl
             throw Common::Exceptions::IException(LOCATION,
                 "Value for scheduled time is negative or too large");
         }
-        config.setTelemetryScheduledTimeInSecondsSinceEpoch(value);
+        config.setTelemetryScheduledTime(fromEpochSeconds(value));
+
+        try {
+            value = j.at(TELEMETRY_LAST_START_TIME_KEY);
+            if (!value.is_number_unsigned()) {
+                throw Common::Exceptions::IException(LOCATION,
+                                                     "Value for start time is negative");
+            }
+            config.setLastTelemetryStartTime(fromEpochSeconds(value));
+        }
+        catch (const nlohmann::json::out_of_range&)
+        {
+            // Ignore missing key
+        }
     }
 
     std::string SchedulerStatusSerialiser::serialise(const SchedulerStatus& config)

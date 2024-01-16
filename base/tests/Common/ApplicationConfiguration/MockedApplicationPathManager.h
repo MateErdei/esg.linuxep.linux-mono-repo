@@ -80,6 +80,7 @@ public:
     MOCK_METHOD(std::string, getSavedEnvironmentProxyFilePath, (), (const, override));
 
     MOCK_METHOD(std::string, getTelemetrySchedulerStatusFilePath, (), (const, override));
+    MOCK_METHOD(std::string, getTelemetryStatusFilePath, (), (const, override));
     MOCK_METHOD(std::string, getTelemetrySupplementaryFilePath, (), (const, override));
 
     MOCK_METHOD(std::string, getTelemetryExeConfigFilePath, (), (const, override));

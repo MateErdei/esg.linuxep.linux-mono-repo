@@ -2,6 +2,7 @@
 Documentation  Test the Telemetry Scheduler
 
 Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/ProcessUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
@@ -63,6 +64,7 @@ Telemetry Scheduler Plugin Test Teardown
     Run Keyword If Test Failed  Log File  ${SUPPLEMENTARY_FILE}
 
     Remove File  ${STATUS_FILE}
+    Remove File  ${TELEMETRY_STATUS_FILE}
     Remove File  ${EXE_CONFIG_FILE}
     Remove File  ${TELEMETRY_OUTPUT_JSON}
 
@@ -202,7 +204,6 @@ Telemetry Scheduler Does Not Reschedule If Status Time Is In Future
     Should Be Equal As Integers  ${scheduled_time_before_restart}  ${scheduled_time_after_restart}  The scheduled time in the future must not be changed by scheduler restart
     Check Telemetry Scheduler Is Running
 
-
 Telemetry Scheduler Recovers From Broken Status File
     [Documentation]  Telemetry will recover by replacing a broken status file
 
@@ -243,7 +244,6 @@ Telemetry Scheduler Recovers From Failure To Launch Telemetry Executable
     Wait For Telemetry Executable To Have Run
     Check Telemetry Scheduler Is Running
 
-
 Telemetry Scheduling Can Be Disabled Explicitly Via Configuration File
     [Documentation]  Scheduling can be disabled remotely
 
@@ -253,7 +253,6 @@ Telemetry Scheduling Can Be Disabled Explicitly Via Configuration File
 
     Sleep  ${TIMING_TOLERANCE} seconds  # allow time to schedule a telemetry run if telemetry was enabled
     File Should Not Exist  ${STATUS_FILE}
-
 
 Telemetry Scheduling Can Be Disabled Explicitly Via Status File
     [Documentation]  Scheduling can be disabled locally
@@ -268,7 +267,6 @@ Telemetry Scheduling Can Be Disabled Explicitly Via Status File
 
     File Should Not Exist  ${EXE_CONFIG_FILE}
 
-
 Telemetry Scheduling Is Disabled If Configuration File Is Missing
     [Documentation]  Scheduling is disabled if configuration file is missing
 
@@ -281,7 +279,6 @@ Telemetry Scheduling Is Disabled If Configuration File Is Missing
 
     Restore Moved Files
     Check Telemetry Scheduler Is Running
-
 
 Telemetry Scheduling Is Disabled If Configuration File Is Invalid
     [Documentation]  Scheduling is disabled if configuration (supplementary) file is invalid
@@ -324,11 +321,13 @@ Telemetry Scheduler Terminates Executable When Timeout Is Exceeded
     Sleep  ${TIMING_TOLERANCE} seconds
 
     Check Telemetry Executable Is Running
+    ${telemetry_pid} =   Run Process   pgrep  -f   telemetry
 
     #Timeout error is logged and the telemetry executable is terminated
     Wait Until Keyword Succeeds  ${TELEMETRY_EXE_CHECK_DELAY}  10 seconds   Check Log Contains   Running telemetry executable timed out    ${TELEMETRY_SCHEDULER_LOG}    tscheduler.log
 
-    Check Telemetry Executable Is Not Running
+    ${result} =    Run Process    ps --pid ${telemetry_pid.stdout}    shell=true
+    Should Not Be Equal As Integers   ${result.rc}    0
 
 Telemetry Scheduler Starts And Does Not Run Executable As No Policy Is Received
     [Setup]    Telemetry Scheduler Plugin Test Setup Without Sending Policy
@@ -348,3 +347,29 @@ Telemetry Scheduler Starts, Receives Policy And Runs Executable Then Receives A 
     # Hostname received from new policy should be: test.sophusupd.net (telemetry hostname found in ALC_policy_with_telemetry_hostname.xml)
     check tscheduler log contains    test.sophosupd.net
 
+Telemetry Scheduler Recovers From Failure To Launch Telemetry Executable With Last Start Field
+    [Documentation]  Telemetry will recover from a failure to launch telemetry executable
+
+    Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}     {"scheduled-time":1682199662, "last-start-time":1682199662}
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${STATUS_FILE}    shell=True
+    Remove File  ${TELEMETRY_OUTPUT_JSON}
+    ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
+    Move File From Expected Path  ${TELEMETRY_EXECUTABLE}
+    File Should Not Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    Sleep  ${TEST_INTERVAL} seconds  # wait until telemetry executable run time
+    Wait Until Keyword Succeeds  ${TIMING_TOLERANCE} seconds  1 seconds   File Should Exist  ${EXE_CONFIG_FILE}
+
+    Restore Moved Files
+
+    Sleep  ${TELEMETRY_EXE_CHECK_DELAY} seconds  # wait for telemetry scheduler to check executable
+    wait_for_log_contains_from_mark    ${ts_log}    Failure to start process: execve failed: No such file or directory    15
+    ${time} =  Get Current Time
+    Wait Until Keyword Succeeds
+    ...     ${TIMING_TOLERANCE} seconds
+    ...     1 seconds
+    ...     Check Scheduled Time Against Telemetry Config Interval  ${time}  ${TEST_INTERVAL}
+
+    Wait For Telemetry Executable To Have Run
+    Check Telemetry Scheduler Is Running

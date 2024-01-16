@@ -6,8 +6,6 @@
 
 namespace TelemetrySchedulerImpl
 {
-    SchedulerStatus::SchedulerStatus() {}
-
     bool SchedulerStatus::operator==(const SchedulerStatus& rhs) const
     {
         if (this == &rhs)
@@ -25,28 +23,32 @@ namespace TelemetrySchedulerImpl
 
     bool SchedulerStatus::isValid() const
     {
-        return m_telemetryScheduledTime >= 0;
+        if (m_telemetryScheduledTime.has_value())
+        {
+            auto seconds = clock::to_time_t(m_telemetryScheduledTime.value());
+            return seconds >= 0;
+        }
+        return false;
     }
 
-    system_clock::time_point SchedulerStatus::getTelemetryScheduledTime() const
+    SchedulerStatus::time_point SchedulerStatus::getTelemetryScheduledTime() const
     {
-        auto duration = system_clock::duration(seconds(m_telemetryScheduledTime));
-        system_clock::time_point scheduledTime(duration);
-        return scheduledTime;
+        return m_telemetryScheduledTime.value_or(time_point{});
     }
 
     void SchedulerStatus::setTelemetryScheduledTime(system_clock::time_point scheduledTime)
     {
-        m_telemetryScheduledTime = duration_cast<seconds>(scheduledTime.time_since_epoch()).count();
-    }
-
-    int SchedulerStatus::getTelemetryScheduledTimeInSecondsSinceEpoch() const
-    {
-        return m_telemetryScheduledTime;
-    }
-
-    void SchedulerStatus::setTelemetryScheduledTimeInSecondsSinceEpoch(int scheduledTime)
-    {
         m_telemetryScheduledTime = scheduledTime;
     }
+
+    std::optional<SchedulerStatus::time_point> SchedulerStatus::getLastTelemetryStartTime() const
+    {
+        return lastTelemetryStartTime_;
+    }
+
+    void SchedulerStatus::setLastTelemetryStartTime(time_point time)
+    {
+        lastTelemetryStartTime_ = time;
+    }
+
 } // namespace TelemetrySchedulerImpl

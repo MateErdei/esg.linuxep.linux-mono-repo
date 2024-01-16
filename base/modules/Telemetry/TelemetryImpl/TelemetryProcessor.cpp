@@ -1,6 +1,8 @@
 // Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "TelemetryProcessor.h"
+#include "Common/TelemetryConfigImpl/TelemetryStatus.h"
+#include "Common/TelemetryConfigImpl/TelemetryStatusSerialiser.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -9,6 +11,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
 #include "Telemetry/LoggerImpl/Logger.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <sys/stat.h>
 
@@ -29,6 +32,8 @@ TelemetryProcessor::TelemetryProcessor(
 
 void TelemetryProcessor::Run()
 {
+    auto currentTime = std::chrono::system_clock::now();
+    updateStatusFile(currentTime);
     gatherTelemetry();
     m_telemetryHelper.restructureTelemetry();
     std::string telemetryJson = getSerialisedTelemetry();
@@ -179,4 +184,23 @@ void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
 std::string TelemetryProcessor::getSerialisedTelemetry()
 {
     return m_telemetryHelper.serialise();
+}
+
+void TelemetryProcessor::updateStatusFile(const system_clock::time_point& lastRunTime) const
+{
+    Common::TelemetryConfigImpl::TelemetryStatus telemetryStatus;
+    telemetryStatus.setTelemetryStartTime(lastRunTime);
+
+    try
+    {
+        Common::FileSystem::fileSystem()->writeFile(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetryStatusFilePath(),
+                TelemetryStatusSerialiser::serialise(telemetryStatus));
+    }
+    catch (const Common::FileSystem::IFileSystemException& e)
+    {
+        LOGERROR(
+                "File access error writing " << Common::ApplicationConfiguration::applicationPathManager().getTelemetryStatusFilePath() << " : "
+                                             << e.what());
+    }
 }
