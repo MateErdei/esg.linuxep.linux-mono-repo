@@ -4,6 +4,7 @@ Library    OperatingSystem
 Resource    McsRouterResources.robot
 Resource    SDDS3Resources.robot
 
+Library     ${COMMON_TEST_LIBS}/OnFail.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
 
@@ -79,6 +80,7 @@ Teardown With Temporary Directory Clean And Stopping Message Relays
     Stop Proxy If Running
 
 Thininstaller Test Teardown
+    OnFail.run_teardown_functions
     Run Keyword If Test Failed   dump_df
     General Test Teardown
     Stop Update Server

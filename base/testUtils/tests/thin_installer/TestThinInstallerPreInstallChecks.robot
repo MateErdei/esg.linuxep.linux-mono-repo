@@ -1,6 +1,7 @@
 *** Settings ***
 Library     ${COMMON_TEST_LIBS}/UpdateServer.py
 Library     ${COMMON_TEST_LIBS}/ThinInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
 Library     ${COMMON_TEST_LIBS}/OSUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
@@ -523,3 +524,11 @@ Thin Installer Uses Baked In SUS and CDN URLs For Install Checks
     log  ${compatibilityCheckResults}
     Should Contain    ${compatibilityCheckResults}    centralConnectionVerified = false
     Should Contain    ${compatibilityCheckResults}    SPL installation will fail as a connection to Sophos Central could not be established
+
+Thin Installer checks default /opt permission
+    [Setup]    Setup Thininstaller Test
+    OnFail.Register Cleanup    Run Process  chmod  755  /opt
+    Run Process    chmod  700  /opt
+    # EXITCODE_BAD_INSTALL_PATH=19
+    Run Default Thininstaller With Args  ${19}
+    Check Thininstaller Log Contains     ERROR: SPL installation will fail, can not install to /opt/sophos-spl because /opt does not have correct execute permissions. Requires execute rights for all users

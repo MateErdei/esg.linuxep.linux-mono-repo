@@ -85,6 +85,7 @@ function verify_install_directory() {
     if [[ (-z "${SOPHOS_INSTALL}") || ("${SOPHOS_INSTALL}" == "/opt/sophos-spl") ]]; then
         export SOPHOS_INSTALL=/opt/sophos-spl
         [ ${FORCE_INSTALL} -eq 0 ] && ! is_sspl_installed && [ -d "${SOPHOS_INSTALL}" ] && failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this directory."
+        check_install_path_has_correct_permissions
         success
         return
     fi
