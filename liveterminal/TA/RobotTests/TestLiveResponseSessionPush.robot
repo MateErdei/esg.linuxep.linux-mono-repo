@@ -132,6 +132,27 @@ Changing Environment Variables Does Not Affect Other LiveResponse Sessions
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
 
+Verify Liveresponse Creates Files With Correct Permissions
+    Check Connected To Fake Cloud
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
+    ${correlation_id} =  Get Correlation Id
+    Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
+    Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
+    wait_for_match_message   sophos-live-terminal   ${correlation_id}
+
+    # Create a file using live response and check the permissions are correct
+    ${path}=  Set Variable  /tmp/test_${correlation_id}.txt
+    Send Message With Newline   touch ${path}   ${correlation_id}
+    Wait Until Created    /tmp/test_${correlation_id}.txt  timeout=5 secs
+    Register Cleanup   Remove File    ${path}
+    ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${path}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain    ${output}    -rw-------
+    Should Contain    ${output}    root sophos-spl-group
+    Should Be Equal As Integers  ${rc}  ${0}
+
+
 *** Keywords ***
 
 Number Of Files In Dir Should Be
@@ -153,11 +174,6 @@ Check Touch Creates Files Successfully From Liveresponse Session
     [Arguments]  ${path}
     Send Message With Newline   touch /tmp/test_${path}.txt   ${path}
     Wait Until Created    /tmp/test_${path}.txt  timeout=5 secs
-    ${rc}   ${output} =    Run And Return Rc And Output  ls -l /tmp/test_${path}.txt
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Contain    ${output}    -rw------- 1 root sophos-spl-group
-    Should Be Equal As Integers  ${rc}  ${0}
     Remove File   /tmp/test_${path}.txt
 
 Set Environment Variable In Session
