@@ -7,6 +7,7 @@ Library     ${COMMON_TEST_LIBS}/DiagnoseUtils.py
 Library     ${COMMON_TEST_LIBS}/HttpsServer.py
 Library     ${COMMON_TEST_LIBS}/TelemetryUtils.py
 Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource    ${COMMON_TEST_ROBOT}/DiagnoseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
@@ -37,6 +38,8 @@ Test Remote Diagnose can process SDU action
     ${mcsrouter_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Simulate SDU Action Now
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Processing action    140
+
+    Register On Fail    Log Status Of Sophos Spl
     wait_for_log_contains_from_mark    ${remote_diagnose_log_mark}    Diagnose finished    30
     wait_for_log_contains_n_times_from_mark    ${mcsrouter_mark}      Sending status for SDU adapter    2
 
@@ -115,6 +118,7 @@ Setup Fake Cloud
 
 
 Teardown
+    Run Teardown Functions
     Stop Local Cloud Server
     MCSRouter Default Test Teardown
     Stop Https Server

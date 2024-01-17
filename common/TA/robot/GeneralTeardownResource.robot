@@ -138,6 +138,10 @@ Check Journalctl
 Check and Dump Journalctl
     Analyse Journalctl   print_always=True
 
+Check Disk Space
+    ${result} =    Run Process    df    -hl
+    Log    ${result.stdout}
+
 General Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Require No Unhandled Exception
@@ -153,5 +157,6 @@ General Test Teardown
     Run Keyword If Test Failed    Display All SSPL Files Installed    ${installDir}
     Run Keyword If Test Failed    Display All SSPL Plugins Files Installed    ${installDir}
     Run Keyword If Test Failed    Dump All Sophos Processes
+    Run Keyword If Test Failed    Check Disk Space
     Force Teardown Logging If Env Set
     Combine Coverage If Present
