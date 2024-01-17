@@ -544,10 +544,15 @@ static int inner_main(int argc, char** argv)
                 // the policy certificate will always be the most up-to-date version of the uc certs
                 // so we should use them in the case where the baked in certs and policy certs are different
                 std::string updateCacheCertPath = Common::FileSystem::join(fs->currentWorkingDirectory(),"installer/uc_certs.crt");
+                std::string updateCacheCertFolderPath = Common::FileSystem::join(fs->currentWorkingDirectory(),"installer");
                 std::string updateCachePolicyCert = alcPolicy->getUpdateCertificatesContent();
                 if (!updateCachePolicyCert.empty())
                 {
                     fs->removeFile(updateCacheCertPath, true);
+                    if(!fs->isDirectory(updateCacheCertFolderPath))
+                    {
+                        fs->makedirs(updateCacheCertFolderPath);
+                    }
                     fs->writeFile(updateCacheCertPath,updateCachePolicyCert);
                 }
 
@@ -581,9 +586,16 @@ static int inner_main(int argc, char** argv)
                 }
 
             }
+            catch (const std::exception& exception)
+            {
+                std::stringstream errMessage;
+                errMessage << "Failed to parse ALC policy with error: " << exception.what();
+                logError(errMessage.str());
+                return 53;
+            }
             catch (...)
             {
-                logError("Failure: ALC policy is empty");
+                logError("Failure: Unknown exception parsing ALC policy");
                 return 53;
             }
         }
@@ -630,9 +642,16 @@ static int inner_main(int argc, char** argv)
 
 
             }
-            catch(...)
+            catch (const std::exception& exception)
             {
-                logError("Failure: Error with MCS policy");
+                std::stringstream errMessage;
+                errMessage << "Failed to parse MCS policy with error: " << exception.what();
+                logError(errMessage.str());
+                return 53;
+            }
+            catch (...)
+            {
+                logError("Failure: Unknown exception parsing MCS policy");
                 return 53;
             }
         }

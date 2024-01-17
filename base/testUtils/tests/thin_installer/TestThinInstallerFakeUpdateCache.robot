@@ -114,3 +114,25 @@ Thin Installer can Install via Update Cache Overriden by Argument
     Should Contain    ${cdnCheckResults}    usedProxy = false
 
 
+Thin Installer can Install via Update Cache only in policy
+    Stop Local Cloud Server
+    write_ALC_update_cache_policy   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+    Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
+    create_default_credentials_file
+    build_default_creds_thininstaller_from_sections
+
+    run_default_thininstaller_with_args    ${0}    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    check_thininstaller_log_does_not_contain    List of update caches to install from: localhost:8080,0
+
+    check_suldownloader_log_contains_in_order
+    ...  Trying update via update cache: https://localhost:8080
+    ...  Update success
+
+    check_suldownloader_log_should_not_contain    Connecting to update source directly
+
+
+    ${cdnCheckResults} =  Get File    ${CUSTOM_CDN_COMMS_CHECK_LOC}
+    log  ${cdnCheckResults}
+    Should Contain    ${cdnCheckResults}    usedUpdateCache = true
+    Should Contain    ${cdnCheckResults}    usedProxy = false
+
