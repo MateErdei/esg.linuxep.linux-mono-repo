@@ -49,7 +49,7 @@
 
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
-            <release-version branch="release--content--version_5_6_0" build-id="20231010171805-bd2c97393e762f88a844399575f30283d76ec446-gCkDF5"/>
+            <release-version branch="release--content--version_5_6_2" build-id="20240104192640-89876f5db7fc0bc16a8e4888168a12fce8c852f2-DpkX97"/>
             <include artifact-path="sspl-rdrules-scit" dest-dir="sdds/inputs/supplements/RuntimeDetectionRules"/>
         </build-asset>
         <build-asset project="em" repo="esg" >
