@@ -599,15 +599,13 @@ On Access Can Be enabled After It Gets Disabled In Policy
 
     On-access Scan Eicar Close
 
-#TODO LINUXDAR-6031 - Test is manual pending work on this ticket.
 On Access Doesnt Cache Close Events With Detections After Rewrite
-    [Tags]   manual
-    ${mark} =  Get on access log mark
+    ${oamark1} =  Get on access log mark
     Set number of scanning threads in product test  1
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${oamark1}
 
     # create test file, wait for OA queue to clear
-    ${srcfile} =   Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/susicore/libicui18n.so.70.1
+    ${srcfile} =   Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/susicore/libicui18n.so
     ${testfile} =  Set Variable  /tmp_test/dirtyfile.txt
     Evaluate  shutil.copyfile("${srcfile}", "${testfile}-excluded")
     Move File  ${testfile}-excluded  ${testfile}
@@ -615,19 +613,19 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     Sleep   1s
 
     # replace test file with EICAR
-    ${oamark} =  Get on access log mark
+    ${oamark2} =  Get on access log mark
     Write File After Delay  ${testfile}  ${EICAR_STRING}  ${0.005}
-    Wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
-    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
-    Sleep   1s  #Let the event (hopefully not) be cached
+    Wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark2}
+    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark2}
+    Sleep   1s  # Allow time for the event to not be cached
 
     # see if the file is cached
-    ${oamark2} =  Get on access log mark
+    ${oamark3} =  Get on access log mark
     Get File  ${testfile}
     Sleep  1s
-    Dump On Access Log After Mark   ${oamark}
-    Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark2}
-    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
+    Dump On Access Log After Mark   ${oamark3}
+    Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark3}
+    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark3}
 
 On Access Handles Control Socket Exists At Startup
     [Tags]  fault_injection
