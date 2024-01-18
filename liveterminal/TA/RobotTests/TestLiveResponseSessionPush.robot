@@ -154,7 +154,7 @@ Verify Liveresponse Creates Files With Correct Permissions
     Log  return code is ${rc}
     Log  output is ${output}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    grep -r grep -3 -r umask /etc
+    ${rc}   ${output} =    Run And Return Rc And Output    grep -3 -r umask /etc
     Log  return code is ${rc}
     Log  output is ${output}
 
