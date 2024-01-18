@@ -150,10 +150,8 @@ Verify Liveresponse Creates Files With Correct Permissions
     Wait Until Created    /tmp/umask.txt  timeout=5 secs
     Register Cleanup   Remove File    /tmp/umask.txt
 
-    ${rc}   ${output} =    Run And Return Rc And Output    cat /tmp/umask.txt
-    Log  return code is ${rc}
-    Log  output is ${output}
-    ${umask} =  Set Variable   ${output}
+    ${umask}=  Get File    /tmp/umask.txt
+
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${path}
     Log  return code is ${rc}
     Log  output is ${output}
