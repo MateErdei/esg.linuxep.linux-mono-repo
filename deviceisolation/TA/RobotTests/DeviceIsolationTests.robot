@@ -63,12 +63,11 @@ Device Isolation Remains Isolated After SPL Restart
     Run Keyword And Expect Error    cannot reach url: https://sophos.com    Can Curl Url    https://sophos.com
 
 
-Diagnose Tool Gathers nft_rules File
+Diagnose Tool Gathers nft_rules File And All Applied Rules
     # Isolate the endpoint
     Enable Device Isolation
     Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
-    Disable Device Isolation
 
     ${TarTempDir} =  Add Temporary Directory  tarTempdir
     Run Process  chmod  700  ${TarTempDir}
@@ -82,10 +81,30 @@ Diagnose Tool Gathers nft_rules File
     ${LengthOfFiles} =  Get Length  ${Files}
     should Be Equal As Numbers  1  ${LengthOfFiles}
 
-    ${TarContents} =  Query Tarfile For Contents  ${TarTempDir}/${Files[0]}
+    ${diagnose_tar_file} =    Set Variable    ${TarTempDir}/${Files[0]}
+
+    ${TarContents} =  Query Tarfile For Contents  ${diagnose_tar_file}
     Log  ${TarContents}
+
+    # Our rules file that we update and apply
     Should Contain 	${TarContents}  PluginFiles/deviceisolation/var/nft_rules.conf
 
+    # All applied rules, including non-sophos rules
+    Should Contain 	${TarContents}  SystemFiles/nft-rules
+
+    # Untar diagnose tar to check contents
+    ${unpack_dir} =    Set Variable    /tmp/DiagnoseOutput
+    Remove Directory  ${unpack_dir}  recursive=${True}
+    Create Directory  ${unpack_dir}
+    Register Cleanup    Remove Directory  ${unpack_dir}  recursive=${True}
+    ${result} =   Run Process   tar    xzf    ${diagnose_tar_file}   -C    ${unpack_dir}/
+    Should Be Equal As Strings   ${result.rc}  0
+
+    ${result} =   Run Process    cat ${unpack_dir}/sspl-diagnose_*/SystemFiles/nft-rules    shell=True
+    Should Contain    ${result.stdout}    sophos_device_isolation
+
+    ${result} =   Run Process    cat ${unpack_dir}/sspl-diagnose_*/PluginFiles/deviceisolation/var/nft_rules.conf    shell=True
+    Should Contain    ${result.stdout}    sophos_device_isolation
 
 
 Watchdog Restarts Device Isolation
