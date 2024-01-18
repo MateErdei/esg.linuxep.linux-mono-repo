@@ -193,9 +193,15 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     if (process->getStatus() != Common::Process::ProcessStatus::FINISHED)
     {
         LOGINFO("Child process is still running, killing process");
-        if (process->kill())
+        // secondsToShutdown is 30 seconds in plugin.json
+        // RA plugin gives action runner 30 - 2 seconds to complete during shutdown so -4 here to give plugin some time
+        // to cleanup whilst letting this process finish its own cleanup
+        // If secondsBeforeSIGKILL was 30 - 3 then RA would end up killing action runner (this process' parent) whilst
+        // this process' execution was at around cacheResult() in BoostProcessHolder.cpp
+        int secondsBeforeSIGKILL = 30 - 4;
+        if (process->kill(secondsBeforeSIGKILL))
         {
-            LOGINFO("Child process killed as it took longer than 2 seconds to stop");
+            LOGINFO("Child process killed as it took longer than " << secondsBeforeSIGKILL << " seconds to stop");
         }
         else
         {

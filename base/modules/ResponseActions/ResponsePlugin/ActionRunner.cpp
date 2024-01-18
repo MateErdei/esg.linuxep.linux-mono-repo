@@ -139,8 +139,8 @@ namespace ResponsePlugin
     void ActionRunner::killAction()
     {
         // secondsToShutdown is 30 seconds in plugin.json
-        // -1 to give response actions plugin some time to cleanup after action runner stopped
-        kill("plugin received stop request", 30 - 1);
+        // -2 to give response actions plugin some time to cleanup after action runner stopped
+        kill("plugin received stop request", 30 - 2);
         awaitPostAction();
     }
 

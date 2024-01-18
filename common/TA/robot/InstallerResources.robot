@@ -4,6 +4,7 @@ Library     Process
 Library     String
 
 Library     FullInstallerUtils.py
+Library     ProcessUtils.py
 Library     UpgradeUtils.py
 Library     Watchdog.py
 
@@ -296,3 +297,102 @@ Should Have Set KillMode To Mixed
     Run Keyword if    "KillMode" not in "${result.stdout}"    Should Contain  ${result1.stdout}  KillMode=mixed
     Run Keyword if    "KillMode" in "${result.stdout}"    Should Contain  ${result.stdout}  KillMode=mixed
 
+Verify AV Processes Are Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/av/sbin/av
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/av/sbin/safestore
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/av/sbin/soapd
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/av/sbin/sophos_threat_detector
+
+Wait For AV To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For Av Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify AV Processes Are Running    ${install_path}
+
+Verify Base Processes Are Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/base/bin/sophos_management
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/base/bin/python3
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/base/bin/UpdateScheduler
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/base/bin/tscheduler
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/base/bin/sophos_watchdog
+
+Wait For Base To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For Base Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify Base Processes Are Running    ${install_path}
+
+Verify DI Process Is Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    # TODO: once DI is in current shipping, remove extra check
+    ${binary_file_exists} =    Check File Exists    ${install_path}/plugins/deviceisolation/bin/deviceisolation
+    IF    ${binary_file_exists}
+        Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/deviceisolation/bin/deviceisolation
+    END
+
+Wait For DI To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For Deviceisolation Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify DI Process Is Running    ${install_path}
+
+Verify EDR Processes Are Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/edr/bin/edr
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/edr/bin/osqueryd
+
+Wait For EDR To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For EDR Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify EDR Processes Are Running    ${install_path}
+
+Verify EJ Process Is Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/eventjournaler/bin/eventjournaler
+
+Wait For EJ To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For EJ Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify EJ Process Is Running    ${install_path}
+
+Verify LR Process Is Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/liveresponse/bin/liveresponse
+
+Wait For LR To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For Liveresponse Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify LR Process Is Running    ${install_path}
+
+Verify RTD Process Is Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/runtimedetections/bin/runtimedetections
+
+Wait For RTD To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For RTD Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify RTD Process Is Running    ${install_path}
+
+Verify RA Process Is Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Wait Until Keyword Succeeds    30s    2s    Pidof Or Fail    ${install_path}/plugins/responseactions/bin/responseactions
+
+Wait For RA To Be Ready
+    [Arguments]    ${log_marks}    ${install_path}=${SOPHOS_INSTALL}
+    Wait For Response Action Logs To Indicate Plugin Is Ready    log_marks=${log_marks}
+    Verify RA Process Is Running    ${install_path}
+
+Check Plugin Processes Are Running
+    [Arguments]    ${install_path}=${SOPHOS_INSTALL}
+    Verify AV Processes Are Running    ${install_path}
+    Verify Base Processes Are Running    ${install_path}
+    Verify DI Process Is Running    ${install_path}
+    Verify EDR Processes Are Running    ${install_path}
+    Verify EJ Process Is Running    ${install_path}
+    Verify LR Process Is Running    ${install_path}
+    Verify RTD Process Is Running    ${install_path}
+    Verify RA Process Is Running    ${install_path}
+
+Wait For Plugins To Be Ready
+    [Arguments]    ${log_marks}    ${old_version}=${FALSE}     ${install_path}=${SOPHOS_INSTALL}
+    Wait For Plugins Logs To Indicate Plugins Are Ready    log_marks=${log_marks}    timeout=${60}    oldcode=${old_version}
+    Check Plugin Processes Are Running    ${install_path}

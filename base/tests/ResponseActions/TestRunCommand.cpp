@@ -274,7 +274,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(15));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
-            EXPECT_CALL(*mockProcess, kill()).Times(1);
+            EXPECT_CALL(*mockProcess, kill(_)).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
             return mockProcess;
         });
@@ -725,7 +725,7 @@ TEST_F(RunCommandTests, runCommandWithParentTerminatedChildRunning)
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
-            EXPECT_CALL(*mockProcess, kill()).Times(1);
+            EXPECT_CALL(*mockProcess, kill(_)).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
             return mockProcess;
         });
@@ -776,7 +776,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorExitAndKillWhenNotEINTR)
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
-            EXPECT_CALL(*mockProcess, kill()).Times(1);
+            EXPECT_CALL(*mockProcess, kill(_)).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
             return mockProcess;
         });
@@ -830,7 +830,7 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
-            EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
+            EXPECT_CALL(*mockProcess, kill(_)).WillOnce(Return(true));
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
             return mockProcess;
@@ -839,6 +839,6 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
     m_runCommandAction->runCommand("echo -n one");
 
     EXPECT_TRUE(appenderContains("RunCommandAction has received termination command due to timeout"));
-    EXPECT_TRUE(appenderContains("Child process killed as it took longer than 2 seconds to stop"));
+    EXPECT_TRUE(appenderContains("Child process killed as it took longer than 26 seconds to stop"));
 }
 

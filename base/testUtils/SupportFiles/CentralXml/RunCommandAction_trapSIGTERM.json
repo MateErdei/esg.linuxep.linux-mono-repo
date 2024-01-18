@@ -4,6 +4,6 @@
     "trap '' SIGTERM; sleep 5000"
   ],
   "ignoreError": false,
-  "timeout": 2,
+  "timeout": 35,
   "expiration": 144444000000004
 }

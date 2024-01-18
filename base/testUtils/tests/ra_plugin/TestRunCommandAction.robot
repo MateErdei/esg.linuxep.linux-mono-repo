@@ -174,31 +174,46 @@ Test Run Command Action Process Traps SIGTERM And Gets Killed In A Specified Amo
     ${pass_percentage_threshold} =    Set variable    0.7
 
     FOR    ${iteration}    IN RANGE    0    ${num_iterations}
-        ${time_taken} =    Simulate Response Action And Return Time Taken To Kill Process
-        ${time_taken_check} =   Evaluate    ${time_taken} <= (2 + ${allowed_leeway})
+        ${time_taken} =    Simulate Response Action And Shutdown Plugin And Return Time Taken To Kill Process
+        # Allowed time should correspond to the process->kill(<timeout>) in RunCommandAction.cpp
+        # if <timeout> is empty then the allowed time will come from DEFAULT_KILL_TIME in ProcessImpl.cpp
+        ${time_taken_check} =   Evaluate    ${time_taken} <= (26 + ${allowed_leeway})
         IF    ${time_taken_check} is ${TRUE}
             ${iterations_passed} =    Evaluate    ${iterations_passed} + 1
         END
+
+        ${log_marks} =    Mark All Plugin Logs
+        Start Response Actions
+        Wait For RA To Be Ready    ${log_marks}
     END
 
     ${pass_percentage} =    Evaluate    (${iterations_passed} / ${num_iterations}) >= ${pass_percentage_threshold}
     Should Be True    ${pass_percentage}
 
 *** Keywords ***
-Simulate Response Action And Return Time Taken To Kill Process
+Simulate Response Action And Shutdown Plugin And Return Time Taken To Kill Process
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_trapSIGTERM.json
+    Stop Response Actions
     # Note: the timeout value in the command json file IS NOT the amount of time given for the command process to stop
     # The timeout is the amount of time we wait until we tell the process to terminate
     # If you'd like to look at where the code is being executed, look in RunCommandAction.cpp -> runCommand()
     # RunCommandAction.cpp will log saying 'RunCommandAction has received termination command due to timeout'
     # (how long the wait is until the message is logged is based on the timeout in the command json file
-    # Then RunCommandAction.cpp will call kill() on the process, there is no value passed into kill() so
+    # Then RunCommandAction.cpp will call kill() on the process, if there is no value passed into kill() so
     # the default wait time is used - found in ProcessImpl.cpp, DEFAULT_KILL_TIME
-    # At the time of writing this test the value was 2 - this is the "Specified Amount Of Time"
-    # hence checking that the log timings indicate a 2 second gap (+ some leeway)
-    # The reason this test is excluded on coverage is because the DEFAULT_KILL_TIME changes
-    wait_for_log_contains_from_mark    ${action_mark}    Entering cache result
+    # The reason this keyword stops ra is that the only way to see if the timeout in RunCommandAction.cpp works is if
+    # RA doesn't kill its action runner process (heirarchy is RA plugin is a parent of Action Runner process which is a
+    # parent of the process running the actual command), so we need RA to call its kill() for action runner with a
+    # timeout greater than the timeout action runner gives its child process. The only time this is the case (as of
+    # writing this comment) is when RA gets a stop command (PluginAdapter.cpp calls m_runner->killAction() which calls
+    # kill("plugin received stop request", 30 - 2) in ActionRunner.cpp, timeout is greater than the timeout in
+    # RunCommandAction.cpp: process->kill(secondsBeforeSIGKILL) where secondsBeforeSIGKILL = 30 - 4
+    # If instead the timeout specified in the command json was hit then ActionRunner.cpp would do
+    # kill("it carried on running unexpectedly"). There is no timeout specified to DEFAULT_KILL_TIME would be used
+    # Finally, all this only works because the command itself traps SIGTERM, otherwise each process would never get to
+    # be killed and stop in less than 1 second
+    wait_for_log_contains_from_mark    ${action_mark}    Entering cache result    30
     ${time_taken} =
         ...    get_time_difference_between_two_log_lines
         ...    Child process is still running, killing process
@@ -229,6 +244,17 @@ RA Run Command Test Teardown
     Cleanup Telemetry Server
     Remove File  ${EXE_CONFIG_FILE}
 
+Start Response Actions
+    ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  responseactions
+    Run Keyword If  ${result.rc} != 0  log  ${result.stdout}
+    Run Keyword If  ${result.rc} != 0  log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+Stop Response Actions
+    ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  responseactions
+    Run Keyword If  ${result.rc} != 0  log  ${result.stdout}
+    Run Keyword If  ${result.rc} != 0  log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
 
 Stop MCSRouter
     ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  mcsrouter
