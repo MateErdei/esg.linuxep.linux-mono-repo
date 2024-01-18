@@ -147,6 +147,7 @@ namespace diagnose
             systemCommands.runCommand("yum", { "-y", "list", "installed" }, "yum-pkgs");
             systemCommands.runCommand("apt", { "list", "--installed" }, "apt-pkgs");
             systemCommands.runCommand("ldconfig", { "-p" }, "ldconfig");
+            systemCommands.runCommand(Common::FileSystem::join(installDir, "plugins/deviceisolation/bin/nft"), { "list", "ruleset" }, "nft-rules");
 
             // Copy any files that contain useful info to the output dir.
             gatherFiles.copyFile("/etc/os-release", Common::FileSystem::join(systemFilesDir, "os-release"));
