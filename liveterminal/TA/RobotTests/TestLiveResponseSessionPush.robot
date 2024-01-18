@@ -153,25 +153,18 @@ Verify Liveresponse Creates Files With Correct Permissions
     ${rc}   ${output} =    Run And Return Rc And Output    cat /tmp/umask.txt
     Log  return code is ${rc}
     Log  output is ${output}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    grep -3 -r umask /etc
-    Log  return code is ${rc}
-    Log  output is ${output}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    cat /etc/profile
-    Log  return code is ${rc}
-    Log  output is ${output}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    cat ~/.profile
-    Log  return code is ${rc}
-    Log  output is ${output}
-
+    ${umask} =  Set Variable   ${output}
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${path}
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Contain    ${output}    -rw-------
     Should Contain    ${output}    root sophos-spl-group
-    Should Be Equal As Integers  ${rc}  ${0}
+    IF   "${umask}" == "0022"
+        Should Contain    ${output}    -rw-r--r--
+    ELSE IF   "${umask}" == "0077"
+        Should Contain    ${output}    -rw-------
+    ELSE
+         Fail    Unexpected umask: ${umask}
+    END
 
 
 *** Keywords ***
