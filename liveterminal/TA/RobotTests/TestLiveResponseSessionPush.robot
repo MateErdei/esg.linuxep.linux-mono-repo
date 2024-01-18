@@ -145,6 +145,27 @@ Verify Liveresponse Creates Files With Correct Permissions
     Send Message With Newline   touch ${path}   ${correlation_id}
     Wait Until Created    /tmp/test_${correlation_id}.txt  timeout=5 secs
     Register Cleanup   Remove File    ${path}
+
+    Send Message With Newline   umask > /tmp/umask.txt   ${correlation_id}
+    Wait Until Created    /tmp/umask.txt  timeout=5 secs
+    Register Cleanup   Remove File    /tmp/umask.txt
+
+    ${rc}   ${output} =    Run And Return Rc And Output    cat /tmp/umask.txt
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    grep -r grep -3 -r umask /etc
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    cat /etc/profile
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    cat ~/.profile
+    Log  return code is ${rc}
+    Log  output is ${output}
+
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${path}
     Log  return code is ${rc}
     Log  output is ${output}
