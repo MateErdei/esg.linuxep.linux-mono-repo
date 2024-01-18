@@ -2,6 +2,7 @@
 Documentation     Test the Telemetry executable
 
 Library    OperatingSystem
+Library    Process
 
 Library    ${COMMON_TEST_LIBS}/ActionUtils.py
 Library    ${COMMON_TEST_LIBS}/CentralUtils.py
@@ -70,6 +71,7 @@ Telemetry Test Teardown
     Kill Telemetry If Running
     Reset MachineID Permissions
     General Test Teardown
+    Run Keyword If Test Failed   LogUtils.Dump Log    ${TELEMETRY_OUTPUT_JSON}
     Remove file  ${TELEMETRY_OUTPUT_JSON}
     Restore System Commands
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
@@ -121,9 +123,19 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}
 
+Telemetry Executable sets telemetry health to bad when it fails to get telemetry from a plugin
+    [Tags]    TELEMETRY
+    ${result} =    Run Process   ${SOPHOS_INSTALL}/bin/wdctl     stop     updatescheduler
+    Register Cleanup      Run Process    ${SOPHOS_INSTALL}/bin/wdctl     start     updatescheduler
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${pluginDict}=    Set Variable     ${telemetryJson['updatescheduler']}
+
+    Dictionary Should Contain Item   ${pluginDict}   health           ${1}
+
 Telemetry Executable Generates Cloud Platform Metadata
     [Tags]  SMOKE  TELEMETRY  AMAZON_LINUX
-    [Documentation]    Telemetry Executable Generates Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}

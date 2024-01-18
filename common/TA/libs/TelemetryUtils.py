@@ -160,7 +160,7 @@ class TelemetryUtils:
             "download-file-expiry-failures": 0,
             "download-file-overall-failures": 0,
             "download-file-timeout-failures": 0,
-            "health": 1,
+            "health": 0,
             "run-command-actions": 0,
             "run-command-expired-actions": 0,
             "run-command-failed": 0,

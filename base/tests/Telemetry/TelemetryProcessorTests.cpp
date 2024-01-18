@@ -122,7 +122,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows)
     DerivedTelemetryProcessor telemetryProcessor(m_config, std::move(m_httpRequester), telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
-    ASSERT_EQ(R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
+    ASSERT_EQ(R"({"Mock1":{"key":1},"Mock2":{"health":1},"Mock3":{"key":3}})", json);
 }
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile)
@@ -274,7 +274,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromSing
 
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
-    ASSERT_EQ(R"({})", json);
+    ASSERT_EQ(R"({"Mock":{"health":1}})", json);
 }
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMultipleProviders)

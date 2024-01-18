@@ -89,6 +89,7 @@ void TelemetryProcessor::gatherTelemetry()
         catch (std::exception& ex)
         {
             LOGWARN("Could not get telemetry for " << name << ". Exception: " << ex.what());
+            addTelemetry(name, "{\"health\":1}");
         }
         provider.reset();
     }
