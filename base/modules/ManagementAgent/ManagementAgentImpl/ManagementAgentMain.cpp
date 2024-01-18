@@ -208,7 +208,7 @@ namespace ManagementAgent::ManagementAgentImpl
             }
             catch (Common::PluginCommunication::IPluginCommunicationException& e)
             {
-                LOGWARN("Failed to get plugin status for: " << pluginName << ", with error" << e.what());
+                LOGWARN("Failed to get plugin status for: " << pluginName << ", with error: " << e.what());
                 continue;
             }
 

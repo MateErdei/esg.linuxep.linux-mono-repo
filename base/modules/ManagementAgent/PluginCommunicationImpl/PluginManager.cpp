@@ -464,7 +464,7 @@ namespace ManagementAgent::PluginCommunicationImpl
         }
         catch (const std::exception& ex)
         {
-            LOGWARN("Failed to read plugin health for: " << pluginName << ", with error" << ex.what());
+            LOGWARN("Failed to read plugin health for: " << pluginName << ", with error: " << ex.what());
             // default to not running if value is not valid.
             pluginHealthStatus.healthValue = 1;
         }
