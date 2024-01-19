@@ -51,9 +51,6 @@ namespace Plugin
             // Ignore no Policy Available errors
         }
 
-        Common::Telemetry::TelemetryHelper::getInstance().set(
-                DeviceIsolation::Telemetry::activatedInPast24HoursKey, false);
-
         Common::Telemetry::TelemetryObject isolationEnabledTelemetry;
         isolationEnabledTelemetry.set(Common::Telemetry::TelemetryValue(isolationEnabled_.getValue()));
         Common::Telemetry::TelemetryHelper::getInstance().set(

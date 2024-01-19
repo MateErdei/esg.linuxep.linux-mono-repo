@@ -52,6 +52,9 @@ Check Is Isolation Active Telemetry Is Updated When Isolate Action Received
     Dictionary Should Contain Key  ${telemetry_dict}  currently-active
     Should Be Equal As Strings    ${telemetry_dict["currently-active"]}    True
 
+    Dictionary Should Contain Key  ${telemetry_dict}  activated-last-24-hours
+    Should Be Equal As Strings    ${telemetry_dict["activated-last-24-hours"]}    True
+
     ${di_mark} =    Mark Log Size    ${DEVICE_ISOLATION_LOG_PATH}
     Send Disable Isolation Action    uuid=1
     Wait For Log Contains From Mark  ${di_mark}  Disabling Device Isolation
@@ -88,8 +91,7 @@ Check Was Isolation Activated In Last 24 Hours Telemetry Is Written
     Log  ${telemetry_json}
     ${telemetry_dict} =  Evaluate  json.loads('''${telemetry_json}''')  json
 
-    Dictionary Should Contain Key  ${telemetry_dict}  activated-last-24-hours
-    Should Be Equal As Strings    ${telemetry_dict["activated-last-24-hours"]}    False
+    Dictionary Should Not Contain Key  ${telemetry_dict}  activated-last-24-hours
 
 Check Was Isolation Activated In Last 24 Hours Is Updated When Isolate Action Received
     Restart Device Isolation
