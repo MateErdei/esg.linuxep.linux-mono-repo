@@ -137,6 +137,10 @@ function verify_installed_packages() {
     for package in "${av_packages[@]}"; do
         [[ -z $(which "${package}") ]] && log_warn "AV Plugin requires ${package} to be installed on this server. SPL can be installed but AV will not work"
     done
+    compatibility_packages=("curl")
+    for package in "${compatibility_packages[@]}"; do
+        [[ -z $(which "${package}") ]] && failure ${EXITCODE_MISSING_PACKAGE} "ERROR: Cannot continue pre-install checks as that requires ${package} to be installed on this server. Please run installer with --notest to run installer without pre-install checks"
+    done
     success
 }
 
@@ -337,7 +341,7 @@ function verify_connection_to_cdn() {
     if [[ -z ${proxy} ]]; then
         successful_downloads=0
         for supplement in "${DAT_FILES[@]}"; do
-            if wget --no-proxy -q --delete-after "${cdn_url}/${supplement}" -T 12 -t 1; then
+            if curl --tlsv1.2 --noproxy '*' -is "${cdn_url}/${supplement}" -m 60 >/dev/null 2>&1; then
                 successful_downloads=$((successful_downloads + 1))
                 log_debug "Connection verified to CDN server, server is able to download ${supplement#*/} supplement from ${cdn_url} directly"
             else
@@ -352,7 +356,7 @@ function verify_connection_to_cdn() {
     else
         successful_downloads=0
         for supplement in "${DAT_FILES[@]}"; do
-            if wget -q --delete-after -e use_proxy=yes -e https_proxy="${proxy}" "${cdn_url}/${supplement}" -T 12 -t 1; then
+            if curl --tlsv1.2 --proxy "${PROXY}" -is "${cdn_url}/${supplement}" -m 60 >/dev/null 2>&1; then
                 successful_downloads=$((successful_downloads + 1))
                 log_debug "Connection verified to CDN server via proxy (${proxy}). Server is able to download ${supplement#*/} supplement from ${cdn_url} via ${proxy}"
             else
