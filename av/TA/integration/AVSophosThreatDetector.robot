@@ -845,6 +845,28 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     Should Exist  ${allow_listed_threat_file}
 
 
+Windows Allowlist Item Not Added To Allow Listed Items
+    ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+    ${directory_allow_glob} =    Set Variable    /tmp_test/*/path/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}eicar.com
+
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the file
+    ${allowlisted_paths} =    Create List     ${directory_allow_glob}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}    create_windows_path=${TRUE}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_allow_glob}
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
+
+
 Sophos Threat Detector Does Not Detect Archive Allow Listed By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip

@@ -117,7 +117,7 @@ static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
     <onDemandEnable>true</onDemandEnable>
   </detectionFeedback>
   <whitelist>
-    <item type="path">/tmp/a/path</item>
+    <item type="posix-path">/tmp/a/path</item>
     <item type="sha256">a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798</item>
     <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
     <item type="cert-signer">SignerName</item>

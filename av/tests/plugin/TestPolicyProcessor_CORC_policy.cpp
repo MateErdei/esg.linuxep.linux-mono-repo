@@ -53,7 +53,7 @@ static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
     <onDemandEnable>true</onDemandEnable>
   </detectionFeedback>
   <whitelist>
-    <item type="path">/tmp/a/path</item>
+    <item type="posix-path">/tmp/a/path</item>
     <item type="sha256">a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798</item>
     <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
     <item type="cert-signer">SignerName</item>
@@ -179,7 +179,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNonShaTypeAllowList
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         <whitelist>
-            <item type="path">/tmp/a/path</item>
+            <item type="posix-path">/tmp/a/path</item>
             <item type="cert-signer">SignerName</item>
         </whitelist>
         </policy>)";
@@ -223,8 +223,8 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyPathTypeAll
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         <whitelist>
-            <item type="path">/tmp/a/path</item>
-            <item type="path"></item>
+            <item type="posix-path">/tmp/a/path</item>
+            <item type="posix-path"></item>
             <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
             <item type="cert-signer">SignerName</item>
         </whitelist>
@@ -248,9 +248,9 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneInvalidPathTypeA
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         <whitelist>
-            <item type="path">/tmp/a/path</item>
-            <item type="path">not/a/absolute/path</item>
-            <item type="path">*/not/a/absolute/path/but/am/glob</item>
+            <item type="posix-path">/tmp/a/path</item>
+            <item type="posix-path">not/a/absolute/path</item>
+            <item type="posix-path">*/not/a/absolute/path/but/am/glob</item>
             <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
             <item type="cert-signer">SignerName</item>
         </whitelist>
@@ -275,7 +275,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyShaTypeAllo
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         <whitelist>
-            <item type="path">/tmp/a/path</item>
+            <item type="posix-path">/tmp/a/path</item>
             <item type="sha256"></item>
             <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
             <item type="cert-signer">SignerName</item>
@@ -300,7 +300,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
     std::string policy = R"(<?xml version="1.0"?>
         <policy RevID="revisionid" policyType="37">
         <whitelist>
-            <item type="path">/tmp/a/path</item>
+            <item type="posix-path">/tmp/a/path</item>
             <!-- SHA256 of some file -->
             <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
             <item type="cert-signer">SignerName</item>
@@ -318,6 +318,30 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
     auto actual = nlohmann::json::parse(actualJson);
     ASSERT_EQ(actual.at("shaAllowList").size(), 1);
     EXPECT_EQ(actual.at("shaAllowList")[0], "42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
+    ASSERT_EQ(actual.at("pathAllowList").size(), 1);
+    EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithWindowsAllowPath)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        <whitelist>
+            <item type="posix-path">/tmp/a/path</item>
+            <item type="path">/im/for/windows</item>
+            <item type="cert-signer">SignerName</item>
+        </whitelist>
+        </policy>)";
+
+    expectConstructorCalls();
+    std::string actualJson;
+    auto expectedJsonFragment = HasSubstr(R"sophos("pathAllowList":["/tmp/a/path"])sophos");
+    saveSusiConfigFromWrite(expectedJsonFragment, actualJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCORCpolicyFromString(policy));
+    auto actual = nlohmann::json::parse(actualJson);
     ASSERT_EQ(actual.at("pathAllowList").size(), 1);
     EXPECT_EQ(actual.at("pathAllowList")[0], "/tmp/a/path");
 }

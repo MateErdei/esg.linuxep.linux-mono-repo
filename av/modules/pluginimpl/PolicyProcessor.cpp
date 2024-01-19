@@ -612,7 +612,7 @@ namespace Plugin
                 LOGDEBUG("Added SHA256 to allow list: " << allowedItem.contents());
                 sha256AllowList.emplace_back(allowedItem.contents());
             }
-            if (allowedItem.value("type") == "path" && !allowedItem.contents().empty())
+            if (allowedItem.value("type") == "posix-path" && !allowedItem.contents().empty())
             {
                 if (allowedItem.contents().front() == '*' || allowedItem.contents().front() == '/')
                 {

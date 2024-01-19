@@ -35,7 +35,7 @@
   <item type="sha256">eee9c44c29c2be011f1f1e43bb8c3fca888cb81053022ec5a0060035de16d848</item>
   <item type="sha256">373e0f25e7b57f5a0f5b514b0d91a870ab1fa401ceb5ffdc18df14514af1eff8</item>
   <item type="sha256">13914f7e3a7a2273954b69414e696ee2f4dcc24c0876e0653a48227c09f6bee1</item>
-  <item type="path">C:\dev\</item>
+  <item type="posix-path">C:\dev\</item>
   <item type="sha256">d287d7d95027bc454af087cf119cb88bdc6e44d6925f9764f3980bee67d56c50</item>
 </whitelist>
 <sampleUploadUri>https://samples.sophosxl.net</sampleUploadUri>

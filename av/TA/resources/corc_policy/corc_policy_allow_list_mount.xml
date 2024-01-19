@@ -29,7 +29,7 @@
         <onDemandEnable>true</onDemandEnable>
     </detectionFeedback>
     <whitelist>
-        <item type="path">/tmp_test/a/path/mount/</item>
+        <item type="posix-path">/tmp_test/a/path/mount/</item>
         <item type="cert-signer">SignerName</item>
     </whitelist>
 

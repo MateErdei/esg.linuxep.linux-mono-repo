@@ -312,7 +312,8 @@ def create_corc_policy(whitelist_sha256s=[],
                        whitelist_paths=[],
                        sxlLookupEnabled=True,
                        sxl_url="https://4.sophosxl.net",
-                       revid=None):
+                       revid=None,
+                       create_windows_path=False):
     if not revid:
         revid = str(time.time())
 
@@ -323,7 +324,10 @@ def create_corc_policy(whitelist_sha256s=[],
     for sha256 in whitelist_sha256s:
         whitelist_items.append(f'<item type="sha256">{sha256}</item>')
     for path in whitelist_paths:
-        whitelist_items.append(f'<item type="path">{path}</item>')
+        whitelist_items.append(f'<item type="posix-path">{path}</item>')
+    if create_windows_path:
+        whitelist_items.append(f'<item type="path">\windows\path</item>')
+
     policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
     policy = policy.replace("{{sxl4_enable}}", "true" if sxlLookupEnabled else "false")
     policy = policy.replace("{{sxl4_url}}", sxl_url)
