@@ -352,11 +352,14 @@ def create_sav_policy(revid=None, pua_exclusions="", scheduled_scan=False):
     return builder.get_policy()
 
 
-def populate_alc_policy(revid: str, algorithm: str, username: str, userpass: str):
+def populate_alc_policy(revid: str, algorithm: str, username: str, userpass: str,
+                        customer_id: str="a1c0f318-e58a-ad6b-f90d-07cabda54b7d"):
     with open(ALC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
-        policy = policy.replace("{{revid}}", revid)
-        policy = policy.replace("{{algorithm}}", algorithm)
-        policy = policy.replace("{{username}}", username)
-        policy = policy.replace("{{userpass}}", userpass)
-        return policy
+
+    policy = policy.replace("{{revid}}", revid)
+    policy = policy.replace("{{algorithm}}", algorithm)
+    policy = policy.replace("{{username}}", username)
+    policy = policy.replace("{{userpass}}", userpass)
+    policy = policy.replace("{{customer_id}}", customer_id)
+    return policy

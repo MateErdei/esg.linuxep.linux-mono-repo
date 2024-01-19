@@ -6,6 +6,7 @@ Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/BaseUtils.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
+Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
@@ -880,8 +881,8 @@ Check Specific File Content
     Should Contain    ${FileContents}   ${expectedContent}
 
 Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear   ${username}=B  ${userpassword}=A
-    ${policyContent} =  populate_alc_policy    ${revid}  ${algorithm}  ${username}  ${userpassword}
+    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear   ${username}=B  ${userpassword}=A  ${customer_id}=a1c0f318-e58a-ad6b-f90d-07cabda54b7d
+    ${policyContent} =  populate_alc_policy    ${revid}  ${algorithm}  ${username}  ${userpassword}  ${customer_id}
     LOG    ${policyContent}
     [Return]   ${policyContent}
 

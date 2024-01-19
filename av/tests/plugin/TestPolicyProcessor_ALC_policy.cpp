@@ -83,6 +83,7 @@ static const std::string ALC_FULL_POLICY
 </AUConfigurations>
 )sophos"
 };
+static const std::string EXPECTED_POLICY_1_CUSTOMER_ID = "b67ee4d2baefb4b66bf919b5ddcb2ef7";
 
 
 static const std::string GL_POLICY_2 =  // NOLINT
@@ -106,7 +107,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMap)
 {
     auto attributeMap = parseFullPolicy();
     auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
-    EXPECT_EQ(customerId, "5e259db8da3ae4df8f18a2add2d3d47d");
+    EXPECT_EQ(customerId, EXPECTED_POLICY_1_CUSTOMER_ID);
 }
 
 TEST_F(TestPolicyProcessor_ALC_policy, customerIDFromPlaceholders)
@@ -158,7 +159,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromClearAttributeMap)
 
 TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyNoChangePolicy)
 {
-    const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
+    const std::string expectedMd5 = EXPECTED_POLICY_1_CUSTOMER_ID;
     const std::string customerIdFilePath1 = m_customerIdPath;
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
     expectAbsentSusiConfig();
@@ -180,7 +181,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyNoChangePolicy)
 
 TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
 {
-    const std::string expectedMd5_1 = "5e259db8da3ae4df8f18a2add2d3d47d";
+    const std::string expectedMd5_1 = EXPECTED_POLICY_1_CUSTOMER_ID;
     const std::string expectedMd5_2 = "a1c0f318e58aad6bf90d07cabda54b7d";
     const std::string customerIdFilePath1 = m_customerIdPath;
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
@@ -206,6 +207,63 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
 }
 
 
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromCustomer)
+{
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+</AUConfigurations>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, "4b4ca3bac144444780506c96a7104c11");
+}
+
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromCustomerEmpty)
+{
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <customer id=""/>
+</AUConfigurations>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, ""); // no fallback
+}
+
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromCustomerTooShort)
+{
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <customer id="too-short"/>
+</AUConfigurations>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, "630f07fdeebdf57d0bafd0efa79457f9"); // md5 of tooshort
+}
+
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdPrefersCustomer)
+{
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <AUConfig>
+    <primary_location>
+      <server UserPassword="A" UserName="B"/>
+    </primary_location>
+  </AUConfig>
+  <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+</AUConfigurations>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, "4b4ca3bac144444780506c96a7104c11");
+}
+
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromEmptyAttributeMap)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
@@ -223,7 +281,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromEmptyAttributeMap)
     EXPECT_EQ(customerId, "");
 }
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNoAlgorithm)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithNoAlgorithm)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -240,7 +298,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNoAlgorithm)
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
 }
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapHashed)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithHashed)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -258,7 +316,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapHashed)
 }
 
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNotHashed)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithNotHashed)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -276,7 +334,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapNotHashed)
 }
 
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyPassword)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithEmptyPassword)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -289,19 +347,12 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyPasswor
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    try
-    {
-        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
-        FAIL() << "getCustomerId didn't throw";
-    }
-    catch (std::invalid_argument& e)
-    {
-        EXPECT_STREQ(e.what(), "Invalid policy: Password is empty ");
-    }
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_TRUE(customerId.empty());
 }
 
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingPassword)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithMissingPassword)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -314,19 +365,29 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingPassw
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    try
-    {
-        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
-        FAIL() << "getCustomerId didn't throw";
-    }
-    catch (std::invalid_argument& e)
-    {
-        EXPECT_STREQ(e.what(), "Invalid policy: Password is empty ");
-    }
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_TRUE(customerId.empty());
 }
 
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyUserName)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithObfuscatedPassword)
+{
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <AUConfig>
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=" UserName="ABC123" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+    </primary_location>
+  </AUConfig>
+</AUConfigurations>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, "f5c33e370714d94e1d967e53ac4f0437");
+}
+
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithEmptyUserName)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -339,18 +400,11 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapEmptyUserNam
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    try
-    {
-        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
-        FAIL() << "getCustomerId didn't throw";
-    }
-    catch (std::invalid_argument& e)
-    {
-        EXPECT_STREQ(e.what(), "Invalid policy: Username is empty ");
-    }
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_TRUE(customerId.empty());
 }
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingUserName)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithMissingUserName)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -363,19 +417,12 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapMissingUserN
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    try
-    {
-        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
-        FAIL() << "getCustomerId didn't throw";
-    }
-    catch (std::invalid_argument& e)
-    {
-        EXPECT_STREQ(e.what(), "Invalid policy: Username is empty ");
-    }
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_TRUE(customerId.empty());
 }
 
 
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapInvalidAlgorithm)
+TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFallbackWithInvalidAlgorithm)
 {
     const std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -399,8 +446,10 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMapInvalidAlgor
     }
 }
 
-
-TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromBlankAttributeMap)
+/**
+ * This test doesn't involve PolicyProcessor at all.
+ */
+TEST_F(TestPolicyProcessor_ALC_policy, DISABLED_getCustomerIdFallbackWithBlankMap)
 {
     const std::string policyXml {};
 
@@ -409,7 +458,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromBlankAttributeMap)
         auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
         FAIL() << "parseXml didn't throw";
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
         EXPECT_THAT(e.what(), HasSubstr("Error parsing xml"));
     }

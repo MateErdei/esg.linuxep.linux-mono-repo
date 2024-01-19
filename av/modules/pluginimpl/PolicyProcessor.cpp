@@ -203,6 +203,24 @@ namespace Plugin
 
     std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
     {
+        auto customerids = policy.lookupMultiple("AUConfigurations/customer");
+        if (!customerids.empty())
+        {
+            auto customerid = customerids.at(0);
+            auto id = customerid.value("id");
+
+            if (!id.empty())
+            {
+                id = Common::UtilityImpl::StringUtils::replaceAll(id, "-", "");
+                if (id.size() == 32)
+                {
+                    // id is already the right length
+                    return id;
+                }
+                return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, id);
+            }
+        }
+        LOGDEBUG("Falling back to old customer ID generation");
         auto primaryLocation = policy.lookup("AUConfigurations/AUConfig/primary_location/server");
         if (primaryLocation.empty())
         {
@@ -212,15 +230,9 @@ namespace Plugin
         std::string password{ primaryLocation.value("UserPassword") };
         std::string algorithm{ primaryLocation.value("Algorithm", "Clear") };
 
-        // we check that username and password are not empty mainly for fuzzing purposes as in
-        // product we never expect central to send us a policy with empty credentials
-        if (password.empty())
+        if (password.empty() || username.empty())
         {
-            throw std::invalid_argument("Invalid policy: Password is empty ");
-        }
-        if (username.empty())
-        {
-            throw std::invalid_argument("Invalid policy: Username is empty ");
+            return "";
         }
 
         bool unhashed = true;

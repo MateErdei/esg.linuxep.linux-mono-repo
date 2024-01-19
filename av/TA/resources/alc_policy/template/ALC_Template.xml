@@ -41,5 +41,5 @@
         <Feature id="XPD"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
-    <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
+    <customer id="{{customer_id}}"/>
 </AUConfigurations>

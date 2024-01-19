@@ -27,5 +27,5 @@
     </Features>
     <automatic_sdu_submission Enabled="true"/>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
-    <customer id="b8569c3c-ea88-9499-39a6-f0983540d47b"/>
+    <customer id="a1c0f318-e58a-ad6b-f90d-07cabda54b7d"/>
 </AUConfigurations>

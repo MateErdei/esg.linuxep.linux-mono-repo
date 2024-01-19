@@ -424,15 +424,14 @@ TEST_F(TestPolicyProcessor, alc_policy_resets_reload_restart_flags)
 
     auto alc = Common::XmlUtilities::parseXml(ALC_FULL_POLICY);
 
-    constexpr const auto* customerId = "5e259db8da3ae4df8f18a2add2d3d47d";
     const auto customerIdPath = m_testDir / "var/customer_id.txt";
 
     auto chrootCustomerIdPath = m_testDir / "chroot";
     chrootCustomerIdPath += customerIdPath;
 
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(customerIdPath), StrEq(customerId))).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(chrootCustomerIdPath), StrEq(customerId))).WillOnce(Return());
+    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(customerIdPath), _)).WillOnce(Return());
+    EXPECT_CALL(*mockFileSystem, writeFile(StrEq(chrootCustomerIdPath), _)).WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
 

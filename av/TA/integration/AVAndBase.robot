@@ -631,7 +631,11 @@ AV Plugin does not restart threat detector on customer id change
     Check avscanner can detect eicar
 
     ${id1} =   Generate Random String
+    ${uuid1} =   Set Variable  eeeeeeee-aaaa-ad6b-f90d-abcdefa54b7d
+    ${uuid2} =   Set Variable  ffffffff-aaaa-ad6b-f90d-fedcbaa54b7d
+
     ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
+    ...  customer_id=${uuid1}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
@@ -650,6 +654,8 @@ AV Plugin does not restart threat detector on customer id change
 
     ${id2} =   Generate Random String
     ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
+    ...  customer_id=${uuid1}
+
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
     ${av_mark2} =  Get AV Log Mark
@@ -667,6 +673,7 @@ AV Plugin does not restart threat detector on customer id change
 
     ${id3} =   Generate Random String
     ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
+    ...  customer_id=${uuid2}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 

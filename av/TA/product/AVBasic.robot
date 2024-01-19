@@ -389,34 +389,6 @@ AV Plugin Gets Customer ID
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-
-AV Plugin Gets Customer ID from Obfuscated Creds
-    ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
-    ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
-
-    #Wait for default policy to be processed first
-    Wait Until Created   ${customerIdFile1}   timeout=10sec
-    Wait Until Created   ${customerIdFile2}   timeout=5sec
-    Remove Files   ${customerIdFile1}   ${customerIdFile2}
-
-    ${policyContent} =   Get ALC Policy
-    ...   algorithm=AES256
-    ...   userpassword=CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=
-    ...   username=ABC123
-    send av policy  ${ALC_APPID}  ${policyContent}
-
-    # md5(md5("ABC123:password"))
-    ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
-
-    Wait Until Created   ${customerIdFile1}   timeout=10sec
-    ${customerId1} =   Get File   ${customerIdFile1}
-    Should Be Equal   ${customerId1}   ${expectedId}
-
-    Wait Until Created   ${customerIdFile2}   timeout=5sec
-    ${customerId2} =   Get File   ${customerIdFile2}
-    Should Be Equal   ${customerId2}   ${expectedId}
-
-
 AV Plugin requests policies at startup
     Wait Until Keyword Succeeds
     ...  5 secs
