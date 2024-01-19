@@ -151,10 +151,12 @@ Verify Liveresponse Creates Files With Correct Permissions
     Register Cleanup   Remove File    /tmp/umask.txt
 
     ${umask}=  Get File    /tmp/umask.txt
-
+    ${umask} =    Remove String    ${umask}    ${\n}
+    Log    ${umask}
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${path}
     Log  return code is ${rc}
     Log  output is ${output}
+
     Should Contain    ${output}    root sophos-spl-group
     IF   "${umask}" == "0022"
         Should Contain    ${output}    -rw-r--r--
