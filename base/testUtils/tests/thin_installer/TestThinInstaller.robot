@@ -117,6 +117,8 @@ Thin Installer can download test file from warehouse and execute it
     Should Not Contain    ${compatibilityCheckResults}    false
     Should Contain    ${compatibilityCheckResults}    summary = successfully installed product
     Check Thininstaller Log Contains    Successfully installed product
+    #added check to protect against regression of 8536
+    Check Thininstaller Log Does Not Contain     INFO Logger LOGFORTEST configured for level: DEBUG
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
     [Documentation]  Created for LINUXDAR-2249

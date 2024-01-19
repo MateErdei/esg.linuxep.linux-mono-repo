@@ -143,5 +143,5 @@ Find IP Address With Distance
 
 Check Thininstaller Log Does Not Contain Error
     ${log} =  ThinInstallerUtils.get_thin_installer_log_path
-    Mark Expected Error In Log    ${log}    ERROR Refusing to send telemetry with empty tenant ID
+    Mark Expected Error In Log    ${log}    ERROR - Refusing to send telemetry with empty tenant ID
     Check Thininstaller Log Does Not Contain  ERROR

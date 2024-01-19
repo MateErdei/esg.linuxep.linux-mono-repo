@@ -8,6 +8,8 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/OSUtilitiesImpl/PlatformUtils.h"
 
+#include <log4cplus/configurator.h>
+#include <log4cplus/initializer.h>
 #include <log4cplus/logger.h>
 
 #include <fstream>
@@ -15,11 +17,16 @@
 
 static void setupLogging()
 {
+    log4cplus::BasicConfigurator config;
+    config.configure();
     bool debugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
     auto root = log4cplus::Logger::getRoot();
     if (debugMode)
     {
         root.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
+        std::stringstream initMessage;
+        initMessage << "Logger configured for level: DEBUG";
+        root.log(log4cplus::DEBUG_LOG_LEVEL, initMessage.str());
     }
     else
     {
@@ -35,7 +42,8 @@ static void setupLogging()
  */
 static int inner_main(int argc, char* argv[])
 {
-    Common::Logging::ConsoleLoggingSetup logging;
+    log4cplus::Initializer initializer;
+
     setupLogging();
     std::vector<std::string> args;
     for (auto i=1; i<argc; ++i)

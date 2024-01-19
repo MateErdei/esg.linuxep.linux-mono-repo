@@ -328,7 +328,7 @@ static int inner_main(int argc, char** argv)
     {
         log4cplus::Logger::getRoot().setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
         std::stringstream initMessage;
-        initMessage << "Logger configured for level: DEBUG" << std::endl;
+        initMessage << "Logger configured for level: DEBUG";
         log4cplus::Logger::getRoot().log(log4cplus::DEBUG_LOG_LEVEL, initMessage.str());
     }
     else
