@@ -94,11 +94,11 @@ namespace
                 {
                     if (Common::UtilityImpl::StringUtils::isValidIpAddress(remoteAddress, AF_INET))
                     {
-                        remoteAddressesAndIpTypes.push_back(std::pair<std::string, std::string>(remoteAddress, "ip"));
+                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, "ip");
                     }
                     else
                     {
-                        remoteAddressesAndIpTypes.push_back(std::pair<std::string, std::string>(remoteAddress, "ip6"));
+                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, "ip6");
                     }
                 }
                 temp.setRemoteAddressesAndIpTypes(remoteAddressesAndIpTypes);
