@@ -343,8 +343,10 @@ namespace Common::Telemetry
         m_root = savedTelemetryRoot;
     }
 
-    void TelemetryHelper::save()
+    void TelemetryHelper::save(const std::string& pluginName)
     {
+        auto restoreDir = Common::ApplicationConfiguration::applicationPathManager().getTelemetryRestoreDir();
+        m_saveTelemetryPath = Common::FileSystem::join(restoreDir, pluginName + "-telemetry.json");
         try
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
@@ -362,7 +364,7 @@ namespace Common::Telemetry
             }
             else
             {
-                LOGINFO("Restore directory " << Common::FileSystem::dirName(m_saveTelemetryPath) << " does not exists");
+                LOGINFO("Restore directory " << Common::FileSystem::dirName(m_saveTelemetryPath) << " does not exist");
             }
         }
         catch (std::exception& ex)
@@ -373,17 +375,8 @@ namespace Common::Telemetry
 
     void TelemetryHelper::restore(const std::string& pluginName)
     {
-        try
-        {
-            auto restoreDir = Common::ApplicationConfiguration::applicationConfiguration().getData(
-                Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
-            m_saveTelemetryPath = Common::FileSystem::join(restoreDir, pluginName + "-telemetry.json");
-        }
-        catch (std::out_of_range& outOfRange)
-        {
-            LOGERROR("Telemetry restore directory path is not defined");
-            return;
-        }
+        auto restoreDir = Common::ApplicationConfiguration::applicationPathManager().getTelemetryRestoreDir();
+        m_saveTelemetryPath = Common::FileSystem::join(restoreDir, pluginName + "-telemetry.json");
 
         try
         {

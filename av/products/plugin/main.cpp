@@ -119,7 +119,7 @@ static int inner_main()
 
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     telemetry.set("threatHealth",sharedPluginCallBack->getThreatHealth());
-    telemetry.save();
+    telemetry.save(PluginName);
 
     LOGINFO("Exiting AV plugin with " << ret);
     sharedPluginCallBack->setRunning(false);

@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "ApplicationPathManager.h"
 
@@ -315,6 +315,11 @@ namespace Common::ApplicationConfigurationImpl
     std::string ApplicationPathManager::getRelativeLocalLogConfFilePath() const
     {
         return "base/etc/logger.conf.local";
+    }
+
+    std::string ApplicationPathManager::getTelemetryRestoreDir() const
+    {
+        return Common::FileSystem::join(sophosInstall(), "base/telemetry/cache");
     }
 
     std::string ApplicationPathManager::getTelemetryOutputFilePath() const

@@ -83,7 +83,7 @@ namespace Common::Telemetry
         void reset();
         std::string serialise();
         std::string serialiseAndReset();
-        void save();
+        void save(const std::string& pluginName);
         void restore(const std::string& pluginName);
         // Both TelemetryHelper and FileSystem are often used as singleton. Having dependency in 'static' objects is not
         // good. For this reason, TelemetryHelper will have an instance of the FileSystemImpl. For some tests that need

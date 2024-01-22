@@ -585,8 +585,8 @@ TEST_F(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly)
 TEST_F(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly)
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;
-    EXPECT_CALL(*mockFileSystemPtr, isDirectory(_)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystemPtr, writeFileAtomically(_,
+    EXPECT_CALL(*mockFileSystemPtr, isDirectory(HasSubstr("/opt/sophos-spl/base/telemetry/cache"))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystemPtr, writeFileAtomically(HasSubstr("helper"),
             R"({"rootkey":{"a":"b"},"statskey":{"statName":[1.0,6.0,10.0]}})", _));
 
     TelemetryHelper& helper = TelemetryHelper::getInstance();
@@ -598,7 +598,7 @@ TEST_F(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly)
 
     helper.set("a", "b");
 
-    helper.save();
+    helper.save("helper");
 }
 
 TEST_F(TestTelemetryHelper, updateStatsCollectionFromSavedTelemetry)

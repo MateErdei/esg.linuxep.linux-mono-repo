@@ -21,6 +21,7 @@ namespace Common::PluginApiImpl
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY policy) :
         AbstractListenerServer(std::move(ireadWrite), policy),
         m_messageBuilder(pluginName),
+        pluginName_(pluginName),
         m_pluginCallback(std::move(pluginCallback))
     {
     }
@@ -30,7 +31,7 @@ namespace Common::PluginApiImpl
         if (!m_shutdownRequested)
         {
             LOGDEBUG("Saving plugin telemetry before shutdown");
-            Common::Telemetry::TelemetryHelper::getInstance().save();
+            Common::Telemetry::TelemetryHelper::getInstance().save(pluginName_);
         }
     }
 
@@ -181,7 +182,7 @@ namespace Common::PluginApiImpl
     void PluginCallBackHandler::onShutdownRequested()
     {
         LOGDEBUG("Saving plugin telemetry before shutdown");
-        Common::Telemetry::TelemetryHelper::getInstance().save();
+        Common::Telemetry::TelemetryHelper::getInstance().save(pluginName_);
         m_shutdownRequested = true;
 
         m_pluginCallback->onShutdown();

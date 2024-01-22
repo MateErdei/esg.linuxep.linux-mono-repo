@@ -221,7 +221,7 @@ namespace watchdog::watchdogimpl
         {
             m_pluginHandler->stopAndJoin();
         }
-        Common::Telemetry::TelemetryHelper::getInstance().save();
+        Common::Telemetry::TelemetryHelper::getInstance().save(WatchdogServiceLineName());
     }
 
     std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName)

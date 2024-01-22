@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -99,6 +99,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getStateMachineRawDataPath() const = 0;
         [[nodiscard]] virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
 
+        [[nodiscard]] virtual std::string getTelemetryRestoreDir() const = 0;
         [[nodiscard]] virtual std::string getTelemetrySchedulerStatusFilePath() const = 0;
         [[nodiscard]] virtual std::string getTelemetryStatusFilePath() const = 0;
         [[nodiscard]] virtual std::string getTelemetrySupplementaryFilePath() const = 0;

@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "ApplicationConfiguration.h"
 
@@ -56,8 +56,7 @@ namespace Common::ApplicationConfigurationImpl
     ApplicationConfiguration::ApplicationConfiguration()
     {
         m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
-        m_configurationData[Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR] = Common::FileSystem::join(
-            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL], "base/telemetry/cache");
+
     }
 
     void ApplicationConfiguration::setData(const std::string& key, const std::string& data)

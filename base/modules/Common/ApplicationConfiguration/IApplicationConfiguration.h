@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -7,8 +7,7 @@
 
 namespace Common::ApplicationConfiguration
 {
-    static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL";     // NOLINT
-    static const std::string TELEMETRY_RESTORE_DIR = "RESTORE_DIR"; // NOLINT
+    static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL";
 
     class IApplicationConfiguration
     {

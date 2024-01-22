@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -75,6 +75,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getSavedEnvironmentProxyFilePath() const override;
 
+        std::string getTelemetryRestoreDir() const override;
         std::string getTelemetrySchedulerStatusFilePath() const override;
         std::string getTelemetryStatusFilePath() const override;
         std::string getTelemetrySupplementaryFilePath() const override;

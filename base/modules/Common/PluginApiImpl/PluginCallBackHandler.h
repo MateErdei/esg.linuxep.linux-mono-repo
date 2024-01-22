@@ -28,6 +28,7 @@ namespace Common::PluginApiImpl
         [[nodiscard]] Common::PluginProtocol::DataMessage process(const Common::PluginProtocol::DataMessage& request) const override;
         void onShutdownRequested() override;
         Common::PluginProtocol::MessageBuilder m_messageBuilder;
+        std::string pluginName_;
         std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
         bool m_shutdownRequested = false;
     };

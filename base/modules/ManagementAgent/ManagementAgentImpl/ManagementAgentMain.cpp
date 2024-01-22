@@ -384,7 +384,7 @@ namespace ManagementAgent::ManagementAgentImpl
         if (withPersistentTelemetry)
         {
             // save telemetry to disk
-            Common::Telemetry::TelemetryHelper::getInstance().save();
+            Common::Telemetry::TelemetryHelper::getInstance().save(sophosManagementPluginName);
         }
 
         LOGDEBUG("Management Agent finished run");

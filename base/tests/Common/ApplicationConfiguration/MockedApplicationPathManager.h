@@ -26,6 +26,7 @@ public:
     MOCK_METHOD(std::string, getRelativeLocalLogConfFilePath, (), (const, override));
     MOCK_METHOD(std::string, getLogConfFilePath, (), (const, override));
     MOCK_METHOD(std::string, getLocalLogConfFilePath, (), (const, override));
+    MOCK_METHOD(std::string, getTelemetryRestoreDir, (), (const, override));
     MOCK_METHOD(std::string, getTelemetryOutputFilePath, (), (const, override));
     MOCK_METHOD(std::string, getPublisherDataChannelAddress, (), (const));
     MOCK_METHOD(std::string, getSubscriberDataChannelAddress, (), (const));
