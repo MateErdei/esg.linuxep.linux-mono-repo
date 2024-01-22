@@ -77,8 +77,8 @@ SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
 DATASETA_MANIFEST="$VDL/manifestdata.dat"
 ML_MODEL="$SUPPLEMENT_DIR/model"
-# LINUXDAR-8417: Re-enable
-#$VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
+
+$VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
 SETCAP="$(which setcap)"
 [[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
