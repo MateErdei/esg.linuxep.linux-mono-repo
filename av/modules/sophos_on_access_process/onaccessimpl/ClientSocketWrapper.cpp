@@ -79,7 +79,7 @@ namespace sophos_on_access_process::onaccessimpl
             }
             catch (const ClientSocketException& e)
             {
-                if (!retryErrorLogged) // NOLINT
+                if (!retryErrorLogged)
                 {
                     checkIfScanAborted();
                     LOGWARN(e.what() << " - retrying after sleep");

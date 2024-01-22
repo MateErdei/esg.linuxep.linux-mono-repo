@@ -682,6 +682,8 @@ On Access Receives Close Event On Cached File
     # but don't fail in case of case 2.
     wait for possible log contains from mark  ${oamark2}  caching ${cleanfile} (Close-Write)  timeout=${0.2}
 
+    Sleep  0.5    Let cache happen
+
     #Check we are cached
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
