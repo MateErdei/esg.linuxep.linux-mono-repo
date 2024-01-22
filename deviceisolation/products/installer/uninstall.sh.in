@@ -36,6 +36,7 @@ SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 OLDMANIFESTDIR="$BASEDIR/base/update/${PRODUCT_LINE_ID}"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
+PERSIST_SAVE_DIR="${BASEDIR}/tmp/device_isolation_persist_downgrade"
 
 # Linux kernels earlier than 3.18 require you to flush the table content first.
 "$BASEDIR/plugins/${PLUGIN_NAME}/bin/nft" flush table inet sophos_device_isolation > /dev/null 2>&1
@@ -46,7 +47,9 @@ SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
 if [[ ${DOWNGRADE} == 1 ]]
 then
   mkdir -p ${SAVE_DIR}
-  cp -va ${UNINSTALLDIR}/log/${PLUGIN_NAME}.log*  ${SAVE_DIR}
+  mkdir -p ${PERSIST_SAVE_DIR}
+  cp -va ${UNINSTALLDIR}/log/${PLUGIN_NAME}.log* ${SAVE_DIR}
+  cp -va "$BASEDIR/plugins/${PLUGIN_NAME}/var/persist-isolationEnabled" ${PERSIST_SAVE_DIR}
 
   paths_to_delete=$(ls ${UNINSTALLDIR})
   for path in ${paths_to_delete}
@@ -65,11 +68,17 @@ rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 if (( DOWNGRADE == 1 ))
 then
     LOG_RESTORE_DIR=${UNINSTALLDIR}/log/downgrade-backup
+    VAR_RESTORE_DIR=${UNINSTALLDIR}/var/downgrade-backup
 
     mkdir -p "$LOG_RESTORE_DIR"
+    mkdir -p "$VAR_RESTORE_DIR"
 
     for entry in "$SAVE_DIR"/*
     do
         cp "$entry"  "$LOG_RESTORE_DIR"/"$(basename -- "$entry")"
+    done
+    for entry in "$PERSIST_SAVE_DIR"/*
+    do
+        cp "$entry"  "$VAR_RESTORE_DIR"/"$(basename -- "$entry")"
     done
 fi

@@ -15,7 +15,9 @@ EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_WDCTL_FAILED_TO_START=17
 EXIT_FAIL_VERSIONEDCOPY=20
+EXIT_FAIL_PERSISTMOVE=20
 
+VAR="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
 if [[ "$SCRIPTDIR" == "$0" ]]
@@ -45,6 +47,16 @@ export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 function is_already_installed()
 {
     [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/deviceisolation" ]]
+}
+
+function restore_persist_file()
+{
+    PERSIST_RESTORE_DIR="${VAR}/downgrade-backup"
+    if [[ -f "${PERSIST_RESTORE_DIR}/persist-isolationEnabled" ]]
+    then
+      mv "${PERSIST_RESTORE_DIR}/persist-isolationEnabled" "${VAR}/persist-isolationEnabled" || failure $EXIT_FAIL_PERSISTMOVE "Failed to restore Device Isolation persist file"
+    fi
+
 }
 
 [[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
@@ -84,7 +96,7 @@ chmod 0700 "$plugin_tmp"
 chmod -R 0600 "${plugin_tmp}/"*
 
 # Plugin var dir
-plugin_var="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
+plugin_var="${VAR}"
 mkdir -p "$plugin_var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} var dir"
 chmod 0700 "$plugin_var"
 chmod -R 0600 "${plugin_var}/"*
@@ -94,6 +106,8 @@ chown -R root:root "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
+
+[[ -d "${VAR}/downgrade-backup" ]] && restore_persist_file
 
 if software_changed ${DIST} ${PRODUCT_LINE_ID}
 then

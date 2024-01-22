@@ -116,3 +116,44 @@ Watchdog Restarts Device Isolation
     Wait For Device Executable Not Running
     Register Cleanup     Start Device Isolation
     Wait For Device Executable Running
+
+Device Isolation Remains Enabled On Downgrade
+    Enable Device Isolation
+    Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
+    Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
+
+    Downgrade Device Isolation
+
+    # check that the var folder only contains the downgrade-backup directory
+    ${var_dir} =  List Directory  ${SOPHOS_INSTALL}/plugins/deviceisolation/var
+    Log    ${var_dir}
+    Should Contain  ${var_dir}  downgrade-backup
+    ${var_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/deviceisolation/var
+    Log  ${var_dir_files}
+    Length Should Be  ${var_dir_files}  ${0}
+
+    # check that the downgrade-backup directory contains the persist-isolationEnabled file
+    ${backup_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/deviceisolation/var/downgrade-backup
+    Log  ${backup_dir_files}
+    Length Should Be  ${backup_dir_files}  ${1}  downgrade-backup directory contains more than persist-isolationEnabled
+    Should Contain  ${backup_dir_files}  persist-isolationEnabled
+
+    Install Device Isolation Directly from SDDS
+
+    #check that the backup persist-isolationEnabled file has been moved
+    ${backup_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/deviceisolation/var/downgrade-backup
+    Log  ${backup_dir_files}
+    Length Should Be  ${backup_dir_files}  ${0}  downgrade-backup directory still contains persist-isolationEnabled
+    Should Not Contain  ${backup_dir_files}  persist-isolationEnabled
+
+    #checking that device does reisolate upon downgrade
+    File Should Contain    ${PERSISTENT_STATE_FILE}    1
+    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Enabling Device Isolation
+    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Device is now isolated
+
+Device Isolation Remains Enabled On Upgrade
+    Enable Device Isolation
+    Install Device Isolation Directly from SDDS
+
+    File Should Contain    ${PERSISTENT_STATE_FILE}    1
+    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Tried to enable isolation but it was already enabled in the first place
