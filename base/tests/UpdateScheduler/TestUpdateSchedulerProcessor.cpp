@@ -182,6 +182,8 @@ public:
         EXPECT_CALL(*fileSystemMock_, isFile(HasSubstr("update_report.json"))).WillRepeatedly(Return(false));
         if (supplementOnlyMarker)
         {
+            EXPECT_CALL(*fileSystemMock_, writeFile(HasSubstr("last_update_start_time.conf"), _));
+            EXPECT_CALL(*fileSystemMock_, removeFile(HasSubstr("last_update_start_time.conf"), true));
             EXPECT_CALL(*fileSystemMock_, removeFile(HasSubstr("supplement_only.marker"),true));
         }
         EXPECT_CALL(*fileSystemMock_, listFiles(_)).WillRepeatedly(Return(std::vector<std::string>{}));

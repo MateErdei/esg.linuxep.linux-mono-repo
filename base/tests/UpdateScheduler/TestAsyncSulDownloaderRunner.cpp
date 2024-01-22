@@ -44,7 +44,7 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
     IWatchdogRequestReplacement replacement;
 
     // Create task queue.
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     std::unique_ptr<IAsyncSulDownloaderRunner> runner = createSulDownloaderRunner(queue, tempDir->dirPath());
@@ -81,7 +81,7 @@ TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
     });
 
     // Create task queue.
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     std::unique_ptr<IAsyncSulDownloaderRunner> runner = createSulDownloaderRunner(queue, tempDir->dirPath());

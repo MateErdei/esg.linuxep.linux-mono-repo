@@ -653,17 +653,21 @@ namespace UpdateSchedulerImpl
 
         if (updateProducts)
         {
-            LOGSUPPORT("Triggering product update check");
+            LOGDEBUG("Triggering product update check");
             fileSystem->removeFile(supplementOnlyMarkerFilePath, true);
         }
         else
         {
             // supplement only update
-            LOGSUPPORT("Triggering supplement-only update check");
+            LOGDEBUG("Triggering supplement-only update check");
             fileSystem->writeFile(supplementOnlyMarkerFilePath, "");
         }
 
-        LOGSUPPORT("Triggering SulDownloader");
+        LOGDEBUG("Triggering SulDownloader");
+        std::string lastStartTimeFile = Common::ApplicationConfiguration::applicationPathManager().getLastUpdateStartTimeMarkerPath();
+        Common::UtilityImpl::FormattedTime time;
+        fileSystem->removeFile(lastStartTimeFile, true);
+        fileSystem->writeFile(lastStartTimeFile, time.currentEpochTimeInSeconds());
         LOGINFO("Attempting to update from warehouse");
         m_sulDownloaderRunner->triggerSulDownloader();
     }
@@ -792,6 +796,22 @@ namespace UpdateSchedulerImpl
             }
         }
 
+        // Copy the current update configuration to previous update configuration
+        // the previous configuration file will be used on the next policy change and by suldownloader
+        // to force an update when subscriptions and features change.
+        try
+        {
+            std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            std::string content = Common::FileSystem::fileSystem()->readFile(m_configfilePath);
+            Common::FileSystem::fileSystem()->writeFileAtomically(m_previousConfigFilePath, content, tempPath);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN(
+                    "Failed to create previous configuration file at: " << m_previousConfigFilePath << ", with error: "
+                                                                         << ex.what());
+        }
+
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
             Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::latestUpdateSucceeded, true);
@@ -801,21 +821,6 @@ namespace UpdateSchedulerImpl
             Common::Telemetry::TelemetryHelper::getInstance().set(
                 Telemetry::sddsMechanism, UpdateSchedulerUtils::getSDDSMechanism(true));
 
-            // on successful update copy the current update configuration to previous update configuration
-            // the previous configuration file will be used on the next policy change and by suldownloader
-            // to force an update when subscriptions and features change.
-            try
-            {
-                std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-                std::string content = Common::FileSystem::fileSystem()->readFile(m_configfilePath);
-                Common::FileSystem::fileSystem()->writeFileAtomically(m_previousConfigFilePath, content, tempPath);
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN(
-                    "Failed to create previous configuration file at : " << m_previousConfigFilePath << ", with error, "
-                                                                         << ex.what());
-            }
 
             // In order to work out if we should do a supplement-only update we need to record the
             // last successful product update

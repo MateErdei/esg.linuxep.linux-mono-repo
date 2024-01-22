@@ -43,7 +43,12 @@ namespace SulDownloader::suldownloaderdata
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             bool supplementOnly,
             const Common::Policy::UpdateSettings& updateSettings) = 0;
-        virtual void setWillInstall(const bool willInstall) = 0;
+
+        /*
+         * we call this when we want to unpack the repository if
+         * there is a package we want to install this update in the repository
+         */
+        virtual void setDoUnpackRepository(const bool willInstall) = 0;
     };
 
     using ISDDS3RepositoryPtr = std::unique_ptr<ISdds3Repository>;

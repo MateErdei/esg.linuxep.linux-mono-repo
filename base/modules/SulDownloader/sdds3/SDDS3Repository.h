@@ -43,7 +43,7 @@ namespace SulDownloader
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             const bool ignoreFailedSupplementRefresh) override;
         void distribute() override;
-        void setWillInstall(const bool willInstall) override;
+        void setDoUnpackRepository(const bool willInstall) override;
         /***
          * Updates the m_product 'vector' using the primaryRigidName value to determine
          * Which product should be first in the list.

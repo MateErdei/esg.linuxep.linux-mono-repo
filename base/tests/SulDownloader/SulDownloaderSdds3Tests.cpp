@@ -176,7 +176,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -882,7 +882,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
 
     EXPECT_CALL(*mockSdds3Repo_, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
@@ -1035,7 +1035,7 @@ TEST_F(
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     EXPECT_CALL(*mockSdds3Repo_, getProducts()).WillRepeatedly(Return(products));
     EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
     EXPECT_CALL(*mockSdds3Repo_, getSourceURL());
@@ -1132,7 +1132,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1247,7 +1247,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the
     // products
     products[0].setDistributePath(
@@ -1390,7 +1390,7 @@ TEST_F(SULDownloaderSdds3Test,
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1489,7 +1489,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1597,7 +1597,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1716,7 +1716,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1824,7 +1824,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -1930,7 +1930,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2032,7 +2032,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2140,7 +2140,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2248,7 +2248,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2352,7 +2352,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2463,7 +2463,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(1);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
@@ -2568,7 +2568,7 @@ TEST_F(
     EXPECT_CALL(*mockSdds3Repo_, synchronize(_,_,_)).WillOnce(Return(true));
     EXPECT_CALL(*mockSdds3Repo_, distribute());
     EXPECT_CALL(*mockSdds3Repo_, purge());
-    EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(2);
+    EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(2);
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");

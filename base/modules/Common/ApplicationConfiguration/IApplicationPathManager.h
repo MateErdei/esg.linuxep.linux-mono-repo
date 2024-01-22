@@ -55,6 +55,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getAlcStatusFilePath() const = 0;
         [[nodiscard]] virtual std::string getAlcPolicyFilePath() const = 0;
         [[nodiscard]] virtual std::string getFeaturesJsonPath() const = 0;
+        [[nodiscard]] virtual std::string getLastUpdateStartTimeMarkerPath() const = 0;
         [[nodiscard]] virtual std::string getForcedAnUpdateMarkerPath() const = 0;
         [[nodiscard]] virtual std::string getForcedAPausedUpdateMarkerPath() const = 0;
 

@@ -61,7 +61,7 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     IWatchdogRequestReplacement replacement;
 
     // Create task queue.
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "update_report.json", std::chrono::seconds(5));
@@ -90,7 +90,7 @@ TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails) // NOLINT
     testing::internal::CaptureStderr();
 
     // Create task queue.
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "update_report.json", std::chrono::seconds(5));
@@ -119,7 +119,7 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     IWatchdogRequestReplacement replacement;
 
     // Create task queue.
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "update_report.json", std::chrono::seconds(3));
@@ -142,7 +142,7 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 {
     IWatchdogRequestReplacement replacement;
     // Create task queue
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner which will timeout after 1 second of waiting and run it.
     SulDownloaderRunner runner(queue, "/tmp", "some-string", std::chrono::seconds(1));
@@ -160,7 +160,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
     IWatchdogRequestReplacement replacement;
 
     // Create task queue
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, "/tmp", "update_report.json", std::chrono::seconds(10));
@@ -179,7 +179,7 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
     IWatchdogRequestReplacement replacement(errorMessage);
 
     // Create task queue
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, "/tmp", "update_report.json", std::chrono::seconds(10));

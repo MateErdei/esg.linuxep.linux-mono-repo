@@ -5,6 +5,11 @@ soph_cc_library(
     name = "cronModule",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+    ],
     visibility = [
         "//base/modules/UpdateSchedulerImpl:__pkg__",
     ],

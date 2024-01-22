@@ -91,6 +91,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getVersionIniFileForComponent(const std::string& component) const override;
         std::string getFeaturesJsonPath() const override;
+        std::string getLastUpdateStartTimeMarkerPath() const override;
         std::string getForcedAnUpdateMarkerPath() const override;
         std::string getForcedAPausedUpdateMarkerPath() const override;
 

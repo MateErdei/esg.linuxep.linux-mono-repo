@@ -589,7 +589,8 @@ UpdateScheduler Performs Scheduled Update
     ${reportPath} =  Get latest report path
     Check report was a product update  ${reportPath}
     ${sul_log_mark} =    mark_log_size     ${SULDOWNLOADER_LOG_PATH}
-
+    Remove File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/last_update_start_time.conf
+    Create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/last_update_start_time.conf    0
     # Update after 5-10 minutes (boot storm avoiding update)
     Log File   ${reportPath}
     Remove File  ${reportPath}

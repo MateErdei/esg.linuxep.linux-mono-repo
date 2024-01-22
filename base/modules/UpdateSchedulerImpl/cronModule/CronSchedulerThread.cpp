@@ -3,7 +3,10 @@
 
 #include "Logger.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/UniformIntDistribution.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
@@ -115,13 +118,50 @@ namespace UpdateSchedulerImpl::cronModule
                 // First update after m_firstTick seconds
                 if (firstUpdate && m_inThreadState.m_updateOnStartUp)
                 {
-                    LOGINFO("First update triggered");
-                    m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
+                    bool triggerFirstUpdate = false;
+                    auto fs = Common::FileSystem::fileSystem();
+                    std::string lastStartTimeFile = Common::ApplicationConfiguration::applicationPathManager().getLastUpdateStartTimeMarkerPath();
+                    try
+                    {
+                        if (fs->isFile(lastStartTimeFile))
+                        {
+                            std::string contents = fs->readFile(lastStartTimeFile);
+                            auto [lastStartTime, errorMessage] = Common::UtilityImpl::StringUtils::stringToInt(contents);
+                            if (!errorMessage.empty())
+                            {
+                                std::stringstream errMessage;
+                                errMessage << "Failed to convert time in " << lastStartTimeFile << " with error:" << errorMessage;
+                                throw std::runtime_error(errMessage.str());
+                            }
+                            Common::UtilityImpl::FormattedTime time;
+                            u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
+
+                            //if the last update was triggered more than an hour ago trigger first update
+                            if ((currentTime - lastStartTime) > 3600)
+                            {
+                                triggerFirstUpdate = true;
+                            }
+                        }
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        LOGWARN("Failed to check last update start time with error: " << ex.what());
+                    }
+
+                    if (triggerFirstUpdate)
+                    {
+                        LOGINFO("First update triggered");
+                        m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                    }
+                    else
+                    {
+                        LOGINFO("First update will be not be triggered as last update was less than an hour ago");
+                    }
                     firstUpdate = false;
                 }
                 else
                 {
-                    LOGSUPPORT("Trigger new update"); // this one is the regular update does not need INFO level.
+                    LOGDEBUG("Trigger new update"); // this one is the regular update does not need INFO level.
                     m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                 }
             }

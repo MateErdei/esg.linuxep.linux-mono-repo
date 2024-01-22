@@ -402,6 +402,11 @@ namespace Common::ApplicationConfigurationImpl
         return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/installed_features.json");
     }
 
+    std::string ApplicationPathManager::getLastUpdateStartTimeMarkerPath() const
+    {
+        return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/last_update_start_time.conf");
+    }
+
     std::string ApplicationPathManager::getForcedAnUpdateMarkerPath() const
     {
         return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/update_forced_marker");

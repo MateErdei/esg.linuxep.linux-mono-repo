@@ -602,7 +602,7 @@ namespace SulDownloader
         }
     }
 
-    void SDDS3Repository::setWillInstall(const bool willInstall)
+    void SDDS3Repository::setDoUnpackRepository(const bool willInstall)
     {
         m_willInstall = willInstall;
     }

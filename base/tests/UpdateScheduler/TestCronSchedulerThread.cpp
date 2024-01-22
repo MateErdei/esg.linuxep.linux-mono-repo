@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "TestWithMockTimerAbstract.h"
 
@@ -7,6 +7,8 @@
 #include "UpdateSchedulerImpl/cronModule/CronSchedulerThread.h"
 #include <gmock/gmock-matchers.h>
 #include "tests/Common/Helpers/FakeTimeUtils.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 
 using namespace UpdateSchedulerImpl;
@@ -29,6 +31,10 @@ namespace
 class TestCronSchedulerThread : public TestWithMockTimerAbstract
 {
 public:
+    void Teardown()
+    {
+        Tests::restoreFileSystem();
+    }
     // t_20190501T13h is defined as 2019-05-01 Wednesday at 13:00
 
     // setup the utility that will replace calls to TimeUtils::getCurrentTime to the list of simulated times
@@ -62,24 +68,28 @@ public:
 
 };
 
-TEST_F(TestCronSchedulerThread, Constructor) // NOLINT
+TEST_F(TestCronSchedulerThread, Constructor) 
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
     CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20));
 }
 
-TEST_F(TestCronSchedulerThread, StartDestructor) // NOLINT
+TEST_F(TestCronSchedulerThread, StartDestructor) 
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     CronSchedulerThread schedulerThread(queue, minutes(10), minutes(20));
     schedulerThread.start();
 }
 
-TEST_F(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
+TEST_F(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) 
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return("0"));
+
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     CronSchedulerThread schedulerThread(queue, milliseconds(100), milliseconds(200));
     time_point start_time = now();
@@ -94,9 +104,34 @@ TEST_F(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
     EXPECT_LE(300, elapsed_time_ms(start_time));
 }
 
-TEST_F(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
+TEST_F(TestCronSchedulerThread, CronSendQueueTaskSkipsFirstUpdateIfLastUpdateWithinAnHour)
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(std::to_string(now().time_since_epoch().count())));
+
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
+
+    CronSchedulerThread schedulerThread(queue, milliseconds(100), milliseconds(200));
+    time_point start_time = now();
+    schedulerThread.start();
+
+    SchedulerTask task;
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    // define expectation only for the lower bound, as the upper bound depends heavily on the machine burden.
+    EXPECT_GE( elapsed_time_ms(start_time),300);
+}
+
+TEST_F(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) 
+{
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return("0"));
+
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(100));
     time_point start_time = now();
@@ -119,9 +154,14 @@ TEST_F(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
     EXPECT_LE(400, elapsed_time_ms(start_time));
 }
 
-TEST_F(TestCronSchedulerThread, requestStop) // NOLINT
+TEST_F(TestCronSchedulerThread, requestStop) 
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return("0"));
+
+    Tests::ScopedReplaceFileSystem replaceFileSystem{std::move(mockFileSystem)};
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(100));
     time_point start_time = now();
@@ -136,9 +176,9 @@ TEST_F(TestCronSchedulerThread, requestStop) // NOLINT
     EXPECT_LE(110, elapsed_time_ms(start_time));
 }
 
-TEST_F(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
+TEST_F(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) 
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::shared_ptr<SchedulerTaskQueue> queue = std::make_shared<SchedulerTaskQueue>();
 
     CronSchedulerThread schedulerThread(queue, std::chrono::minutes(10), std::chrono::minutes(60));
     time_point start_time = now();

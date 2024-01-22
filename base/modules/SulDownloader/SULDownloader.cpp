@@ -627,9 +627,12 @@ namespace SulDownloader
             LOGERROR("Failed to synchronize repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
+
+        // this section is to check if we want to reinstall any of the packages when they haven't changed,
+        // so we need to set setDoUnpackRepository so the repository is unpacked
         if (forceReinstallAllProducts)
         {
-            repository->setWillInstall(true);
+            repository->setDoUnpackRepository(true);
         }
         else
         {
@@ -640,10 +643,11 @@ namespace SulDownloader
 
                 if (forceReinstallThisProduct)
                 {
-                    repository->setWillInstall(true);
+                    repository->setDoUnpackRepository(true);
                 }
             }
         }
+
         repository->distribute();
         if (repository->hasError())
         {

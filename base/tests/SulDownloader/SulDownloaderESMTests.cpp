@@ -163,7 +163,7 @@ TEST_P(TestSulDownloaderParameterizedValidESM, validESMInput)
   EXPECT_CALL(*mockSdds3Repo_, distribute()).Times(1);
   EXPECT_CALL(*mockSdds3Repo_, getSourceURL()).Times(1);
   EXPECT_CALL(*mockSdds3Repo_, purge()).Times(1);
-  EXPECT_CALL(*mockSdds3Repo_, setWillInstall(_)).Times(1);
+  EXPECT_CALL(*mockSdds3Repo_, setDoUnpackRepository(_)).Times(1);
   EXPECT_CALL(*mockSdds3Repo_, listInstalledSubscriptions())
       .WillOnce(Return(std::vector<suldownloaderdata::SubscriptionInfo>{}));
   EXPECT_CALL(*mockSdds3Repo_, listInstalledProducts)
