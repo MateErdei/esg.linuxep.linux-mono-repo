@@ -699,7 +699,8 @@ verify_install_directory
 
 # Check that the tmp directory we're using allows execution
 echo "exit 0" >"${SOPHOS_TEMP_DIRECTORY}/exectest" 2>/dev/null && chmod +x "${SOPHOS_TEMP_DIRECTORY}/exectest"
-$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR:-/tmp} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+$SOPHOS_TEMP_DIRECTORY/exectest 2>/dev/null \
+  || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${TMPDIR:-/tmp} directory. Please ensure ${TMPDIR:-/tmp} is not mounted with noexec option."
 
 function test_installation_executable()
 {
@@ -712,7 +713,7 @@ function test_installation_executable()
     echo "exit 0" >"${SOPHOS_INSTALL}/exectest" 2>/dev/null && chmod +x "${SOPHOS_INSTALL}/exectest"
     $SOPHOS_INSTALL/exectest 2>/dev/null || {
       rm -r "$SOPHOS_INSTALL"
-      failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${SOPHOS_INSTALL} directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+      failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within ${SOPHOS_INSTALL} directory. Please ensure the mount point for ${SOPHOS_INSTALL} is not mounted with noexec option."
     }
     rm -r "$SOPHOS_INSTALL"
     success
