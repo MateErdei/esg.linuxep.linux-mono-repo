@@ -22,13 +22,15 @@ namespace Plugin
     PluginAdapter::PluginAdapter(
             std::shared_ptr<TaskQueue> queueTask,
             std::shared_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-            std::shared_ptr<PluginCallback> callback)
+            std::shared_ptr<PluginCallback> callback,
+            INftWrapperPtr nftWrapper)
             : taskQueue_(std::move(queueTask))
             , baseService_(std::move(baseService))
             , callback_(std::move(callback))
             , ntpPolicy_(std::make_shared<NTPPolicy>())
-            , nftWrapper_(std::make_shared<NftWrapper>())
+            , nftWrapper_(std::move(nftWrapper))
             , isolationEnabled_(Plugin::pluginVarDir(), "isolationEnabled", false)
+            , isolationActionValue_(Plugin::pluginVarDir(), "isolationActionValue", false)
     {
     }
 
@@ -56,11 +58,7 @@ namespace Plugin
         Common::Telemetry::TelemetryHelper::getInstance().set(
                 DeviceIsolation::Telemetry::currentlyActiveKey, isolationEnabledTelemetry, true);
 
-        if (isolationEnabled_.getValue())
-        {
-            enableIsolation(nftWrapper_);
-        }
-        else
+        if (!isolationEnabled_.getValue())
         {
             disableIsolation(nftWrapper_);
         }
@@ -134,8 +132,17 @@ namespace Plugin
             return;
         }
 
+        // Remember our most recent requested state from Central
+        isolationActionValue_.setValueAndForceStore(action.value());
+
         if (action.value())
         {
+            if (!receivedPolicy_)
+            {
+                LOGWARN("Ignoring enable Device Isolation action because there is no policy");
+                return;
+            }
+
             enableIsolation(nftWrapper_);
             if (isolationEnabled_.getValue())
             {
@@ -167,7 +174,16 @@ namespace Plugin
                 auto newPolicy = std::make_shared<NTPPolicy>(policyXml);
                 updateIsolationRules(newPolicy);
                 ntpPolicy_ = newPolicy;
+                receivedPolicy_ = true;
                 LOGINFO("Device Isolation policy applied (" << ntpPolicy_->revId() << ")");
+
+                // If we should be isolated but we are not, possibly due to isolation being requested
+                // before policy was received, then enable it now.
+                if (isolationActionValue_.getValue() && !isolationEnabled_.getValue())
+                {
+                    LOGINFO("Retrying isolation, triggered by policy being received");
+                    enableIsolation(nftWrapper_);
+                }
             }
             catch (const NTPPolicyException& e)
             {
@@ -228,7 +244,7 @@ namespace Plugin
             LOGERROR("Failed to isolate device");
             return;
         }
-        else if (result == IsolateResult::RULES_NOT_PRESENT)
+        else if (result == IsolateResult::RULES_ALREADY_PRESENT)
         {
             // Check if isolation shouldn't be enabled but our table is in the nft ruleset
             if (!isolationEnabled_.getValue())
@@ -249,21 +265,33 @@ namespace Plugin
         if (result == IsolateResult::FAILED)
         {
             LOGERROR("Failed to remove device from isolation");
-            return;
         }
         else if (result == IsolateResult::RULES_NOT_PRESENT)
         {
             // Check if isolation should be enabled but our table is not in the nft ruleset
             if (isolationEnabled_.getValue())
             {
+                isolationEnabled_.setValueAndForceStore(false);
                 LOGERROR("Failed to list sophos rules table but isolation is enabled");
                 return;
             }
             LOGDEBUG("Tried to disable isolation but it was already disabled in the first place");
         }
-        isolationEnabled_.setValueAndForceStore(false);
-        callback_->setIsolated(false);
-        LOGINFO("Device is no longer isolated");
+        else if (result == IsolateResult::SUCCESS)
+        {
+            isolationEnabled_.setValueAndForceStore(false);
+            callback_->setIsolated(false);
+            LOGINFO("Device is no longer isolated");
+        }
+        else
+        {
+            LOGERROR("Unknown result from clearIsolateRules");
+        }
+    }
+
+    bool PluginAdapter::isIsolationEnabled() const
+    {
+        return isolationEnabled_.getValue();
     }
 
 } // namespace Plugin

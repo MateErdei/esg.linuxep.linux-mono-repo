@@ -1,4 +1,5 @@
 o600, root, root, /opt/sophos-spl/plugins/deviceisolation/log/deviceisolation.log
+o600, root, root, /opt/sophos-spl/plugins/deviceisolation/var/persist-isolationActionValue
 o600, root, root, /opt/sophos-spl/plugins/deviceisolation/var/persist-isolationEnabled
 o700, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/uninstall.sh.0
 o750, root, root, /opt/sophos-spl/plugins/deviceisolation/bin/deviceisolation.0

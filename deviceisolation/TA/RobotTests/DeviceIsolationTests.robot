@@ -64,6 +64,11 @@ Device Isolation Remains Isolated After SPL Restart
 
 
 Diagnose Tool Gathers nft_rules File And All Applied Rules
+    # Send NTP policy
+    ${mark} =  Get Device Isolation Log Mark
+    Send Isolation Policy With CI Exclusions
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
     # Isolate the endpoint
     Enable Device Isolation
     Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
@@ -151,9 +156,16 @@ Device Isolation Remains Enabled On Downgrade
     File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Enabling Device Isolation
     File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Device is now isolated
 
-Device Isolation Remains Enabled On Upgrade
+Device Is Still Isolated After Upgrade
+    # Send NTP policy
+    ${mark} =  Get Device Isolation Log Mark
+    Send Isolation Policy With CI Exclusions
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
     Enable Device Isolation
+    ${mark} =  Get Device Isolation Log Mark
     Install Device Isolation Directly from SDDS
 
+    Wait For Log Contains From Mark  ${mark}  Device is now isolated
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
     File Should Contain    ${PERSISTENT_STATE_FILE}    1
-    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Tried to enable isolation but it was already enabled in the first place

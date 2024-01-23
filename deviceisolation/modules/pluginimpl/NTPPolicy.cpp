@@ -94,11 +94,11 @@ namespace
                 {
                     if (Common::UtilityImpl::StringUtils::isValidIpAddress(remoteAddress, AF_INET))
                     {
-                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, "ip");
+                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, Plugin::IsolationExclusion::IPv4);
                     }
                     else
                     {
-                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, "ip6");
+                        remoteAddressesAndIpTypes.emplace_back(remoteAddress, Plugin::IsolationExclusion::IPv6);
                     }
                 }
                 temp.setRemoteAddressesAndIpTypes(remoteAddressesAndIpTypes);

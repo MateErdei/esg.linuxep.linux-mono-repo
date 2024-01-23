@@ -60,7 +60,7 @@ namespace Common
 
         void setValue(const T value) { value_ = value; }
 
-        T getValue() { return value_; }
+        T getValue() const { return value_; }
 
         void setValueAndForceStore(const T value)
         {

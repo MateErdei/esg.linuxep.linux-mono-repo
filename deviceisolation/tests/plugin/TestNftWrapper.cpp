@@ -244,7 +244,7 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNonZeroReturnFromNFTSettingRules)
     EXPECT_TRUE(appenderContains("nft output for set network: process failure output"));
 }
 
-TEST_F(TestNftWrapper, applyIsolateRulesHandlesNonZeroReturnFromNFTListRules)
+TEST_F(TestNftWrapper, applyIsolateRulesHandlesRulesAlreadyExisting)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -272,7 +272,7 @@ TEST_F(TestNftWrapper, applyIsolateRulesHandlesNonZeroReturnFromNFTListRules)
 
     auto nftWrapper = NftWrapper();
     IsolateResult result = nftWrapper.applyIsolateRules({});
-    EXPECT_EQ(result, IsolateResult::RULES_NOT_PRESENT);
+    EXPECT_EQ(result, IsolateResult::RULES_ALREADY_PRESENT);
     EXPECT_TRUE(appenderContains("nft list table output while applying rules: table exists already"));
 }
 

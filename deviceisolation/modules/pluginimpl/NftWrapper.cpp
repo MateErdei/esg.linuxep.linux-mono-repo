@@ -50,7 +50,7 @@ namespace Plugin
         if (exitCode == 0)
         {
             LOGINFO("nft list table output while applying rules: " << process->output());
-            return IsolateResult::RULES_NOT_PRESENT;
+            return IsolateResult::RULES_ALREADY_PRESENT;
         }
 
         //Read rules in from rulesFile

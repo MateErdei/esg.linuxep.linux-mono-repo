@@ -10,6 +10,7 @@
 #include "Common/PluginApi/ErrorCodes.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/IPluginResourceManagement.h"
+#include "deviceisolation/modules/pluginimpl/NftWrapper.h"
 
 static const char* PluginName = PLUGIN_NAME;
 
@@ -39,10 +40,8 @@ static int inner_main()
     }
 
     {
-        PluginAdapter pluginAdapter(
-                queueTask,
-                std::move(baseService),
-                sharedPluginCallBack);
+        INftWrapperPtr nftWrapper = std::make_shared<NftWrapper>();
+        PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, nftWrapper);
 
         try
         {

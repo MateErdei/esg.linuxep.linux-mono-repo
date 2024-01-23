@@ -11,6 +11,8 @@ namespace Plugin
     class IsolationExclusion
     {
     public:
+        static constexpr auto* IPv4 = "ip";
+        static constexpr auto* IPv6 = "ip6";
         enum Direction
         {
             IN,

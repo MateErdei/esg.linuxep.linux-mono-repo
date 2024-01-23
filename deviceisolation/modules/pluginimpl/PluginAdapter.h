@@ -23,12 +23,14 @@ namespace Plugin
         PluginAdapter(
                 std::shared_ptr<TaskQueue> queueTask,
                 std::shared_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-                std::shared_ptr<PluginCallback> callback);
+                std::shared_ptr<PluginCallback> callback,
+                INftWrapperPtr nftWrapper);
         void mainLoop();
 
     TEST_PUBLIC:
         void enableIsolation(const INftWrapperPtr& nftWrapper);
         void disableIsolation(const INftWrapperPtr& nftWrapper);
+        [[nodiscard]] bool isIsolationEnabled() const;
 
 
     private:
@@ -42,7 +44,16 @@ namespace Plugin
         std::shared_ptr<PluginCallback> callback_;
         std::shared_ptr<NTPPolicy> ntpPolicy_;
         INftWrapperPtr nftWrapper_;
+
+        // Is the device currently isolated with the rules successfully applied
         Common::PersistentValue<bool> isolationEnabled_;
+
+        // What the last action value we got from Central was.
+        // We need this additional bool to cover the edge case where we don't have a policy yet but the device
+        // has been told to isolate. We do not want to isolate without a policy, so we remember that we should be
+        // isolated and if we do get a policy we then isolate so we're in compliance with the requested state.
+        Common::PersistentValue<bool> isolationActionValue_;
+        bool receivedPolicy_ = false;
 
     protected:
         static constexpr std::chrono::milliseconds DEFAULT_QUEUE_TIMEOUT = std::chrono::seconds{5};

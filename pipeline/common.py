@@ -131,7 +131,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'rhel8': 'rhel87_x64_aws_server_en_us',
         'rhel9': 'rhel91_x64_aws_server_en_us',
         'sles12': 'sles12_x64_sp5_aws_server_en_us',
-        'sles15': 'sles15_x64_sp4_aws_server_en_us',
+        'sles15': 'sles15_x64_sp5_aws_server_en_us',
         'ubuntu1804': 'ubuntu1804_x64_aws_server_en_us',
         'ubuntu2004': 'ubuntu2004_x64_aws_server_en_us',
         'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us',
@@ -146,7 +146,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'debian11': 'debian11_arm64_server_en_us',
         'rhel8': 'rhel87_arm64_server_en_us',
         'rhel9': 'rhel91_arm64_server_en_us',
-        'sles15': 'sles15_arm64_sp4_server_en_us',
+        'sles15': 'sles15_arm64_sp5_server_en_us',
         'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
         'ubuntu2004': 'ubuntu2004_arm64_server_en_us',
         'ubuntu2204': 'ubuntu2204_arm64_server_en_us',
@@ -159,7 +159,7 @@ def get_test_machines(build: str, parameters: DotDict):
     run_four_x64_environments = {
         'centos79': 'centos7_x64_aws_server_en_us',
         'debian11': 'debian11_x64_aws_server_en_us',
-        'sles15': 'sles15_x64_sp4_aws_server_en_us',
+        'sles15': 'sles15_x64_sp5_aws_server_en_us',
     }
 
     run_four_arm64_environments = {
@@ -399,7 +399,7 @@ def get_os_packages(machine: tap.Machine):
         return common
     elif machine.template == "sles12_x64_sp5_aws_server_en_us":
         return common + ["libcap-progs", "curl"]
-    elif machine.template == "sles15_x64_sp4_aws_server_en_us":
+    elif machine.template == "sles15_x64_sp5_aws_server_en_us":
         return common + ["libcap-progs"]
     elif machine.template == "ubuntu1804_x64_aws_server_en_us":
         return common
@@ -424,7 +424,7 @@ def get_os_packages(machine: tap.Machine):
         return common
     elif machine.template == "rhel91_arm64_server_en_us":
         return common
-    elif machine.template == "sles15_arm64_sp4_server_en_us":
+    elif machine.template == "sles15_arm64_sp5_server_en_us":
         return common + ["libcap-progs"]
     elif machine.template == "ubuntu1804_arm64_server_en_us":
         return common
