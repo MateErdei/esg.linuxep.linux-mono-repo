@@ -15,6 +15,7 @@ import re
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.migration as migration
 import mcsrouter.utils.xml_helper as xml_helper
+import mcsrouter.utils.verification as verification
 import mcsrouter.mcsclient.status_event as status_event
 import mcsrouter.sophos_https as sophos_https
 import mcsrouter.ip_selection as ip_selection
@@ -78,8 +79,8 @@ class TestPluginRegistry(unittest.TestCase):
 class TestMigration(unittest.TestCase):
     def testReadMigrationActionGetsURLAndToken(self):
         m = migration.Migrate()
-        m.read_migrate_action("""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server><token>jwt</token></action>""")
-        self.assertEqual(m.get_migrate_url(), 'server name')
+        m.read_migrate_action("""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>http://es-web.sophos.com/update</server><token>jwt</token></action>""")
+        self.assertEqual(m.get_migrate_url(), 'http://es-web.sophos.com/update')
         self.assertEqual(m.get_token(), 'jwt')
 
     def testReadMigrationActionGetsURLAndTokenForLongServer(self):
@@ -98,7 +99,7 @@ class TestMigration(unittest.TestCase):
         self.assertRaises(IndexError, m.read_migrate_action, missing_server)
 
     def testReadMigrationActionRaisesExceptionForMissingToken(self):
-        missing_token = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server></action>"""
+        missing_token = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>http://es-web.sophos.com/update</server></action>"""
         m = migration.Migrate()
         self.assertRaises(IndexError, m.read_migrate_action, missing_token)
 
@@ -318,6 +319,24 @@ class TestSophosLogging(unittest.TestCase):
         finally:
             shutil.rmtree(dirn)
 
+class TestVerification(unittest.TestCase):
+    def test_invalid_urls(self, *mockargs):
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "http://hostname//")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "http://!hostname/")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "http://hostname:iop/")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "http://http://")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, "http://::")
+        self.assertRaises(verification.MCSUrlVerificationException, verification.check_url, ":::")
+
+    def test_valid_urls(self, *mockargs):
+        try:
+            verification.check_url("http://hostname/")
+            verification.check_url("http://hostname:8080/")
+            verification.check_url("https://hostname/")
+            verification.check_url("https://hostname:8080/")
+        except verification.MCSUrlVerificationException as exception:
+            self.fail(f"check_url() raised error {exception}")
 def assert_message_in_logs(message, logArray, log_level=None):
     for log_message in logArray:
         if message in log_message:

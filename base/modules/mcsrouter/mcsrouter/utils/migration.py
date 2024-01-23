@@ -6,7 +6,8 @@ migration message handling Module
 import xml.dom.minidom
 import logging
 import json
-from . import path_manager
+
+from . import verification
 from . import xml_helper
 from . import timestamp
 
@@ -32,8 +33,11 @@ class Migrate(object):
     def read_migrate_action(self, migrate_action: str):
         doc = xml.dom.minidom.parseString(migrate_action)
         action_node = doc.getElementsByTagName("action")[0]
+
+        url = xml_helper.get_text_node_text(action_node, "server")
+        verification.check_url(url)
+        self.migrate_url = url
         self.token = xml_helper.get_text_node_text(action_node, "token")
-        self.migrate_url = xml_helper.get_text_node_text(action_node, "server")
 
     def create_failed_response_body(self, error):
         return """<event type="sophos.mgt.mcs.migrate.failed" ts="{}">

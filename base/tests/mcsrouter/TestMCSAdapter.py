@@ -428,8 +428,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_default("mcs_policy_url2",None),"https://mcs2-sandbox.sophos/sophos/management/ep")
         self.assertEqual(policy_config.get_default("MCSURL",None),"FOOBAR")
 
-    #TODO LINUXDAR-8489 Mcsrouter doesn't enforce restrictions on MCS server URL
-    @unittest.skip("Currently no verification for MCS urls exist")
+
     def testMultipleServerInServersElementUrlsContainInvalidCharFails(self):
         TEST_POLICY="""<?xml version="1.0"?>
 <policy xmlns:csc="com.sophos\msys\csc" type="mcs">

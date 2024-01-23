@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
+# Copyright 2019-2024 Sophos Limited. All rights reserved.
 
 """
 mcs_policy_handler Module
@@ -12,6 +12,7 @@ import xml.dom.minidom
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import mcsrouter.utils.path_manager as path_manager
+import mcsrouter.utils.verification as verification
 import mcsrouter.utils.default_values as default_values
 import mcsrouter.utils.filesystem_utils
 import mcsrouter.utils.xml_helper
@@ -249,10 +250,14 @@ class MCSPolicyHandler:
 
         index = 1
         for server in servers:
-            key = "mcs_policy_url%d" % index
-            LOGGER.debug("MCS policy URL %s = %s", key, server)
-            self.__m_policy_config.set(key, server)
-            index += 1
+            try:
+                verification.check_url(server)
+                key = "mcs_policy_url%d" % index
+                LOGGER.debug("MCS policy URL %s = %s", key, server)
+                self.__m_policy_config.set(key, server)
+                index += 1
+            except verification.MCSUrlVerificationException as ex:
+                LOGGER.warning(f"Discarding invalid url due to: {ex}")
 
         # removes old servers that are no longer in the policy
         while True:
@@ -290,10 +295,14 @@ class MCSPolicyHandler:
 
         index = 1
         for server in servers:
-            key = "pushServer%d" % index
-            LOGGER.debug("Push Server URL %s = %s", key, server)
-            self.__m_policy_config.set(key, server)
-            index += 1
+            try:
+                verification.check_url(server)
+                key = "pushServer%d" % index
+                LOGGER.debug("Push Server URL %s = %s", key, server)
+                self.__m_policy_config.set(key, server)
+                index += 1
+            except verification.MCSUrlVerificationException as ex:
+                LOGGER.warning(f"Discarding invalid url due to: {ex}")
         return True
 
     def __apply_message_relays(self, dom):
