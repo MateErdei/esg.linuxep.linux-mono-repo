@@ -9,6 +9,7 @@
 #include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include "unixsocket/SocketUtils.h"
@@ -57,7 +58,7 @@ namespace
 
 static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 {
-    Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{ Common::Logging::LOGOFFFORTEST() };
 
     // create a socket pair
     int socket_fds[2];

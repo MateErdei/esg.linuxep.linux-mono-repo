@@ -5,6 +5,7 @@
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <sys/socket.h>
@@ -44,7 +45,7 @@ static void initializeLogging()
 
 static int DoSomethingWithData(const uint8_t* Data, size_t Size)
 {
-    initializeLogging();
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{ Common::Logging::LOGOFFFORTEST() };
     // create a socket pair
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
