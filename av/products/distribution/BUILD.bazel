@@ -1,6 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
-load("//av:version_info.bzl", "AV_BASE_VERSION", "AV_LINE_ID", "AV_PRODUCT_NAME", "AV_VERSIONING_COMPONENT_NAME")
+load("//av:constants.bzl", "AV_LINE_ID", "AV_PRODUCT_NAME")
 load("@rules_python//python:defs.bzl", "py_binary")
 load(":create_nonsupplement_manifest.bzl", "create_nonsupplement_manifest")
 
@@ -63,7 +63,6 @@ SRCS_RENAMED = {
 
 spl_sdds_packages(
     name = "installer",
-    base_version = AV_BASE_VERSION,
     component_name = AV_PRODUCT_NAME,
     correct_rpaths = True,
     line_id = AV_LINE_ID,
@@ -78,11 +77,11 @@ spl_sdds_packages(
     # Inverted for better clarity of the package structure
     srcs_renamed = {value: key for key, value in SRCS_RENAMED.items()},
     symbols_strip_prefix = "av/products/installer",
+    version_info = "//av:version_info",
     version_ini_locations = [
         "VERSION.ini",
         "files/plugins/av/VERSION.ini",
     ],
-    versioning_component_name = AV_VERSIONING_COMPONENT_NAME,
     visibility = [
         "//av:__pkg__",
     ],

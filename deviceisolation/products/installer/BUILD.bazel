@@ -1,7 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//deviceisolation:substitutions.bzl", "SUBSTITUTIONS")
-load("//deviceisolation:version_info.bzl", "DEVICEISOLATION_BASE_VERSION", "DEVICEISOLATION_LINE_ID", "DEVICEISOLATION_PRODUCT_NAME", "DEVICEISOLATION_VERSIONING_COMPONENT_NAME")
+load("//deviceisolation:constants.bzl", "DEVICEISOLATION_LINE_ID", "DEVICEISOLATION_PRODUCT_NAME", "SUBSTITUTIONS")
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
 
 expand_template(
@@ -27,7 +26,6 @@ expand_template(
 
 spl_sdds_packages(
     name = "installer",
-    base_version = DEVICEISOLATION_BASE_VERSION,
     component_name = DEVICEISOLATION_PRODUCT_NAME,
     line_id = DEVICEISOLATION_LINE_ID,
     spv_features = ["LIVETERMINAL"],
@@ -48,11 +46,11 @@ spl_sdds_packages(
         "cleanupinstall.sh": "//base/products/distribution:cleanupinstall.sh",
     }.items()},
     symbols_strip_prefix = "deviceisolation/products/installer",
+    version_info = "//deviceisolation:version_info",
     version_ini_locations = [
         "VERSION.ini",
         "files/plugins/deviceisolation/VERSION.ini",
     ],
-    versioning_component_name = DEVICEISOLATION_VERSIONING_COMPONENT_NAME,
     visibility = [
         "//deviceisolation:__pkg__",
     ],

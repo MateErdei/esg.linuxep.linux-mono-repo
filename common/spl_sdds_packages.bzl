@@ -1,10 +1,11 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 load(":version_ini.bzl", "version_ini")
 load("//tools/config:copy_file.bzl", "copy_file")
 load("//tools/config:zip.bzl", "zip_asset")
 load("//common:strip.bzl", "strip")
 load("//tools/config:sophos_sdds_package.bzl", "collate_sdds_packages")
+load("//tools/config:sophos_versioning.bzl", "version_info")
 
 def _generate_spv_template_impl(ctx):
     args = ctx.actions.args()
@@ -63,8 +64,7 @@ def spl_sdds_packages(
         name,
         line_id,
         component_name,
-        base_version,
-        versioning_component_name,
+        version_info,
         srcs_remapped = {},
         srcs_renamed = {},
         version_ini_locations = [],
@@ -80,10 +80,9 @@ def spl_sdds_packages(
         version_ini(
             name = "{}_version_ini".format(name),
             out = "{}_VERSION.ini".format(name),
-            base_version = base_version,
             component_name = component_name,
-            versioning_component_name = versioning_component_name,
             deps = srcs_remapped.keys() + srcs_renamed.keys(),
+            version_info = version_info,
         )
 
         for i in range(len(version_ini_locations)):
@@ -120,12 +119,11 @@ def spl_sdds_packages(
 
     collate_sdds_packages(
         name = name,
-        base_version_str = base_version,
         files = [":{}_files_stripped".format(name)],
         spv_template = ":{}_spv_template".format(name),
         spv_version_token = "@ComponentAutoVersion@",
-        versioning_component_name = versioning_component_name,
         tags = ["manual"],
+        version_info = version_info,
     )
 
     zip_asset(

@@ -1,7 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
-load("//liveterminal:substitutions.bzl", "SUBSTITUTIONS")
-load("//liveterminal:version_info.bzl", "LIVE_RESPONSE_BASE_VERSION", "LIVE_RESPONSE_LINE_ID", "LIVE_RESPONSE_PRODUCT_NAME", "LIVE_RESPONSE_VERSIONING_COMPONENT_NAME")
+load("//liveterminal:constants.bzl", "LIVE_RESPONSE_LINE_ID", "LIVE_RESPONSE_PRODUCT_NAME", "SUBSTITUTIONS")
 load("//tools/config:expand_template.bzl", "expand_template")
 
 expand_template(
@@ -34,7 +33,6 @@ expand_template(
 
 spl_sdds_packages(
     name = "installer",
-    base_version = LIVE_RESPONSE_BASE_VERSION,
     component_name = LIVE_RESPONSE_PRODUCT_NAME,
     line_id = LIVE_RESPONSE_LINE_ID,
     spv_features = ["LIVETERMINAL"],
@@ -52,10 +50,10 @@ spl_sdds_packages(
         "install.sh": ":install_sh",
     }.items()},
     symbols_strip_prefix = "liveterminal/products/installer",
+    version_info = "//liveterminal:version_info",
     version_ini_locations = [
         "VERSION.ini",
         "files/plugins/liveresponse/VERSION.ini",
     ],
-    versioning_component_name = LIVE_RESPONSE_VERSIONING_COMPONENT_NAME,
     visibility = ["//liveterminal:__pkg__"],
 )

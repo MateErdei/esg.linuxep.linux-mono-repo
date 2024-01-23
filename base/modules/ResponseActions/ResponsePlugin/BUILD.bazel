@@ -1,14 +1,14 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
-load("//base/modules/ResponseActions:substitutions.bzl", "SUBSTITUTIONS")
-load("//base/modules/ResponseActions:version_info.bzl", "RESPONSE_ACTIONS_BASE_VERSION") 
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//response_actions:constants.bzl", "SUBSTITUTIONS")
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 expand_template(
     name = "AutoVersion_h",
     out = "AutoVersion.h",
-    substitutions = {"@VERSION@": RESPONSE_ACTIONS_BASE_VERSION},
     template = "//common:AutoVersion.h.in",
+    version_info = "//response_actions:version_info",
+    version_info_substitutions = {"@VERSION@": "base_version"},
     visibility = [
         "//base/modules/ResponseActions/modules:__subpackages__",
     ],
@@ -31,12 +31,12 @@ soph_cc_library(
     ]) + [":config"],
     hdrs = glob(["*.h"]),
     implementation_deps = [
+        ":AutoVersion",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/Logging",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
-        "//imports/thirdparty/nlohmann-json:nlohmann-json",
-        ":AutoVersion",
+        "//imports/thirdparty/nlohmann-json",
     ],
     visibility = [
         "//base/products/ResponseActions/plugin:__pkg__",

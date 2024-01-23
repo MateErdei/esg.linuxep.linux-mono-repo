@@ -1,7 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
-load("//tools/config:sophos_versioning.bzl", "expand_version")
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//tools/config:sophos_versioning.bzl", "expand_version", "version_info")
 load("//common:strip.bzl", "strip")
-load("//thininstaller:version_info.bzl", "THIN_INSTALLER_BASE_VERSION", "THIN_INSTALLER_VERSIONING_COMPONENT_NAME")
 load("//tools/config:copy_file.bzl", "copy_file")
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//tools/config:manifest_sign.bzl", "manifest_sign")
@@ -12,6 +11,12 @@ load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//tools/config:soph_rules.bzl", "soph_platforms_transition")
 load("@gcc//:glibc.bzl", "GLIBC_VERSION")
 load("@rules_python//python:defs.bzl", "py_binary")
+
+version_info(
+    name = "version_info",
+    base_version = "1.3.2",
+    component_name = "sspl-thininstaller",
+)
 
 soph_cc_binary(
     name = "installer",
@@ -94,10 +99,9 @@ genrule(
 # Version is only updated if the installer_header.in.sh or anything in the installer_tar are changed
 expand_version(
     name = "installer_header_sh",
-    base_version_str = THIN_INSTALLER_BASE_VERSION,
-    component_name = THIN_INSTALLER_VERSIONING_COMPONENT_NAME,
     template_file = ":installer_header_with_common_functions",
     token = "@PRODUCT_VERSION@",
+    version_info = ":version_info",
     deps = [
         ":installer_header_with_common_functions",
         ":installer_tar",

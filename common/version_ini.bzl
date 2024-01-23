@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 load("//tools/config:sophos_versioning.bzl", "expand_version")
 
@@ -46,7 +46,7 @@ _create_version_ini = rule(
     },
 )
 
-def version_ini(name, out, component_name, versioning_component_name, base_version, deps):
+def version_ini(name, out, component_name, version_info, deps):
     # Create a template file to feed into expand_version
     native.genrule(
         name = "version_file_in",
@@ -57,8 +57,7 @@ def version_ini(name, out, component_name, versioning_component_name, base_versi
     expand_version(
         name = "version_file",
         deps = deps,
-        base_version_str = base_version,
-        component_name = versioning_component_name,
+        version_info = version_info,
         template_file = ":version_file_in",
         token = COMPONENT_AUTO_VERSION_TOKEN,
     )

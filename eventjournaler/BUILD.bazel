@@ -1,5 +1,13 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load("//tools/config:sophos_versioning.bzl", "version_info")
+
+version_info(
+    name = "version_info",
+    base_version = "1.0.7",
+    component_name = "sspl-event-journaler-plugin",
+    visibility = ["//eventjournaler:__subpackages__"],
+)
 
 soph_release_asset(
     name = "installer",

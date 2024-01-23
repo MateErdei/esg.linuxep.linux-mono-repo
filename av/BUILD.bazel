@@ -1,14 +1,22 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load(":version_info.bzl", "AV_BASE_VERSION")
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+load("//tools/config:sophos_versioning.bzl", "version_info")
+
+version_info(
+    name = "version_info",
+    base_version = "1.1.3",
+    component_name = "sspl-plugin-anti-virus",
+    visibility = ["//av:__subpackages__"],
+)
 
 expand_template(
     name = "AutoVersion_h",
     out = "AutoVersion.h",
-    substitutions = {"@VERSION@": AV_BASE_VERSION},
     template = "//common:AutoVersion.h.in",
+    version_info = ":version_info",
+    version_info_substitutions = {"@VERSION@": "base_version"},
 )
 
 soph_cc_library(

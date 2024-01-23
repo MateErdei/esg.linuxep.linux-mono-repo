@@ -1,15 +1,23 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_build_asset_pkg", "soph_release_asset")
 load("//tools/config:expand_template.bzl", "expand_template")
-load(":version_info.bzl", "BASE_BASE_VERSION")
+load("//tools/config:sophos_versioning.bzl", "version_info")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+
+version_info(
+    name = "version_info",
+    base_version = "1.2.6",
+    component_name = "sspl_base",
+    visibility = ["//base:__subpackages__"],
+)
 
 expand_template(
     name = "AutoVersion_h",
     out = "AutoVersion.h",
-    substitutions = {"@VERSION@": BASE_BASE_VERSION},
     template = "//common:AutoVersion.h.in",
+    version_info = ":version_info",
+    version_info_substitutions = {"@VERSION@": "base_version"},
     visibility = [
         "//base/modules:__subpackages__",
     ],

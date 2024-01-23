@@ -1,7 +1,7 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//base/modules/ResponseActions:version_info.bzl", "RESPONSE_ACTIONS_BASE_VERSION", "RESPONSE_ACTIONS_LINE_ID", "RESPONSE_ACTIONS_PRODUCT_NAME", "RESPONSE_ACTIONS_VERSIONING_COMPONENT_NAME")
-load("//base/modules/ResponseActions:substitutions.bzl", "SUBSTITUTIONS")
+load("//tools/config:sophos_versioning.bzl", "version_info")
+load("//response_actions:constants.bzl", "RESPONSE_ACTIONS_LINE_ID", "RESPONSE_ACTIONS_PRODUCT_NAME", "SUBSTITUTIONS")
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
 
 expand_template(
@@ -27,7 +27,6 @@ expand_template(
 
 spl_sdds_packages(
     name = "installer",
-    base_version = RESPONSE_ACTIONS_BASE_VERSION,
     component_name = RESPONSE_ACTIONS_PRODUCT_NAME,
     line_id = RESPONSE_ACTIONS_LINE_ID,
     spv_features = ["MDR"],
@@ -45,11 +44,11 @@ spl_sdds_packages(
         "install.sh": ":install_sh",
     }.items()},
     symbols_strip_prefix = "base/products/ResponseActions/installer",
+    version_info = "//response_actions:version_info",
     version_ini_locations = [
         "VERSION.ini",
         "files/plugins/responseactions/VERSION.ini",
     ],
-    versioning_component_name = RESPONSE_ACTIONS_VERSIONING_COMPONENT_NAME,
     visibility = [
         "//response_actions:__pkg__",
     ],

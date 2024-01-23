@@ -1,6 +1,17 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load("//tools/config:sophos_versioning.bzl", "version_info")
 load("@bazel_skylib//lib:selects.bzl", "selects")
+
+version_info(
+    name = "version_info",
+    base_version = "1.0.2",
+    component_name = "responseactions",
+    visibility = [
+        "//base/modules/ResponseActions:__subpackages__",
+        "//base/products/ResponseActions:__subpackages__",
+    ],
+)
 
 soph_release_asset(
     name = "installer",

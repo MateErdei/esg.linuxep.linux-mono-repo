@@ -1,6 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//av:substitutions.bzl", "SUBSTITUTIONS")
+load("//av:constants.bzl", "SUBSTITUTIONS")
 
 expand_template(
     name = "cleanuprealm.dat",

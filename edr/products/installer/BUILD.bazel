@@ -1,7 +1,6 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:expand_template.bzl", "expand_template")
-load("//edr:version_info.bzl", "EDR_BASE_VERSION", "EDR_LINE_ID", "EDR_PRODUCT_NAME", "EDR_VERSIONING_COMPONENT_NAME")
-load("//edr:substitutions.bzl", "SUBSTITUTIONS")
+load("//edr:constants.bzl", "EDR_LINE_ID", "EDR_PRODUCT_NAME", "SUBSTITUTIONS")
 load("//common:spl_sdds_packages.bzl", "spl_sdds_packages")
 
 expand_template(
@@ -27,7 +26,6 @@ expand_template(
 
 spl_sdds_packages(
     name = "installer",
-    base_version = EDR_BASE_VERSION,
     component_name = EDR_PRODUCT_NAME,
     line_id = EDR_LINE_ID,
     spv_features = ["LIVEQUERY"],
@@ -53,11 +51,11 @@ spl_sdds_packages(
         "files/plugins/edr/extensions/extensions.load": "extensions.load",
     }.items()},
     symbols_strip_prefix = "edr/products/installer",
+    version_info = "//edr:version_info",
     version_ini_locations = [
         "VERSION.ini",
         "files/plugins/edr/VERSION.ini",
     ],
-    versioning_component_name = EDR_VERSIONING_COMPONENT_NAME,
     visibility = [
         "//edr:__pkg__",
     ],
