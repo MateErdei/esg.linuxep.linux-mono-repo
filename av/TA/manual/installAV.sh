@@ -66,7 +66,7 @@ cd ${0%/*}
 BASE=$(pwd)
 
 echo BASE=$BASE
-INPUTS_ROOT=$BASE/../..
+INPUTS_ROOT=$BASE/../../..
 AV_ROOT=/opt/test/inputs/av
 TEST_SUITE=${BASE}/..
 
@@ -79,29 +79,19 @@ function unpack_zip_if_required()
     unzip "$ZIP" -d "$DEST"
 }
 
-SDDS_BASE=${AV_ROOT}/base-sdds
-unpack_zip_if_required "${AV_ROOT}/base_sdds.zip" "$SDDS_BASE"
-
+SDDS_BASE=${INPUTS_ROOT}/.output/base/linux_x64_rel/installer
 [[ -d $SDDS_BASE ]] || failure 1 "Can't find SDDS_BASE: $SDDS_BASE"
 [[ -f $SDDS_BASE/install.sh ]] || failure 1 "Can't find SDDS_BASE/install.sh: $SDDS_BASE/install.sh"
 
-SDDS_AV=${AV_ROOT}/INSTALL-SET
-PYTHON=${PYTHON:-python3}
-if [[ -z "$NO_CREATE_INSTALL_SET" || ! -d "$SDDS_AV" ]]
-then
-    unpack_zip_if_required "${AV_ROOT}/av_sdds.zip" "${AV_ROOT}/SDDS-COMPONENT"
-    [[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/av
-    [[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/output
-    [[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
-    ${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
-fi
+AV_INSTALL_SET=${AV_ROOT}/INSTALL-SET
+bash $BASE/setupAV.sh
 
-[[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
-[[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
+[[ -d $AV_INSTALL_SET ]] || failure 2 "Can't find AV_INSTALL_SET: $AV_INSTALL_SET"
+[[ -f $AV_INSTALL_SET/install.sh ]] || failure 3 "Can't find $AV_INSTALL_SET/install.sh"
 # Check supplements are present:
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat"
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat"
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/model/model.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/model/model.dat"
 
 SOPHOS_INSTALL=/opt/sophos-spl
 
@@ -160,8 +150,8 @@ chown -h "root:sophos-spl-group" "${OVERRIDE_FLAG_FILE}"
 chmod 640 "${OVERRIDE_FLAG_FILE}"
 
 ## Install AV
-chmod 700 "${SDDS_AV}/install.sh"
-bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
+chmod 700 "${AV_INSTALL_SET}/install.sh"
+bash $INSTALL_AV_BASH_OPTS "${AV_INSTALL_SET}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 if [[ -n $MCS_URL ]]
 then

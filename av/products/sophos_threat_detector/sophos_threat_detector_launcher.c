@@ -1,8 +1,10 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2024 Sophos Limited. All rights reserved.
 
-#include "modules/common/ErrorCodesC.h"
+#include "common/ErrorCodesC.h"
 #include "products/capability/PassOnCapability.h"
+#include "sophos_install/SophosInstall.h"
 
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,12 +27,12 @@ int main(int argc, char* argv[])
     set_no_new_privs();
     prctl(PR_SET_PDEATHSIG, SIGTERM);
 
-    char *installPath = getenv("SOPHOS_INSTALL");
-    if (installPath == NULL)
+    char installPath[PATH_MAX];
+    ssize_t installPathSize = getSophosInstall(installPath, sizeof(installPath));
+    if (installPathSize < 0)
     {
         return E_SOPHOS_INSTALL_NO_SET;
     }
-
 
     char* ldPathPrefix = "LD_LIBRARY_PATH=";
     char* susiPath = "/plugins/av/chroot/susi/distribution_version:";

@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library")
 load("//common:shared_library_helper.bzl", "shared_library_helper")
 
@@ -76,6 +76,7 @@ soph_cc_binary(
     visibility = ["//av/products/distribution:__pkg__"],
     deps = [
         "//av/modules/common:ErrorCodes",
+        "//av/modules/sophos_install",
         "//av/products/capability",
     ],
 )
