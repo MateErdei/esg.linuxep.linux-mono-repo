@@ -361,6 +361,7 @@
                 --profile_exec
                 build
                 --config=linux_x64_bullseye
+                --build_tests_only
                 --target_pattern_file=build/linuxep_spl_test_targets.txt
             </args>
         </command>
