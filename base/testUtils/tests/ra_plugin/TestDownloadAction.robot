@@ -17,7 +17,7 @@ Test Teardown  RA Test Teardown
 Force Tags   RESPONSE_ACTIONS_PLUGIN  TAP_PARALLEL1
 
 *** Variables ***
-#if these change, change in Send_Download_File_From_Fake_Cloud also
+#if these change, change in Create_And_Send_Download_File_From_Fake_Cloud also
 ${RESPONSE_ACTIONS_TMP_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/tmp/
 ${MOUNT_DIR}   ${TESTDIR}/mount
 ${DOWNLOAD_TARGET_PATH}    /tmp/folder/
@@ -31,11 +31,11 @@ RA Plugin downloads with decompress set to false successfully
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud
+    Create_And_Send_Download_File_From_Fake_Cloud
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP} downloaded successfully
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
@@ -53,11 +53,11 @@ RA Plugin downloads and extracts a single file successfully
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory  /tmp/folder  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud   ${TRUE}  ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
+    Create_And_Send_Download_File_From_Fake_Cloud   ${TRUE}  ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT} downloaded successfully
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT}
@@ -76,10 +76,10 @@ RA Plugin handles decompression of non zip file appropriately
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory  /tmp/folder  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud_NotZip
+    Create And Send Download File From Fake Cloud NotZip
 
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   invalid zip file
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   invalid zip file
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
 
@@ -99,11 +99,11 @@ RA Plugin handles download to mounts appropriately
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Send_Download_File_From_Fake_Cloud    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}
+    Create And Send Download File From Fake Cloud    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}
 
-    wait_for_log_contains_from_mark  ${response_mark}    Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}    ${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP} downloaded successfully
+    Wait for log contains from mark  ${response_mark}    Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}    ${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
 
@@ -126,11 +126,11 @@ RA Plugin handles read only mount appropriately
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Send_Download_File_From_Fake_Cloud    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}
+    Create And Send Download File From Fake Cloud    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}
 
-    wait_for_log_contains_from_mark  ${response_mark}  Failed action correlation-id with exit code 1   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}    Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}${TMP_DOWNLOAD_ZIP}' to '${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}'
+    Wait for log contains from mark  ${response_mark}  Failed action correlation-id with exit code 1   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}    Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}${TMP_DOWNLOAD_ZIP}' to '${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}'
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
 
@@ -151,12 +151,12 @@ RA Plugin handles download of single file to mount with not enough space appropr
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Send_Download_File_From_Fake_Cloud    ${TRUE}    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}    specifySize=20000000
+    Create And Send Download File From Fake Cloud    ${TRUE}    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}    specifySize=20000000
 
-    wait_for_log_contains_from_mark  ${response_mark}    Failed action correlation-id with exit code    25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${response_mark}    Failed action correlation-id with exit code    25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
 
-    wait_for_log_contains_from_mark  ${action_mark}  Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}extract/tmp/${DOWNLOAD_FILENAME_TXT}' to '${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}', failed to complete writing to file, check space available on device.
+    Wait for log contains from mark  ${action_mark}  Failed to copy file: '${RESPONSE_ACTIONS_TMP_PATH}extract/tmp/${DOWNLOAD_FILENAME_TXT}' to '${MOUNT_DIR}/tmp/${DOWNLOAD_FILENAME_TXT}', failed to complete writing to file, check space available on device.
 
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
@@ -181,11 +181,11 @@ RA Plugin handles download of multiple files to mount with not enough space appr
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Send_Download_File_From_Fake_Cloud    ${TRUE}    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}    specifySize=20000000    multipleFiles=${TRUE}
+    Create And Send Download File From Fake Cloud    ${TRUE}    targetPath=${MOUNT_DIR}/${DOWNLOAD_FILENAME_ZIP}    specifySize=20000000    multipleFiles=${TRUE}
 
-    wait_for_log_contains_from_mark  ${response_mark}    Failed action correlation-id with exit code    25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}    failed to complete writing to file, check space available on device.
+    Wait for log contains from mark  ${response_mark}    Failed action correlation-id with exit code    25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}    failed to complete writing to file, check space available on device.
 
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
@@ -211,10 +211,10 @@ RA Plugin downloads and extracts multiple files successfully
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud    ${TRUE}  ${DOWNLOAD_TARGET_PATH}   multipleFiles=${TRUE}
+    Create And Send Download File From Fake Cloud    ${TRUE}  ${DOWNLOAD_TARGET_PATH}   multipleFiles=${TRUE}
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}tmp/${DOWNLOAD_FILENAME_TXT}
@@ -236,10 +236,10 @@ RA Plugin downloads and extracts multiple files and multiple subdirectories succ
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud    ${TRUE}  ${DOWNLOAD_TARGET_PATH}   multipleFiles=${TRUE}    subDirectories=${TRUE}
+    Create And Send Download File From Fake Cloud    ${TRUE}  ${DOWNLOAD_TARGET_PATH}   multipleFiles=${TRUE}    subDirectories=${TRUE}
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}/tmp/subDir1/subDir2/${DOWNLOAD_FILENAME_TXT}
@@ -262,11 +262,11 @@ RA Plugin cleans up before starting download action
 
     Create File     ${RESPONSE_ACTIONS_TMP_PATH}${TMP_DOWNLOAD_ZIP}
 
-    Send_Download_File_From_Fake_Cloud
+    Create And Send Download File From Fake Cloud
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP} downloaded successfully
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
@@ -284,10 +284,10 @@ RA Plugin fails a real url due to authorization not file to long
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory    /tmp/folder/  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud_RealURL
+    Create And Send Download File From Fake Cloud RealURL
 
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   Failed to download, Error code: 403
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   Failed to download, Error code: 403
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
 
@@ -297,22 +297,68 @@ RA Plugin fails a real url due to authorization not file to long
     ...  Check Cloud Server Log Contains    \"errorType\":\"network_error\",\"httpStatus\":403,\"result\":1
 
 RA Plugin downloads a file successfully with password protected decompression
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
+    
+    ${zip_password} =    Set Variable    password
+    ${zip_file} =    Set Variable    /tmp/testdownload.zip
+    ${zipped_file} =    Set Variable    /tmp/test.txt
+    ${zipped_file_contents} =    Set Variable    test contents
+    Create File     ${zipped_file}    ${zipped_file_contents}
+    Register Cleanup  Remove File    ${zipped_file}
+    Run Process    zip  -r    ${zip_file}    ${zipped_file}    -P    ${zip_password}
+    Register Cleanup  Remove File    ${zip_file}
+   
+    Send_Download_File_From_Fake_Cloud   ${zip_file}    ${TRUE}    ${DOWNLOAD_TARGET_PATH}    ${zip_password}
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/test.txt downloaded successfully
+
+    File Should Contain      ${DOWNLOAD_TARGET_PATH}tmp/test.txt    ${zipped_file_contents}
+
+RA Plugin downloads and extracts BZIP2 files successfully
+    # LINUXDAR-8640 - Disabled until minizip built with BZIP2 capabilities enabled
     [Tags]    TESTFAILURE
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-    Create File  /tmp/file  tempfilecontent
-    Register Cleanup  Remove File  /tmp/file
-    Send_Download_File_From_Fake_Cloud   /tmp/file  ${TRUE}
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent upload response for id corrid to Centra   15
+    Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
+    
+    ${zip_password} =    Set Variable    password
+    ${zip_file} =    Set Variable    /tmp/testdownload.zip
+    ${zipped_file} =    Set Variable    /tmp/test.txt
+    ${zipped_file_contents} =    Set Variable    test contents
+    Create File     ${zipped_file}    ${zipped_file_contents}
+    Register Cleanup  Remove File    ${zipped_file}
+    Run    bzip2 -c ${zipped_file} > ${zip_file}
+    Register Cleanup  Remove File    ${zip_file}
+   
+    Send_Download_File_From_Fake_Cloud   ${zip_file}    ${TRUE}    ${DOWNLOAD_TARGET_PATH}    ${zip_password}
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/test.txt downloaded successfully
 
-    File Should exist  /tmp/upload.zip
-    Create Directory  /tmp/unpackzip/
-    Register Cleanup  Remove Directory  /tmp/unpackzip/    recursive=${True}
-    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
-    ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
-    File Should exist  /tmp/unpackzip/file
-    File Should Contain  /tmp/unpackzip/file     tempfilecontent
+    File Should Contain      ${DOWNLOAD_TARGET_PATH}tmp/test.txt    ${zipped_file_contents}
+
+RA Plugin downloads and extracts ZST files successfully
+    # LINUXDAR-8640 - Disabled until minizip built with ZST capabilities enabled
+    [Tags]    TESTFAILURE
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
+    
+    ${zip_password} =    Set Variable    password
+    ${zip_file} =    Set Variable    /tmp/testdownload.zip
+    ${zipped_file} =    Set Variable    /tmp/test.txt
+    ${zipped_file_contents} =    Set Variable    test contents
+    Create File     ${zipped_file}    ${zipped_file_contents}
+    Register Cleanup  Remove File    ${zipped_file}
+    Run    zstd ${zipped_file} -o ${zip_file}
+    Register Cleanup  Remove File    ${zip_file}
+   
+    Send_Download_File_From_Fake_Cloud   ${zip_file}    ${TRUE}    ${DOWNLOAD_TARGET_PATH}    ${zip_password}
+    Wait for log contains from mark  ${response_mark}  Action correlation-id has succeeded   25
+    Wait for log contains from mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    Wait for log contains from mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}tmp/test.txt downloaded successfully
+
+    File Should Contain      ${DOWNLOAD_TARGET_PATH}tmp/test.txt    ${zipped_file_contents}

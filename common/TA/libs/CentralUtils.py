@@ -332,7 +332,25 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
-def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False, specifySize=0):
+def Send_Download_File_From_Fake_Cloud(sourcePath, decompress=False, targetPath="/tmp/folder/download.zip", password="", url="https://localhost:443/download"):
+    with open(sourcePath, 'rb') as zf:
+        contents = zf.read()
+        readable_hash = hashlib.sha256(contents).hexdigest()
+
+    action_dict = {"type": "sophos.mgt.action.DownloadFile",
+                   "url": url,
+                   "targetPath": targetPath,
+                   "sha256": readable_hash,
+                   "sizeBytes": len(contents),
+                   "decompress": decompress,
+                   "password": password,
+                   "expiration": 144444000000004,
+                   "timeout": 60,
+                   }
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
+
+def Create_And_Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False, subDirectories=False, specifySize=0):
+    sourcePath = '/tmp/testdownload.zip'
 
     #so that we only create one large file and check all are cleaned up
     if subDirectories:
@@ -349,7 +367,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
 
     count = random.randrange(len(listOfFiles))
 
-    with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipf:
+    with zipfile.ZipFile(sourcePath, mode='w') as zipf:
         for file in listOfFiles:
             dirName = os.path.dirname(file)
             if not os.path.exists(dirName):
@@ -361,68 +379,28 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
                 f.close()
             zipf.write(file)
 
-    with open("/tmp/testdownload.zip", 'rb') as zf:
-        contents = zf.read()
-        readable_hash = hashlib.sha256(contents).hexdigest()
-
     for file in listOfFiles:
         os.remove(file)
+    Send_Download_File_From_Fake_Cloud(sourcePath, decompress, targetPath, password)
 
-    action_dict = {"type": "sophos.mgt.action.DownloadFile",
-           "url": "https://localhost:443/download",
-           "targetPath": targetPath,
-           "sha256": readable_hash,
-           "sizeBytes": len(contents),
-           "decompress": decompress,
-           "password": password,
-           "expiration": 144444000000004,
-           "timeout": 60,
-           }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
-
-def Send_Download_File_From_Fake_Cloud_NotZip():
-    with open("/tmp/downloadToUnzip.txt", 'w') as f:
+def Create_And_Send_Download_File_From_Fake_Cloud_NotZip():
+    sourcePath = "/tmp/downloadToUnzip.txt"
+    targetPath = sourcePath
+    with open(sourcePath, 'w') as f:
         f.write("content")
 
-    with open("/tmp/downloadToUnzip.txt", 'rb') as tf:
-        contents = tf.read()
-        readable_hash = hashlib.sha256(contents).hexdigest()
+    Send_Download_File_From_Fake_Cloud(sourcePath, True, targetPath, "")
 
-    action_dict = {"type": "sophos.mgt.action.DownloadFile",
-                   "url": "https://localhost:443/download",
-                   "targetPath": "/tmp/downloadToUnzip.txt",
-                   "sha256": readable_hash,
-                   "sizeBytes": len("content"),
-                   "decompress": True,
-                   "password": "",
-                   "expiration": 144444000000004,
-                   "timeout": 60,
-                   }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
-
-
-def Send_Download_File_From_Fake_Cloud_RealURL():
-    with open("/tmp/download.txt", 'w') as f:
+def Create_And_Send_Download_File_From_Fake_Cloud_RealURL():
+    zippedFile = "/tmp/download.txt"
+    sourcePath = "/tmp/download.txt"
+    targetPath = "/tmp/folder/download.zip"
+    with open(zippedFile, 'w') as f:
         f.write("content")
-    zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
+    zipfile.ZipFile(sourcePath, mode='w').write(zippedFile)
 
-    with open("/tmp/download.zip", 'rb') as zf:
-        contents = zf.read()
-        readable_hash = hashlib.sha256(contents).hexdigest()
-
-    action_dict = {"type": "sophos.mgt.action.DownloadFile",
-                   #This URL will always fail due to a access issue. We want to make sure we get to this stage
-                   "url": "https://ea-data-cloudstation-us-west-2.qa.hydra.sophos.com/endpoint/download/4076af4f-1d02-4a2b-8ee3-3de1f56c2478/c1ad492f-e7ae-4f25-919a-5ae5ef06cd17/tenant_4076af4f-1d02-4a2b-8ee3-3de1f56c2478_action_c1ad492f-e7ae-4f25-919a-5ae5ef06cd17?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFcaCXVzLXdlc3QtMiJHMEUCIQCEHfzL2Jqqo3GxQKjA46VxyhGrBsbFH%2BHJyWnXLuNvcgIgT3XW4iiJlSIDtlVJ6yzd1%2F0sE1F%2FWCqM%2Ft57H71UeKIqlwQILxAAGgwzODI3MDIyODE5MjMiDAbn8VYohh89ijtEoSr0A2lMIqweuyltnTVtcR9Oi2mruiN5hs2Lf1GYV6cb96Zk1z8%2BTzA6pRIra%2BW%2FgpJ6CSM8x%2FiCvqLyNxdGwAdU0KxBmfYxmkAvqihLdxGRqh0cge26YzDn6ksnQop93yk6kFUb7S6IpKGnvnt41BUqKHjCCVbcxMyEuz8OhpC9hzXciCB2zOs8TRSQG00drOoMzFB0qAkbu3OKZOvNOJsxQ1AR2MBG0JPYBhUWss4t5pF8lgQJ4FfN95kNvaMH8olReXBL7c932V16kPdkL2t%2BohpOG8VW4PERT38HdWx3%2Bfepkk7IyatNOA%2F3Wj7wa2IpFSIUBARaLJ4HFp43hJj5qWJyuO1iGNchrahs3bGUKotBEmVGfstXLJlcNrb8BSoyA%2BpPwu%2BnyxjF2pWeaAL0jIA4wu%2ByUeYXzx1pAQiXgapebKY0LfRGg5Ol5UV0Fso1KoaG6GfiFkMlg1czkNbO5bU0yi6C49qekg6WbyLfypoPdss8R5em8KK0H9T47uMD%2BzgdhQ%2BDgxwWPuYNP%2BmKJsSJ04U4cOlAvV%2BBoPM4YraCvXuiIv%2BHTHYetojtDKbOywSyVpJAYM04vTIhogc3PbzZyRgMrLz310xPeV6G2C5NJ3g3SOyqbZeRbFAeTHpRbYmcK38KgjRDxtXKbEKPdXcUrzBFMLTMhqEGOqYB6rLUNHHyH6ALzG6rCNPJktyKUAEz%2B1eb5KtFVGayzyKd8i2rs9bGUIP59XYCb25a%2FahMsutDNElx%2FsCXEFEHaehkP3kua31F6N86udtuwoEpXiBfgc9cW7qsqA%2Fj%2BXJeiY%2FBzbJ7Ke8oJyi1Jv4kbevGF9DqHNBXK0lKxHwklz50YRIwQaLpb51Cgp%2F2TcB3ROufbMCpBoQdR9V9F49v31DPDKaFOA%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230327T161044Z&X-Amz-SignedHeaders=host&X-Amz-Expires=2382&X-Amz-Credential=ASIAVSGWVMTBUQHULWHJ%2F20230327%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Signature=228dcbbe98273f8ba26519d8aa681e8a44de23470b2317d769cad25da0611e4a",
-
-                   "targetPath": "/tmp/folder/download.zip",
-                   "sha256": readable_hash,
-                   "sizeBytes": len(contents),
-                   "decompress": False,
-                   "password": "",
-                   "expiration": 144444000000004,
-                   "timeout": 60,
-                   }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
+    url = "https://ea-data-cloudstation-us-west-2.qa.hydra.sophos.com/endpoint/download/4076af4f-1d02-4a2b-8ee3-3de1f56c2478/c1ad492f-e7ae-4f25-919a-5ae5ef06cd17/tenant_4076af4f-1d02-4a2b-8ee3-3de1f56c2478_action_c1ad492f-e7ae-4f25-919a-5ae5ef06cd17?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFcaCXVzLXdlc3QtMiJHMEUCIQCEHfzL2Jqqo3GxQKjA46VxyhGrBsbFH%2BHJyWnXLuNvcgIgT3XW4iiJlSIDtlVJ6yzd1%2F0sE1F%2FWCqM%2Ft57H71UeKIqlwQILxAAGgwzODI3MDIyODE5MjMiDAbn8VYohh89ijtEoSr0A2lMIqweuyltnTVtcR9Oi2mruiN5hs2Lf1GYV6cb96Zk1z8%2BTzA6pRIra%2BW%2FgpJ6CSM8x%2FiCvqLyNxdGwAdU0KxBmfYxmkAvqihLdxGRqh0cge26YzDn6ksnQop93yk6kFUb7S6IpKGnvnt41BUqKHjCCVbcxMyEuz8OhpC9hzXciCB2zOs8TRSQG00drOoMzFB0qAkbu3OKZOvNOJsxQ1AR2MBG0JPYBhUWss4t5pF8lgQJ4FfN95kNvaMH8olReXBL7c932V16kPdkL2t%2BohpOG8VW4PERT38HdWx3%2Bfepkk7IyatNOA%2F3Wj7wa2IpFSIUBARaLJ4HFp43hJj5qWJyuO1iGNchrahs3bGUKotBEmVGfstXLJlcNrb8BSoyA%2BpPwu%2BnyxjF2pWeaAL0jIA4wu%2ByUeYXzx1pAQiXgapebKY0LfRGg5Ol5UV0Fso1KoaG6GfiFkMlg1czkNbO5bU0yi6C49qekg6WbyLfypoPdss8R5em8KK0H9T47uMD%2BzgdhQ%2BDgxwWPuYNP%2BmKJsSJ04U4cOlAvV%2BBoPM4YraCvXuiIv%2BHTHYetojtDKbOywSyVpJAYM04vTIhogc3PbzZyRgMrLz310xPeV6G2C5NJ3g3SOyqbZeRbFAeTHpRbYmcK38KgjRDxtXKbEKPdXcUrzBFMLTMhqEGOqYB6rLUNHHyH6ALzG6rCNPJktyKUAEz%2B1eb5KtFVGayzyKd8i2rs9bGUIP59XYCb25a%2FahMsutDNElx%2FsCXEFEHaehkP3kua31F6N86udtuwoEpXiBfgc9cW7qsqA%2Fj%2BXJeiY%2FBzbJ7Ke8oJyi1Jv4kbevGF9DqHNBXK0lKxHwklz50YRIwQaLpb51Cgp%2F2TcB3ROufbMCpBoQdR9V9F49v31DPDKaFOA%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230327T161044Z&X-Amz-SignedHeaders=host&X-Amz-Expires=2382&X-Amz-Credential=ASIAVSGWVMTBUQHULWHJ%2F20230327%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Signature=228dcbbe98273f8ba26519d8aa681e8a44de23470b2317d769cad25da0611e4a"
+    Send_Download_File_From_Fake_Cloud(sourcePath, False, targetPath, "", url)
 
 def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):
 
