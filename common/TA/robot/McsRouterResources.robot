@@ -315,10 +315,18 @@ Wait For Back Off And Set Initial Value
 #initial back off can be 5 or 15s
     [Arguments]    ${mcsmark}
     wait_for_log_contains_from_mark    ${mcs_mark}    waiting up to    20
-    ${backoff} =    set variable    ${EMPTY}
-    ${contents} =    Grep File     ${MCS_ROUTER_LOG}     waiting up to
+    ${fifteen_second_backoff} =    Run Keyword And Return Status
+              ...    Check Log Contains
+              ...    waiting up to 15.000000s after 1 failures
+              ...    ${MCS_ROUTER_LOG}
+              ...    mcsrouter.log
+    ${five_second_backoff} =    Run Keyword And Return Status
+              ...    Check Log Contains
+              ...    waiting up to 5.000000s after 1 failures
+              ...    ${MCS_ROUTER_LOG}
+              ...    mcsrouter.log
 
-    IF    "'${contents}' == waiting up to 15.000000s after 1 failures"    RETURN    15.000000s
-    IF    "'${contents}' == waiting up to 5.000000s after 1 failures"    RETURN    5.000000s
+    IF    ${fifteen_second_backoff}    RETURN    15.000000s
+    IF    ${five_second_backoff}    RETURN    5.000000s
 
     Fail    Did not find expected back off time
