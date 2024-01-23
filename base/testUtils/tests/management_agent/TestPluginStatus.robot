@@ -214,17 +214,21 @@ Verify Management Agent Loads Status Cache On Startup
     Create File     ${SOPHOS_INSTALL}/base/mcs/status/cache/SAV.xml   ${content1}
     Create File     ${SOPHOS_INSTALL}/base/mcs/status/SAV_status.xml  ${content1}
 
+    # Sanity check to make sure file contents are correct before we get modified time
+    Check Status File   ${content1}
+    Check Status Cache File   ${content1}
+
     ${statusCacheTimeOrig}    Get Modified Time   ${SOPHOS_INSTALL}/base/mcs/status/cache/SAV.xml
     ${statusTimeOrig}         Get Modified Time   ${SOPHOS_INSTALL}/base/mcs/status/SAV_status.xml
 
     # Start Management agent and fake plugin and send status, and check output
 
-    Start Management Agent
-
     Start Plugin
-
     ${content1}    Evaluate    str('content1')
     Send Plugin Status   ${content1}
+
+    Start Management Agent
+
     Check Status File   ${content1}
     Check Status Cache File   ${content1}
 
