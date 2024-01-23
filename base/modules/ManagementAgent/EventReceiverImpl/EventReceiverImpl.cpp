@@ -17,7 +17,15 @@ ManagementAgent::EventReceiverImpl::EventReceiverImpl::EventReceiverImpl(
 
 void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::string& eventXml)
 {
-    Common::TaskQueue::ITaskPtr task(new EventTask({ appId, eventXml }, outbreakModeController_));
+    // Determine if event should be filtered by Outbreak Mode
+    if (outbreakModeController_->processEvent({appId, eventXml}))
+    {
+        // Drop the event
+        LOGDEBUG("Dropping event as we are in outbreak mode: " << appId << ": " << eventXml);
+        return;
+    }
+
+    Common::TaskQueue::ITaskPtr task(new EventTask({ appId, eventXml }));
     m_taskQueue->queueTask(std::move(task));
 }
 

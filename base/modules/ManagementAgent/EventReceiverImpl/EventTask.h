@@ -14,11 +14,10 @@ namespace ManagementAgent::EventReceiverImpl
     class EventTask : public virtual Common::TaskQueue::ITask
     {
     public:
-        EventTask(Event event, IOutbreakModeControllerPtr outbreakModeController);
+        EventTask(Event event);
         void run() override;
 
     private:
         Event event_;
-        IOutbreakModeControllerPtr outbreakModeController_;
     };
 } // namespace ManagementAgent::EventReceiverImpl

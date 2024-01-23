@@ -13,21 +13,6 @@ using namespace ManagementAgent::EventReceiverImpl;
 
 namespace
 {
-    class FakeOutbreakModeController : public IOutbreakModeController
-    {
-    public:
-        bool processEvent(const Event&) override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool outbreakMode() const override { return false; }
-
-        void processAction(const std::string&) override
-        {
-        }
-    };
-
     class TestEventTask : public ::testing::Test
     {
     public:
@@ -35,11 +20,8 @@ namespace
 
         void SetUp() override
         {
-            outbreakModeController_ = std::make_shared<FakeOutbreakModeController>();
         }
 
-    protected:
-        std::shared_ptr<FakeOutbreakModeController> outbreakModeController_;
     private:
         std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_loggingSetup;
     };
@@ -50,7 +32,7 @@ namespace
 TEST_F(TestEventTask, Construction)
 {
     EXPECT_NO_THROW( // NOLINT
-        ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_));
+        ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}));
 }
 
 namespace
@@ -64,7 +46,7 @@ namespace
 
 TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"});
 
     auto filesystemMock = createMockFileSystem();
 
@@ -82,9 +64,9 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 
 TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"});
 
-    ManagementAgent::EventReceiverImpl::EventTask task2({"APPID", "EventXml"}, outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task2({"APPID", "EventXml"});
 
     auto filesystemMock = createMockFileSystem();
 
