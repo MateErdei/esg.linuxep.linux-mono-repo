@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 import threading
 import os
@@ -14,6 +14,7 @@ _excluded_exe_paths = [
     "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/files/base/bin/versionedcopy",
     "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/files/base/bin/machineid",
     "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/files/base/bin/manifestdiff",
+    "/opt/sophos-spl/base/update/versig.0",
     "/opt/sophos-spl/base/bin/versionedcopy.0",
     "/opt/sophos-spl/base/bin/machineid.0",
     "/opt/sophos-spl/base/bin/manifestdiff.0",
@@ -79,10 +80,12 @@ class ProcessGroupCheck:
         spl_group_gid = grp.getgrnam("sophos-spl-group").gr_gid
 
         has_error = False
-        for (exe, gid) in self.pid_map.values():
+        for exe, gid in self.pid_map.values():
             logger.debug(f"Recorded {exe} with {gid} ({grp.getgrgid(gid).gr_name})")
             if gid != spl_group_gid and exe not in _excluded_exe_paths:
-                logger.error(f"{exe} has GID {gid} ({grp.getgrgid(gid).gr_name}) rather than {spl_group_gid} (sophos-spl-group)")
+                logger.error(
+                    f"{exe} has GID {gid} ({grp.getgrgid(gid).gr_name}) rather than {spl_group_gid} (sophos-spl-group)"
+                )
                 has_error = True
 
         self.pid_map = {}
