@@ -76,7 +76,7 @@ namespace SulDownloader::suldownloaderdata
             {
                 if (!product.getProductIsBeingUninstalled())
                 {
-                    report.m_description = "Update failed";
+                    report.m_description = product.getInstallFailureReason();
                     report.m_status = RepositoryStatus::INSTALLFAILED;
                     break; // Install failures are a higher error than uninstalled.
                 }

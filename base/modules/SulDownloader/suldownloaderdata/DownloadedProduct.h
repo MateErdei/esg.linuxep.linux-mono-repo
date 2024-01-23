@@ -152,6 +152,11 @@ namespace SulDownloader::suldownloaderdata
          */
         bool forceProductReinstall() const;
 
+        /**
+         * @return Last error from product install log
+         */
+        std::string getInstallFailureReason() const;
+
     private:
         enum class State
         {
@@ -160,13 +165,14 @@ namespace SulDownloader::suldownloaderdata
             Verified,
             Installed,
             HasError
-        } m_state;
-        RepositoryError m_error;
-        ProductMetadata m_productMetadata;
-        std::string m_distributePath;
-        bool m_productHasChanged;
-        bool m_productUninstall;
-        bool m_forceProductReinstall;
-        bool m_productDowngrade = false;
+        } state_;
+        RepositoryError error_;
+        ProductMetadata productMetadata_;
+        std::string distributePath_;
+        bool productHasChanged_;
+        bool productUninstall_;
+        bool forceProductReinstall_;
+        bool productDowngrade_ = false;
+        std::string installFailureReason_;
     };
 } // namespace SulDownloader::suldownloaderdata

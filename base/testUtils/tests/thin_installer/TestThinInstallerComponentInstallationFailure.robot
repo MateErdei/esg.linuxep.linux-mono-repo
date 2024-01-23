@@ -43,9 +43,10 @@ Thin Installer Installs Working Base But Failing Plugin And Base Is Persisted Wh
     # Run without debug logging to prove the logs are present without it
     Run Default Thininstaller    expected_return_code=${18}    debug_thin_installer=${False}
 
+    ${errorMsg} =    Set Variable    ServerProtectionLinux-Plugin-AV: THIS IS BAD
     Check Thininstaller Log Contains    Failed to install at least one of the packages, see logs for details
     Check Thininstaller Log Contains    ERROR Installation of ServerProtectionLinux-Plugin-AV failed.
-    Check Thininstaller Log Contains    ERROR ServerProtectionLinux-Plugin-AV: THIS IS BAD
+    Check Thininstaller Log Contains    ERROR ${errorMsg}
     Check Thininstaller Log Contains    ERROR See ServerProtectionLinux-Plugin-AV_install.log for the full installer output.
     Check Thininstaller Log Contains    Warning: the product has been partially installed and not all functionality may be present
     Check Thininstaller Log Contains    Logs are available at /opt/sophos-spl/logs and /opt/sophos-spl/plugins/*/log
@@ -53,6 +54,11 @@ Thin Installer Installs Working Base But Failing Plugin And Base Is Persisted Wh
 
     Check Installed Correctly
     File should exist       ${SOPHOS_INSTALL}/logs/installation/ServerProtectionLinux-Plugin-AV_install_failed.log
+    @{items} =	List Directory    ${MCS_DIR}/event/
+    FOR  ${item}  IN  @{items}
+        ${status_contents} =    Get File    ${MCS_DIR}/event/${item}
+        Should Contain    ${status_contents}    ${errorMsg}
+    END
 
 Thin Installer Installs Failing Base And Fails And Base Error is Logged And Product Is Removed
     Clean up fake warehouse

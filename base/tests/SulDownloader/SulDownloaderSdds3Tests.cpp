@@ -1070,6 +1070,7 @@ TEST_F(
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string errorMsg = "installing plugin";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1084,7 +1085,7 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     EXPECT_CALL(fileSystemMock, getSystemCommandExecutablePath(_)).WillRepeatedly(Return("systemctl"));
-    EXPECT_CALL(fileSystemMock, writeFile(HasSubstr("failed"), "installing plugin")).WillOnce(Return());
+    EXPECT_CALL(fileSystemMock, writeFile(HasSubstr("failed"), errorMsg)).WillOnce(Return());
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.2.2"); // Will upgrade to 10.2.3
     setupPluginVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 10.3.4"); // Will upgrade to 10.3.5
@@ -1143,7 +1144,7 @@ TEST_F(
     TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() { return std::move(mockSdds3Repo_); });
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ RepositoryStatus::INSTALLFAILED,
-                                                     "Update failed",
+                                                     "ServerProtectionLinux-Plugin-EDR: " + errorMsg,
                                                      productReports,
                                                      productsInfo({ products[0], products[1] }) };
 

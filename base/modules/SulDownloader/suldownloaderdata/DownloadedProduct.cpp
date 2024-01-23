@@ -22,23 +22,24 @@ using namespace SulDownloader::suldownloaderdata;
 using Common::DownloadReport::RepositoryStatus;
 
 DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation) :
-    m_state(State::Initialized),
-    m_error(),
-    m_productMetadata(productInformation),
-    m_distributePath(),
-    m_productHasChanged(false),
-    m_productUninstall(false),
-    m_forceProductReinstall(false)
+    state_(State::Initialized),
+    error_(),
+    productMetadata_(productInformation),
+    distributePath_(),
+    productHasChanged_(false),
+    productUninstall_(false),
+    forceProductReinstall_(false),
+    installFailureReason_("Update failed")
 {
 }
 
 void DownloadedProduct::verify(const Common::Policy::UpdateSettings& updateSettings)
 {
-    assert(m_state == State::Distributed);
-    m_state = State::Verified;
+    assert(state_ == State::Distributed);
+    state_ = State::Verified;
     auto iVersig = createVersig();
 
-    if (iVersig->verify(updateSettings, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
+    if (iVersig->verify(updateSettings, distributePath_) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
         RepositoryError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";
@@ -48,25 +49,25 @@ void DownloadedProduct::verify(const Common::Policy::UpdateSettings& updateSetti
     }
     else
     {
-        LOGINFO("Product verified: " << m_productMetadata.getLine());
+        LOGINFO("Product verified: " << productMetadata_.getLine());
     }
 }
 
 void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 {
-    assert(m_state == State::Verified);
-    m_state = State::Installed;
+    assert(state_ == State::Verified);
+    state_ = State::Installed;
 
     auto fileSystem = ::Common::FileSystem::fileSystem();
 
     std::string installShFile = installerPath();
-    std::string productName = m_productMetadata.getLine();
+    std::string productName = productMetadata_.getLine();
     std::string installOutputFile =
         Common::ApplicationConfiguration::applicationPathManager().getProductInstallLogFilePath(productName);
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {
-        LOGINFO("Installing product: " << productName << " version: " << m_productMetadata.getVersion());
+        LOGINFO("Installing product: " << productName << " version: " << productMetadata_.getVersion());
         LOGDEBUG("Run installer: " << installShFile);
 
         fileSystem->makeExecutable(installShFile);
@@ -113,7 +114,10 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
             {
                 if (!part.empty() && !sophlib::string::StartsWith(part, "+"))
                 {
-                    LOGERROR(productName << ": " << part);
+                    std::stringstream installFailureReason;
+                    installFailureReason << productName << ": " << part;
+                    installFailureReason_ = installFailureReason.str();
+                    LOGERROR(installFailureReason.str());
                 }
             }
             LOGERROR("See " << installOutputBasename << " for the full installer output.");
@@ -156,87 +160,92 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
 bool DownloadedProduct::hasError() const
 {
-    return !m_error.Description.empty();
+    return !error_.Description.empty();
 }
 
 void DownloadedProduct::setError(const RepositoryError& error)
 {
-    m_state = State::HasError;
-    m_error = error;
+    state_ = State::HasError;
+    error_ = error;
 }
 
 RepositoryError DownloadedProduct::getError() const
 {
-    return m_error;
+    return error_;
 }
 
 void DownloadedProduct::setDistributePath(const std::string& distributePath)
 {
-    m_state = State::Distributed;
-    m_distributePath = distributePath;
+    state_ = State::Distributed;
+    distributePath_ = distributePath;
 }
 
 const ProductMetadata& DownloadedProduct::getProductMetadata() const
 {
-    return m_productMetadata;
+    return productMetadata_;
 }
 
 void DownloadedProduct::setProductMetadata(ProductMetadata productMetadata)
 {
-    m_productMetadata = std::move(productMetadata);
+    productMetadata_ = std::move(productMetadata);
 }
 
 const std::string& DownloadedProduct::distributePath() const
 {
-    return m_distributePath;
+    return distributePath_;
 }
 
 const std::string& DownloadedProduct::getLine() const
 {
-    return m_productMetadata.getLine();
+    return productMetadata_.getLine();
 }
 
 bool DownloadedProduct::productHasChanged() const
 {
-    return m_productHasChanged;
+    return productHasChanged_;
 }
 
 void DownloadedProduct::setProductHasChanged(bool productHasChanged)
 {
-    m_productHasChanged = productHasChanged;
+    productHasChanged_ = productHasChanged;
 }
 
 bool DownloadedProduct::productWillBeDowngraded() const
 {
-    return m_productDowngrade;
+    return productDowngrade_;
 }
 
 void DownloadedProduct::setProductWillBeDowngraded(bool willBeDowngraded)
 {
-    m_productDowngrade = willBeDowngraded;
+    productDowngrade_ = willBeDowngraded;
 }
 
 void DownloadedProduct::setProductIsBeingUninstalled(bool IsBeingUninstalled)
 {
-    m_productUninstall = IsBeingUninstalled;
+    productUninstall_ = IsBeingUninstalled;
 }
 
 bool DownloadedProduct::getProductIsBeingUninstalled() const
 {
-    return m_productUninstall;
+    return productUninstall_;
 }
 
 void DownloadedProduct::setForceProductReinstall(bool forceReinstall)
 {
-    m_forceProductReinstall = forceReinstall;
+    forceProductReinstall_ = forceReinstall;
 }
 
 bool DownloadedProduct::forceProductReinstall() const
 {
-    return m_forceProductReinstall;
+    return forceProductReinstall_;
 }
 
 std::string DownloadedProduct::installerPath() const
 {
-    return Common::FileSystem::join(m_distributePath, "install.sh");
+    return Common::FileSystem::join(distributePath_, "install.sh");
+}
+
+std::string DownloadedProduct::getInstallFailureReason() const
+{
+    return installFailureReason_;
 }
