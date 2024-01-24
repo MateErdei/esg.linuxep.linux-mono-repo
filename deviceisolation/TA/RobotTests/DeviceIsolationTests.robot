@@ -123,6 +123,11 @@ Watchdog Restarts Device Isolation
     Wait For Device Executable Running
 
 Device Isolation Remains Enabled On Downgrade
+    # Send NTP policy
+    ${mark} =  Get Device Isolation Log Mark
+    Send Isolation Policy With CI Exclusions
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
+
     Enable Device Isolation
     Wait Until Created  ${DEVICE_ISOLATION_NFT_RULES_PATH}
     Log File    ${DEVICE_ISOLATION_NFT_RULES_PATH}
@@ -140,9 +145,11 @@ Device Isolation Remains Enabled On Downgrade
     # check that the downgrade-backup directory contains the persist-isolationEnabled file
     ${backup_dir_files} =  List Files In Directory  ${SOPHOS_INSTALL}/plugins/deviceisolation/var/downgrade-backup
     Log  ${backup_dir_files}
-    Length Should Be  ${backup_dir_files}  ${1}  downgrade-backup directory contains more than persist-isolationEnabled
+    Length Should Be  ${backup_dir_files}  ${2}  downgrade-backup directory contains more than persist-isolationEnabled
     Should Contain  ${backup_dir_files}  persist-isolationEnabled
+    Should Contain  ${backup_dir_files}  persist-isolationActionValue
 
+    ${mark} =  Get Device Isolation Log Mark
     Install Device Isolation Directly from SDDS
 
     #check that the backup persist-isolationEnabled file has been moved
@@ -150,11 +157,12 @@ Device Isolation Remains Enabled On Downgrade
     Log  ${backup_dir_files}
     Length Should Be  ${backup_dir_files}  ${0}  downgrade-backup directory still contains persist-isolationEnabled
     Should Not Contain  ${backup_dir_files}  persist-isolationEnabled
+    Should Not Contain  ${backup_dir_files}  persist-isolationActionValue
 
-    #checking that device does reisolate upon downgrade
+    # Ccheck that device does reisolate upon downgrade
+    Wait For Log Contains From Mark  ${mark}  Device is now isolated
     File Should Contain    ${PERSISTENT_STATE_FILE}    1
-    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Enabling Device Isolation
-    File Should Contain    ${DEVICE_ISOLATION_LOG_PATH}    Device is now isolated
+
 
 Device Is Still Isolated After Upgrade
     # Send NTP policy

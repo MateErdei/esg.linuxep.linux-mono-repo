@@ -50,6 +50,7 @@ then
   mkdir -p ${PERSIST_SAVE_DIR}
   cp -va ${UNINSTALLDIR}/log/${PLUGIN_NAME}.log* ${SAVE_DIR}
   cp -va "$BASEDIR/plugins/${PLUGIN_NAME}/var/persist-isolationEnabled" ${PERSIST_SAVE_DIR}
+  cp -va "$BASEDIR/plugins/${PLUGIN_NAME}/var/persist-isolationActionValue" ${PERSIST_SAVE_DIR}
 
   paths_to_delete=$(ls ${UNINSTALLDIR})
   for path in ${paths_to_delete}

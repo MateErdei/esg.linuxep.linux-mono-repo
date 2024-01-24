@@ -49,12 +49,17 @@ function is_already_installed()
     [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/deviceisolation" ]]
 }
 
-function restore_persist_file()
+function restore_persist_files()
 {
     PERSIST_RESTORE_DIR="${VAR}/downgrade-backup"
     if [[ -f "${PERSIST_RESTORE_DIR}/persist-isolationEnabled" ]]
     then
       mv "${PERSIST_RESTORE_DIR}/persist-isolationEnabled" "${VAR}/persist-isolationEnabled" || failure $EXIT_FAIL_PERSISTMOVE "Failed to restore Device Isolation persist file"
+    fi
+
+    if [[ -f "${PERSIST_RESTORE_DIR}/persist-isolationActionValue" ]]
+    then
+      mv "${PERSIST_RESTORE_DIR}/persist-isolationActionValue" "${VAR}/persist-isolationActionValue" || failure $EXIT_FAIL_PERSISTMOVE "Failed to restore Device Isolation isolationActionValue file"
     fi
 
 }
@@ -107,7 +112,7 @@ chown -R root:root "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-[[ -d "${VAR}/downgrade-backup" ]] && restore_persist_file
+[[ -d "${VAR}/downgrade-backup" ]] && restore_persist_files
 
 if software_changed ${DIST} ${PRODUCT_LINE_ID}
 then
