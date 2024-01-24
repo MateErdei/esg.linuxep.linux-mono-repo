@@ -1,4 +1,5 @@
 *** Settings ***
+Resource    ${COMMON_TEST_ROBOT}/CommonErrorMarkers.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
@@ -121,6 +122,7 @@ Sdds3 Suite Teardown
 
 Sdds3 Test Setup
     Directory Should Not Exist    ${SOPHOS_INSTALL}
+    Exclude RTD fallback error messages  ${SOPHOS_INSTALL}
 
 Sdds3 Test Teardown
     [Timeout]   2 mins

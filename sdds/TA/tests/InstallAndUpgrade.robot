@@ -16,13 +16,14 @@ Library    ${COMMON_TEST_LIBS}/WarehouseUtils.py
 
 Resource    PluginResources.robot
 Resource    ProductResources.robot
+Resource    ${COMMON_TEST_ROBOT}/CommonErrorMarkers.robot
 Resource    ${COMMON_TEST_ROBOT}/EventJournalerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       require_uninstalled
+Test Setup       Install And Upgrade Test Setup
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
@@ -894,3 +895,7 @@ Replace Group in package config
     ${content} =  Get File  ${SOPHOS_INSTALL}/base/update/var/package_config.xml
     ${output} =   Replace String   ${content}       ${pattern}      name="Fake"
     Create File     ${SOPHOS_INSTALL}/base/update/var/package_config.xml    ${output}
+
+Install And Upgrade Test Setup
+    require_uninstalled
+    Exclude RTD fallback error messages  ${SOPHOS_INSTALL}

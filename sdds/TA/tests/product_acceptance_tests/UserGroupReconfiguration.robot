@@ -5,8 +5,10 @@ Library    ${COMMON_TEST_LIBS}/MCSRouter.py
 Library    ${COMMON_TEST_LIBS}/OnFail.py
 Library    ${COMMON_TEST_LIBS}/UserAndGroupReconfigurationUtils.py
 
-Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
 Resource    ProductAcceptanceTestsResources.robot
+
+Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
+Resource    ${COMMON_TEST_ROBOT}/CommonErrorMarkers.robot
 Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
@@ -15,7 +17,7 @@ Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
+Test Setup       User Group Reconfiguration Test Setup
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Force Tags  TAP_PARALLEL2    SMOKE
@@ -176,3 +178,7 @@ Verify Product is Running Without Error After ID Change
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
+
+User Group Reconfiguration Test Setup
+    Require Uninstalled
+    Exclude RTD fallback error messages  ${SOPHOS_INSTALL}
