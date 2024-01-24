@@ -68,7 +68,7 @@ Run All Sophos Processes
     HttpsServer.Start Https Server    ${CERT_PATH}    443    tlsv1_2
     ${response_mark} =    Mark Log Size    ${RESPONSE_ACTIONS_LOG_PATH}
     Register Cleanup    Remove Directory    /tmp/folder/    recursive=${TRUE}
-    Send Download File From Fake Cloud
+    Create And Send Download File From Fake Cloud
     Wait For Log Contains From Mark    ${response_mark}    Action correlation-id has succeeded
     Stop Https Server
 

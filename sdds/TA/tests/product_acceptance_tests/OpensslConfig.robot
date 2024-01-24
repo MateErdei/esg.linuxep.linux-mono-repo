@@ -8,7 +8,6 @@ Library    ${COMMON_TEST_LIBS}/OnFail.py
 Library    ${COMMON_TEST_LIBS}/UserAndGroupReconfigurationUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
-Resource    ${COMMON_TEST_ROBOT}/ProductAcceptanceTestsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
@@ -76,7 +75,7 @@ Verify That There Are No Existing Configs to Openssl
     HttpsServer.Start Https Server  ${CERT_PATH}  443  tlsv1_2
     ${response_mark} =    mark_log_size    ${RESPONSE_ACTIONS_LOG_PATH}
     Register Cleanup    Remove Directory    /tmp/folder/  recursive=${TRUE}
-    Send_download_file_from_fake_cloud
+    Create And Send Download File From Fake Cloud
     wait_for_log_contains_from_mark    ${response_mark}    Action correlation-id has succeeded    25
     Stop Https Server
 
