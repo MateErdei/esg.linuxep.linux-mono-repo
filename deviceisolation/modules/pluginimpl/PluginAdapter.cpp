@@ -272,7 +272,8 @@ namespace Plugin
             if (isolationEnabled_.getValue())
             {
                 isolationEnabled_.setValueAndForceStore(false);
-                LOGERROR("Failed to list sophos rules table but isolation is enabled");
+                callback_->setIsolated(false);
+                LOGERROR("Failed to list sophos rules table, isolation is disabled");
                 return;
             }
             LOGDEBUG("Tried to disable isolation but it was already disabled in the first place");

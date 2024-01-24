@@ -120,6 +120,8 @@ TEST_F(PluginAdapterTests, pluginGeneratesEmptyStatusWithoutPolicy)
 {
     UsingMemoryAppender appender(*this);
 
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
     auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
     EXPECT_CALL(*mockBaseService, requestPolicies("NTP")).Times(1);
     std::string status;
@@ -175,6 +177,8 @@ TEST_F(PluginAdapterTests, logsWarnForMissingPolicy)
 {
     UsingMemoryAppender appender(*this);
 
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
     auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
     EXPECT_CALL(*mockBaseService, requestPolicies("NTP")).Times(1);
     std::string status;
@@ -320,7 +324,7 @@ class TestablePluginCallback : public PluginCallback
         bool isolated_ = false;
 };
 
-TEST_F(PluginAdapterTests, pluginEnablesIsolationCorrectly)
+TEST_F(PluginAdapterTests, nftWrapperReturnsSuccessEnableIsolation)
 {
     UsingMemoryAppender appender(*this);
 
@@ -340,14 +344,133 @@ TEST_F(PluginAdapterTests, pluginEnablesIsolationCorrectly)
     EXPECT_EQ(callback->isolated_, true);
 }
 
-TEST_F(PluginAdapterTests, pluginDisablesIsolationCorrectly)
+TEST_F(PluginAdapterTests, nftWrapperReturnsFailedEnableIsolation)
 {
     UsingMemoryAppender appender(*this);
 
     auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
-    EXPECT_CALL(*mockNftWrapper, clearIsolateRules()).WillOnce(Return(IsolateResult::SUCCESS));
-    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::FAILED));
 
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    plugin.enableIsolation(mockNftWrapper);
+
+    EXPECT_TRUE(appenderContains("Failed to isolate device"));
+    EXPECT_EQ(callback->isolated_, false);
+}
+
+TEST_F(PluginAdapterTests, nftWrapperReturnsRulesPresentNotIsolatedEnableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::RULES_ALREADY_PRESENT));
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    plugin.enableIsolation(mockNftWrapper);
+
+    EXPECT_TRUE(appenderContains("Sophos rules are being enforced but isolation is not enabled yet"));
+    EXPECT_TRUE(appenderContains("Tried to enable isolation but it was already enabled in the first place"));
+
+    EXPECT_EQ(callback->isolated_, true);
+}
+
+TEST_F(PluginAdapterTests, nftWrapperReturnsRulesPresentIsolatedEnableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::RULES_ALREADY_PRESENT));
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::SUCCESS)).RetiresOnSaturation();
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    //    Get into isolated state
+    plugin.enableIsolation(mockNftWrapper);
+    EXPECT_EQ(callback->isolated_, true);
+    //    When in isolated state
+    plugin.enableIsolation(mockNftWrapper);
+
+    EXPECT_FALSE(appenderContains("Sophos rules are being enforced but isolation is not enabled yet"));
+    EXPECT_TRUE(appenderContains("Tried to enable isolation but it was already enabled in the first place"));
+
+    EXPECT_EQ(callback->isolated_, true);
+}
+
+TEST_F(PluginAdapterTests, nftWrapperReturnsSuccessDisableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::SUCCESS));
+    EXPECT_CALL(*mockNftWrapper, clearIsolateRules()).WillOnce(Return(IsolateResult::SUCCESS));
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    //    Get into isolated state
+    plugin.enableIsolation(mockNftWrapper);
+    EXPECT_EQ(callback->isolated_, true);
+    // Check result fo failure to exit
+    plugin.disableIsolation(mockNftWrapper);
+
+    EXPECT_TRUE(appenderContains("Device is no longer isolated"));
+    EXPECT_EQ(callback->isolated_, false);
+}
+
+TEST_F(PluginAdapterTests, nftWrapperReturnsFailedDisableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::SUCCESS));
+    EXPECT_CALL(*mockNftWrapper, clearIsolateRules()).WillOnce(Return(IsolateResult::FAILED));
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    //    Get into isolated state
+    plugin.enableIsolation(mockNftWrapper);
+    EXPECT_EQ(callback->isolated_, true);
+    // Check result fo failure to exit
+    plugin.disableIsolation(mockNftWrapper);
+
+    EXPECT_TRUE(appenderContains("Failed to remove device from isolation"));
+    EXPECT_EQ(callback->isolated_, true);
+}
+
+TEST_F(PluginAdapterTests, nftWrapperReturnsRulesNotPresentNotIsolatedDisableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, clearIsolateRules()).WillOnce(Return(IsolateResult::RULES_NOT_PRESENT));
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
     Tests::replaceFileSystem(std::move(mockFileSystem));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -356,10 +479,36 @@ TEST_F(PluginAdapterTests, pluginDisablesIsolationCorrectly)
     TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
     plugin.disableIsolation(mockNftWrapper);
 
-    EXPECT_TRUE(appenderContains("Device is no longer isolated"));
+    EXPECT_FALSE(appenderContains("Failed to list sophos rules table, isolation is disabled"));
+    EXPECT_TRUE(appenderContains("Tried to disable isolation but it was already disabled in the first place"));
+
     EXPECT_EQ(callback->isolated_, false);
 }
 
+TEST_F(PluginAdapterTests, nftWrapperReturnsRulesNotPresentIsolatedDisableIsolation)
+{
+    UsingMemoryAppender appender(*this);
+
+    auto mockNftWrapper = std::make_shared<StrictMock<MockNftWrapper>>();
+    EXPECT_CALL(*mockNftWrapper, clearIsolateRules()).WillOnce(Return(IsolateResult::RULES_NOT_PRESENT));
+    EXPECT_CALL(*mockNftWrapper, applyIsolateRules(_)).WillOnce(Return(IsolateResult::SUCCESS)).RetiresOnSaturation();
+
+    auto mockFileSystem = std::make_unique<NaggyMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
+    auto queue = std::make_shared<TaskQueue>();
+    auto mockBaseService = std::make_shared<StrictMock<MockApiBaseServices>>();
+    auto callback = std::make_shared<TestablePluginCallback>();
+    TestablePluginAdapter plugin(queue, mockBaseService, callback, mockNftWrapper);
+    //    Get into isolated state
+    plugin.enableIsolation(mockNftWrapper);
+    EXPECT_EQ(callback->isolated_, true);
+    //    When in isolated state
+    plugin.disableIsolation(mockNftWrapper);
+
+    EXPECT_TRUE(appenderContains("Failed to list sophos rules table, isolation is disabled"));
+    EXPECT_EQ(callback->isolated_, false);
+}
 
 TEST_F(PluginAdapterTests, cannotEnableIsolationWithoutPolicy)
 {
