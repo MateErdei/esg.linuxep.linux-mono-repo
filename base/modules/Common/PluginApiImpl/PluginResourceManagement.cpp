@@ -72,12 +72,12 @@ namespace Common::PluginApiImpl
     }
 
     PluginResourceManagement::PluginResourceManagement() :
-        m_contextPtr(Common::ZMQWrapperApi::createContext()), m_defaultTimeout(3000), m_defaultConnectTimeout(10000)
+        m_contextPtr(Common::ZMQWrapperApi::createContext()), m_defaultTimeout(6000), m_defaultConnectTimeout(10000)
     {
     }
     
     PluginResourceManagement::PluginResourceManagement(Common::ZMQWrapperApi::IContextSharedPtr context) :
-        m_contextPtr(std::move(context)), m_defaultTimeout(3000), m_defaultConnectTimeout(10000)
+        m_contextPtr(std::move(context)), m_defaultTimeout(6000), m_defaultConnectTimeout(10000)
     {
     }
 

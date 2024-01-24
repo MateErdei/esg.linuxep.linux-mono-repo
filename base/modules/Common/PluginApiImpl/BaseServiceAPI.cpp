@@ -112,7 +112,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     Common::PluginProtocol::DataMessage reply;
 
     int attempts = 0;
-    int tries = 5;
+    int tries = 2;
     int waitTimeMillis = 200;
     auto start = std::chrono::steady_clock::now();
     int totalWaitMs = 0;
