@@ -57,6 +57,8 @@ def get_inputs(
     x86_64_build_output: ArtisanInput,
     parameters: tap.Parameters,
     build: str,
+    fixed_versions_x86: Dict[str, str],
+    fixed_versions_arm64: Dict[str, str],
 ) -> Dict[str, Input]:
     previous_dogfood_branch = parameters.previous_dogfood_branch
     previous_dogfood_branch_build_instance = parameters.previous_dogfood_branch_build_instance
@@ -151,6 +153,19 @@ def get_inputs(
             )
             / "build/SDDS-COMPONENT"
         )
+        for fts_name, fts_path in fixed_versions_x86.items():
+            test_inputs[fts_name.replace(" ", "_")] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            ) 
+            / "build/prod-sdds3-static-suites")
+            test_inputs[fts_name.replace(" ", "_") + "/repo"] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            )
+            / "build/prod-sdds3-repo")
+            test_inputs[fts_name.replace(" ", "_") + "/launchdarkly"] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            )
+            / "build/prod-sdds3-launchdarkly")
     elif arch == "arm64":
         test_inputs["rtd"] = (
             context.artifact.from_component(
@@ -158,6 +173,19 @@ def get_inputs(
             )
             / "build/SDDS-COMPONENT-arm64"
         )
+        for fts_name, fts_path in fixed_versions_arm64.items():
+            test_inputs[fts_name.replace(" ", "_")] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            ) 
+            / "build/prod-sdds3-static-suites")
+            test_inputs[fts_name.replace(" ", "_") + "/repo"] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            )
+            / "build/prod-sdds3-repo")
+            test_inputs[fts_name.replace(" ", "_") + "/launchdarkly"] = (context.artifact.from_component(
+                fts_path.split("/")[1], fts_path.split("/")[2], fts_path.split("/")[3], org="", storage="esg-build-tested"
+            )
+            / "build/prod-sdds3-launchdarkly")
 
     if sdds_build999:
         test_inputs["repo999"] = sdds_build999 / "sdds3-repo-999"
@@ -212,16 +240,16 @@ def stage_sdds_tests(
 
     default_include_tags = "TAP_PARALLEL1,TAP_PARALLEL2"
 
-    fixed_versions_x86 = []
-    fixed_versions_arm64 = []
+    fixed_versions_x86 = {}
+    fixed_versions_arm64 = {}
     for fts in context.releases.fixed_term_releases:
         if fts.device_class == 'LINUXEP':
-            print(f"FTS name: {fts.name}, expiry: {fts.eol_date}, token: {fts.token}")
+            print(f"FTS name: {fts.name}, artifactory path: {fts.artifact_path}, expiry: {fts.eol_date}, token: {fts.token}")
             # FTS 2023.3 is not available in Linux Mono-repo of with ARM64 build
             # Also do not test special FTS releases (ie. those with JIRA ticket ID in their name)
             if fts.name != "FTS 2023.3.0.23" and "LINUXDAR" not in fts.name:
-                fixed_versions_x86.append(fts.name)
-                fixed_versions_arm64.append(fts.name)
+                fixed_versions_x86[fts.name] = fts.artifact_path
+                fixed_versions_arm64[fts.name] = fts.artifact_path
 
     with stage.parallel(group_name):
         for build in get_test_builds():
@@ -231,7 +259,8 @@ def stage_sdds_tests(
             if X86_64 not in outputs or SDDS not in outputs or SDDS999 not in outputs:
                 continue
             inputs = get_inputs(
-                context, outputs[SDDS], outputs[SDDS999], build_output, outputs[X86_64], parameters, build
+                context, outputs[SDDS], outputs[SDDS999], build_output, outputs[X86_64], parameters, build,
+                fixed_versions_x86, fixed_versions_arm64
             )
             test_machines = get_test_machines(build, parameters)
 
@@ -247,18 +276,7 @@ def stage_sdds_tests(
 
             for include in includedtags.split(","):
                 for machine in test_machines:
-                    fixed_version_array = []
-                    if "arm" in machine:
-                        if fixed_versions_arm64:
-                            fixed_version_array.append("--fixed-versions")
-                            for fixed_version in fixed_versions_arm64:
-                                fixed_version_array.append(fixed_version)
-                    else:
-                        if fixed_versions_x86:
-                            fixed_version_array.append("--fixed-versions")
-                            for fixed_version in fixed_versions_x86:
-                                fixed_version_array.append(fixed_version)
-                    robot_args_json = json.dumps(robot_args + fixed_version_array +["--include", include])
+                    robot_args_json = json.dumps(robot_args + ["--include", include])
 
                     stage_task(
                         stage=stage,

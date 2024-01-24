@@ -2,6 +2,7 @@
 import argparse
 from dirsync import sync
 import distro
+import glob
 import json
 import os
 import shutil
@@ -156,6 +157,8 @@ def main(argv):
 
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["DOGFOOD_WAREHOUSE_REPO_ROOT"])
         copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], os.environ["CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT"])
+        for fts in glob.glob(os.path.join(INPUT_DIRECTORY, "FTS*", "repo")):
+            copy_supplements(os.environ["VUT_WAREHOUSE_ROOT"], fts)
 
     except Exception as ex:
         print(f"Failed to copy supplements for dogfood/current_shipping: {ex}")

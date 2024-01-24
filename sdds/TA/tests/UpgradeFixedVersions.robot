@@ -48,35 +48,17 @@ ${BadThreatHealthXmlContents}               <item name="threat" value="2" />
 
 *** Test Cases ***
 Product Can Upgrade From Fixed Versions to VUT Without Unexpected Errors
-    ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
-    Set Environment Variable    BUILD_JWT         ${build_jwt}
-    ${hostname} =    Get Hostname
-
-    ${fixed_versions_str} =  Get Environment Variable    FIXED_VERSIONS
-    @{expectedFixedVersions} =    Split String    ${fixed_versions_str}    ,
+    @{expectedFixedVersions} =    List Directories In Directory    ${INPUT_DIRECTORY}    FTS*
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
-        Log  ${result.stdout}
-        Log  ${result.stderr}
-        Should Be Equal As Integers   ${result.rc}  ${0}    msg="Failed to gather fixed version ${expectedFixedVersion}"
         Check Upgrade From Fixed Version to VUT    ${expectedFixedVersion}
     END
 
 
 Product Can Downgrade From VUT to Fixed Versions Without Unexpected Errors
-    ${build_jwt} =    Get File    ${SUPPORT_FILES}/jenkins/jwt_token.txt
-    Set Environment Variable    BUILD_JWT         ${build_jwt}
-    ${hostname} =    Get Hostname
-
-    ${fixed_versions_str} =  Get Environment Variable    FIXED_VERSIONS
-    @{expectedFixedVersions} =    Split String    ${fixed_versions_str}    ,
+    @{expectedFixedVersions} =    List Directories In Directory    ${INPUT_DIRECTORY}    FTS*
     FOR    ${expectedFixedVersion}     IN      @{expectedFixedVersions}
         log to console    Fixed Version: ${expectedFixedVersion}
-        ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${COMMON_TEST_LIBS}/GatherReleaseWarehouses.py --dest ${INPUT_DIRECTORY} --fixed-version "${expectedFixedVersion}"  shell=true
-        Log  ${result.stdout}
-        Log  ${result.stderr}
-        Should Be Equal As Integers   ${result.rc}  ${0}    msg="Failed to gather fixed version ${expectedFixedVersion}"
         Check Downgrade From VUT to Fixed Version    ${expectedFixedVersion}
     END
 
