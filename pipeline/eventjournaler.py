@@ -17,6 +17,7 @@ from pipeline.common import (
     x86_64,
     stage_task,
     get_test_builds,
+    get_os_packages,
 )
 
 
@@ -37,8 +38,10 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, x86_64_
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_ej_tests(machine: tap.Machine, robot_args_json: str):
+    os_packages = get_os_packages(machine)
     run_robot_tests(
         machine,
+        os_packages,
         robot_args=json.loads(robot_args_json),
     )
 

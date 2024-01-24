@@ -1,4 +1,5 @@
 *** Settings ***
+Library         Collections
 Library         Process
 Library         OperatingSystem
 Library         String
@@ -10,7 +11,7 @@ Library   ${COMMON_TEST_LIBS}/LogUtils.py
 Library   ${COMMON_TEST_LIBS}/OnFail.py
 Library   ${COMMON_TEST_LIBS}/OSUtils.py
 Library   ${COMMON_TEST_LIBS}/PolicyUtils.py
-Library     ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
+Library   ${COMMON_TEST_LIBS}/TemporaryDirectoryManager.py
 
 # For can curl url
 Library         ${COMMON_TEST_LIBS}/UpdateServer.py
@@ -18,13 +19,13 @@ Library         ${COMMON_TEST_LIBS}/UpdateServer.py
 Resource  ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 
 *** Variables ***
-${DEVICE_ISOLATION_BIN_PATH}     ${COMPONENT_ROOT_PATH}/bin/deviceisolation
-${DEVICE_ISOLATION_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/deviceisolation.log
-${PERSISTENT_STATE_FILE}         ${COMPONENT_ROOT_PATH}/var/persist-isolationEnabled
-${DEVICE_ISOLATION_NFT_RULES_PATH}    ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
-${NTP_STATUS_XML}                ${SOPHOS_INSTALL}/base/mcs/status/NTP_status.xml
-${BASE_SDDS}                     ${TEST_INPUT_PATH}/base_sdds/
-
+${DEVICE_ISOLATION_BIN_PATH}            ${COMPONENT_ROOT_PATH}/bin/deviceisolation
+${DEVICE_ISOLATION_LOG_PATH}            ${COMPONENT_ROOT_PATH}/log/deviceisolation.log
+${PERSISTENT_STATE_FILE}                ${COMPONENT_ROOT_PATH}/var/persist-isolationEnabled
+${DEVICE_ISOLATION_NFT_RULES_PATH}      ${COMPONENT_ROOT_PATH}/var/nft_rules.conf
+${NTP_STATUS_XML}                       ${SOPHOS_INSTALL}/base/mcs/status/NTP_status.xml
+${BASE_SDDS}                            ${TEST_INPUT_PATH}/base_sdds/
+${NONSOPHOS_URL}                        www.google.com
 
 *** Keywords ***
 Install Base For Component Tests
@@ -112,11 +113,6 @@ Device Isolation Test Setup
     Register on fail  dump log  ${DEVICE_ISOLATION_LOG_PATH}
 
 Device Isolation Test Teardown
-    # Just in case disabling isolation fails, clear all the network filter rules
-    ${nft_binary_exists} =    Does File Exist    ${COMPONENT_ROOT_PATH}/bin/nft
-    Run Keyword If
-    ...    ${nft_binary_exists}
-    ...    Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    delete    table    inet    sophos_device_isolation
 	Run teardown functions
 	Cleanup Temporary Folders
 
@@ -156,12 +152,18 @@ Send Device Isolation Policy
     send_policy  ${srcFileName}    NTP-24_policy.xml
 
 Send Isolation Policy With CI Exclusions
+    ${mark} =  Get Device Isolation Log Mark
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
 Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    ${mark} =  Get Device Isolation Log Mark
     generate_isolation_policy_with_ci_exclusions    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_with_exclusions_and_extra_ip_exclusion.xml    ${ROBOT_SCRIPTS_PATH}/policies/NTP-24_policy_generated.xml
     Send Device Isolation Policy    NTP-24_policy_generated.xml
+    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
+    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
 Add Exclusion To Isolation Policy Using URL And Port
     [Arguments]   ${exclusions}

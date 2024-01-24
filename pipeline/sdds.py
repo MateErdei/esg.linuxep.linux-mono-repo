@@ -19,6 +19,7 @@ from pipeline.common import (
     stage_task,
     stage_tap_machine,
     run_robot_tests,
+    get_os_packages,
 )
 
 SYSTEM_TEST_TIMEOUT = 9000
@@ -178,8 +179,9 @@ def run_sdds_tests(machine: tap.Machine, robot_args_json: str):
     if len(robot_exclusion_tags) > 0:
         extra_robot_args += ["--exclude"] + robot_exclusion_tags
 
+    os_packages = get_os_packages(machine)
     run_robot_tests(
-        machine, timeout_seconds=SYSTEM_TEST_TIMEOUT, robot_args=json.loads(robot_args_json) + extra_robot_args
+        machine, os_packages, timeout_seconds=SYSTEM_TEST_TIMEOUT, robot_args=json.loads(robot_args_json) + extra_robot_args
     )
 
 

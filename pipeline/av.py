@@ -19,6 +19,7 @@ from pipeline.common import (
     stage_task,
     run_pytest_tests,
     run_robot_tests,
+    get_os_packages,
 )
 
 
@@ -91,8 +92,9 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_av_component_tests(machine: tap.Machine):
+    os_packages = get_os_packages(machine)
     run_pytest_tests(
-        machine, [""], scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/logs/log.html"]
+        machine, [""], os_packages, scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/logs/log.html"]
     )
 
 
@@ -106,7 +108,7 @@ def run_av_integration_tests(machine: tap.Machine, robot_args_json: str):
         #  As of 2023-11-23 RHEL 9 doesn't support NFSv2
         robot_exclusion_tags.append("nfsv2")
 
-    os_packages = []
+    os_packages = get_os_packages(machine)
 
     if include_cifs_for_machine_name(machine.template):
         print("CIFS enabled:", machine.template, id(machine))
@@ -132,14 +134,11 @@ def run_av_integration_tests(machine: tap.Machine, robot_args_json: str):
     else:
         raise Exception(f"{machine.template} has an unknown package manager")
 
-    install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
-    machine.run(*install_command, timeout=600)
-
     extra_robot_args = []
     if len(robot_exclusion_tags) > 0:
         extra_robot_args += ["--exclude"] + robot_exclusion_tags
 
-    run_robot_tests(machine, robot_args=json.loads(robot_args_json) + extra_robot_args)
+    run_robot_tests(machine, os_packages, robot_args=json.loads(robot_args_json) + extra_robot_args)
 
 
 def stage_av_tests(

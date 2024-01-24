@@ -17,6 +17,7 @@ from pipeline.common import (
     run_robot_tests,
     x86_64,
     get_test_builds,
+    get_os_packages,
 )
 
 
@@ -40,8 +41,11 @@ def load_inputs(
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_di_tests(machine: tap.Machine, robot_args_json: str):
+    os_packages = get_os_packages(machine)
+    os_packages += ["nftables"]
     run_robot_tests(
         machine,
+        os_packages,
         robot_args=json.loads(robot_args_json),
     )
 

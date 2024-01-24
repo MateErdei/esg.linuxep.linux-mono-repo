@@ -376,27 +376,27 @@ def get_os_packages(machine: tap.Machine):
     if machine.template == "amzlinux2_x64_server_en_us":
         return common
     elif machine.template == "amzlinux2023_x64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "centos7_x64_aws_server_en_us":
         return common
     elif machine.template == "centos8stream_x64_aws_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "centos9stream_x64_aws_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "debian10_x64_aws_server_en_us":
         return common
     elif machine.template == "debian11_x64_aws_server_en_us":
         return common
     elif machine.template == "oracle79_x64_aws_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "oracle87_x64_aws_server_en_us":
         return common
     elif machine.template == "rhel79_x64_aws_server_en_us":
         return common
     elif machine.template == "rhel87_x64_aws_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "rhel91_x64_aws_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "sles12_x64_sp5_aws_server_en_us":
         return common + ["libcap-progs", "curl"]
     elif machine.template == "sles15_x64_sp5_aws_server_en_us":
@@ -411,19 +411,19 @@ def get_os_packages(machine: tap.Machine):
     elif machine.template == "amzlinux2_arm64_server_en_us":
         return common
     elif machine.template == "amzlinux2023_arm64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "centos8stream_arm64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "centos9stream_arm64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "debian10_arm64_server_en_us":
         return common
     elif machine.template == "debian11_arm64_server_en_us":
         return common
     elif machine.template == "rhel87_arm64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "rhel91_arm64_server_en_us":
-        return common
+        return common + ["iptables-services"]
     elif machine.template == "sles15_arm64_sp5_server_en_us":
         return common + ["libcap-progs"]
     elif machine.template == "ubuntu1804_arm64_server_en_us":
@@ -545,7 +545,7 @@ class CoverageWrapper:
         return True  # coverage enabled: suppress exceptions in wrapped code
 
 
-def install_requirements(machine: tap.Machine):
+def install_requirements(machine: tap.Machine, os_packages: List[str]):
     """install python lib requirements"""
 
     try:
@@ -557,18 +557,20 @@ def install_requirements(machine: tap.Machine):
     except Exception:
         pass
 
-    try:
-        pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
-        os_packages = get_os_packages(machine)
-        install_command = ["bash", machine.inputs.SupportFiles / "install_os_packages.sh"] + os_packages
-        machine.run(*install_command, timeout=600)
-    except Exception as ex:
-        # the previous command will fail if user already exists. But this is not an error
-        print(f"On adding installing requirements: {ex}")
+    if machine.inputs.common_test_utils is None:
+        raise Exception("machine.inputs.common_test_utils is not set")
+
+    if machine.inputs.test_scripts is None:
+        raise Exception("machine.inputs.test_scripts is not set")
+
+    pip_install(machine, "-r", machine.inputs.test_scripts / "requirements.txt")
+    install_command = ["bash", machine.inputs.common_test_utils / "install_os_packages.sh"] + os_packages
+    machine.run(*install_command, timeout=600)
 
 
 def run_robot_tests(
     machine: tap.Machine,
+    os_packages: List[str],
     timeout_seconds=None,
     robot_args=None,
 ):
@@ -593,7 +595,7 @@ def run_robot_tests(
 
         print(f"test scripts: {machine.inputs.test_scripts}")
         print(f"robot_args: {robot_args}")
-        install_requirements(machine)
+        install_requirements(machine, os_packages)
 
         machine.run("mkdir", "-p", "/opt/test/coredumps", timeout=5)
 
@@ -621,12 +623,13 @@ def run_robot_tests(
 def run_pytest_tests(
     machine: tap.Machine,
     test_paths: List[str],
+    os_packages: List[str],
     scripts="scripts",
     timeout_seconds=None,
     extra_pytest_args_behind_paths=None,
 ):
     try:
-        install_requirements(machine)
+        install_requirements(machine, os_packages)
 
         # To run the pytest with additional verbosity add following to arguments
         # "-o", "log_cli=true"

@@ -1,5 +1,6 @@
 *** Settings ***
 Resource        ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
+Resource        ${COMMON_TEST_ROBOT}/NetworkResources.robot
 
 Library         ${COMMON_TEST_LIBS}/ActionUtils.py
 Library         ${COMMON_TEST_LIBS}/FakeMCS.py
@@ -26,8 +27,6 @@ Device Isolation Applies Network Filtering Rules
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -57,8 +56,6 @@ Disable Device Isolation While already Disabled
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -104,8 +101,6 @@ Device Isolation Allows Localhost
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -144,8 +139,6 @@ Device Isolation Allows Sophos Processes
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -154,6 +147,7 @@ Device Isolation Allows Sophos Processes
     #Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
     ${sophos_gid} =    Get Gid From Groupname    sophos-spl-group
     Should Contain    ${nft_rules}    meta skgid ${sophos_gid} accept
+    Should Contain    ${nft_rules}     table inet sophos_device_isolation
 
     # Check we can access sophos.com as sophos group due to accept rule.
     Can Curl Url As Group    ${external_url}    group=sophos-spl-group
@@ -168,7 +162,8 @@ Device Isolation Allows Sophos Processes
     ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset
     log  ${result.stdout}
     log  ${result.stderr}
-    Should Be Equal As Strings  ${result.stdout}    ${EMPTY}
+    Should Not Contain    ${result.stdout}     table inet sophos_device_isolation
+
 
 Device Isolation Updates Network Filtering Rules With New Exclusion
     ${mark} =  Get Device Isolation Log Mark
@@ -180,8 +175,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -194,8 +187,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
     ${mark} =  Get Device Isolation Log Mark
     # Send policy with new exclusion and check it gets added to ruleset
     Send Isolation Policy With CI Exclusions And Extra IP Exclusion
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Check Endpoint is still isolated and new ip exclusion was added
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
@@ -212,8 +203,6 @@ Device Isolation Updates Network Filtering Rules With New Exclusion
     ${mark} =  Get Device Isolation Log Mark
     # Send policy with exclusions but not extra IP exclusion to check it gets removed from ruleset
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Check Endpoint is still isolated and new ip exclusion was removed
     Wait For Log Contains From Mark    ${mark}    Device is now isolated
@@ -239,8 +228,6 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     # Isolate the endpoint
     Enable Device Isolation
@@ -329,16 +316,12 @@ Device Isolation Represents State Correctly When Isolation State Changes
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     Enable Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
     File Should Contain    ${PERSISTENT_STATE_FILE}    1
 
     Disable Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="false"
     File Should Contain    ${PERSISTENT_STATE_FILE}    0
 
@@ -414,11 +397,8 @@ Failure To Remove Isolation Results in Isolated Status
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
-    Log File    ${MCS_DIR}/policy/NTP-24_policy.xml
-    Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
 
     Enable Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     Wait For File To Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
 
     Stop Device Isolation
@@ -450,14 +430,93 @@ Device Isolation Sets Health To Bad If Isolated
 
     ${mgmt_mark} =    Mark Managementagent Log
     Enable Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
     Wait For Log Contains From Mark  ${mgmt_mark}  Process health task    timeout=30
     Wait For Log Contains From Mark  ${mgmt_mark}  Server is isolated so setting health to RED
     File Should Contain   ${MCS_DIR}/status/SHS_status.xml  ${isolatedstring}
 
     ${mgmt_mark} =    Mark Managementagent Log
     Disable Device Isolation
-    Wait For Log Contains From Mark  ${mark}  Disabling Device Isolation
     Wait For Log Contains From Mark  ${mgmt_mark}  Process health task    timeout=30
     Wait For Log Contains From Mark  ${mgmt_mark}  Server is no longer isolated
     File Should Contain   ${MCS_DIR}/status/SHS_status.xml  ${unisolatedstring}
+
+
+Existing Iptable Rules Are Not Removed When Exclusions Change And During Isolate State Changes
+    ${mark} =  Get Device Isolation Log Mark
+
+    Add Iptable Rule From IP
+    Register Cleanup    Delete Iptable Rule
+    Send Isolation Policy With CI Exclusions
+
+    #Enable
+    Enable Device Isolation
+    Register Cleanup     Disable Device Isolation If Not Already
+    Check Iptable Rule Exists
+
+    #Add exclusion
+    Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    Check Iptable Rule Exists
+
+    #Remove exclusion
+    Send Isolation Policy With CI Exclusions
+    Check Iptable Rule Exists
+
+    #Disable
+    Disable Device Isolation
+    Check Iptable Rule Exists
+
+
+Existing Nftable Rules Are Not Removed When Exclusions Change And During Isolate State Changes
+    #nftables not supported on sles12
+    [Tags]  EXCLUDE_SLES12
+    ${mark} =  Get Device Isolation Log Mark
+
+    Add Nftable Rule From IP
+    Register Cleanup    Flush Nftable Chain
+    Send Isolation Policy With CI Exclusions
+
+    #Enable
+    Enable Device Isolation
+    Register Cleanup     Disable Device Isolation If Not Already
+    Check Nftable Rule Exists
+
+    #Add exclusion
+    Send Isolation Policy With CI Exclusions And Extra IP Exclusion
+    Check Nftable Rule Exists
+
+    #Remove exclusion
+    Send Isolation Policy With CI Exclusions
+    Check Nftable Rule Exists
+
+    #Disable
+    Disable Device Isolation
+    Check Nftable Rule Exists
+
+
+Device Isolation Blocks Even If Iptable Rule Exists To Allow
+    ${expected_iptable_entry} =    Set Variable     1e100.net
+    Add Iptable Rule From URL     ${NONSOPHOS_URL}    ${expected_iptable_entry}
+    Register Cleanup    Delete Iptable Rule
+    Can Curl Url    ${NONSOPHOS_URL}
+
+    Send Isolation Policy With CI Exclusions
+    Enable Device Isolation
+    Register Cleanup     Disable Device Isolation
+    Check Iptable Rule Exists    ${expected_iptable_entry}
+
+    Run Keyword And Expect Error    cannot reach url: ${NONSOPHOS_URL}    Can Curl Url    ${NONSOPHOS_URL}
+
+
+Device Isolation Blocks Even If Nftable Rule Exists To Allow
+    #nftables not supported on sles12
+    [Tags]  EXCLUDE_SLES12
+    ${entrys} =    Add Nftable Rule From URL    ${NONSOPHOS_URL}
+    Register Cleanup    Flush Nftable Chain
+    Can Curl Url    ${NONSOPHOS_URL}
+
+    Send Isolation Policy With CI Exclusions
+    Enable Device Isolation
+    Register Cleanup     Disable Device Isolation
+    Check Nftable Multiple Rules Exist     ${entrys}
+
+    Run Keyword And Expect Error    cannot reach url: ${NONSOPHOS_URL}    Can Curl Url    ${NONSOPHOS_URL}

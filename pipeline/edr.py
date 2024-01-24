@@ -18,6 +18,7 @@ from pipeline.common import (
     TEST_TASK_TIMEOUT_MINUTES,
     stage_task,
     get_test_builds,
+    get_os_packages,
 )
 
 
@@ -45,14 +46,16 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_edr_component_tests(machine: tap.Machine):
+    os_packages = get_os_packages(machine)
     run_pytest_tests(
-        machine, [""], scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/logs/log.html"]
+        machine, [""], os_packages, scripts="test_scripts", extra_pytest_args_behind_paths=["--html=/opt/test/logs/log.html"]
     )
 
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_edr_integration_tests(machine: tap.Machine, robot_args_json: str):
-    run_robot_tests(machine, robot_args=json.loads(robot_args_json))
+    os_packages = get_os_packages(machine)
+    run_robot_tests(machine, os_packages, robot_args=json.loads(robot_args_json))
 
 
 def stage_edr_tests(

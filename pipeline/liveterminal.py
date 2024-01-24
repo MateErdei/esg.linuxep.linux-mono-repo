@@ -17,6 +17,7 @@ from pipeline.common import (
     stage_task,
     stage_tap_machine,
     get_test_builds,
+    get_os_packages,
 )
 
 
@@ -64,15 +65,17 @@ def run_liveterminal_component_tests(machine: tap.Machine):
     if machine.template in exclude_proxy_test:
         machine.run("rm", "-rf", machine.inputs.pytest_scripts / "tests/functional/test_proxy_connection.py")
 
+    os_packages = get_os_packages(machine)
     try:
-        run_pytest_tests(machine, ["tests/functional"], scripts="pytest_scripts")
+        run_pytest_tests(machine, ["tests/functional"], os_packages, scripts="pytest_scripts")
     finally:
         machine.output_artifact("/opt/test/dumps", "crash_dumps")
 
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_liveterminal_integration_tests(machine: tap.Machine, robot_args_json: str):
-    run_robot_tests(machine, robot_args=json.loads(robot_args_json))
+    os_packages = get_os_packages(machine)
+    run_robot_tests(machine, os_packages, robot_args=json.loads(robot_args_json))
 
 
 def stage_liveterminal_tests(
