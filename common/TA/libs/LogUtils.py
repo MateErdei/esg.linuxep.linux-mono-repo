@@ -1149,6 +1149,7 @@ class LogUtils(object):
         mark.assert_paths_match(logpath)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
+
     def check_log_contains_after_mark(self, log_path, expected, mark):
         if mark is None:
             logger.error("No mark passed for check_log_contains_after_mark")

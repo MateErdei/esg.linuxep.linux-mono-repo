@@ -1,10 +1,12 @@
 *** Settings ***
 Resource        ${COMMON_TEST_ROBOT}/DeviceIsolationResources.robot
 
-Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ${COMMON_TEST_LIBS}/ActionUtils.py
 Library         ${COMMON_TEST_LIBS}/FakeMCS.py
+Library         ${COMMON_TEST_LIBS}/FileUtils.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OSUtils.py
+
 
 Suite Setup     Device Isolation Suite Setup
 Suite Teardown  Device Isolation Suite Teardown
@@ -417,7 +419,7 @@ Failure To Remove Isolation Results in Isolated Status
 
     Enable Device Isolation
     Wait For Log Contains From Mark  ${mark}  Enabling Device Isolation
-    File Should Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
+    Wait For File To Contain    ${NTP_STATUS_XML}    isolation self="false" admin="true"
 
     Stop Device Isolation
     Register Cleanup    Disable Device Isolation If Not Already

@@ -213,4 +213,9 @@ Check Rules Have Been Applied
 
 Disable Device Isolation If Not Already
     ${is_disabled} =  Does File Contain Word  ${PERSISTENT_STATE_FILE}  0
-    Run Keyword If   ${is_disabled} is ${FALSE}    Disable Device Isolation
+    IF    ${is_disabled} is ${FALSE}
+        ${mark} =  Get Device Isolation Log Mark
+        Disable Device Isolation No Wait
+        ${expected} =  Create List     Tried to disable isolation but it was already disabled in the first place     Device is no longer isolated
+        Wait For Log Contains From Mark    ${mark}      ${expected}
+    END
