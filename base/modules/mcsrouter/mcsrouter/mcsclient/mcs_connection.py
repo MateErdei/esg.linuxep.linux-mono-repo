@@ -540,6 +540,7 @@ class MCSConnection:
         auth_calculator = self.get_authenticator_for_proxy(proxy, host, port)
         retry_count = 0
         retry = True
+        timeout = 90
         while retry and retry_count < 5:
             retry = False
             retry_count += 1
@@ -549,17 +550,13 @@ class MCSConnection:
                     LOGGER.info("Trying connection via message relay {}:{}".format(proxy_host, proxy_port))
                 else:
                     LOGGER.info("Trying connection via proxy {}:{}".format(proxy_host, proxy_port))
-                connection = sophos_https.CertValidatingHTTPSConnection(
-                    proxy_host, proxy_port, timeout=30, **args)
+                connection = sophos_https.CertValidatingHTTPSConnection(proxy_host, proxy_port, timeout=timeout, **args)
                 proxy_username_password = auth_calculator.auth_header()
                 proxy_headers = sophos_https.set_proxy_headers(proxy_username_password)
                 connection.set_tunnel(host, port, headers=proxy_headers)
             else:
                 LOGGER.info("Trying connection directly to {}:{}".format(host, port))
-                connection = sophos_https.CertValidatingHTTPSConnection(host,
-                                                                        port,
-                                                                        timeout=30,
-                                                                        **args)
+                connection = sophos_https.CertValidatingHTTPSConnection(host, port, timeout=timeout, **args)
             try:
                 connection.connect()
             except sophos_https.ProxyTunnelError as exception:
