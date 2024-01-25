@@ -1,5 +1,5 @@
 *** Settings ***
-Library         ../libs/LogUtils.py
+Library   ${COMMON_TEST_LIBS}/LogUtils.py
 
 
 *** Keywords ***

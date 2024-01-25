@@ -759,7 +759,7 @@ SPL Can Be Installed To A Custom Location
     start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
     Start Local SDDS3 Server
 
-    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    ${all_plugins_logs_marks} =   Mark All Plugin Logs  ${CUSTOM_INSTALL_DIRECTORY}
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
@@ -830,7 +830,7 @@ Installing New Plugins Respects Custom Installation Location
 
     start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
     Start Local SDDS3 Server
-    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    ${all_plugins_logs_marks} =  Mark All Plugin Logs  ${CUSTOM_INSTALL_DIRECTORY}
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}

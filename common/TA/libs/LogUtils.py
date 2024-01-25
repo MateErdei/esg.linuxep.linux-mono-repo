@@ -100,9 +100,33 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
 class LogUtils(object):
     def __init__(self):
         self.tmp_path = os.path.join(".", "tmp")
+        self.__set_log_paths()
+        self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        self.marked_mcsrouter_logs = 0
+        self.marked_mcs_envelope_logs = 0
+        self.marked_watchdog_logs = 0
+        self.marked_managementagent_logs = 0
+        self.marked_av_log = 0
+        self.marked_sophos_threat_detector_log = 0
+        self.marked_ss_log = 0
+        self.marked_edr_log = 0
+        self.marked_edr_osquery_log = 0
+        self.marked_livequery_log = 0
+        self.marked_managementagent_log = 0
+        self.marked_safestore_log = 0
+        self.marked_sul_logs = 0
+        self.marked_update_scheduler_logs = 0
+        self.__m_marked_log_position = {}
 
-        # Get Robot variables.
-        self.install_path = get_variable("SOPHOS_INSTALL", os.path.join("/", "opt", "sophos-spl"))
+        self.__m_pending_mark_expected_errors = {}
+        self.__m_log_handlers = {}
+
+    def __set_log_paths(self, install_path=None):
+        if install_path is None:
+            # Get Robot variable
+            install_path = get_variable("SOPHOS_INSTALL", os.path.join("/", "opt", "sophos-spl"))
+
+        self.install_path = install_path
         self.router_path = os.path.join(self.install_path, "base", "mcs")
         self.base_logs_dir = os.path.join(self.install_path, "logs", "base")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
@@ -140,26 +164,6 @@ class LogUtils(object):
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
         self.scheduled_scan_log = os.path.join(self.av_plugin_logs_dir, "Sophos Cloud Scheduled Scan.log")
-
-        self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
-        self.marked_mcsrouter_logs = 0
-        self.marked_mcs_envelope_logs = 0
-        self.marked_watchdog_logs = 0
-        self.marked_managementagent_logs = 0
-        self.marked_av_log = 0
-        self.marked_sophos_threat_detector_log = 0
-        self.marked_ss_log = 0
-        self.marked_edr_log = 0
-        self.marked_edr_osquery_log = 0
-        self.marked_livequery_log = 0
-        self.marked_managementagent_log = 0
-        self.marked_safestore_log = 0
-        self.marked_sul_logs = 0
-        self.marked_update_scheduler_logs = 0
-        self.__m_marked_log_position = {}
-
-        self.__m_pending_mark_expected_errors = {}
-        self.__m_log_handlers = {}
 
     # Common Log Utils
     def get_log_contents_from_path_to_log(self, path_to_log):
@@ -1082,7 +1086,10 @@ class LogUtils(object):
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
-    def mark_all_plugin_logs(self) -> dict:
+    def mark_all_plugin_logs(self, install_path=None) -> dict:
+        if install_path is not None:
+            self.__set_log_paths(install_path)
+
         plugin_log_marks = {
             # AV
             "sophos_threat_detector_mark": self.mark_log_size(self.sophos_threat_detector_log),
@@ -1131,7 +1138,7 @@ class LogUtils(object):
     def wait_for_log_contains_from_mark(self,
                                         mark: LogHandler.LogMark,
                                         expected: typing.Union[list, str, bytes],
-                                        timeout=10) -> None:
+                                        timeout=10) -> LogHandler.LogMark:
         assert mark is not None
         assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
@@ -1141,14 +1148,13 @@ class LogUtils(object):
                                          logpath: typing.Union[str, bytes],
                                          expected: typing.Union[list, str, bytes],
                                          mark: LogHandler.LogMark,
-                                         timeout=10) -> None:
+                                         timeout=10) -> LogHandler.LogMark:
         if mark is None:
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_after_mark"
         mark.assert_paths_match(logpath)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
-
 
     def check_log_contains_after_mark(self, log_path, expected, mark):
         if mark is None:
