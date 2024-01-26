@@ -1,5 +1,5 @@
 # Copyright 2023-2024 Sophos Limited. All rights reserved.
-load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_release_asset")
+load("//tools/config:sophos_asset.bzl", "soph_build_asset", "soph_build_asset_pkg", "soph_release_asset")
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//tools/config:sophos_versioning.bzl", "version_info")
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
@@ -54,5 +54,12 @@ soph_build_asset(
     name = "fuzz_test_assets",
     asset = "//edr/tests/FuzzerTests:fuzz_test_assets",
     tags = ["manual"],
+    visibility = ["//products:__pkg__"],
+)
+
+soph_build_asset_pkg(
+    name = "schema",
+    srcs = ["//edr/schema"],
+    platform_neutral = True,
     visibility = ["//products:__pkg__"],
 )

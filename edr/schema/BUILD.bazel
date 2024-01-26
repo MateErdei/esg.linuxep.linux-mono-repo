@@ -1,0 +1,14 @@
+# Copyright 2024 Sophos Limited. All rights reserved.
+load("@rules_python//python:defs.bzl", "py_binary")
+load(":schema.bzl", "schema")
+
+py_binary(
+    name = "schema_builder",
+    srcs = ["schema_builder.py"],
+)
+
+schema(
+    name = "schema",
+    table_headers = "//edr/modules/osqueryextensions:table_headers",
+    visibility = ["//edr:__pkg__"],
+)

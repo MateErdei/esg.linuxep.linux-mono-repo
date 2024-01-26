@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -12,7 +12,7 @@ soph_cc_library(
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Threads",
         "//edr/modules/EventJournalWrapperImpl",
-        "//imports/thirdparty/nlohmann-json:nlohmann-json",
+        "//imports/thirdparty/nlohmann-json",
     ],
     visibility = [
         "//edr/manual/FuzzableLoggerExtension:__pkg__",
@@ -33,4 +33,10 @@ soph_cc_library(
         "@boost//:thread",
         "@jsoncpp",
     ],
+)
+
+filegroup(
+    name = "table_headers",
+    srcs = glob(["*Table.h"]),
+    visibility = ["//edr/schema:__pkg__"],
 )

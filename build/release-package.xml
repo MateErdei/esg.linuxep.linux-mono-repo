@@ -510,6 +510,7 @@
         <build-asset artifact-path="edr/linux_arm64_dbg/componenttests" source-zip=".output/edr/linux_arm64_dbg/componenttests.zip" mode="all_la64d"/>
         <build-asset artifact-path="edr/linux_x64_bullseye/installer" source-zip=".output/edr/linux_x64_bullseye/installer.zip" mode="all_lcov"/>
         <build-asset artifact-path="edr/linux_x64_bullseye/componenttests" source-zip=".output/edr/linux_x64_bullseye/componenttests.zip" mode="all_lcov"/>
+        <build-asset artifact-path="edr/schema" source-zip=".output/edr/schema.zip" mode="all_lx64r"/>
 
         <!-- Live Response -->
         <release-asset artifact-path="liveterminal/linux_x64_rel/installer" source-dir=".output/liveterminal/linux_x64_rel/installer" manifest-path=".output/liveterminal/linux_x64_rel/installer.manifest.json" mode="all_lx64r"/>

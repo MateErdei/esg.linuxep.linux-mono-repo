@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:sophos_stage_files.bzl", "soph_export_assets")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_license//rules_gathering:generate_sbom.bzl", "generate_sbom")
@@ -62,6 +62,7 @@ soph_export_assets(
         "//tools/config:linux_x64_rel": RELEASE_MODE_DEPS + [
             "//base:distribution_scripts",
             "//base:pluginapimessage_pb2_py",
+            "//edr:schema",
         ],
         "//tools/config:linux_arm64_rel": RELEASE_MODE_DEPS,
         "//tools/config:linux_x64_dbg": [],
