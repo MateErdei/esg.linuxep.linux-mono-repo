@@ -4,7 +4,7 @@
         <workingdir>.</workingdir>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/LIN-2024.1" build-id="20240123153700-3841f68ee29e3d7ce481f04f0896a05cb29ea571-5oLxDW"/>
+            <release-version branch="release/LIN-2024.1" build-id="20240126142729-3c7d2a07b5a15e34d0057320df5edf5a30406e92-P0pBnJ"/>
             <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="."/>
             <include artifact-path="sophlib/BUILD" dest-dir="common/sophlib"/>
