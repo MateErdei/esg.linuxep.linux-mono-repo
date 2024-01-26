@@ -116,77 +116,6 @@ Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught 
     Should Not Contain   ${result.stderr}    	Uncaught std::exception
     Should Contain   ${result.stderr}    failed to complete writing to file, check space available on device
 
-Diagnose Tool Gathers LR Logs When Run From Installation
-    [Tags]   LIVE_RESPONSE
-    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
-
-    Create Directory  ${TAR_FILE_DIRECTORY}
-
-    Install Live Response Directly
-    Mimic LR Component Files   ${SOPHOS_INSTALL}
-
-    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
-    Should Be Equal As Integers   ${retcode}  0
-
-    # Check diagnose tar created
-    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    ${fileCount} =    Get length    ${Files}
-    Should Be Equal As Numbers  ${fileCount}  1
-    Should Contain    ${Files[0]}    sspl-diagnose
-    Should Not Contain   ${Files}  BaseFiles
-    Should Not Contain   ${Files}  SystemFiles
-    Should Not Contain   ${Files}  PluginFiles
-
-
-    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
-    Set Suite Variable  ${DiagnoseOutput}  ${folder}
-    # Untar diagnose tar to check contents
-    Create Directory  ${UNPACK_DIRECTORY}
-    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
-    Should Be Equal As Strings   ${result.rc}  0
-
-    Check Diagnose Output For Additional LR Plugin Files
-    Check Diagnose Output For System Command Files
-    Check Diagnose Output For System Files
-
-    ${contents} =  Get File  /tmp/diagnose.log
-    Should Not Contain  ${contents}  error  ignore_case=True
-    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
-
-Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
-    [Tags]  RUNTIMEDETECTIONS_PLUGIN
-    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
-
-    Create Directory  ${TAR_FILE_DIRECTORY}
-
-    Install RuntimeDetections Directly
-
-    Wait Until Keyword Succeeds
-        ...   10 secs
-        ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
-
-    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
-    Should Be Equal As Integers   ${retcode}  0
-
-    # Check diagnose tar created
-    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    ${fileCount} =    Get length    ${Files}
-    Should Be Equal As Numbers  ${fileCount}  1
-    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
-    Set Suite Variable  ${DiagnoseOutput}  ${folder}
-    # Untar diagnose tar to check contents
-    Create Directory  ${UNPACK_DIRECTORY}
-    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
-    Should Be Equal As Strings   ${result.rc}  0
-
-    Check Diagnose Output For Additional RuntimeDetections Plugin Files
-    Check Diagnose Output For System Command Files
-    Check Diagnose Output For System Files
-
-    ${contents} =  Get File  /tmp/diagnose.log
-    Should Not Contain  ${contents}  error  ignore_case=True
-    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers Response actions Logs When Run From Installation
     [Tags]  RESPONSE_ACTIONS_PLUGIN
@@ -377,49 +306,50 @@ Diagnose Tool Overwrite Handles Files Of Same Name In Different Directories
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 
-Diagnose Tool Gathers EDR Logs When Run From Installation
-    #WARNING this test should be the last in the suite to avoid watchdog going down due to the defect LINUXDAR-3732
-    [Tags]    EDR_PLUGIN
-    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
+Diagnose Collects Audit Files
 
-    Create Directory  ${TAR_FILE_DIRECTORY}
+    ${TarTempDir} =  Add Temporary Directory  tarTempdir
+	${auditDirExists}=   Directory Exists    /var/log/audit
 
-    Install EDR Directly
-    Wait Until Keyword Succeeds
-        ...   10 secs
-        ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
+    Create File  /var/log/audit/audit.log
+    Create File  /var/log/audit/audit.log.0
+    Create File  /var/log/audit/audit.log.1
+    Create File  /var/log/audit/audit.log.2
+    Create File  /var/log/audit/audit.log.3
+    Create File  /var/log/audit/audit.log.4..
+    Create File  /var/log/audit/audit.log.5
+    Create File  /var/log/audit/audit.log.6
+    Create File  /var/log/audit/audit.log.7
+    Create File  /var/log/audit/audit.log.8
+    Create File  /var/log/audit/audit.log.9
+    Create File  /var/log/audit/audit.log.10
+    Create File  /var/log/audit/audit.log.11
+    Create File  /var/log/audit/audit.log.12
+    Create File  /var/log/audit/random.log
 
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Wait Until Keyword Succeeds
-        ...   10 secs
-        ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    Wait Until Keyword Succeeds
-        ...   10 secs
-        ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.results.log
-    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
-    Should Be Equal As Integers   ${retcode}  0
+    ${result} =  Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TarTempDir}
+    Log    ${result.stdout}
+    Log    ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    ${Files} =  List Files In Directory  ${TarTempDir}
+    ${LengthOfFiles} =  Get Length  ${Files}
+    should Be Equal As Numbers  1  ${LengthOfFiles}
+    ${TarContents} =  Query Tarfile For Contents  ${TarTempDir}/${Files[0]}
 
-    # Check diagnose tar created
-    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    ${fileCount} =    Get length    ${Files}
-    Should Be Equal As Numbers  ${fileCount}  1
+    Log  ${TarContents}
 
-    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
-    Set Suite Variable  ${DiagnoseOutput}  ${folder}
-    # Untar diagnose tar to check contents
-    Create Directory  ${UNPACK_DIRECTORY}
-    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
-    Should Be Equal As Strings   ${result.rc}  0
-
-    log file  /tmp/diagnose.log
-    Check Diagnose Output For Additional EDR Plugin File
-    Check Diagnose Output For System Command Files
-    Check Diagnose Output For System Files
-
-    ${contents} =  Get File  /tmp/diagnose.log
-    Should Not Contain  ${contents}  error  ignore_case=True
-    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
+    Should Contain 	${TarContents}  SystemFiles/audit.log
+    Should Contain 	${TarContents}  SystemFiles/audit.log.0
+    Should Contain 	${TarContents}  SystemFiles/audit.log.1
+    Should Contain 	${TarContents}  SystemFiles/audit.log.2
+    Should Contain 	${TarContents}  SystemFiles/audit.log.3
+    Should Contain 	${TarContents}  SystemFiles/audit.log.5
+    Should Contain 	${TarContents}  SystemFiles/audit.log.6
+    Should Contain 	${TarContents}  SystemFiles/audit.log.7
+    Should Contain 	${TarContents}  SystemFiles/audit.log.8
+    Should Contain 	${TarContents}  SystemFiles/audit.log.9
+    Should not contain  ${TarContents}  SystemFiles/audit.log.4..
+    Should not contain  ${TarContents}  SystemFiles/audit.log.10
+    Should not contain  ${TarContents}  SystemFiles/audit.log.11
+    Should not contain  ${TarContents}  SystemFiles/audit.log.12
+    Should not contain  ${TarContents}  SystemFiles/random.log

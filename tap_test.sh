@@ -18,7 +18,10 @@ do
           --dry-run|-d)
             DRY_RUN="1"
             ;;
-        # TODO We can add suites later if people find this useful.
+          --suite|-s)
+            shift
+            export TAP_PARAMETER_ROBOT_SUITE="$1"
+            ;;
           *)
             echo "Unknown option"
             exit 2
@@ -80,4 +83,55 @@ then
     fi
 fi
 
+if [[ -n "$TAP_PARAMETER_ROBOT_SUITE" ]]
+then
+    # Currently this will match the first test only, so beware if you're running a test
+    # that has the same name as another. This could be improved later if people use this script.
+    test_file=$(find . -name "$TAP_PARAMETER_ROBOT_SUITE".robot | head -1)
+    echo "File: \"$test_file\""
+    package_file=${test_file%/*}/__init__.robot
+    parallel_job=$(grep -h -o -m 1 -E "TAP_PARALLEL[0-9]"  "$test_file" "$package_file" || echo -n "")
+    echo "Job (if applicable): \"$parallel_job\""
+
+    if [[ "$test_file" == *"sdds/"* ]]
+    then
+        echo "System test"
+        stage="linux_mono_repo.products.testing.system_tests.${parallel_job}_${ubuntu_x64}"
+    elif [[ "$test_file" == *"av/"* ]]
+    then
+        echo "AV component test"
+        stage="linux_mono_repo.products.testing.av_tests.integration_${parallel_job}_${ubuntu_x64}"
+    elif [[ "$test_file" == *"base/"* ]]
+    then
+        echo "Base component test"
+        stage="linux_mono_repo.products.testing.base_tests.${parallel_job}_${ubuntu_x64}"
+    elif [[ "$test_file" == *"edr/"* ]]
+    then
+        echo "EDR component test"
+        stage="linux_mono_repo.products.testing.edr_tests.integration_${parallel_job}_${ubuntu_x64}"
+    elif [[ "$test_file" == *"deviceisolation/"* ]]
+    then
+        echo "Device Isolation component test"
+        stage="linux_mono_repo.products.testing.deviceisolation_tests.${ubuntu_x64}"
+    elif [[ "$test_file" == *"liveterminal/"* ]]
+    then
+        echo "LiveTerminal test"
+        stage="linux_mono_repo.products.testing.liveterminal_tests.integration_${ubuntu_x64}"
+    elif [[ "$test_file" == *"eventjournaler/"* ]]
+    then
+        echo "Event Journaler component test"
+        stage="linux_mono_repo.products.testing.eventjournaler_tests.${ubuntu_x64}"
+    else
+        echo "Couldn't work out where the test is: $TAP_PARAMETER_ROBOT_SUITE"
+        exit 1
+    fi
+
+    if [[ "$DRY_RUN" == "1" ]]
+    then
+        # Just print the tap command
+        echo TAP_PARAMETER_ROBOT_SUITE=\""$TAP_PARAMETER_ROBOT_SUITE"\" ./spl-tools/tests/qemu_do.py tap run "${stage}"
+    else
+        exec ./spl-tools/tests/qemu_do.py tap run "${stage}"
+    fi
+fi
 
