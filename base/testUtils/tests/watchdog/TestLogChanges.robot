@@ -10,6 +10,7 @@ Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
+Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Force Tags    TAP_PARALLEL1
@@ -79,6 +80,7 @@ Logger should not rotate more than 10 times
     ...  1 secs
     ...  Check Watchdog Log Contains  ProcessMonitoringImpl
     File should not exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.11
+
 Logger Conf should control Log Level of Plugins and their internal Components
     [Tags]  UPDATE_SCHEDULER
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   WARN  pluginapi=DEBUG
@@ -112,13 +114,14 @@ Logger Conf should Control Log Level of MCS Router via Component Specific Variab
     Should Not Contain   ${WARNLevelLogs}  DEBUG
     Should Contain   ${debugLevelLogs}  DEBUG
 
-Logger Conf should note crash MCSRouter if it has incorrect permissions
+Logger Conf should not crash MCSRouter if it has incorrect permissions
     [Tags]  MCS
+    ${mcs_mark} =  mark_log_size  ${MCS_ROUTER_LOG}
     Set Log Level For Component And Reset and Return Previous Log  mcs_router   DEBUG
     Sleep  3 secs
     Override LogConf File as Global Level  ERROR
-    ${debugLevelLogs} =  Get Log Content For Component And Clear It  mcs_router
-    Should Contain   ${debugLevelLogs}  DEBUG
+    wait_for_log_contains_from_mark    ${mcs_mark}    DEBUG
+    Remove File  ${MCS_ROUTER_LOG}
     Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Run Process  chmod  0660  ${SOPHOS_INSTALL}/base/etc/logger.conf
     #Restart Plugin And Return Its Log File  mcsrouter  mcs_router

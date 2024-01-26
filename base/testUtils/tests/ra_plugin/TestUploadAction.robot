@@ -35,6 +35,8 @@ RA Plugin uploads a file successfully
     ...  Check Cloud Server Log Contains    \"fileName\":\"file\",\"httpStatus\":200,\"result\":0,\"sha256\":\"382a1f7b76ca05728a4e9e6b3a4877f8634fb33b08decc5251933705a684f34f\"
 
 RA Plugin runs actions in order
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Restart Response Actions
     generate_file  /tmp/largefile  ${500}
@@ -42,15 +44,19 @@ RA Plugin runs actions in order
     Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json
     Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json    id2
 
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  10 secs
-    ...  Check Log Contains In Order   ${RESPONSE_ACTIONS_LOG_PATH}
-        ...  Received new Action
-        ...  Received new Action
-        ...  Action id1 has succeeded
-        ...  Running action: id2
-        ...  Action id2 has succeeded
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: id2
+
+    Check Log Contains In Order    ${RESPONSE_ACTIONS_LOG_PATH}
+    ...     Received new Action: id1
+    ...     Received new Action: id2
+
+    Check Log Contains In Order    ${RESPONSE_ACTIONS_LOG_PATH}
+    ...     Running action: id1
+    ...     Action id1 has succeeded
+    ...     Running action: id2
+    ...     Action id2 has succeeded
+
+
 
 RA Plugin uploads a file successfully with compression
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
