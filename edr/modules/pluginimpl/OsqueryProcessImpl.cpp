@@ -19,7 +19,7 @@
 namespace
 {
     constexpr int OUTPUT_BUFFER_LIMIT_BYTES = 4096;
-    constexpr int SECONDS_UNTIL_OSQUERYD_SIGKILL = 5;
+    constexpr int SECONDS_UNTIL_OSQUERYD_SIGKILL = 10;
 
     class AnnounceStartedOnEndOfScope
     {
