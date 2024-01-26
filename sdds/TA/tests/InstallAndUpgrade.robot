@@ -755,8 +755,7 @@ SPL Can Be Installed To A Custom Location
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
-    # TODO: LINUXDAR-8494 use ALC policy containing all feature codes once RTD supports custom installs
-    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Start Local SDDS3 Server
 
     ${all_plugins_logs_marks} =   Mark All Plugin Logs  ${CUSTOM_INSTALL_DIRECTORY}
@@ -765,10 +764,7 @@ SPL Can Be Installed To A Custom Location
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
     ...    sophos_log_level=DEBUG
 
-    # TODO LINUXDAR-8494: Change to use "Wait For Plugins To Be Ready" once ALC policy with all feature codes is used
-    Wait For Av To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
-    Wait For Ej To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
-    Wait For Base To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -834,8 +830,9 @@ Installing New Plugins Respects Custom Installation Location
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
     ...    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
     ...    args=--install-dir=${CUSTOM_INSTALL_DIRECTORY_ARG}
+    ...    sophos_log_level=DEBUG
 
-    # TODO LINUXDAR-8494: Change to use "Wait For Plugins To Be Ready" once ALC policy with all feature codes is used
+    # Expect only CORE plugins to be installed
     Wait For Base To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
     Wait For Ej To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
 
@@ -859,15 +856,17 @@ Installing New Plugins Respects Custom Installation Location
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
 
-    # TODO: LINUXDAR-8489 use ALC policy containing all feature codes as RTD now supports custom installs
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_BaseWithAVPolicy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   5 secs
     ...   File Should Contain    ${CUSTOM_INSTALL_DIRECTORY}/base/update/var/updatescheduler/update_config.json    AV
     ${sul_mark} =  mark_log_size  ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log
     trigger_update_now
+    
+    # Expect all plugins to be installed
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
