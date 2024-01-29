@@ -138,13 +138,15 @@ def get_test_machines(build: str, parameters: DotDict):
     }
 
     available_arm64_environments = {
-        'amazonlinux2': 'amzlinux2_arm64_server_en_us',
+        # These platforms are not supported after 2023.4
+        # https://doc.sophos.com/releasenotes/index.html?productGroupID=esg&productID=linux_protection&versionID=Agent
+        # 'amazonlinux2': 'amzlinux2_arm64_server_en_us',
+        # 'centos8stream': 'centos8stream_arm64_server_en_us',
+        # 'debian10': 'debian10_arm64_server_en_us',
+        # 'rhel8': 'rhel87_arm64_server_en_us',
         'amazonlinux2023': 'amzlinux2023_arm64_server_en_us',
-        'centos8stream': 'centos8stream_arm64_server_en_us',
         'centos9stream': 'centos9stream_arm64_server_en_us',
-        'debian10': 'debian10_arm64_server_en_us',
         'debian11': 'debian11_arm64_server_en_us',
-        'rhel8': 'rhel87_arm64_server_en_us',
         'rhel9': 'rhel91_arm64_server_en_us',
         'sles15': 'sles15_arm64_sp5_server_en_us',
         'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
@@ -311,7 +313,7 @@ def get_test_machines(build: str, parameters: DotDict):
         test_environments["arm64"].pop(platform, None)
 
     arch = build.split("_")[1]
-    return test_environments[arch].values()
+    return list(test_environments[arch].values())
 
 
 def package_install(machine: tap.Machine, *install_args: str):
