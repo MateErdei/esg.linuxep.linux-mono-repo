@@ -172,29 +172,36 @@ namespace Plugin
     {
         std::stringstream rules;
 
-        std::string outgoingAllowListString;
-        std::string incomingAllowListString;
+        std::stringstream outgoingAllowListString;
+        std::stringstream incomingAllowListString;
 
         LOGDEBUG("Processing " << allowList.size() << " allow-listed exclusions");
-        const std::string indent = "            ";
+        constexpr const char* indent = "            ";
         for (const auto &exclusion: allowList)
         {
-            // Generate outbound rules
-            if (exclusion.direction() == Plugin::IsolationExclusion::OUT ||
-                exclusion.direction() == Plugin::IsolationExclusion::BOTH)
+            // Generate both direction rules
+            if (exclusion.direction() == Plugin::IsolationExclusion::BOTH)
             {
                 // If there are no addresses specified, then we allow all specified ports to all addresses
                 if (exclusion.remoteAddressesAndIpTypes().empty())
                 {
                     for (const auto &localPort: exclusion.localPorts())
                     {
-                        outgoingAllowListString += indent + "tcp sport " + localPort + " accept\n";
-                        outgoingAllowListString += indent + "udp sport " + localPort + " accept\n";
+                        // Allow incoming to that port, and outgoing on that port
+                        incomingAllowListString << indent << "tcp dport " << localPort << " accept\n"
+                                                << indent << "udp dport " << localPort << " accept\n";
+
+                        outgoingAllowListString << indent << "tcp sport " << localPort << " accept\n"
+                                                << indent << "udp sport " << localPort << " accept\n";
                     }
                     for (const auto &remotePort: exclusion.remotePorts())
                     {
-                        outgoingAllowListString += indent + "tcp dport " + remotePort + " accept\n";
-                        outgoingAllowListString += indent + "udp dport " + remotePort + " accept\n";
+                        // Allow incoming from that port, and outgoing to that port
+                        incomingAllowListString << indent << "tcp sport " << remotePort << " accept\n"
+                                                << indent << "udp sport " << remotePort << " accept\n";
+
+                        outgoingAllowListString << indent << "tcp dport " << remotePort << " accept\n"
+                                                << indent << "udp dport " << remotePort << " accept\n";
                     }
                 }
                 else
@@ -204,79 +211,199 @@ namespace Plugin
                     {
                         if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
                         {
-                            outgoingAllowListString += indent + ipType + " daddr " + remoteAddress + " accept\n";
+                            // Both + IP + no port
+                            // Allow all traffic to and from that IP address
+                            outgoingAllowListString << indent << ipType << " daddr " << remoteAddress << " accept\n";
+                            incomingAllowListString << indent << ipType << " saddr " << remoteAddress << " accept\n";
                         }
                         else
                         {
-                            for (const auto &remotePort: exclusion.remotePorts())
-                            {
-                                outgoingAllowListString +=
-                                        indent + ipType + " daddr " + remoteAddress + " tcp dport " + remotePort + " accept\n";
-                                outgoingAllowListString +=
-                                        indent + ipType + " daddr " + remoteAddress + " udp dport " + remotePort + " accept\n";
-                            }
+                            // Both directions + IP + port
                             for (const auto &localPort: exclusion.localPorts())
                             {
-                                outgoingAllowListString +=
-                                        indent + ipType + " daddr " + remoteAddress + " tcp sport " + localPort + " accept\n";
-                                outgoingAllowListString +=
-                                        indent + ipType + " daddr " + remoteAddress + " udp sport " + localPort + " accept\n";
+                                // Allow incoming to that port, and outgoing on that port
+
+                                incomingAllowListString
+                                    << indent << ipType << " saddr " << remoteAddress
+                                    << " tcp dport " << localPort << " accept\n"
+                                    << indent << ipType << " saddr " << remoteAddress
+                                    << " udp dport " << localPort << " accept\n";
+
+                                outgoingAllowListString
+                                    << indent << ipType << " daddr " << remoteAddress
+                                    << " tcp sport " << localPort << " accept\n"
+                                    << indent << ipType << " daddr " << remoteAddress
+                                    << " udp sport " << localPort << " accept\n";
+                            }
+                            for (const auto &remotePort: exclusion.remotePorts())
+                            {
+
+                                incomingAllowListString
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " tcp sport " << remotePort << " accept\n"
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " udp sport " << remotePort << " accept\n";
+
+                                outgoingAllowListString
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " tcp dport " << remotePort << " accept\n"
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " udp dport " << remotePort << " accept\n";
                             }
                         }
                     }
                 }
             }
-
-            // Generate inbound rules
-            if (exclusion.direction() == Plugin::IsolationExclusion::IN ||
-                exclusion.direction() == Plugin::IsolationExclusion::BOTH)
+            // Generate outbound rules
+            else if (exclusion.direction() == Plugin::IsolationExclusion::OUT)
             {
-                // If there are no addresses specified, then we allow all specified remote ports in
+                // If there are no addresses specified, then we allow all specified ports to all addresses
                 if (exclusion.remoteAddressesAndIpTypes().empty())
                 {
                     for (const auto &localPort: exclusion.localPorts())
                     {
-                        incomingAllowListString +=
-                                indent + "tcp dport " + localPort + " accept\n";
-                        incomingAllowListString +=
-                                indent + "udp dport " + localPort + " accept\n";
+                        // Allow incoming to that port, and outgoing on that port
+                        incomingAllowListString
+                            << indent << "tcp dport " << localPort
+                            << " tcp flags != syn accept\n" // Ban new connections incoming
+                            << indent << "udp dport " << localPort << " accept\n"; // Can't restrict incoming to established
+
+                        outgoingAllowListString << indent << "tcp sport " << localPort << " accept\n"
+                                                << indent << "udp sport " << localPort << " accept\n";
                     }
                     for (const auto &remotePort: exclusion.remotePorts())
                     {
-                        incomingAllowListString +=
-                                indent + "tcp sport " + remotePort + " accept\n";
-                        incomingAllowListString +=
-                                indent + "udp sport " + remotePort + " accept\n";
+                        // Allow incoming from that port, and outgoing to that port
+                        incomingAllowListString
+                                << indent << "tcp sport " << remotePort
+                                << " tcp flags != syn accept\n" // Ban new connections incoming
+                                << indent << "udp sport " << remotePort << " accept\n";
+
+                        outgoingAllowListString << indent << "tcp dport " << remotePort << " accept\n"
+                                                << indent << "udp dport " << remotePort << " accept\n";
                     }
                 }
                 else
                 {
-                    // If there are remote addresses, then we only allow ports from those remote addresses
+                    // OUT-only, With remote IPs:
+
+                    // If there are remote addresses specified, then we only allow ports to those remote addresses
                     for (const auto& [remoteAddress, ipType] : exclusion.remoteAddressesAndIpTypes())
                     {
                         if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
                         {
-                            incomingAllowListString += indent + ipType + " saddr " + remoteAddress + " accept\n";
+                            outgoingAllowListString << indent << ipType << " daddr " << remoteAddress << " accept\n";
+
+                            incomingAllowListString << indent << ipType << " saddr " << remoteAddress << " tcp flags != syn accept\n";
+                            incomingAllowListString << indent << ipType << " saddr " << remoteAddress << " meta l4proto udp accept\n";
                         }
                         else
                         {
-                            for (const auto &remotePort: exclusion.remotePorts())
-                            {
-                                incomingAllowListString +=
-                                        indent + ipType + " saddr " + remoteAddress + " tcp sport " + remotePort +
-                                        " accept\n";
-                                incomingAllowListString +=
-                                        indent + ipType + " saddr " + remoteAddress + " udp sport " + remotePort +
-                                        " accept\n";
-                            }
                             for (const auto &localPort: exclusion.localPorts())
                             {
-                                incomingAllowListString +=
-                                        indent + ipType + " saddr " + remoteAddress + " tcp dport " + localPort +
-                                        " accept\n";
-                                incomingAllowListString +=
-                                        indent + ipType + " saddr " + remoteAddress + " udp dport " + localPort +
-                                        " accept\n";
+                                incomingAllowListString
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " tcp dport " << localPort << " tcp flags != syn accept\n"
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " udp dport " << localPort << " accept\n";
+
+                                outgoingAllowListString
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " tcp sport " << localPort << " accept\n"
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " udp sport " << localPort << " accept\n";
+                            }
+                            for (const auto &remotePort: exclusion.remotePorts())
+                            {
+                                incomingAllowListString
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " tcp sport " << remotePort << " tcp flags != syn accept\n"
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " udp sport " << remotePort << " accept\n";
+
+                                outgoingAllowListString
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " tcp dport " << remotePort << " accept\n"
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " udp dport " << remotePort << " accept\n";
+                            }
+                        }
+                    }
+                }
+            }
+            // Generate inbound rules
+            else if (exclusion.direction() == Plugin::IsolationExclusion::IN)
+            {
+                // If there are no addresses specified, then we allow all specified ports to all addresses
+                if (exclusion.remoteAddressesAndIpTypes().empty())
+                {
+                    for (const auto &localPort: exclusion.localPorts())
+                    {
+                        // Allow incoming to that port, and outgoing on that port
+                        incomingAllowListString
+                            << indent << "tcp dport " << localPort << " accept\n"
+                            << indent << "udp dport " << localPort << " accept\n";
+
+                        outgoingAllowListString
+                            << indent << "tcp sport " << localPort << " tcp flags != syn accept\n" // Ban new connections outbound
+                            << indent << "udp sport " << localPort << " accept\n"; // Can't restrict UDP outbound
+                    }
+                    for (const auto &remotePort: exclusion.remotePorts())
+                    {
+                        // Allow incoming from that port, and outgoing to that port
+                        incomingAllowListString
+                            << indent << "tcp sport " << remotePort << " accept\n"
+                            << indent << "udp sport " << remotePort << " accept\n";
+
+                        outgoingAllowListString
+                            << indent << "tcp dport " << remotePort << " tcp flags != syn accept\n"
+                            << indent << "udp dport " << remotePort << " accept\n";
+                    }
+                }
+                else
+                {
+                    // IN-only, With remote IPs:
+
+                    // If there are remote addresses specified, then we only allow ports to those remote addresses
+                    for (const auto& [remoteAddress, ipType] : exclusion.remoteAddressesAndIpTypes())
+                    {
+                        if (exclusion.remotePorts().empty() && exclusion.localPorts().empty())
+                        {
+                            incomingAllowListString << indent << ipType << " saddr " << remoteAddress << " accept\n";
+
+                            outgoingAllowListString
+                                << indent << ipType << " daddr " << remoteAddress << " tcp flags != syn accept\n"
+                                << indent << ipType << " daddr " << remoteAddress << " meta l4proto udp accept\n";
+                        }
+                        else
+                        {
+                            for (const auto &localPort: exclusion.localPorts())
+                            {
+                                incomingAllowListString
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " tcp dport " << localPort << " accept\n"
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " udp dport " << localPort << " accept\n";
+
+                                outgoingAllowListString
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " tcp sport " << localPort << " tcp flags != syn accept\n"
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " udp sport " << localPort << " accept\n";
+                            }
+                            for (const auto &remotePort: exclusion.remotePorts())
+                            {
+                                incomingAllowListString
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " tcp sport " << remotePort << " accept\n"
+                                        << indent << ipType << " saddr " << remoteAddress
+                                        << " udp sport " << remotePort << " accept\n";
+
+                                outgoingAllowListString
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " tcp dport " << remotePort << " tcp flags != syn accept\n"
+                                        << indent << ipType << " daddr " << remoteAddress
+                                        << " udp dport " << remotePort << " accept\n";
                             }
                         }
                     }
@@ -284,16 +411,20 @@ namespace Plugin
             }
         }
 
-        outgoingAllowListString += indent + "meta skgid " + std::to_string(groupId) + " accept";
+        // Allow Sophos Processes by group:
+        outgoingAllowListString << indent << "meta skgid " << groupId << " accept";
+        incomingAllowListString << indent << "meta skgid " << groupId << " accept";
 
         // Note - Some platforms automatically convert icmp to 1 and vice versa
 
         /*
+         * Drop invalid packets by conntrack
+            ct state invalid drop
          * Allow localhost loopback:
             iif "lo" accept
-
-         * Allow established connections:
-            ct state established,related accept
+        * Allow dns responses
+            tcp sport 53 tcp flags != syn accept
+            udp sport 53 accept
 
         * Allow ICMP
             ip protocol icmp accept
@@ -308,12 +439,13 @@ namespace Plugin
             type filter hook input priority filter; policy drop;
             ct state invalid drop
             iif "lo" accept
-            ct state established,related accept
+            tcp sport 53 tcp flags != syn accept
+            udp sport 53 accept
             ip protocol icmp accept
             meta l4proto ipv6-icmp accept
             ip6 version 6 udp dport 546 accept
             ip version 4 udp dport 68 accept
-)" << incomingAllowListString
+)" << incomingAllowListString.str()
 
    /*
     * Allow localhost loopback:
@@ -345,14 +477,13 @@ namespace Plugin
     chain OUTPUT {
             type filter hook output priority filter; policy drop;
             oif "lo" accept
-            ct state established,related accept
             tcp dport 53 accept
             udp dport 53 accept
             ip protocol icmp accept
             meta l4proto ipv6-icmp accept
             ip version 4 udp dport 67 accept
             ip6 version 6 udp dport 547 accept
-)" << outgoingAllowListString << R"(
+)" << outgoingAllowListString.str() << R"(
             reject with tcp reset
     }
 })";

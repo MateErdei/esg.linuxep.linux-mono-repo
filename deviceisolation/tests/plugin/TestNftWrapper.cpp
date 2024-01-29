@@ -732,7 +732,40 @@ TEST_F(TestNftWrapper, createRulesWithNoExclusions)
 {
     expectGroupLookup(1);
 
-    auto rules = NftWrapper::createIsolateRules({});
+    auto actualRulesContents = NftWrapper::createIsolateRules({});
+
+    const std::string expectedRulesContents = R"SOPHOS(table inet sophos_device_isolation {
+    chain INPUT {
+            type filter hook input priority filter; policy drop;
+            ct state invalid drop
+            iif "lo" accept
+            tcp sport 53 tcp flags != syn accept
+            udp sport 53 accept
+            ip protocol icmp accept
+            meta l4proto ipv6-icmp accept
+            ip6 version 6 udp dport 546 accept
+            ip version 4 udp dport 68 accept
+            meta skgid 1 accept
+    }
+
+    chain FORWARD {
+            type filter hook forward priority filter; policy drop;
+    }
+
+    chain OUTPUT {
+            type filter hook output priority filter; policy drop;
+            oif "lo" accept
+            tcp dport 53 accept
+            udp dport 53 accept
+            ip protocol icmp accept
+            meta l4proto ipv6-icmp accept
+            ip version 4 udp dport 67 accept
+            ip6 version 6 udp dport 547 accept
+            meta skgid 1 accept
+            reject with tcp reset
+    }
+})SOPHOS";
+    EXPECT_EQ(actualRulesContents, expectedRulesContents);
 }
 
 namespace
@@ -748,6 +781,18 @@ namespace
         excl.setLocalPorts(std::move(localPort));
         return excl;
     }
+
+    static IsolationExclusion createExclusion(
+            IsolationExclusion::port_list_t localPort,
+            IsolationExclusion::port_list_t remotePort
+    )
+    {
+        Plugin::IsolationExclusion excl;
+        excl.setLocalPorts(std::move(localPort));
+        excl.setRemotePorts(std::move(remotePort));
+        return excl;
+    }
+
     static IsolationExclusion createExclusion(
             IsolationExclusion::Direction direction,
             IsolationExclusion::address_iptype_list_t addresses
@@ -779,6 +824,20 @@ namespace
         excl.setRemotePorts(std::move(remotePorts));
         return excl;
     }
+
+    static IsolationExclusion createExclusion(
+            IsolationExclusion::Direction direction,
+            IsolationExclusion::address_iptype_list_t addresses,
+            IsolationExclusion::port_list_t remotePorts
+    )
+    {
+        Plugin::IsolationExclusion excl;
+        excl.setDirection(direction);
+        excl.setRemoteAddressesAndIpTypes(std::move(addresses));
+        excl.setRemotePorts(std::move(remotePorts));
+        return excl;
+    }
+
     static IsolationExclusion createExclusion(
             IsolationExclusion::address_iptype_list_t addresses
     )
@@ -786,6 +845,22 @@ namespace
         Plugin::IsolationExclusion excl;
         excl.setRemoteAddressesAndIpTypes(std::move(addresses));
         return excl;
+    }
+
+    struct Rules
+    {
+        Rules(const std::string&);
+        std::string inbound;
+        std::string outbound;
+    };
+
+    Rules::Rules(const std::string& rules)
+    {
+        auto input = rules.find("INPUT");
+        auto forward = rules.find("FORWARD", input);
+        auto output = rules.find("OUTPUT", forward);
+        inbound = rules.substr(input, forward-input);
+        outbound = rules.substr(output);
     }
 }
 
@@ -796,98 +871,197 @@ TEST_F(TestNftWrapper, createRulesWithInAllowPort)
     allowList.push_back(createExclusion(IsolationExclusion::Direction::IN, {"443"}));
 
     auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
 
-    EXPECT_THAT(actualRulesContents, HasSubstr("tcp dport 443 accept"));
-    EXPECT_THAT(actualRulesContents, HasSubstr("udp dport 443 accept"));
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("tcp dport 443 accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("udp dport 443 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("tcp sport 443 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("udp sport 443 accept"));
 }
 
-TEST_F(TestNftWrapper, createRulesWithManyExclusions)
+TEST_F(TestNftWrapper, testOutWithIP)
 {
     using Plugin::IsolationExclusion;
     using address_iptype_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
     std::vector<IsolationExclusion> allowList;
-    allowList.push_back(createExclusion(IsolationExclusion::Direction::IN, {"443"}));
     allowList.push_back(createExclusion(IsolationExclusion::Direction::OUT, address_iptype_list_t{{"192.168.1.9", "ip"}}));
-    allowList.push_back(createExclusion({"22"}, address_iptype_list_t{{"192.168.1.1", "ip"}}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.42", "ip"}}, {"5671"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.43", "ip"}}, {"5671"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.44", "ip"}}, {"5671"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.11", "ip"}}, {"443"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.45", "ip"}}, {"443"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.46", "ip"}}, {"443"}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"2a00:1450:4009:823::200e", "ip6"}}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"2a00::/32", "ip6"}}));
-    allowList.push_back(createExclusion(address_iptype_list_t{{"8.8.8.8/16", "ip"}}));
 
     auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
 
-    const std::string expectedRulesContents = R"SOPHOS(table inet sophos_device_isolation {
-    chain INPUT {
-            type filter hook input priority filter; policy drop;
-            ct state invalid drop
-            iif "lo" accept
-            ct state established,related accept
-            ip protocol icmp accept
-            meta l4proto ipv6-icmp accept
-            ip6 version 6 udp dport 546 accept
-            ip version 4 udp dport 68 accept
-            tcp dport 443 accept
-            udp dport 443 accept
-            ip saddr 192.168.1.1 tcp dport 22 accept
-            ip saddr 192.168.1.1 udp dport 22 accept
-            ip saddr 100.78.0.42 tcp sport 5671 accept
-            ip saddr 100.78.0.42 udp sport 5671 accept
-            ip saddr 100.78.0.43 tcp sport 5671 accept
-            ip saddr 100.78.0.43 udp sport 5671 accept
-            ip saddr 100.78.0.44 tcp sport 5671 accept
-            ip saddr 100.78.0.44 udp sport 5671 accept
-            ip saddr 100.78.0.11 tcp sport 443 accept
-            ip saddr 100.78.0.11 udp sport 443 accept
-            ip saddr 100.78.0.45 tcp sport 443 accept
-            ip saddr 100.78.0.45 udp sport 443 accept
-            ip saddr 100.78.0.46 tcp sport 443 accept
-            ip saddr 100.78.0.46 udp sport 443 accept
-            ip6 saddr 2a00:1450:4009:823::200e accept
-            ip6 saddr 2a00::/32 accept
-            ip saddr 8.8.8.8/16 accept
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 192.168.1.9 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 192.168.1.9 meta l4proto udp accept"));
 
-    }
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 192.168.1.9 accept"));
+}
 
-    chain FORWARD {
-            type filter hook forward priority filter; policy drop;
-    }
+TEST_F(TestNftWrapper, testBothDirectionsWithRemoteIPAndLocalPort)
+{
+    using Plugin::IsolationExclusion;
+    using address_iptype_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion({"22"}, address_iptype_list_t{{"192.168.1.1", "ip"}}));
 
-    chain OUTPUT {
-            type filter hook output priority filter; policy drop;
-            oif "lo" accept
-            ct state established,related accept
-            tcp dport 53 accept
-            udp dport 53 accept
-            ip protocol icmp accept
-            meta l4proto ipv6-icmp accept
-            ip version 4 udp dport 67 accept
-            ip6 version 6 udp dport 547 accept
-            ip daddr 192.168.1.9 accept
-            ip daddr 192.168.1.1 tcp sport 22 accept
-            ip daddr 192.168.1.1 udp sport 22 accept
-            ip daddr 100.78.0.42 tcp dport 5671 accept
-            ip daddr 100.78.0.42 udp dport 5671 accept
-            ip daddr 100.78.0.43 tcp dport 5671 accept
-            ip daddr 100.78.0.43 udp dport 5671 accept
-            ip daddr 100.78.0.44 tcp dport 5671 accept
-            ip daddr 100.78.0.44 udp dport 5671 accept
-            ip daddr 100.78.0.11 tcp dport 443 accept
-            ip daddr 100.78.0.11 udp dport 443 accept
-            ip daddr 100.78.0.45 tcp dport 443 accept
-            ip daddr 100.78.0.45 udp dport 443 accept
-            ip daddr 100.78.0.46 tcp dport 443 accept
-            ip daddr 100.78.0.46 udp dport 443 accept
-            ip6 daddr 2a00:1450:4009:823::200e accept
-            ip6 daddr 2a00::/32 accept
-            ip daddr 8.8.8.8/16 accept
-            meta skgid 1 accept
-            reject with tcp reset
-    }
-})SOPHOS";
-    EXPECT_EQ(actualRulesContents, expectedRulesContents);
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 192.168.1.1 tcp dport 22 accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 192.168.1.1 udp dport 22 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 192.168.1.1 tcp sport 22 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 192.168.1.1 udp sport 22 accept"));
+}
+
+
+TEST_F(TestNftWrapper, testBothDirectionsWithRemoteIPAndRemotePort)
+{
+    using Plugin::IsolationExclusion;
+    using address_iptype_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(address_iptype_list_t{{"100.78.0.42", "ip"}}, {"5671"}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 tcp sport 5671 accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 udp sport 5671 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 udp dport 5671 accept"));
+}
+
+TEST_F(TestNftWrapper, testOutboundWithRemoteIPAndRemotePort)
+{
+    using Plugin::IsolationExclusion;
+    using address_iptype_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(IsolationExclusion::Direction::OUT, address_iptype_list_t{{"100.78.0.42", "ip"}}, {"5671"}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 tcp sport 5671 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 udp sport 5671 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 udp dport 5671 accept"));
+}
+
+TEST_F(TestNftWrapper, testOutboundWithMultipleRemoteIPsAndRemotePort)
+{
+    using Plugin::IsolationExclusion;
+    using address_iptype_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(IsolationExclusion::Direction::OUT, address_iptype_list_t{
+        {"100.78.0.42", "ip"},
+        {"100.78.0.43", "ip"},
+        }, {"5671"}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 tcp sport 5671 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 udp sport 5671 accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.43 tcp sport 5671 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.43 udp sport 5671 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 udp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.43 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.43 udp dport 5671 accept"));
+}
+
+TEST_F(TestNftWrapper, testOutboundWithRemoteIPsAndRemotePortMultipleRules)
+{
+    using Plugin::IsolationExclusion;
+    using address_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(IsolationExclusion::Direction::OUT, address_list_t{{"100.78.0.42", "ip"}}, {"5671"}));
+    allowList.push_back(createExclusion(IsolationExclusion::Direction::OUT, address_list_t{{"100.78.0.43", "ip"}}, {"5671"}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    // inbound rules
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 tcp sport 5671 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.42 udp sport 5671 accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.43 tcp sport 5671 tcp flags != syn accept"));
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 100.78.0.43 udp sport 5671 accept"));
+
+    // outbound rules
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.42 udp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.43 tcp dport 5671 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 100.78.0.43 udp dport 5671 accept"));
+}
+
+TEST_F(TestNftWrapper, createRulesWithIPv6)
+{
+    using Plugin::IsolationExclusion;
+    using address_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(address_list_t{{"2a00:1450:4009:823::200e", "ip6"}}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip6 saddr 2a00:1450:4009:823::200e accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip6 daddr 2a00:1450:4009:823::200e accept"));
+}
+
+TEST_F(TestNftWrapper, createRulesWithIPv6CIDR)
+{
+    using Plugin::IsolationExclusion;
+    using address_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(address_list_t{{"2a00::/32", "ip6"}}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip6 saddr 2a00::/32 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip6 daddr 2a00::/32 accept"));
+}
+
+TEST_F(TestNftWrapper, createRulesWithIPv4CIDR)
+{
+    using Plugin::IsolationExclusion;
+    using address_list_t = Plugin::IsolationExclusion::address_iptype_list_t;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion(address_list_t{{"8.8.8.8/16", "ip"}}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    EXPECT_THAT(actualRules.inbound, HasSubstr("ip saddr 8.8.8.8/16 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("ip daddr 8.8.8.8/16 accept"));
+}
+
+// TODO LINUXDAR-8675
+// Currently we aren't handling this correctly
+// We should be probably treating it as an AND, but instead we treat it as an OR.
+TEST_F(TestNftWrapper, DISABLED_createRulesWithLocalAndRemotePort)
+{
+    using Plugin::IsolationExclusion;
+    std::vector<IsolationExclusion> allowList;
+    allowList.push_back(createExclusion({"100"}, {"200"}));
+
+    auto actualRulesContents = NftWrapper::createIsolateRules(allowList, 1);
+    Rules actualRules{actualRulesContents};
+
+    EXPECT_THAT(actualRules.inbound, HasSubstr("tcp dport 100 sport 200 accept"));
+    EXPECT_THAT(actualRules.outbound, HasSubstr("tcp dport 200 sport 100 accept"));
 }
