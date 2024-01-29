@@ -115,6 +115,7 @@ Device Isolation Test Setup
 Device Isolation Test Teardown
 	Run teardown functions
 	Cleanup Temporary Folders
+	Remove File    ${SOPHOS_INSTALL}/base/mcs/policy/NTP-24_policy.xml
 
 Send Enable Isolation Action
     [Arguments]  ${uuid}

@@ -66,7 +66,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     ${all_plugins_logs_marks} =    Mark All Plugin Logs
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}    sophos_log_level=DEBUG
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    old_version=${TRUE}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -92,10 +92,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
-
-    # TODO: This will fail once dogfood no longer has these. Then this check and the one below can be removed.
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
     Stop Local SDDS3 Server
 
@@ -183,9 +179,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Should Not Be Equal As Integers    ${watchdog_pid_before_upgrade.stdout}    ${watchdog_pid_after_upgrade.stdout}
     Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check RuntimeDetections Installed Correctly
 
-    # TODO: To be removed once dogfood does not have these certs
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
 
 Install VUT and Check RPATH of Every Binary
     [Timeout]    3 minutes
@@ -269,10 +262,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${sspl_local_uid} =      get_uid_from_username    sophos-spl-local
     ${sspl_update_uid} =     get_uid_from_username    sophos-spl-updatescheduler
 
-    # TODO: To be removed once dogfood does not have these certs
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
-
     Stop Local SDDS3 Server
     ${rtd_mark} =    mark_log_size    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     ${all_plugins_logs_marks} =    Mark All Plugin Logs
@@ -285,7 +274,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   check_log_contains_string_at_least_n_times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
     Clear Log Marks    ${all_plugins_logs_marks}
-    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    old_version=${TRUE}
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
     Run Keyword If  ${ExpectBaseDowngrade}    check_log_contains    Prepared ServerProtectionLinux-Base-component for downgrade    /tmp/preserve-sul-downgrade    backedup suldownloader log
 
     # Wait for successful update (all up to date) after downgrading
@@ -337,10 +326,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
-    # TODO: This will fail once dogfood no longer has these. Then this check and the one above can be removed.
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
-
     Stop Local SDDS3 Server
     # Upgrade back to develop to check we can upgrade from a downgraded product
     Start Local SDDS3 Server
@@ -378,10 +363,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  Wait For Rtd Log Contains After Last Restart    ${RUNTIME_DETECTIONS_LOG_PATH}    Analytics started processing telemetry   timeout=${30}
 
 
-    # TODO: To be removed once dogfood does not have these certs
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
-    File Should Not Exist    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
-
 We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     &{expectedReleaseVersions} =    Get Expected Versions For Recommended Tag    ${CURRENT_SHIPPING_WAREHOUSE_REPO_ROOT}    ${CURRENT_LAUNCH_DARKLY}
     &{expectedVUTVersions} =    Get Expected Versions For Recommended Tag    ${VUT_WAREHOUSE_ROOT}    ${VUT_LAUNCH_DARKLY}
@@ -411,7 +392,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     trigger_update_now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
-    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check Current Shipping Installed Correctly    kernel_verion_too_old_for_rtd=${KERNEL_VERSION_TOO_OLD_FOR_RTD}  before_2024_1_group_changes=${True}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
@@ -602,7 +583,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     check_all_product_logs_do_not_contain_error
     check_all_product_logs_do_not_contain_critical
 
-    Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
+    Check Current Shipping Installed Correctly    kernel_verion_too_old_for_rtd=${KERNEL_VERSION_TOO_OLD_FOR_RTD}  before_2024_1_group_changes=${True}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20

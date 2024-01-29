@@ -178,3 +178,4 @@ Device Is Still Isolated After Upgrade
     Wait For Log Contains From Mark  ${mark}  Device is now isolated
     Wait For Log Contains From Mark  ${mark}  Device Isolation policy applied
     File Should Contain    ${PERSISTENT_STATE_FILE}    1
+

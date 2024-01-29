@@ -60,19 +60,19 @@ def get_inputs(
     fixed_versions_x86: Dict[str, str],
     fixed_versions_arm64: Dict[str, str],
 ) -> Dict[str, Input]:
-    previous_dogfood_branch = parameters.previous_dogfood_branch
-    previous_dogfood_branch_build_instance = parameters.previous_dogfood_branch_build_instance
+    current_dogfood_branch = parameters.current_dogfood_branch
+    current_dogfood_branch_build_instance = parameters.current_dogfood_branch_build_instance
     current_shipping_branch = parameters.current_shipping_branch
     current_shipping_branch_build_instance = parameters.current_shipping_branch_build_instance
 
-    if not previous_dogfood_branch:
-        previous_dogfood_branch = "release--2023.4"
-        previous_dogfood_branch_build_instance = "20231117142146-704d26b9d2f10d7bbc843d378c6c700dcf500074-1rARjl"
+    if not current_dogfood_branch:
+        current_dogfood_branch = "release--2024-03"
+        current_dogfood_branch_build_instance = "20240116130523-62180ef49367fcaa8b872615c27ed4ccc89e04cf-CjXaaX"
     if not current_shipping_branch:
         current_shipping_branch = "release--2023.4"
         current_shipping_branch_build_instance = "20231117142146-704d26b9d2f10d7bbc843d378c6c700dcf500074-1rARjl"
 
-    previous_dogfood_branch = previous_dogfood_branch.replace("/", "--")
+    current_dogfood_branch = current_dogfood_branch.replace("/", "--")
     current_shipping_branch = current_shipping_branch.replace("/", "--")
 
     arch = build.split("_")[1]
@@ -112,11 +112,11 @@ def get_inputs(
         )
         / "build/sspl-liveterminal/test-scripts",
         dogfood_launch_darkly=context.artifact.from_component(
-            "linuxep.linux-mono-repo", previous_dogfood_branch, previous_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
+            "linuxep.linux-mono-repo", current_dogfood_branch, current_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-launchdarkly",
         dogfood_repo=context.artifact.from_component(
-            "linuxep.linux-mono-repo", previous_dogfood_branch, previous_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
+            "linuxep.linux-mono-repo", current_dogfood_branch, current_dogfood_branch_build_instance, org="", storage="esg-build-candidate"
         )
         / "build/prod-sdds3-repo",
         current_shipping_launch_darkly=context.artifact.from_component(

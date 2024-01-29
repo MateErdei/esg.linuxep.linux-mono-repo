@@ -116,13 +116,13 @@ Wait For Version Files to Update
 
 # Actually for Current Shipping or Dogfood
 Check Current Shipping Installed Correctly
-    [Arguments]    ${kernel_verion_too_old_for_rtd}=${False}
+    [Arguments]    ${kernel_verion_too_old_for_rtd}=${False}    ${before_2024_1_group_changes}=${False}
     Check Installed Correctly
     Check Comms Component Is Not Present
     Check MCS Router Running
 
     Check AV Plugin Installed
-    Check SafeStore Installed Correctly    before_2024_1_group_changes=${True}
+    Check SafeStore Installed Correctly    before_2024_1_group_changes=${before_2024_1_group_changes}
     Check Event Journaler Executable Running
     Run Keyword Unless    ${kernel_verion_too_old_for_rtd}    Check RuntimeDetections Installed Correctly
     Check MDR Is Not Installed
