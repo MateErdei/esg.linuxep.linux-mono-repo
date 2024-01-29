@@ -21,12 +21,13 @@ class IpLookupThread(threading.Thread):
     IpLookupThread
     """
 
-    def __init__(self, server):
+    def __init__(self, server, message_relays_tried_list):
         """
         __init__
         """
         super(IpLookupThread, self).__init__()
         self.server = server
+        self.__m_message_relays_tried_list = message_relays_tried_list
 
     def run(self):
         """
@@ -53,7 +54,12 @@ class IpLookupThread(threading.Thread):
                         raise
         except Exception as ex:  # pylint: disable=broad-except
             msg = "Extracting ip from server {} resulted in exception {}"
-            LOGGER.warning(msg.format(self.server['hostname'], ex))
+            hostname = self.server['hostname']
+            if hostname in self.__m_message_relays_tried_list:
+                LOGGER.debug(msg.format(hostname, ex))
+            else:
+                self.__m_message_relays_tried_list.append(hostname)
+                LOGGER.warning(msg.format(hostname, ex))
 
 
 def order_servers_by_key(server_location_list, key_string):
@@ -88,7 +94,7 @@ def get_ip_address_distance(local_ip, remote_ip, ip_type="ipv4"):
     return (local_ip_int ^ remote_ip_int).bit_length()
 
 
-def get_server_ips_from_hostname(server_location_list):
+def get_server_ips_from_hostname(server_location_list, message_relays_tried_list):
     """
     get_server_ips_from_hostname
     """
@@ -98,7 +104,7 @@ def get_server_ips_from_hostname(server_location_list):
     # Start an address resolution thread for each hostname
     lookup_threads = []
     for server in servers:
-        lookup_threads.append(IpLookupThread(server))
+        lookup_threads.append(IpLookupThread(server, message_relays_tried_list))
 
     for thread in lookup_threads:
         thread.daemon = True
@@ -158,7 +164,7 @@ def order_message_relays(server_location_list, local_ipv4s, local_ipv6s):
 
 
 
-def evaluate_address_preference(server_location_list):
+def evaluate_address_preference(server_location_list, message_relays_tried_list):
     """
     Function takes a list of dictionaries with contents {hostname: <hostname>, priority: <priority>}
     and sorts them in terms of bit-wise similarity of IP address, and then priority
@@ -171,7 +177,7 @@ def evaluate_address_preference(server_location_list):
     LOGGER.debug("IPV4: {}".format(local_ipv4s))
     local_ipv6s = [int(ipv6, 16) for ipv6 in ip_address.get_non_local_ipv6()]
     LOGGER.debug("IPV6: {}".format(local_ipv6s))
-    server_location_list = get_server_ips_from_hostname(server_location_list)
+    server_location_list = get_server_ips_from_hostname(server_location_list, message_relays_tried_list)
     LOGGER.debug("Evaluate Preference server location list with ips: {}"
                  .format(server_location_list))
     return order_message_relays(server_location_list, local_ipv4s, local_ipv6s)

@@ -233,6 +233,7 @@ class MCSConnection:
         self.__m_policy_urls = None
         self.__m_use_direct = True
         self.__m_message_relays = []
+        self.__m_message_relays_tried = []
 
         self.__m_proxy_authenticators = {}
         self.__m_last_seen_http_error = None
@@ -394,7 +395,7 @@ class MCSConnection:
 
         message_relays = self.__get_message_relays()
         ordered_message_relay_list = ip_selection.evaluate_address_preference(
-            message_relays)
+            message_relays, self.__m_message_relays_tried)
         for relay in ordered_message_relay_list:
             add_proxy(
                 relay['hostname'] +

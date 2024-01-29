@@ -286,15 +286,29 @@ class TestIPSelection(unittest.TestCase):
 
     @mock.patch("socket.getaddrinfo", return_value=Exception)
     @mock.patch("logging.Logger.warning")
-    def test_host_name_logging_messagerelays(self, *mockargs):
+    def test_warning_logged_if_message_relay_not_resolved_for_first_time(self, *mockargs):
+        message_relays_tried_list = []
         server_location_list = [
             {'hostname': 'FakeRelayTwentyFive', 'port': '6666', 'priority': '0', 'id': '1', 'ips': ['11.0.2.15']},
             {'hostname': 'FakeRelayFive', 'port': '6666', 'priority': '0', 'id': '2', 'ips': ['10.0.2.31']}
         ]
-        ip_selection.evaluate_address_preference(server_location_list)
+        ip_selection.evaluate_address_preference(server_location_list, message_relays_tried_list)
         calls = [mock.call("Extracting ip from server FakeRelayTwentyFive resulted in exception 'type' object is not iterable"),
                  mock.call("Extracting ip from server FakeRelayFive resulted in exception 'type' object is not iterable")]
         logging.Logger.warning.assert_has_calls(calls)
+        self.assertEqual(message_relays_tried_list, ['FakeRelayTwentyFive', 'FakeRelayFive'])
+
+    @mock.patch("socket.getaddrinfo", return_value=Exception)
+    @mock.patch("logging.Logger.warning")
+    def test_warning_not_logged_if_message_relay_not_resolved_a_subsequent_time(self, *mockargs):
+        message_relays_tried_list = ['FakeRelayTwentyFive', 'FakeRelayFive']
+        server_location_list = [
+            {'hostname': 'FakeRelayTwentyFive', 'port': '6666', 'priority': '0', 'id': '1', 'ips': ['11.0.2.15']},
+            {'hostname': 'FakeRelayFive', 'port': '6666', 'priority': '0', 'id': '2', 'ips': ['10.0.2.31']}
+        ]
+        ip_selection.evaluate_address_preference(server_location_list, message_relays_tried_list)
+        logging.Logger.warning.assert_not_called()
+
 
     def test_ip_fqdn(self):
         fq = ip_address.get_fqdn()

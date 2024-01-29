@@ -158,7 +158,8 @@ Transient errors keeps same proxies
     ...  10 secs
     ...  Check Marked MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
 
-Test Remove Read Permissions Show MessageRelays Dont Work And Logs Warnings
+
+Test Warning Logged First Time Message Relays Not Resolved But Debug Thereafter
     Start Simple Proxy Server    3000
 
     Register With Local Cloud Server
@@ -173,12 +174,14 @@ Test Remove Read Permissions Show MessageRelays Dont Work And Logs Warnings
     Start MCSRouter
     Wait New MCS Policy Downloaded
 
-    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    /etc/hosts does not have read permissions.
-    ${mcs_mark} =  wait_for_log_contains_from_mark    ${mcs_mark}    Extracting ip from server
-    wait_for_log_contains_from_mark    ${mcs_mark}    Successfully directly connected to localhost
+    Wait for log contains from mark    ${mcs_mark}    /etc/hosts does not have read permissions.
+    Wait for log contains from mark    ${mcs_mark}    Extracting ip from server
+    Wait for log contains from mark    ${mcs_mark}    Successfully directly connected to localhost
+    # Expect only one log message for sustest.sophosupd.com not resolved as subsequent ones are debug and therefore not seen at info-level logging
+    Check log contains n times after mark    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    Extracting ip from server    1    ${mcs_mark}
+    
 
-
-Test Remove Read Permissions Show That The MessageRelay Doesnt Work And Logs Warnings
+Test Warning Logged When Single Message Relay Not Resolved
     Start Simple Proxy Server    3000
 
     Register With Local Cloud Server
