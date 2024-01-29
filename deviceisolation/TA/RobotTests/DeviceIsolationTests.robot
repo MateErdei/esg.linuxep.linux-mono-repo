@@ -57,6 +57,7 @@ Device Isolation Remains Isolated After SPL Restart
     Run Process    systemctl    restart    sophos-spl
 
     Wait For Log Contains From Mark    ${di_mark}    Completed initialization of Device Isolation
+    Wait For Log Contains From Mark    ${di_mark}    Device is now isolated
     Wait Until Keyword Succeeds    10s    1s    Check Rules Have Been Applied
 
     # Check we cannot access sophos.com because the EP is isolated.
