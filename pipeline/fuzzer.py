@@ -43,7 +43,8 @@ FUZZER_TAG = "linux_x64_fuzzing"
 @tap.cache(ttl=0)
 def run_fuzzer(machine: tap.Machine, fuzz_argument: str):
     try:
-        machine.run("bash", f'.{SETUP_FUZZ_MACHINE}')
+        if machine.run("bash", f'.{SETUP_FUZZ_MACHINE}') != 0:
+            raise Exception("Setup failed")
         machine.run("mkdir", "-p", f'{ARTIFACT_OUTPUT_DIR}')
         machine.run("mkdir", "-p", f'{FUZZ_LOG_DIR}')
         machine.run("chmod", "+x", f'{FUZZ_TARGET_DIR}/{fuzz_argument}')

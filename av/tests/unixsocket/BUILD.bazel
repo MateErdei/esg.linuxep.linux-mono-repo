@@ -1,6 +1,7 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_binary", "soph_cc_library", "soph_cc_test")
 load("//tools/config:capnproto_defs.bzl", "SOPH_CAPNP_CPP_DEPS", "SOPH_CAPNP_CPP_RUNTIME_DEPS")
+load("//common/fuzzer:fuzzer.bzl", "soph_libfuzzer_cc_binary")
 
 soph_cc_library(
     name = "MockIScanningClientSocket",
@@ -269,12 +270,9 @@ soph_cc_binary(
 )
 
 #Todo these are built normally to, need select or separate soph_cc_binary
-soph_cc_binary(
+soph_libfuzzer_cc_binary(
     name = "ProcessControlServerExecutable",
     srcs = ["ProcessControlTestExecutable/ProcessControlServer.cpp"],
-    copts = ["-fsanitize=fuzzer"],
-    defines = ["USING_LIBFUZZER"],
-    linkopts = ["-fsanitize=fuzzer"],
     tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
@@ -285,12 +283,9 @@ soph_cc_binary(
     ],
 )
 
-soph_cc_binary(
+soph_libfuzzer_cc_binary(
     name = "threatReporterServerExecutable",
     srcs = ["ThreatReporterTestExecutable/threatReporterServer.cpp"],
-    copts = ["-fsanitize=fuzzer"],
-    defines = ["USING_LIBFUZZER"],
-    linkopts = ["-fsanitize=fuzzer"],
     tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
@@ -302,12 +297,9 @@ soph_cc_binary(
     ],
 )
 
-soph_cc_binary(
+soph_libfuzzer_cc_binary(
     name = "threatDetectorServerExecutable",
     srcs = ["ThreatDetectorTestExecutable/threatDetectorServer.cpp"],
-    copts = ["-fsanitize=fuzzer"],
-    defines = ["USING_LIBFUZZER"],
-    linkopts = ["-fsanitize=fuzzer"],
     tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
@@ -321,7 +313,7 @@ soph_cc_binary(
     ],
 )
 
-soph_cc_binary(
+soph_libfuzzer_cc_binary(
     name = "threatDetectorClientExecutable",
     srcs = [
         "ThreatDetectorTestExecutable/FakeServerConnectionThread.cpp",
@@ -330,9 +322,6 @@ soph_cc_binary(
         "ThreatDetectorTestExecutable/FakeServerSocket.h",
         "ThreatDetectorTestExecutable/threatDetectorClient.cpp",
     ],
-    copts = ["-fsanitize=fuzzer"],
-    defines = ["USING_LIBFUZZER"],
-    linkopts = ["-fsanitize=fuzzer"],
     tags = ["manual"],
     visibility = ["//av/tests:__pkg__"],
     deps = [
