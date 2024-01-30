@@ -940,6 +940,7 @@ IDE Update Invalidates On Access Cache
     Send Policies to enable on-access
     Register Cleanup  Exclude On Access Scan Errors
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
+    Force SUSI to be initialized
 
     ${oa_mark} =  Get On Access Log Mark
     Create File  ${srcfile}  clean

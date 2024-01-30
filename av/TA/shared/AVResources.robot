@@ -1024,6 +1024,7 @@ Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Run IDE update without SUSI loaded
 
 Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    # Require that SUSI has been initialized
     [Arguments]  ${setOldTimestamps}=${False}
     Replace Virus Data With Test Dataset A  ${setOldTimestamps}
     Register Cleanup  Run IDE update

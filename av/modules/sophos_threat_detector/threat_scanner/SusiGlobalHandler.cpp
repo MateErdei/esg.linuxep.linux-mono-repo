@@ -1,4 +1,4 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2024 Sophos Limited. All rights reserved.
 
 #include "SusiGlobalHandler.h"
 
@@ -120,6 +120,10 @@ namespace threat_scanner
         if (!SUSI_FAILURE(susiResult))
         {
             LOGINFO("Successfully installed SUSI to: " << installDest);
+            if (susiResult == SUSI_W_OLDDATA)
+            {
+                LOGWARN("SUSI Loaded old data");
+            }
         }
         else
         {
