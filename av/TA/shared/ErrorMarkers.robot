@@ -1,5 +1,5 @@
 *** Settings ***
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Resource    AVResources.robot
 
 *** Keywords ***
@@ -86,6 +86,10 @@ Exclude Failed To connect To Warehouse Error
     [Arguments]    ${suldownloaderLogPath}=${SULDOWNLOADER_LOG}
     mark_expected_error_in_log  ${suldownloaderLogPath}  suldownloaderdata <> Failed to connect to the warehouse: 5
 
+Exclude Failed To Update Because JWToken Was Empty
+    [Arguments]    ${suldownloaderLogPath}=${SULDOWNLOADER_LOG}
+    mark_expected_error_in_log  ${suldownloaderLogPath}  suldownloader <> Failed to update because JWToken was empty
+
 Exclude Failed To Acquire Susi Lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
@@ -153,9 +157,9 @@ Exclude Safestore connection errors
     mark_expected_error_in_log  ${AV_LOG_PATH}  UnixSocket <> Aborting SafeStore connection : failed to read length
 
 Exclude MCS Router is dead
-    [Arguments]    ${watchdogLog}=${WATCHDOG_LOG}
-    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
-    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    [Arguments]    ${watchdogLog}=${WATCHDOG_LOG}    ${install_location}=${SOPHOS_INSTALL}
+    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> ${install_location}/base/bin/mcsrouter died with 1
+    mark_expected_error_in_log  ${watchdogLog}  ProcessMonitoringImpl <> ${install_location}/base/bin/mcsrouter died with exit code 1
 
 Exclude STD Symlink Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at

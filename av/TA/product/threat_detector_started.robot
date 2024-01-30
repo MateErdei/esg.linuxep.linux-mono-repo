@@ -10,8 +10,8 @@ Library         ../Libs/AVScanner.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/LockFile.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
@@ -99,8 +99,8 @@ Threat Detector Restarts If System File Contents Change
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
 
-    ${av_mark} =  LogUtils.Get Av Log Mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
     Append To File  ${TESTSYSPATH}   "#NewLine"
@@ -111,7 +111,7 @@ Threat Detector Restarts If System File Contents Change
 
     Wait until threat detector running after mark  ${td_mark}
 
-    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${av_mark} =  Mark AV Log
 
     Revert System File To Original
     Deregister On Fail   Revert System File To Original
@@ -124,7 +124,7 @@ Threat Detector Restarts If System File Contents Change
 
 
 Threat Detector Does Not Restart If System File Contents Do Not Change
-    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${av_mark} =  Mark AV Log
 
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Revert System File To Original
@@ -135,8 +135,8 @@ Threat Detector Does Not Restart If System File Contents Do Not Change
 
 
 Threat Detector Restarts If Sometimes-symlinked System File Contents Change
-    ${av_mark} =  LogUtils.Get Av Log Mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
     Register On Fail   Revert Sometimes-symlinked System File To Original
@@ -146,7 +146,7 @@ Threat Detector Restarts If Sometimes-symlinked System File Contents Change
 
     wait_for_av_log_contains_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
     #Mark now as system can revert file, but that should not fail test if we log it.
-    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${av_mark} =  Mark AV Log
 
     Wait until threat detector running after mark  ${td_mark}
 
@@ -160,7 +160,7 @@ Threat Detector Restarts If Sometimes-symlinked System File Contents Change
 
 
 Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do Not Change
-    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${av_mark} =  Mark AV Log
 
     copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
     Revert Sometimes-symlinked System File To Original
@@ -176,8 +176,8 @@ Threat Detector Restarts If System File Contents Change While A Long Scan Is Ong
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
 
-    ${av_mark} =  LogUtils.Get Av Log Mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     # Create slow scanning file
     ${long_scan_file} =  Set Variable  /tmp_test/long_scan_file.exe
@@ -207,8 +207,8 @@ Threat Detector Restarts If System File Contents Change While Multiple Long Scan
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
 
-    ${av_mark} =  LogUtils.Get Av Log Mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     # Create 2 slow scanning files
     ${long_scan_file1} =  Set Variable  /tmp_test/long_scan_file1.exe

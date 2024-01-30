@@ -2,7 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/SambaUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 
 *** Variables ***
 ${SAMBA_CONFIG}    /etc/samba/smb.conf

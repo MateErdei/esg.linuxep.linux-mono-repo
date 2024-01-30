@@ -1,7 +1,7 @@
 *** Settings ***
 
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         String
 Library         DateTime
 

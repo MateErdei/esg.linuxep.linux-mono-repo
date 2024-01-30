@@ -15,11 +15,11 @@ Library         Process
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileUtils.py
 Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ${COMMON_TEST_LIBS}/UserUtils.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/Telemetry.py
 
@@ -44,7 +44,7 @@ IDE update doesnt restart av processes
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     ${SOAPD_PID} =  Record Soapd Plugin PID
     ${oa_mark} =  Get On Access Log Mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -110,7 +110,7 @@ Restart then Update Sophos Threat Detector
 IDE update during command line scan
     # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     # Generate enough files to scan that it takes at least as long as the IDE update takes.
     ${dummy_path} =    Set Variable    /tmp/ide_terupt_scan_files
@@ -137,7 +137,7 @@ IDE update during command line scan
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     # ensure scan is still running
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
     Wait For Sophos Threat Detector Log Contains After Mark  ScanningServerConnectionThread scan requested of  ${threat_detector_mark2}
 
     Sleep  1 second   Allow some scans to occur after the update
@@ -193,7 +193,7 @@ On access gets IDE update to new scanners
 
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
-    ${td_mark} =   get_sophos_threat_detector_log_mark
+    ${td_mark} =   Mark Sophos Threat Detector Log
     # restart soapd so that we get new scanners
     ${oa_mark} =    get_on_access_log_mark
     Set number of scanning threads in integration test  10
@@ -213,7 +213,7 @@ On access continues during update
     # start a background process to cause ~10 on-access events per second
     ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.1; done   shell=True
 
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Wait For Sophos Threat Detector Log Contains After Mark     ScanningServerConnectionThread scan requested of ${test_file}  ${threat_detector_mark}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
@@ -221,7 +221,7 @@ On access continues during update
 
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
     Wait For Sophos Threat Detector Log Contains After Mark     ScanningServerConnectionThread scan requested of ${test_file}  ${threat_detector_mark2}
 
     Sleep   1s   let on-access do its thing
@@ -275,7 +275,7 @@ Update then Restart Sophos Threat Detector
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -300,7 +300,7 @@ Update before Init then Restart Threat Detector
 
     # restart STD and create a pending update
     Restart Sophos Threat Detector
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Wait For Sophos Threat Detector Log Contains After Mark   Threat scanner update is pending  ${threat_detector_mark}
 
@@ -342,8 +342,8 @@ Installer doesnt try to create an existing user
 
 
 Scanner works after upgrade
-    ${av_mark} =  Get AV Log Mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
@@ -360,8 +360,8 @@ Scanner works after upgrade
     ...   ${av_mark}
     ...   timeout=60
 
-    ${av_mark2} =  Get AV Log Mark
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${av_mark2} =  Mark AV Log
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
 
     # Check we can detect EICAR following upgrade
     Check avscanner can detect eicar
@@ -374,8 +374,8 @@ Services restarted after upgrade
     ${soapd_log_mark} =  Mark Log Size  ${ON_ACCESS_LOG_PATH}
     ${safestore_log_mark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
 
-    ${old_soapd_pid} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  timeout=${5}
-    ${old_safestore_pid} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  timeout=${5}
+    ${old_soapd_pid} =  Wait For Pid  ${ON_ACCESS_BIN}  timeout=${5}
+    ${old_safestore_pid} =  Wait For Pid  ${SAFESTORE_BIN}  timeout=${5}
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
@@ -385,8 +385,8 @@ Services restarted after upgrade
     LogUtils.wait for log contains after mark  ${ON_ACCESS_LOG_PATH}  configured for level:  ${soapd_log_mark}  timeout=${5}
     wait for log contains after mark  ${SAFESTORE_LOG_PATH}  configured for level:  ${safestore_log_mark}  timeout=${5}
 
-    ${new_soapd_pid} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  timeout=${5}
-    ${new_safestore_pid} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  timeout=${5}
+    ${new_soapd_pid} =  Wait For Pid  ${ON_ACCESS_BIN}  timeout=${5}
+    ${new_safestore_pid} =  Wait For Pid  ${SAFESTORE_BIN}  timeout=${5}
 
     Should Not Be Equal As Integers  ${old_soapd_pid}  ${new_soapd_pid}
     Should Not Be Equal As Integers  ${old_safestore_pid}  ${new_safestore_pid}
@@ -421,7 +421,7 @@ AV Plugin gets customer id after upgrade
     Wait Until File Contains  ${customerIdFile_chroot}  ${expectedId}  timeout=12sec
 
 IDE can be removed
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -452,14 +452,14 @@ sophos_threat_detector can start after multiple IDE updates
     Force SUSI to be initialized
     # can't check for SUSI in logs, as it may have already been initialized
 
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     Replace Virus Data With Test Dataset A
     Register Cleanup  Revert Virus Data and Run Update if Required
     Run IDE update with SUSI loaded
     Check Sophos Threat Detector Log Contains After Mark  Threat scanner successfully updated  ${threat_detector_mark}
     Check Sophos Threat Detector Log Contains After Mark  SUSI Libraries loaded:  ${threat_detector_mark}
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Replace Virus Data With Test Dataset A
@@ -580,7 +580,7 @@ Check logging symlink
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
 Check no duplicate virus data files
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -649,7 +649,7 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/resolv.conf  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/ld.so.cache  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     stop sophos_threat_detector
     wait until threat detector not running
     Wait For Sophos Threat Detector Log Contains After Mark  Closing lock file  ${threat_detector_mark}
@@ -658,7 +658,7 @@ Check installer corrects permissions of chroot files on upgrade
     Create file   ${tdPidFile}
     Change Owner  ${tdPidFile}  sophos-spl-user  sophos-spl-group
     Modify manifest
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
 
     Install AV Directly from SDDS
     ${rc}  ${output} =  Run And Return Rc And Output  ls -l ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/
@@ -702,7 +702,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     Send Policies to enable on-access
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -735,12 +735,12 @@ AV Plugin Can Send Telemetry After Upgrade
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
     Wait until AV Plugin running after mark  ${av_mark}
     Send Policies to enable on-access
 
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -959,7 +959,7 @@ IDE Update Invalidates On Access Cache
 
 
 SSPLAV can load old VDL
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark

@@ -9,13 +9,13 @@ Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/PluginUtils.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -88,7 +88,7 @@ ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${350}
 
 *** Keywords ***
 Check Sophos Threat Detector Running
-    ${result} =   ProcessUtils.pidof_or_fail  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=${1}
+    ${result} =   Pidof Or Fail  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=${1}
 
 Run Sophos Threat Detector Directly
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
@@ -97,7 +97,7 @@ Run Sophos Threat Detector Directly
     Wait until threat detector running
 
 Require Sophos Threat Detector Running
-    ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${result} =   Pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
 
 Dump Threads And Fail
@@ -109,15 +109,15 @@ Dump Threads And Fail
 Check AV Plugin Not Running
     ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
     Log  output is ${result.stdout}
-    ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
+    ${result} =   Pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 
 Check OnAccess Not Running
-    ${result} =   ProcessUtils.pidof  ${ON_ACCESS_BIN}
+    ${result} =   Pidof  ${ON_ACCESS_BIN}
     Should Be Equal As Integers  ${result}  ${-1}
 
 Check Threat Detector Not Running
-    ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${result} =   Pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Should Be Equal As Integers  ${result}  ${-1}
 
 Check Threat Detector PID File Does Not Exist
@@ -172,7 +172,8 @@ On Access Log Contains
 
 On Access Log Does Not Contain
     [Arguments]  ${input}
-    LogUtils.Over next 15 seconds ensure log does not contain   ${ON_ACCESS_LOG_PATH}  ${input}
+    Run Keyword And Expect Error
+    ...  Wait    ${ON_ACCESS_LOG_PATH}  ${input}
 
 Threat Detector Log Contains
     [Arguments]  ${input}
@@ -340,7 +341,7 @@ Wait Until AV Plugin Log Contains
 
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}
-    LogUtils.Over next 15 seconds ensure log does not contain   ${AV_LOG_PATH}  ${input}
+    Wait For Log To Not Contain From Start Of File  ${AV_LOG_PATH}  ${input}  15
 
 Plugin Log Contains
     [Arguments]  ${input}
@@ -371,7 +372,7 @@ Wait Until Management Log Contains
 
 Management Log Does Not Contain
     [Arguments]  ${input}
-    LogUtils.Over next 15 seconds ensure log does not contain   ${MANAGEMENT_AGENT_LOG_PATH}  ${input}
+    Wait For Log To Not Contain From Start Of File   ${MANAGEMENT_AGENT_LOG_PATH}  ${input}  15
 
 SAV Status XML Contains
     [Arguments]  ${input}
@@ -393,27 +394,27 @@ Check Plugin Installed and Running After Marks
     Wait until threat detector running after mark  ${threat_detector_mark}
 
 Wait until AV Plugin running
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
+    Wait For Pid  ${PLUGIN_BINARY}  ${10}
     LogUtils.Wait For AV Log contains after last restart  Starting Scan Scheduler  timeout=${20}
 
 Wait until AV Plugin running after mark
     [Arguments]   ${mark}
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    Wait For Pid  ${PLUGIN_BINARY}  ${30}
     wait_for_av_log_contains_after_mark  Starting Scan Scheduler  timeout=${40}  mark=${mark}
 
 Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}
-    ProcessUtils.wait_for_no_pid  ${PLUGIN_BINARY}  ${timeout}
+    Wait For No Pid  ${PLUGIN_BINARY}  ${timeout}
 
 Wait Until On Access Running After Mark
     [Arguments]  ${mark}
-    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
+    Wait For Pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
 
 Wait until threat detector running after mark
     [Arguments]  ${mark}  ${timeout}=${60}
     # wait for sophos_threat_detector to initialize
-    ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
+    Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
     Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  Common <> Starting USR1 monitor  ${timeout}  mark=${mark}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
@@ -475,12 +476,12 @@ Install Base For Component Tests
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base."
 
     # Check watchdog running
-    ProcessUtils.wait_for_pid  ${installDir}/base/bin/sophos_watchdog  ${5}
+    Wait For Pid  ${installDir}/base/bin/sophos_watchdog  ${5}
     # Stop MCS router since we haven't configured Central
     Run Process  ${installDir}/bin/wdctl  removePluginRegistration  mcsrouter
 
 Install AV Directly from SDDS
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
@@ -562,6 +563,7 @@ AV And Base Teardown
     Exclude SPL Base Not In Subscription Of The Policy
     Exclude UpdateScheduler Fails
     Exclude MCS Router is dead
+    Exclude Failed To Update Because JWToken Was Empty
     Check All Product Logs Do Not Contain Error
 
     Run Failure Functions If Failed
@@ -775,7 +777,7 @@ Run installer from install set and wait for reload trigger
 Run IDE update with expected texts
     [Arguments]  ${timeout}  @{expected_update_texts}
 
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${td_mark}
     Wait For Sophos Threat Detector Log Contains One Of After Mark  expected=@{expected_update_texts}  mark=${td_mark}  timeout=${timeout}
@@ -784,7 +786,7 @@ Run IDE update with expected texts
 
 Run IDE update with expected text
     [Arguments]  ${expected_update_text}  ${timeout}=120
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${td_mark}
     Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${td_mark}  ${expected_update_text}  timeout=${timeout}
@@ -806,22 +808,22 @@ Run IDE update without SUSI loaded
 
 Get Pid
     [Arguments]  ${EXEC}
-    ${PID} =  ProcessUtils.pidof or fail  ${EXEC}
+    ${PID} =  Pidof Or Fail  ${EXEC}
     [Return]   ${PID}
 
 Record AV Plugin PID
-    ${PID} =  ProcessUtils.wait for pid  ${PLUGIN_BINARY}  ${5}
+    ${PID} =  Wait For Pid  ${PLUGIN_BINARY}  ${5}
     [Return]   ${PID}
 
 Record Sophos Threat Detector PID
     # We need to wait long enough for sophos_threat_detector to be restarted
     # avplugin triggers restart of sophos_threat_detector + 10 seconds for watchdog to restart it
     # It took 10 seconds for watchdog to detect sophos_threat_detector had exited - so allow 30 seconds here
-    ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
+    ${PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
     [Return]   ${PID}
 
 Record Soapd Plugin PID
-    ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
+    ${PID} =  Wait For Pid  ${ON_ACCESS_BIN}  ${5}
     [Return]   ${PID}
 
 
@@ -851,7 +853,7 @@ Check Sophos Threat Detector has different PID
 
 Wait For Sophos Threat Detector to restart
     [Arguments]  ${PID}
-    ProcessUtils.wait for different pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${PID}  30
+    Wait For Different Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${PID}  30
 
 Check threat detected
      [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}  ${INFECTED_CONTENTS}=${EMPTY}
@@ -1049,7 +1051,7 @@ Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     ${fake_management_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
-    ${av_mark} =  get av log mark
+    ${av_mark} =  Mark AV Log
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}

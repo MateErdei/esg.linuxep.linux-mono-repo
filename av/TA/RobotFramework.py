@@ -80,6 +80,8 @@ def main():
     if listener is not None:
         robot_args['listener'] = listener
 
+    sys.path.append('/opt/test/inputs/common_test_libs')
+
     return robot.run(robot_args['path'], **robot_args)
 
 

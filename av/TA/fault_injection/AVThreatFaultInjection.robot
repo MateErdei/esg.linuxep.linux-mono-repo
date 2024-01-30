@@ -2,8 +2,8 @@
 Documentation   Fault injection test for the AV threat ingestion socket
 Force Tags      PRODUCT  TAP_PARALLEL3
 
-Library         ../Libs/LogUtils.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 Library         ../Libs/TapTestOutput.py
 
 Resource    ../shared/ComponentSetup.robot
@@ -17,16 +17,16 @@ Test Teardown  Fault Injection Test Teardown
 
 *** Keywords ***
 Dump Process Information
-    ProcessUtils.dump_threads    ${SAFESTORE_BIN}
-    ProcessUtils.dump_threads    ${AV_PLUGIN_BIN}
-    ProcessUtils.dump_threads    ${SOPHOS_THREAT_DETECTOR_BINARY}
-    ${ss_pid} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    Dump Threads    ${SAFESTORE_BIN}
+    Dump Threads    ${AV_PLUGIN_BIN}
+    Dump Threads    ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${ss_pid} =   Pidof  ${SAFESTORE_BIN}
     ${result} =   Run Shell Process   lsof -p ${ss_pid}   OnError=Failed to lsof ${SAFESTORE_BIN}
     Log  ${result.stdout}
-    ${av_pid} =   ProcessUtils.pidof  ${AV_PLUGIN_BIN}
+    ${av_pid} =   Pidof  ${AV_PLUGIN_BIN}
     ${result} =   Run Shell Process   lsof -p ${av_pid}   OnError=Failed to lsof ${AV_PLUGIN_BIN}
     Log  ${result.stdout}
-    ${td_pid} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${td_pid} =   Pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     ${result} =   Run Shell Process   lsof -p ${td_pid}   OnError=Failed to lsof ${SOPHOS_THREAT_DETECTOR_BINARY}
     Log  ${result.stdout}
 
@@ -46,7 +46,7 @@ Fault Injection Test Teardown
     run_teardown_functions
 
     # Check that we can still cleanup files after each fault injection test case.
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Create File With Automatic Cleanup  /tmp/testfile
     Send Threat Object To AV    /tmp/testfile
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/testfile'   timeout=60
@@ -76,7 +76,7 @@ Create File With Automatic Cleanup
 # SafeStore enabled tests
 Send A Valid Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
@@ -84,38 +84,38 @@ Send Empty Threat Name Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
     ${expected_error} =  Set Variable  Aborting ThreatReporterServerConnectionThread: Failed to parse detection: Empty threat name
     Mark Expected Error In AV Log  ${expected_error}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=
     Wait For Log Contains From Mark  ${av_mark}   ${expected_error}   timeout=60
 
 Send Long Threat Name Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${long_string}=  Evaluate  "a" * 50000
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=${long_string}
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Threat Name That Contains Non-ascii and Symbols Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=abc£$%^&*()_+[]{};#:@~あぃいぅあㇱ
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Threat Name That Is Valid XML In Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name=<xml> <a>text</a> <b>123</b> </xml>
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Threat Name That Is Valid JSON In Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name={"this is":"json", "a":1}
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Many Threat Detected Objects To AV with SafeStore Enabled
     [Timeout]  30 minutes
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${number_to_send} =  Set Variable  ${1000}
     FOR    ${index}    IN RANGE    ${number_to_send}
         Create File With Automatic Cleanup  /tmp/${TEST NAME}_${index}
@@ -126,13 +126,13 @@ Send Many Threat Detected Objects To AV with SafeStore Enabled
 
 Send Empty User ID In Threat Detected Object To AV with SafeStore Enabled
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    userid=
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
 
 Send Long User ID In Threat Detected Object To AV with SafeStore Enabled
     # Check handling of max Linux username length
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Threat Object To AV    /tmp/${TEST NAME}    userid=abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60

@@ -3,8 +3,8 @@ Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
 Library         ../Libs/AVScanner.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         DateTime
 Library         OperatingSystem
 Library         String

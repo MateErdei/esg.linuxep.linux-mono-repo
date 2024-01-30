@@ -33,7 +33,7 @@ Stop SafeStore Manually
 
 Wait Until SafeStore running
     [Arguments]  ${timeout}=${60}
-    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    Wait For Pid  ${SAFESTORE_BIN}  ${timeout}
 
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=10
 

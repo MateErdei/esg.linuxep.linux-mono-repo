@@ -9,7 +9,7 @@ Library         ../Libs/InstallSet.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/TeardownTools.py
+Library         ${COMMON_TEST_LIBS}/TeardownTools.py
 Library         ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
 
 *** Variables ***

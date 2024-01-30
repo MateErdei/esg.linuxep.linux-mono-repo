@@ -3,9 +3,9 @@
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ${COMMON_TEST_LIBS}/HttpsServer.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/OnAccessUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/Telemetry.py
 Library         String
 Library         DateTime

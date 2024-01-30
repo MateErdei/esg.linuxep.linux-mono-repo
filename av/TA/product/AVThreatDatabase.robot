@@ -11,8 +11,8 @@ Resource    ../shared/SafeStoreResources.robot
 Library         ../Libs/FileSampleObfuscator.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FakeManagementLog.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 
 Library         OperatingSystem
 Library         Collections
@@ -25,7 +25,7 @@ Threat is added to Threat database when threat is not quarantined
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     Register On Fail  Dump Log  ${fake_management_log_path}
     Start AV
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
@@ -34,7 +34,7 @@ Threat is added to Threat database when threat is not quarantined
     ...  10 secs
     ...  1 secs
     ...  File Log Contains  ${THREAT_DATABASE_PATH}  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     wait_for_av_log_contains_after_mark   Publishing threat health: suspicious   ${avmark}
@@ -48,14 +48,14 @@ Threat is added to Threat database when threat is not quarantined
 
 Threat is removed from Threat database when marked as resolved in central
     Start AV
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     ${threat_id} =  Set Variable  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
     ${correlation_id} =  Get Correlation Id From Log  ${avmark}  ${threat_id}
 
     ## Only interested in removals after we send the action
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="${correlation_id}"/></action>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Removing threat ${threat_id} with correlationId ${correlation_id}  ${avmark}
@@ -64,7 +64,7 @@ Threat is removed from Threat database when marked as resolved in central
 
 Threat database is cleared when we get a core reset action from central
     Start AV
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
@@ -74,16 +74,16 @@ Threat database is cleared when we get a core reset action from central
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
 
 Threat is removed from Threat database when threat is quarantined
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Start AV
     # Start AV also starts Safestore
     Wait Until SafeStore running
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -105,7 +105,7 @@ Threat is not added to Threat database when threat is quarantined
     set_default_policy_from_file  SAV    ${RESOURCES_PATH}/sav_policy/SAV_default_policy.xml
     set_default_policy_from_file  ALC    ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
     Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Start AV
     # Start AV also starts Safestore
     Wait Until SafeStore running
@@ -125,7 +125,7 @@ Duplicate Threat Event Is Not Sent To Central If Not Quarantined
     # Start AV also starts Safestore
     Wait Until SafeStore running
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
@@ -134,7 +134,7 @@ Duplicate Threat Event Is Not Sent To Central If Not Quarantined
     wait_for_av_log_contains_after_mark   Found 'ML/PE-A' in '/home/vagrant/this/is/a/directory/for/scanning/MLengHighScore-excluded.exe' which is a new detection   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is not empty, sending suspicious health to Management agent   ${avmark}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
     wait_for_av_log_contains_after_mark   Found 'ML/PE-A' in '/home/vagrant/this/is/a/directory/for/scanning/MLengHighScore-excluded.exe' which is a duplicate detection   ${avmark}
 

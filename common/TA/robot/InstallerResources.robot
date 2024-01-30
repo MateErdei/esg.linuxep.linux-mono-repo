@@ -3,10 +3,10 @@ Library     OperatingSystem
 Library     Process
 Library     String
 
-Library     FullInstallerUtils.py
-Library     ProcessUtils.py
-Library     UpgradeUtils.py
-Library     Watchdog.py
+Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library     ${COMMON_TEST_LIBS}/ProcessUtils.py
+Library     ${COMMON_TEST_LIBS}/UpgradeUtils.py
+Library     ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot

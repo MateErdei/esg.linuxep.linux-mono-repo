@@ -35,7 +35,7 @@ Configure Scan Now Scan
     Wait until scheduled scan updated
 
 Configure Scan Now Scan With On Access Enabled
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     Create Sav Policy With On Access Enabled  ${TEMP_SAV_POLICY_FILENAME}
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Wait until scheduled scan updated After Mark  ${mark}
@@ -44,7 +44,7 @@ Trigger Scan Now Scan
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     ${policy_contents} =  Get Complete Sav Policy
     send av policy  ${SAV_APPID}  ${policy_contents}
     Wait until scheduled scan updated After Mark  ${mark}
@@ -52,7 +52,7 @@ Run Scan Now Scan
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan For Excluded Files Test
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     ${policy_contents} =  Replace Exclusions For Exclusion Test  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
     send av policy  SAV  ${policy_contents}
     Wait until scheduled scan updated After Mark  ${mark}
@@ -60,7 +60,7 @@ Run Scan Now Scan For Excluded Files Test
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With No Exclusions
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
     send av policy  ${SAV_APPID}  ${policy_contents}
     Wait until scheduled scan updated After Mark  ${mark}
@@ -68,7 +68,7 @@ Run Scan Now Scan With No Exclusions
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With Default Exclusions
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     ${policy_contents} =  Get Sav Policy With Default Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
     send av policy  ${SAV_APPID}  ${policy_contents}
     Wait until scheduled scan updated After Mark  ${mark}
@@ -77,7 +77,7 @@ Run Scan Now Scan With Default Exclusions
 
 # list of exclusions: https://wiki.sophos.net/display/SAVLU/Exclusions
 Run Scan Now Scan With All Types of Exclusions
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${SAV_POLICY_FOR_EXCLUSION_TYPE_TEST}
     Wait until scheduled scan updated After Mark  ${mark}
 

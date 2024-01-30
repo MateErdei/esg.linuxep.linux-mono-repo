@@ -9,8 +9,8 @@ Library         OperatingSystem
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -121,7 +121,7 @@ Scan Now Excludes Infected Files Successfully
     Create File  /test/ddirectory/subpart/partdirectory/more/eicar_to_detect.com                        ${CLEAN_STRING}
     Register Cleanup    Remove Directory  /test/                                 recursive=True
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Scan Now Scan With All Types of Exclusions
     Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=10
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=20
@@ -192,7 +192,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Register Cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
     # Start scan now - abort or timeout...
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${scan_now_mark} =  mark_log_size  ${SCANNOW_LOG_PATH}
     Run Scan Now Scan With Default Exclusions
     wait_for_av_log_contains_after_mark  Received new Action  mark=${av_mark}
@@ -212,7 +212,11 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
 #    This message will only be logged if a scan is running in TD when we stop, this is not guaranteed to happen
 #    File Log Contains  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Aborting scan, scanner is shutting down
-    File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Check Log Contains String N Times
+    ...  ${SCANNOW_LOG_PATH}
+    ...  Scan Now.log
+    ...  Reached total maximum number of reconnection attempts. Aborting scan.
+    ...  1
 
 
 Scan Now scans dir with name similar to excluded mount
@@ -224,7 +228,7 @@ Scan Now scans dir with name similar to excluded mount
     Create File  /process/eicar.com       ${EICAR_STRING}
 
     Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Trigger Scan Now Scan
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
@@ -244,7 +248,7 @@ Scan Now scan errors do not get logged to av log
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /process
 
     Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Trigger Scan Now Scan
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/passwd-protected.xls as it is password protected

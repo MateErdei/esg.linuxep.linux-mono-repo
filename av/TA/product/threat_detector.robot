@@ -11,8 +11,8 @@ Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/JsonUtils.py
 Library         ../Libs/LockFile.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
@@ -160,7 +160,7 @@ Threat Detector Log Rotates while in chroot
 Threat detector is killed gracefully
     Dump and Reset Logs
 
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Start AV
     Wait until threat detector running after mark  ${td_mark}
 
@@ -191,7 +191,7 @@ Threat detector is killed gracefully
 
 Threat detector triggers reload on SIGUSR1
     Dump and Reset Logs
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Start AV
     Wait until threat detector running after mark    ${td_mark}
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
@@ -210,7 +210,7 @@ Threat detector triggers reload on SIGUSR1
 
 Threat detector exits if it cannot acquire the susi update lock
     Dump and Reset Logs
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
 #    Register Cleanup    Exclude Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running after mark    ${td_mark}
@@ -239,18 +239,18 @@ Threat detector exits if it cannot acquire the susi update lock
 
 Threat Detector Logs Susi Version when applicable
     Dump and Reset Logs
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
     Wait For Sophos Threat Detector Log Contains After Mark  Initializing SUSI  ${td_mark}
     Wait For Sophos Threat Detector Log Contains After Mark  SUSI Libraries loaded:  ${td_mark}
-    ${td_mark2} =  Get Sophos Threat Detector Log Mark
+    ${td_mark2} =  Mark Sophos Threat Detector Log
 
     ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
     Wait For Sophos Threat Detector Log Contains After Mark  SUSI already initialised  ${td_mark2}
     Sleep  1s  Allow a second for Threat Detector to log the loading of SUSI Libraries
     Check Sophos Threat Detector Log Does Not Contain After Mark  SUSI Libraries loaded:  ${td_mark2}
-    ${td_mark3} =  Get Sophos Threat Detector Log Mark
+    ${td_mark3} =  Mark Sophos Threat Detector Log
 
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -SIGUSR1   ${pid}
@@ -261,7 +261,7 @@ Threat Detector Logs Susi Version when applicable
 
 Threat Detector Doesnt Log Every Scan
     Dump and Reset Logs
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
     Register Cleanup       Set Log Level  DEBUG
@@ -300,7 +300,7 @@ Threat Detector loads proxy from config file
     # Create proxy file
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  {"proxy":"localhost:8080"}
 
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Register On Fail  dump marked log  ${THREAT_DETECTOR_LOG_PATH}  ${td_mark}
 
     Start AV
@@ -324,7 +324,7 @@ Sophos Threat Detector sets default if susi startup settings permissions ownersh
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE}
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
-    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark3} =  Mark Sophos Threat Detector Log
     Start Threat Detector As Limited User
 
     # scan eicar to trigger susi to be loaded

@@ -81,32 +81,6 @@ class TeardownTools(object):
         for log_key in self.log_files:
             self.log_mark_dict[log_key] = None
 
-    def check_dmesg_for_segfaults(self):
-        dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
-        grep_process = sp.Popen(["grep", "-n3", "segfault"], stdin=dmesg_process.stdout, stdout=sp.PIPE, stderr=sp.STDOUT)
-        dmesg_process.wait()
-        dmesg_process.stdout.close()
-        grep_process.wait()
-        stdout, stderr = grep_process.communicate()
-        logger.info(stdout)
-        logger.info("dmesg return code: {}, expecting 0".format(dmesg_process.returncode))
-        assert dmesg_process.returncode == 0
-        logger.info("grep return code: {}, expecting 1".format(grep_process.returncode))
-        # grep return code 0 means we found a match
-        # return code 1 means no match
-        if grep_process.returncode == 0:
-            # Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
-            sp.run(["dmesg", "-C"])
-            logger.info("Clear dmesg after segfault detected")
-            output = str(stdout)
-            segfaults = stdout.decode().splitlines()
-            to_ignore = ["nm-cloud-setup", "wget"]
-            segfaults = [x for x in segfaults if all(y not in x for y in to_ignore)]
-            if len(segfaults) > 0:
-                raise AssertionError("segfault found : " + output)
-
-        return stdout
-
     def force_teardown_logging_if_env_set(self):
         if not os.environ.get(self.FORCE_LOGGING_KEY, None):
             logger.info("{} not set".format(self.FORCE_LOGGING_KEY))
@@ -209,29 +183,6 @@ class TeardownTools(object):
         if root_coverage or tests_coverage:
             files = root_coverage + tests_coverage
             self._run_combine_ignore_error(files)
-
-    def check_for_coredumps(self, testname):
-        filer6 = False
-        if os.path.isdir("/mnt/filer6/linux"):
-            self.mount_filer6()
-            filer6 = True
-        if os.path.exists("/tmp"):
-            files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
-            is_core_dump = False
-            for file in files_in_tmp:
-                if file.startswith("core-"):
-                    is_core_dump = True
-                    file_path = os.path.join("/tmp", file)
-                    try:
-                        self.copy_to_filer6_or_s3_pickup(file_path, testname, filer6)
-                    except Exception as ex:
-                        logger.info(f"failed to copy {file_path} to storage location: {ex}")
-                    finally:
-                        os.remove(file_path)
-            if is_core_dump:
-                raise AssertionError("Core dump found")
-        else:
-            print("No tmp directory")
 
     def copy_to_filer6_or_s3_pickup(self, filepath, testname,filer6):
         if filer6:

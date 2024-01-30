@@ -94,17 +94,17 @@ Run plugin uninstaller with downgrade flag
     Log    ${result.stdout}
 
 Configure and run scan now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Configure scan now
     Run Scan Now After Mark  ${av_mark}
 
 Configure and check scan now with lookups disabled
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Configure scan now with lookups disabled
     Run Scan Now After Mark  ${av_mark}
 
 Configure scan now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
     Send CORC Policy To Base From Content  ${policyContent}
@@ -113,8 +113,8 @@ Configure scan now
     Wait until scheduled scan updated After Mark  ${av_mark}
 
 Configure scan now with lookups disabled
-    ${av_mark} =  Get AV Log Mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
@@ -181,7 +181,7 @@ Restart sophos_threat_detector
 
 Really Restart sophos_threat_detector
     Stop sophos_threat_detector
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait until threat detector running after mark  ${threat_detector_mark}
 
@@ -223,7 +223,7 @@ Set number of scanning threads in integration test
     Wait Until On Access running
 
 Reset ThreatDatabase
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     ${actionFilename} =  Generate Random String
     ${full_action_filename} =  Set Variable  CORE_action_${actionFilename}.xml
     Copy File  ${RESOURCES_PATH}/core_action/Core_reset_threat.xml  ${SOPHOS_INSTALL}/base/mcs/action/${full_action_filename}
@@ -235,6 +235,6 @@ Create SUSI Initialisation Error
     Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  ${true}
     Move Directory  ${VDL_DIRECTORY}  ${VDL_TEMP_DESTINATION}
     Register Cleanup    Remove Directory    ${VDL_TEMP_DESTINATION}  recursive=True
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait until threat detector running after mark  ${td_mark}

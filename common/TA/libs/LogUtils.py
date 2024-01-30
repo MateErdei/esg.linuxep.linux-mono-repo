@@ -18,6 +18,8 @@ except ImportError:
     import LogHandler
 
 
+_ensure_str = LogHandler.ensure_unicode
+
 def _get_log_contents(path_to_log):
     try:
         with open(path_to_log, "r") as log:
@@ -108,7 +110,10 @@ class LogUtils(object):
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0
+        self.marked_susi_debug_log = 0
         self.marked_ss_log = 0
+        self.marked_scan_now_log = 0
+        self.marked_on_access_log = 0
         self.marked_edr_log = 0
         self.marked_edr_osquery_log = 0
         self.marked_livequery_log = 0
@@ -164,6 +169,7 @@ class LogUtils(object):
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
         self.scheduled_scan_log = os.path.join(self.av_plugin_logs_dir, "Sophos Cloud Scheduled Scan.log")
+        self.scan_now_log = os.path.join(self.av_plugin_logs_dir, "Scan Now.log")
 
     # Common Log Utils
     def get_log_contents_from_path_to_log(self, path_to_log):
@@ -299,10 +305,17 @@ class LogUtils(object):
             logger.info(f"File {filename} does not exist")
         return False
 
+    def dump_logs(self, *filenames):
+        for filename in filenames:
+            robot.libraries.BuiltIn.BuiltIn().run_keyword("LogUtils.Dump Log", filename)
+
     def dump_log_on_failure(self, filename):
         robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
 
-    def check_log_contains(self, string_to_contain, path_to_log, log_name):
+    def check_log_contains(self, string_to_contain, path_to_log, log_name=None):
+        if log_name is None:
+            log_name = os.path.basename(path_to_log)
+
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {log_name} at location {path_to_log} does not exist ")
 
@@ -310,6 +323,9 @@ class LogUtils(object):
         if string_to_contain not in contents:
             self.dump_log(path_to_log)
             raise AssertionError(f"{log_name} Log at \"{path_to_log}\" does not contain: {string_to_contain}")
+
+    def file_log_contains(self, path, expected):
+        return self.check_log_contains(expected, path)
 
     def check_log_does_not_contain(self, string_not_to_contain, path_to_log, log_name):
         if not (os.path.isfile(path_to_log)):
@@ -918,7 +934,8 @@ class LogUtils(object):
 
     # AV Plugin Log Utils
     def mark_av_log(self):
-        self.marked_av_log = get_log_length(self.av_log)
+        self.marked_av_log = self.mark_log_size(self.av_log)
+        return self.marked_av_log
 
     def check_marked_av_log_contains(self, string_to_contain):
         av_log = self.av_log
@@ -937,7 +954,8 @@ class LogUtils(object):
         self.check_log_does_not_contain(string_to_not_contain, self.safestore_log, "SafeStore")
 
     def mark_safestore_log(self):
-        self.marked_safestore_log = get_log_length(self.safestore_log)
+        self.marked_safestore_log = self.mark_log_size(self.safestore_log)
+        return self.marked_safestore_log
 
     def check_marked_safestore_log_contains(self, string_to_contain):
         safestore_log = self.safestore_log
@@ -949,18 +967,38 @@ class LogUtils(object):
             self.dump_log(safestore_log)
             raise AssertionError(f"SafeStore log did not contain: {string_to_contain}")
 
-    def mark_sophos_threat_detector_log(self):
-        self.marked_sophos_threat_detector_log = get_log_length(self.sophos_threat_detector_log)
+    def mark_sophos_threat_detector_log(self) -> LogHandler.LogMark:
+        self.marked_sophos_threat_detector_log = self.mark_log_size(self.sophos_threat_detector_log)
+        return self.marked_sophos_threat_detector_log
 
-    def check_marked_sophos_threat_detector_log_contains(self, string_to_contain):
+    def check_marked_sophos_threat_detector_log_contains(self, string_to_contain, mark=None):
         sophos_threat_detector_log = self.sophos_threat_detector_log
-        contents = _get_log_contents(sophos_threat_detector_log)
 
-        contents = contents[self.marked_sophos_threat_detector_log:]
+        if mark is None:
+            if isinstance(self.marked_sophos_threat_detector_log, LogHandler.LogMark):
+                contents = self.marked_sophos_threat_detector_log.get_contents_unicode()
+            else:
+                contents = _get_log_contents(sophos_threat_detector_log)
+        else:
+            contents = mark.get_contents_unicode()
 
         if string_to_contain not in contents:
             self.dump_log(sophos_threat_detector_log)
             raise AssertionError(f"sophos_threat_detector.log log did not contain: {string_to_contain}")
+
+        return contents
+
+    def mark_susi_debug_log(self) -> LogHandler.LogMark:
+        self.marked_susi_debug_log = self.mark_log_size(self.susi_debug_log)
+        return self.marked_susi_debug_log
+
+    def mark_scheduled_scan_log(self) -> LogHandler.LogMark:
+        self.marked_ss_log = self.mark_log_size(self.scheduled_scan_log)
+        return self.marked_ss_log
+
+    def mark_scan_now_log(self) -> LogHandler.LogMark:
+        self.marked_scan_now_log = self.mark_log_size(self.scan_now_log)
+        return self.marked_scan_now_log
 
     # EDR Log Utils
     def check_edr_log_contains(self, string_to_contain):
@@ -1098,6 +1136,7 @@ class LogUtils(object):
             "oa_mark": self.mark_log_size(self.oa_log),
             "safestore_mark": self.mark_log_size(self.safestore_log),
             "scheduled_scan_mark": self.mark_log_size(self.scheduled_scan_log),
+            "scan_now_mark": self.mark_log_size(self.scan_now_log),
 
             # Base
             "watchdog_mark": self.mark_log_size(self.watchdog_log),
@@ -1143,6 +1182,15 @@ class LogUtils(object):
         assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_from_mark(expected, timeout)
+
+    def wait_for_possible_log_contains_from_mark(self,
+                                                 mark: LogHandler.LogMark,
+                                                 expected: typing.Union[list, str, bytes],
+                                                 timeout: float = 10) -> LogHandler.LogMark:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_possible_log_contains_from_mark"
+        return mark.wait_for_possible_log_contains_from_mark(expected, timeout)
 
     def wait_for_log_contains_after_mark(self,
                                          logpath: typing.Union[str, bytes],
@@ -1206,6 +1254,10 @@ class LogUtils(object):
         time.sleep(timeout)
         return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
 
+    def wait_for_log_to_not_contain_from_start_of_file(self, log_path: str, not_expected: str, timeout: int):
+        mark = LogHandler.LogMark(log_path, 0)
+        return self.wait_for_log_to_not_contain_after_mark(log_path, not_expected, mark, timeout)
+
     def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
         """
         Wait for a log line, but only in the log lines after the most recent restart of the process.
@@ -1260,6 +1312,32 @@ class LogUtils(object):
         assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_n_times_from_mark(expected, times, timeout)
+
+    def wait_for_log_contains_one_of_after_mark(self,
+                                                logpath: typing.Union[str, bytes],
+                                                expected: typing.Union[list, str, bytes],
+                                                mark: LogHandler.LogMark,
+                                                timeout=10) -> None:
+        if mark is None:
+            logger.error("No mark passed for wait_for_log_contains_one_of_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_one_of_after_mark"
+        mark.assert_is_good(logpath)
+        return mark.wait_for_log_contains_one_of_from_mark(expected, timeout)
+
+    def wait_for_log_contains_any(self,
+                                  mark: LogHandler.LogMark,
+                                  *expected,
+                                  timeout=10) -> LogHandler.LogMark:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(expected, tuple)
+        assert isinstance(mark, LogHandler.LogMark), ("mark is not an instance of LogMark in "
+                                                      "wait_for_log_contains_from_mark")
+        return mark.wait_for_log_contains_from_mark(list(expected), timeout)
+
+    def find_last_match_after_mark(self, mark, line_to_search_for):
+        return mark.find_last_match_after_mark(line_to_search_for)
 
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
@@ -1326,6 +1404,96 @@ class LogUtils(object):
             if len(unexpected_matches) > 0:
                 raise AssertionError(f"Found unexpected reads of openssl configs:\n" + "\n".join(unexpected_matches))
 
+########################################################################################################################
+# AV Logs
+    def wait_for_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
+        return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
+
+    def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
+        return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout, mark)
+
+    def wait_for_sophos_threat_detector_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
+        return self.wait_for_log_contains_after_last_restart(self.sophos_threat_detector_log, expected, timeout, mark)
+
+    def check_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark):
+        return self.check_log_contains_after_mark(self.av_log, expected, mark)
+
+    def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
+
+    def wait_for_sophos_threat_detector_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
+        return self.wait_for_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark, timeout=timeout)
+
+    def wait_for_sophos_threat_detector_log_contains_one_of_after_mark(self, expected: list, mark: LogHandler.LogMark, timeout: int = 10):
+        return self.wait_for_log_contains_one_of_after_mark(self.sophos_threat_detector_log, expected, mark, timeout=timeout)
+
+    def wait_until_latest_sophos_threat_detector_log_contains(self, expected: str, timeout: int = 15):
+        handler = self.get_log_handler(self.sophos_threat_detector_log)
+        mark = handler.get_mark_at_start_of_current_file()
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
+
+    def check_sophos_threat_detector_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark)
+
+    def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
+
+    def av_log_contains_multiple_times_after_mark(self, expected: str, mark: LogHandler.LogMark, times):
+        return self.check_log_contains_n_times_after_mark(self.av_log, expected, times, mark)
+
+    def check_susi_debug_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.susi_debug_log, expected, mark)
+
+    def check_susi_debug_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.susi_debug_log, not_expected, mark)
+
+    def get_susi_debug_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.susi_debug_log, mark)
+
+    def wait_for_susi_debug_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
+        return self.wait_for_log_contains_after_mark(self.susi_debug_log, expected, mark, timeout)
+
+    def get_av_log_after_mark_as_unicode(self, mark):
+        return _ensure_str(self.get_log_after_mark(self.av_log, mark))
+
+    def check_on_access_log_contains_in_order(self, expected_items, mark):
+        logger.info(expected_items)
+        return self.check_log_contains_in_order_after_mark(self.oa_log, expected_items, mark)
+
+    def check_scan_now_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.scan_now_log, expected, mark)
+
+    def check_scan_now_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.scan_now_log, not_expected, mark)
+
+    def wait_for_safestore_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
+        return self.wait_for_log_contains_after_mark(self.safestore_log, expected, mark, timeout)
+
+    def verify_sophos_threat_detector_log_line_is_level(self, expected_level, string_to_check, mark=None):
+        contents = self.check_marked_sophos_threat_detector_log_contains(string_to_check, mark)
+        line_re = re.compile(r"^\d+\s+\[\S+]\s+(\w+)\s+.*?"+re.escape(string_to_check)+r".*?$", flags=re.MULTILINE)
+        found = False
+        for mo in line_re.finditer(contents):
+            found = True
+            logger.info("Found line: %s" % mo.group(0))
+            level = mo.group(1)
+            logger.info("Level: %s" % level)
+            if level not in expected_level:
+                raise AssertionError(f"sophos_threat_detector log contains expected string \"{string_to_check}\" "
+                                     f"at unexpected level {level} (expected {expected_level})")
+        if not found:
+            raise AssertionError(f"Regex failed to find {string_to_check}")
+
+    def verify_sophos_threat_detector_log_line_is_informational(self, string_to_check):
+        return self.verify_sophos_threat_detector_log_line_is_level(("DEBUG", "INFO", "SUPPORT", "SPRT"),
+                                                                    string_to_check)
+
+    def dump_sophos_threat_detector_log_after_mark(self, mark):
+        return self.dump_marked_log(self.sophos_threat_detector_log, mark)
+
+########################################################################################################################
+# Plugin readiness checks
     def wait_for_response_action_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30, oldcode: bool = False):
         response_actions_mark = log_marks["response_actions_mark"]
         # TODO: once this log line is in current shipping, remove oldcode if statement

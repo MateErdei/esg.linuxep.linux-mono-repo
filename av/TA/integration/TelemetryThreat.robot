@@ -35,7 +35,7 @@ Command Line Scan Increments Telemetry Threat Eicar Count
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${dirtyfile}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
     Log    ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -91,7 +91,7 @@ Scheduled Scan Increments Telemetry Threat Eicar And Scheduled Scan Count
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${dirtyfile}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -120,7 +120,7 @@ Scheduled Scan Increments Telemetry Threat And Scheduled Scan Count
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -282,14 +282,14 @@ AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
 
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${filepath} =  Set Variable   /tmp_test/auniqueeicar.com
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
     Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a new detection   mark=${avmark}
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Create File  ${filepath}  ${EICAR_STRING}
     Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a duplicate detection   mark=${avmark}
 

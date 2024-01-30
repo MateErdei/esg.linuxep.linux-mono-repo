@@ -13,9 +13,9 @@ Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 Library         ../Libs/SafeStoreUtils.py
 Library         ../Libs/TapTestOutput.py
 
@@ -48,7 +48,7 @@ SafeStore Database is Initialised
 
 
 SafeStore Can Reinitialise Database Containing Threats
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Wait Until SafeStore running
 
@@ -79,7 +79,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
 
 SafeStore Recovers From Corrupt Database
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
 
     Wait Until SafeStore running
@@ -103,7 +103,7 @@ SafeStore Recovers From Corrupt Database
 
 
 SafeStore Recovers From Corrupt Database With Lock Dir
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
 
     Wait Until SafeStore running
@@ -129,7 +129,7 @@ SafeStore Recovers From Corrupt Database With Lock Dir
 
 
 SafeStore Recovers From Database With Erroneous Lock Dir
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
 
     Wait Until SafeStore running
@@ -175,7 +175,7 @@ SafeStore Recovers From Left Over Unpacked File
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
 
 
@@ -206,7 +206,7 @@ SafeStore Quarantines When It Receives A File To Quarantine
 SafeStore Quarantines When It Receives A File To Quarantine (On Access)
     register cleanup    Exclude Watchdog Log Unable To Open File Error
     Send Policies to enable on-access
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     On-access Scan Eicar Close
     Exclude SafeStore File Open Error On Quarantine  /tmp_test/eicar.com
@@ -266,7 +266,7 @@ SafeStore Quarantines Archive
 Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Wait Until SafeStore running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
@@ -297,7 +297,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
 
 SafeStore does not quarantine on a Corrupt Database
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Wait Until SafeStore running
 
@@ -329,7 +329,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 
     Stop SafeStore
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Check avscanner can detect eicar
 
@@ -341,7 +341,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Check avscanner can detect eicar on read only mount
 
@@ -355,7 +355,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
     Create eicar on read only mount  /tmp_test/
     Send Policies to enable on-access
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     ${result} =  run process    cat   /tmp_test/readOnly/eicar.com
 
@@ -366,7 +366,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Check avscanner can detect eicar on network mount
 
@@ -380,7 +380,7 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount (On Access)
     Create eicar on network mount
     ${destination} =  Set Variable  /testmnt/nfsshare
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     ${result} =  run process    cat   ${destination}/eicar.com
 
@@ -392,7 +392,7 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount (On Access)
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Wait Until SafeStore running
 
@@ -409,7 +409,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Create Big Eicar Of Size  31K   ${eicar2}
     Create Big Eicar Of Size  31K   ${eicar3}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
@@ -419,8 +419,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
@@ -432,8 +432,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
@@ -464,8 +464,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING} two
     Create File     ${NORMAL_DIRECTORY}/${eicar3}   ${EICAR_STRING} three
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Wait Until SafeStore running
 
@@ -478,8 +478,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
@@ -491,8 +491,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
@@ -510,7 +510,7 @@ SafeStore Does Not Restore Quarantined Files When Uninstalled
     [Teardown]  SafeStore Test Teardown When AV Already Uninstalled
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
@@ -564,7 +564,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
 Threat Detector Triggers SafeStore Rescan On Timeout
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     Create Rescan Interval File
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
 
@@ -579,8 +579,8 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING} one
     Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING} two
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Wait Until SafeStore running
 
@@ -589,8 +589,8 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar1} successfully
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
@@ -602,8 +602,8 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
-    ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Mark AV Log
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     # Trigger Rescan
@@ -649,7 +649,7 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -667,7 +667,7 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     Should Not Exist  ${allow_listed_threat_file}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -705,7 +705,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive Co
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -730,7 +730,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive Co
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_archive} successfully
     Should Not Exist  ${allow_listed_archive}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -756,7 +756,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -775,7 +775,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_archive} successfully
     Should Not Exist  ${allow_listed_archive}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -799,7 +799,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Files
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -823,7 +823,7 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Files
     Should Not Exist  ${allow_listed_threat_file}
     Should Not Exist  ${not_allow_listed_threat_file}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -849,7 +849,7 @@ File Is Removed From Quarantine Allow List By Path
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -867,7 +867,7 @@ File Is Removed From Quarantine Allow List By Path
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     Should Not Exist  ${allow_listed_threat_file}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -905,7 +905,7 @@ Archive Is Removed From Quarantine When Archive Is Allow Listed
 
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.   timeout=60
@@ -926,7 +926,7 @@ Archive Is Removed From Quarantine When Archive Is Allow Listed
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_archive} successfully
     Should Not Exist  ${allow_listed_threat_archive}
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
@@ -1033,7 +1033,7 @@ Safestore Quarantines On Access Execute Detection
     [Tags]  exclude_arm64
 
     ${oa_mark} =  get_on_access_log_mark
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     Send Policies to enable on-access  flags_policy/flags_safestore_quarantine_ml_enabled.json  ${oa_mark}
     # Wait for exclusion to be active
@@ -1075,7 +1075,7 @@ SafeStore Quarantines Pua Detection
 
 Threat Can Be Restored From Persisted SafeStore Database
     Check AV Plugin Running
-    ${avMark} =  Get AV Log Mark
+    ${avMark} =  Mark AV Log
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     ${threatId} =  Set Variable    e52cf957-a0dc-5b12-bad2-561197a5cae4
 
@@ -1174,8 +1174,8 @@ Correlation Id Stays The Same Until The File Is Quarantined And Changes For Rede
     Should Not Be Equal  ${correlation_id1}  ${correlation_id2}
 
 Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
-    ${ss_mark} =  Get SafeStore Log Mark
-    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Mark Safestore Log
+    ${av_mark} =  Mark AV Log
     ${oa_mark} =  Get on access log mark
     Send Policies to enable on-access  flags_policy/flags_safestore_quarantine_ml_enabled.json  ${oa_mark}
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore will quarantine ML detections
@@ -1188,7 +1188,7 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     File Should Not Exist  ${allow_listed_threat_file}
 
     # Allow-list the file and wait for it to be restored
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     Send CORC Policy To Base   corc_policy.xml
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
@@ -1201,13 +1201,13 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     Wait For Log Contains From Mark  ${oa_mark}  caching ${allow_listed_threat_file}
 
     # Clear the allow list and wait for it to be received
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     Send CORC Policy To Base   corc_policy_empty_allowlist.xml
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
 
     # Re-detect the file with on access
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     Open And Close File  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     File Should Not Exist  ${allow_listed_threat_file}
@@ -1235,7 +1235,7 @@ SafeStore Does Not Fully Rescan Archive If Metadata Rescan Reports Threats
     File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
     # Send a policy to force a rescan. This policy does not allowlist the archive or inner file.
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${allowlisted_sha256s} =    Create List    SHA256 that is not used by anything
@@ -1271,7 +1271,7 @@ SafeStore Restores Archive Once Inner Detection Is Allowlisted
     File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
     # Send a policy to force a rescan. This policy allowlists the inner file (eicar).
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${allowlisted_sha256s} =    Create List    ${eicar_sha}
@@ -1305,7 +1305,7 @@ SafeStore Restores Archive Containing Password Protected File
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -1331,7 +1331,7 @@ Quarantine Archive With Two Threats And Allowlisting The First Threat Triggers F
     File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
     # Send a policy to force a rescan. This policy allowlists the inner file.
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     # Send CORC policy with the DSA allowlisted
@@ -1372,7 +1372,7 @@ Quarantine Archive With Three Threats And Rescan Stores Remaining Detections In 
     File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
     # Send a policy to force a rescan. This policy allowlists the inner file.
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     # Send CORC policy with the DSA allowlisted
@@ -1405,7 +1405,7 @@ Archive With A Lot Of Detections Results In More Than 5000 Characters Being Stor
     File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
     # Send a policy to force a rescan. This policy allowlists the inner file.
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -1426,7 +1426,7 @@ Archive With A Lot Of Detections Results In More Than 5000 Characters Being Stor
     Wait For Log Contains From Mark    ${ss_mark}    Failed to set custom data against SafeStore object, max size: 5000bytes
 
     # Now we will try to restore the file despite the previous failure
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${ss_mark} =  Mark Safestore Log
 
     # Send CORC policy with the all eicars allowlisted
     ${allowlisted_sha256s} =    Create List    ${eicar_sha_1}    ${eicar_sha_2}
@@ -1438,7 +1438,7 @@ Archive With A Lot Of Detections Results In More Than 5000 Characters Being Stor
 
 
 Safestore does not quarantine immutable files
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Wait Until SafeStore running
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Create immutable eicar and trigger scan
@@ -1489,6 +1489,8 @@ SafeStore Test Setup
     register on fail  analyse Journalctl   print_always=True
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup      Exclude Failed To Update Because JWToken Was Empty
+    Register Cleanup      Exclude UpdateScheduler Fails
     Register Cleanup      Exclude MCS Router is dead
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Require No Unhandled Exception

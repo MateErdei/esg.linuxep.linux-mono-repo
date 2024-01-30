@@ -5,8 +5,8 @@ Force Tags      COMPONENT  PRODUCT  THREAT_DETECTOR  TAP_PARALLEL1
 
 Library    OperatingSystem
 Library    Process
-Library    ../Libs/LogUtils.py
-Library    ../Libs/OnFail.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/GlobalSetup.robot
@@ -16,7 +16,7 @@ Resource    ../shared/GlobalSetup.robot
 Threat Detector Handles inaccessible var
     [Tags]  fault_injection
     Make chroot var inaccessible
-    ${mark} =  get_sophos_threat_detector_log_mark
+    ${mark} =  Mark Sophos Threat Detector Log
     Run Sophos Threat Detector as sophos-spl-threat-detector without check
     wait_for_log_contains_from_mark  ${mark}
     ...  SophosThreatDetectorImpl <> ThreatDetectorMain: RuntimeError caught at top level: filesystem error: cannot remove: Permission denied [${AV_CHROOT_VAR_DIR}/threat_detector_expected_shutdown]
@@ -25,7 +25,7 @@ Threat Detector Handles inaccessible var
 Threat Detector Handles nonexistent var
     [Tags]  fault_injection
     Remove chroot var
-    ${mark} =  get_sophos_threat_detector_log_mark
+    ${mark} =  Mark Sophos Threat Detector Log
     Run Sophos Threat Detector as sophos-spl-threat-detector without check
     #By the time this line is logged we are already in the chroot and STD does not see anything outside it
     wait_for_log_contains_from_mark  ${mark}

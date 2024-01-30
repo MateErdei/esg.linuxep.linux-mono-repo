@@ -11,11 +11,11 @@ Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LockFile.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/OnAccessUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/ThreatReportUtils.py
 
 
@@ -55,7 +55,7 @@ Start On Access without Pid check
 Start On Access without Log check
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
-    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
+    Wait For Pid  ${ON_ACCESS_BIN}  ${30}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
 
 Start On Access
@@ -161,7 +161,7 @@ On-access Scan Eicar Close
     [Arguments]  ${filepath}=/tmp_test/eicar.com
 
     ${oamark} =  get_on_access_log_mark
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 

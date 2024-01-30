@@ -9,8 +9,8 @@ Resource    ../shared/ErrorMarkers.robot
 Library         Collections
 Library         Process
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 
 Suite Setup     VQA Suite Setup
 Suite Teardown  VQA Suite TearDown
@@ -63,7 +63,7 @@ SUSI config can scan a media file
     #      "typeId" : "GIF"
     #    }
     #  ]
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    ${susi_debug_mark} =  Mark SUSI Debug Log
     Check File Clean  test.gif
     Check SUSI Debug Log Contains After Mark  "group" : "Image"  ${susi_debug_mark}
     Check SUSI Debug Log Contains After Mark  "name" : "TFT/GIF-A"  ${susi_debug_mark}
@@ -80,7 +80,7 @@ SUSI config can scan a selfextractor file
     #      "typeId" : "Windows"
     #    }
     #  ]
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    ${susi_debug_mark} =  Mark SUSI Debug Log
     Check File Clean  Firefox.exe
     Check SUSI Debug Log Contains After Mark  "group" : "Executable"  ${susi_debug_mark}
     Check SUSI Debug Log Contains After Mark  "name" : "TFT/EXE-A"  ${susi_debug_mark}

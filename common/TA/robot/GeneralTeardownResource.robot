@@ -1,7 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
-Library    TeardownTools.py
-Library    LogUtils.py
+Library    ${COMMON_TEST_LIBS}/TeardownTools.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource   InstallerResources.robot
 

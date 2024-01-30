@@ -4,7 +4,7 @@ Documentation   Component tests for SOAP
 Force Tags      COMPONENT  PRODUCT  SOAP  onaccess  oa_alternative  TAP_PARALLEL1
 
 Library    OperatingSystem
-Library    ../Libs/OnFail.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource  ../shared/OnAccessResources.robot
 

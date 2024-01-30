@@ -246,7 +246,7 @@ On Access Scans File Created Under A Long Path
 
 
 On Access Scans Encoded Eicars
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
@@ -560,7 +560,7 @@ On Access Doesnt Scan Named Scanner Events
     Register Cleanup   Dump Log On Failure   ${AV_LOG_PATH}
 
     ${oamark} =  get_on_access_log_mark
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     Configure Scan Now Scan With On Access Enabled
 

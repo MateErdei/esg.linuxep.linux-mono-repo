@@ -195,8 +195,8 @@ On Access Does Not Detect PUAs In The Allow List
     Register On Fail  dump log  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Register On Fail  dump log  ${AV_VAR_DIR}/on_access_policy.json
     Force SUSI to be initialized
-    ${avmark} =  get_av_log_mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${avmark} =  Mark AV Log
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>PsExec</puaName>
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Wait until scheduled scan updated After Mark  ${avmark}
@@ -216,8 +216,8 @@ On Access Does Not Detect PUAs In The Allow List
     Wait for on access log contains after mark  detected "${testfile2}" is infected with EICAR-PUA-Test  mark=${oamark}
     Check on access log does not contain after mark  detected "${testfile1}" is infected with PsExec  mark=${oamark}
 
-    ${avmark2} =  get_av_log_mark
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${avmark2} =  Mark AV Log
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
     Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>EICAR-PUA-Test</puaName>
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Wait until scheduled scan updated After Mark  ${avmark2}

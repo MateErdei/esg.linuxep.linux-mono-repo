@@ -7,8 +7,8 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
 
@@ -48,7 +48,7 @@ AV plugin runs scheduled scan and updates telemetry
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4421}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -138,7 +138,7 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${rootkeyDict}   threatHealth   ${1}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Start AV Plugin
     Wait For AV Log Contains After Mark  Restoring telemetry from disk for plugin: av  ${av_mark}
     Run Telemetry Executable With HTTPS Protocol    port=${4434}
@@ -272,7 +272,7 @@ On Access ML Scanning Is Reported Correctly To Telemetry
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   True
 
-    ${av_mark} =  Get av log mark
+    ${av_mark} =  Mark AV Log
     Send CORE Policy To Base  core_policy/CORE-36_ml_disabled.xml
     Wait for av log contains after mark     Machine Learning detections disabled  mark=${av_mark}
 

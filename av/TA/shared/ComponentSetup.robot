@@ -5,8 +5,8 @@ Library         String
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FileUtils.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 
 # Uses functions from AVResources, but can't be included because AVResources need variables only defined
 # once GlobalSetup.Global Setup Tasks has completed

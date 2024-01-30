@@ -10,8 +10,8 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/JsonUtils.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -42,7 +42,7 @@ AV Plugin Will Fail Scan Now If No Policy
     Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
     Register Cleanup  Exclude Scan As Invalid
 
-    ${mark} =  get_av_log_mark
+    ${mark} =  Mark AV Log
 
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
@@ -54,9 +54,9 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
-    ${av_mark} =  get av log mark
+    ${av_mark} =  Mark AV Log
     send av policy  ${SAV_APPID}  ${policyContent}
     Wait Until Scheduled Scan Updated After Mark  ${av_mark}
 
@@ -69,7 +69,7 @@ AV Plugin Gets ML Lookup Setting From CORE Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
 
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
@@ -78,9 +78,9 @@ AV Plugin Gets ML Lookup Setting From CORE Policy
     check_json_contains  ${json}  machineLearning  ${false}
 
 AV Plugin Can Receive Actions
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
-    ${av_mark} =  get av log mark
+    ${av_mark} =  Mark AV Log
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait For AV Log Contains After Mark  Received new Action  ${av_mark}
 
@@ -101,12 +101,12 @@ AV plugin Can Send Status
 
 
 AV Plugin Can Process Scan Now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\\msys\\csc" RevID="AVPluginCanProcessScanNow" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
-    ${av_mark} =  get av log mark
+    ${av_mark} =  Mark AV Log
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
     Check AV Log Contains After Mark  Received new Action  ${av_mark}
@@ -127,7 +127,7 @@ Scheduled Scan Configuration Is Correct
 
 
 Scan Now Excludes Files And Directories As Expected
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Create Directory  /directory_excluded/
     Create Directory  /file_excluded/
 
@@ -138,7 +138,7 @@ Scan Now Excludes Files And Directories As Expected
     Register Cleanup  Remove Directory  /directory_excluded  recursive=True
     Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
-    ${scan_now_mark} =  Get Scan Now Log Mark
+    ${scan_now_mark} =  Mark Scan Now Log
     Run Scan Now Scan For Excluded Files Test
 
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
@@ -151,7 +151,7 @@ Scan Now Excludes Files And Directories As Expected
 
 
 Scan Now Logs Should Be As Expected
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Create Directory  /file_excluded/
 
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
@@ -195,7 +195,7 @@ AV Plugin Scans local secondary mount only once
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated After Mark  ${av_mark}
 
@@ -258,7 +258,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     # Remove the scan log so later tests don't fail due to this step
     register late cleanup  Remove File  ${myscan_log}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -285,8 +285,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 
 AV Plugin Scan Now Does Detect PUA
-    ${av_mark} =  Get AV Log Mark
-    ${scan_now_mark} =  Get Scan Now Log Mark
+    ${av_mark} =  Mark AV Log
+    ${scan_now_mark} =  Mark Scan Now Log
     Create File      /tmp_test/eicar_pua.com    ${EICAR_PUA_STRING}
 
     Run Scan Now Scan
@@ -313,7 +313,7 @@ AV Plugin Scan Now with Bind Mount
 
     Should Exist      ${destination}/eicar.com
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Scan Now Scan
     Wait For AV Log Contains After Mark   Completed scan Scan Now  ${av_mark}  timeout=240
 
@@ -331,7 +331,7 @@ AV Plugin Scan Now with ISO mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/DIR/subdir/eicar.com
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Scan Now Scan
     Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
     Check AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${destination}/DIR/subdir/eicar.com'   ${av_mark}
@@ -359,7 +359,7 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
     Should Exist      ${destination2}/DIR/subdir/eicar.com
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Scan Now Scan
     Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
     Check AV Log Contains After Mark   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'  ${av_mark}
@@ -413,7 +413,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
     Check AV Log Contains After Mark  Received new Action  ${av_mark}
@@ -428,7 +428,7 @@ AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
     Create Bad Unicode Eicars
     Exclude SafeStore Cannot Quarantine Because Directory Does Not Exist Errors    ${testdirectory}
 
-    ${avmark} =  LogUtils.get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${testdirectory}
     Log  return code is ${rc}
@@ -505,7 +505,7 @@ Test Remote Share
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /testmnt/
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>

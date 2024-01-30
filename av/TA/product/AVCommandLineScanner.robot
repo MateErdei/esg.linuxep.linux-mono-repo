@@ -6,15 +6,15 @@ Library         Collections
 Library         OperatingSystem
 Library         DateTime
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/AVScanner.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
-Library         ../Libs/ProcessUtils.py
+Library         ${COMMON_TEST_LIBS}/ProcessUtils.py
 Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/ThreatReportUtils.py
 
@@ -175,7 +175,7 @@ CLS Can Scan Relative Path
     Create File     testdir/clean_file     ${CLEAN_STRING}
     Create File     testdir/naughty_eicar  ${EICAR_STRING}
 
-    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${mark} =  Mark Sophos Threat Detector Log
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} testdir
 
@@ -198,7 +198,7 @@ CLS Does Not Ordinarily Output To Stderr
 
 
 CLS Can Scan Infected File
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -305,7 +305,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
 
 CLS Does not request TFTClassification from SUSI
-    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${mark} =  Mark Sophos Threat Detector Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -317,7 +317,7 @@ CLS Does not request TFTClassification from SUSI
 CLS Can Evaluate High Ml Score As A Threat
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    ${mark} =  LogUtils.get_susi_debug_log_mark
+    ${mark} =  Mark SUSI Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
     Log  return code is ${rc}
@@ -332,7 +332,7 @@ CLS Can Evaluate High Ml Score As A Threat
 
 CLS Can Evaluate Low Ml Score As A Clean File
     Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
-    ${mark} =  LogUtils.get_susi_debug_log_mark
+    ${mark} =  Mark SUSI Debug Log
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
@@ -437,7 +437,7 @@ CLS Aborts Scanning of Password Protected File
     Register Cleanup     Exclude As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
 
-    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${mark} =  Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
 
     Log  return code is ${rc}
@@ -447,7 +447,8 @@ CLS Aborts Scanning of Password Protected File
 
     LogUtils.dump sophos threat detector log after mark  mark=${mark}
     LogUtils.Check Sophos Threat Detector Log Contains After Mark  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
-    verify sophos threat detector log line is level  DEBUG  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
+    # Keyword wants a list of expected log levels
+    verify sophos threat detector log line is level  ${{ ["DEBUG"] }}  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
 
 
 CLS Aborts Scanning of Corrupted File
@@ -479,7 +480,7 @@ CLS Can Report Scan Error And Detection For Archive
 
 
 AV Log Contains No Errors When Scanning File
-    ${mark} =  LogUtils.get_av_log_mark
+    ${mark} =  Mark AV Log
 
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -664,7 +665,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
 
 CLS Creates Threat Report
-    ${mark} =  LogUtils.get_av_log_mark
+    ${mark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/clscreatesthreatreport_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clscreatesthreatreport_eicar
 
@@ -685,7 +686,7 @@ CLS Creates Threat Report
 
 
 CLS simple encoded eicar
-    ${mark} =  LogUtils.get_av_log_mark
+    ${mark} =  Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/脅威    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
     Log  ${output}
@@ -695,7 +696,7 @@ CLS simple encoded eicar
 
 
 CLS simple encoded eicar in archive
-    ${mark} =  LogUtils.get_av_log_mark
+    ${mark} =  Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/脅威    ${EICAR_STRING}
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  -C  ${NORMAL_DIRECTORY}  脅威
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
@@ -706,7 +707,7 @@ CLS simple encoded eicar in archive
 
 
 CLS simple eicar in encoded archive
-    ${mark} =  LogUtils.get_av_log_mark
+    ${mark} =  Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/脅威.tar  -C  ${NORMAL_DIRECTORY}  eicar
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/脅威.tar --scan-archives
@@ -741,8 +742,8 @@ CLS Encoded Eicars
     Log Many  ${result.stdout}  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
-    ${av_mark} =  get_av_log_mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
@@ -897,7 +898,7 @@ CLS Relative File Exclusion
 
 
 CLS Absolute Folder Exclusion
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_with_wildcard
@@ -930,7 +931,7 @@ CLS Absolute Folder Exclusion
 
 
 CLS Relative Folder Exclusion
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_with_wildcard
@@ -963,7 +964,7 @@ CLS Relative Folder Exclusion
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Folder Name Exclusion
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
@@ -981,7 +982,7 @@ CLS Folder Name Exclusion
 
 
 CLS Absolute Folder Exclusion And Filename Exclusion
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
@@ -1148,7 +1149,7 @@ CLS Will Not Log To A Directory
 
 
 CLS Can Scan Infected File Via Symlink To Directory
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
     ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
     Create Directory   ${targetDir}
@@ -1166,7 +1167,7 @@ CLS Can Scan Infected File Via Symlink To Directory
 
 
 CLS Does Not Backtrack Through Symlinks
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
     ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
     Create Directory   ${targetDir}
@@ -1186,7 +1187,7 @@ CLS Does Not Backtrack Through Symlinks
 
 
 CLS Can Scan Infected File Via Symlink To File
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Create Symlink  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
@@ -1199,7 +1200,7 @@ CLS Can Scan Infected File Via Symlink To File
 
 
 CLS Can Scan Infected File Via Symlink To Directory Containing File
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     Create Directory    ${NORMAL_DIRECTORY}/a
     Create File         ${NORMAL_DIRECTORY}/a/eicar.com    ${EICAR_STRING}
     Create Symlink  ${NORMAL_DIRECTORY}/a  ${NORMAL_DIRECTORY}/symlinkToDir
@@ -1343,7 +1344,7 @@ CLS Reports Error Once When Using Custom Log File
 
 CLS Scans root with non-canonical path
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${exclusions} =  ExclusionHelper.Get Root Exclusions for avscanner except proc
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /. -x ${exclusions}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /./ -x ${exclusions}
@@ -1658,7 +1659,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
     Register Cleanup  Exclude Scan Errors From File Samples
 
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process
         ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
@@ -1689,7 +1690,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sighup_test_strace.log
 
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
@@ -1712,7 +1713,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar -o /tmp/scan.log
 
@@ -1725,7 +1726,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
-    ${av_mark} =  get_av_log_mark
+    ${av_mark} =  Mark AV Log
     ${scan_mark} =  mark_log_size  /tmp/scan.log
     Run  chmod 444 /tmp/scan.log
 
@@ -1794,8 +1795,8 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
     Stop AV Plugin process
 
-    ${av_mark} =  get_av_log_mark
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${td_mark} =  Mark Sophos Threat Detector Log
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
     wait_for_log_contains_from_mark  ${td_mark}     Detected     timeout=120
     wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient failed to connect      timeout=120
@@ -1910,7 +1911,11 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     Should Be True  ${0} < ${line_count} < ${10}
 
-    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Check Log Contains String N Times
+    ...  ${LOG_FILE}
+    ...  scan.log
+    ...  Reached total maximum number of reconnection attempts. Aborting scan.
+    ...  1
 
     # Specific codes tested in integration
     Should Be True  ${result.rc} > ${0}

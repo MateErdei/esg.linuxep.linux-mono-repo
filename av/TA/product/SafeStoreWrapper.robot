@@ -6,7 +6,7 @@ Resource    ../shared/AVResources.robot
 
 Library         OperatingSystem
 Library         Process
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/TapTestOutput.py
 
 Test Setup      No Operation

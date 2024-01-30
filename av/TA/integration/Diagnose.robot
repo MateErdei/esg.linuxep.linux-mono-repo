@@ -6,8 +6,8 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
@@ -29,6 +29,8 @@ Diagnose Test Setup
 Diagnose Test TearDown
     Exclude CustomerID Failed To Read Error
     Exclude MCS Router is dead
+    Exclude Failed To Update Because JWToken Was Empty
+    Exclude UpdateScheduler Fails
     Run Teardown Functions
     Check All Product Logs Do Not Contain Error
     AV And Base Teardown

@@ -7,8 +7,8 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
@@ -91,7 +91,7 @@ AV plugin runs scan now while CLS is running
 
     # Start Scan Now
     Configure scan now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml
     Wait For AV Log Contains After Mark    Starting scan Scan Now  ${av_mark}   timeout=5
 
@@ -122,7 +122,7 @@ AV plugin runs CLS while scan now is running
 
     # start scan now
     Configure scan now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml
     Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
 
@@ -138,12 +138,12 @@ AV plugin runs CLS while scan now is running
 
 AV plugin runs scan now twice consecutively
     Configure and run scan now
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Scan Now After Mark  ${av_mark}
 
 AV plugin attempts to run scan now twice simultaneously
     Register On Fail  dump log  ${SCANNOW_LOG_PATH}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  2500  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
     Configure scan now
@@ -164,7 +164,7 @@ AV plugin attempts to run scan now twice simultaneously
     Check Log Contains N Times After Mark   ${AV_LOG_PATH}  Starting scan Scan Now  ${1}  ${av_mark}
 
 AV plugin runs scheduled scan
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -177,7 +177,7 @@ AV plugin can detect PUAs via scheduled scan
     Create File  /tmp_test/eicar_pua.com   ${EICAR_PUA_STRING}
     Register Cleanup  Remove Files  /tmp_test/eicar_pua.com
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -186,7 +186,7 @@ AV plugin can detect PUAs via scheduled scan
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
     Wait For AV Log Contains After Mark  Found 'EICAR-PUA-Test'  ${av_mark}
 
-    ${av_mark2} =  Get AV Log Mark
+    ${av_mark2} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base PUA Detections Disabled
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -199,7 +199,7 @@ AV plugin can detect PUAs via scheduled scan
 AV plugin runs multiple scheduled scans
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude File Name Too Long For Cloud Scan
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
@@ -210,7 +210,7 @@ AV plugin runs multiple scheduled scans
 AV plugin runs scheduled scan after restart
     Send Sav Policy With Imminent Scheduled Scan To Base
     Stop AV Plugin And Threat Detector
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Start AV Plugin And Threat Detector
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark  ${av_mark}
@@ -223,7 +223,7 @@ AV plugin reports an info message if no policy is received
     Remove File     ${MCS_PATH}/policy/ALC-1_policy.xml
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Start AV Plugin And Threat Detector
     Wait For AV Log Contains After Mark  Failed to request SAV policy at startup (No Policy Available)  ${av_mark}
     Wait For AV Log Contains After Mark  Failed to request ALC policy at startup (No Policy Available)  ${av_mark}
@@ -232,12 +232,12 @@ AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
     Stop AV Plugin And Threat Detector
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Start AV Plugin And Threat Detector
 
     Wait until AV Plugin running after mark  ${av_mark}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml
     Wait For AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
     Check AV Log Contains After Mark  Refusing to run invalid scan: INVALID  ${av_mark}
@@ -252,7 +252,7 @@ AV plugin SAV Status contains revision ID of policy
 
 AV plugin sends Scan Complete event and (fake) Report To Central
     ${now} =  Get Current Date  result_format=epoch
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_No_Scans.xml
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action SAV_action
@@ -317,7 +317,7 @@ AV Gets ALC Policy When Plugin Restarts
 AV Configures No Scheduled Scan Correctly
     Register Cleanup    Exclude UpdateScheduler Fails
     Register Cleanup    Exclude Failed To connect To Warehouse Error
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With No Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
@@ -346,7 +346,7 @@ AV plugin runs scheduled scan while CLS is running
     ${cls_mark} =  Mark Log Size  ${LOG_FILE}
     Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}  timeout=${60}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 1  ${av_mark}
     Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=${150}
@@ -369,7 +369,7 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     Register Cleanup    Exclude Failed To connect To Warehouse Error
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
 
     # create something for scheduled scan to work on
@@ -383,7 +383,7 @@ AV plugin runs CLS while scheduled scan is running
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
 AV Configures Single Scheduled Scan Correctly
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Fixed Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark  ${av_mark}
@@ -396,7 +396,7 @@ AV Configures Single Scheduled Scan Correctly
     Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 4  ${av_mark}
 
 AV Configures Multiple Scheduled Scans Correctly
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Policy With Multiple Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark  ${av_mark}
@@ -412,7 +412,7 @@ AV Configures Multiple Scheduled Scans Correctly
     Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 0  ${av_mark}
 
 AV Reconfigures Scans Correctly
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Fixed Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark  ${av_mark}
@@ -438,7 +438,7 @@ AV Reconfigures Scans Correctly
     Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 0  ${av_mark}
 
 AV Deletes Scan Correctly
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Send Complete Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark   ${avmark}
@@ -447,7 +447,7 @@ AV Deletes Scan Correctly
     wait_for_av_log_contains_after_mark  Days: Monday   ${avmark}
     wait_for_av_log_contains_after_mark  Times: 11:00:00   ${avmark}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Send Sav Policy With No Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark   ${avmark}
@@ -456,7 +456,7 @@ AV Deletes Scan Correctly
 AV Plugin Reports Threat XML To Base
     Empty Directory  ${MCS_PATH}/event/
     Register Cleanup  Empty Directory  ${MCS_PATH}/event
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     Create File     ${SCAN_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naughty_eicar
@@ -472,7 +472,7 @@ Avscanner runs as non-root
     Empty Directory  ${MCS_PATH}/event/
     Register Cleanup  Empty Directory  ${MCS_PATH}/event/
     Register Cleanup  List Directory  ${MCS_PATH}/event/
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     Create File     ${SCAN_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${command} =    Set Variable    /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naughty_eicar
@@ -570,7 +570,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml
     Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
 
@@ -598,7 +598,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   /tmp_test/many_eicars  600  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/many_eicars  recursive=True
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Remove File  ${SCANNOW_LOG_PATH}
     Register On Fail  dump log  ${SCANNOW_LOG_PATH}
@@ -639,8 +639,8 @@ AV Plugin does not restart threat detector on customer id change
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
-    ${av_mark} =  Get AV Log Mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${av_mark} =  Mark AV Log
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     Send Alc Policy To Base  tempAlcPolicy.xml
 
@@ -658,8 +658,8 @@ AV Plugin does not restart threat detector on customer id change
 
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
-    ${av_mark2} =  Get AV Log Mark
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${av_mark2} =  Mark AV Log
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
     Send Alc Policy To Base  tempAlcPolicy.xml
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
@@ -677,8 +677,8 @@ AV Plugin does not restart threat detector on customer id change
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
-    ${av_mark3} =  Get AV Log Mark
-    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
+    ${av_mark3} =  Mark AV Log
+    ${threat_detector_mark3} =  Mark Sophos Threat Detector Log
     Send Alc Policy To Base  tempAlcPolicy.xml
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark3}
@@ -698,7 +698,7 @@ AV Plugin tries to restart threat detector when SXL Lookup disabled
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
     Log   ${policyContent}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send CORC Policy To Base From Content  ${policyContent}
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
 
@@ -709,7 +709,7 @@ AV Plugin tries to restart threat detector when SXL Lookup disabled
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${false}
     Log   ${policyContent}
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send CORC Policy To Base From Content  ${policyContent}
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
@@ -717,14 +717,14 @@ AV Plugin tries to restart threat detector when SXL Lookup disabled
     Check AV Log Contains After Mark  ProcessControlClient failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying  ${av_mark}
     Wait For AV Log Contains After Mark  ProcessControlClient reached the maximum number of connection attempts  ${av_mark}
 
-    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark2} =  Mark Sophos Threat Detector Log
     start sophos_threat_detector
     Wait until threat detector running after mark  ${threat_detector_mark2}
 
     Comment  change lookup setting, threat_detector should restart
 
-    ${av_mark2} =  Get AV Log Mark
-    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
+    ${av_mark2} =  Mark AV Log
+    ${threat_detector_mark3} =  Mark Sophos Threat Detector Log
 
     ${revid} =   Generate Random String
     ${policyContent} =   create_corc_policy  revid=${revid}  sxlLookupEnabled=${true}
@@ -752,7 +752,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
 
     clear outbreak mode if required
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
@@ -791,7 +791,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify the av plugin still sent the alert
@@ -807,7 +807,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Remove File  ${SCANNOW_LOG_PATH}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     ${file_name} =       Set Variable   ScanNowWorksDespiteReadOnly
 
     Create File  /tmp_test/${file_name}  ${EICAR_STRING}
@@ -834,8 +834,8 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Log  New permissions: ${result.stdout}
 
     Configure scan now
-    ${avmark} =  get_av_log_mark
-    ${scan_now_mark} =  get_scan_now_log_mark
+    ${avmark} =  Mark AV Log
+    ${scan_now_mark} =  Mark Scan Now Log
 
     Send Sav Action To Base  ScanNow_Action.xml
 
@@ -851,11 +851,11 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     Remove File   ${MCS_PATH}/policy/SAV-2_policy.xml
     File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Restart AV Plugin And Threat Detector
     Wait For AV Log Contains After Mark  SAV policy has not been sent to the plugin  ${av_mark}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Send Invalid Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
@@ -884,7 +884,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Create File  /tmp_test/${file_name}  ${EICAR_STRING}
     Register Cleanup    Remove File  /tmp_test/${file_name}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -901,7 +901,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
     Log  Old permissions: ${result.stdout}
 
-    ${scheduledscanmark} =   get_scheduled_scan_log_mark
+    ${scheduledscanmark} =   Mark Scheduled Scan Log
 
     Run  chmod 444 '${CLOUDSCAN_LOG_PATH}'
     Register Cleanup  Run  chmod 600 '${CLOUDSCAN_LOG_PATH}'
@@ -909,7 +909,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
@@ -924,7 +924,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 AV Does Not Fall Over When OA Config Is Read Only
     [Tags]  FAULT INJECTION
 
-    ${avmark} =  get_av_log_mark
+    ${avmark} =  Mark AV Log
 
     Wait Until Created   ${AV_VAR_DIR}/on_access_policy.json  timeout=10sec
 
@@ -938,7 +938,7 @@ AV Does Not Fall Over When OA Config Is Read Only
 
 AV Plugin Doesnt Read Response Action
     [Tags]  FAULT INJECTION
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send RA Action To Base
 
     Wait For AV Log Contains After Mark  Ignoring action not in XML format   ${av_mark}
@@ -949,8 +949,8 @@ AV Runs Scan With SXL Lookup Enabled
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  10  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
 
-    ${av_mark} =  Get AV Log Mark
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    ${av_mark} =  Mark AV Log
+    ${susi_debug_mark} =  Mark SUSI Debug Log
     Configure and run scan now
     Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
@@ -962,8 +962,8 @@ AV Runs Scan With SXL Lookup Disabled
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  3  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
 
-    ${av_mark} =  Get AV Log Mark
-    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    ${av_mark} =  Mark AV Log
+    ${susi_debug_mark} =  Mark SUSI Debug Log
 
     Configure and check scan now with lookups disabled
 

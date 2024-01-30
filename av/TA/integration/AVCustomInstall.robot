@@ -8,11 +8,11 @@ Library    ../Libs/BaseInteractionTools/PolicyUtils.py
 Library    ../Libs/BaseUtils.py
 Library    ${COMMON_TEST_LIBS}/CoreDumps.py
 Library    ../Libs/ExclusionHelper.py
-Library    ../Libs/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ../Libs/OnAccessUtils.py
-Library    ../Libs/OnFail.py
-Library    ../Libs/ProcessUtils.py
-Library    ../Libs/TeardownTools.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
+Library    ${COMMON_TEST_LIBS}/ProcessUtils.py
+Library    ${COMMON_TEST_LIBS}/TeardownTools.py
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
@@ -185,12 +185,13 @@ Custom Install Test Teardown
     Exclude Invalid Settings No Primary Product           ${CUSTOM_INSTALL_LOCATION}/logs/base/suldownloader.log
     Exclude Configuration Data Invalid                    ${CUSTOM_INSTALL_LOCATION}/logs/base/suldownloader.log
     Exclude Failed To connect To Warehouse Error          ${CUSTOM_INSTALL_LOCATION}/logs/base/suldownloader.log
+    Exclude Failed To Update Because JWToken Was Empty    ${CUSTOM_INSTALL_LOCATION}/logs/base/suldownloader.log
     Exclude CustomerID Failed To Read Error               ${CUSTOM_AV_PLUGIN_PATH}/chroot/log
     Exclude Invalid Day From Policy                       ${CUSTOM_AV_LOG_PATH}
     Exclude Core Not In Policy Features                   ${CUSTOM_INSTALL_LOCATION}/logs/base/sophosspl/updatescheduler.log
     Exclude SPL Base Not In Subscription Of The Policy    ${CUSTOM_INSTALL_LOCATION}/logs/base/sophosspl/updatescheduler.log
     Exclude UpdateScheduler Fails                         ${CUSTOM_INSTALL_LOCATION}/logs/base/sophosspl/updatescheduler.log
-    Exclude MCS Router is dead                            ${CUSTOM_INSTALL_LOCATION}/logs/base/watchdog.log
+    Exclude MCS Router is dead                            ${CUSTOM_INSTALL_LOCATION}/logs/base/watchdog.log    ${CUSTOM_INSTALL_LOCATION}
 
     check_all_product_logs_do_not_contain_error
     run_failure_functions_if_failed

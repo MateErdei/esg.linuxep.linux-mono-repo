@@ -6,7 +6,7 @@ Library         Collections
 
 Library         ../Libs/AVScanner.py
 Library         ../Libs/FileSampleObfuscator.py
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/Telemetry.py
 
 Resource        ../shared/AVAndBaseResources.robot
@@ -86,10 +86,10 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
    # Run telemetry to reset counters to 0
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
-   ${av_mark} =  Get AV Log Mark
+   ${av_mark} =  Mark AV Log
 
    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
-   ${ss_mark} =    Get SafeStore Log Mark
+   ${ss_mark} =    Mark Safestore Log
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
@@ -109,7 +109,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
 
    Start SafeStore
    Wait For Safestore Log Contains After Mark    Successfully initialised SafeStore database     ${ss_mark}
-   ${ss_mark} =    Get SafeStore Log Mark
+   ${ss_mark} =    Mark Safestore Log
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
@@ -130,9 +130,9 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    # Run telemetry to reset counters to 0
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
-   ${av_mark} =  Get AV Log Mark
+   ${av_mark} =  Mark AV Log
    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
-   ${ss_mark} =    Get SafeStore Log Mark
+   ${ss_mark} =    Mark Safestore Log
 
    Corrupt SafeStore Database
    Check avscanner can detect eicar
@@ -152,7 +152,7 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Dictionary Should Contain Item   ${rootkeyDict}   unlink-failures   ${1}
 
    Start SafeStore
-   ${ss_mark} =    Get SafeStore Log Mark
+   ${ss_mark} =    Mark Safestore Log
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
@@ -188,7 +188,7 @@ Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On D
 Corrupt Threat Database Telemetry Is Reported
     Register Cleanup    Exclude ThreatDatabase Failed To Parse Database
 
-    ${avMark} =  Get AV Log Mark
+    ${avMark} =  Mark AV Log
     Stop AV Plugin
     Wait until AV Plugin Not Running
 
@@ -223,7 +223,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
-    ${avMark} =  Get AV Log Mark
+    ${avMark} =  Mark AV Log
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait Until SafeStore running
@@ -257,7 +257,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
-    ${avMark} =  Get AV Log Mark
+    ${avMark} =  Mark AV Log
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
     Wait Until SafeStore running

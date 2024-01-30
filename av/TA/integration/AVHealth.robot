@@ -1,7 +1,7 @@
 *** Settings ***
 Force Tags      INTEGRATION  AV_HEALTH  TAP_PARALLEL3
 Library         Collections
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/SystemFileWatcher.py
 
 Resource        ../shared/AVAndBaseResources.robot
@@ -192,7 +192,7 @@ Sophos On-Access Process Crashing Triggers Bad Health
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
@@ -203,7 +203,7 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Crashing Triggers Bad Health
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Check Status Health is Reporting Correctly    GOOD
 
@@ -228,14 +228,14 @@ Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    GOOD
 
     # On-access can detect the file immediately, so we need the AV mark before creating the file
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
 
     Create File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Register cleanup    Remove File    ${SOPHOS_INSTALL}/plugins/av/var/disable_safestore
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
 
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    ${threat_detector_mark} =  Mark Sophos Threat Detector Log
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/naughty_eicar
     Log  return code is ${rc}
@@ -262,7 +262,7 @@ Bad Threat Health is preserved after av plugin restarts
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Configure and run scan now
     wait_for_log_contains_from_mark  ${av_mark}  Completed scan  timeout=180
 
@@ -279,7 +279,7 @@ Clean Scan Now Result Does Not Reset Threat Health
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Configure and run scan now
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
     Check AV Log Contains After Mark   Completed scan Scan Now and detected threats  ${av_mark}
@@ -288,7 +288,7 @@ Clean Scan Now Result Does Not Reset Threat Health
 
     Remove File  /tmp_test/naughty_eicar
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Configure and run scan now
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
     Check AV Log Contains After Mark   Completed scan Scan Now without detecting any threats  ${av_mark}
@@ -303,7 +303,7 @@ Clean Scheduled Scan Result Does Not Reset Threat Health
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
-    ${av_mark} =  Get AV Log Mark
+    ${av_mark} =  Mark AV Log
     Send CORC Policy to Disable SXL
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
@@ -315,7 +315,7 @@ Clean Scheduled Scan Result Does Not Reset Threat Health
 
     Remove File  /tmp_test/naughty_eicar
 
-    ${av_mark2} =  Get AV Log Mark
+    ${av_mark2} =  Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait Until Scheduled Scan Updated After Mark  ${av_mark2}
@@ -365,7 +365,7 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     Register Cleanup    Remove File    ${OA_LOCAL_SETTINGS}
     Restart soapd
 
-    ${td_mark} =    Get Sophos Threat Detector Log Mark
+    ${td_mark} =    Mark Sophos Threat Detector Log
     Create SUSI Initialisation Error
 
     On-access Scan Clean File
@@ -374,7 +374,7 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     File Should Exist    ${AV_PLUGIN_PATH}/chroot/var/threatdetector_unhealthy_flag
     Check Status Health is Reporting Correctly    BAD
 
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    ${td_mark} =  Mark Sophos Threat Detector Log
 
     Move Directory  ${VDL_TEMP_DESTINATION}  ${VDL_DIRECTORY}
 
