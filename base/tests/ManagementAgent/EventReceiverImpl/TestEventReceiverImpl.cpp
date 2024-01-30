@@ -22,7 +22,7 @@ TEST_F(TestEventReceiverImpl, Construction)
 {
     std::string mcs_dir = "test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr queue = std::make_shared<FakeQueue>();
-    EXPECT_NO_THROW( // NOLINT
+    EXPECT_NO_THROW(
         ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue));
 }
 

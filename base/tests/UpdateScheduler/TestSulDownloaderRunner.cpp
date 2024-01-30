@@ -50,7 +50,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
+TEST_F(TestSulDownloaderRunner, SuccessfulRun)
 {
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
@@ -78,7 +78,7 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     EXPECT_EQ(task.content, "update_report.json");
 }
 
-TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails) // NOLINT
+TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails)
 {
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
@@ -110,7 +110,7 @@ TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails) // NOLINT
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Update Service (sophos-spl-update.service) failed."));
 }
 
-TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
+TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait)
 {
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
@@ -138,7 +138,7 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     EXPECT_EQ(task.content, "update_report.json");
 }
 
-TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
+TEST_F(TestSulDownloaderRunner, Timeout)
 {
     IWatchdogRequestReplacement replacement;
     // Create task queue
@@ -155,7 +155,7 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
     ASSERT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderTimedOut);
 }
 
-TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
+TEST_F(TestSulDownloaderRunner, Aborted)
 {
     IWatchdogRequestReplacement replacement;
 
@@ -173,7 +173,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderMonitorDetached);
 }
 
-TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
+TEST_F(TestSulDownloaderRunner, FailedToStart)
 {
     std::string errorMessage = "bad thing happened";
     IWatchdogRequestReplacement replacement(errorMessage);

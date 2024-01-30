@@ -6,19 +6,19 @@
 
 namespace
 {
-    TEST(TestContextImpl, Creation) // NOLINT
+    TEST(TestContextImpl, Creation)
     {
         Common::ZMQWrapperApi::IContextSharedPtr context(new Common::ZMQWrapperApiImpl::ContextImpl());
     }
 
     // cppcheck-suppress syntaxError
-    TEST(TestContextImpl, Factory) // NOLINT
+    TEST(TestContextImpl, Factory)
     {
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context, nullptr);
     }
 
-    TEST(TestContextImpl, getRequester) // NOLINT
+    TEST(TestContextImpl, getRequester)
     {
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);

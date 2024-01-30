@@ -34,7 +34,7 @@ namespace
     class TestProcImplAndPyP: public LogOffInitializedTests{};
 
     // cppcheck-suppress syntaxError
-    TEST_F(TestProcImplAndPyP, DISABLED_CrashShouldBeDetectedAndNotCrashProcess) // NOLINT
+    TEST_F(TestProcImplAndPyP, DISABLED_CrashShouldBeDetectedAndNotCrashProcess)
     {
         auto process = createProcess();
         process->exec(PickYourPoisonPath(), { "--crash" });
@@ -46,7 +46,7 @@ namespace
     }
 
     // test passes, but it is slow... Disabling it.
-    TEST_F(TestProcImplAndPyP, DISABLED_SpamShouldEventuallyNotCorrupt) // NOLINT
+    TEST_F(TestProcImplAndPyP, DISABLED_SpamShouldEventuallyNotCorrupt)
     {
         auto process = createProcess();
         process->setOutputLimit(100);
@@ -59,7 +59,7 @@ namespace
         EXPECT_NE(process->exitCode(), 0);
     }
     // test passes, but it is slow... Disabling it.
-    TEST_F(TestProcImplAndPyP, DISABLED_DeadlockAndKillShouldBeEnoughToRestore) // NOLINT
+    TEST_F(TestProcImplAndPyP, DISABLED_DeadlockAndKillShouldBeEnoughToRestore)
     {
         auto process = createProcess();
         process->setOutputLimit(100);
@@ -71,7 +71,7 @@ namespace
         EXPECT_NE(process->exitCode(), 0);
     }
 
-    TEST_F(TestProcImplAndPyP, HelloWorldShouldFinishNormally) // NOLINT
+    TEST_F(TestProcImplAndPyP, HelloWorldShouldFinishNormally)
     {
         auto process = createProcess();
         process->exec(PickYourPoisonPath(), { "--hello-world" });

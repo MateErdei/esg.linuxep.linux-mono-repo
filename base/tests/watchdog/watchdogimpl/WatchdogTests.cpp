@@ -86,7 +86,7 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) // NOLINT
+    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig)
     {
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/PluginName.json");
@@ -99,13 +99,13 @@ namespace
         TestWatchdog watchdog;
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
 
         EXPECT_EQ(plugins.size(), 1);
 
     }
 
-    TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) // NOLINT
+    TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs)
     {
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/invalid.json");
@@ -115,10 +115,10 @@ namespace
 
         TestWatchdog watchdog;
 
-        EXPECT_NO_THROW(watchdog.call_read_plugin_configs()); // NOLINT
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
     }
 
-    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) // NOLINT
+    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs)
     {
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid.json");
@@ -135,13 +135,13 @@ namespace
 
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
 
         EXPECT_EQ(plugins.size(), 1);
 
     }
 
-    TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs) // NOLINT
+    TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs)
     {
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid1.json");
@@ -159,7 +159,7 @@ namespace
 
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
 
         EXPECT_EQ(plugins.size(), 2);
 

@@ -8,7 +8,7 @@ using Stringvec = std::vector<std::string>;
 using PairResult = std::pair<Stringvec, Stringvec>;
 using ListInputOutput = std::vector<PairResult>;
 
-TEST(TestVectorAsSet, entriesShouldSortedAndOnlyUniqueValuesAreKept) // NOLINT
+TEST(TestVectorAsSet, entriesShouldSortedAndOnlyUniqueValuesAreKept)
 {
     VectorAsSet vectorAsSet;
     ListInputOutput listInputOutput = { { { "a", "b", "c" }, { "a", "b", "c" } },
@@ -25,7 +25,7 @@ TEST(TestVectorAsSet, entriesShouldSortedAndOnlyUniqueValuesAreKept) // NOLINT
     }
 }
 
-TEST(TestVectorAsSet, emptyEntriesIsEquivalentToEmptyVector) // NOLINT
+TEST(TestVectorAsSet, emptyEntriesIsEquivalentToEmptyVector)
 {
     VectorAsSet vectorAsSet;
     EXPECT_EQ(vectorAsSet.entries(), Stringvec());
@@ -33,7 +33,7 @@ TEST(TestVectorAsSet, emptyEntriesIsEquivalentToEmptyVector) // NOLINT
     EXPECT_EQ(vectorAsSet.entries(), Stringvec());
 }
 
-TEST(TestVectorAsSet, entriesCanBeCopied) // NOLINT
+TEST(TestVectorAsSet, entriesCanBeCopied)
 {
     VectorAsSet vectorAsSet;
     vectorAsSet.setEntries({ "a", "b", "b" });
@@ -45,7 +45,7 @@ TEST(TestVectorAsSet, entriesCanBeCopied) // NOLINT
     EXPECT_EQ(vectorAsSet.entries(), Stringvec({ "a", "c" }));
 }
 
-TEST(TestVectorAsSet, hasEntryReturnTrueForEntriesInTheSet) // NOLINT
+TEST(TestVectorAsSet, hasEntryReturnTrueForEntriesInTheSet)
 {
     VectorAsSet vectorAsSet;
     vectorAsSet.setEntries({ "a", "b", "b" });
@@ -55,7 +55,7 @@ TEST(TestVectorAsSet, hasEntryReturnTrueForEntriesInTheSet) // NOLINT
     EXPECT_FALSE(vectorAsSet.hasEntry(""));
 }
 
-TEST(TestVectorAsSet, emptyStringCanBeAField) // NOLINT
+TEST(TestVectorAsSet, emptyStringCanBeAField)
 {
     VectorAsSet vectorAsSet;
     vectorAsSet.setEntries(Stringvec({ "" }));

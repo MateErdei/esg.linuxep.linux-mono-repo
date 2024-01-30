@@ -4,7 +4,7 @@
 
 #ifdef USING_LIBFUZZER
 
-#define LOG(x) do {} while(0) // NOLINT
+#define LOG(x) do {} while(0)
 
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
@@ -22,11 +22,11 @@
 
 log4cplus::Logger& getSafeStoreSocketLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSafeStoreSocketLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getSafeStoreSocketLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSafeStoreSocketLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getSafeStoreSocketLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getSafeStoreSocketLogger(), x)  // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getSafeStoreSocketLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSafeStoreSocketLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getSafeStoreSocketLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSafeStoreSocketLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getSafeStoreSocketLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSafeStoreSocketLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSafeStoreSocketLogger(), x)
 
 #endif

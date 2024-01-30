@@ -55,7 +55,7 @@ namespace
     };
 }
 
-TEST_F(TestCommandLineScanRunner, construction) // NOLINT
+TEST_F(TestCommandLineScanRunner, construction)
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
@@ -63,7 +63,7 @@ TEST_F(TestCommandLineScanRunner, construction) // NOLINT
     CommandLineScanRunner runner(options);
 }
 
-TEST_F(TestCommandLineScanRunner, constructionWithScanArchives) // NOLINT
+TEST_F(TestCommandLineScanRunner, constructionWithScanArchives)
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
@@ -71,7 +71,7 @@ TEST_F(TestCommandLineScanRunner, constructionWithScanArchives) // NOLINT
     CommandLineScanRunner runner(options);
 }
 
-TEST_F(TestCommandLineScanRunner, constructionWithScanImages) // NOLINT
+TEST_F(TestCommandLineScanRunner, constructionWithScanImages)
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
@@ -128,7 +128,7 @@ TEST_F(TestCommandLineScanRunner, clsThrowsWhenInstallLocationCannotBeFound)
     EXPECT_THROW(CommandLineScanRunner runner(options), AbortScanException);
 }
 
-TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanRelativePath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -149,7 +149,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanSameDirectoryTwice) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSameDirectoryTwice)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -171,7 +171,7 @@ TEST_F(TestCommandLineScanRunner, scanSameDirectoryTwice) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedPath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
@@ -194,7 +194,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedPath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/f/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, doNotScanSymlinkedPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, doNotScanSymlinkedPath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
@@ -216,7 +216,7 @@ TEST_F(TestCommandLineScanRunner, doNotScanSymlinkedPath) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanDirectoryAndSymlinkToDirectory) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanDirectoryAndSymlinkToDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
@@ -241,7 +241,7 @@ TEST_F(TestCommandLineScanRunner, scanDirectoryAndSymlinkToDirectory) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/f/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/b/d/e");
@@ -268,7 +268,7 @@ TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(2), fs::absolute("sandbox/d/e/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsolutePath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsolutePath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -289,7 +289,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsolutePath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanRelativeDirectory) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanRelativeDirectory)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -312,7 +312,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectory) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectory) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -331,7 +331,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectory) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -355,7 +355,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLI
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -379,7 +379,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.iso").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -400,7 +400,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion) //
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file2.txt"));
 }
 
-TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
+TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
@@ -421,7 +421,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided) // NOLINT
+TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
@@ -444,7 +444,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
+TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
@@ -469,7 +469,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -495,7 +495,7 @@ TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -521,7 +521,7 @@ TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -550,7 +550,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOL
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/f/file2.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -571,7 +571,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion) //
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt"));
 }
 
-TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -599,7 +599,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOL
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/f/file2.txt"));
 }
 
-TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
+TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -639,7 +639,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     EXPECT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
+TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -682,7 +682,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -713,7 +713,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
+TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -745,7 +745,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -771,7 +771,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -801,7 +801,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOL
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -827,7 +827,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOL
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -856,7 +856,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOL
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -886,7 +886,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclus
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -913,7 +913,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclus
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -940,7 +940,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclus
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -970,7 +970,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanRelativeSymlinkedDirectoryWithAbsoluteTargetExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanRelativeSymlinkedDirectoryWithAbsoluteTargetExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1007,7 +1007,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeSymlinkedDirectoryWithAbsoluteTarg
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithFileExclusion) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithFileExclusion)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1035,7 +1035,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithFileExclusion) // NO
     ASSERT_EQ(socket->m_paths.size(), 1);
 }
 
-TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // NOLINT
+TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1061,7 +1061,7 @@ TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // 
     ASSERT_EQ(socket->m_paths.size(), 1);
 }
 
-TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
+TEST_F(TestCommandLineScanRunner, excludeNamedFolders)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1092,7 +1092,7 @@ TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
+TEST_F(TestCommandLineScanRunner, excludeSpecialMounts)
 {
     fs::path startingpoint = fs::absolute("sandbox");
 
@@ -1124,7 +1124,7 @@ TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
     EXPECT_EQ(socket->m_paths.size(), 0);
 }
 
-TEST_F(TestCommandLineScanRunner, optionsButNoPathProvided) // NOLINT
+TEST_F(TestCommandLineScanRunner, optionsButNoPathProvided)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1138,7 +1138,7 @@ TEST_F(TestCommandLineScanRunner, optionsButNoPathProvided) // NOLINT
     EXPECT_TRUE(appenderContains("Missing a file path from the command line arguments."));
 }
 
-TEST_F(TestCommandLineScanRunner, noPathProvided) // NOLINT
+TEST_F(TestCommandLineScanRunner, noPathProvided)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1151,7 +1151,7 @@ TEST_F(TestCommandLineScanRunner, noPathProvided) // NOLINT
     EXPECT_TRUE(appenderContains("Missing a file path from the command line arguments."));
 }
 
-TEST_F(TestCommandLineScanRunner, anEmptyPathProvided) // NOLINT
+TEST_F(TestCommandLineScanRunner, anEmptyPathProvided)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
@@ -1176,7 +1176,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyPathProvided) // NOLINT
     EXPECT_TRUE(appenderContains("Refusing to scan empty path"));
 }
 
-TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
+TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1204,7 +1204,7 @@ TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
     EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
 }
 
-TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
+TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1232,7 +1232,7 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
 }
 
-TEST_F(TestCommandLineScanRunner, TestMissingPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, TestMissingPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 

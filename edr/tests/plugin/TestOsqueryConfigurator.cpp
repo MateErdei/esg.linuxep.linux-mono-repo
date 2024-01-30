@@ -26,7 +26,7 @@ public:
 class TestOsqueryConfigurator : public LogOffInitializedTests{};
 
 
-TEST_F(TestOsqueryConfigurator, enableAuditDataCollectionInternalReturnsExpectedValueGivenSetOfInputs) // NOLINT
+TEST_F(TestOsqueryConfigurator, enableAuditDataCollectionInternalReturnsExpectedValueGivenSetOfInputs)
 {
     bool disableAuditDInPluginConfig = false;
     TestableOsqueryConfigurator osqueryConfigurator(disableAuditDInPluginConfig);

@@ -55,7 +55,7 @@ namespace Common::PluginApiImpl
         if (::getuid() != Common::FileSystem::filePermissions()->getUserId(sophos::user()))
         {
             Common::FileSystem::filePermissions()->chmod(
-                pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
+                pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         }
     }
     void PluginResourceManagement::setupRequester(

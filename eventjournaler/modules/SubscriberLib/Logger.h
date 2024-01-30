@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getSubscriberLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSubscriberLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getSubscriberLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSubscriberLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getSubscriberLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getSubscriberLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSubscriberLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getSubscriberLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSubscriberLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getSubscriberLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSubscriberLogger(), x)

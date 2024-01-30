@@ -39,7 +39,7 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(PubSubReliabilityTests, SlowSubscribersMayLooseMessagesButWillStillReceiveMessagesFromThePublisher) // NOLINT
+    TEST_F(PubSubReliabilityTests, SlowSubscribersMayLooseMessagesButWillStillReceiveMessagesFromThePublisher)
     {
         std::string serveraddress = m_testContext.serverAddress();
         Tests::TestExecutionSynchronizer synchronizer;
@@ -123,7 +123,7 @@ namespace
     // this test passes, but may take more than 1 minute to overload all the buffers and
     // show subscribers loosing events. It also demonstrate how 'difficult' is to subscribers to
     // loose events.
-    TEST_F(PubSubReliabilityTests, DISABLED_DemonstrateThatSlowSubscribersHaveANaturalHWM) // NOLINT
+    TEST_F(PubSubReliabilityTests, DISABLED_DemonstrateThatSlowSubscribersHaveANaturalHWM)
     {
         std::string serveraddress = m_testContext.serverAddress();
         Tests::TestExecutionSynchronizer synchronizer;

@@ -158,7 +158,7 @@ public:
     return ::testing::AssertionSuccess();
 }
 
-TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
+TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted)
 {
     if (skipTest())
         return;
@@ -180,7 +180,7 @@ TEST_F(TestOSQueryProcessor, VerifyOsqueryCanBeStarted) // NOLINT
     EXPECT_THAT(output, ::testing::HasSubstr("Extension manager service starting: /tmp/"));
 }
 
-TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
+TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn)
 {
     if (skipTest())
         return;
@@ -196,7 +196,7 @@ TEST_F(TestOSQueryProcessor, SimpleSelectShouldReturn) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError)
 {
     if (skipTest())
         return;
@@ -208,7 +208,7 @@ TEST_F(TestOSQueryProcessor, NoOSqueryAvailableShouldReturnError) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError)
 {
     if (skipTest())
         return;
@@ -219,7 +219,7 @@ TEST_F(TestOSQueryProcessor, InvalidStatementShouldReturnError) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError)
 {
     if (skipTest())
         return;
@@ -230,7 +230,7 @@ TEST_F(TestOSQueryProcessor, InvalidTableNameShouldReturnError) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError)
 {
     if (skipTest())
         return;
@@ -241,7 +241,7 @@ TEST_F(TestOSQueryProcessor, InvalidColumnNameShouldReturnError) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError)
 {
     if (skipTest())
         return;
@@ -252,7 +252,7 @@ TEST_F(TestOSQueryProcessor, AttemptToModifyAnOsQueryTableShouldReturnError) // 
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError)
 {
     if (skipTest())
         return;
@@ -263,7 +263,7 @@ TEST_F(TestOSQueryProcessor, CreatingTempTableThatAlreadyExistsShouldReturnError
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, LiveQueryShouldReportOnQueriesThatCausedOsqueryWatchdogToRestartOsquery) // NOLINT
+TEST_F(TestOSQueryProcessor, LiveQueryShouldReportOnQueriesThatCausedOsqueryWatchdogToRestartOsquery)
 {
     if (skipTest())
         return;
@@ -282,7 +282,7 @@ SELECT group_concat(curr) FROM counting;)" };
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT) // NOLINT
+TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT)
 {
     if (skipTest())
         return;
@@ -295,7 +295,7 @@ TEST_F(TestOSQueryProcessor, VerifyOSQueryResponseHasExpectedTypesForINTEGERandB
     EXPECT_EQ(expectedHeaders, response.data().columnHeaders());
 }
 
-TEST_F(TestOSQueryProcessor, HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText) // NOLINT
+TEST_F(TestOSQueryProcessor, HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText)
 {
     if (skipTest())
         return;

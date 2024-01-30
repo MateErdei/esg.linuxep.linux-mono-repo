@@ -30,13 +30,13 @@ namespace
     };
 } // namespace
 
-TEST_F(TestProcessProxy, createProcessProxyDoesntThrow) // NOLINT
+TEST_F(TestProcessProxy, createProcessProxyDoesntThrow)
 {
     auto processInfoPtr = Common::Process::createEmptyProcessInfo();
     ASSERT_NO_THROW(Common::ProcessMonitoring::createProcessProxy(std::move(processInfoPtr)));
 }
 
-TEST_F(TestProcessProxy, WontStartPluginIfExecutableDoesNotExist) // NOLINT
+TEST_F(TestProcessProxy, WontStartPluginIfExecutableDoesNotExist)
 {
     testing::internal::CaptureStderr();
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
@@ -59,7 +59,7 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableDoesNotExist) // NOLINT
     EXPECT_THAT(logMessage, ::testing::HasSubstr(errorMessage.c_str()));
 }
 
-TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameIsUnset) // NOLINT
+TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameIsUnset)
 {
     testing::internal::CaptureStderr();
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
@@ -80,7 +80,7 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameIsUnset) // NOL
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin: invalid user name or group name"));
 }
 
-TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameNoLongerValid) // NOLINT
+TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameNoLongerValid)
 {
     testing::internal::CaptureStderr();
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
@@ -118,7 +118,7 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameNoLongerValid) 
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin: invalid user name or group name"));
 }
 
-TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
+TEST_F(TestProcessProxy, WillStartPluginWithExecutable)
 {
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
     const std::string execPath = "./foobar";
@@ -145,7 +145,7 @@ TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
     EXPECT_EQ(delay, std::chrono::hours(1));
 }
 
-TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
+TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin)
 {
     testing::internal::CaptureStderr();
 
@@ -176,7 +176,7 @@ TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::hours(1));
 
-    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    EXPECT_NO_THROW(proxy.checkForExit());
     delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::seconds(10)); // Not starting for 10 seconds
 
@@ -184,7 +184,7 @@ TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_THAT(errStd, ::testing::HasSubstr("/opt/sophos-spl/foobar exited"));
 }
 
-TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
+TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged)
 {
     testing::internal::CaptureStderr();
 
@@ -219,7 +219,7 @@ TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
     proxy.setEnabled(false);
     proxy.ensureStateMatchesOptions();
 
-    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    EXPECT_NO_THROW(proxy.checkForExit());
     delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::hours(1)); // process has exited, so we
 
@@ -227,7 +227,7 @@ TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
     EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited")));
 }
 
-TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
+TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill)
 {
     testing::internal::CaptureStderr();
 
@@ -265,7 +265,7 @@ TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
     proxy.setEnabled(false);
     proxy.ensureStateMatchesOptions();
 
-    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    EXPECT_NO_THROW(proxy.checkForExit());
     delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::hours(1)); // process has exited, so we
 
@@ -275,7 +275,7 @@ TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
     EXPECT_THAT(errStd, ::testing::HasSubstr("killed after waiting for 3 seconds"));
 }
 
-TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill) // NOLINT
+TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill)
 {
     testing::internal::CaptureStderr();
 
@@ -309,7 +309,7 @@ TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill) // NOLINT
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::hours(1));
 
-    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    EXPECT_NO_THROW(proxy.checkForExit());
 
     std::string errStd = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errStd, ::testing::HasSubstr("was forcefully stopped"));
@@ -350,7 +350,7 @@ TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode)
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::hours(1));
 
-    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    EXPECT_NO_THROW(proxy.checkForExit());
 
     std::string errStd = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errStd, ::testing::HasSubstr("died with "));

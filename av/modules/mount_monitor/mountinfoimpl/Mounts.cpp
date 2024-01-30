@@ -34,7 +34,7 @@ std::string octalUnescape(const std::string& input)
         if (ch == '\\')
         {
             std::string buf("\\");
-            size_t i; // NOLINT(cppcoreguidelines-init-variables)
+            size_t i;
             unsigned int val = 0;
 
             for (i = 0; i < 3; i++)
@@ -216,7 +216,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     {
                         char buf[64];
-                        ssize_t bytes; // NOLINT(cppcoreguidelines-init-variables)
+                        ssize_t bytes;
                         do
                         {
                             bytes = ::read(fd[0], buf, 64);
@@ -242,7 +242,7 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                     close(fd[0]);
 
-                    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) // NOLINT(hicpp-signed-bitwise)
+                    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
                     {
                         LOGERROR("Running " << path << " failed");
                         result = "";

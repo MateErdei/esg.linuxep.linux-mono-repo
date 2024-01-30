@@ -4,13 +4,13 @@
 #include "Common/TaskQueueImpl/TaskQueueImpl.h"
 #include <gtest/gtest.h>
 
-TEST(TestTaskProcessorImpl, Construction) // NOLINT
+TEST(TestTaskProcessorImpl, Construction)
 {
     std::shared_ptr<Common::TaskQueue::ITaskQueue> queue(new Common::TaskQueueImpl::TaskQueueImpl());
     Common::TaskQueueImpl::TaskProcessorImpl processor(queue);
 }
 
-TEST(TestTaskProcessorImpl, StartAndStop) // NOLINT
+TEST(TestTaskProcessorImpl, StartAndStop)
 {
     std::shared_ptr<Common::TaskQueue::ITaskQueue> queue(new Common::TaskQueueImpl::TaskQueueImpl());
     Common::TaskQueueImpl::TaskProcessorImpl processor(queue);
@@ -18,7 +18,7 @@ TEST(TestTaskProcessorImpl, StartAndStop) // NOLINT
     processor.stop();
 }
 
-TEST(TestTaskProcessorImpl, QueueNullTask) // NOLINT
+TEST(TestTaskProcessorImpl, QueueNullTask)
 {
     std::shared_ptr<Common::TaskQueue::ITaskQueue> queue(new Common::TaskQueueImpl::TaskQueueImpl());
     Common::TaskQueueImpl::TaskProcessorImpl processor(queue);
@@ -43,7 +43,7 @@ namespace
     };
 } // namespace
 
-TEST(TestTaskProcessorImpl, CheckTaskExecuted) // NOLINT
+TEST(TestTaskProcessorImpl, CheckTaskExecuted)
 {
     bool taskExecuted = false;
     Common::TaskQueue::ITaskPtr task(new FakeTask(taskExecuted));
@@ -59,7 +59,7 @@ TEST(TestTaskProcessorImpl, CheckTaskExecuted) // NOLINT
     EXPECT_TRUE(taskExecuted);
 }
 
-TEST(TestTaskProcessorImpl, CheckTaskIsExecutedBeforeStopTaskIsExecuted) // NOLINT
+TEST(TestTaskProcessorImpl, CheckTaskIsExecutedBeforeStopTaskIsExecuted)
 {
     bool task1Executed = false;
     bool task2Executed = false;

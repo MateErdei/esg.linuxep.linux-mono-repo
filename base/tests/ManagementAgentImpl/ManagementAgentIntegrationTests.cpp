@@ -263,14 +263,14 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly) // NOLINT
+    TEST_F(ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly)
     {
         TestManagementAgent agent;
         Tests::TestExecutionSynchronizer synchronizer;
         ASSERT_EQ(0, agent.runWrapper(synchronizer, std::chrono::milliseconds(300)));
     }
 
-    TEST_F( // NOLINT
+    TEST_F(
         ManagementAgentIntegrationTests,
         ifNoPolicyIsAvailableToAPluginManagementAgentShouldNotSendAnyPolicy)
     {
@@ -287,7 +287,7 @@ namespace
         ASSERT_FALSE(plugin.queue_has_policy());
     }
 
-    TEST_F( // NOLINT
+    TEST_F(
         ManagementAgentIntegrationTests,
         ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler)
     {
@@ -318,7 +318,7 @@ namespace
         ASSERT_EQ(0, futureRunner.get());
     }
 
-    TEST_F( // NOLINT
+    TEST_F(
         ManagementAgentIntegrationTests,
         onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins)
     {
@@ -349,7 +349,7 @@ namespace
         ASSERT_EQ(0, futureRunner.get());
     }
 
-    TEST_F( // NOLINT
+    TEST_F(
         ManagementAgentIntegrationTests,
         afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins)
     {
@@ -397,7 +397,7 @@ namespace
 
     // disabled only because the timings depend on the socket timeout and need the logging to verify.
     // Keeping it can be run manually.
-    TEST_F(ManagementAgentIntegrationTests, DISABLED_ifPluginIsNotAvailableManagementAgentShouldNotCrash) // NOLINT
+    TEST_F(ManagementAgentIntegrationTests, DISABLED_ifPluginIsNotAvailableManagementAgentShouldNotCrash)
     {
         testing::internal::CaptureStderr();
 
@@ -429,7 +429,7 @@ namespace
         ASSERT_THAT(errStd, ::testing::HasSubstr("Failure on sending action to updatescheduler"));
     }
 
-    TEST_F(ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler) // NOLINT
+    TEST_F(ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler)
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         std::string notWantedPolicy = "notWantedPolicy";

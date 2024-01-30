@@ -136,7 +136,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     scanDirectory(starting_point);
 }
 
-void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-recursion)
+void FileWalker::scanDirectory(const fs::path& current_dir)
 {
     try
     {

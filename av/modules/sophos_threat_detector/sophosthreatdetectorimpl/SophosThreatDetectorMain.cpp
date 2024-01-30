@@ -247,7 +247,7 @@ namespace sspl::sophosthreatdetectorimpl
         };
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
+        hints.ai_flags |= AI_CANONNAME;
 
         /* resolve the domain name into a list of addresses */
         int error = m_sysCallWrapper->getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);

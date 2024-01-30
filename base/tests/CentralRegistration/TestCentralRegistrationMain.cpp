@@ -22,7 +22,7 @@ protected:
         std::make_unique<::testing::StrictMock<MockFileSystem>>();
 };
 
-TEST_F(CentralRegistrationMainTests, extractor) // NOLINT
+TEST_F(CentralRegistrationMainTests, extractor)
 {
     std::string test{ "relay1:port1,1,id1;relay2:port2,2,id2;relay3:port3,3,id3" };
     std::vector<MCS::MessageRelay> result = extractMessageRelays(test);
@@ -41,7 +41,7 @@ TEST_F(CentralRegistrationMainTests, extractor) // NOLINT
     ASSERT_EQ(result[2].port, "port3");
 }
 
-TEST_F(CentralRegistrationMainTests, MessageRelayExtractorFormat) // NOLINT
+TEST_F(CentralRegistrationMainTests, MessageRelayExtractorFormat)
 {
     ASSERT_TRUE(extractMessageRelays("relay1:port1,1").empty());
     ASSERT_TRUE(extractMessageRelays("relay1:port1,1,id1,extra").empty());
@@ -53,7 +53,7 @@ TEST_F(CentralRegistrationMainTests, MessageRelayExtractorFormat) // NOLINT
     ASSERT_EQ(extractMessageRelays(";;;relay1:port1,1,id1;;;"), expected);
 }
 
-TEST_F(CentralRegistrationMainTests, SortMessageRelays) // NOLINT
+TEST_F(CentralRegistrationMainTests, SortMessageRelays)
 {
     Common::OSUtilitiesImpl::replaceLocalIP(std::make_unique<FakeILocalIP>(
         std::vector<std::string>{ "192.168.0.0", "10.0.0.0" }, std::vector<std::string>{ "fc00::" }));
@@ -95,7 +95,7 @@ TEST_F(CentralRegistrationMainTests, SortMessageRelays) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
@@ -150,7 +150,7 @@ TEST_F(CentralRegistrationMainTests, space_in_group_name)
     EXPECT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "grou p1/grou p2");
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsIncludingOptionals) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsIncludingOptionals)
 {
     std::vector<std::string> argValues{ "MCS_Token001",
                                         "https://MCS_URL",
@@ -203,7 +203,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.messageRelays[2].port, "port3");
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithProxyCreds) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithProxyCreds)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
@@ -232,7 +232,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.config[MCS::MCS_CERT], "");
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithMCS_CA_Override) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithMCS_CA_Override)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
@@ -262,7 +262,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.config[MCS::MCS_CA_OVERRIDE], "some_path");
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPSEnvProxySet) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPSEnvProxySet)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
@@ -290,7 +290,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.config[MCS::MCS_CERT], "");
 }
 
-TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPEnvProxySet) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPEnvProxySet)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
@@ -319,7 +319,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     ASSERT_EQ(configOptions.config[MCS::MCS_CERT], "");
 }
 
-TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven) // NOLINT
+TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven)
 {
     std::vector<std::string> argValues{ "CentralRegistration" };
 
@@ -335,7 +335,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven) // NOLINT
         logMessage, ::testing::HasSubstr("Insufficient positional arguments given. Expecting 2: MCS Token, MCS URL"));
 }
 
-TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
+TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg)
 {
     std::vector<std::string> argValues{
         "--groups=group1/group2", "MCS_Token001", "https://MCS_URL", "--products=antivirus,mdr"
@@ -353,7 +353,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
         logMessage, ::testing::HasSubstr("Expecting MCS Token, found optional argument: --groups=group1/group2"));
 }
 
-TEST_F(CentralRegistrationMainTests, FailsWhenArgThreeIsAnOptionalArg) // NOLINT
+TEST_F(CentralRegistrationMainTests, FailsWhenArgThreeIsAnOptionalArg)
 {
     std::vector<std::string> argValues{
         "MCS_Token001", "--groups=group1/group2", "https://MCS_URL", "--products=antivirus,mdr"

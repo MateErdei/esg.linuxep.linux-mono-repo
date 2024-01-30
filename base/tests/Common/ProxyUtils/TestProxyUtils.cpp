@@ -17,7 +17,7 @@ class TestProxyUtils : public LogOffInitializedTests
 };
 
 // getCurrentProxy tests
-TEST_F(TestProxyUtils, getCurrentProxyReturnsProxyDetails) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyReturnsProxyDetails)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -31,7 +31,7 @@ TEST_F(TestProxyUtils, getCurrentProxyReturnsProxyDetails) // NOLINT
     ASSERT_EQ(credentials, obfuscatedCreds);
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyStillReturnsProxyIfMissingCreds) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyStillReturnsProxyIfMissingCreds)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -44,7 +44,7 @@ TEST_F(TestProxyUtils, getCurrentProxyStillReturnsProxyIfMissingCreds) // NOLINT
     ASSERT_EQ(credentials, "");
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyThrowsOnInvalidJson) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyThrowsOnInvalidJson)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -65,7 +65,7 @@ TEST_F(TestProxyUtils, getCurrentProxyThrowsOnInvalidJson) // NOLINT
     }, std::runtime_error);
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyThrowsOnUnreadableFile) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyThrowsOnUnreadableFile)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -85,7 +85,7 @@ TEST_F(TestProxyUtils, getCurrentProxyThrowsOnUnreadableFile) // NOLINT
     }, std::runtime_error);
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyDetailsOnMissingFile) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyDetailsOnMissingFile)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -96,7 +96,7 @@ TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyDetailsOnMissingFile) // NOLIN
     ASSERT_EQ(creds, "");
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyIgnoresExtraJsonFields) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyIgnoresExtraJsonFields)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -110,7 +110,7 @@ TEST_F(TestProxyUtils, getCurrentProxyIgnoresExtraJsonFields) // NOLINT
     ASSERT_EQ(credentials, obfuscatedCreds);
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyHandlesMissingProxyField) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyHandlesMissingProxyField)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -124,7 +124,7 @@ TEST_F(TestProxyUtils, getCurrentProxyHandlesMissingProxyField) // NOLINT
     ASSERT_EQ(credentials, "");
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyDoesNotReturnAnyStringIfOnlyCredsInJson) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyDoesNotReturnAnyStringIfOnlyCredsInJson)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -137,7 +137,7 @@ TEST_F(TestProxyUtils, getCurrentProxyDoesNotReturnAnyStringIfOnlyCredsInJson) /
     ASSERT_EQ(credentials, "");
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValusForEmptyJson) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValusForEmptyJson)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -150,7 +150,7 @@ TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValusForEmptyJson) // NOLINT
     ASSERT_EQ(credentials, "");
 }
 
-TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValuesForEmptyFile) // NOLINT
+TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValuesForEmptyFile)
 {
     auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
@@ -166,7 +166,7 @@ TEST_F(TestProxyUtils, getCurrentProxyReturnsEmptyValuesForEmptyFile) // NOLINT
 
 // deobfuscateProxyCreds tests
 
-TEST_F(TestProxyUtils, deobfuscateProxyCreds) // NOLINT
+TEST_F(TestProxyUtils, deobfuscateProxyCreds)
 {
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     auto [username, password] = Common::ProxyUtils::deobfuscateProxyCreds(obfuscatedCreds);
@@ -174,13 +174,13 @@ TEST_F(TestProxyUtils, deobfuscateProxyCreds) // NOLINT
     ASSERT_EQ(password, "password");
 }
 
-TEST_F(TestProxyUtils, deobfuscateProxyCredsThrowsOnInvalidInput) // NOLINT
+TEST_F(TestProxyUtils, deobfuscateProxyCredsThrowsOnInvalidInput)
 {
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSbbbbbbbbbbbbbbbSslIIGV5rUw";
     EXPECT_THROW(Common::ProxyUtils::deobfuscateProxyCreds(obfuscatedCreds), Common::Obfuscation::ICipherException);
 }
 
-TEST_F(TestProxyUtils, deobfuscateProxyCredsReturnsEmptyCredsOnEmptyInput) // NOLINT
+TEST_F(TestProxyUtils, deobfuscateProxyCredsReturnsEmptyCredsOnEmptyInput)
 {
     auto [username, password] = Common::ProxyUtils::deobfuscateProxyCreds("");
     ASSERT_EQ(username, "");

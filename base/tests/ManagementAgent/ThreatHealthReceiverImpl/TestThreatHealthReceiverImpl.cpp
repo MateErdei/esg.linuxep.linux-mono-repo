@@ -11,13 +11,13 @@ class TestThreatHealthReceiverImpl : public ::testing::Test
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestThreatHealthReceiverImpl, TestConstructorDoesNotThrow) // NOLINT
+TEST_F(TestThreatHealthReceiverImpl, TestConstructorDoesNotThrow)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ASSERT_NO_THROW(ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl healthReceiver(fakeQueue));
 }
 
-TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCreatesRunnableTask) // NOLINT
+TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCreatesRunnableTask)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl healthReceiver(fakeQueue);
@@ -36,7 +36,7 @@ TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCre
         "/></health>");
 }
 
-TEST_F(TestThreatHealthReceiverImpl, invalidThreatHealthJson) // NOLINT
+TEST_F(TestThreatHealthReceiverImpl, invalidThreatHealthJson)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl healthReceiver(fakeQueue);
@@ -45,7 +45,7 @@ TEST_F(TestThreatHealthReceiverImpl, invalidThreatHealthJson) // NOLINT
     ASSERT_NO_THROW(healthReceiver.receivedThreatHealth("pluginName", threatHealthJson, healthStatusSharedObj));
 }
 
-TEST_F(TestThreatHealthReceiverImpl, unsetHealthStatusSharedObjPtrDoesNotCauseThrow) // NOLINT
+TEST_F(TestThreatHealthReceiverImpl, unsetHealthStatusSharedObjPtrDoesNotCauseThrow)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl healthReceiver(fakeQueue);

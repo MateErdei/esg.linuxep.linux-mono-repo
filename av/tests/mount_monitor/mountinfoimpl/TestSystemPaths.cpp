@@ -16,7 +16,7 @@ class TestSystemPaths : public LogInitializedTests
 {
 };
 
-TEST_F(TestSystemPaths, test_paths_are_correct) // NOLINT
+TEST_F(TestSystemPaths, test_paths_are_correct)
 {
     SystemPaths systemPaths;
     EXPECT_EQ(systemPaths.mountInfoFilePath(), "/proc/mounts");

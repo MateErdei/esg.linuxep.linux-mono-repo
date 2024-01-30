@@ -9,12 +9,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace testing;
 using namespace datatypes;
 
-TEST(TestTime, CurrentToCentralTime) // NOLINT
+TEST(TestTime, CurrentToCentralTime)
 {
     ASSERT_NE(Time::currentToDateTimeString(), "");
 }
 
-TEST(TestTime, EpochToCentralTimeThrowsFailedToConvert) // NOLINT
+TEST(TestTime, EpochToCentralTimeThrowsFailedToConvert)
 {
     try
     {
@@ -30,7 +30,7 @@ TEST(TestTime, EpochToCentralTimeThrowsFailedToConvert) // NOLINT
     }
 }
 
-TEST(TestTime, EpochToCentralTimeThrowsFailedToFormat) // NOLINT
+TEST(TestTime, EpochToCentralTimeThrowsFailedToFormat)
 {
     try
     {

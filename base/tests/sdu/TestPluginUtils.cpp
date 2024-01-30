@@ -10,7 +10,7 @@ class PluginUtilsTests : public LogInitializedTests
 {
 
 };
-TEST_F(PluginUtilsTests, processUrlWillExtractAnddStoreValidDataCorrectly) // NOLINT
+TEST_F(PluginUtilsTests, processUrlWillExtractAnddStoreValidDataCorrectly)
 {
     RemoteDiagnoseImpl::PluginUtils::UrlData data =RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost/stuff/file.zip");
     EXPECT_EQ(data.filename,"file.zip");
@@ -20,7 +20,7 @@ TEST_F(PluginUtilsTests, processUrlWillExtractAnddStoreValidDataCorrectly) // NO
 
 }
 
-TEST_F(PluginUtilsTests, processUrlwithPortWillValidDataIncludingPortCorrectly) // NOLINT
+TEST_F(PluginUtilsTests, processUrlwithPortWillValidDataIncludingPortCorrectly)
 {
     RemoteDiagnoseImpl::PluginUtils::UrlData data =RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost:80/stuff/file.zip");
     EXPECT_EQ(data.filename,"file.zip");
@@ -30,17 +30,17 @@ TEST_F(PluginUtilsTests, processUrlwithPortWillValidDataIncludingPortCorrectly) 
 
 }
 
-TEST_F(PluginUtilsTests, processUrlThrowsWhenGivenInvalidPort) // NOLINT
+TEST_F(PluginUtilsTests, processUrlThrowsWhenGivenInvalidPort)
 {
     EXPECT_THROW(RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost:blah/stuff/file.zip"),std::runtime_error);
 }
 
-TEST_F(PluginUtilsTests, processUrlThrowWhenNotHTTPS) // NOLINT
+TEST_F(PluginUtilsTests, processUrlThrowWhenNotHTTPS)
 {
     EXPECT_THROW(RemoteDiagnoseImpl::PluginUtils::processUrl("http://localhost/stuff/file.zip"),std::runtime_error);
 }
 
-TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFile) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFile)
 {
     std::string expectedStatus {
     R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="" is_running="0" />)sophos" };
@@ -48,7 +48,7 @@ TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFil
     EXPECT_EQ(expectedStatus,status);
 }
 
-TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunning) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunning)
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
@@ -61,7 +61,7 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunnin
     std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(1);
     EXPECT_EQ(expectedStatus,status);
 }
-TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRunning) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRunning)
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
@@ -74,7 +74,7 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRun
     std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
     EXPECT_EQ(expectedStatus,status);
 }
-TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion)
 {
     std::vector<std::string> contents ={"PRODUCT_VERSION = NOTAVERSION"};
     auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();

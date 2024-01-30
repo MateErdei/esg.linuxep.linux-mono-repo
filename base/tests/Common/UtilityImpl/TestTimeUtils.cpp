@@ -9,12 +9,12 @@
 
 using namespace Common::UtilityImpl;
 
-TEST(TimeUtils, getCurrentTimeShouldReturnValidTime) // NOLINT
+TEST(TimeUtils, getCurrentTimeShouldReturnValidTime)
 {
     EXPECT_GT(TimeUtils::getCurrTime(), 1556712000); // the compared time was 2019-05-01 12:00:00 UTC
 }
 
-TEST(TimeUtils, fromTimeShouldReturnSensibleResult) // NOLINT
+TEST(TimeUtils, fromTimeShouldReturnSensibleResult)
 {
     std::time_t currentTime = TimeUtils::getCurrTime();
     std::tm currentTimeTm;
@@ -36,14 +36,14 @@ TEST(TimeUtils, fromTimeShouldReturnSensibleResult) // NOLINT
     EXPECT_THAT(reportedString, ::testing::HasSubstr(sec));
 }
 
-TEST(TimeUtils, bootTimeShouldBeBeforeNow) // NOLINT
+TEST(TimeUtils, bootTimeShouldBeBeforeNow)
 {
     std::time_t currentTime = TimeUtils::getCurrTime();
     std::time_t bootTime = TimeUtils::getBootTimeAsTimet();
     EXPECT_LT(bootTime, currentTime);
 }
 
-TEST(TimeUtils, toTimeInvertible) // NOLINT
+TEST(TimeUtils, toTimeInvertible)
 {
     std::time_t currentTime = TimeUtils::getCurrTime();
     std::tm currentTimeTm{};
@@ -55,7 +55,7 @@ TEST(TimeUtils, toTimeInvertible) // NOLINT
     EXPECT_EQ(currentTime, actualTime);
 }
 
-TEST(TimeUtils, MessageTimeStampShouldReturnSensibleResult) // NOLINT
+TEST(TimeUtils, MessageTimeStampShouldReturnSensibleResult)
 {
     long epoch_time = 1600000000; //2020 09 13 12:26:40
     std::chrono::system_clock::time_point tp((std::chrono::seconds(epoch_time)));
@@ -63,21 +63,21 @@ TEST(TimeUtils, MessageTimeStampShouldReturnSensibleResult) // NOLINT
     EXPECT_EQ(convertedTime, "2020-09-13T12:26:40.000Z");
 }
 
-TEST(TimeUtils, toEpochTimeShouldReturnSensibleResult) // NOLINT
+TEST(TimeUtils, toEpochTimeShouldReturnSensibleResult)
 {
     std::string convertedTime = Common::UtilityImpl::TimeUtils::toEpochTime("20200913 122640");
 
     EXPECT_EQ(convertedTime, "1600000000");
 }
 
-TEST(TimeUtils, toWindowsFileTimeShouldReturnSensibleResult) // NOLINT
+TEST(TimeUtils, toWindowsFileTimeShouldReturnSensibleResult)
 {
     long epoch_time = 1600000000; //2020 09 13 12:26:40
     std::int64_t convertedTime = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(epoch_time);
     EXPECT_EQ(convertedTime, 132444736000000000);
 }
 
-TEST(TimeUtils, WindowsFileTimeToEpochShouldReturnSensibleResult) // NOLINT
+TEST(TimeUtils, WindowsFileTimeToEpochShouldReturnSensibleResult)
 {
     int64_t file_time = 132444736000000000; //2020 09 13 12:26:40
     std::time_t convertedTime = Common::UtilityImpl::TimeUtils::WindowsFileTimeToEpoch(file_time);

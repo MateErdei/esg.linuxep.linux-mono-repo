@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getTelemetryLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getTelemetryLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getTelemetryLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getTelemetryLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getTelemetryLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getTelemetryLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getTelemetryLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getTelemetryLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getTelemetryLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getTelemetryLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getTelemetryLogger(), x)

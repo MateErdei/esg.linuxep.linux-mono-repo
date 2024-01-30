@@ -41,7 +41,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 };
 
-TEST_F(ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) // NOLINT
+TEST_F(ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 {
     using ::testing::Invoke;
     MockCallBackListener mockCallBackListener;
@@ -69,7 +69,7 @@ TEST_F(ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) // NOLINT
  * Reactor is tested indirectly via the use of the Fake server to give more real world results.
  */
 
-TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
+TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 {
     auto context = Common::ZMQWrapperApi::createContext();
 
@@ -91,10 +91,10 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
     EXPECT_EQ(fakeClient.requestReply(requestData3), requestData3);
 
     // throws if fake server has stopped.
-    EXPECT_THROW(fakeClient.requestReply(requestData), Common::ZeroMQWrapperImpl::ZeroMQWrapperException); // NOLINT
+    EXPECT_THROW(fakeClient.requestReply(requestData), Common::ZeroMQWrapperImpl::ZeroMQWrapperException);
 }
 
-TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // NOLINT
+TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 {
     Tests::TempDir tempDir("/tmp", "SignalHandlerXXXXXX");
 
@@ -151,24 +151,24 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     }
 }
 
-TEST_F(ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow) // NOLINT
+TEST_F(ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow)
 {
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor->stop()); // NOLINT
+    EXPECT_NO_THROW(reactor->stop());
 }
 
-TEST_F(ReactorImplTest, CallingStartStopWithNoListenersDoesNotThrow) // NOLINT
+TEST_F(ReactorImplTest, CallingStartStopWithNoListenersDoesNotThrow)
 {
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor->start()); // NOLINT
-    EXPECT_NO_THROW(reactor->stop());  // NOLINT
+    EXPECT_NO_THROW(reactor->start());
+    EXPECT_NO_THROW(reactor->stop());
 }
 
-TEST_F(ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow) // NOLINT
+TEST_F(ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow)
 {
     MockCallBackListener mockCallBackListener;
 
@@ -177,10 +177,10 @@ TEST_F(ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow) // NOL
 
     reactor->addListener(&readableFd, &mockCallBackListener);
 
-    EXPECT_NO_THROW(reactor->stop()); // NOLINT
+    EXPECT_NO_THROW(reactor->stop());
 }
 
-TEST_F(ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersFromRunning) // NOLINT
+TEST_F(ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersFromRunning)
 {
     using ::testing::Invoke;
     bool callbackExecuted = false;
@@ -216,7 +216,7 @@ TEST_F(ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersFr
     reactor->stop();
 }
 
-TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) // NOLINT
+TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks)
 {
     auto lambdaThatClosesPipeBeforeStopingReactor = []() {
         using ::testing::Invoke;
@@ -234,10 +234,10 @@ TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) // NOLINT
         reactor->join();
     };
 
-    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associated with the poller"); // NOLINT
+    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associated with the poller");
 }
 
-TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // NOLINT
+TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets)
 {
     auto lambdaThatClosesSocketBeforeStopingReactor = []() {
         using ::testing::Invoke;
@@ -272,14 +272,14 @@ TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // 
         fut.get();
     };
 
-    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associated with the poller"); // NOLINT
+    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associated with the poller");
 }
 
 #ifndef NDEBUG
 /**
  * Test fucntion can only be called in debug mode.
  */
-TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert) // NOLINT
+TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert)
 {
     GTEST_FLAG_SET(death_test_style, "threadsafe");
 
@@ -293,6 +293,6 @@ TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAss
             reactor->start();
             reactor->addListener(&readableFd, &mockCallBackListener);
         },
-        ""); // NOLINT
+        "");
 }
 #endif

@@ -11,7 +11,7 @@
 #include <numeric>
 #include <thread>
 
-// NOLINTNEXTLINE
+
 #define PRINT(x) std::cerr << x << std::endl
 
 // use log4cplus for thread-safe printing, to avoid upsetting helgrind

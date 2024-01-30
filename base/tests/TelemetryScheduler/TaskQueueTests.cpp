@@ -10,7 +10,7 @@
 using TelemetrySchedulerImpl::SchedulerTask;
 using TelemetrySchedulerImpl::TaskQueue;
 
-TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
+TEST(TaskQueueTests, pushedTaskCanBePopped)
 {
     TaskQueue queue;
     const SchedulerTask taskIn = { SchedulerTask::TaskType::InitialWaitToRunTelemetry };
@@ -19,7 +19,7 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
     EXPECT_EQ(taskOut, taskIn);
 }
 
-TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
+TEST(TaskQueueTests, multiplePushedTasksCanBePopped)
 {
     TaskQueue queue;
     const std::vector<SchedulerTask> tasksIn = { { SchedulerTask::TaskType::Shutdown },
@@ -41,7 +41,7 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
     EXPECT_EQ(tasksOut, tasksIn);
 }
 
-TEST(TaskQueueTests, popWaitsForPush) // NOLINT
+TEST(TaskQueueTests, popWaitsForPush)
 {
     using namespace std::chrono;
     const milliseconds delay(1);
@@ -78,7 +78,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     EXPECT_EQ(taskOut, taskIn);
 }
 
-TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
+TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst)
 {
     TaskQueue queue;
     const SchedulerTask priorityTask = { SchedulerTask::TaskType::Shutdown };

@@ -71,7 +71,7 @@ namespace
     };
 } // namespace
 
-TEST_F(TestBaseFileWalkCallbacks, noActions) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, noActions) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -82,7 +82,7 @@ TEST_F(TestBaseFileWalkCallbacks, noActions) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, scansFile) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scansFile) 
 {
     fs::path testfile = "/testfile";
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
@@ -101,7 +101,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansFile) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scanThrows) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -129,7 +129,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_GENERIC_FAILURE);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeFile) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeFile) 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -150,7 +150,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFile) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, includeDirectory) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, includeDirectory) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -164,7 +164,7 @@ TEST_F(TestBaseFileWalkCallbacks, includeDirectory) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMount) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMount) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -179,7 +179,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMount) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeSubdirectoryByMount) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeSubdirectoryByMount) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -194,7 +194,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeSubdirectoryByMount) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMountIncludesOtherDirs) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMountIncludesOtherDirs) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -215,7 +215,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMountIncludesOtherDirs) // N
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByUser) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByUser) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -230,7 +230,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByUser) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, includeStartingDir) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, includeStartingDir) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -244,7 +244,7 @@ TEST_F(TestBaseFileWalkCallbacks, includeStartingDir) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeStartingDir) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeStartingDir) 
 {
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
@@ -259,7 +259,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDir) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, scansSymlinkToFile) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scansSymlinkToFile) 
 {
     fs::path testfile("testfile");
     std::ofstream(testfile).close();
@@ -282,7 +282,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansSymlinkToFile) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -309,7 +309,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMount) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMount) 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -335,7 +335,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMount) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMountNotPrefix) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMountNotPrefix) 
 {
     fs::path testdir = "testdir";
     fs::path testdir2 = "testdir2";
@@ -363,7 +363,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMountNotPrefix) // N
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkByUser) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkByUser) 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -389,7 +389,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkByUser) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, includeFileSymlinkWithUserExclusions) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, includeFileSymlinkWithUserExclusions) 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -439,7 +439,7 @@ TEST_F(TestBaseFileWalkCallbacks, includeFileSymlinkWithUserExclusions) // NOLIN
 
 // Simulate the situation where a symlink disappears during scanning.
 // implies the need for "TestFileWalker, handlesExceptionFromProcessFileInWalk"
-TEST_F(TestBaseFileWalkCallbacks, scansMissingFileAsSymlink) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scansMissingFileAsSymlink) 
 {
     fs::path testfile = "/testfile";
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
@@ -454,7 +454,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansMissingFileAsSymlink) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, scanBrokenSymlink) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scanBrokenSymlink) 
 {
     fs::path testfile("testfile");
     fs::path symlink("symlink");
@@ -472,7 +472,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanBrokenSymlink) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, scansFileViaSymlinkDir) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, scansFileViaSymlinkDir) 
 {
     fs::path testdir("testdir");
     fs::create_directory(testdir);
@@ -498,7 +498,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansFileViaSymlinkDir) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) 
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
@@ -519,7 +519,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) 
 {
     std::string testdirString = "testdir";
     fs::path testdir = testdirString;
@@ -540,7 +540,7 @@ TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // N
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByMount) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByMount) 
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
@@ -560,7 +560,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByMount) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMount) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMount) 
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
@@ -580,7 +580,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMount) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) 
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
@@ -603,7 +603,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) // NOLIN
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountNotPrefix) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountNotPrefix) 
 {
     fs::path testdir = "testdir";
     fs::path testdir2 = "testdir2";
@@ -624,7 +624,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountNotPrefix) // NO
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByUser) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByUser) 
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
@@ -645,7 +645,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByUser) // NOLINT
     EXPECT_EQ(callback.returnCode(), E_CLEAN_SUCCESS);
 }
 
-TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) 
 {
     std::string testdirString = "testdir";
     fs::path testdir = testdirString;
@@ -668,7 +668,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
 
 // Simulate the situation where a symlink disappears during scanning.
 // showing why we need test: "TestFileWalker, scanContinuesAfterIncludeDirectoryThrows"
-TEST_F(TestBaseFileWalkCallbacks, brokenDirectorySymlink) // NOLINT
+TEST_F(TestBaseFileWalkCallbacks, brokenDirectorySymlink) 
 {
     fs::path testdir = "testdir";
     fs::path symlink = "symlink";

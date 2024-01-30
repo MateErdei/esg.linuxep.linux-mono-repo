@@ -501,7 +501,7 @@ namespace Common::ApplicationConfiguration
     /** Use only for test */
     void replaceApplicationPathManager(std::unique_ptr<IApplicationPathManager> applicationPathManager)
     {
-        instance().reset(applicationPathManager.release()); // NOLINT
+        instance().reset(applicationPathManager.release());
     }
     void restoreApplicationPathManager()
     {

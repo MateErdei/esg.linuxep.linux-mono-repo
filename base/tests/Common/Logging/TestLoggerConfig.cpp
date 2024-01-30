@@ -13,12 +13,12 @@
 #include <thread>
 #include <unistd.h>
 
-#define LOGTRACE(x) LOG4CPLUS_TRACE(logger, x)     // NOLINT
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(logger, x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(logger, x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(logger, x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(logger, x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(logger, x)     // NOLINT
+#define LOGTRACE(x) LOG4CPLUS_TRACE(logger, x)
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(logger, x)
+#define LOGINFO(x) LOG4CPLUS_INFO(logger, x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(logger, x)
+#define LOGWARN(x) LOG4CPLUS_WARN(logger, x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(logger, x)
 
 #ifndef ARTISANBUILD
 
@@ -247,7 +247,7 @@ void runTest(TestInput testInput, bool inNewProc = true)
     }
 }
 
-TEST_F(TestLoggerConfig, GlobalSupportLogWrittenToFile) // NOLINT
+TEST_F(TestLoggerConfig, GlobalSupportLogWrittenToFile)
 {
     TestInput testInput{ .logConfig = R"(
 [global]
@@ -263,10 +263,10 @@ VERBOSITY=SUPPORT
 
     // swap the comment lines below to run in this proc and not in another one.
     // runTest(testInput, false);
-    ASSERT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    ASSERT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile) // NOLINT
+TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile)
 {
     TestInput testInput{ .logConfig = R"(
 [global]
@@ -278,10 +278,10 @@ VERBOSITY=INFO
                          .moduleContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, GlobalTraceLogWrittenToFile) // NOLINT
+TEST_F(TestLoggerConfig, GlobalTraceLogWrittenToFile)
 {
     TestInput testInput{ .logConfig = R"(
 [global]
@@ -295,10 +295,10 @@ VERBOSITY=TRACE
                                               LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
                          .moduleDoesNotContainLogs = 0,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, ComponentCanBeTraceWhenGlobalIsSomethingElse) // NOLINT
+TEST_F(TestLoggerConfig, ComponentCanBeTraceWhenGlobalIsSomethingElse)
 {
     TestInput testInput{ .logConfig = R"(
 [testlogging]
@@ -313,11 +313,11 @@ VERBOSITY=DEBUG
                                                 LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
                          .moduleDoesNotContainLogs = 0,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
 
-TEST_F(TestLoggerConfig, TargetProductAndModuleDifferently) // NOLINT
+TEST_F(TestLoggerConfig, TargetProductAndModuleDifferently)
 {
     TestInput testInput{ .logConfig = R"(
 [testlogging]
@@ -332,10 +332,10 @@ VERBOSITY=DEBUG
                                               LogLevels::SUPPORT,
                          .moduleDoesNotContainLogs = 0,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, TargetProductAndModuleWithReducingLevelForModule) // NOLINT
+TEST_F(TestLoggerConfig, TargetProductAndModuleWithReducingLevelForModule)
 {
     TestInput testInput{ .logConfig = R"(
 [testlogging]
@@ -350,10 +350,10 @@ VERBOSITY=WARN
                          .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, ConfigMayContainCommentSpacesAndAnyOtherNonRelatedEntries) // NOLINT
+TEST_F(TestLoggerConfig, ConfigMayContainCommentSpacesAndAnyOtherNonRelatedEntries)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -373,10 +373,10 @@ ANOTHERENTRY = anything
                          .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesWithEmptyLocalConfig) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesWithEmptyLocalConfig)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -395,11 +395,11 @@ VERBOSITY = WARN
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
         .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithHigherLogLevel) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithHigherLogLevel)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -420,10 +420,10 @@ VERBOSITY = DEBUG
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
         .moduleDoesNotContainLogs = 0,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithLowerLogLevel) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithLowerLogLevel)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -444,10 +444,10 @@ VERBOSITY = WARN
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
         .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT  | LogLevels::INFO,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesAllValues) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesAllValues)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -470,10 +470,10 @@ VERBOSITY = INFO
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
         .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValues) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValues)
 {
     TestInput testInput{ .logConfig = R"(
 # this is the config file for sophos
@@ -490,10 +490,10 @@ VERBOSITY = INFO
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
         .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
-TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValuesWhenOriginalFileIsEmpty) // NOLINT
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValuesWhenOriginalFileIsEmpty)
 {
     TestInput testInput{ .logConfig = R"()",
         .localLogConfig = R"(
@@ -509,7 +509,7 @@ VERBOSITY = INFO
         .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
         .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
 }
 
 #endif

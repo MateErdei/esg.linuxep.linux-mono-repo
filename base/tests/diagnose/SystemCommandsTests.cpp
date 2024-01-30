@@ -59,7 +59,7 @@ private:
     size_t m_mockProcessIndex = 0;
 };
 
-TEST_F(DiagnoseSystemCommandsTests, RunCommandRunAndWritesToFileOk) // NOLINT
+TEST_F(DiagnoseSystemCommandsTests, RunCommandRunAndWritesToFileOk)
 {
     setupMocks(1);
     auto& mockProcess = m_mockProcesses[0];
@@ -81,7 +81,7 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandRunAndWritesToFileOk) // NOLINT
     ASSERT_EQ(retCode, EXIT_SUCCESS);
 }
 
-TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessExitCodeIsFailure) // NOLINT
+TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessExitCodeIsFailure)
 {
     setupMocks(1);
     auto& mockProcess = m_mockProcesses[0];
@@ -104,7 +104,7 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessExitCodeIsFailure) /
     ASSERT_EQ(retCode, EXIT_FAILURE);
 }
 
-TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessGetExecutablePathException) // NOLINT
+TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessGetExecutablePathException)
 {
     setupMocks(1);
 
@@ -123,7 +123,7 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessGetExecutablePathExc
     ASSERT_EQ(retCode, EXIT_FAILURE);
 }
 
-TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLINT
+TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout)
 {
     setupMocks(2);
     std::string systemDirPath("/Never/Createdir/");

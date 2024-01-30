@@ -31,12 +31,12 @@ namespace
     };
 } // namespace
 
-TEST_F(TestThreatReporter, testConstruction) // NOLINT
+TEST_F(TestThreatReporter, testConstruction)
 {
     sspl::sophosthreatdetectorimpl::ThreatReporter foo("/bar");
 }
 
-TEST_F(TestThreatReporter, testReport) // NOLINT
+TEST_F(TestThreatReporter, testReport)
 {
     setupFakeSophosThreatDetectorConfig();
 

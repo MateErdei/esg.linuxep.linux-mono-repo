@@ -7,7 +7,7 @@
 
 std::time_t t_20190501T13h{ 1556712000 };
 
-TEST(TestFakeTimeUtils, SequenceOfFakeTimeOneEntryOnly) // NOLINT
+TEST(TestFakeTimeUtils, SequenceOfFakeTimeOneEntryOnly)
 {
     bool stop{ false };
     SequenceOfFakeTime sequenceOfFakeTime(
@@ -32,7 +32,7 @@ TEST(TestFakeTimeUtils, SequenceOfFakeTimeOneEntryOnly) // NOLINT
     EXPECT_EQ(newValues, expectedValues);
 }
 
-TEST(TestFakeTimeUtils, SequenceOfFakeTimeTwoEntries) // NOLINT
+TEST(TestFakeTimeUtils, SequenceOfFakeTimeTwoEntries)
 {
     bool stop{ false };
     std::vector<std::time_t> expectedValues{ t_20190501T13h, t_20190501T13h + 90 };
@@ -58,7 +58,7 @@ TEST(TestFakeTimeUtils, SequenceOfFakeTimeTwoEntries) // NOLINT
     EXPECT_EQ(newValues, expectedValues);
 }
 
-TEST(TestFakeTimeUtils, SequenceOfFakeTimeNEntriesAppliesTheCacheTime) // NOLINT
+TEST(TestFakeTimeUtils, SequenceOfFakeTimeNEntriesAppliesTheCacheTime)
 {
     bool stop{ false };
     std::vector<std::time_t> expectedValues;
@@ -81,7 +81,7 @@ TEST(TestFakeTimeUtils, SequenceOfFakeTimeNEntriesAppliesTheCacheTime) // NOLINT
     EXPECT_EQ(newValues, expectedValues);
 }
 
-TEST(TestFakeTimeUtils, DemonstrationHowTheFakeTimeIsToBeHookedIntoTimeUtils) // NOLINT
+TEST(TestFakeTimeUtils, DemonstrationHowTheFakeTimeIsToBeHookedIntoTimeUtils)
 {
     bool stop{ false };
     std::vector<std::time_t> expectedValues;

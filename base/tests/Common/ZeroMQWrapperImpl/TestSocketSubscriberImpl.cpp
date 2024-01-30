@@ -13,7 +13,7 @@ using Common::ZeroMQWrapper::ISocketSubscriberPtr;
 
 namespace
 {
-    TEST(TestSocketSubscriberImpl, creation) // NOLINT
+    TEST(TestSocketSubscriberImpl, creation)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -22,7 +22,7 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST(TestSocketSubscriberImpl, listen) // NOLINT
+    TEST(TestSocketSubscriberImpl, listen)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -84,7 +84,7 @@ namespace
         }
     }
 
-    TEST(TestSocketSubscriberImpl, comms) // NOLINT
+    TEST(TestSocketSubscriberImpl, comms)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);

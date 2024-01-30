@@ -22,7 +22,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
+#define LOGSUPPORT(x) std::cout << x << "\n";
 
 namespace
 {
@@ -153,7 +153,7 @@ namespace Common::FileSystem
 
     bool FileSystemImpl::exists(const Path& path) const
     {
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(path.c_str(), &statbuf);
         return ret == 0;
     }
@@ -168,7 +168,7 @@ namespace Common::FileSystem
         { // if it does not exists, it is not a file
             return false;
         }
-        return S_ISREG(statbuf.st_mode); // NOLINT
+        return S_ISREG(statbuf.st_mode);
     }
 
     bool FileSystemImpl::isDirectory(const Path& path) const
@@ -181,7 +181,7 @@ namespace Common::FileSystem
         { // if it does not exists, it is not a directory
             return false;
         }
-        return S_ISDIR(statbuf.st_mode); // NOLINT
+        return S_ISDIR(statbuf.st_mode);
     }
 
     bool FileSystemImpl::isFileOrDirectory(const Path& path) const
@@ -194,7 +194,7 @@ namespace Common::FileSystem
         { // if it does not exists, it is not a file
             return false;
         }
-        return S_ISREG(statbuf.st_mode) || S_ISDIR(statbuf.st_mode); // NOLINT
+        return S_ISREG(statbuf.st_mode) || S_ISDIR(statbuf.st_mode);
     }
 
     bool FileSystemImpl::isSymlink(const Path& path) const
@@ -207,7 +207,7 @@ namespace Common::FileSystem
         { // if it does not exists, it is not a directory
             return false;
         }
-        return S_ISLNK(statbuf.st_mode); // NOLINT
+        return S_ISLNK(statbuf.st_mode);
     }
 
     Path FileSystemImpl::currentWorkingDirectory() const
@@ -500,18 +500,18 @@ namespace Common::FileSystem
 
     bool FileSystemImpl::isExecutable(const Path& path) const
     {
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(path.c_str(), &statbuf);
         if (ret != 0)
         { // if it does not exists, it is not executable
             return false;
         }
-        return (S_IXUSR & statbuf.st_mode) != 0; // NOLINT
+        return (S_IXUSR & statbuf.st_mode) != 0;
     }
 
     void FileSystemImpl::makeExecutable(const Path& path) const
     {
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(path.c_str(), &statbuf);
         if (ret != 0)
         { // if it does not exist
@@ -519,7 +519,7 @@ namespace Common::FileSystem
         }
 
         Common::FileSystem::filePermissions()->chmod(
-            path.c_str(), statbuf.st_mode | S_IXUSR | S_IXGRP | S_IXOTH); // NOLINT
+            path.c_str(), statbuf.st_mode | S_IXUSR | S_IXGRP | S_IXOTH);
     }
 
     void FileSystemImpl::makedirs(const Path& path) const
@@ -688,7 +688,7 @@ namespace Common::FileSystem
 
             // If regular file or directory (info from dirent struct d_type) or if ftype not enabled on
             // filesystem (d_type is always DT_UNKNOWN) we have to use lstat
-            if ((DT_REG | DT_DIR) & outDirEntity->d_type || // NOLINT
+            if ((DT_REG | DT_DIR) & outDirEntity->d_type ||
                 (DT_UNKNOWN == outDirEntity->d_type && isFileOrDirectory(fullPath)))
             {
                 // We do not want to return symlinks as it could create an infinite loop if the caller calls this
@@ -881,7 +881,7 @@ namespace Common::FileSystem
 
     off_t FileSystemImpl::fileSize(const Path& path) const
     {
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(path.c_str(), &statbuf);
         if (ret != 0)
         { // if it does not exist
@@ -892,7 +892,7 @@ namespace Common::FileSystem
 
     std::time_t FileSystemImpl::lastModifiedTime(const Path& path) const
     {
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(path.c_str(), &statbuf);
         if (ret != 0)
         { // if it does not exist
@@ -903,13 +903,13 @@ namespace Common::FileSystem
 
     bool FileSystemImpl::compareFileDescriptors(int fd1, int fd2) const
     {
-        struct stat statbuf1; // NOLINT
+        struct stat statbuf1;
         int ret = fstat(fd1, &statbuf1);
         if (ret != 0)
         { // if it does not exist
             return false;
         }
-        struct stat statbuf2; // NOLINT
+        struct stat statbuf2;
         ret = fstat(fd2, &statbuf2);
         if (ret != 0)
         { // if it does not exist

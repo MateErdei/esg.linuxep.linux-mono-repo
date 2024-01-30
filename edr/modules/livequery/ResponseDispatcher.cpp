@@ -182,7 +182,7 @@ namespace livequery
         {
             fileContent = serializeToJson(response);
         }
-        catch (std::exception & error) // NOLINT
+        catch (const std::exception & error)
         {
             LOGERROR("Serialize to Json failed: " << error.what());
             // consistent with Windows behaviour: https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/QueryProcessorCallback.cpp#210

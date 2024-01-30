@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) // NOLINT
+TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly)
 {
     std::vector<std::string> ids = { "a", "b" };
     Heartbeat::Heartbeat heartbeat;
@@ -41,7 +41,7 @@ TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) 
     ASSERT_EQ(map["b"], true);
 }
 
-TEST(TestHeartbeat, TestDeregisterIdRemovesId) // NOLINT
+TEST(TestHeartbeat, TestDeregisterIdRemovesId)
 {
     std::vector<std::string> ids = { "a", "b" };
     Heartbeat::Heartbeat heartbeat;
@@ -59,7 +59,7 @@ TEST(TestHeartbeat, TestDeregisterIdRemovesId) // NOLINT
     ASSERT_EQ(map["b"], false);
 }
 
-TEST(TestHeartbeat, TestIdIsAddedWhenHandleRequested) // NOLINT
+TEST(TestHeartbeat, TestIdIsAddedWhenHandleRequested)
 {
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -78,7 +78,7 @@ TEST(TestHeartbeat, TestIdIsAddedWhenHandleRequested) // NOLINT
     ASSERT_EQ(map["c"], false);
 }
 
-TEST(TestHeartbeat, testHeartbeatsAreAliveWhenPingedWithin15Seconds) // NOLINT
+TEST(TestHeartbeat, testHeartbeatsAreAliveWhenPingedWithin15Seconds)
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 10, 10, 20, 20 }, std::chrono::milliseconds(0), []() {})));
@@ -115,7 +115,7 @@ TEST(TestHeartbeat, testHeartbeatsAreDeadWhenPingedMoreThanTheMaxPingTimeoutSeco
     ASSERT_EQ(map["b"], false);
 }
 
-TEST(TestHeartbeat, testHeartbeatIsAliveWhenPingedExactly15sAgo) // NOLINT
+TEST(TestHeartbeat, testHeartbeatIsAliveWhenPingedExactly15sAgo)
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 10, 25 }, std::chrono::milliseconds(0), []() {})));
@@ -129,7 +129,7 @@ TEST(TestHeartbeat, testHeartbeatIsAliveWhenPingedExactly15sAgo) // NOLINT
     ASSERT_EQ(map["a"], true);
 }
 
-TEST(TestHeartbeat, testHeartbeatIsAliveWhenLastPingWasSameSecond) // NOLINT
+TEST(TestHeartbeat, testHeartbeatIsAliveWhenLastPingWasSameSecond)
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
         new SequenceOfFakeTime({ 50, 50 }, std::chrono::milliseconds(0), []() {})));
@@ -143,7 +143,7 @@ TEST(TestHeartbeat, testHeartbeatIsAliveWhenLastPingWasSameSecond) // NOLINT
     ASSERT_EQ(map["a"], true);
 }
 
-TEST(TestHeartbeat, testGetAllHeartbeatIdsReturnsAllIds) // NOLINT
+TEST(TestHeartbeat, testGetAllHeartbeatIdsReturnsAllIds)
 {
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -166,7 +166,7 @@ TEST(TestHeartbeat, testGetAllHeartbeatIdsReturnsAllIds) // NOLINT
     ASSERT_EQ(ids[2], "c");
 }
 
-TEST(TestHeartbeat, testgetMapOfIdsAgainstIsAlive) // NOLINT
+TEST(TestHeartbeat, testgetMapOfIdsAgainstIsAlive)
 {
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");

@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getObfuscationLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getObfuscationLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getObfuscationLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getObfuscationLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getObfuscationLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getObfuscationLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getObfuscationLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getObfuscationLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getObfuscationLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getObfuscationLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getObfuscationLogger(), x)

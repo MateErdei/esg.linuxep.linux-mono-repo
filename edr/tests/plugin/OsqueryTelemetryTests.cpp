@@ -16,7 +16,7 @@
 
 class OsqueryTelemetryTests : public LogOffInitializedTests{};
 
-TEST_F(OsqueryTelemetryTests, cpuUtilExceedLimitTriggersTelemetryIncrement) // NOLINT
+TEST_F(OsqueryTelemetryTests, cpuUtilExceedLimitTriggersTelemetryIncrement)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line = "stopping: Maximum sustainable CPU utilization limit exceeded:\n";
@@ -25,7 +25,7 @@ TEST_F(OsqueryTelemetryTests, cpuUtilExceedLimitTriggersTelemetryIncrement) // N
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"osquery-restarts-cpu\":1}");
 }
 
-TEST_F(OsqueryTelemetryTests, memoryUtilExceedLimitTriggersTelemetryIncrement) // NOLINT
+TEST_F(OsqueryTelemetryTests, memoryUtilExceedLimitTriggersTelemetryIncrement)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line = "stopping: Memory limits exceeded:\n";
@@ -34,7 +34,7 @@ TEST_F(OsqueryTelemetryTests, memoryUtilExceedLimitTriggersTelemetryIncrement) /
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"osquery-restarts-memory\":1}");
 }
 
-TEST_F(OsqueryTelemetryTests, cpuAndMemoryLogLineTriggerTelemetryIncrement) // NOLINT
+TEST_F(OsqueryTelemetryTests, cpuAndMemoryLogLineTriggerTelemetryIncrement)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     OsqueryLogIngest ingester;
@@ -48,7 +48,7 @@ TEST_F(OsqueryTelemetryTests, cpuAndMemoryLogLineTriggerTelemetryIncrement) // N
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"osquery-restarts-cpu\":1,\"osquery-restarts-memory\":1}");
 }
 
-TEST_F(OsqueryTelemetryTests, telemetryCountersNotIncrementedOnUnrecognisedLogLine) // NOLINT
+TEST_F(OsqueryTelemetryTests, telemetryCountersNotIncrementedOnUnrecognisedLogLine)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line = "this is not recognised\n";
@@ -57,7 +57,7 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersNotIncrementedOnUnrecognisedLogLi
     EXPECT_EQ(telemetry.serialiseAndReset(), "{}");
 }
 
-TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax) // NOLINT
+TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line1 = "Expiring events for subscriber: syslog_events (overflowed limit 100000)\n";
@@ -74,7 +74,7 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax) // NOLINT
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"reached-max-process-events\":true,\"reached-max-selinux-events\":true,\"reached-max-socket-events\":true,\"reached-max-syslog-events\":true,\"reached-max-user-events\":true}");
 }
 
-TEST_F(OsqueryTelemetryTests, telemetryEventMaxProcessorDoesNotthrow) // NOLINT
+TEST_F(OsqueryTelemetryTests, telemetryEventMaxProcessorDoesNotthrow)
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line1 = "Expiring events for subscriber: syslog_ (overflowed limit 100000)\n";

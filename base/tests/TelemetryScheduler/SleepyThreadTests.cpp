@@ -14,7 +14,7 @@ public:
     void SetUp() override {}
 };
 
-TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInTheFuture) // NOLINT
+TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInTheFuture)
 {
     using namespace std::chrono_literals;
 
@@ -33,7 +33,7 @@ TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInTheFuture) // NOLINT
     ASSERT_TRUE(thread.finished());
 }
 
-TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInThePast) // NOLINT
+TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInThePast)
 {
     using namespace std::chrono_literals;
 
@@ -52,7 +52,7 @@ TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInThePast) // NOLINT
     ASSERT_TRUE(thread.finished());
 }
 
-TEST_F(SleepyThreadTests, createAndStopBeforeFinished) // NOLINT
+TEST_F(SleepyThreadTests, createAndStopBeforeFinished)
 {
     using namespace std::chrono_literals;
 

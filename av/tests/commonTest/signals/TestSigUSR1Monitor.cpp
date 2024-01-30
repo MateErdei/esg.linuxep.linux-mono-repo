@@ -71,7 +71,7 @@ TEST_F(TestSigUSR1Monitor, testSignal)
 
     fd_set readfds{};
     FD_ZERO(&readfds);
-    FD_SET(readFd, &readfds); // NOLINT
+    FD_SET(readFd, &readfds);
     struct timeval zero_time{};
     zero_time.tv_sec = 0;
     zero_time.tv_usec = 0;
@@ -79,7 +79,7 @@ TEST_F(TestSigUSR1Monitor, testSignal)
     int ret = ::select(readFd+1, &readfds, nullptr, nullptr, &zero_time);
 
     EXPECT_EQ(ret, 1);
-    EXPECT_TRUE(common::FDUtils::fd_isset(readFd, &readfds)); // NOLINT
+    EXPECT_TRUE(common::FDUtils::fd_isset(readFd, &readfds));
 }
 
 TEST_F(TestSigUSR1Monitor, triggerCallsUpdate)

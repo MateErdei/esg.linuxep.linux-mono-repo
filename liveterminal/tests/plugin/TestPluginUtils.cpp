@@ -36,7 +36,7 @@ TEST_F(TestPluginUtils, testgetHostnameFromUrlstripsOffFilepath)
     ASSERT_EQ(hostname,"url.eng.sophos");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfo) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfo)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"proxy":"localhost","credentials":"password"})";
@@ -49,7 +49,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfo) // NOLINT
     EXPECT_EQ(credentials,"password");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidJson) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidJson)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"proxy":"localhost",})";
@@ -61,7 +61,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidJson) // NOLINT
     EXPECT_EQ(proxy,"");
     EXPECT_EQ(credentials,"");
 }
-TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidFilepath) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidFilepath)
 {
     std::string filepath = "/file/does/not/exist";
 
@@ -71,7 +71,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesInvalidFilepath) // NOLINT
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFields) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFields)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"notproxy":"localhost","credentials":"password"})";
@@ -84,7 +84,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFields) // NOLI
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFieldsWhenProxyFieldIsCorrect) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFieldsWhenProxyFieldIsCorrect)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"proxy":"localhost","credentials":"password","proxystuff":"localhost2"})";
@@ -97,7 +97,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoHandlesIrrelevantJsonFieldsWhenProxy
     EXPECT_EQ(credentials,"password");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoReturnsNoProxyIfTwoProxyFields) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoReturnsNoProxyIfTwoProxyFields)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({proxy":"localhost","credentials":"password","proxy":"localhost2"})";
@@ -110,7 +110,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoReturnsNoProxyIfTwoProxyFields) // N
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoProxyIsStillSavedIfCredentialsAreEmpty) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoProxyIsStillSavedIfCredentialsAreEmpty)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"proxy":"localhost"})";
@@ -123,7 +123,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoProxyIsStillSavedIfCredentialsAreEmp
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoCredentialsAreNotStoreIfProxyIsEmpty) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoCredentialsAreNotStoreIfProxyIsEmpty)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     std::string content = R"({"credentials":"password"})";
@@ -136,7 +136,7 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoCredentialsAreNotStoreIfProxyIsEmpty
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readCurrentProxyInfoEmptyJsonIshandledCorrectly) // NOLINT
+TEST_F(TestPluginUtils, readCurrentProxyInfoEmptyJsonIshandledCorrectly)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
 
@@ -149,14 +149,14 @@ TEST_F(TestPluginUtils, readCurrentProxyInfoEmptyJsonIshandledCorrectly) // NOLI
     EXPECT_EQ(credentials,"");
 }
 
-TEST_F(TestPluginUtils, readKeyValueFromConfigNoConfigIshandledCorrectly) // NOLINT
+TEST_F(TestPluginUtils, readKeyValueFromConfigNoConfigIshandledCorrectly)
 {
     std::string filepath = "/opt/sophos-spl/base/etc/sophosspl/mcs.config";
     std::optional<std::string> endpointId = Plugin::PluginUtils::readKeyValueFromConfig("MCSID", filepath);
     EXPECT_FALSE(endpointId);
 }
 
-TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsCorrectly) // NOLINT
+TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsCorrectly)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
 
@@ -167,7 +167,7 @@ TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsCorrectly) // NOLINT
     EXPECT_EQ(endpointId.value(),"exampleId");
 }
 
-TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsNothingWhenNotKeyNotPresent) // NOLINT
+TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsNothingWhenNotKeyNotPresent)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     m_tempDir->createFile("mcs.config", "customerId=exampleId");
@@ -177,7 +177,7 @@ TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsNothingWhenNotKeyNotPresent
     EXPECT_FALSE(endpointId);
 }
 
-TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsNothingWhenNoEqualsSeparatingKeyAndValue) // NOLINT
+TEST_F(TestPluginUtils, readKeyValueFromConfigReturnsNothingWhenNoEqualsSeparatingKeyAndValue)
 {
     auto m_tempDir = Tests::TempDir::makeTempDir();
     m_tempDir->createFile("mcs.config", "MCSIDexampleId");

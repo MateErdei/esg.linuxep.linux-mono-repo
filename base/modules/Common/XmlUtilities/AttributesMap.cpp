@@ -17,9 +17,9 @@ namespace
 
     struct AttributesEntry
     {
-        std::string fullpath;               // NOLINT(misc-non-private-member-variables-in-classes)
-        AttributePairCollection attributes; // NOLINT(misc-non-private-member-variables-in-classes)
-        std::string content;                // NOLINT(misc-non-private-member-variables-in-classes)
+        std::string fullpath;
+        AttributePairCollection attributes;
+        std::string content;
         void appendText(const std::string&);
     };
 
@@ -51,7 +51,7 @@ namespace
     struct XMLParserHolder
     {
         XMLParserHolder() { parser = XML_ParserCreate(nullptr); }
-        XML_Parser parser; // NOLINT(misc-non-private-member-variables-in-classes)
+        XML_Parser parser;
         ~XMLParserHolder() { XML_ParserFree(parser); }
     };
 
@@ -67,8 +67,8 @@ namespace
 
         auto attributesMap() const -> std::unordered_map<std::string, Attributes>;
 
-        std::vector<std::string> m_pathIds; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-        XML_Parser m_parser;                // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+        std::vector<std::string> m_pathIds;
+        XML_Parser m_parser;
 
     private:
         auto getElementPath(const std::string& currentElement, const std::string& id) -> std::string;
@@ -209,7 +209,7 @@ namespace
 namespace Common::XmlUtilities
 {
     /** Attributes **/
-    const std::string Attributes::TextId("TextId"); // NOLINT(cert-err58-cpp)
+    const std::string Attributes::TextId("TextId");
     Attributes::Attributes(AttributePairCollection attributes, std::string contents) :
         m_attributes(std::move(attributes)), m_contents(std::move(contents))
     {

@@ -114,12 +114,12 @@ int unixsocket::recv_fd(Common::SystemCallWrapper::ISystemCallWrapper& systemCal
         return -1;
     }
 
-    if (msg.msg_flags & MSG_TRUNC) // NOLINT
+    if (msg.msg_flags & MSG_TRUNC)
     {
         LOGERROR("Message was truncated when receiving fd");
     }
 
-    if (msg.msg_flags & MSG_CTRUNC) // NOLINT
+    if (msg.msg_flags & MSG_CTRUNC)
     {
         LOGERROR("Control data was truncated when receiving fd");
     }

@@ -102,12 +102,12 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
+    TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow)
     {
-        EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent); // NOLINT
+        EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent);
     }
 
-    TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow) // NOLINT
+    TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow)
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -160,7 +160,7 @@ namespace
         EXPECT_EQ(1, 1);
     }
 
-    TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
+    TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue)
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -212,7 +212,7 @@ namespace
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); // NOLINT
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
 
         Common::TaskQueue::ITaskQueueSharedPtr actualTaskQueue = managementAgent.getTaskQueue();
         Common::TaskQueue::ITaskPtr task = actualTaskQueue->popTask();

@@ -24,15 +24,15 @@ private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThrow) // NOLINT
+TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThrow)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
 
-    EXPECT_NO_THROW( // NOLINT
+    EXPECT_NO_THROW(
         ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager));
 }
 
-TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) // NOLINT
+TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
@@ -55,7 +55,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
     EXPECT_NE(task.get(), nullptr);
 }
 
-TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLINT
+TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(

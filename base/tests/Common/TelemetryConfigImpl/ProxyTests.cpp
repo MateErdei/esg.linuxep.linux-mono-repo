@@ -23,18 +23,18 @@ public:
     }
 };
 
-TEST_F(ProxyTests, passwordObfuscation) // NOLINT
+TEST_F(ProxyTests, passwordObfuscation)
 {
     ASSERT_EQ(m_proxy.getDeobfuscatedPassword(), "password");
     ASSERT_EQ(m_proxy.getObfuscatedPassword(), "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
 }
 
-TEST_F(ProxyTests, proxyEqualitySameObject) // NOLINT
+TEST_F(ProxyTests, proxyEqualitySameObject)
 {
     ASSERT_EQ(m_proxy, m_proxy);
 }
 
-TEST_F(ProxyTests, proxyEqualityDiffObject) // NOLINT
+TEST_F(ProxyTests, proxyEqualityDiffObject)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -42,7 +42,7 @@ TEST_F(ProxyTests, proxyEqualityDiffObject) // NOLINT
     ASSERT_EQ(a, b);
 }
 
-TEST_F(ProxyTests, proxyNotEqualPort) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualPort)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -50,7 +50,7 @@ TEST_F(ProxyTests, proxyNotEqualPort) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(ProxyTests, proxyNotEqualUrl) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualUrl)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -58,7 +58,7 @@ TEST_F(ProxyTests, proxyNotEqualUrl) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(ProxyTests, proxyNotEqualAuth) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualAuth)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -66,7 +66,7 @@ TEST_F(ProxyTests, proxyNotEqualAuth) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(ProxyTests, proxyNotEqualUsername) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualUsername)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -74,7 +74,7 @@ TEST_F(ProxyTests, proxyNotEqualUsername) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(ProxyTests, proxyNotEqualPassword) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualPassword)
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -82,19 +82,19 @@ TEST_F(ProxyTests, proxyNotEqualPassword) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(ProxyTests, proxyValid) // NOLINT
+TEST_F(ProxyTests, proxyValid)
 {
     ASSERT_TRUE(m_proxy.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidPort) // NOLINT
+TEST_F(ProxyTests, proxyInvalidPort)
 {
     Proxy p = m_proxy;
     p.setPort(5000000);
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthNoneWithUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthNoneWithUsername)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -103,7 +103,7 @@ TEST_F(ProxyTests, proxyInvalidAuthNoneWithUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthNoneWithPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthNoneWithPassword)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -112,7 +112,7 @@ TEST_F(ProxyTests, proxyInvalidAuthNoneWithPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutUsername)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -121,7 +121,7 @@ TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutPassword)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -130,7 +130,7 @@ TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutUsername)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -139,7 +139,7 @@ TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutPassword)
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -148,7 +148,7 @@ TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST(ProxyTest, proxyEquality) // NOLINT
+TEST(ProxyTest, proxyEquality)
 {
     Proxy a;
     Proxy b;

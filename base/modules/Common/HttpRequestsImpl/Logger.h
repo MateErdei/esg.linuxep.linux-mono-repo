@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getHttpRequesterImplLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getHttpRequesterImplLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getHttpRequesterImplLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getHttpRequesterImplLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getHttpRequesterImplLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getHttpRequesterImplLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getHttpRequesterImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getHttpRequesterImplLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getHttpRequesterImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getHttpRequesterImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getHttpRequesterImplLogger(), x)

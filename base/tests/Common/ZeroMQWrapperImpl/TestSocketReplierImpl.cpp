@@ -15,7 +15,7 @@ using Common::ZeroMQWrapper::ISocketReplierPtr;
 
 namespace
 {
-    TEST(SocketReplierImpl, creation) // NOLINT
+    TEST(SocketReplierImpl, creation)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -24,7 +24,7 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST(SocketReplierImpl, listen) // NOLINT
+    TEST(SocketReplierImpl, listen)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -33,7 +33,7 @@ namespace
         socket->listen("inproc://ListenTest");
     }
 
-    TEST(SocketReplierImpl, transfer) // NOLINT
+    TEST(SocketReplierImpl, transfer)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -91,7 +91,7 @@ namespace
         }
     }
 
-    TEST(SocketReplierImpl, context_remains_after_holder_deleted) // NOLINT
+    TEST(SocketReplierImpl, context_remains_after_holder_deleted)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();

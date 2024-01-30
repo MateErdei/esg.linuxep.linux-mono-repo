@@ -10,7 +10,7 @@
 
 using namespace common::signals;
 
-static int SIGINT_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+static int SIGINT_MONITOR_PIPE = -1;
 
 SigIntMonitor::SigIntMonitor(bool restartSyscalls)
     : LatchingSignalHandler(SIGINT)

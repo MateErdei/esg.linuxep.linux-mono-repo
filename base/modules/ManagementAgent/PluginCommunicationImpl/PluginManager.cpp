@@ -62,7 +62,7 @@ namespace ManagementAgent::PluginCommunicationImpl
             // Strip off "ipc://" to get actual file path from IPC path.
             std::string managementSocketAddFilePath = managementSocketAdd.substr(6);
             Common::FileSystem::filePermissions()->chmod(
-                managementSocketAddFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
+                managementSocketAddFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         }
         catch (std::exception& exception)
         {

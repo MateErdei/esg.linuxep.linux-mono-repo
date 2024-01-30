@@ -123,7 +123,7 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
+    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork)
     {
         GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
@@ -158,7 +158,7 @@ namespace
 
     }
 
-    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
+    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply)
     {
         GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
@@ -174,10 +174,10 @@ namespace
                 replier.serveRequest();
             });
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
-        EXPECT_NO_THROW(futureReplier.get()); // NOLINT
+        EXPECT_NO_THROW(futureReplier.get());
     }
 
-    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierFailure) // NOLINT
+    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierFailure)
     {
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
@@ -186,7 +186,7 @@ namespace
 
         auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
             Requester requester(serveraddress, zmq_context);
-            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
+            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException);
 
             int retryCount = 5;
             std::string result;
@@ -219,7 +219,7 @@ namespace
 
     }
 
-    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
+    TEST_F(ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierSendingBrokenMessage)
     {
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
@@ -228,7 +228,7 @@ namespace
 
         auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
             Requester requester(serveraddress, zmq_context);
-            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
+            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException);
 
             int retryCount = 5;
             std::string result;
@@ -266,7 +266,7 @@ namespace
         EXPECT_EQ(std::string("granted"), futureRequester.get());
     }
 
-    TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails) // NOLINT
+    TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails)
     {
         GTEST_FLAG_SET(death_test_style, "threadsafe");
         auto zmq_context = createContext();
@@ -330,7 +330,7 @@ namespace
         }
     }
 
-    TEST_F(ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored)
     {
         auto zmq_context = createContext();
         std::string serveraddress = m_testContext.serverAddress();
@@ -342,7 +342,7 @@ namespace
             EXPECT_EQ(requester.sendReceive("a"), "a");
             synchronizer.notify(1);
 
-            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
+            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
 
             synchronizer.notify(2);
             synchronizer.waitfor(3, 1000);
@@ -391,7 +391,7 @@ namespace
         }
     }
 
-    TEST_F(ReqRepReliabilityTests, requesterReceivingOutOfDateReplyShouldNotDisturbCurrentRequest) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterReceivingOutOfDateReplyShouldNotDisturbCurrentRequest)
     {
         auto zmq_context = createContext();
         std::string serveraddress = m_testContext.serverAddress();
@@ -400,7 +400,7 @@ namespace
         auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer, zmq_context]() {
             Requester requester(serveraddress, zmq_context);
             EXPECT_EQ(requester.sendReceive("a"), "a");
-            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
+            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
             synchronizer.notify();
             EXPECT_EQ(requester.sendReceive("c"), "c");
             synchronizer.waitfor(2, 1000);

@@ -21,7 +21,7 @@ sessionrunner::SessionRunnerStatus statusFromExitResult( int exitCode)
 
 class SessionRunnerImpl : public LogOffInitializedTests{}; 
 
-TEST_F(SessionRunnerImpl, setStatusFromExitResult_shouldNotTryToProcessFurtherOnExitCodeDifferentFrom0) // NOLINT
+TEST_F(SessionRunnerImpl, setStatusFromExitResult_shouldNotTryToProcessFurtherOnExitCodeDifferentFrom0)
 {
     for(int i=1;i<255;i++)
     {
@@ -30,7 +30,7 @@ TEST_F(SessionRunnerImpl, setStatusFromExitResult_shouldNotTryToProcessFurtherOn
     }
 }
 
-TEST_F(SessionRunnerImpl, setStatusFromExitResult_zeroShouldReturnSuccess) // NOLINT
+TEST_F(SessionRunnerImpl, setStatusFromExitResult_zeroShouldReturnSuccess)
 {
     auto status = statusFromExitResult( 0);
     EXPECT_EQ(status.errorCode,  sessionrunner::ErrorCode::SUCCESS);

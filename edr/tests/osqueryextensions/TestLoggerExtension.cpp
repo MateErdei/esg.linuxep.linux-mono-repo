@@ -20,13 +20,13 @@ public:
     LoggerExtension m_loggerExtension;
 };
 
-TEST_F(TestLoggerExtension, compareFoldingRulesReturnsFalseWhenComparingEmptyRuleSets) // NOLINT
+TEST_F(TestLoggerExtension, compareFoldingRulesReturnsFalseWhenComparingEmptyRuleSets)
 {
     std::vector<Json::Value> emptyRules;
     EXPECT_FALSE(m_loggerExtension.compareFoldingRules(emptyRules));
 }
 
-TEST_F(TestLoggerExtension, compareFoldingRulesReturnsTrueWhenComparingEmptyAgainstPopulatedRuleSet) // NOLINT
+TEST_F(TestLoggerExtension, compareFoldingRulesReturnsTrueWhenComparingEmptyAgainstPopulatedRuleSet)
 {
     std::vector<Json::Value> rules;
     Json::Value root;
@@ -38,7 +38,7 @@ TEST_F(TestLoggerExtension, compareFoldingRulesReturnsTrueWhenComparingEmptyAgai
     EXPECT_TRUE(m_loggerExtension.compareFoldingRules(rules));
 }
 
-TEST_F(TestLoggerExtension, compareFoldingRulesReturnsFalseWhenComparingMatchingPopulatedRuleSets) // NOLINT
+TEST_F(TestLoggerExtension, compareFoldingRulesReturnsFalseWhenComparingMatchingPopulatedRuleSets)
 {
     std::vector<Json::Value> rules;
     Json::Value root;
@@ -51,7 +51,7 @@ TEST_F(TestLoggerExtension, compareFoldingRulesReturnsFalseWhenComparingMatching
     EXPECT_FALSE(m_loggerExtension.compareFoldingRules(rules));
 }
 
-TEST_F(TestLoggerExtension, compareFoldingRulesReturnsTrueWhenComparingDifferentPopulatedRuleSets) // NOLINT
+TEST_F(TestLoggerExtension, compareFoldingRulesReturnsTrueWhenComparingDifferentPopulatedRuleSets)
 {
     std::vector<Json::Value> rules1;
     Json::Value root1;

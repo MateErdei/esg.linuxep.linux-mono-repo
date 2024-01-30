@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/MockApiBaseServices.h"
 
-TEST(MockApiBaseServicesTtests, MockApiBaseServicesCanBeConstructed) // NOLINT
+TEST(MockApiBaseServicesTtests, MockApiBaseServicesCanBeConstructed)
 {
     MockApiBaseServices baseServicesMock;
 }

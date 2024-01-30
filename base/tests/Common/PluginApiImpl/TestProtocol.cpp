@@ -35,7 +35,7 @@ public:
     }
 };
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataString) // NOLINT
+TEST_F(TestProtocol, Serialise_ReturnsValidDataString)
 {
     Protocol protocol;
 
@@ -46,7 +46,7 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataString) // NOLINT
     EXPECT_EQ(serializedData.size(), 1);
 }
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError) // NOLINT
+TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)
 {
     Protocol protocol;
 
@@ -59,7 +59,7 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError) // NO
     EXPECT_EQ(serializedData.size(), 1);
 }
 
-TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId) // NOLINT
+TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId)
 {
     Protocol protocol;
 
@@ -68,25 +68,25 @@ TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId)
     ASSERT_NO_THROW(protocol.serialize(message));
 }
 
-TEST_F(TestProtocol, Serialise_ThrowsIfMessageDoesNotContainPluginName) // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageDoesNotContainPluginName)
 {
     Protocol protocol;
 
     DataMessage message = { "v1", "", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {} };
 
-    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException); // NOLINT
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
 }
 
-TEST_F(TestProtocol, Serialise_ThrowsIfMessageContainsUnsetCommand) // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageContainsUnsetCommand)
 {
     Protocol protocol;
 
     DataMessage message = { "v1", "1", Common::PluginProtocol::Commands::UNSET, "", false, {} };
 
-    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException); // NOLINT
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString)
 {
     Protocol protocol;
 
@@ -104,7 +104,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString) // NOLINT
     EXPECT_EQ(receivedMessage.m_payload[0], sendMessage.m_payload[0]);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIsAnError) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIsAnError)
 {
     Protocol protocol;
 
@@ -122,7 +122,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIs
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems)
 {
     Protocol protocol;
 
@@ -140,7 +140,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadCo
     EXPECT_EQ(receivedMessage.m_payload[0], "Hello");
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)
 {
     Protocol protocol;
 
@@ -162,7 +162,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadCo
     EXPECT_EQ(receivedMessage.m_payload[4], "Payload");
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenPassedMessageWithNoData) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenPassedMessageWithNoData)
 {
     Protocol protocol;
     data_t serialisedMessage;
@@ -182,7 +182,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenPassedMessageWithNoData) 
     }
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed)
 {
     Protocol protocol;
     try
@@ -202,7 +202,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed) // N
     }
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField)
 {
     Protocol protocol;
 
@@ -222,7 +222,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataI
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenCommandIsUnknown) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenCommandIsUnknown)
 {
     Protocol protocol;
 
@@ -240,7 +240,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenComma
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent)
 {
     Protocol protocol;
 
@@ -256,7 +256,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeW
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent)
 {
     Protocol protocol;
 
@@ -272,7 +272,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent) // N
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownCommandSetsAnError) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownCommandSetsAnError)
 {
     Protocol protocol;
     DataMessage sendMessage = { "v1", "1", static_cast<Common::PluginProtocol::Commands>(20), "", false, {} };

@@ -11,7 +11,7 @@ namespace
     {};
 }
 
-TEST_F(TestSusiGlobalCertificateFunctions, callEmptyFunctions) // NOLINT
+TEST_F(TestSusiGlobalCertificateFunctions, callEmptyFunctions)
 {
     // SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const char *pkcs7, size_t size);
     auto ret = threat_scanner::isTrustedCert(nullptr, SUSI_MD5_ALG, nullptr, 0);

@@ -93,7 +93,7 @@ public:
     }
 };
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent)
 {
     Common::PluginProtocol::DataMessage eventMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
@@ -105,7 +105,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnApiException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnApiException)
 {
     Common::PluginProtocol::DataMessage eventMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
@@ -119,7 +119,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnStdException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnStdException)
 {
     Common::PluginProtocol::DataMessage eventMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
@@ -133,7 +133,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendStatus) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendStatus)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutTimestampsXml = "withoutXML";
@@ -153,7 +153,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnApiException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnApiException)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutTimestampsXml = "withoutXML";
@@ -174,7 +174,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatu
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnStdException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnStdException)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutTimestampsXml = "withoutXML";
@@ -198,7 +198,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatu
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOnPluginQueryPolicy) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOnPluginQueryPolicy)
 {
     Common::PluginProtocol::DataMessage queryPolicyMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
@@ -211,7 +211,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
     EXPECT_EQ(replyMessage.m_acknowledge, true);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnApiException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnApiException)
 {
     Common::PluginProtocol::DataMessage queryPolicyMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
@@ -227,7 +227,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnStdException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnStdException)
 {
     Common::PluginProtocol::DataMessage queryPolicyMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
@@ -244,7 +244,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginRegistration) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginRegistration)
 {
     Common::PluginProtocol::DataMessage registerMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
@@ -259,7 +259,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnApiException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnApiException)
 {
     Common::PluginProtocol::DataMessage registerMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
@@ -275,7 +275,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnStdException) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnStdException)
 {
     Common::PluginProtocol::DataMessage registerMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
@@ -292,7 +292,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnBadCommand) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnBadCommand)
 {
     // Plugin should not send a 'request plugin status' message
     Common::PluginProtocol::DataMessage badMessage =
@@ -325,7 +325,7 @@ TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesN
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendThreatHealth) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendThreatHealth)
 {
     // File system mocks for the health status obj constructor and destructor
     auto mockFileSystem = new StrictMock<MockFileSystem>();
@@ -352,7 +352,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnFailureToProcessPluginSendThreatHealth) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnFailureToProcessPluginSendThreatHealth)
 {
     // File system mocks for the health status obj constructor and destructor
     auto mockFileSystem = new StrictMock<MockFileSystem>();

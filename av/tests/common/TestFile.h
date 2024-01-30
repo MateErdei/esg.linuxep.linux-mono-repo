@@ -22,7 +22,7 @@ namespace
         {
             ::unlink(m_name.c_str());
             datatypes::AutoFd fd(
-                ::open(m_name.c_str(), O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR)); // NOLINT(hicpp-signed-bitwise)
+                ::open(m_name.c_str(), O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR));
         }
 
         ~TestFile()

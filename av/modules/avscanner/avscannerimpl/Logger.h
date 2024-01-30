@@ -9,11 +9,11 @@
 
 log4cplus::Logger& getNamedScanRunnerLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getNamedScanRunnerLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getNamedScanRunnerLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getNamedScanRunnerLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getNamedScanRunnerLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getNamedScanRunnerLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getNamedScanRunnerLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getNamedScanRunnerLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getNamedScanRunnerLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getNamedScanRunnerLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getNamedScanRunnerLogger(), x)
 
 class Logger
 {

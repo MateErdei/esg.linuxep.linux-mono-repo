@@ -33,12 +33,12 @@ namespace
 
         if (family == AF_INET)
         {
-            struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(listIFAddr->ifa_addr); // NOLINT
+            struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(listIFAddr->ifa_addr);
             interface.ipAddresses.ip4collection.emplace_back(ipSockAddr);
         }
         else if (family == AF_INET6)
         {
-            struct sockaddr_in6* ipSockAddr = reinterpret_cast<struct sockaddr_in6*>(listIFAddr->ifa_addr); // NOLINT
+            struct sockaddr_in6* ipSockAddr = reinterpret_cast<struct sockaddr_in6*>(listIFAddr->ifa_addr);
             interface.ipAddresses.ip6collection.emplace_back(ipSockAddr);
         }
     }

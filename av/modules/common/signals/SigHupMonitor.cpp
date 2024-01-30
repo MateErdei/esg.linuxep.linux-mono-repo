@@ -10,7 +10,7 @@
 
 using namespace common::signals;
 
-static int SIGHUP_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+static int SIGHUP_MONITOR_PIPE = -1;
 
 SigHupMonitor::SigHupMonitor(bool restartSyscalls)
     : LatchingSignalHandler(SIGHUP)

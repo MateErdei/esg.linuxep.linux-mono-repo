@@ -15,7 +15,7 @@ class TestGatherFiles : public LogOffInitializedTests
 };
 
 
-TEST_F(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile)
 {
     Tests::TempDir tempdir("", "dir1");
     Tests::TempDir tempdir2("", "dir2");
@@ -37,7 +37,7 @@ TEST_F(TestGatherFiles, copyFileIntoDirectoryNoDuplicateTargetFile) // NOLINT
 
 // This test will try to copy file dir1/A to dir2/ except that we mock calls to make gather files see that both dir2/A
 // and dir2/A.1 exist and it will work out to save to dir2/A.2
-TEST_F(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles)
 {
     Tests::TempDir tempdir("", "dir1");
     Tests::TempDir tempdir2("", "dir2");
@@ -60,7 +60,7 @@ TEST_F(TestGatherFiles, copyFileIntoDirectoryTwoDuplicateTargetFiles) // NOLINT
 
 // This test will try to copy file dir1/A to dir2/ except that we mock calls to make gather files see that dir2/A
 // exists and it will work out to save to dir2/A.1 we also copy dir1/B to dir2/B afterwards.
-TEST_F(TestGatherFiles, copyFileIntoDirectoryOneDuplicateOneNot) // NOLINT
+TEST_F(TestGatherFiles, copyFileIntoDirectoryOneDuplicateOneNot)
 {
     std::string filenameA = "A";
     std::string filenameB = "B";

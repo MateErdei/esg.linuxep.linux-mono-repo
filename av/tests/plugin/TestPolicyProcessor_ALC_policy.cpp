@@ -86,7 +86,7 @@ static const std::string ALC_FULL_POLICY
 static const std::string EXPECTED_POLICY_1_CUSTOMER_ID = "b67ee4d2baefb4b66bf919b5ddcb2ef7";
 
 
-static const std::string GL_POLICY_2 =  // NOLINT
+static const std::string GL_POLICY_2 =
     R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>

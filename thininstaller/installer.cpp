@@ -164,7 +164,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
                 logDebug("Set CURLOPT_PROXYUSERPWD");
             }
 
-            curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY); // NOLINT
+            curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
             logDebug("Set CURLOPT_PROXYAUTH to CURLAUTH_ANY");
 
             curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());

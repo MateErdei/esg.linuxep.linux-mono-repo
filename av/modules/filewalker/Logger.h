@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getFileWalkerLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getFileWalkerLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getFileWalkerLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getFileWalkerLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getFileWalkerLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getFileWalkerLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getFileWalkerLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getFileWalkerLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getFileWalkerLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getFileWalkerLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getFileWalkerLogger(), x)

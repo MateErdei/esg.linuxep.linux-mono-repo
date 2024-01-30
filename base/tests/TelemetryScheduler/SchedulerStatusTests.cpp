@@ -89,14 +89,14 @@ TEST_F(SchedulerStatusTests, invalidJsonCannotBeDeserialised)
     // Try to convert the invalidJsonString to a config object
     EXPECT_THROW(
         TelemetrySchedulerImpl::SchedulerStatusSerialiser::deserialise(invalidJsonString),
-        std::runtime_error); // NOLINT
+        std::runtime_error);
 }
 
 TEST_F(SchedulerStatusTests, brokenJsonCannotBeDeserialised)
 {
     // Try to convert broken JSON to a config object
     EXPECT_THROW(
-        TelemetrySchedulerImpl::SchedulerStatusSerialiser::deserialise("imbroken:("), std::runtime_error); // NOLINT
+        TelemetrySchedulerImpl::SchedulerStatusSerialiser::deserialise("imbroken:("), std::runtime_error);
 }
 
 TEST_F(SchedulerStatusTests, parseValidConfigJsonDirectlySucceeds)

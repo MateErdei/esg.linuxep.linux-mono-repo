@@ -74,7 +74,7 @@ TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
     EXPECT_FALSE(appenderContains("Failed to write Process Control Request to socket. Exception caught: "));
 }
 
-TEST_F(TestProcessControllerServerSocket, testSocketConstruction) // NOLINT
+TEST_F(TestProcessControllerServerSocket, testSocketConstruction)
 {
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
     ProcessControllerServerSocket processController(m_socketPath, 0660, callback);

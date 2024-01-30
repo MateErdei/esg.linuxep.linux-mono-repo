@@ -26,10 +26,10 @@ static log4cplus::Logger& getSendThreatDetectedEventLogger()
     return STATIC_LOGGER;
 }
 
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)  // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getSendThreatDetectedEventLogger(), x)  // NOLINT
-#define LOGINFO(x)  LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)   // NOLINT
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSendThreatDetectedEventLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSendThreatDetectedEventLogger(), x)
+#define LOGINFO(x)  LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSendThreatDetectedEventLogger(), x)
 
 using namespace common::CentralEnums;
 

@@ -33,7 +33,7 @@ namespace
     {};
 
     // cppcheck-suppress syntaxError
-    TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
+    TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString)
     {
         auto process = createProcess();
         process->exec("/bin/echo", { "hello" });
@@ -42,7 +42,7 @@ namespace
         EXPECT_EQ(process->exitCode(), 0);
     }
 
-    TEST_F(ProcessImpl, waitUntilProcessEndsShouldReturnTheCorrectCode) // NOLINT
+    TEST_F(ProcessImpl, waitUntilProcessEndsShouldReturnTheCorrectCode)
     {
         auto process = createProcess();
         process->exec("/bin/sleep", { "0.1" });
@@ -51,7 +51,7 @@ namespace
         EXPECT_EQ(process->exitCode(), 0);
     }
 
-    TEST_F(ProcessImpl, getStatusWillDetectProcessFinished) // NOLINT
+    TEST_F(ProcessImpl, getStatusWillDetectProcessFinished)
     {
         auto process = createProcess();
         process->exec("/bin/sleep", { "0.1" });
@@ -86,7 +86,7 @@ namespace
         return 0;
     }
 
-    TEST_F(ProcessImplLog, BugTwoProcessesShouldNotDeadlock) // NOLINT
+    TEST_F(ProcessImplLog, BugTwoProcessesShouldNotDeadlock)
     {
         auto job1 = std::async(std::launch::async, asyncSleep);
         auto job2 = std::async(std::launch::async, asyncSleep);
@@ -94,7 +94,7 @@ namespace
         EXPECT_EQ(job1.get(), 0);
     }
 
-    TEST_F(ProcessImplLog, TwoProcessesWaitingInDifferentlyShouldNotDeadlock) // NOLINT
+    TEST_F(ProcessImplLog, TwoProcessesWaitingInDifferentlyShouldNotDeadlock)
     {
         auto job1 = std::async(std::launch::async, asyncSleep);
         auto process = createProcess();
@@ -105,7 +105,7 @@ namespace
         EXPECT_EQ(job1.get(), 0);
     }
 
-    TEST_F(ProcessImpl, SupportMultiplesArgs) // NOLINT
+    TEST_F(ProcessImpl, SupportMultiplesArgs)
     {
         auto process = createProcess();
         process->exec("/bin/echo", { "hello", "world" });
@@ -114,7 +114,7 @@ namespace
         EXPECT_TRUE(process->errorOutput().empty());
     }
 
-    TEST_F(ProcessImpl, OutputBlockForResult) // NOLINT
+    TEST_F(ProcessImpl, OutputBlockForResult)
     {
         for (int i = 0; i < 10; i++)
         {
@@ -124,7 +124,7 @@ namespace
         }
     }
 
-    TEST_F(ProcessImpl, WaitpidWaitsUntilProcessEndsSuccessfully) // NOLINT
+    TEST_F(ProcessImpl, WaitpidWaitsUntilProcessEndsSuccessfully)
     {
         auto process = createProcess();
         process->exec("/bin/echo", { "hello" });
@@ -132,7 +132,7 @@ namespace
         ASSERT_EQ(process->output(), "hello\n");
     }
 
-    TEST_F(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
+    TEST_F(ProcessImpl, ProcessNotifyOnClosure)
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -143,7 +143,7 @@ namespace
         ASSERT_EQ(process->output(), "hello\n");
     }
 
-    TEST_F(ProcessImpl, ProcessNotifyOnClosureShouldNotRequireUsageOfStandardOutput) // NOLINT
+    TEST_F(ProcessImpl, ProcessNotifyOnClosureShouldNotRequireUsageOfStandardOutput)
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -154,7 +154,7 @@ namespace
         ASSERT_EQ(process->output(), "");
     }
 
-    TEST_F(ProcessImpl, WaitFromDifferentThreadsDoesNotDeadLock) // NOLINT
+    TEST_F(ProcessImpl, WaitFromDifferentThreadsDoesNotDeadLock)
     {
         auto process = createProcess();
         process->exec("/bin/sleep", { "5" });
@@ -175,7 +175,7 @@ namespace
     }
 
 
-    TEST_F(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntilProcessEnds) // NOLINT
+    TEST_F(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntilProcessEnds)
     {
         std::string bashScript = R"(#!/bin/bash
 echo 'started'
@@ -220,7 +220,7 @@ sleep 10000
         fut.get();
     }
 
-    TEST_F(ProcessImpl, ProcessStderrAndStdout) // NOLINT
+    TEST_F(ProcessImpl, ProcessStderrAndStdout)
     {
         std::string bashScript = R"(#!/bin/bash
 >&1 echo 1
@@ -241,7 +241,7 @@ sleep 10000
         EXPECT_THAT(process->output(), ::testing::HasSubstr("1\n\n2"));
 
     }
-    TEST_F(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
+    TEST_F(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess)
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -253,7 +253,7 @@ sleep 10000
         ASSERT_EQ(process->output(), "");
     }
 
-    TEST_F(ProcessImpl, SupportAddingEnvironmentVariables) // NOLINT
+    TEST_F(ProcessImpl, SupportAddingEnvironmentVariables)
     {
         std::string testFilename("envTestGood.sh");
 
@@ -271,7 +271,7 @@ sleep 10000
         removeFile(testFilename);
     }
 
-    TEST_F(ProcessImpl, AddingInvalidEnvironmentVariableShouldFail) // NOLINT
+    TEST_F(ProcessImpl, AddingInvalidEnvironmentVariableShouldFail)
     {
         std::string testFilename("envTestBad.sh");
 
@@ -280,14 +280,14 @@ sleep 10000
         out << "echo ${os} is ${adj}\n";
         out.close();
         auto process = createProcess();
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             process->exec("/bin/bash", { testFilename }, { { "", "linux" }, { "adj", "great" } }),
-            Common::Process::IProcessException); // NOLINT
+            Common::Process::IProcessException);
 
         removeFile(testFilename);
     }
 
-    TEST_F(ProcessImpl, TouchFileCommandShouldCreateFile) // NOLINT
+    TEST_F(ProcessImpl, TouchFileCommandShouldCreateFile)
     {
         auto process = createProcess();
         removeFile("success.txt");
@@ -329,7 +329,7 @@ sleep 10000
         EXPECT_EQ(process->exitCode(), 1);
     }
 
-    TEST_F(ProcessImplLog, NonExistingCommandShouldFail) // NOLINT
+    TEST_F(ProcessImplLog, NonExistingCommandShouldFail)
     {
         auto process = createProcess();
         process->exec("/bin/command_does_not_exists", { "fake_argument" });
@@ -338,7 +338,7 @@ sleep 10000
         EXPECT_EQ(process->exitCode(), 2);
     }
 
-    TEST_F(ProcessImpl, LongCommandExecutionShouldTimeout) // NOLINT
+    TEST_F(ProcessImpl, LongCommandExecutionShouldTimeout)
     {
         std::fstream out("test.sh", std::ofstream::out);
         out << "while true; do echo 'continue'; sleep 1; done\n";
@@ -357,7 +357,7 @@ sleep 10000
         removeFile("test.sh");
     }
 
-    TEST_F(ProcessImpl, SupportOutputWithMultipleLines) // NOLINT
+    TEST_F(ProcessImpl, SupportOutputWithMultipleLines)
     {
         std::string targetfile = "/etc/passwd";
 
@@ -369,7 +369,7 @@ sleep 10000
         ASSERT_EQ(process->output(), content);
     }
 
-    TEST_F(ProcessImpl, SupportOutputWithMultipleLinesWithFlushBufferEnabled) // NOLINT
+    TEST_F(ProcessImpl, SupportOutputWithMultipleLinesWithFlushBufferEnabled)
     {
         auto process = createProcess();
         std::string out1;
@@ -393,19 +393,19 @@ sleep 10000
         ASSERT_EQ(out2, "abc\ndef");
     }
 
-    TEST_F(ProcessImpl, OutputCannotBeCalledBeforeExec) // NOLINT
+    TEST_F(ProcessImpl, OutputCannotBeCalledBeforeExec)
     {
         auto process = createProcess();
-        EXPECT_THROW(process->output(), IProcessException); // NOLINT
+        EXPECT_THROW(process->output(), IProcessException);
     }
 
-    TEST_F(ProcessImpl, ExitCodeCannotBeCalledBeforeExec) // NOLINT
+    TEST_F(ProcessImpl, ExitCodeCannotBeCalledBeforeExec)
     {
         auto process = createProcess();
-        EXPECT_THROW(process->exitCode(), IProcessException); // NOLINT
+        EXPECT_THROW(process->exitCode(), IProcessException);
     }
 
-    TEST_F(ProcessImpl, TestCreateEmptyProcessInfoCreatesEmptyObject) // NOLINT
+    TEST_F(ProcessImpl, TestCreateEmptyProcessInfoCreatesEmptyObject)
     {
         auto processInfoPtr = Common::Process::createEmptyProcessInfo();
 
@@ -424,7 +424,7 @@ sleep 10000
         ASSERT_EQ(userPair.second, -1);
     }
 
-    TEST_F(ProcessImpl, CanCaptureTrimmedOutput) // NOLINT
+    TEST_F(ProcessImpl, CanCaptureTrimmedOutput)
     {
         std::string captureout;
         auto process = createProcess();
@@ -444,7 +444,7 @@ sleep 10000
         EXPECT_EQ(captureout + output, echoinput);
     }
 
-    TEST_F(ProcessImplLog, SimulationOfDataRace) // NOLINT
+    TEST_F(ProcessImplLog, SimulationOfDataRace)
     {
         std::string bashScript = R"(#!/bin/bash
 echo 'started'
@@ -486,7 +486,7 @@ sleep 1
     }
 
 
-    TEST_F(ProcessImpl, CheckDataRaceAndThreadSafetyOnPublicInterfaceOfProcess) // NOLINT
+    TEST_F(ProcessImpl, CheckDataRaceAndThreadSafetyOnPublicInterfaceOfProcess)
     {
 
         std::string bashScript = R"(#!/bin/bash
@@ -552,7 +552,7 @@ sleep 1
         return process->output();
     }
 
-    TEST_F(ProcessImpl, ChildShouldNotKeepFileDescriptorsOfParent) // NOLINT
+    TEST_F(ProcessImpl, ChildShouldNotKeepFileDescriptorsOfParent)
     {
         auto process = createProcess();
         std::ofstream ofs ("testkeepfiledesc.txt", std::ofstream::out);

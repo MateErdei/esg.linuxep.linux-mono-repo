@@ -15,7 +15,7 @@ namespace common
         static inline bool fd_isset(int fd, fd_set* fds)
         {
             assert(fd >= 0);
-            return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+            return FD_ISSET(static_cast<unsigned>(fd), fds);
         }
 
         static int addFD(fd_set* fds, int fd, int currentMax)
@@ -28,7 +28,7 @@ namespace common
         static inline void internal_fd_set(int fd, fd_set* fds)
         {
             assert(fd >= 0);
-            FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
+            FD_SET(static_cast<unsigned>(fd), fds);
         }
     };
 }

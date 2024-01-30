@@ -35,7 +35,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
+TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader)
 {
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
@@ -67,7 +67,7 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
     }
 }
 
-TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
+TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort)
 {
     // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();

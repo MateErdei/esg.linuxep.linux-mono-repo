@@ -58,12 +58,12 @@ public:
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 };
 
-TEST_F(ProcessMonitoring, createProcessMonitorDoesntThrow) // NOLINT
+TEST_F(ProcessMonitoring, createProcessMonitorDoesntThrow)
 {
     ASSERT_NO_THROW(Common::ProcessMonitoring::createProcessMonitor());
 }
 
-TEST_F(ProcessMonitoring, createProcessMonitorStartWithOutProcessRaisesError) // NOLINT
+TEST_F(ProcessMonitoring, createProcessMonitorStartWithOutProcessRaisesError)
 {
     testing::internal::CaptureStderr();
     auto processMonitor = Common::ProcessMonitoring::createProcessMonitor();
@@ -75,7 +75,7 @@ TEST_F(ProcessMonitoring, createProcessMonitorStartWithOutProcessRaisesError) //
 
 TEST_F(
     ProcessMonitoring,
-    createProcessMonitorStartWithProcessDoesNotRaiseErrorAndProcessMonitorStopsOnSIGTERMSignal) // NOLINT
+    createProcessMonitorStartWithProcessDoesNotRaiseErrorAndProcessMonitorStopsOnSIGTERMSignal)
 {
     testing::internal::CaptureStderr();
     auto processMonitorPtr = Common::ProcessMonitoring::createProcessMonitor();
@@ -96,7 +96,7 @@ TEST_F(
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Stopping processes"));
 }
 
-TEST_F(ProcessMonitoring, createProcessMonitorSocketHandlersThatThrowExceptionsThatAreCaught) // NOLINT
+TEST_F(ProcessMonitoring, createProcessMonitorSocketHandlersThatThrowExceptionsThatAreCaught)
 {
     testing::internal::CaptureStderr();
 
@@ -181,7 +181,7 @@ TEST_F(ProcessMonitoring, createProcessMonitorSocketHandlersThatThrowExceptionsT
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Stopping processes"));
 }
 
-TEST_F(ProcessMonitoring, createProcessMonitorAndCheckSIGCHLDSignalIsHandled) // NOLINT
+TEST_F(ProcessMonitoring, createProcessMonitorAndCheckSIGCHLDSignalIsHandled)
 {
     testing::internal::CaptureStderr();
 

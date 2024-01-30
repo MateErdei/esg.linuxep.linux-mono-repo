@@ -24,7 +24,7 @@ namespace
     };
 }
 
-TEST_F(TestShutdownTimer, testDefaultTimeout) // NOLINT
+TEST_F(TestShutdownTimer, testDefaultTimeout)
 {
     fs::path nonexistentConfigFile = "";
     sspl::sophosthreatdetectorimpl::ShutdownTimer timer(nonexistentConfigFile);
@@ -33,7 +33,7 @@ TEST_F(TestShutdownTimer, testDefaultTimeout) // NOLINT
     EXPECT_GE(defaultTimeout, 3600 - 1);
 }
 
-TEST_F(TestShutdownTimer, testConfiguredTimeout) // NOLINT
+TEST_F(TestShutdownTimer, testConfiguredTimeout)
 {
     fs::path testdir = tmpdir();
     fs::create_directories(testdir);

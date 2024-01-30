@@ -6,7 +6,7 @@
 
 log4cplus::Logger& getResponseActionsImplLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getResponseActionsImplLogger(), x) // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getResponseActionsImplLogger(), x)   // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getResponseActionsImplLogger(), x)   // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getResponseActionsImplLogger(), x) // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getResponseActionsImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getResponseActionsImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getResponseActionsImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getResponseActionsImplLogger(), x)

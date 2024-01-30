@@ -105,13 +105,13 @@ TEST_F(TestBasicPluginApi, telemetryShouldNotCrashIfVersionWereNotAvailable)
 
 
 
-TEST(TestFileSystemExample, binBashShouldExist) // NOLINT
+TEST(TestFileSystemExample, binBashShouldExist)
 {
     auto* ifileSystem = Common::FileSystem::fileSystem();
     EXPECT_TRUE(ifileSystem->isExecutable("/bin/bash"));
 }
 
-TEST(TestLinkerWorks, WorksWithTheLogging) // NOLINT
+TEST(TestLinkerWorks, WorksWithTheLogging)
 {
     Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
     LOGINFO("Produce this logging");

@@ -198,7 +198,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpgrade) // NOLINT
+TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpgrade)
 {
     DownloadReportsAnalyser::DownloadReportVector singleReport{ DownloadReportTestBuilder::goodReport() };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(singleReport);
@@ -212,7 +212,7 @@ TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpg
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly) // NOLINT
+TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{ DownloadReportTestBuilder::goodReport(),
                                                            DownloadReportTestBuilder::goodReport() };
@@ -227,7 +227,7 @@ TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly) // NOL
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -250,7 +250,7 @@ TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLIN
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) // NOLINT
+TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -276,7 +276,7 @@ TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) 
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported)
 {
     auto report = DownloadReportTestBuilder::badReport(
         DownloadReportTestBuilder::UseTime::Later, RepositoryStatus::CONNECTIONERROR, "failed2connect");
@@ -300,7 +300,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
 
@@ -322,7 +322,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -345,7 +345,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious),
@@ -372,7 +372,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles)
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
     std::string file1 =
@@ -422,7 +422,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilterOutNonReports) // NOLINT
+TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilterOutNonReports)
 {
     testing::internal::CaptureStderr();
 
@@ -466,7 +466,7 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to process file: update_report_1.json"));
 }
 
-TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) // NOLINT
+TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError)
 {
     DownloadReportsAnalyser::DownloadReportVector twoReports{ DownloadReportTestBuilder::goodReport(
                                                                   DownloadReportTestBuilder::UseTime::Previous),
@@ -480,7 +480,7 @@ TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionEr
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 }
 
-TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports)
 {
     auto report = DownloadReportTestBuilder::goodReport();
     auto serializedString = DownloadReportsAnalyser::DownloadReport::fromReport(report);
@@ -492,7 +492,7 @@ TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 
 /**Acceptance criteria LINUXEP-6391 **/
 
-TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) // NOLINT
+TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -516,7 +516,7 @@ TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) 
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents)
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -539,7 +539,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache) // NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache)
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious);
     upgradeReport.setProcessedReport(true);
@@ -566,7 +566,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache) // NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache)
 {
     auto upgradeReport =
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
@@ -597,7 +597,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged) // NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged)
 {
     auto upgradeReport =
         DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
@@ -626,7 +626,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
+TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
 {
     static std::string reportExample{ R"sophos({
         "finishTime": "20180822 121220",
@@ -680,7 +680,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
+TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport)
 {
     std::string firstReport{ R"sophos({ "finishTime": "20180821 121220",
 "status": "SUCCESS",
@@ -750,7 +750,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NOLINT
+TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent)
 {
     std::string firstReport{
         R"sophos({ "startTime": "20190604 144145", "finishTime": "20190604 144155",

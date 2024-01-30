@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getMCSImplLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getMCSImplLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getMCSImplLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getMCSImplLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getMCSImplLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getMCSImplLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getMCSImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getMCSImplLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getMCSImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getMCSImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getMCSImplLogger(), x)

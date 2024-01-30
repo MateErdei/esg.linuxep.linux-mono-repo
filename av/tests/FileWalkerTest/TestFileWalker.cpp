@@ -16,7 +16,7 @@ namespace fs = sophos_filesystem;
 
 using namespace ::testing;
 
-TEST_F(TestFileWalker, includeDirectory) // NOLINT
+TEST_F(TestFileWalker, includeDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -33,7 +33,7 @@ TEST_F(TestFileWalker, includeDirectory) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
+TEST_F(TestFileWalker, includeCurrentDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -50,7 +50,7 @@ TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, reuseObject) // NOLINT
+TEST_F(TestFileWalker, reuseObject)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -79,7 +79,7 @@ TEST_F(TestFileWalker, reuseObject) // NOLINT
 }
 
 
-TEST_F(TestFileWalker, scanDirectoryOnlyOnce) // NOLINT
+TEST_F(TestFileWalker, scanDirectoryOnlyOnce)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -107,7 +107,7 @@ TEST_F(TestFileWalker, scanDirectoryOnlyOnce) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
+TEST_F(TestFileWalker, absoluteIncludePath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -124,7 +124,7 @@ TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
+TEST_F(TestFileWalker, currentDirIsDeleted)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -149,7 +149,7 @@ TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, deleteParentDirWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteParentDirWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/a/a/file1.txt", "sandbox/a/b/file2.txt", "sandbox/b/a/file3.txt", "sandbox/b/b/file4.txt"
@@ -177,7 +177,7 @@ TEST_F(TestFileWalker, deleteParentDirWhileWalking) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, deleteCurrentDirWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteCurrentDirWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/a/file1.txt", "sandbox/a/file2.txt", "sandbox/b/file3.txt", "sandbox/b/file4.txt"
@@ -205,7 +205,7 @@ TEST_F(TestFileWalker, deleteCurrentDirWhileWalking) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, moveCurrentDirWhileWalking) // NOLINT
+TEST_F(TestFileWalker, moveCurrentDirWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/a/file1.txt", "sandbox/a/file2.txt", "sandbox/b/file3.txt", "sandbox/b/file4.txt"
@@ -293,7 +293,7 @@ private:
     std::vector<sophos_filesystem::path> m_allFiles;
 };
 
-TEST_F(TestFileWalker, deleteFilesAlreadyScannedWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteFilesAlreadyScannedWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
@@ -324,7 +324,7 @@ TEST_F(TestFileWalker, deleteFilesAlreadyScannedWhileWalking) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/a/file1.txt", "sandbox/b/file2.txt", "sandbox/c/file3.txt", "sandbox/d/file4.txt"
@@ -355,7 +355,7 @@ TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
@@ -381,7 +381,7 @@ TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking)
 {
     std::vector<fs::path> files = {
         "sandbox/a/file1.txt", "sandbox/b/file2.txt", "sandbox/c/file3.txt", "sandbox/d/file4.txt"
@@ -408,7 +408,7 @@ TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
 }
 
 
-TEST_F(TestFileWalker, handlesExceptionFromProcessFile) // NOLINT
+TEST_F(TestFileWalker, handlesExceptionFromProcessFile)
 {
     fs::create_directories("sandbox");
     std::ofstream("sandbox/file1.txt").close();
@@ -425,7 +425,7 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFile) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
+TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk)
 {
     std::vector<fs::path> files = {
         "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
@@ -455,7 +455,7 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
 }
 
 
-TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
+TEST_F(TestFileWalker, abortScanExceptionFromProcessFile)
 {
     fs::create_directories("sandbox");
     std::ofstream("sandbox/file1.txt").close();
@@ -478,7 +478,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
+TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk)
 {
     std::vector<fs::path> files = {
         "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
@@ -512,7 +512,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, excludeDirectory) // NOLINT
+TEST_F(TestFileWalker, excludeDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -528,7 +528,7 @@ TEST_F(TestFileWalker, excludeDirectory) // NOLINT
     fw.walk("sandbox");
 }
 
-TEST_F(TestFileWalker, userExcludeDirectory) // NOLINT
+TEST_F(TestFileWalker, userExcludeDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -543,7 +543,7 @@ TEST_F(TestFileWalker, userExcludeDirectory) // NOLINT
     fw.walk("sandbox");
 }
 
-TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
+TEST_F(TestFileWalker, scanFileThatDoesNotExist)
 {
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -563,7 +563,7 @@ TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, scanDirectoryThatDoesNotExist) // NOLINT
+TEST_F(TestFileWalker, scanDirectoryThatDoesNotExist)
 {
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -583,7 +583,7 @@ TEST_F(TestFileWalker, scanDirectoryThatDoesNotExist) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, scanPathThatDoesNotExist) // NOLINT
+TEST_F(TestFileWalker, scanPathThatDoesNotExist)
 {
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -604,7 +604,7 @@ TEST_F(TestFileWalker, scanPathThatDoesNotExist) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, scanPathThatDoesNotExistWithSpecialCharacter) // NOLINT
+TEST_F(TestFileWalker, scanPathThatDoesNotExistWithSpecialCharacter)
 {
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -625,7 +625,7 @@ TEST_F(TestFileWalker, scanPathThatDoesNotExistWithSpecialCharacter) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, includeSingleFile) // NOLINT
+TEST_F(TestFileWalker, includeSingleFile)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -642,7 +642,7 @@ TEST_F(TestFileWalker, includeSingleFile) // NOLINT
     fw.walk(startingPath);
 }
 
-TEST_F(TestFileWalker, scanStartsFromSpecial) // NOLINT
+TEST_F(TestFileWalker, scanStartsFromSpecial)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -660,7 +660,7 @@ TEST_F(TestFileWalker, scanStartsFromSpecial) // NOLINT
     EXPECT_TRUE(appenderContains("Not scanning special file/device: \"fifo\""));
 }
 
-TEST_F(TestFileWalker, scanStartsFromSymlinkToSpecial) // NOLINT
+TEST_F(TestFileWalker, scanStartsFromSymlinkToSpecial)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -679,7 +679,7 @@ TEST_F(TestFileWalker, scanStartsFromSymlinkToSpecial) // NOLINT
     EXPECT_TRUE(appenderContains("Not scanning special file/device: \"symlink_to_fifo\""));
 }
 
-TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
+TEST_F(TestFileWalker, scanWalksSpecial)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -698,7 +698,7 @@ TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
+TEST_F(TestFileWalker, scanWalksSymlinkToSpecial)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -721,7 +721,7 @@ TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
     walker.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
+TEST_F(TestFileWalker, startWithSymlinkToDirectory)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -740,7 +740,7 @@ TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
+TEST_F(TestFileWalker, startWithDirectoryViaSymlink)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -758,7 +758,7 @@ TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
+TEST_F(TestFileWalker, startWithSymlinkToFile)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -777,7 +777,7 @@ TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
+TEST_F(TestFileWalker, startWithBrokenSymlink)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -808,7 +808,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
+TEST_F(TestFileWalker, startWithBrokenSymlinkPath)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -839,7 +839,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, symlinksInWalkNoFollow) // NOLINT
+TEST_F(TestFileWalker, symlinksInWalkNoFollow)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -878,7 +878,7 @@ TEST_F(TestFileWalker, symlinksInWalkNoFollow) // NOLINT
     walker.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, followSymlinksInWalk) // NOLINT
+TEST_F(TestFileWalker, followSymlinksInWalk)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -916,7 +916,7 @@ TEST_F(TestFileWalker, followSymlinksInWalk) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow) // NOLINT
+TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow)
 {
     fs::create_directories("sandbox");
     fs::path startingPoint = fs::path("sandbox");
@@ -936,7 +936,7 @@ TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, duplicateDirSymlinksInWalk) // NOLINT
+TEST_F(TestFileWalker, duplicateDirSymlinksInWalk)
 {
     fs::create_directories("sandbox");
     fs::path startingPoint = fs::path("sandbox");
@@ -958,7 +958,7 @@ TEST_F(TestFileWalker, duplicateDirSymlinksInWalk) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, scanDirectoryAndSymlinkToDirectory) // NOLINT
+TEST_F(TestFileWalker, scanDirectoryAndSymlinkToDirectory)
 {
     fs::create_directories("sandbox/a/b");
     fs::create_directories("sandbox/c/d");
@@ -983,7 +983,7 @@ TEST_F(TestFileWalker, scanDirectoryAndSymlinkToDirectory) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, symlinksToStartingDir) // NOLINT
+TEST_F(TestFileWalker, symlinksToStartingDir)
 {
     fs::create_directories("sandbox");
     std::ofstream("sandbox/file1.txt").close();
@@ -1003,7 +1003,7 @@ TEST_F(TestFileWalker, symlinksToStartingDir) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, duplicateFileSymlinksInWalk) // NOLINT
+TEST_F(TestFileWalker, duplicateFileSymlinksInWalk)
 {
     fs::create_directories("sandbox");
     fs::path startingPoint = fs::path("sandbox");
@@ -1025,7 +1025,7 @@ TEST_F(TestFileWalker, duplicateFileSymlinksInWalk) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
+TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks)
 {
     fs::create_directories("sandbox/dir1");
     fs::create_directories("sandbox/dir2");
@@ -1048,7 +1048,7 @@ TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
 }
 
 
-TEST_F(TestFileWalker, withStayOnDevice) // NOLINT
+TEST_F(TestFileWalker, withStayOnDevice)
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt").close();
@@ -1066,7 +1066,7 @@ TEST_F(TestFileWalker, withStayOnDevice) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrows) // NOLINT
+TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrows)
 {
     fs::create_directories("sandbox/a/b");
     fs::create_directories("sandbox/c/d");
@@ -1090,7 +1090,7 @@ TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrows) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice) // NOLINT
+TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice)
 {
     fs::create_directories("sandbox/a/b");
     fs::create_directories("sandbox/c/d");
@@ -1113,7 +1113,7 @@ TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, symlinkNoPermission) // NOLINT
+TEST_F(TestFileWalker, symlinkNoPermission)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1137,7 +1137,7 @@ TEST_F(TestFileWalker, symlinkNoPermission) // NOLINT
     EXPECT_FALSE(appenderContains("Failed to get the status of"));
 }
 
-TEST_F(TestFileWalker, missingStartPoint) // NOLINT
+TEST_F(TestFileWalker, missingStartPoint)
 {
     fs::path startingPoint = fs::path("sandbox/missing");
 
@@ -1160,7 +1160,7 @@ TEST_F(TestFileWalker, missingStartPoint) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, missingStartPointNoError) // NOLINT
+TEST_F(TestFileWalker, missingStartPointNoError)
 {
     fs::path startingPoint = fs::path("sandbox/missing");
 
@@ -1173,7 +1173,7 @@ TEST_F(TestFileWalker, missingStartPointNoError) // NOLINT
     EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
-TEST_F(TestFileWalker, pathTooLong) // NOLINT
+TEST_F(TestFileWalker, pathTooLong)
 {
     std::string longPathStr(4097, 'a');
     fs::path startingPoint = fs::path(longPathStr);

@@ -58,7 +58,7 @@ Plugin::Task defaultResponseTask()
 
 class TestPluginAdapter : public LogOffInitializedTests{}; 
 
-TEST_F(TestPluginAdapter, readXmlReturnsEmptyUrlAndThumbprintWhenNotPresent) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsEmptyUrlAndThumbprintWhenNotPresent)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -67,7 +67,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsEmptyUrlAndThumbprintWhenNotPresent) // 
     EXPECT_EQ(thumbprint, "");
 }
 
-TEST_F(TestPluginAdapter, readXmlReturnsUrlAndThumbprintCorrectly) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsUrlAndThumbprintCorrectly)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -80,7 +80,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsUrlAndThumbprintCorrectly) // NOLINT
     EXPECT_EQ(thumbprint, "examplethumbprint");
 }
 
-TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenThumbprintIsEmpty) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenThumbprintIsEmpty)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -93,7 +93,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenThumbprintIsEmpty
     EXPECT_EQ(thumbprint, "");
 }
 
-TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenOnlyUrlIsPresent) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenOnlyUrlIsPresent)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -105,7 +105,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsUrlButNotThumbprintWhenOnlyUrlIsPresent)
     EXPECT_EQ(thumbprint, "");
 }
 
-TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenUrlIsEmpty) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenUrlIsEmpty)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -118,7 +118,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenUrlIsEmpty) // NO
     EXPECT_EQ(thumbprint, "examplethumbprint");
 }
 
-TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenOnlyThumbprintIsPresent) // NOLINT
+TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenOnlyThumbprintIsPresent)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
@@ -130,7 +130,7 @@ TEST_F(TestPluginAdapter, readXmlReturnsThumbprintButNotUrlWhenOnlyThumbprintIsP
     EXPECT_EQ(thumbprint, "examplethumbprint");
 }
 
-TEST_F(TestPluginAdapter, createJsonFileConvertsXmlToJsonAndCreatesFile) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileConvertsXmlToJsonAndCreatesFile)
 {
     Plugin::Telemetry::initialiseTelemetry();
 
@@ -156,7 +156,7 @@ TEST_F(TestPluginAdapter, createJsonFileConvertsXmlToJsonAndCreatesFile) // NOLI
     EXPECT_FALSE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfEitherUrlOrThumbprintIsMissingFromActionXml) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfEitherUrlOrThumbprintIsMissingFromActionXml)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -176,7 +176,7 @@ TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfEitherUrlOrThumbprintIsMis
     EXPECT_TRUE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfjwt_tokenIsMissingFromMcsConfig) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfjwt_tokenIsMissingFromMcsConfig)
 {
     Plugin::Telemetry::initialiseTelemetry();
 
@@ -203,7 +203,7 @@ TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfjwt_tokenIsMissingFromMcsC
     EXPECT_TRUE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIftenant_idIsMissingFromMcsConfig) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIftenant_idIsMissingFromMcsConfig)
 {
     Plugin::Telemetry::initialiseTelemetry();
 
@@ -231,7 +231,7 @@ TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIftenant_idIsMissingFromMcsC
     EXPECT_TRUE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfdevice_idIsMissingFromMcsConfig) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfdevice_idIsMissingFromMcsConfig)
 {
     Plugin::Telemetry::initialiseTelemetry();
 
@@ -258,7 +258,7 @@ TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfdevice_idIsMissingFromMcsC
     EXPECT_TRUE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfMcsConfigIsEmpty) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfMcsConfigIsEmpty)
 {
     Plugin::Telemetry::initialiseTelemetry();
 
@@ -287,7 +287,7 @@ TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyIfMcsConfigIsEmpty) // NOLIN
     EXPECT_TRUE(filename.empty());
 }
 
-TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyStringWhenItFailsToCreateFile) // NOLINT
+TEST_F(TestPluginAdapter, createJsonFileReturnsEmptyStringWhenItFailsToCreateFile)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::string jsonContent =R"({"thumbprint":"examplethumbprint","url":"dummyurl"})";

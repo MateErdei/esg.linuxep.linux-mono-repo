@@ -37,7 +37,7 @@ namespace
     };
 }
 
-TEST_F(TestThreadRunner, ThreadRunnerStarts) // NOLINT
+TEST_F(TestThreadRunner, ThreadRunnerStarts)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -47,7 +47,7 @@ TEST_F(TestThreadRunner, ThreadRunnerStarts) // NOLINT
     EXPECT_TRUE(appenderContains("Starting ThreadRunnerStarts"));
 }
 
-TEST_F(TestThreadRunner, ThreadRunnerStops) // NOLINT
+TEST_F(TestThreadRunner, ThreadRunnerStops)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -78,7 +78,7 @@ TEST_F(TestThreadRunner, ThreadRunnerStopsThenJoins)
     EXPECT_TRUE(appenderContains("Joining ThreadRunnerStopsThenJoins"));
 }
 
-TEST_F(TestThreadRunner, ThreadRunnerStopsAndStarts) // NOLINT
+TEST_F(TestThreadRunner, ThreadRunnerStopsAndStarts)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -101,7 +101,7 @@ TEST_F(TestThreadRunner, ThreadRunnerStopsAndStarts) // NOLINT
     EXPECT_TRUE(appenderContains("Starting ThreadRunnerStopsAndStarts"));
 }
 
-TEST_F(TestThreadRunner, ThreadRunnerHandlesStartWhenThreadIsNotValid) // NOLINT
+TEST_F(TestThreadRunner, ThreadRunnerHandlesStartWhenThreadIsNotValid)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 

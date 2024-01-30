@@ -13,7 +13,7 @@ namespace Common::Process
     class ProcessInfoTests: public LogOffInitializedTests{};
 
     // cppcheck-suppress syntaxError
-    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults) // NOLINT
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("root:root");
@@ -28,7 +28,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, 0);
     }
 
-    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults) // NOLINT
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("root");
@@ -43,7 +43,7 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, 0);
     }
 
-    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults) // NOLINT
+    TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser");
@@ -62,7 +62,7 @@ namespace Common::Process
     }
 
     TEST_F(ProcessInfoTests,
-         processInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults) // NOLINT
+         processInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser:badgroup");
@@ -82,7 +82,7 @@ namespace Common::Process
 
     TEST_F(
         ProcessInfoTests,
-        processInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults) // NOLINT
+        processInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser:root");
@@ -102,7 +102,7 @@ namespace Common::Process
 
     TEST_F(
         ProcessInfoTests,
-        processInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults) // NOLINT
+        processInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         std::string userGroup("root:badgroup");
@@ -122,7 +122,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableUserAndGroupAsString(), userGroup);
     }
 
-    TEST_F(ProcessInfoTests, setExecutableArguments) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableArguments)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -136,7 +136,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableArguments()[2], args[2]);
     }
 
-    TEST_F(ProcessInfoTests, setExecutableEnvironmentVariables) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableEnvironmentVariables)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -151,7 +151,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableEnvironmentVariables()[1].second, envPairs[1].second);
     }
 
-    TEST_F(ProcessInfoTests, addExecutableArgumentsAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, addExecutableArgumentsAddsNewValueCorrectly)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -163,7 +163,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableArguments()[0], arg);
     }
 
-    TEST_F(ProcessInfoTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
@@ -177,7 +177,7 @@ namespace Common::Process
         EXPECT_EQ(processInfo.getExecutableEnvironmentVariables()[0].second, envValue);
     }
 
-    TEST_F(ProcessInfoTests, setExecutableFullPathAddsNewValueCorrectly) // NOLINT
+    TEST_F(ProcessInfoTests, setExecutableFullPathAddsNewValueCorrectly)
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 

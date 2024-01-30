@@ -33,14 +33,14 @@ void pureCallBackFunction()
     callbackCalled = 1;
 }
 
-TEST_F(TestGenericShutdownListener, callbackAsPureFunction) // NOLINT
+TEST_F(TestGenericShutdownListener, callbackAsPureFunction)
 {
     GenericShutdownListener listener(pureCallBackFunction);
     listener.notifyShutdownRequested();
     ASSERT_EQ(callbackCalled, 1);
 }
 
-TEST_F(TestGenericShutdownListener, callbackAsClassMethod) // NOLINT
+TEST_F(TestGenericShutdownListener, callbackAsClassMethod)
 {
     // member function must be annotated with lambda to bind to the instance.
     GenericShutdownListener listener([this]() { this->callback(); });
@@ -48,7 +48,7 @@ TEST_F(TestGenericShutdownListener, callbackAsClassMethod) // NOLINT
     ASSERT_EQ(m_callbackString, "Callback Called");
 }
 
-TEST_F(TestGenericShutdownListener, callbackAsNullptr) // NOLINT
+TEST_F(TestGenericShutdownListener, callbackAsNullptr)
 {
     GenericShutdownListener listener(nullptr);
     listener.notifyShutdownRequested();

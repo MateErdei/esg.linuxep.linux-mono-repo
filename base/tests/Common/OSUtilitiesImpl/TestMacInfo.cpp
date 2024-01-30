@@ -16,13 +16,13 @@ using ListInputOutput = std::vector<PairResult>;
 class TestMacInfo: public LogOffInitializedTests{};
 
 
-TEST_F(TestMacInfo, stringfyMACShouldKeepTwoCharactersPerByte) // NOLINT
+TEST_F(TestMacInfo, stringfyMACShouldKeepTwoCharactersPerByte)
 {
     Common::OSUtilitiesImpl::MACType macType = { 0, 0xf5, 0x43, 0x54, 0xd5, 0x00 };
     EXPECT_EQ(Common::OSUtilitiesImpl::stringfyMAC(macType), "00:f5:43:54:d5:00");
 }
 
-TEST_F(TestMacInfo, MacsShouldBeAvailableInIfconfig) // NOLINT
+TEST_F(TestMacInfo, MacsShouldBeAvailableInIfconfig)
 {
     auto fSystem = Common::FileSystem::fileSystem();
     std::string ipconfigInfo = "/sbin/ifconfig";

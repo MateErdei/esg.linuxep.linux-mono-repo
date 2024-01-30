@@ -64,7 +64,7 @@ private:
 
 // Reply error cases
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand)
 {
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy.xml");
@@ -73,12 +73,12 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy.xml"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)
 {
     auto getStatusMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, std::string());
     auto serialisedMsg = m_Protocol.serialize(getStatusMsg);
@@ -86,12 +86,12 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
     auto ackMsg = createAcknowledgementMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS);
     ackMsg.m_error = "RandomError";
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginProxy->getStatus(),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -99,14 +99,14 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
 
     //EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return("thisisapolicy"));
     EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(Throw(std::exception()));
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Apply Policy
 
-TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)
 {
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy.xml");
@@ -114,7 +114,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy) // NOLINT
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy.xml")); // NOLINT
+    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy.xml"));
 
 //    auto mockFileSystem = new StrictMock<MockFileSystem>();
 //    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -128,10 +128,10 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy) // NOLINT
 //    //EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("thisisapolicy"));
 //    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
 //    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-//    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath)); // NOLINT
+//    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath));
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck)
 {
     auto applyPolicyMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "thisisapolicy.xml");
@@ -139,7 +139,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy.xml"),
         Common::PluginCommunication::IPluginCommunicationException);
 
@@ -155,14 +155,14 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
 //    //EXPECT_CALL(*mockFileSystem, readFile(policyXmlFilePath)).WillOnce(Return("thisisapolicy"));
 //    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
 //    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-//    EXPECT_THROW( // NOLINT
+//    EXPECT_THROW(
 //        m_pluginProxy->applyNewPolicy("plugin_one", policyXmlFilePath),
 //        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Do Action
 
-TEST_F(TestPluginProxy, TestPluginProxyDoAction) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyDoAction)
 {
     auto doActionMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "thisisanaction.xml");
@@ -189,7 +189,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoAction) // NOLINT
 //    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", actionXmlFilePath, "correlation-id"));
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)
 {
     auto doActionMsg =
         createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "thisisanaction.xml");
@@ -197,7 +197,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
     auto serialisedMsg = m_Protocol.serialize(doActionMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginProxy->queueAction("plugin_one", "thisisanaction.xml", ""),
         Common::PluginCommunication::IPluginCommunicationException);
 
@@ -213,14 +213,14 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
 //    //EXPECT_CALL(*mockFileSystem, readFile(actionXmlFilePath)).WillOnce(Return("thisisanaction"));
 //    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
 //    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-//    EXPECT_THROW( // NOLINT
+//    EXPECT_THROW(
 //        m_pluginProxy->queueAction("plugin_one", actionXmlFilePath, ""),
 //        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Get Status
 
-TEST_F(TestPluginProxy, TestPluginProxyGetStatus) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
 {
     auto getStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "statusWithXml");
@@ -233,7 +233,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetStatus) // NOLINT
     EXPECT_EQ(reply[0].statusWithoutTimestampsXml, ackMsg.m_payload[1]);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)
 {
     auto getAlcStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "", "ALC");
     getAlcStatus.m_pluginName = "plugin_one";
@@ -268,7 +268,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses) // NOLINT
 
 // Get Telemetry
 
-TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)
 {
     auto getTelemetry = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "", "");
     getTelemetry.m_pluginName = "plugin_one";
@@ -282,7 +282,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry) // NOLINT
 
 // APP IDS
 
-TEST_F(TestPluginProxy, TestPluginProxyHasPolicyAppIds) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyHasPolicyAppIds)
 {
     ASSERT_FALSE(m_pluginProxy->hasPolicyAppId("ALC"));
     std::vector<std::string> appIds;
@@ -299,12 +299,12 @@ TEST_F(TestPluginProxy, TestPluginProxyHasPolicyAppIds) // NOLINT
     ASSERT_FALSE(m_pluginProxy->hasActionAppId("INVALID"));
 }
 
-TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName) // NOLINT
+TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName)
 {
     ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("plugin_one"));
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyHasStatusAppIds) // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyHasStatusAppIds)
 {
     ASSERT_FALSE(m_pluginProxy->hasStatusAppId("ALC"));
     std::vector<std::string> appIds;

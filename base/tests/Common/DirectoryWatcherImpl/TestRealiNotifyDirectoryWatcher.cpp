@@ -57,7 +57,7 @@ namespace
     }
 } // namespace
 
-TEST( // NOLINT
+TEST(
     DirectoryWatcherTest,
     LimitationOfDirectoryWatcher_IfADirectoryIsDeletedAndRecreatedDirectoryWatcherWillNotRealise)
 {
@@ -98,7 +98,7 @@ TEST( // NOLINT
     EXPECT_TRUE(listener1Ptr->m_Active);
 }
 
-TEST_F(RealiNotifyDirectoryWatcherTests, FileCreationDoesNotTriggerEvent) // NOLINT
+TEST_F(RealiNotifyDirectoryWatcherTests, FileCreationDoesNotTriggerEvent)
 {
     usleep(1000);
     // File creation shouldn't trigger an event
@@ -106,7 +106,7 @@ TEST_F(RealiNotifyDirectoryWatcherTests, FileCreationDoesNotTriggerEvent) // NOL
     EXPECT_EQ("", m_Listener2Ptr->popFile());
 }
 
-TEST_F(RealiNotifyDirectoryWatcherTests, MoveFilesBetweenDirectoriesTriggersEvents) // NOLINT
+TEST_F(RealiNotifyDirectoryWatcherTests, MoveFilesBetweenDirectoriesTriggersEvents)
 {
     m_FileSystem.moveFile(m_TempDir1Ptr->absPath(m_Filename1), m_TempDir2Ptr->absPath(m_Filename1));
     m_FileSystem.moveFile(m_TempDir2Ptr->absPath(m_Filename2), m_TempDir1Ptr->absPath(m_Filename2));
@@ -121,7 +121,7 @@ TEST_F(RealiNotifyDirectoryWatcherTests, MoveFilesBetweenDirectoriesTriggersEven
     EXPECT_EQ(m_Filename1, m_Listener2Ptr->popFile());
 }
 
-TEST_F(RealiNotifyDirectoryWatcherTests, DeleteListenerAndMoveFilesOnlyTriggersEventOnRemainingListener) // NOLINT
+TEST_F(RealiNotifyDirectoryWatcherTests, DeleteListenerAndMoveFilesOnlyTriggersEventOnRemainingListener)
 {
     m_WatcherPtr->removeListener((*m_Listener2Ptr));
     m_FileSystem.moveFile(m_TempDir1Ptr->absPath(m_Filename1), m_TempDir2Ptr->absPath(m_Filename1));
@@ -137,7 +137,7 @@ TEST_F(RealiNotifyDirectoryWatcherTests, DeleteListenerAndMoveFilesOnlyTriggersE
     EXPECT_EQ("", m_Listener2Ptr->popFile());
 }
 
-TEST_F(RealiNotifyDirectoryWatcherTests, DeleteFilesDoesNotTriggerEvent) // NOLINT
+TEST_F(RealiNotifyDirectoryWatcherTests, DeleteFilesDoesNotTriggerEvent)
 {
     removeFile(m_TempDir2Ptr->absPath(m_Filename1));
     removeFile(m_TempDir1Ptr->absPath(m_Filename2));
@@ -147,7 +147,7 @@ TEST_F(RealiNotifyDirectoryWatcherTests, DeleteFilesDoesNotTriggerEvent) // NOLI
     EXPECT_EQ("", m_Listener2Ptr->popFile());
 }
 
-TEST_F(RealiNotifyDirectoryWatcherTests, OverwriteExistingFileWithMoveTriggersEvent) // NOLINT
+TEST_F(RealiNotifyDirectoryWatcherTests, OverwriteExistingFileWithMoveTriggersEvent)
 {
     m_FileSystem.moveFile(m_TempDir1Ptr->absPath(m_Filename1), m_TempDir2Ptr->absPath(m_Filename2));
     int retries = 0;

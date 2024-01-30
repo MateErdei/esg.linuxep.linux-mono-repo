@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getSulDownloaderSdds3Logger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSulDownloaderSdds3Logger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getSulDownloaderSdds3Logger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSulDownloaderSdds3Logger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getSulDownloaderSdds3Logger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getSulDownloaderSdds3Logger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSulDownloaderSdds3Logger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getSulDownloaderSdds3Logger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSulDownloaderSdds3Logger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getSulDownloaderSdds3Logger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSulDownloaderSdds3Logger(), x)

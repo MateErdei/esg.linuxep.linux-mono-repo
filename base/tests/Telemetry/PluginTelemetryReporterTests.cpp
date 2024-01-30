@@ -21,7 +21,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(PluginTelemetryReporterTests, getTelemetryOk) // NOLINT
+TEST_F(PluginTelemetryReporterTests, getTelemetryOk)
 {
     const std::string expectedPluginName = "fakePlugin";
     const std::string expectedPluginTelemetryJson = R"({"answer":42})";
@@ -41,7 +41,7 @@ TEST_F(PluginTelemetryReporterTests, getTelemetryOk) // NOLINT
     ASSERT_TRUE(pluginTelemetryJson.find("answer") != std::string::npos);
 }
 
-TEST_F(PluginTelemetryReporterTests, getTelemetryWithoutIPCOk) // NOLINT
+TEST_F(PluginTelemetryReporterTests, getTelemetryWithoutIPCOk)
 {
     const std::string expectedPluginName = "fakePlugin";
     const std::string expectedPluginTelemetryJson = R"({})";

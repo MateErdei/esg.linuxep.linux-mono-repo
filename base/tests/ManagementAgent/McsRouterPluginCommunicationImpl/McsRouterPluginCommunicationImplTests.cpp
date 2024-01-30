@@ -75,7 +75,7 @@ private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories) // NOLINT
+TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories)
 {
     using namespace ::testing;
     std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-1_policy.xml");
@@ -111,12 +111,12 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
     directoryWatcher->startWatch();
 
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(policyFileTmp1),
-        m_tempDir->absPath(policyFile1)));                      // NOLINT
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+        m_tempDir->absPath(policyFile1)));
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(actionFileTmp1),
-        m_tempDir->absPath(actionFile1))); // NOLINT
+        m_tempDir->absPath(actionFile1)));
 
 
     // wait up to one second for the sync to be executed via the notifySync
@@ -125,7 +125,7 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     directoryWatcher.reset();
 }
 
-TEST_F( // NOLINT
+TEST_F(
     McsRouterPluginCommunicationImplTests,
     TaskQueueProcessorCanProcessMultipleFilesFromMultipleDirectoriesAndWillNotThrowForUnknownFiles)
 {
@@ -188,23 +188,23 @@ TEST_F( // NOLINT
 
     directoryWatcher->startWatch();
 
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(policyFileTmp1),
         m_tempDir->absPath(policyFile1)));
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(policyFileTmp2),
         m_tempDir->absPath(policyFile2)));
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(policyFileTmp3),
         m_tempDir->absPath(policyFile3)));
 
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(actionFileTmp1),
         m_tempDir->absPath(actionFile1)));
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(actionFileTmp2),
         m_tempDir->absPath(actionFile2)));
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile( // NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(
         m_tempDir->absPath(actionFileTmp3),
         m_tempDir->absPath(actionFile3)));
 

@@ -10,7 +10,7 @@
 
 using namespace Common::XmlUtilities;
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+
 static std::string updatePolicy{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
@@ -133,7 +133,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 </AUConfigurations>
 )sophos" };
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+
 static std::string liveQueryPolicy = { R"sophos(<?xml version="1.0"?>
 <policy type="LiveQuery" RevID="100" policyType="56">
     <configuration>
@@ -182,7 +182,7 @@ query</description>
     </configuration>
 </policy>)sophos" };
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+
 static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
 <!ENTITY a "1234567890" >
 <!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;">

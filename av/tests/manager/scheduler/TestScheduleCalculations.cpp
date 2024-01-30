@@ -52,7 +52,7 @@ static auto getThursdayAndSaturdayMidnightScheduledScan()
     return ScheduledScan(attributeMap, "scan");
 }
 
-TEST(ScheduleCalculations, tomorrow) // NOLINT
+TEST(ScheduleCalculations, tomorrow)
 {
     ScheduledScan scan = getThursdayAndSaturdayMidnightScheduledScan();
 
@@ -68,7 +68,7 @@ TEST(ScheduleCalculations, tomorrow) // NOLINT
     EXPECT_EQ(resulttm.tm_wday, 4);
 }
 
-TEST(ScheduleCalculations, Saturday) // NOLINT
+TEST(ScheduleCalculations, Saturday)
 {
     ScheduledScan scan = getThursdayAndSaturdayMidnightScheduledScan();
 
@@ -85,7 +85,7 @@ TEST(ScheduleCalculations, Saturday) // NOLINT
 }
 
 
-TEST(ScheduleCalculations, NextWeek) // NOLINT
+TEST(ScheduleCalculations, NextWeek)
 {
     ScheduledScan scan = getThursdayAndSaturdayMidnightScheduledScan();
     time_t now = 1580558400; // Sat Feb  1 12:00:00 2020 +0000
@@ -101,7 +101,7 @@ TEST(ScheduleCalculations, NextWeek) // NOLINT
     EXPECT_EQ(resulttm.tm_mon, 1); // February
 }
 
-TEST(ScheduleCalculations, ThursdayWrapped) // NOLINT
+TEST(ScheduleCalculations, ThursdayWrapped)
 {
     ScheduledScan scan(getThursdayMiddayScheduledScan());
     time_t now = 1580385601; // Thu Jan 30 12:00:01 2020 +0000
@@ -128,7 +128,7 @@ TEST(ScheduleCalculations, ThursdayWrapped) // NOLINT
     EXPECT_EQ(resulttm.tm_mon, 1); // February
 }
 
-TEST(ScheduleCalculations, ThursdayNotWrapped) // NOLINT
+TEST(ScheduleCalculations, ThursdayNotWrapped)
 {
     ScheduledScan scan(getThursdayMiddayScheduledScan());
     time_t now = 1580385601; // Thu Jan 30 12:00:01 2020 +0000

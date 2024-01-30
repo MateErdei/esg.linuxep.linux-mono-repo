@@ -8,7 +8,7 @@
 
 using namespace Common::UtilityImpl;
 
-TEST(UniformIntDistribution, next) // NOLINT
+TEST(UniformIntDistribution, next)
 {
     int accumulated = 0;
     UniformIntDistribution distribution(0, 5);
@@ -25,7 +25,7 @@ TEST(UniformIntDistribution, next) // NOLINT
     EXPECT_GE(accumulated, expected_value_of_uniform_distribution - 200);
 }
 
-TEST(UniformIntDistribution, testConstructorGeneratesARandomSeed) // NOLINT
+TEST(UniformIntDistribution, testConstructorGeneratesARandomSeed)
 {
     // This for loop can be used for stress testing the UniformIntDistribution
     for (int j = 0; j < 1; j++) // already tested with a loop of 10000 iterations

@@ -81,7 +81,7 @@ class ParallelSessionProcessorTests : public LogOffInitializedTests
 {
 };
 
-TEST_F(ParallelSessionProcessorTests, tenJobsAreAddedAndClearedSuccessfully) // NOLINT
+TEST_F(ParallelSessionProcessorTests, tenJobsAreAddedAndClearedSuccessfully)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, removeFile(_)).Times(10);

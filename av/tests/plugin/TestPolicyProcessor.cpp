@@ -24,7 +24,7 @@ namespace
 
 } // namespace
 
-static const std::string ALC_FULL_POLICY // NOLINT
+static const std::string ALC_FULL_POLICY
     {
         R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -75,7 +75,7 @@ static const std::string ALC_FULL_POLICY // NOLINT
 )sophos"
     };
 
-static const std::string GL_POLICY_2 = // NOLINT
+static const std::string GL_POLICY_2 =
     R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>

@@ -8,53 +8,53 @@ static const unsigned long TEST_UNSIGNED_INTEGER = 11UL;
 static const double TEST_DOUBLE = 3.2;
 static const bool TEST_BOOL = true;
 static const char* TEST_CSTRING = "Test String";
-static const std::string TEST_STRING = TEST_CSTRING; // NOLINT
+static const std::string TEST_STRING = TEST_CSTRING;
 
 using namespace Common::Telemetry;
 
 // Construction
-TEST(TestTelemetryValueImpl, Construction) // NOLINT
+TEST(TestTelemetryValueImpl, Construction)
 {
     TelemetryValue telemetryValue;
     ASSERT_EQ(TelemetryValue::Type::integer_type, telemetryValue.getType());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithString) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithString)
 {
     TelemetryValue telemetryValue(TEST_STRING);
     ASSERT_EQ(TelemetryValue::Type::string_type, telemetryValue.getType());
     ASSERT_EQ(TEST_STRING, telemetryValue.getString());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithCString) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithCString)
 {
     TelemetryValue telemetryValue(TEST_CSTRING);
     ASSERT_EQ(TelemetryValue::Type::string_type, telemetryValue.getType());
     ASSERT_EQ(TEST_STRING, telemetryValue.getString());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithInt) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithInt)
 {
     TelemetryValue telemetryValue(TEST_INTEGER);
     ASSERT_EQ(TelemetryValue::Type::integer_type, telemetryValue.getType());
     ASSERT_EQ(TEST_INTEGER, telemetryValue.getInteger());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithUnsignedInt) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithUnsignedInt)
 {
     TelemetryValue telemetryValue(TEST_UNSIGNED_INTEGER);
     ASSERT_EQ(TelemetryValue::Type::unsigned_integer_type, telemetryValue.getType());
     ASSERT_EQ(TEST_UNSIGNED_INTEGER, telemetryValue.getUnsignedInteger());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithDouble) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithDouble)
 {
     TelemetryValue telemetryValue(TEST_DOUBLE);
     ASSERT_EQ(TelemetryValue::Type::double_type, telemetryValue.getType());
     ASSERT_EQ(TEST_DOUBLE, telemetryValue.getDouble());
 }
 
-TEST(TestTelemetryValueImpl, ConstructionWithBool) // NOLINT
+TEST(TestTelemetryValueImpl, ConstructionWithBool)
 {
     TelemetryValue telemetryValue(TEST_BOOL);
     ASSERT_EQ(TelemetryValue::Type::boolean_type, telemetryValue.getType());
@@ -62,7 +62,7 @@ TEST(TestTelemetryValueImpl, ConstructionWithBool) // NOLINT
 }
 
 // Integers
-TEST(TestTelemetryValueImpl, IntegerValue) // NOLINT
+TEST(TestTelemetryValueImpl, IntegerValue)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_INTEGER);
@@ -71,16 +71,16 @@ TEST(TestTelemetryValueImpl, IntegerValue) // NOLINT
     ASSERT_EQ(TEST_INTEGER, telemetryValue.getInteger());
 }
 
-TEST(TestTelemetryValueImpl, GetIntegerThrowsWhenSetToString) // NOLINT
+TEST(TestTelemetryValueImpl, GetIntegerThrowsWhenSetToString)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::Type::string_type, telemetryValue.getType());
-    EXPECT_THROW(telemetryValue.getInteger(), std::logic_error); // NOLINT
+    EXPECT_THROW(telemetryValue.getInteger(), std::logic_error);
 }
 
 // Integers
-TEST(TestTelemetryValueImpl, UnsignedIntegerValue) // NOLINT
+TEST(TestTelemetryValueImpl, UnsignedIntegerValue)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_UNSIGNED_INTEGER);
@@ -89,16 +89,16 @@ TEST(TestTelemetryValueImpl, UnsignedIntegerValue) // NOLINT
     ASSERT_EQ(TEST_UNSIGNED_INTEGER, telemetryValue.getUnsignedInteger());
 }
 
-TEST(TestTelemetryValueImpl, GetUnsignedIntegerThrowsWhenSetToString) // NOLINT
+TEST(TestTelemetryValueImpl, GetUnsignedIntegerThrowsWhenSetToString)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::Type::string_type, telemetryValue.getType());
-    EXPECT_THROW(telemetryValue.getUnsignedInteger(), std::logic_error); // NOLINT
+    EXPECT_THROW(telemetryValue.getUnsignedInteger(), std::logic_error);
 }
 
 // Strings
-TEST(TestTelemetryValueImpl, StringValue) // NOLINT
+TEST(TestTelemetryValueImpl, StringValue)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
@@ -107,7 +107,7 @@ TEST(TestTelemetryValueImpl, StringValue) // NOLINT
     ASSERT_EQ(TEST_STRING, telemetryValue.getString());
 }
 
-TEST(TestTelemetryValueImpl, CStringValue) // NOLINT
+TEST(TestTelemetryValueImpl, CStringValue)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set("astring");
@@ -116,16 +116,16 @@ TEST(TestTelemetryValueImpl, CStringValue) // NOLINT
     ASSERT_EQ("astring", telemetryValue.getString());
 }
 
-TEST(TestTelemetryValueImpl, GetStringThrowsWhenSetToInt) // NOLINT
+TEST(TestTelemetryValueImpl, GetStringThrowsWhenSetToInt)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_INTEGER);
     ASSERT_EQ(TelemetryValue::Type::integer_type, telemetryValue.getType());
-    EXPECT_THROW(telemetryValue.getString(), std::logic_error); // NOLINT
+    EXPECT_THROW(telemetryValue.getString(), std::logic_error);
 }
 
 // Bools
-TEST(TestTelemetryValueImpl, BoolValue) // NOLINT
+TEST(TestTelemetryValueImpl, BoolValue)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_BOOL);
@@ -133,49 +133,49 @@ TEST(TestTelemetryValueImpl, BoolValue) // NOLINT
     ASSERT_EQ(TEST_BOOL, telemetryValue.getBoolean());
 }
 
-TEST(TestTelemetryValueImpl, GetBoolThrowsWhenSetToString) // NOLINT
+TEST(TestTelemetryValueImpl, GetBoolThrowsWhenSetToString)
 {
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::Type::string_type, telemetryValue.getType());
-    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error); // NOLINT
+    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error);
 }
 
-TEST(TestTelemetryValueImpl, GetBoolThrowsWhenNothingSet) // NOLINT
+TEST(TestTelemetryValueImpl, GetBoolThrowsWhenNothingSet)
 {
     TelemetryValue telemetryValue;
-    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error); // NOLINT
+    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error);
 }
 // Operators
-TEST(TestTelemetryValueImpl, EqualityMatchingItems) // NOLINT
+TEST(TestTelemetryValueImpl, EqualityMatchingItems)
 {
     TelemetryValue telemetryValue1(TEST_INTEGER);
     TelemetryValue telemetryValue2(TEST_INTEGER);
     ASSERT_TRUE(telemetryValue1 == telemetryValue2);
 }
 
-TEST(TestTelemetryValueImpl, EqualityDifferingItems) // NOLINT
+TEST(TestTelemetryValueImpl, EqualityDifferingItems)
 {
     TelemetryValue telemetryValue1(TEST_INTEGER);
     TelemetryValue telemetryValue2(999L);
     ASSERT_TRUE(telemetryValue1 != telemetryValue2);
 }
 
-TEST(TestTelemetryValueImpl, EqualitySignedUnsigned) // NOLINT
+TEST(TestTelemetryValueImpl, EqualitySignedUnsigned)
 {
     TelemetryValue telemetryValue1(2L);
     TelemetryValue telemetryValue2(2UL);
     ASSERT_TRUE(telemetryValue1 == telemetryValue2);
 }
 
-TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferent) // NOLINT
+TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferent)
 {
     TelemetryValue telemetryValue1(1L);
     TelemetryValue telemetryValue2(2UL);
     ASSERT_FALSE(telemetryValue1 == telemetryValue2);
 }
 
-TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferentNegative) // NOLINT
+TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferentNegative)
 {
     TelemetryValue telemetryValue1(-1L);
     TelemetryValue telemetryValue2(1UL);

@@ -12,14 +12,14 @@ namespace
     };
 }
 
-TEST_F(TestUpdateSupplementDecider, constructor) // NOLINT
+TEST_F(TestUpdateSupplementDecider, constructor)
 {
     UpdateSupplementDecider::WeekDayAndTimeForDelay delay;
     UpdateSupplementDecider foo(delay);
     static_cast<void>(foo);
 }
 
-TEST_F(TestUpdateSupplementDecider, disabledScheduleAlwaysUpdatesProducts) // NOLINT
+TEST_F(TestUpdateSupplementDecider, disabledScheduleAlwaysUpdatesProducts)
 {
     UpdateSupplementDecider::WeekDayAndTimeForDelay delay;
     UpdateSupplementDecider foo(delay);
@@ -73,7 +73,7 @@ namespace
     constexpr int SecondsInWeek = 7 * SecondsInDay;
 }
 
-TEST_F(TestUpdateSupplementDecider, supplementOnlyAfterProductUpdate) // NOLINT
+TEST_F(TestUpdateSupplementDecider, supplementOnlyAfterProductUpdate)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -90,7 +90,7 @@ TEST_F(TestUpdateSupplementDecider, supplementOnlyAfterProductUpdate) // NOLINT
     EXPECT_FALSE(foo.updateProducts());
 }
 
-TEST_F(TestUpdateSupplementDecider, productUpdateIfAWeekHasPassed) // NOLINT
+TEST_F(TestUpdateSupplementDecider, productUpdateIfAWeekHasPassed)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -109,7 +109,7 @@ TEST_F(TestUpdateSupplementDecider, productUpdateIfAWeekHasPassed) // NOLINT
 }
 
 
-TEST_F(TestUpdateSupplementDecider, productUpdateIfAnHourHasPassed) // NOLINT
+TEST_F(TestUpdateSupplementDecider, productUpdateIfAnHourHasPassed)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -133,7 +133,7 @@ TEST_F(TestUpdateSupplementDecider, productUpdateIfAnHourHasPassed) // NOLINT
 }
 
 
-TEST_F(TestUpdateSupplementDecider, productUpdateIfAMinuteHasPassed) // NOLINT
+TEST_F(TestUpdateSupplementDecider, productUpdateIfAMinuteHasPassed)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -156,7 +156,7 @@ TEST_F(TestUpdateSupplementDecider, productUpdateIfAMinuteHasPassed) // NOLINT
     EXPECT_TRUE(foo.updateProducts());
 }
 
-TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForTomorrow) // NOLINT
+TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForTomorrow)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -179,7 +179,7 @@ TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForTomorrow) 
 }
 
 
-TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextHour) // NOLINT
+TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextHour)
 {
     time_t nowTime = ::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -208,7 +208,7 @@ TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextHour) 
     EXPECT_FALSE(foo.updateProducts());
 }
 
-TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextMinute) // NOLINT
+TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextMinute)
 {
     time_t nowTime = ::time(nullptr);
     time_t scheduleTime = nowTime+SecondsInMin;
@@ -231,7 +231,7 @@ TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextMinute
     EXPECT_FALSE(foo.updateProducts());
 }
 
-TEST_F(TestUpdateSupplementDecider, ProdcutUpdateIfpassIntrueForUpdateNow) // NOLINT
+TEST_F(TestUpdateSupplementDecider, ProdcutUpdateIfpassIntrueForUpdateNow)
 {
     time_t nowTime = ::time(nullptr);
     time_t scheduleTime = nowTime+SecondsInMin;

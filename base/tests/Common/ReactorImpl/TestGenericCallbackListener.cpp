@@ -30,7 +30,7 @@ void pureCallBackFunction(data_t /*data*/)
     callbackCalled = 1;
 }
 
-TEST_F(TestGenericCallbackListener, callbackAsPureFunction) // NOLINT
+TEST_F(TestGenericCallbackListener, callbackAsPureFunction)
 {
     data_t data = { "arg1", "arg2" };
     callbackCalled = 0;
@@ -39,7 +39,7 @@ TEST_F(TestGenericCallbackListener, callbackAsPureFunction) // NOLINT
     ASSERT_EQ(callbackCalled, 1);
 }
 
-TEST_F(TestGenericCallbackListener, callbackAsClassMethod) // NOLINT
+TEST_F(TestGenericCallbackListener, callbackAsClassMethod)
 {
     m_callbackData.clear();
     data_t data = { "arg1", "arg2" };
@@ -49,7 +49,7 @@ TEST_F(TestGenericCallbackListener, callbackAsClassMethod) // NOLINT
     ASSERT_EQ(m_callbackData, data);
 }
 
-TEST_F(TestGenericCallbackListener, callbackAsNullptr) // NOLINT
+TEST_F(TestGenericCallbackListener, callbackAsNullptr)
 {
     GenericCallbackListener listener(nullptr);
     data_t data = { "arg1", "arg2" };

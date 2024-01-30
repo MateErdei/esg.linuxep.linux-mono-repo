@@ -8,7 +8,7 @@
 namespace fs = sophos_filesystem;
 using namespace common;
 
-TEST(TestPathUtils, TestAppendForwardSlashToPath) // NOLINT
+TEST(TestPathUtils, TestAppendForwardSlashToPath)
 {
     fs::path pathWithNoSlash("/path/with/no/slash");
     fs::path pathWithSlash("/path/with/slash/");
@@ -16,7 +16,7 @@ TEST(TestPathUtils, TestAppendForwardSlashToPath) // NOLINT
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
 }
 
-TEST(TestPathUtils, TestAppendForwardSlashToPathWithEscapeCharacters) // NOLINT
+TEST(TestPathUtils, TestAppendForwardSlashToPathWithEscapeCharacters)
 {
     fs::path pathWithNoSlash("\1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \a \b \t \n \v \f \r");
     fs::path pathWithSlash("\1 \2 \3 \4 \5 \6 \016 \017 \020 \021 \022 \023 \024 \025 \026 \027 \030 \031 \032 \033 \034 \035 \036 \037 \177 \a \b \t \n \v \f \r/");
@@ -25,7 +25,7 @@ TEST(TestPathUtils, TestAppendForwardSlashToPathWithEscapeCharacters) // NOLINT
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
 }
 
-TEST(TestPathUtils, TestAppendForwardSlashToPathExtendedUnicodeCharacters) // NOLINT
+TEST(TestPathUtils, TestAppendForwardSlashToPathExtendedUnicodeCharacters)
 {
     fs::path pathWithNoSlash("大夨天太夫");
     fs::path pathWithSlash("大夨天太夫/");
@@ -34,7 +34,7 @@ TEST(TestPathUtils, TestAppendForwardSlashToPathExtendedUnicodeCharacters) // NO
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
 }
 
-TEST(TestPathUtils, TestLexicalNormalisation) // NOLINT
+TEST(TestPathUtils, TestLexicalNormalisation)
 {
     EXPECT_EQ(PathUtils::lexicallyNormal(".."), "");
     EXPECT_EQ(PathUtils::lexicallyNormal("/.."), "/");
@@ -56,13 +56,13 @@ TEST(TestPathUtils, TestLexicalNormalisation) // NOLINT
     EXPECT_EQ(PathUtils::lexicallyNormal("a/b/../b/./c/."), "a/b/c/");
 }
 
-TEST(TestPathUtils, TestRemovingTrailingDotFromPath) // NOLINT
+TEST(TestPathUtils, TestRemovingTrailingDotFromPath)
 {
     EXPECT_EQ(PathUtils::removeTrailingDotsFromPath("/a/b/c/"), "/a/b/c/");
     EXPECT_EQ(PathUtils::removeTrailingDotsFromPath("/a/b/c/."), "/a/b/c/");
 }
 
-TEST(TestPathUtils, TestIsNonNormalisedPath) // NOLINT
+TEST(TestPathUtils, TestIsNonNormalisedPath)
 {
     EXPECT_TRUE(PathUtils::isNonNormalisedPath("a//b"));
     EXPECT_TRUE(PathUtils::isNonNormalisedPath("."));

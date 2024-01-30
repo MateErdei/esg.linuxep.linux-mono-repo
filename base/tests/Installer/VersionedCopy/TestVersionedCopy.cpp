@@ -40,7 +40,7 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST_F(TestVersionedCopy, FirstInstall) // NOLINT
+    TEST_F(TestVersionedCopy, FirstInstall)
     {
         Tests::TempDir tempdir("", "TestVersionedCopy_FirstInstall");
         const Path filename = "distribution/files/a/b";
@@ -64,7 +64,7 @@ namespace
         EXPECT_EQ(contents, "FirstInstall");
     }
 
-    TEST_F(TestVersionedCopy, LibraryLinks) // NOLINT
+    TEST_F(TestVersionedCopy, LibraryLinks)
     {
         Tests::TempDir tempdir("", "TestVersionedCopy_LibraryLinks");
         const Path rel_filename = "a/libabc.so.1.4.5";
@@ -88,7 +88,7 @@ namespace
         ASSERT_FALSE(tempdir.exists("installation/a/libabc")); // Don't continue past .so
     }
 
-    TEST_F(TestVersionedCopy, Upgrade) // NOLINT
+    TEST_F(TestVersionedCopy, Upgrade)
     {
         Tests::TempDir tempdir("", "TestVersionedCopy_Upgrade");
 
@@ -118,7 +118,7 @@ namespace
         ASSERT_FALSE(tempdir.exists(dest0));
     }
 
-    TEST_F(TestVersionedCopy, SecondUpgrade) // NOLINT
+    TEST_F(TestVersionedCopy, SecondUpgrade)
     {
         Tests::TempDir tempdir("", "TestVersionedCopy_SecondUpgrade");
 
@@ -172,43 +172,43 @@ namespace
      */
     int getDigitFromEnd(const std::string& s) { return VersionedCopy::getDigitFromEnd(s); }
 
-    TEST(TestGetDigitFromEnd, Empty) // NOLINT
+    TEST(TestGetDigitFromEnd, Empty)
     {
         int ret = getDigitFromEnd("");
         EXPECT_EQ(ret, -1);
     }
 
-    TEST(TestGetDigitFromEnd, NoNumber) // NOLINT
+    TEST(TestGetDigitFromEnd, NoNumber)
     {
         int ret = getDigitFromEnd("ABC");
         EXPECT_EQ(ret, -1);
     }
 
-    TEST(TestGetDigitFromEnd, Foo0) // NOLINT
+    TEST(TestGetDigitFromEnd, Foo0)
     {
         int ret = getDigitFromEnd("Foo.0");
         EXPECT_EQ(ret, 0);
     }
 
-    TEST(TestGetDigitFromEnd, Foo1) // NOLINT
+    TEST(TestGetDigitFromEnd, Foo1)
     {
         int ret = getDigitFromEnd("Foo.1");
         EXPECT_EQ(ret, 1);
     }
 
-    TEST(TestGetDigitFromEnd, Foo14) // NOLINT
+    TEST(TestGetDigitFromEnd, Foo14)
     {
         int ret = getDigitFromEnd("Foo.14");
         EXPECT_EQ(ret, 14);
     }
 
-    TEST(TestGetDigitFromEnd, Just0) // NOLINT
+    TEST(TestGetDigitFromEnd, Just0)
     {
         int ret = getDigitFromEnd("0");
         EXPECT_EQ(ret, 0);
     }
 
-    TEST(TestGetDigitFromEnd, Just14) // NOLINT
+    TEST(TestGetDigitFromEnd, Just14)
     {
         int ret = getDigitFromEnd("14");
         EXPECT_EQ(ret, 14);
@@ -219,7 +219,7 @@ namespace
         return VersionedCopy::same(tempdir.absPath(file1), tempdir.absPath(file2));
     }
 
-    TEST_F(TestSame, BothDontExist) // NOLINT
+    TEST_F(TestSame, BothDontExist)
     {
         Tests::TempDir tempdir("", "TestSame_BothDontExist");
         deleteTree(tempdir, "installation/DoesntExist1");
@@ -228,7 +228,7 @@ namespace
         EXPECT_TRUE(ret);
     }
 
-    TEST_F(TestSame, OneExists) // NOLINT
+    TEST_F(TestSame, OneExists)
     {
         Tests::TempDir tempdir("", "TestSame_OneExists");
         deleteTree(tempdir, "installation/1");
@@ -238,7 +238,7 @@ namespace
         EXPECT_FALSE(ret);
     }
 
-    TEST_F(TestSame, TwoDifferentLength) // NOLINT
+    TEST_F(TestSame, TwoDifferentLength)
     {
         Tests::TempDir tempdir("", "TestSame_TwoDifferentLength");
         tempdir.createFile("installation/1", "FOOBAR");
@@ -248,7 +248,7 @@ namespace
         EXPECT_FALSE(ret);
     }
 
-    TEST_F(TestSame, TwoDifferentContents) // NOLINT
+    TEST_F(TestSame, TwoDifferentContents)
     {
         Tests::TempDir tempdir("", "TestSame_TwoDifferentContents");
         tempdir.createFile("installation/1", "BAR");
@@ -258,7 +258,7 @@ namespace
         EXPECT_FALSE(ret);
     }
 
-    TEST_F(TestSame, TwoSame) // NOLINT
+    TEST_F(TestSame, TwoSame)
     {
         Tests::TempDir tempdir("", "TestSame_TwoSame");
         tempdir.createFile("installation/1", "FOO");

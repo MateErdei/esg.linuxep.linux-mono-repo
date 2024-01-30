@@ -31,7 +31,7 @@ private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles) // NOLINT
+TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles)
 {
     std::string filePath = "/tmp/base/policy"; //"/opt/sophos-sspl/base/policy"
     std::string filename = "appId1-unknown.txt";

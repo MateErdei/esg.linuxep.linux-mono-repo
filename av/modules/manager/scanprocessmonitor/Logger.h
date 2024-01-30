@@ -9,8 +9,8 @@ namespace plugin::manager::scanprocessmonitor
     log4cplus::Logger& getScanProcessMonitorLogger();
 }
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getScanProcessMonitorLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getScanProcessMonitorLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getScanProcessMonitorLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getScanProcessMonitorLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getScanProcessMonitorLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getScanProcessMonitorLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getScanProcessMonitorLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getScanProcessMonitorLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getScanProcessMonitorLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getScanProcessMonitorLogger(), x)

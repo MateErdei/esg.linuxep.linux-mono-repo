@@ -34,7 +34,7 @@ private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
+TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun)
 {
     EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "SAV_action_11.xml", "")).WillOnce(Return(1));
 
@@ -48,7 +48,7 @@ TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
 
 }
 
-TEST_F(ActionTaskTests, ActionTaskHandlesNameWithoutHyphen) // NOLINT
+TEST_F(ActionTaskTests, ActionTaskHandlesNameWithoutHyphen)
 {
     EXPECT_CALL(m_mockPluginManager, queueAction(_, _, _)).Times(0);
 
@@ -57,7 +57,7 @@ TEST_F(ActionTaskTests, ActionTaskHandlesNameWithoutHyphen) // NOLINT
     task.run();
 }
 
-TEST_F(ActionTaskTests, ActionTaskHandlesNameWithSingleUnderscore) // NOLINT
+TEST_F(ActionTaskTests, ActionTaskHandlesNameWithSingleUnderscore)
 {
     EXPECT_CALL(m_mockPluginManager, queueAction(_, _, _)).Times(0);
 
@@ -66,7 +66,7 @@ TEST_F(ActionTaskTests, ActionTaskHandlesNameWithSingleUnderscore) // NOLINT
     task.run();
 }
 
-TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin) // NOLINT
+TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin)
 {
     EXPECT_CALL(m_mockPluginManager, queueAction("LiveQuery", "LiveQuery_correlation-id_request_2013-05-02T09:50:08Z_1591790400.json", "correlation-id")).WillOnce(Return(1));
 
@@ -82,7 +82,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWillBeForwardedToPlugin) // NOLINT
     task.run();
 }
 
-TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged) // NOLINT
+TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged)
 {
 
     testing::internal::CaptureStderr();
@@ -106,7 +106,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutAppIdWillBeDiscardedAndErrorLogged)
     EXPECT_THAT(logMessage, ::testing::HasSubstr("invalid"));
 }
 
-TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErrorLogged) // NOLINT
+TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErrorLogged)
 {
 
     testing::internal::CaptureStderr();
@@ -130,7 +130,7 @@ TEST_F(ActionTaskTests, LiveQueryFilesWithoutCorrelationIdWillBeDiscardedAndErro
     EXPECT_THAT(logMessage, ::testing::HasSubstr("invalid"));
 }
 
-TEST_F(ActionTaskTests, LiveQueryFilesWithInvalidConventionNameWillBeDiscarded) // NOLINT
+TEST_F(ActionTaskTests, LiveQueryFilesWithInvalidConventionNameWillBeDiscarded)
 {
 
     testing::internal::CaptureStderr();
@@ -348,7 +348,7 @@ TEST_F(ActionTaskTests, testIsAliveWithBadArgumentThrows)
                   ManagementAgent::McsRouterPluginCommunicationImpl::FailedToConvertTtlException);
 }
 
-TEST_F(ActionTaskTests, TestGarbageTTLIsHandledWithLogging) // NOLINT
+TEST_F(ActionTaskTests, TestGarbageTTLIsHandledWithLogging)
 {
 
     testing::internal::CaptureStderr();

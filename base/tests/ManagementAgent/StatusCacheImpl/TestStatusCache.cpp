@@ -38,12 +38,12 @@ private:
 
 };
 
-TEST_F(TestStatusCache, testConstruction) // NOLINT
+TEST_F(TestStatusCache, testConstruction)
 {
-    EXPECT_NO_THROW(ManagementAgent::StatusCacheImpl::StatusCache cache); // NOLINT
+    EXPECT_NO_THROW(ManagementAgent::StatusCacheImpl::StatusCache cache);
 }
 
-TEST_F(TestStatusCache, canAddFirstStatus) // NOLINT
+TEST_F(TestStatusCache, canAddFirstStatus)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
     std::string appId("F"), contents("A");
@@ -54,7 +54,7 @@ TEST_F(TestStatusCache, canAddFirstStatus) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted) // NOLINT
+TEST_F(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
@@ -73,7 +73,7 @@ TEST_F(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted) // NOLIN
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted) // NOLINT
+TEST_F(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
@@ -90,7 +90,7 @@ TEST_F(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, checkSameStatusSameAppIdIsRejected) // NOLINT
+TEST_F(TestStatusCache, checkSameStatusSameAppIdIsRejected)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
@@ -105,7 +105,7 @@ TEST_F(TestStatusCache, checkSameStatusSameAppIdIsRejected) // NOLINT
     EXPECT_FALSE(v); // Don't send repeated statuses
 }
 
-TEST_F(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
+TEST_F(TestStatusCache, checkEmptyStatusIsAccepted)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
@@ -118,7 +118,7 @@ TEST_F(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
+TEST_F(TestStatusCache, checkEmptyAppIDIsAccepted)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
@@ -131,16 +131,16 @@ TEST_F(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, loadStatusCache_WithEmptyCacheDoesNotThrow) // NOLINT
+TEST_F(TestStatusCache, loadStatusCache_WithEmptyCacheDoesNotThrow)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     std::vector<std::string> fileNames;
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_statusCachePath)).WillOnce(Return(fileNames));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
+    EXPECT_NO_THROW(cache.loadCacheFromDisk());
 }
 
-TEST_F(TestStatusCache, loadStatusCache_WithOneCachedFileLoadsSuccessfully) // NOLINT
+TEST_F(TestStatusCache, loadStatusCache_WithOneCachedFileLoadsSuccessfully)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
     std::string appId("APPID");
@@ -149,12 +149,12 @@ TEST_F(TestStatusCache, loadStatusCache_WithOneCachedFileLoadsSuccessfully) // N
     std::vector<std::string> fileNames = { fullPath };
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_statusCachePath)).WillOnce(Return(fileNames));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath)).WillOnce(Return(contents));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
+    EXPECT_NO_THROW(cache.loadCacheFromDisk());
     bool v = cache.statusChanged(appId, contents);
     EXPECT_FALSE(v);
 }
 
-TEST_F(TestStatusCache, loadStatusCache_WithMultipleCachedFileLoadsSuccessfully) // NOLINT
+TEST_F(TestStatusCache, loadStatusCache_WithMultipleCachedFileLoadsSuccessfully)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
     std::string appId("APPID"), contents("StatusWithoutTimeStamp");
@@ -169,7 +169,7 @@ TEST_F(TestStatusCache, loadStatusCache_WithMultipleCachedFileLoadsSuccessfully)
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath2)).WillOnce(Return(contents));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath3)).WillOnce(Return(contents));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath4)).WillOnce(Return(contents));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
+    EXPECT_NO_THROW(cache.loadCacheFromDisk());
 
     EXPECT_FALSE(cache.statusChanged(appId + "1", contents));
     EXPECT_FALSE(cache.statusChanged(appId + "2", contents));
@@ -180,7 +180,7 @@ TEST_F(TestStatusCache, loadStatusCache_WithMultipleCachedFileLoadsSuccessfully)
     EXPECT_TRUE(cache.statusChanged(appId + "5", contents));
 }
 
-TEST_F(TestStatusCache, loadStatusCache_CanAppendNewAppIDStatusToCacheAfterFileLoadsSuccessfully) // NOLINT
+TEST_F(TestStatusCache, loadStatusCache_CanAppendNewAppIDStatusToCacheAfterFileLoadsSuccessfully)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
     std::string appId1("APPID"), appId2("APPID2"), contents("StatusWithoutTimeStamp");
@@ -189,14 +189,14 @@ TEST_F(TestStatusCache, loadStatusCache_CanAppendNewAppIDStatusToCacheAfterFileL
     std::vector<std::string> fileNames = { fullPath1 };
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_statusCachePath)).WillOnce(Return(fileNames));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath1)).WillOnce(Return(contents));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
+    EXPECT_NO_THROW(cache.loadCacheFromDisk());
     EXPECT_CALL(*m_mockFileSystem, exists(fullPath2)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, writeFile(fullPath2, contents));
     bool v = cache.statusChanged(appId2, contents);
     EXPECT_TRUE(v);
 }
 
-TEST_F(TestStatusCache, loadStatusCache_CanUpdateAppIDWithNewStatusToCacheAfterFileLoadsSuccessfully) // NOLINT
+TEST_F(TestStatusCache, loadStatusCache_CanUpdateAppIDWithNewStatusToCacheAfterFileLoadsSuccessfully)
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
     std::string appId("APPID"), contents1("StatusWithoutTimeStamp1"), contents2("StatusWithoutTimeStamp2");
@@ -204,7 +204,7 @@ TEST_F(TestStatusCache, loadStatusCache_CanUpdateAppIDWithNewStatusToCacheAfterF
     std::vector<std::string> fileNames = { fullPath };
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_statusCachePath)).WillOnce(Return(fileNames));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath)).WillOnce(Return(contents1));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
+    EXPECT_NO_THROW(cache.loadCacheFromDisk());
     EXPECT_CALL(*m_mockFileSystem, exists(fullPath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, writeFile(fullPath, contents2));
     bool v = cache.statusChanged(appId, contents2);

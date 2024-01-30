@@ -9,7 +9,7 @@
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 
 
-TEST(TestConfigOptions, testConfigOptionsWrittenCorrectly) // NOLINT
+TEST(TestConfigOptions, testConfigOptionsWrittenCorrectly)
 {
     auto *mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);

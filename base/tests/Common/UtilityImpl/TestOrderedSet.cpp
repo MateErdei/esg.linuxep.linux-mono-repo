@@ -5,7 +5,7 @@
 
 using namespace Common::UtilityImpl;
 
-TEST(OrderedSet, shouldKeepTheOrderAndReturnOnlyUniqueValues) // NOLINT
+TEST(OrderedSet, shouldKeepTheOrderAndReturnOnlyUniqueValues)
 {
     std::vector<int> inputEntries = { 1, 1, 2, 1, 3, 2, 3, 2, 1, 4 };
     OrderedSet<int> orderedSet;
@@ -44,7 +44,7 @@ namespace std
     };
 } // namespace std
 
-TEST(OrderedSet, canBeAppliedToCustomStruct) // NOLINT
+TEST(OrderedSet, canBeAppliedToCustomStruct)
 {
     std::vector<ExampleOfUserProvidedStruct> inputEntries = { { "a", "b" }, { "b", "c" }, { "a", "b" } };
     OrderedSet<ExampleOfUserProvidedStruct> orderedSet;

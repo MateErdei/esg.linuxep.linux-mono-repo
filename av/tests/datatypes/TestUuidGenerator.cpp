@@ -12,7 +12,7 @@ namespace
     };
 } // namespace
 
-TEST_F(TestUuidGenerator, hasCorrectFormat) // NOLINT
+TEST_F(TestUuidGenerator, hasCorrectFormat)
 {
     datatypes::UuidGeneratorImpl uuidGenerator;
     ASSERT_THAT(
@@ -20,7 +20,7 @@ TEST_F(TestUuidGenerator, hasCorrectFormat) // NOLINT
         ::testing::MatchesRegex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
 }
 
-TEST_F(TestUuidGenerator, returnsUniqueUuid) // NOLINT
+TEST_F(TestUuidGenerator, returnsUniqueUuid)
 {
     datatypes::UuidGeneratorImpl uuidGenerator;
     // This could technically fail by accident, but the odds are pretty astronomically small.

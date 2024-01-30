@@ -7,17 +7,17 @@
 
 using namespace Common::Threads;
 
-TEST(TestNotifyPipe, newPipeIsNotNotified) // NOLINT
+TEST(TestNotifyPipe, newPipeIsNotNotified)
 {
-    TESTPROGRESS("testNewPipeIsNotNotified()"); // NOLINT
+    TESTPROGRESS("testNewPipeIsNotNotified()");
     NotifyPipe pipe;
 
     ASSERT_FALSE(pipe.notified());
 }
 
-TEST(TestNotifyPipe, singleNotifiedPipeIsNotifiedOnlyOnce) // NOLINT
+TEST(TestNotifyPipe, singleNotifiedPipeIsNotifiedOnlyOnce)
 {
-    TESTPROGRESS("testSingleNotifiedPipeIsNotifiedOnlyOnce()"); // NOLINT
+    TESTPROGRESS("testSingleNotifiedPipeIsNotifiedOnlyOnce()");
     NotifyPipe pipe;
 
     pipe.notify();
@@ -26,9 +26,9 @@ TEST(TestNotifyPipe, singleNotifiedPipeIsNotifiedOnlyOnce) // NOLINT
     ASSERT_FALSE(pipe.notified());
 }
 
-TEST(TestNotifyPipe, doubleNotifiedPipeIsDoubleNotified) // NOLINT
+TEST(TestNotifyPipe, doubleNotifiedPipeIsDoubleNotified)
 {
-    TESTPROGRESS("testDoubleNotifiedPipeIsDoubleNotified()"); // NOLINT
+    TESTPROGRESS("testDoubleNotifiedPipeIsDoubleNotified()");
     NotifyPipe pipe;
 
     pipe.notify();
@@ -39,9 +39,9 @@ TEST(TestNotifyPipe, doubleNotifiedPipeIsDoubleNotified) // NOLINT
     ASSERT_FALSE(pipe.notified());
 }
 
-TEST(TestNotifyPipe, weCanGetDescriptors) // NOLINT
+TEST(TestNotifyPipe, weCanGetDescriptors)
 {
-    TESTPROGRESS("testWeCanGetDescriptors()"); // NOLINT
+    TESTPROGRESS("testWeCanGetDescriptors()");
     NotifyPipe pipe;
 
     ASSERT_NE(pipe.readFd(), -1);

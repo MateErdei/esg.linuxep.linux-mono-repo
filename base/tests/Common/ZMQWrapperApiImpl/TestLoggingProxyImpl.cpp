@@ -60,7 +60,7 @@ using namespace Common::ZeroMQWrapper;
 
 class TestLoggingProxyImpl : public ::testing::Test
 {
-    std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_consoleLogging; // NOLINT
+    std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_consoleLogging;
 
 public:
     void SetUp() override
@@ -77,7 +77,7 @@ public:
     }
 };
 
-TEST_F(TestLoggingProxyImpl, Creation) // NOLINT
+TEST_F(TestLoggingProxyImpl, Creation)
 {
     testing::internal::CaptureStderr();
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
@@ -88,7 +88,7 @@ TEST_F(TestLoggingProxyImpl, Creation) // NOLINT
     ASSERT_EQ(logMessage, "");
 }
 
-TEST_F(TestLoggingProxyImpl, StartStop) // NOLINT
+TEST_F(TestLoggingProxyImpl, StartStop)
 {
     testing::internal::CaptureStderr();
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
@@ -231,7 +231,7 @@ TEST_F(TestLoggingProxyImpl, PassMessage)
     EXPECT_EQ(countOccurancesInString(logMessage, "TERMINATE"), 1);
 }
 
-TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
+TEST_F(TestLoggingProxyImpl, TwoSubscribers)
 {
     testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses
@@ -301,7 +301,7 @@ TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
     EXPECT_EQ(countOccurancesInString(logMessage, "TERMINATE"), 1);
 }
 
-TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
+TEST_F(TestLoggingProxyImpl, TwoSenders)
 {
     testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses

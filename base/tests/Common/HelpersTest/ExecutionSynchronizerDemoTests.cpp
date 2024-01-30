@@ -11,7 +11,7 @@ namespace
     using namespace Tests;
 
     // cppcheck-suppress syntaxError
-    TEST(TestExecutionSynchronizer, synchronizes2threads) // NOLINT
+    TEST(TestExecutionSynchronizer, synchronizes2threads)
     {
         ReentrantExecutionSynchronizer barrier;
         std::atomic<int> value{ 0 };

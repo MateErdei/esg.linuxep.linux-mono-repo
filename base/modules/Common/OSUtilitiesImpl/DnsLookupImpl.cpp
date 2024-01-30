@@ -32,7 +32,7 @@ namespace
 
     IPs ipResolution(const std::string& uri, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper)
     {
-        struct addrinfo hints; // NOLINT
+        struct addrinfo hints;
         struct addrinfo* ifa;
         std::memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
@@ -56,12 +56,12 @@ namespace
 
             if (family == AF_INET)
             {
-                struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(ifa->ai_addr); // NOLINT
+                struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(ifa->ai_addr);
                 ips.ip4collection.emplace_back(ipSockAddr);
             }
             else if (family == AF_INET6)
             {
-                struct sockaddr_in6* ipSockAddr = reinterpret_cast<struct sockaddr_in6*>(ifa->ai_addr); // NOLINT
+                struct sockaddr_in6* ipSockAddr = reinterpret_cast<struct sockaddr_in6*>(ifa->ai_addr);
                 ips.ip6collection.emplace_back(ipSockAddr);
             }
         }

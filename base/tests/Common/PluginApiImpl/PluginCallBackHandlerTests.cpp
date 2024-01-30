@@ -51,7 +51,7 @@ public:
     }
 };
 
-TEST_F(PluginCallBackHandlerTests, pluginCallbackHandlerSavesTelemetryOnExit) // NOLINT
+TEST_F(PluginCallBackHandlerTests, pluginCallbackHandlerSavesTelemetryOnExit)
 {
     testing::internal::CaptureStderr();
 
@@ -77,7 +77,7 @@ TEST_F(PluginCallBackHandlerTests, pluginCallbackHandlerSavesTelemetryOnExit) //
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Saving plugin telemetry before shutdown"));
 }
 
-TEST_F(PluginCallBackHandlerTests, GetContentFromPayloadRetriesOnFailure) // NOLINT
+TEST_F(PluginCallBackHandlerTests, GetContentFromPayloadRetriesOnFailure)
 {
     testing::internal::CaptureStderr();
     auto filesystemMock = new StrictMock<MockFileSystem>();
@@ -96,7 +96,7 @@ TEST_F(PluginCallBackHandlerTests, GetContentFromPayloadRetriesOnFailure) // NOL
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to read MCS file " + payload + ", will retry"));
 }
 
-TEST_F(PluginCallBackHandlerTests, GetContentFromPayloadRetriesOnFailureButEventuallyThrows) // NOLINT
+TEST_F(PluginCallBackHandlerTests, GetContentFromPayloadRetriesOnFailureButEventuallyThrows)
 {
     testing::internal::CaptureStderr();
     auto filesystemMock = new StrictMock<MockFileSystem>();

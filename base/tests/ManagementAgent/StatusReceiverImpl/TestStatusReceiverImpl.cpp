@@ -14,18 +14,18 @@ class TestStatusReceiverImpl : public ::testing::Test
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestStatusReceiverImpl, Construction) // NOLINT
+TEST_F(TestStatusReceiverImpl, Construction)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
 
-    EXPECT_NO_THROW // NOLINT
+    EXPECT_NO_THROW
         (std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache =
              // cppcheck-suppress unknownMacro
              std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
          ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue, statusCache));
 }
 
-TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) // NOLINT
+TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache =
@@ -36,7 +36,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) // NOLINT
     EXPECT_NE(task.get(), nullptr);
 }
 
-TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile) // NOLINT
+TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile)
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache =

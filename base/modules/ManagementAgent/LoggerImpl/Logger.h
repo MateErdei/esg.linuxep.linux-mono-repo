@@ -6,9 +6,9 @@
 
 log4cplus::Logger& getManagementAgentLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getManagementAgentLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getManagementAgentLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getManagementAgentLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getManagementAgentLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getManagementAgentLogger(), x)     // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getManagementAgentLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getManagementAgentLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getManagementAgentLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getManagementAgentLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getManagementAgentLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getManagementAgentLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getManagementAgentLogger(), x)

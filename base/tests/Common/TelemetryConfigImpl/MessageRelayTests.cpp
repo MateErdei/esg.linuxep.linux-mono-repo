@@ -25,19 +25,19 @@ public:
     }
 };
 
-TEST_F(MessageRelayTests, proxyEqualitySameObject) // NOLINT
+TEST_F(MessageRelayTests, proxyEqualitySameObject)
 {
     ASSERT_EQ(m_messageRelay, m_messageRelay);
 }
 
-TEST_F(MessageRelayTests, proxyEqualityDiffObject) // NOLINT
+TEST_F(MessageRelayTests, proxyEqualityDiffObject)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
     ASSERT_EQ(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyNotEqualPort) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualPort)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -45,7 +45,7 @@ TEST_F(MessageRelayTests, proxyNotEqualPort) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyNotEqualUrl) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualUrl)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -53,7 +53,7 @@ TEST_F(MessageRelayTests, proxyNotEqualUrl) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyNotEqualAuth) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualAuth)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -61,7 +61,7 @@ TEST_F(MessageRelayTests, proxyNotEqualAuth) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyNotEqualUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualUsername)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -69,7 +69,7 @@ TEST_F(MessageRelayTests, proxyNotEqualUsername) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyNotEqualPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualPassword)
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -77,19 +77,19 @@ TEST_F(MessageRelayTests, proxyNotEqualPassword) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(MessageRelayTests, proxyValid) // NOLINT
+TEST_F(MessageRelayTests, proxyValid)
 {
     ASSERT_TRUE(m_messageRelay.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidPort) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidPort)
 {
     MessageRelay p = m_messageRelay;
     p.setPort(5000000);
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithUsername)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -98,7 +98,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithPassword)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -107,7 +107,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutUsername)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -116,7 +116,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutPassword)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -125,7 +125,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutUsername)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -134,7 +134,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutPassword)
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -143,7 +143,7 @@ TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST(MessageRelayTest, messageRelayEquality) // NOLINT
+TEST(MessageRelayTest, messageRelayEquality)
 {
     MessageRelay a;
     MessageRelay b;

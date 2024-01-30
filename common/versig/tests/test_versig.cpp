@@ -138,7 +138,7 @@ namespace
         destination = destination + "/data_files/data_spaces/tbp 2.txt" ;
         std::rename(source.c_str(), destination.c_str());
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT(bugprone-suspicious-missing-comma)
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
                                         "-f" TESTS "/data_files/manifest.dat.spaces",
                                         "-d" TESTS "/data_files/data_spaces",
                                         "--allow-sha1-signature" };
@@ -149,7 +149,7 @@ namespace
     TEST(versig_test, DISABLED_no_sha256)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
                                         "-f" TESTS "/data_files/manifest.dat.nosha256",
                                         "-d" TESTS "/data_files/data_good",
                                         "--no-require-sha256",
@@ -161,7 +161,7 @@ namespace
     TEST(versig_test, DISABLED_no_sha256_but_required)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
                                         "-f" TESTS "/data_files/manifest.dat.nosha256",
                                         "-d" TESTS "/data_files/data_good",
                                         "--require-sha256",
@@ -173,7 +173,7 @@ namespace
     TEST(versig_test, DISABLED_really_long_comment)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
                                         "-f" TESTS "/data_files/manifest.dat.reallyLongComment",
                                         "-d" TESTS "/data_files/data_good",
                                         "--allow-sha1-signature" };
@@ -184,7 +184,7 @@ namespace
     TEST(versig_test, DISABLED_badSHA256)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
+                                        "-c" TESTS "/cert_files/rootca.crt.valid",
                                         "-f" TESTS "/data_files/manifest.dat.badSHA256",
                                         "-d" TESTS "/data_files/data_good",
                                         "--allow-sha1-signature" };
@@ -196,7 +196,7 @@ namespace
     TEST(versig_test, wrong_root_ca)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/empty_valid/rootca.crt", // NOLINT
+                                        "-c" TESTS "/cert_files/empty_valid/rootca.crt",
                                         "-f" TESTS "/data_files/manifest.dat.valid",
                                          "--silent-off",
                                         "--allow-sha1-signature"};

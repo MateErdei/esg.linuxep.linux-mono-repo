@@ -20,8 +20,8 @@ namespace Plugin
         };
         TaskType taskType;
         std::string Content;
-        std::string correlationId=""; // NOLINT - needs ="" to avoid struct uninitialised
-        std::string appId=""; // NOLINT - needs ="" to avoid struct uninitialised
+        std::string correlationId="";
+        std::string appId="";
     };
 
     class TaskQueue

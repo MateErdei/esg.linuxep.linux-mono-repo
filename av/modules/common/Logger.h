@@ -4,7 +4,7 @@
 
 #ifdef USING_LIBFUZZER
 
-#define LOG(x) do {} while(0) // NOLINT
+#define LOG(x) do {} while(0)
 
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
@@ -24,12 +24,12 @@
 
 log4cplus::Logger& getCommonLogger();
 
-#define LOGTRACE(x) LOG4CPLUS_TRACE(getCommonLogger(), x)  // NOLINT
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getCommonLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getCommonLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getCommonLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getCommonLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getCommonLogger(), x)  // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getCommonLogger(), x)  // NOLINT
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getCommonLogger(), x)
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getCommonLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getCommonLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getCommonLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getCommonLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getCommonLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getCommonLogger(), x)
 
 #endif

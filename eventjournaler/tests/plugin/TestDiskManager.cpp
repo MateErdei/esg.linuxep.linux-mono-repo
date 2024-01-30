@@ -25,7 +25,7 @@ class DiskManagerTest : public LogInitializedTests
 };
 
 
-TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles) // NOLINT
+TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles)
 {
     Tests::TempDir tempDir;
     tempDir.makeDirs("Root/producer/subdir");
@@ -44,7 +44,7 @@ TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles) // NOLINT
     EXPECT_EQ(fileList.size(), 1);
 }
 
-TEST_F(DiskManagerTest, weCanSortJournalFiles) // NOLINT
+TEST_F(DiskManagerTest, weCanSortJournalFiles)
 {
     // subject-uniquiId1-uniID2-timestanp-timestamp.xz
 

@@ -10,7 +10,7 @@ using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
 class TestProductMetadata: public LogOffInitializedTests{};
-TEST_F(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
+TEST_F(TestProductMetadata, extractSulComponentsWorkForEmptyComponent)
 {
     auto subComponents = ProductMetadata::extractSubProductsFromSulSubComponents("", {});
     EXPECT_TRUE(subComponents.empty());

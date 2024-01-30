@@ -23,7 +23,7 @@ namespace
     };
 }
 
-TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot) // NOLINT
+TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot)
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
@@ -72,7 +72,7 @@ TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot) // NOLINT
 }
 
 
-TEST_F(TestFileWalkerRecursion, hugeStartingFilePath) // NOLINT
+TEST_F(TestFileWalkerRecursion, hugeStartingFilePath)
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("TestHugePathFileWalker");
@@ -133,7 +133,7 @@ TEST_F(TestFileWalkerRecursion, hugeStartingFilePath) // NOLINT
 }
 
 
-TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot) // NOLINT
+TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -174,7 +174,7 @@ TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot) // NOLINT
     fs::remove_all("deep_path");
 }
 
-TEST_F(TestFileWalkerRecursion, cannotIterate) // NOLINT
+TEST_F(TestFileWalkerRecursion, cannotIterate)
 {
     const fs::path& startingPath = fs::current_path();
     fs::create_directories("directory/subdir");

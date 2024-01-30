@@ -172,7 +172,7 @@ protected:
     std::vector<uint8_t> m_eventData;
 };
 
-TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
+TEST_F(TestEventJournalWriter, InsertDetectionsEvent)
 {
     const uint32_t expectedSize = 224;
 
@@ -206,7 +206,7 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     EXPECT_FALSE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, AppendDetectionsEvent) // NOLINT
+TEST_F(TestEventJournalWriter, AppendDetectionsEvent)
 {
     const uint32_t expectedSize = 376;
 
@@ -235,7 +235,7 @@ TEST_F(TestEventJournalWriter, AppendDetectionsEvent) // NOLINT
     EXPECT_FALSE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
+TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows)
 {
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::NumSubjects, m_eventData), std::runtime_error);
 
@@ -243,7 +243,7 @@ TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
         Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
-TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
+TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows)
 {
     m_eventData.pop_back();
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
@@ -252,7 +252,7 @@ TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
         Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
-TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
+TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows)
 {
     std::vector<uint8_t> data(196 * 1024);
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, data), std::runtime_error);
@@ -261,7 +261,7 @@ TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
         Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
-TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNewFile) // NOLINT
+TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNewFile)
 {
     installJournalFile(journal_detections_bin_multiple_active_filename, journal_detections_bin_multiple, sizeof(journal_detections_bin_multiple));
     m_writer.reset(new EventJournal::Writer(m_journalDir->dirPath(), PRODUCER));
@@ -293,7 +293,7 @@ TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNe
     EXPECT_NO_THROW(m_writer->insert(EventJournal::Subject::Detections, data));
 }
 
-TEST_F(TestEventJournalWriter, InsertEventAfterCompressedFileReadsLastProducerID) // NOLINT
+TEST_F(TestEventJournalWriter, InsertEventAfterCompressedFileReadsLastProducerID)
 {
     std::vector<uint8_t> data{ 0xef, 0xbe, 0xad, 0xde };
     installJournalFile(SUBJECT + "-000000000000000a-000000000000000f-132444736000000000-132444736000000000.xz", data.data(), data.size());
@@ -327,7 +327,7 @@ TEST_F(TestEventJournalWriter, InsertEventAfterCompressedFileReadsLastProducerID
     CheckJournalFile(Common::FileSystem::join(directory, activeFilename), 224, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, InsertEventAfterInvalidFile) // NOLINT
+TEST_F(TestEventJournalWriter, InsertEventAfterInvalidFile)
 {
     const uint32_t expectedSize = 224;
 
@@ -345,7 +345,7 @@ TEST_F(TestEventJournalWriter, InsertEventAfterInvalidFile) // NOLINT
     CheckJournalFile(files.front(), expectedSize, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
+TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -356,7 +356,7 @@ TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoDetectionsFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoDetectionsFile)
 {
     installJournalFile(journal_detections_bin_multiple_active_filename, journal_detections_bin_multiple, sizeof(journal_detections_bin_multiple));
 
@@ -378,7 +378,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoDetectionsFile) // NOLINT
     EXPECT_FALSE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoRIFFLengthMismatch) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoRIFFLengthMismatch)
 {
     const uint32_t length = 368;
 
@@ -405,7 +405,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoRIFFLengthMismatch) // NOLINT
     EXPECT_TRUE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoTruncatedFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoTruncatedFile)
 {
     installJournalFile(journal_detections_bin_multiple_active_filename, journal_detections_bin_multiple, sizeof(journal_detections_bin_multiple)-13);
 
@@ -427,7 +427,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoTruncatedFile) // NOLINT
     EXPECT_TRUE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoMissingFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoMissingFile)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto filename = Common::FileSystem::join(directory, "invalid.bin");
@@ -436,7 +436,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoMissingFile) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(filename, info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoEmptyFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoEmptyFile)
 {
     installJournalFile("invalid.bin", nullptr, 0);
 
@@ -448,7 +448,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoEmptyFile) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoInvalidRIFFFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoInvalidRIFFFile)
 {
     std::vector<uint8_t> data{ 0xef, 0xbe, 0xad, 0xde };
     data.resize(22);
@@ -463,7 +463,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoInvalidRIFFFile) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNFile)
 {
     std::vector<uint8_t> data{ 0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0xef, 0xbe, 0xad, 0xde };
     data.resize(22);
@@ -478,7 +478,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNFile) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoInvalidHDRFile) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoInvalidHDRFile)
 {
     std::vector<uint8_t> data{ 0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00,
                                0x73, 0x6a, 0x72, 0x6e, 0xef, 0xbe, 0xad, 0xde };
@@ -494,7 +494,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoInvalidHDRFile) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNLength) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNLength)
 {
     std::vector<uint8_t> data{ 0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x73, 0x6a,
                                0x72, 0x6e, 0x68, 0x64, 0x72, 0x20, 0xff, 0x00, 0x00, 0x00 };
@@ -510,7 +510,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoInvalidSJRNLength) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, ReadFileInfoTooLargeSJRNLength) // NOLINT
+TEST_F(TestEventJournalWriter, ReadFileInfoTooLargeSJRNLength)
 {
     std::vector<uint8_t> data{
         0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x73, 0x6a, 0x72, 0x6e, 0x68, 0x64, 0x72,
@@ -528,7 +528,7 @@ TEST_F(TestEventJournalWriter, ReadFileInfoTooLargeSJRNLength) // NOLINT
     EXPECT_FALSE(m_writer->readFileInfo(files.front(), info));
 }
 
-TEST_F(TestEventJournalWriter, NewSerialisationMethodClosesFile) // NOLINT
+TEST_F(TestEventJournalWriter, NewSerialisationMethodClosesFile)
 {
     std::vector<uint8_t> data(journal_detections_bin_multiple, journal_detections_bin_multiple+sizeof(journal_detections_bin_multiple));
     data[50] = 'K';
@@ -544,7 +544,7 @@ TEST_F(TestEventJournalWriter, NewSerialisationMethodClosesFile) // NOLINT
     CheckJournalFile(files.front(), data.size(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, NewSerialisationVersionClosesFile) // NOLINT
+TEST_F(TestEventJournalWriter, NewSerialisationVersionClosesFile)
 {
     std::vector<uint8_t> data(journal_detections_bin_multiple, journal_detections_bin_multiple+sizeof(journal_detections_bin_multiple));
     data[62] = '7';
@@ -560,7 +560,7 @@ TEST_F(TestEventJournalWriter, NewSerialisationVersionClosesFile) // NOLINT
     CheckJournalFile(files.front(), data.size(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, NewSJRNVersionClosesFile) // NOLINT
+TEST_F(TestEventJournalWriter, NewSJRNVersionClosesFile)
 {
     const uint16_t version = 0;
 
@@ -578,7 +578,7 @@ TEST_F(TestEventJournalWriter, NewSJRNVersionClosesFile) // NOLINT
     CheckJournalFile(files.front(), data.size(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnStartUp) // NOLINT
+TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnStartUp)
 {
     const std::string closedFilename = "Detections-0000000000000001-0000000000000002-132729637080000000-132729637100000000.bin";
 
@@ -595,7 +595,7 @@ TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnStartUp) // NOLINT
     CheckJournalFile(files.front(), 376, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnInsert) // NOLINT
+TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnInsert)
 {
     const int numEvents = 3;
     const int expectedSize = 528;
@@ -643,7 +643,7 @@ TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnInsert) // NOLINT
     CheckJournalFile(Common::FileSystem::join(directory, closedFilename), 376, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnRIFFLengthMismatch) // NOLINT
+TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnRIFFLengthMismatch)
 {
     const uint32_t length = 368;
 
@@ -663,7 +663,7 @@ TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnRIFFLengthMismatch) // NOLI
     CheckJournalFile(files.front(), data.size(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
-TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnStartUp) // NOLINT
+TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnStartUp)
 {
     const uint32_t expectedSize = 224;
 
@@ -682,7 +682,7 @@ TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnStartUp) // NOLIN
     EXPECT_TRUE(Common::FileSystem::fileSystem()->listFiles(directory).empty());
 }
 
-TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnInsert) // NOLINT
+TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnInsert)
 {
     const uint32_t expectedSize = 224;
 
@@ -719,7 +719,7 @@ TEST_F(TestEventJournalWriter, RemoveFileWithNoCompleteEventsOnInsert) // NOLINT
     EXPECT_FALSE(info.anyLengthErrors);
 }
 
-TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoFiles) // NOLINT
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoFiles)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -730,7 +730,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoFiles)
     EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
 }
 
-TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFile) // NOLINT
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFile)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -745,7 +745,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFi
     EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
 }
 
-TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile) // NOLINT
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -761,7 +761,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile) // NOL
     EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
 }
 
-TEST_F(TestEventJournalWriter, testGetExistingFileReturnsCorrectOpenSubjectFileWhenMultipleSubjectsHaveOpenFiles) // NOLINT
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsCorrectOpenSubjectFileWhenMultipleSubjectsHaveOpenFiles)
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -775,7 +775,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsCorrectOpenSubjectFileW
     EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
 }
 
-TEST_F(TestEventJournalWriter, testIsOpenSubjectFileOnlyReturnsTrueForOpenFiles) // NOLINT
+TEST_F(TestEventJournalWriter, testIsOpenSubjectFileOnlyReturnsTrueForOpenFiles)
 {
     EXPECT_TRUE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000042ce7-132729800360000000.bin"));
 

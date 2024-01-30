@@ -21,7 +21,7 @@ public:
     Tests::ScopedReplaceFileSystem m_replacer;
 };
 
-TEST_F(TestSXLMachineID, SXLMachineIDShouldCreateMachineIDWhenInstalling) // NOLINT
+TEST_F(TestSXLMachineID, SXLMachineIDShouldCreateMachineIDWhenInstalling)
 {
     using ::testing::Invoke;
     Common::ProcessImpl::ArgcAndEnv argcAndEnv("notused", { { "rootinstall" } }, {});
@@ -35,7 +35,7 @@ TEST_F(TestSXLMachineID, SXLMachineIDShouldCreateMachineIDWhenInstalling) // NOL
     EXPECT_EQ(md5.size(), 32);
 }
 
-TEST_F(TestSXLMachineID, SecondTimeItShouldNotRecreateMachineID) // NOLINT
+TEST_F(TestSXLMachineID, SecondTimeItShouldNotRecreateMachineID)
 {
     using ::testing::Invoke;
     Common::ProcessImpl::ArgcAndEnv argcAndEnv("notused", { { "rootinstall" } }, {});

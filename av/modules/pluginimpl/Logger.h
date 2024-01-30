@@ -4,7 +4,7 @@
 
 #ifdef USING_LIBFUZZER
 
-#define LOG(x) do {} while(0) // NOLINT
+#define LOG(x) do {} while(0)
 
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
@@ -24,11 +24,11 @@
 
 log4cplus::Logger& getPluginLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getPluginLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getPluginLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getPluginLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getPluginLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getPluginLogger(), x)  // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getPluginLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getPluginLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getPluginLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getPluginLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getPluginLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getPluginLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getPluginLogger(), x)
 
 #endif

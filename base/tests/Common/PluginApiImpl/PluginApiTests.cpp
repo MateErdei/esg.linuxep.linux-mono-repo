@@ -95,16 +95,16 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(PluginApiTests, pluginAPIcanSendEvent) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEvent)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
         responseServer.setReply(dataMessage);
 
-        EXPECT_NO_THROW(plugin->sendEvent("plugin", "eventContent")); // NOLINT
+        EXPECT_NO_THROW(plugin->sendEvent("plugin", "eventContent"));
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutAcknowledgmentFails) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutAcknowledgmentFails)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
@@ -112,66 +112,66 @@ namespace
 
         responseServer.setReply(dataMessage);
 
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_error = "Server rejected call";
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfWrongProtocol) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfWrongProtocol)
     {
         data_t invalidprotocol({ "not", "valid", "protocol" });
         responseServer.setReplyRaw(invalidprotocol);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer)
     {
         responseServer.doNotReply();
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout")); // NOLINT
+        EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.m_error = "Server rejected call";
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException); // NOLINT
+        EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand) // NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.m_payload.clear();
         dataMessage.m_acknowledge = true;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->requestPolicies("plugin")); // NOLINT
+        EXPECT_NO_THROW(plugin->requestPolicies("plugin"));
     }
 
-    TEST(PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable) // NOLINT
+    TEST(PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable)
     {
         Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
@@ -189,22 +189,22 @@ namespace
         // no management instantiated
         ASSERT_THROW(
             resourceManagement.createPluginAPI("plugin", mockPluginCallback),
-            Common::PluginApi::ApiException); // NOLINT
+            Common::PluginApi::ApiException);
     }
 
-    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageValid) // NOLINT
+    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageValid)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->sendThreatHealth(R"({"ThreatHealth":2})")); // NOLINT
+        EXPECT_NO_THROW(plugin->sendThreatHealth(R"({"ThreatHealth":2})"));
     }
 
-    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageInvalid) // NOLINT
+    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageInvalid)
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->sendThreatHealth("not json")); // NOLINT
+        EXPECT_NO_THROW(plugin->sendThreatHealth("not json"));
     }
 } // namespace

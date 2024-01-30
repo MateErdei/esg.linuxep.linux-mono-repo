@@ -23,30 +23,30 @@ public:
     MockPidLockFileUtils* m_mockPidLockFileUtilsPtr;
 };
 
-TEST_F(TestPidLockFile, pidLockFileThrowsWithBadFileDescriptor) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileThrowsWithBadFileDescriptor)
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(-1));
-    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
+    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error);
 }
 
-TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToLockFile) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToLockFile)
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(-1));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
-    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
+    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error);
 }
 
-TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToTruncateFile) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToTruncateFile)
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, ftruncate(_, _)).WillOnce(Return(-1));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
-    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
+    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error);
 }
 
-TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToWriteFile) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToWriteFile)
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
@@ -54,10 +54,10 @@ TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToWriteFile) // NOLINT
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, getpid()).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, write(_, _, _)).WillOnce(Return(-1));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
-    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
+    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error);
 }
 
-TEST_F(TestPidLockFile, pidLockFileThrowsIfItDoesNotWriteCorrectNumberOfBytes) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileThrowsIfItDoesNotWriteCorrectNumberOfBytes)
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
@@ -68,10 +68,10 @@ TEST_F(TestPidLockFile, pidLockFileThrowsIfItDoesNotWriteCorrectNumberOfBytes) /
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, write(_, _, _)).WillOnce(Return(1));
 
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
-    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
+    EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error);
 }
 
-TEST_F(TestPidLockFile, pidLockFileDoesntThrowIfSuccessful) // NOLINT
+TEST_F(TestPidLockFile, pidLockFileDoesntThrowIfSuccessful)
 {
     std::string pidFilePath("/bogus/testpath/fake.pid");
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(pidFilePath, _, _)).WillOnce(Return(0));
@@ -84,7 +84,7 @@ TEST_F(TestPidLockFile, pidLockFileDoesntThrowIfSuccessful) // NOLINT
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(0)).WillOnce(Return());
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, unlink(pidFilePath)).WillOnce(Return());
 
-    EXPECT_NO_THROW(PidLockFile pidfile(pidFilePath)); // NOLINT
+    EXPECT_NO_THROW(PidLockFile pidfile(pidFilePath));
 }
 
 TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
@@ -115,7 +115,7 @@ TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
     EXPECT_EQ( fut2.get(), 0);
 }
 
-TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
+TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses)
 {
     GTEST_FLAG_SET(death_test_style, "threadsafe");
     Tests::TempDir tempDir;
@@ -134,5 +134,5 @@ TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
                 _exit(1);
             }
         },
-        ""); // NOLINT
+        "");
 }

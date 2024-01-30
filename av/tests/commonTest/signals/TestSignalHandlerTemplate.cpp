@@ -7,7 +7,7 @@
 // 3rd party
 #include <gtest/gtest.h>
 
-static int GL_PIPE_WRITE_FD = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+static int GL_PIPE_WRITE_FD = -1;
 
 TEST(SignalHandlerTemplate, PipeIsWritten)
 {

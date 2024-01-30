@@ -33,7 +33,7 @@ namespace
     };
 }
 
-TEST_F(TestLogger, TestConstructor) // NOLINT
+TEST_F(TestLogger, TestConstructor)
 {
     // set up ApplicationConfiguration so that Logger knows where to put its files
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -43,7 +43,7 @@ TEST_F(TestLogger, TestConstructor) // NOLINT
     EXPECT_TRUE(fs::is_regular_file(m_basePath / "plugins/av/log/test_logger.log"));
 }
 
-TEST_F(TestLogger, TestConstructorForCommandLine) // NOLINT
+TEST_F(TestLogger, TestConstructorForCommandLine)
 {
     EXPECT_NO_THROW(Logger(m_basePath / "test_logger.txt", log4cplus::INFO_LOG_LEVEL, true));
     EXPECT_TRUE(fs::is_regular_file(m_basePath / "test_logger.txt"));

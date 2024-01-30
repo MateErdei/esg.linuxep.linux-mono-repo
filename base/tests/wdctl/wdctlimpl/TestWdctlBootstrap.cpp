@@ -19,7 +19,7 @@ namespace
     };
 } // namespace
 
-TEST(TestWdctlBootstrap, ConvertArgs) // NOLINT
+TEST(TestWdctlBootstrap, ConvertArgs)
 {
     StringHolder name("wdctl");
     ASSERT_NE(name.get(), nullptr);

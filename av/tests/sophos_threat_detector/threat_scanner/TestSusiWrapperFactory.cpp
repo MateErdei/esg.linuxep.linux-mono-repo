@@ -3,7 +3,7 @@
 #include "tests/common/LogInitializedTests.h"
 
 // Include the .cpp to get static functions...
-#include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp" // NOLINT
+#include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -136,41 +136,41 @@ TEST_F(TestSusiWrapperFactory, constructAndShutdown)
     wrapperFact.shutdown();
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown)
 {
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsUnknown) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsUnknown)
 {
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId)
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getEndpointId(),"ab7b6758a3ab11ba8a51d25aa06d1cf4");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptyFile) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptyFile)
 {
     setupFilesForTestingGlobalRep("","");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithNewLine) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNewLine)
 {
     setupFilesForTestingGlobalRep("","c1cfcf69a42311a\n084bcefe8af02c8a");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptySpace) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptySpace)
 {
     setupFilesForTestingGlobalRep("","ab7b6758a3ab1 ba8a51d25aa06d1cf4");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize)
 {
     setupFilesForTestingGlobalRep("","ab7b6758a3ab11ba8a51d25aa06d1cf4 \n d22829d94b76c016ec4e04b08baeffaa");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
@@ -182,7 +182,7 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize) // NOLINT
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonHex) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonHex)
 {
     setupFilesForTestingGlobalRep("","GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
@@ -200,32 +200,32 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonUTF8)
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId)
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getCustomerId(),"d22829d94b76c016ec4e04b08baeffaa");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptyFile) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptyFile)
 {
     setupFilesForTestingGlobalRep("");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithNewLine) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNewLine)
 {
     setupFilesForTestingGlobalRep("c1cfcf69a42311a\n084bcefe8af02c8a");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptySpace) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptySpace)
 {
     setupFilesForTestingGlobalRep("d22829d94b76c 16ec4e04b08baeffaa");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize)
 {
     setupFilesForTestingGlobalRep("d22829d94b76c016ec4e04b08baeffaa \n d22829d94b76c016ec4e04b08baeffaa");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
@@ -237,7 +237,7 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize) // NOLINT
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonHex) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonHex)
 {
     setupFilesForTestingGlobalRep("GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
@@ -255,7 +255,7 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonUTF8)
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse) // NOLINT
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false})sophos");
     common::ThreatDetector::SusiSettings threatDetectorSettings;

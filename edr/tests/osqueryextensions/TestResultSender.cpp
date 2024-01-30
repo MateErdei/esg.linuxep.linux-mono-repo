@@ -223,7 +223,7 @@ protected:
     bool m_callbackCalled = false;
 };
 
-TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
+TEST_F(TestResultSender, loadScheduledQueryTags)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -255,7 +255,7 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
 }
 
 
-TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // NOLINT
+TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -266,7 +266,7 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     ASSERT_EQ(actualQueryTagMap.size(), 0U);
 }
 
-TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
+TEST_F(TestResultSender, resetRemovesExistingBatchFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -293,7 +293,7 @@ TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
     resultsSender.Reset();
 }
 
-TEST_F(TestResultSender, addWritesToFile) // NOLINT
+TEST_F(TestResultSender, addWritesToFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -316,7 +316,7 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
     resultsSender.Add(testResult);
 }
 
-TEST_F(TestResultSenderWithLogger, addDoesNotRegenTagMap) // NOLINT
+TEST_F(TestResultSenderWithLogger, addDoesNotRegenTagMap)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -360,7 +360,7 @@ TEST_F(TestResultSenderWithLogger, addDoesNotRegenTagMap) // NOLINT
     EXPECT_EQ(occurrences,1);
 }
 
-TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
+TEST_F(TestResultSender, addAppendsToFileExistinEntries)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -385,7 +385,7 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
     resultsSender.Add(testResultString2);
 }
 
-TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLINT
+TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -406,7 +406,7 @@ TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLI
     EXPECT_NO_THROW(resultsSender.PrepareSingleResult(R"(not json)"));
 }
 
-TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
+TEST_F(TestResultSender, addThrowsWhenAppendThrows)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -427,7 +427,7 @@ TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
     EXPECT_THROW(resultsSender.Add("{\"test\":\"value\"}"), std::runtime_error);
 }
 
-TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
+TEST_F(TestResultSender, getFileSizeQueriesFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -453,7 +453,7 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
     EXPECT_EQ(resultsSender.GetFileSize(), 3U);
 }
 
-TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
+TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -476,7 +476,7 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
     EXPECT_EQ(resultsSender.GetFileSize(), 0U);
 }
 
-TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
+TEST_F(TestResultSender, getFileSizePropagatesException)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -498,7 +498,7 @@ TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
     EXPECT_THROW(resultsSender.GetFileSize(), std::runtime_error);
 }
 
-TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
+TEST_F(TestResultSender, sendMovesBatchFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -526,7 +526,7 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
     resultsSender.Send();
 }
 
-TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
+TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -550,7 +550,7 @@ TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
     resultsSender.Send();
 }
 
-TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
+TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -579,7 +579,7 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
     EXPECT_THROW(resultsSender.Send(), std::runtime_error);
 }
 
-TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
+TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -605,7 +605,7 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     resultsSender.Add(testJsonResult);
 }
 
-TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
+TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -629,7 +629,7 @@ TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
     ASSERT_TRUE(callbackCalled);
 }
 
-TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
+TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -695,7 +695,7 @@ TEST_F(TestResultSenderWithLogger, maxBatchSizeHitInSingleResultInvokesCallback)
     EXPECT_THAT(logMessage, ::testing::HasSubstr(expectedLogLine));
 }
 
-TEST_F(TestResultSender, fuzzSamples) // NOLINT
+TEST_F(TestResultSender, fuzzSamples)
 {
     std::vector<std::string> samples;
     samples.emplace_back(R"({ a":"b"})");
@@ -739,7 +739,7 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
     }
 }
 
-TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
+TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -759,7 +759,7 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), std::nullopt);
 }
 
-TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) // NOLINT
+TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -796,7 +796,7 @@ TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) 
     EXPECT_EQ(actualResults, expectedResults);
 }
 
-TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalidAndDeleteIntermediaryFile) // NOLINT
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalidAndDeleteIntermediaryFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -824,7 +824,7 @@ TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalidA
     EXPECT_EQ(actualResults, emptyValue);
 }
 
-TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfIntermediaryFileDoesNotExist) // NOLINT
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfIntermediaryFileDoesNotExist)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -850,7 +850,7 @@ TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfIntermediary
     EXPECT_EQ(actualResults, emptyValue);
 }
 
-TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectAndRemovesUnredableIntermediaryFile) // NOLINT
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectAndRemovesUnredableIntermediaryFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -880,7 +880,7 @@ TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectAndRemovesUnre
     EXPECT_EQ(actualResults, emptyValue);
 }
 
-TEST_F(TestResultSender, saveBatchResultsWritesResultsFile) // NOLINT
+TEST_F(TestResultSender, saveBatchResultsWritesResultsFile)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -911,7 +911,7 @@ TEST_F(TestResultSender, saveBatchResultsWritesResultsFile) // NOLINT
     resultsSender.SaveBatchResults(results);
 }
 
-TEST_F(TestResultSender, saveBatchResultsDoesNotThrowIfWriteThrows) // NOLINT
+TEST_F(TestResultSender, saveBatchResultsDoesNotThrowIfWriteThrows)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -943,7 +943,7 @@ TEST_F(TestResultSender, saveBatchResultsDoesNotThrowIfWriteThrows) // NOLINT
     EXPECT_NO_THROW(resultsSender.SaveBatchResults(results));
 }
 
-TEST_F(TestResultSender, saveBatchResultsSavesEmptyStringIfResultAreEmpty) // NOLINT
+TEST_F(TestResultSender, saveBatchResultsSavesEmptyStringIfResultAreEmpty)
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });

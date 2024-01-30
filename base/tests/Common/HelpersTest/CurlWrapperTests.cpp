@@ -25,52 +25,52 @@ public:
     void SetUp() override { m_curlWrapper = std::make_shared<FakeCurlWrapper>(); }
 };
 
-TEST_F(CurlWrapperTest, curlGlobalInit) // NOLINT
+TEST_F(CurlWrapperTest, curlGlobalInit)
 {
     EXPECT_EQ(m_curlWrapper->curlGlobalInit(m_flags), CURLE_OK);
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }
 
-TEST_F(CurlWrapperTest, curlEasyInit) // NOLINT
+TEST_F(CurlWrapperTest, curlEasyInit)
 {
     m_curlWrapper->curlGlobalInit(m_flags);
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_NE(handle, nullptr);
-    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle));
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }
 
-TEST_F(CurlWrapperTest, curlEasySetOpt) // NOLINT
+TEST_F(CurlWrapperTest, curlEasySetOpt)
 {
     m_curlWrapper->curlGlobalInit(m_flags);
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_EQ(m_curlWrapper->curlEasySetOpt(handle, CURLOPT_URL, "https://localhost"), CURLE_OK);
-    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle));
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }
 
-TEST_F(CurlWrapperTest, curlSlistAppend) // NOLINT
+TEST_F(CurlWrapperTest, curlSlistAppend)
 {
     m_curlWrapper->curlGlobalInit(m_flags);
     curl_slist* slist = nullptr;
     slist = m_curlWrapper->curlSlistAppend(slist, "slist_value");
     EXPECT_NE(slist, nullptr);
-    EXPECT_NO_THROW(m_curlWrapper->curlSlistFreeAll(slist)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlSlistFreeAll(slist));
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }
 
-TEST_F(CurlWrapperTest, curlEasyPerform) // NOLINT
+TEST_F(CurlWrapperTest, curlEasyPerform)
 {
     m_curlWrapper->curlGlobalInit(m_flags);
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_EQ(m_curlWrapper->curlEasyPerform(handle), CURLE_OK);
-    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle));
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }
 
-TEST_F(CurlWrapperTest, curlEasyStrError) // NOLINT
+TEST_F(CurlWrapperTest, curlEasyStrError)
 {
     m_curlWrapper->curlGlobalInit(m_flags);
     EXPECT_NE(m_curlWrapper->curlEasyStrError(CURLE_OK), "");
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());
 }

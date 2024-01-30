@@ -107,7 +107,7 @@ public:
     return ::testing::AssertionSuccess();
 }
 
-TEST_F(TestOSQueryProcessorWithMock, SimpleSelectShouldReturn) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, SimpleSelectShouldReturn)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -138,7 +138,7 @@ TEST_F(TestOSQueryProcessorWithMock, SimpleSelectShouldReturn) // NOLINT
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessorWithMock, NoOSqueryAvailableShouldReturnError) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, NoOSqueryAvailableShouldReturnError)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -154,7 +154,7 @@ TEST_F(TestOSQueryProcessorWithMock, NoOSqueryAvailableShouldReturnError) // NOL
     auto expectedResponse = failure(livequery::ErrorCode::UNEXPECTEDERROR, "connect");
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
-TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromQueryWillReturnErrorResponse) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromQueryWillReturnErrorResponse)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -168,7 +168,7 @@ TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromQueryWillRe
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromGetQueryColumnsWillReturnError) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromGetQueryColumnsWillReturnError)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -186,7 +186,7 @@ TEST_F(TestOSQueryProcessorWithMock, UnsuccessfulExecutionsStatusFromGetQueryCol
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessorWithMock, OsQueryClientExceptionsFromQueryingDataAreHandled) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, OsQueryClientExceptionsFromQueryingDataAreHandled)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -208,7 +208,7 @@ SELECT group_concat(curr) FROM counting;)" };
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessorWithMock, OsQueryClientExceptionsFromGetQueryColumnsAreHandled) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, OsQueryClientExceptionsFromGetQueryColumnsAreHandled)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -228,7 +228,7 @@ TEST_F(TestOSQueryProcessorWithMock, OsQueryClientExceptionsFromGetQueryColumnsA
     EXPECT_PRED_FORMAT2(responseIsEquivalent, response, expectedResponse);
 }
 
-TEST_F(TestOSQueryProcessorWithMock, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT) // NOLINT
+TEST_F(TestOSQueryProcessorWithMock, VerifyOSQueryResponseHasExpectedTypesForINTEGERandBIGINT)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;
@@ -263,7 +263,7 @@ TEST_F(TestOSQueryProcessorWithMock, VerifyOSQueryResponseHasExpectedTypesForINT
 
 TEST_F(
     TestOSQueryProcessorWithMock,
-    HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText) // NOLINT
+    HeaderWillBeDeducedIfNotCompletellyGivenByOsQueryAndTheTypeWillAlwaysBeText)
 {
     setupMockClient();
     auto& mockClient = m_mockClientPtr;

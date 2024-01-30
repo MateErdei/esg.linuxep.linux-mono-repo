@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
+TEST(TaskQueueTests, pushedTaskCanBePopped)
 {
     RemoteDiagnoseImpl::TaskQueue queue;
     const RemoteDiagnoseImpl::Task taskIn{ RemoteDiagnoseImpl::Task::TaskType::ACTION, "Action_1" };
@@ -19,7 +19,7 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
     EXPECT_EQ(taskOut.Content, taskIn.Content);
 }
 
-TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
+TEST(TaskQueueTests, multiplePushedTasksCanBePopped)
 {
     RemoteDiagnoseImpl::TaskQueue queue;
     const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { { RemoteDiagnoseImpl::Task::TaskType::ACTION, "" },
@@ -46,7 +46,7 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
     EXPECT_EQ(tasksOut[1].Content, tasksIn[1].Content);
 }
 
-TEST(TaskQueueTests, ActionTaskIsNotPoppedOffWhenDiagnoseIsProcessing) // NOLINT
+TEST(TaskQueueTests, ActionTaskIsNotPoppedOffWhenDiagnoseIsProcessing)
 {
     RemoteDiagnoseImpl::TaskQueue queue;
     const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { { RemoteDiagnoseImpl::Task::TaskType::ACTION, "" },
@@ -69,7 +69,7 @@ TEST(TaskQueueTests, ActionTaskIsNotPoppedOffWhenDiagnoseIsProcessing) // NOLINT
     EXPECT_NE(tasksOut[1].taskType, RemoteDiagnoseImpl::Task::TaskType::ACTION);
 }
 
-TEST(TaskQueueTests, popWaitsForPush) // NOLINT
+TEST(TaskQueueTests, popWaitsForPush)
 {
     using namespace std::chrono;
     const milliseconds delay(1);
@@ -107,7 +107,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     EXPECT_EQ(taskOut.Content, taskIn.Content);
 }
 
-TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
+TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst)
 {
     RemoteDiagnoseImpl::TaskQueue queue;
     const RemoteDiagnoseImpl::Task priorityTask{ RemoteDiagnoseImpl::Task::TaskType::STOP, "" };

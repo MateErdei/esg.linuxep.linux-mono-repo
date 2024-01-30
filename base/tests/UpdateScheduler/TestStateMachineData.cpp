@@ -97,7 +97,7 @@ public:
     }
 };
 
-TEST_F(StateMachineDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsInvalidJsonStringThrows)
 {
     try
     {
@@ -110,12 +110,12 @@ TEST_F(StateMachineDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
     }
 }
 
-TEST_F(StateMachineDataTest, fromJsonSettingsValidButEmptyJsonStringShouldNotThrow) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsValidButEmptyJsonStringShouldNotThrow)
 {
     EXPECT_NO_THROW(StateMachineData::fromJsonStateMachineData("{}"));
 }
 
-TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventStringShouldThrow) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventStringShouldThrow)
 {
     try
     {
@@ -128,7 +128,7 @@ TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventStringShouldThrow) // N
     }
 }
 
-TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventNumberShouldThrow) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventNumberShouldThrow)
 {
     try
     {
@@ -141,7 +141,7 @@ TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventNumberShouldThrow) // N
     }
 }
 
-TEST_F(StateMachineDataTest, fromJsonSettingsBinaryDataShouldThrow) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsBinaryDataShouldThrow)
 {
     std::vector<unsigned char> data{0xde, 0xad, 0xbe, 0xef};
 
@@ -156,7 +156,7 @@ TEST_F(StateMachineDataTest, fromJsonSettingsBinaryDataShouldThrow) // NOLINT
     }
 }
 
-TEST_F( // NOLINT
+TEST_F(
     StateMachineDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedEmptyData)
 {
@@ -176,7 +176,7 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, actualStateMachineData, expectedStateMachineData);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     StateMachineDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedValueData)
 {
@@ -199,7 +199,7 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, actualStateMachineData, expectedStateMachineData);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     StateMachineDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnWhenDataIncomplete)
 {
@@ -213,7 +213,7 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, actualStateMachineData, expectedStateMachineData);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     StateMachineDataTest,
     fromJsonSettingsUnknownKeyShouldBeIgnored)
 {
@@ -226,7 +226,7 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, actualStateMachineData, expectedStateMachineData);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     StateMachineDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataIgnoringUnknownKeys)
 {

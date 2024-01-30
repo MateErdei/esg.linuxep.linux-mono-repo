@@ -12,7 +12,7 @@
 
 class TestOsqueryLogStringUtil : public LogOffInitializedTests{};
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsCorrectFormattedString) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsCorrectFormattedString)
 {
     std::vector<std::string> lines{
         "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query host_sensor_heartbeat_check: SELECT",
@@ -32,7 +32,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
     }
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForUninterestingStrings) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForUninterestingStrings)
 {
     std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] hello: SELECT";
 
@@ -41,7 +41,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
     EXPECT_EQ(actualResult.has_value(), false);
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForFlushqueries) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForFlushqueries)
 {
     std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query flush_process_events: SELECT";
 
@@ -50,7 +50,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
     EXPECT_EQ(actualResult.has_value(), false);
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseOnMalformedLine) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseOnMalformedLine)
 {
     std::vector<std::string> badLines{
         "",
@@ -72,7 +72,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
     }
 }
 
-TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsTrueOnMatchingLine) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsTrueOnMatchingLine)
 {
     std::vector<std::string> lines{
         "Error executing scheduled query arp_cache: no such table: arp_cache_s",
@@ -89,7 +89,7 @@ TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsTrueOnMatchingLine) 
     }
 }
 
-TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLines) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLines)
 {
     std::string line = "Some Random Text";
 
@@ -99,7 +99,7 @@ TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLi
 
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesMissingQueryName) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesMissingQueryName)
 {
     std::vector<std::string> lines{
         "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query ",
@@ -114,7 +114,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHan
     }
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesLongQueryName) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesLongQueryName)
 {
     std::stringstream line;
     line << "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query ";
@@ -130,7 +130,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHan
     ASSERT_EQ(actualResult.value(), expected.str());
 }
 
-TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesNonAsciiChars) // NOLINT
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesNonAsciiChars)
 {
     std::string line =  "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query query_name_平仮名_片仮名: query ";
     std::string expected = "Executing query: query_name_平仮名_片仮名";

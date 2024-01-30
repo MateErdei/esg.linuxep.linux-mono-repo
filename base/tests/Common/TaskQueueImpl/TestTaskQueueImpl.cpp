@@ -14,12 +14,12 @@ namespace
     };
 } // namespace
 
-TEST(TestQueueImpl, Construction) // NOLINT
+TEST(TestQueueImpl, Construction)
 {
     Common::TaskQueueImpl::TaskQueueImpl queue;
 }
 
-TEST(TestQueueImpl, addTask) // NOLINT
+TEST(TestQueueImpl, addTask)
 {
     Common::TaskQueueImpl::TaskQueueImpl queue;
     Common::TaskQueue::ITaskPtr task(new FakeTask());
@@ -27,7 +27,7 @@ TEST(TestQueueImpl, addTask) // NOLINT
     EXPECT_EQ(task, nullptr);
 }
 
-TEST(TestQueueImpl, removeTask) // NOLINT
+TEST(TestQueueImpl, removeTask)
 {
     Common::TaskQueueImpl::TaskQueueImpl queue;
     Common::TaskQueue::ITaskPtr task(new FakeTask());

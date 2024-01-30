@@ -18,7 +18,7 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
     std::vector<ZeroMQWrapper::IHasFD*> results;
 
     std::unique_ptr<zmq_pollitem_t[]> items(new zmq_pollitem_t[m_entries.size()]);
-    assert(items.get() != nullptr); // NOLINT
+    assert(items.get() != nullptr);
 
     // If performance of this code becomes a problem we could save the poll set, and re-use it.
     assert(m_entries.size() < INT_MAX);

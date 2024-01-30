@@ -5,8 +5,8 @@
 
 log4cplus::Logger& getTaskQueueImplLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getTaskQueueImplLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getTaskQueueImplLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getTaskQueueImplLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getTaskQueueImplLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getTaskQueueImplLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getTaskQueueImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getTaskQueueImplLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getTaskQueueImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getTaskQueueImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getTaskQueueImplLogger(), x)

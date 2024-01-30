@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getLiveQueryLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getLiveQueryLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getLiveQueryLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getLiveQueryLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getLiveQueryLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getLiveQueryLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getLiveQueryLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getLiveQueryLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getLiveQueryLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getLiveQueryLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getLiveQueryLogger(), x)

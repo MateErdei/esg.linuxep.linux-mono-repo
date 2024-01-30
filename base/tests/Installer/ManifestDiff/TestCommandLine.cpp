@@ -5,7 +5,7 @@
 
 using namespace Installer::ManifestDiff;
 
-TEST(TestCommandLineOptions, TestOptionsGoCorrectly) // NOLINT
+TEST(TestCommandLineOptions, TestOptionsGoCorrectly)
 {
     Common::Datatypes::StringVector args{ "Exe",           "--old=FOO",        "--new=BAR", "--changed=CHANGED",
                                           "--added=ADDED", "--removed=REMOVED" };
@@ -17,7 +17,7 @@ TEST(TestCommandLineOptions, TestOptionsGoCorrectly) // NOLINT
     EXPECT_EQ(options.m_old, "FOO");
 }
 
-TEST(TestCommandLineOptions, TestMissingOptions) // NOLINT
+TEST(TestCommandLineOptions, TestMissingOptions)
 {
     Common::Datatypes::StringVector args{ "Exe" };
     CommandLineOptions options(args);

@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getReactorLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getReactorLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getReactorLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getReactorLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getReactorLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getReactorLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getReactorLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getReactorLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getReactorLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getReactorLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getReactorLogger(), x)

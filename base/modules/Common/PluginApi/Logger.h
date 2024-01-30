@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getPluginAPIInterfaceLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getPluginAPIInterfaceLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getPluginAPIInterfaceLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getPluginAPIInterfaceLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getPluginAPIInterfaceLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getPluginAPIInterfaceLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getPluginAPIInterfaceLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getPluginAPIInterfaceLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getPluginAPIInterfaceLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getPluginAPIInterfaceLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getPluginAPIInterfaceLogger(), x)

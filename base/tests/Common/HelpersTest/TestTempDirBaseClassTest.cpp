@@ -40,7 +40,7 @@ public:
 
 // show that directories are created for each test and the tests are completely independent from each other.
 
-TEST_F(UsageExample, FreshDirectoryIsCreated) // NOLINT
+TEST_F(UsageExample, FreshDirectoryIsCreated)
 {
     auto fileSystem = Common::FileSystem::FileSystemImpl();
     ASSERT_TRUE(fileSystem.isDirectory(m_tempDir->dirPath()));
@@ -50,7 +50,7 @@ TEST_F(UsageExample, FreshDirectoryIsCreated) // NOLINT
     ASSERT_EQ(myTest, "UsageExample");
 }
 
-TEST_F(UsageExample, TestDirectoryIsIndependent) // NOLINT
+TEST_F(UsageExample, TestDirectoryIsIndependent)
 {
     auto fileSystem = Common::FileSystem::FileSystemImpl();
     ASSERT_TRUE(fileSystem.isDirectory(m_tempDir->dirPath()));

@@ -8,7 +8,7 @@ using Common::ZeroMQWrapper::ISocketPublisherPtr;
 
 namespace
 {
-    TEST(TestSocketPublisherImpl, creation) // NOLINT
+    TEST(TestSocketPublisherImpl, creation)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);

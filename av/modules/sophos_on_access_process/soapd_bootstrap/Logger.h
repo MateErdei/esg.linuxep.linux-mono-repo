@@ -4,7 +4,7 @@
 
 #ifdef USING_LIBFUZZER
 
-#define LOG(x) do {} while(0) // NOLINT
+#define LOG(x) do {} while(0)
 
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
@@ -22,12 +22,12 @@
 
 log4cplus::Logger& getSophosOnAccessBootstrapImplLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSophosOnAccessBootstrapImplLogger(), x) // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getSophosOnAccessBootstrapImplLogger(), x)    // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getSophosOnAccessBootstrapImplLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
-#define LOGTRACE(x) LOG4CPLUS_TRACE(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSophosOnAccessBootstrapImplLogger(), x)
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getSophosOnAccessBootstrapImplLogger(), x)
 
 #endif

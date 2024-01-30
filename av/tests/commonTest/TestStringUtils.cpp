@@ -19,7 +19,7 @@ namespace
     {};
 }
 
-TEST_F(TestStringUtils, TestXMLEscapeEscapesControlCharacters) // NOLINT
+TEST_F(TestStringUtils, TestXMLEscapeEscapesControlCharacters)
 {
     std::string threatPath = "abc \1 \2 \3 \4 \5 \6"
                              " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
@@ -32,7 +32,7 @@ TEST_F(TestStringUtils, TestXMLEscapeEscapesControlCharacters) // NOLINT
                           " \\177 \\\\ abc \\a \\b \\t \\n \\v \\f \\r abc");
 }
 
-TEST_F(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
+TEST_F(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters)
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6"
                              " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
@@ -45,14 +45,14 @@ TEST_F(TestStringUtils, TestXMLEscapeNotEscapingWeirdCharacters) // NOLINT
                           " \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
 }
 
-TEST_F(TestStringUtils, TestXMLEscapeEscapesSpecialXMLCharacters) // NOLINT
+TEST_F(TestStringUtils, TestXMLEscapeEscapesSpecialXMLCharacters)
 {
     std::string threatPath = "abc & < > \' \" abc";
     escapeControlCharacters(threatPath, true);
     EXPECT_EQ(threatPath, "abc &amp; &lt; &gt; &apos; &quot; abc");
 }
 
-TEST_F(TestStringUtils, TestEscapeControlCharactersWithoutXLMEscaping) // NOLINT
+TEST_F(TestStringUtils, TestEscapeControlCharactersWithoutXLMEscaping)
 {
     std::string threatPath = "abc & < > \' \" abc \1 \2 \3 \4 \5 \6 \7"
                              " \10 \11 \12 \13 \14 \15 \16 \17";
@@ -61,28 +61,28 @@ TEST_F(TestStringUtils, TestEscapeControlCharactersWithoutXLMEscaping) // NOLINT
                           " \\b \\t \\n \\v \\f \\r \\016 \\017");
 }
 
-TEST_F(TestStringUtils, TestEscapeEmptyString) // NOLINT
+TEST_F(TestStringUtils, TestEscapeEmptyString)
 {
     std::string threatPath {};
     escapeControlCharacters(threatPath);
     EXPECT_EQ(threatPath, "");
 }
 
-TEST_F(TestStringUtils, TestToUtf8) // NOLINT
+TEST_F(TestStringUtils, TestToUtf8)
 {
     std::string threatPath = "abc  \1 \2 \3 \4 \5 \6 \\ efg \a \b \t \n \v \f \r hik";
     std::string utf8Path = toUtf8(threatPath);
     EXPECT_EQ(utf8Path, threatPath);
 }
 
-TEST_F(TestStringUtils, TestToUtf8WeirdCharacters) // NOLINT
+TEST_F(TestStringUtils, TestToUtf8WeirdCharacters)
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
     std::string utf8Path = toUtf8(threatPath);
     EXPECT_EQ(utf8Path, threatPath);
 }
 
-TEST_F(TestStringUtils, TestToUtf8FromEucJP) // NOLINT
+TEST_F(TestStringUtils, TestToUtf8FromEucJP)
 {
     // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t euc-jp | hexdump -C
     std::vector<unsigned char> threatPathBytes { 0xa4, 0xa2, 0xa4, 0xea, 0xa4, 0xc3, 0xa4, 0xbf, 0xa4, 0xb1, 0xa4, 0xce,
@@ -101,7 +101,7 @@ TEST_F(TestStringUtils, TestToUtf8FromEucJP) // NOLINT
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
-TEST_F(TestStringUtils, TestToUtf8FromSJIS) // NOLINT
+TEST_F(TestStringUtils, TestToUtf8FromSJIS)
 {
     // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t sjis | hexdump -C
     std::vector<unsigned char> threatPathBytes { 0x82, 0xa0, 0x82, 0xe8, 0x82, 0xc1, 0x82, 0xbd, 0x82, 0xaf, 0x82, 0xcc,
@@ -120,7 +120,7 @@ TEST_F(TestStringUtils, TestToUtf8FromSJIS) // NOLINT
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
-TEST_F(TestStringUtils, TestToUtf8FromLatin1) // NOLINT
+TEST_F(TestStringUtils, TestToUtf8FromLatin1)
 {
     // echo -n "Ä ö ü ß" | iconv -f utf-8 -t latin1 | hexdump -C
     std::vector<unsigned char> threatPathBytes { 0xc4, 0x20, 0xf6, 0x20, 0xfc, 0x20, 0xdf };
@@ -138,7 +138,7 @@ TEST_F(TestStringUtils, TestToUtf8FromLatin1) // NOLINT
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
-TEST_F(TestStringUtils, TestFromLogLevelToStringReturnsExpectedString) // NOLINT
+TEST_F(TestStringUtils, TestFromLogLevelToStringReturnsExpectedString)
 {
     EXPECT_EQ(fromLogLevelToString(log4cplus::OFF_LOG_LEVEL), "OFF");
     EXPECT_EQ(fromLogLevelToString(log4cplus::TRACE_LOG_LEVEL), "TRACE");
@@ -150,7 +150,7 @@ TEST_F(TestStringUtils, TestFromLogLevelToStringReturnsExpectedString) // NOLINT
     EXPECT_EQ(fromLogLevelToString(999), "Unknown (999)");
 }
 
-TEST_F(TestStringUtils, TestPluralize) // NOLINT
+TEST_F(TestStringUtils, TestPluralize)
 {
     EXPECT_EQ(common::pluralize(1, "single", "plural"), "single");
     EXPECT_EQ(common::pluralize(2, "single", "plural"), "plural");

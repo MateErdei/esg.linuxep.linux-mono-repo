@@ -24,7 +24,7 @@ class TestEventQueuePusher : public LogOffInitializedTests{};
 
 using namespace SubscriberLib;
 
-TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // NOLINT
+TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod)
 {
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
@@ -35,7 +35,7 @@ TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // 
     eventQueuePusher.handleEvent(testData);
 }
 
-TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLINT
+TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement)
 {
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);

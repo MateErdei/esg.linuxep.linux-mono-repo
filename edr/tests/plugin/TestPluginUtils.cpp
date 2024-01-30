@@ -342,7 +342,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagSetsValueInFil
     EXPECT_TRUE(flagsHaveChanged);
 }
 
-TEST_F(TestPluginUtilsWithMockFileSystem, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
+TEST_F(TestPluginUtilsWithMockFileSystem, enableAnddisableQueryPackRenamesQueryPack)
 {
     std::string queryPackPath = "querypackpath";
     std::string queryPackPathDisabled = "querypackpath.DISABLED";
@@ -356,7 +356,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, enableAnddisableQueryPackRenamesQueryP
     Plugin::PluginUtils::disableQueryPack(queryPackPath);
 }
 
-TEST_F(TestPluginUtilsWithMockFileSystem, enableQueryPackReturnsTrueWhenAChangeWasMade) // NOLINT
+TEST_F(TestPluginUtilsWithMockFileSystem, enableQueryPackReturnsTrueWhenAChangeWasMade)
 {
     std::string queryPackPath = "querypackpath";
     std::string queryPackPathDisabled = "querypackpath.DISABLED";

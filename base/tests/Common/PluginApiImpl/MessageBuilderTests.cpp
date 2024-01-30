@@ -39,7 +39,7 @@ public:
     std::unique_ptr<MessageBuilder> m_messageBuilder;
 };
 
-TEST_F(MessageBuilderTests, requestSendEventMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestSendEventMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
@@ -51,7 +51,7 @@ TEST_F(MessageBuilderTests, requestSendEventMessageReturnsExpectedMessage) // NO
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
@@ -68,7 +68,7 @@ TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage) // N
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestRegisterMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestRegisterMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
@@ -79,7 +79,7 @@ TEST_F(MessageBuilderTests, requestRegisterMessageReturnsExpectedMessage) // NOL
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
@@ -89,7 +89,7 @@ TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage) /
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
@@ -101,7 +101,7 @@ TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage) // 
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
@@ -112,7 +112,7 @@ TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage) // NOL
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestRequestPluginStatusMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestRequestPluginStatusMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
@@ -122,7 +122,7 @@ TEST_F(MessageBuilderTests, requestRequestPluginStatusMessageReturnsExpectedMess
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -132,7 +132,7 @@ TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -144,7 +144,7 @@ TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage) // NOLINT
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorIsEmpty) // NOLINT
+TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorIsEmpty)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -157,7 +157,7 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorI
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorNotEmpty) // NOLINT
+TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorNotEmpty)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -169,7 +169,7 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorN
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
@@ -182,7 +182,7 @@ TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage) // NOLINT
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -195,7 +195,7 @@ TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage) // NOLINT
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
@@ -212,7 +212,7 @@ TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage) // NOLINT
     EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedMessage, actualMessage);
 }
 
-TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
@@ -226,7 +226,7 @@ TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage) // NOLINT
     EXPECT_EQ(expectedResult, actualResult);
 }
 
-TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
@@ -244,7 +244,7 @@ TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage) // NOLIN
     EXPECT_EQ(expectedStatusInfo.statusWithoutTimestampsXml, actualStatusInfo.statusWithoutTimestampsXml);
 }
 
-TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
@@ -258,7 +258,7 @@ TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage) // NOLIN
     EXPECT_EQ(expectedResult, actualResult);
 }
 
-TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
@@ -272,7 +272,7 @@ TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage) // NOLIN
     EXPECT_EQ(expectedResult, actualResult);
 }
 
-TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
@@ -286,7 +286,7 @@ TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage) // 
     EXPECT_EQ(expectedResult, actualResult);
 }
 
-TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage) // NOLINT
+TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
@@ -300,7 +300,7 @@ TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage) // NOLI
     EXPECT_EQ(expectedResult, actualResult);
 }
 
-TEST_F(MessageBuilderTests, hasAckReturnsTrue) // NOLINT
+TEST_F(MessageBuilderTests, hasAckReturnsTrue)
 {
     DataMessage message = createDataMessage();
     message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;

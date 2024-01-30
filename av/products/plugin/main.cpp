@@ -22,7 +22,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 
-static const char* PluginName = PLUGIN_NAME; // NOLINT
+static const char* PluginName = PLUGIN_NAME;
 
 namespace fs = sophos_filesystem;
 

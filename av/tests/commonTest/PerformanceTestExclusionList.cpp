@@ -15,9 +15,9 @@
 #include <vector>
 
 #define LOGNAME "PerfTest"
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(LOGNAME, x)      // NOLINT
-#define LOGINFO(x)  LOG4CPLUS_INFO(LOGNAME, x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(LOGNAME, x)      // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(LOGNAME, x)
+#define LOGINFO(x)  LOG4CPLUS_INFO(LOGNAME, x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(LOGNAME, x)
 
 namespace
 {

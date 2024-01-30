@@ -42,12 +42,12 @@ struct TestableEventQueue : public EventQueue
         : EventQueue::EventQueue(maxSize)
     {}
 
-    bool isQueueFull() // NOLINT
+    bool isQueueFull()
     {
         return EventQueue::isQueueFull();
     }
 
-    bool isQueueEmpty() // NOLINT
+    bool isQueueEmpty()
     {
         return EventQueue::isQueueEmpty();
     }

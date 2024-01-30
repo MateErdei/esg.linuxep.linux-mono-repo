@@ -10,7 +10,7 @@ class InstalledFeaturesTest : public ::testing::Test
 {
 };
 
-TEST_F(InstalledFeaturesTest, testRequestedProductNotInstalled) // NOLINT
+TEST_F(InstalledFeaturesTest, testRequestedProductNotInstalled)
 {
     std::vector<std::string> productFeatures{ "liveterminal" };
     std::vector<std::string> installedFeatures{ "CORE" };
@@ -18,7 +18,7 @@ TEST_F(InstalledFeaturesTest, testRequestedProductNotInstalled) // NOLINT
     ASSERT_TRUE(shouldProductBeInstalledBasedOnFeatures(productFeatures, installedFeatures, requiredFeatures));
 }
 
-TEST_F(InstalledFeaturesTest, testUnrequiredProductIsNotMarkedForInstall) // NOLINT
+TEST_F(InstalledFeaturesTest, testUnrequiredProductIsNotMarkedForInstall)
 {
     std::vector<std::string> productFeatures{ "liveterminal" };
     std::vector<std::string> installedFeatures{ "CORE", "liveterminal" };
@@ -26,7 +26,7 @@ TEST_F(InstalledFeaturesTest, testUnrequiredProductIsNotMarkedForInstall) // NOL
     ASSERT_FALSE(shouldProductBeInstalledBasedOnFeatures(productFeatures, installedFeatures, requiredFeatures));
 }
 
-TEST_F(InstalledFeaturesTest, testShouldProductBeInstalledBasedOnFeaturesHandlesEmpty) // NOLINT
+TEST_F(InstalledFeaturesTest, testShouldProductBeInstalledBasedOnFeaturesHandlesEmpty)
 {
     std::vector<std::string> productFeatures;
     std::vector<std::string> installedFeatures;
@@ -34,7 +34,7 @@ TEST_F(InstalledFeaturesTest, testShouldProductBeInstalledBasedOnFeaturesHandles
     ASSERT_FALSE(shouldProductBeInstalledBasedOnFeatures(productFeatures, installedFeatures, requiredFeatures));
 }
 
-TEST_F(InstalledFeaturesTest, testProductIsNotRequestedWhenNoFeatureRequired) // NOLINT
+TEST_F(InstalledFeaturesTest, testProductIsNotRequestedWhenNoFeatureRequired)
 {
     std::vector<std::string> productFeatures{ "liveterminal" };
     std::vector<std::string> installedFeatures{ "CORE", "liveterminal" };
@@ -42,7 +42,7 @@ TEST_F(InstalledFeaturesTest, testProductIsNotRequestedWhenNoFeatureRequired) //
     ASSERT_FALSE(shouldProductBeInstalledBasedOnFeatures(productFeatures, installedFeatures, requiredFeatures));
 }
 
-TEST_F(InstalledFeaturesTest, testProductAlreadyInstalledReturnsFalse) // NOLINT
+TEST_F(InstalledFeaturesTest, testProductAlreadyInstalledReturnsFalse)
 {
     std::vector<std::string> productFeatures{ "CORE" };
     std::vector<std::string> installedFeatures{ "CORE", "liveterminal" };

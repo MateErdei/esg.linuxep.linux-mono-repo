@@ -48,7 +48,7 @@ public:
     }
 };
 
-TEST_F(TestOsqueryDataManager, rotateFileWorks) // NOLINT
+TEST_F(TestOsqueryDataManager, rotateFileWorks)
 {
     OsqueryDataManager m_DataManager;
     auto* ifileSystem = Common::FileSystem::fileSystem();
@@ -66,7 +66,7 @@ TEST_F(TestOsqueryDataManager, rotateFileWorks) // NOLINT
     ASSERT_EQ(ifileSystem->readFile(basefile + ".3"), "blah2");
 }
 
-TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetCorrectlyWhenOldRecordTimeReturned) // NOLINT
+TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetCorrectlyWhenOldRecordTimeReturned)
 {
     OsqueryDataManager dataManager;
 
@@ -82,7 +82,7 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetCorrectlyWhenOld
     dataManager.reconfigureDataRetentionParameters(10000, 4000);
 }
 
-TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenOldRecordTimeDefautReturned) // NOLINT
+TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenOldRecordTimeDefautReturned)
 {
     OsqueryDataManager dataManager;
 
@@ -98,7 +98,7 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
     dataManager.reconfigureDataRetentionParameters(604801, 604800);
 }
 
-TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenOldRecordTimeIsGreaterThanCurrentTime) // NOLINT
+TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenOldRecordTimeIsGreaterThanCurrentTime)
 {
     OsqueryDataManager dataManager;
 
@@ -115,7 +115,7 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
     EXPECT_NO_THROW(dataManager.reconfigureDataRetentionParameters(1000, 5000));
 }
 
-TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenTimeCompareIsMoreThanSevenDays) // NOLINT
+TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrectlyWhenTimeCompareIsMoreThanSevenDays)
 {
     OsqueryDataManager dataManager;
 
@@ -131,7 +131,7 @@ TEST_F(TestOsqueryDataManager, reconfiguringForDataRetention_SetToDefaultCorrect
     dataManager.reconfigureDataRetentionParameters((604800 * 4), 604801);
 }
 
-TEST_F(TestOsqueryDataManager, getOldestAllowedTimeForCurre_ThrowsOnFailure) // NOLINT
+TEST_F(TestOsqueryDataManager, getOldestAllowedTimeForCurre_ThrowsOnFailure)
 {
     OsqueryDataManager dataManager;
 
@@ -141,7 +141,7 @@ TEST_F(TestOsqueryDataManager, getOldestAllowedTimeForCurre_ThrowsOnFailure) // 
     EXPECT_THROW(dataManager.getOldestAllowedTimeForCurrentEventedData(), std::runtime_error);
 }
 
-TEST_F(TestOsqueryDataManager, purgeDatabase_willRemoveAllFilesInDirectory) // NOLINT
+TEST_F(TestOsqueryDataManager, purgeDatabase_willRemoveAllFilesInDirectory)
 {
     OsqueryDataManager dataManager;
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
@@ -154,7 +154,7 @@ TEST_F(TestOsqueryDataManager, purgeDatabase_willRemoveAllFilesInDirectory) // N
     dataManager.purgeDatabase();
 }
 
-TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryString) // NOLINT
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryString)
 {
     OsqueryDataManager dataManager;
     std::string query = dataManager.buildLimitQueryString(123);
@@ -176,7 +176,7 @@ SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0)"
     ASSERT_EQ(query, expectedQuery);
 }
 
-TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringUnderBound) // NOLINT
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringUnderBound)
 {
     OsqueryDataManager dataManager;
     std::string query = dataManager.buildLimitQueryString(0);
@@ -198,7 +198,7 @@ SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0)"
     ASSERT_EQ(query, expectedQuery);
 }
 
-TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringOverBound) // NOLINT
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringOverBound)
 {
     OsqueryDataManager dataManager;
 

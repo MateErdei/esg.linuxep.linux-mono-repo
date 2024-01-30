@@ -32,9 +32,9 @@ Time::Time(const std::string& time)
         m_isValid = false;
         LOGWARN("Invalid time from policy: " << time);
     }
-    m_hour = time_buffer.tm_hour; // NOLINT(cppcoreguidelines-prefer-member-initializer)
-    m_minute = time_buffer.tm_min; // NOLINT(cppcoreguidelines-prefer-member-initializer)
-    m_second = time_buffer.tm_sec; // NOLINT(cppcoreguidelines-prefer-member-initializer)
+    m_hour = time_buffer.tm_hour;
+    m_minute = time_buffer.tm_min;
+    m_second = time_buffer.tm_sec;
 }
 
 std::string Time::str() const

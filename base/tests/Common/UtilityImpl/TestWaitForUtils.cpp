@@ -5,14 +5,14 @@
 using namespace Common::UtilityImpl;
 
 
-TEST(WaitForUtils, waitLoopDoesNotThrowIfItReachesTheEndOftheLoop) // NOLINT
+TEST(WaitForUtils, waitLoopDoesNotThrowIfItReachesTheEndOftheLoop)
 {
     auto simpleFunc = []() {return false;};
     double waitTime = 0.1;
     EXPECT_FALSE(Common::UtilityImpl::waitFor(waitTime,0.01,simpleFunc));
 }
 
-TEST(WaitForUtils, checkWaitLoopReturnsWhenConditionFulfilled) // NOLINT
+TEST(WaitForUtils, checkWaitLoopReturnsWhenConditionFulfilled)
 {
     int counter = 0;
     auto simpleFunc = [&]()
@@ -26,7 +26,7 @@ TEST(WaitForUtils, checkWaitLoopReturnsWhenConditionFulfilled) // NOLINT
     ASSERT_EQ(counter, 1);
 }
 
-TEST(WaitForUtils, waitLoopExitsIfConditionFulfilled) // NOLINT
+TEST(WaitForUtils, waitLoopExitsIfConditionFulfilled)
 {
     int counter = 0;
     auto simpleFunc = [&]()
@@ -42,7 +42,7 @@ TEST(WaitForUtils, waitLoopExitsIfConditionFulfilled) // NOLINT
     EXPECT_TRUE(Common::UtilityImpl::waitFor(waitTime,0.01,simpleFunc));
     ASSERT_EQ(counter, 4);
 }
-TEST(WaitForUtils, waitLoopRespectsTheIntervalAndWaitTimeGiven) // NOLINT
+TEST(WaitForUtils, waitLoopRespectsTheIntervalAndWaitTimeGiven)
 {
     int counter = 0;
     auto simpleFunc = [&]()

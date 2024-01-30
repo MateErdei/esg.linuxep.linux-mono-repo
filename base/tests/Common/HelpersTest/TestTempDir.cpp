@@ -9,14 +9,14 @@ namespace
     using namespace Tests;
     using namespace Common::FileSystem;
     // cppcheck-suppress syntaxError
-    TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
+    TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory)
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
         ASSERT_TRUE(fileSystem.isDirectory(td.dirPath()));
     }
 
-    TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory) // NOLINT
+    TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory)
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         auto td = TempDir::makeTempDir("destructor");
@@ -26,7 +26,7 @@ namespace
         EXPECT_FALSE(fileSystem.isDirectory(dirPath));
     }
 
-    TEST(TestTempDir, AbsolutePaths) // NOLINT
+    TEST(TestTempDir, AbsolutePaths)
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
@@ -39,7 +39,7 @@ namespace
         EXPECT_EQ(absPath.substr(dirPath.size() + 1, absPath.size() - dirPath.size() - 1), relativePath);
     }
 
-    TEST(TestTempDir, MakeDirs) // NOLINT
+    TEST(TestTempDir, MakeDirs)
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
@@ -51,7 +51,7 @@ namespace
         ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/level1/level2/level3"));
     }
 
-    TEST(TestTempDir, MakeDirsFromVector) // NOLINT
+    TEST(TestTempDir, MakeDirsFromVector)
     {
         std::vector<std::string> relatives = { { "a/b/c" }, { "a/b/d" }, { "a/c/d/" } };
         auto fileSystem = Common::FileSystem::FileSystemImpl();
@@ -64,7 +64,7 @@ namespace
         ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/a/c/d"));
     }
 
-    TEST(TestTempDir, createFile) // NOLINT
+    TEST(TestTempDir, createFile)
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;

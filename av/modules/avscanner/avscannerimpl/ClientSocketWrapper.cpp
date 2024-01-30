@@ -76,7 +76,7 @@ namespace avscanner::avscannerimpl
             }
             catch (const ReconnectScannerException& e)
             {
-                if (!retryErrorLogged) // NOLINT
+                if (!retryErrorLogged)
                 {
                     checkIfScanAborted();
                     LOGWARN(e.what() << " - retrying after sleep");

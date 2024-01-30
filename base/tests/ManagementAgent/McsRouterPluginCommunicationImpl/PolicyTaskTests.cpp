@@ -26,7 +26,7 @@ private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
+TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun)
 {
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy("SAV", "SAV-11_policy.xml", "test-plugin")).WillOnce(Return(1));
 
@@ -39,7 +39,7 @@ TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
 
 }
 
-TEST_F(PolicyTaskTests, PolicyTaskHandlesNameWithoutHyphen) // NOLINT
+TEST_F(PolicyTaskTests, PolicyTaskHandlesNameWithoutHyphen)
 {
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy(_, _, "test-plugin")).Times(0);
 

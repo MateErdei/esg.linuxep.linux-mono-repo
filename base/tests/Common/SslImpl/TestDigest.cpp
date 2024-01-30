@@ -5,14 +5,14 @@
 
 using namespace Common::SslImpl;
 
-TEST(TestDigest, calculateDigestMd5) // NOLINT
+TEST(TestDigest, calculateDigestMd5)
 {
     EXPECT_EQ(calculateDigest(Digest::md5, "hello world!"), "fc3ff98e8c6a0d3087d515c0473f8677");
     EXPECT_EQ(calculateDigest(Digest::md5, "this is a\nmultiline string"), "ce9107bda89e91c8f277ace9056e1322");
     EXPECT_EQ(calculateDigest(Digest::md5, ""), "d41d8cd98f00b204e9800998ecf8427e");
 }
 
-TEST(TestDigest, calculateDigestSha256) // NOLINT
+TEST(TestDigest, calculateDigestSha256)
 {
     // clang-format off
     EXPECT_EQ(calculateDigest(Digest::sha256, "hello world!"), "7509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9");
@@ -21,7 +21,7 @@ TEST(TestDigest, calculateDigestSha256) // NOLINT
     // clang-format on
 }
 
-TEST(TestDigest, calculateDigestInputLongerThanBufferSize) // NOLINT
+TEST(TestDigest, calculateDigestInputLongerThanBufferSize)
 {
     // clang-format off
     EXPECT_EQ(calculateDigest(Digest::md5, std::string(digestBufferSize + 1, '.')), "506ff924fd0061830292d99415084501");
@@ -30,13 +30,13 @@ TEST(TestDigest, calculateDigestInputLongerThanBufferSize) // NOLINT
     // clang-format on
 }
 
-TEST(TestDigest, calculateDigestStream) // NOLINT
+TEST(TestDigest, calculateDigestStream)
 {
     std::istringstream stream{ "hello world!" };
     EXPECT_EQ(calculateDigest(Digest::md5, stream), "fc3ff98e8c6a0d3087d515c0473f8677");
 }
 
-TEST(TestDigest, calculateDigestBadStreamThrows) // NOLINT
+TEST(TestDigest, calculateDigestBadStreamThrows)
 {
     std::istringstream stream{ "foo" };
     stream.setstate(std::istringstream::badbit);

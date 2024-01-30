@@ -43,7 +43,7 @@ namespace Common::OSUtilitiesImpl
     void SXLMachineID::createMachineIDFile()
     {
         Common::FileSystem::fileSystem()->writeFile(machineIDPath(), generateMachineID());
-        Common::FileSystem::filePermissions()->chmod(machineIDPath(), S_IRUSR | S_IWUSR | S_IRGRP); // NOLINT
+        Common::FileSystem::filePermissions()->chmod(machineIDPath(), S_IRUSR | S_IWUSR | S_IRGRP);
         Common::FileSystem::filePermissions()->chown(machineIDPath(), "root", sophos::group());
     }
 

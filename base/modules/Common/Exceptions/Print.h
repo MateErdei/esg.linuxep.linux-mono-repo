@@ -9,5 +9,5 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <iostream>
 
 #ifndef PRINT
-#    define PRINT(_X) std::cerr << _X << std::endl // NOLINT
+#    define PRINT(_X) std::cerr << _X << std::endl
 #endif

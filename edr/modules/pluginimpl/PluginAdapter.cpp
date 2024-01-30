@@ -370,7 +370,7 @@ namespace Plugin
                         m_restartNoDelay = false;
                         m_expectedOsqueryRestart = false;
                         LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
-                        m_delayedRestart.reset( // NOLINT
+                        m_delayedRestart.reset(
                             new WaitUpTo(
                                 std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
                         break;
@@ -399,7 +399,7 @@ namespace Plugin
                         LOGWARN("The osquery process failed to start. Scheduling a retry in " << delay << " seconds.");
                         Common::Telemetry::TelemetryHelper::getInstance().increment(
                             plugin::telemetryOsqueryRestarts, 1UL);
-                        m_delayedRestart.reset( // NOLINT
+                        m_delayedRestart.reset(
                             new WaitUpTo(
                                 std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
                 }

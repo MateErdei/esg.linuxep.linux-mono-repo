@@ -368,9 +368,9 @@ TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins)
 
 TEST_F(TestPluginManager, TestGetStatusOnUnregisteredPluginThrows)
 {
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(
         m_pluginManagerPtr->getStatus("plugin_not_registered"),
-        Common::PluginCommunication::IPluginCommunicationException); // NOLINT
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)
@@ -381,8 +381,8 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)
       m_pluginManagerPtr->removePlugin(m_pluginOneName);
     });
     getStatus.join();
-    EXPECT_THROW(                                       // NOLINT
-        m_pluginManagerPtr->getStatus(m_pluginOneName), // NOLINT
+    EXPECT_THROW(
+        m_pluginManagerPtr->getStatus(m_pluginOneName),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformation)
@@ -415,7 +415,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)
 
 TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows)
 {
-    EXPECT_THROW(                                                  // NOLINT
+    EXPECT_THROW(
         m_pluginManagerPtr->getTelemetry("plugin_not_registered"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
@@ -428,7 +428,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)
       m_pluginManagerPtr->removePlugin(m_pluginOneName);
     });
     getTelemetry.join();
-    EXPECT_THROW(                                          // NOLINT
+    EXPECT_THROW(
         m_pluginManagerPtr->getTelemetry(m_pluginOneName),
         Common::PluginCommunication::IPluginCommunicationException);
 }
@@ -443,7 +443,7 @@ TEST_F(TestPluginManager, TestGetHealthOnRegisteredPlugins)
 
 TEST_F(TestPluginManager, TestGetHealthOnUnregisteredPluginThrows)
 {
-    EXPECT_THROW(                                                  // NOLINT
+    EXPECT_THROW(
         m_pluginManagerPtr->getHealth("plugin_not_registered"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
@@ -456,7 +456,7 @@ TEST_F(TestPluginManager, TestGetHealthOnRemovedPluginThrows)
       m_pluginManagerPtr->removePlugin(m_pluginOneName);
     });
     getHealth.join();
-    EXPECT_THROW(                                          // NOLINT
+    EXPECT_THROW(
         m_pluginManagerPtr->getHealth(m_pluginOneName),
         Common::PluginCommunication::IPluginCommunicationException);
 }

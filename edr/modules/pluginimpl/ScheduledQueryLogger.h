@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getScheduledQueryLogger();
 
-#define LOGDEBUG_SCHEDULEDOSQUERY(x) LOG4CPLUS_DEBUG(getScheduledQueryLogger(), x)     // NOLINT
-#define LOGINFO_SCHEDULEDOSQUERY(x) LOG4CPLUS_INFO(getScheduledQueryLogger(), x)       // NOLINT
-#define LOGSUPPORT_SCHEDULEDOSQUERY(x) LOG4CPLUS_SUPPORT(getScheduledQueryLogger(), x) // NOLINT
-#define LOGWARN_SCHEDULEDOSQUERY(x) LOG4CPLUS_WARN(getScheduledQueryLogger(), x)       // NOLINT
-#define LOGERROR_SCHEDULEDOSQUERY(x) LOG4CPLUS_ERROR(getScheduledQueryLogger(), x)     // NOLINT
+#define LOGDEBUG_SCHEDULEDOSQUERY(x) LOG4CPLUS_DEBUG(getScheduledQueryLogger(), x)
+#define LOGINFO_SCHEDULEDOSQUERY(x) LOG4CPLUS_INFO(getScheduledQueryLogger(), x)
+#define LOGSUPPORT_SCHEDULEDOSQUERY(x) LOG4CPLUS_SUPPORT(getScheduledQueryLogger(), x)
+#define LOGWARN_SCHEDULEDOSQUERY(x) LOG4CPLUS_WARN(getScheduledQueryLogger(), x)
+#define LOGERROR_SCHEDULEDOSQUERY(x) LOG4CPLUS_ERROR(getScheduledQueryLogger(), x)

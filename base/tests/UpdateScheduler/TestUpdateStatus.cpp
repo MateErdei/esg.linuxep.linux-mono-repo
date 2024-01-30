@@ -136,7 +136,7 @@ void TestSerializeStatus::runTest(const std::string& expectedXML,
     EXPECT_EQ(actualTree, expectedTree);
 }
 
-TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
+TEST_F(TestSerializeStatus, SuccessStatusWithFeatures)
 {
     static const std::string normalStatusWithFeaturesXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
@@ -194,7 +194,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
     EXPECT_EQ(actualTree, expectedTree);
 }
 
-TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
+TEST_F(TestSerializeStatus, SuccessStatus)
 {
     UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
     stateMachineData.setDownloadState("0");
@@ -206,7 +206,7 @@ TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
     runTest(goodStatusXML, getGoodStatus(), stateMachineData);
 }
 
-TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
+TEST_F(TestSerializeStatus, FailedStatus)
 {
     UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
     stateMachineData.setDownloadState("1");
@@ -218,7 +218,7 @@ TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
     runTest(badStatusXML, getErrorStatus(), stateMachineData);
 }
 
-TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
+TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions)
 {
     static const std::string normalStatusWithDefinedSubscription{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
@@ -262,7 +262,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
     runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus, stateMachineData, {"ComponentSuite"});
 }
 
-TEST_F(TestSerializeStatus, SuccessStatusWithCorrectInstalledVersionValues) // NOLINT
+TEST_F(TestSerializeStatus, SuccessStatusWithCorrectInstalledVersionValues)
 {
     static const std::string normalStatusWithDefinedSubscription{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
@@ -306,7 +306,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithCorrectInstalledVersionValues) // N
     runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus, stateMachineData, {"BaseRigidName"});
 }
 
-TEST_F(TestSerializeStatus, serializeStatusXmlCorrectlyFilteresOutRigidNamesNotInSubscriptionList) // NOLINT
+TEST_F(TestSerializeStatus, serializeStatusXmlCorrectlyFilteresOutRigidNamesNotInSubscriptionList)
 {
     static const std::string expectedStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">

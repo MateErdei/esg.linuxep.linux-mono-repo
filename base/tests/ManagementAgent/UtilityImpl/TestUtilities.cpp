@@ -12,7 +12,7 @@ class TestUtilitiesTask : public ::testing::Test
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestUtilitiesTask, getAPPIDSAccurately) // NOLINT
+TEST_F(TestUtilitiesTask, getAPPIDSAccurately)
 {
     EXPECT_EQ("ALC",ManagementAgent::UtilityImpl::extractAppIdFromPolicyFile("/blah/ALC-1_policy.xml"));
     EXPECT_EQ("ALC",ManagementAgent::UtilityImpl::extractAppIdFromPolicyFile("/blah/ALC_policy.xml"));

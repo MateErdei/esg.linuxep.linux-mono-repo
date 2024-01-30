@@ -4,7 +4,7 @@
 
 #ifdef USING_LIBFUZZER
 
-#define LOG(x) do {} while(0) // NOLINT
+#define LOG(x) do {} while(0)
 
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
@@ -22,11 +22,11 @@
 
 log4cplus::Logger& getUnixSocketLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getUnixSocketLogger(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getUnixSocketLogger(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getUnixSocketLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getUnixSocketLogger(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getUnixSocketLogger(), x)  // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getUnixSocketLogger(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getUnixSocketLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getUnixSocketLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getUnixSocketLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getUnixSocketLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getUnixSocketLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getUnixSocketLogger(), x)
 
 #endif

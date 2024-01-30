@@ -8,9 +8,9 @@
 
 log4cplus::Logger& getWatchdogRequestImplLogger();
 
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getWatchdogRequestImplLogger(), x) // NOLINT
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getWatchdogRequestImplLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getWatchdogRequestImplLogger(), x)       // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getWatchdogRequestImplLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getWatchdogRequestImplLogger(), x)     // NOLINT
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getWatchdogRequestImplLogger(), x)     // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getWatchdogRequestImplLogger(), x)
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getWatchdogRequestImplLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getWatchdogRequestImplLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getWatchdogRequestImplLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getWatchdogRequestImplLogger(), x)
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getWatchdogRequestImplLogger(), x)

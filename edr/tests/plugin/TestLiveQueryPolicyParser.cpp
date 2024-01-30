@@ -594,7 +594,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesGoodThenBadThe
 }
 
 TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
-{ // NOLINT
+{
     std::string liveQueryPolicy100000 = "<?xml version=\"1.0\"?>\n"
                                         "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                         "    <configuration>\n"

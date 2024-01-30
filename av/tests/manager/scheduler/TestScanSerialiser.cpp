@@ -32,7 +32,7 @@ Deserialise::Deserialise(const std::string& dataAsString)
     requestReader = messageInput.getRoot<Sophos::ssplav::NamedScan>();
 }
 
-TEST(ScanSerialiser, TestEmptyScan) // NOLINT
+TEST(ScanSerialiser, TestEmptyScan)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -62,7 +62,7 @@ TEST(ScanSerialiser, TestEmptyScan) // NOLINT
     EXPECT_EQ(r.requestReader.getName(), "Sophos Cloud Scheduled Scan");
 }
 
-TEST(ScanSerialiser, FullScan) // NOLINT
+TEST(ScanSerialiser, FullScan)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>

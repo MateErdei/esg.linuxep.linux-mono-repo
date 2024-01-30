@@ -9,7 +9,7 @@ using Common::ZeroMQWrapper::ISocketRequesterPtr;
 
 namespace
 {
-    TEST(TestSocketRequesterImpl, creation) // NOLINT
+    TEST(TestSocketRequesterImpl, creation)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -18,7 +18,7 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST(TestSocketRequesterImpl, listen) // NOLINT
+    TEST(TestSocketRequesterImpl, listen)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -27,7 +27,7 @@ namespace
         socket->listen("inproc://ListenTest");
     }
 
-    TEST(TestSocketRequesterImpl, connectionTimeout) // NOLINT
+    TEST(TestSocketRequesterImpl, connectionTimeout)
     {
         auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
@@ -35,7 +35,7 @@ namespace
         socket->setConnectionTimeout(200);
         socket->connect("ipc:///tmp/no_one_listening.ipc");
         socket->write({ "cmd", "arg" });
-        EXPECT_THROW(socket->read(), Common::ZeroMQWrapperImpl::ZeroMQWrapperException); // NOLINT
+        EXPECT_THROW(socket->read(), Common::ZeroMQWrapperImpl::ZeroMQWrapperException);
     }
 
 } // namespace

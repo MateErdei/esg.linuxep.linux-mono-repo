@@ -26,7 +26,7 @@ static log4cplus::Logger& getLogSetupLogger()
     return STATIC_LOGGER;
 }
 
-#define LOGERROR(x) LOG4CPLUS_ERROR(getLogSetupLogger(), x)  // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(getLogSetupLogger(), x)
 
 namespace
 {
@@ -85,7 +85,7 @@ namespace
         log4cplus::SharedAppenderPtr susiAppender(
             new log4cplus::RollingFileAppender(susiDetailLog, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
         const std::string susiLogPattern = "%m%n"; // Avoid duplicating the timestamp - just output the message from SUSI
-        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(susiLogPattern)); // NOLINT
+        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(susiLogPattern));
         susiAppender->setLayout(std::move(layout));
         auto susiDebug = Common::Logging::getInstance("SUSI_DEBUG");
         susiDebug.addAppender(susiAppender);

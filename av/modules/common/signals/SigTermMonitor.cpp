@@ -12,7 +12,7 @@ namespace common::signals
 {
     namespace
     {
-        int SIGTERM_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+        int SIGTERM_MONITOR_PIPE = -1;
     }
 
     SigTermMonitor::SigTermMonitor(bool restartSyscalls)

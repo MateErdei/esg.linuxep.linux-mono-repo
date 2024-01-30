@@ -108,7 +108,7 @@ TEST_F(TestSecurityUtilsBindMount, TestBindMountReadOnlyMountFile)
     ASSERT_STREQ(afterUnmount.c_str(), "SPL.NOTMOUNTED_MARKER");
 }
 
-TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted)
 {
     MAYSKIP;
 
@@ -127,7 +127,7 @@ TEST_F(TestSecurityUtilsBindMount, WillNotMountIfAlreadyMounted) // NOLINT
     ASSERT_FALSE(Common::FileSystem::fileSystem()->exists(testFileTarget));
 }
 
-TEST_F(TestSecurityUtilsBindMount, WillUsePreviousilyCreatedMountTargets) // NOLINT
+TEST_F(TestSecurityUtilsBindMount, WillUsePreviousilyCreatedMountTargets)
 {
     MAYSKIP;
 

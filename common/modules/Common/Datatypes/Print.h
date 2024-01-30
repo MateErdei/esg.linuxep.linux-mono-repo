@@ -4,5 +4,5 @@
 
 #include <iostream>
 
-// NOLINTNEXTLINE
+
 #define PRINT(x) std::cerr << x << std::endl

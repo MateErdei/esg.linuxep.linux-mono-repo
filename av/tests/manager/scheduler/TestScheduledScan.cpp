@@ -140,7 +140,7 @@ TEST_F(TestScheduledScan, Invalid_Time)
 }
 
 
-TEST_F(TestScheduledScan, DaySet) // NOLINT
+TEST_F(TestScheduledScan, DaySet)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
@@ -182,7 +182,7 @@ TEST_F(TestScheduledScan, DaySet) // NOLINT
 
 }
 
-TEST_F(TestScheduledScan, DaySetEmpty) // NOLINT
+TEST_F(TestScheduledScan, DaySetEmpty)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
         R"MULTILINE(<?xml version="1.0"?>
@@ -227,7 +227,7 @@ TEST_F(TestScheduledScan, DaySetEmpty) // NOLINT
 }
 
 
-TEST_F(TestScheduledScan, TimeSetEmpty) // NOLINT
+TEST_F(TestScheduledScan, TimeSetEmpty)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
         R"MULTILINE(<?xml version="1.0"?>

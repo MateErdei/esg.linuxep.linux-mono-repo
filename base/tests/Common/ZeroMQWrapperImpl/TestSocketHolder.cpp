@@ -13,13 +13,13 @@ namespace
     }
 
     // cppcheck-suppress syntaxError
-    TEST(TestSocketHolder, DefaultCreation) // NOLINT
+    TEST(TestSocketHolder, DefaultCreation)
     {
         Common::ZeroMQWrapperImpl::SocketHolder socket;
         ASSERT_EQ(socket.skt(), nullptr);
     }
 
-    TEST(TestSocketHolder, PointerCreation) // NOLINT
+    TEST(TestSocketHolder, PointerCreation)
     {
         Common::ZeroMQWrapperImpl::ContextHolder holder;
 
@@ -28,7 +28,7 @@ namespace
         ASSERT_EQ(socket.skt(), callbackSocket);
     }
 
-    TEST(TestSocketHolder, TestResetReplacesPointer) // NOLINT
+    TEST(TestSocketHolder, TestResetReplacesPointer)
     {
         Common::ZeroMQWrapperImpl::ContextHolder holder;
 
@@ -41,7 +41,7 @@ namespace
         ASSERT_EQ(socket.skt(), socket2);
     }
 
-    TEST(TestSocketHolder, TestInternalCreation) // NOLINT
+    TEST(TestSocketHolder, TestInternalCreation)
     {
         Common::ZeroMQWrapperImpl::ContextHolderSharedPtr holder = createContext();
         Common::ZeroMQWrapperImpl::SocketHolder socket(holder, ZMQ_REP);

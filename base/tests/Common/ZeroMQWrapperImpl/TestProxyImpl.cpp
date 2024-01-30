@@ -42,7 +42,7 @@ using namespace Common::ZeroMQWrapper;
 
 class TestProxyImpl : public ::testing::Test
 {
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging; // NOLINT
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 
 public:
     void SetUp() override { testing::internal::CaptureStderr(); }
@@ -54,7 +54,7 @@ public:
     }
 };
 
-TEST_F(TestProxyImpl, Creation) // NOLINT
+TEST_F(TestProxyImpl, Creation)
 {
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
         std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
@@ -62,7 +62,7 @@ TEST_F(TestProxyImpl, Creation) // NOLINT
     EXPECT_NE(proxy.get(), nullptr);
 }
 
-TEST_F(TestProxyImpl, StartStop) // NOLINT
+TEST_F(TestProxyImpl, StartStop)
 {
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
         std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
@@ -144,7 +144,7 @@ namespace
     }
 } // namespace
 
-TEST_F(TestProxyImpl, PassMessage) // NOLINT
+TEST_F(TestProxyImpl, PassMessage)
 {
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
@@ -191,7 +191,7 @@ TEST_F(TestProxyImpl, PassMessage) // NOLINT
     proxy.reset();
 }
 
-TEST_F(TestProxyImpl, TwoSubscribers) // NOLINT
+TEST_F(TestProxyImpl, TwoSubscribers)
 {
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
@@ -251,7 +251,7 @@ TEST_F(TestProxyImpl, TwoSubscribers) // NOLINT
     proxy.reset();
 }
 
-TEST_F(TestProxyImpl, TwoSenders) // NOLINT
+TEST_F(TestProxyImpl, TwoSenders)
 {
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";

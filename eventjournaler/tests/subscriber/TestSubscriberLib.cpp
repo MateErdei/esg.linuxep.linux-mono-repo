@@ -56,7 +56,7 @@ namespace
             for (const auto& appender : appenders)
             {
                 std::unique_ptr<log4cplus::Layout> layout(
-                    new log4cplus::PatternLayout("[%d{%S.%q}] %5p %m%n")); // NOLINT
+                    new log4cplus::PatternLayout("[%d{%S.%q}] %5p %m%n"));
                 appender->setLayout(std::move(layout));
             }
         }

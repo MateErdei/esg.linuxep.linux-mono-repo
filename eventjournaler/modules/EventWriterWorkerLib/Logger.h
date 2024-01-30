@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getEventWriterLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getEventWriterLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getEventWriterLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getEventWriterLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getEventWriterLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getEventWriterLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getEventWriterLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getEventWriterLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getEventWriterLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getEventWriterLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getEventWriterLogger(), x)

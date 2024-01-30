@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getZipUtilitiesLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getZipUtilitiesLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getZipUtilitiesLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getZipUtilitiesLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getZipUtilitiesLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getZipUtilitiesLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getZipUtilitiesLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getZipUtilitiesLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getZipUtilitiesLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getZipUtilitiesLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getZipUtilitiesLogger(), x)

@@ -16,16 +16,16 @@ class TestStatusTask : public ::testing::Test
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TestStatusTask, Construction) // NOLINT
+TEST_F(TestStatusTask, Construction)
 {
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache =
         std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
-    EXPECT_NO_THROW // NOLINT
+    EXPECT_NO_THROW
         (ManagementAgent::StatusReceiverImpl::StatusTask task(
             cache, "APPID", "StatusWithTimestamp", "StatusWithoutTimestamp", "tempDir", "statusDir"));
 }
 
-TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) // NOLINT
+TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml", "StatusWithTimestamp", "tempDir", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
@@ -44,7 +44,7 @@ TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) // NOLINT
     task.run();
 }
 
-TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) // NOLINT
+TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
 
@@ -69,7 +69,7 @@ TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) // NOLINT
     task2.run();
 }
 
-TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
+TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::string appId;

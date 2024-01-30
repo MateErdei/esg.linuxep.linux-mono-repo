@@ -69,7 +69,7 @@ public:
     }
 };
 
-TEST_F(TestQueryProcessor, ValidJsonRequestShouldProcessedByIQueryProcessorAndResponseForwardedToDispatcher) // NOLINT
+TEST_F(TestQueryProcessor, ValidJsonRequestShouldProcessedByIQueryProcessorAndResponseForwardedToDispatcher)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -88,7 +88,7 @@ TEST_F(TestQueryProcessor, ValidJsonRequestShouldProcessedByIQueryProcessorAndRe
 }
 
 
-TEST_F(TestQueryProcessor, RequestWithInvalidJsonShouldBeRejected) // NOLINT
+TEST_F(TestQueryProcessor, RequestWithInvalidJsonShouldBeRejected)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -103,7 +103,7 @@ TEST_F(TestQueryProcessor, RequestWithInvalidJsonShouldBeRejected) // NOLINT
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Received an invalid request, failed to parse the json input."));
 }
 
-TEST_F(TestQueryProcessor, RequestWithMissingFieldsFromJsonShouldBeRejected) // NOLINT
+TEST_F(TestQueryProcessor, RequestWithMissingFieldsFromJsonShouldBeRejected)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -122,7 +122,7 @@ TEST_F(TestQueryProcessor, RequestWithMissingFieldsFromJsonShouldBeRejected) // 
 }
 
 
-TEST_F(TestQueryProcessor, JsonWithNonString) // NOLINT
+TEST_F(TestQueryProcessor, JsonWithNonString)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -141,7 +141,7 @@ TEST_F(TestQueryProcessor, JsonWithNonString) // NOLINT
 
 
 
-TEST_F(TestQueryProcessor, QueryProcessorFailureShouldNotCrash) // NOLINT
+TEST_F(TestQueryProcessor, QueryProcessorFailureShouldNotCrash)
 {
     MockQueryProcessor mockQueryProcessor;
     MockResponseDispatcher mockResponseDispatcher;

@@ -7,5 +7,5 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::PluginApi
 {
-    const std::string NoPolicyAvailableException::NoPolicyAvailable{ "No Policy Available" }; // nolint
+    const std::string NoPolicyAvailableException::NoPolicyAvailable{ "No Policy Available" };
 } // namespace Common::PluginApi

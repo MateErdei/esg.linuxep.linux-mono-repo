@@ -4,33 +4,33 @@
 #include "Diagnose/diagnose/CheckForTar.h"
 #include <gtest/gtest.h>
 
-TEST(TestCheckForTar, realPath) // NOLINT
+TEST(TestCheckForTar, realPath)
 {
     // Assume tar is actually available everywhere we run unittests
     ASSERT_TRUE(diagnose::CheckForTar::isTarAvailable());
 }
 
-TEST(TestCheckForTar, emptyPath) // NOLINT
+TEST(TestCheckForTar, emptyPath)
 {
     ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable(""));
 }
 
-TEST(TestCheckForTar, nonExistentPath) // NOLINT
+TEST(TestCheckForTar, nonExistentPath)
 {
     ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable("/t"));
 }
 
-TEST(TestCheckForTar, manyNonExistentPaths) // NOLINT
+TEST(TestCheckForTar, manyNonExistentPaths)
 {
     ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable("/t:/a:/b:/c:/d:/e:/f"));
 }
 
-TEST(TestCheckForTar, manyNonExistentPathsFollowedByBin) // NOLINT
+TEST(TestCheckForTar, manyNonExistentPathsFollowedByBin)
 {
     ASSERT_TRUE(diagnose::CheckForTar::isTarAvailable("/t:/a:/b:/c:/d:/e:/f:/bin:/usr/bin"));
 }
 
-TEST(TestCheckForTar, simpleBin) // NOLINT
+TEST(TestCheckForTar, simpleBin)
 {
     // Check for /bin/tar
     auto filesystem = Common::FileSystem::fileSystem();

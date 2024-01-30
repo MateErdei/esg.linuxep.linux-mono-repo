@@ -32,21 +32,21 @@ livequery::ResponseData::RowData singleRowStrIntStr(int row)
 
 class TestResponseData : public LogOffInitializedTests{};
 
-TEST_F(TestResponseData, emptyResponseDataShouldNotThrow) // NOLINT
+TEST_F(TestResponseData, emptyResponseDataShouldNotThrow)
 {
     livequery::ResponseData emptyData{livequery::ResponseData::emptyResponse()};
     EXPECT_FALSE(emptyData.hasDataExceededLimit());
     EXPECT_FALSE(emptyData.hasHeaders());
 }
 
-TEST_F(TestResponseData, exceedDataLimit) // NOLINT
+TEST_F(TestResponseData, exceedDataLimit)
 {
     livequery::ResponseData exceeded{headerStrIntStr(), livequery::ResponseData::MarkDataExceeded::DataExceedLimit};
     EXPECT_TRUE(exceeded.hasDataExceededLimit());
     EXPECT_TRUE(exceeded.hasHeaders());
 }
 
-TEST_F(TestResponseData, validDataShouldBeConstructedNormally) // NOLINT
+TEST_F(TestResponseData, validDataShouldBeConstructedNormally)
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));
@@ -61,7 +61,7 @@ TEST_F(TestResponseData, validDataShouldBeConstructedNormally) // NOLINT
     EXPECT_EQ( headerStrIntStr(), responseData.columnHeaders());
 }
 
-TEST_F(TestResponseData, valuesInsideTheCellsWillNotBeCheckedByResponseDataOnlyTheStructure) // NOLINT
+TEST_F(TestResponseData, valuesInsideTheCellsWillNotBeCheckedByResponseDataOnlyTheStructure)
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));
@@ -80,7 +80,7 @@ TEST_F(TestResponseData, valuesInsideTheCellsWillNotBeCheckedByResponseDataOnlyT
     EXPECT_EQ( headerStrIntStr(), responseData.columnHeaders());
 }
 
-TEST_F(TestResponseData, rowsWithExtraElementsWillThrowException) // NOLINT
+TEST_F(TestResponseData, rowsWithExtraElementsWillThrowException)
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));
@@ -91,7 +91,7 @@ TEST_F(TestResponseData, rowsWithExtraElementsWillThrowException) // NOLINT
     EXPECT_THROW(livequery::ResponseData(headerStrIntStr(), columnData), livequery::InvalidReponseData);
 }
 
-TEST_F(TestResponseData, rowsAreAllowedToHaveMissingElements) // NOLINT
+TEST_F(TestResponseData, rowsAreAllowedToHaveMissingElements)
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));
@@ -102,7 +102,7 @@ TEST_F(TestResponseData, rowsAreAllowedToHaveMissingElements) // NOLINT
     EXPECT_NO_THROW(livequery::ResponseData(headerStrIntStr(), columnData));
 }
 
-TEST_F(TestResponseData, rowsWithDifferentElementsWillThrowException) // NOLINT
+TEST_F(TestResponseData, rowsWithDifferentElementsWillThrowException)
 {
     livequery::ResponseData::ColumnData columnData;
     columnData.push_back( singleRowStrIntStr(1));

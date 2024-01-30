@@ -119,7 +119,7 @@ namespace
     };
 
     // cppcheck-suppress syntaxError
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus)
     {
         Common::PluginProtocol::DataMessage dataMessage =
             createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
@@ -136,7 +136,7 @@ namespace
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToMessageFail) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToMessageFail)
     {
         Common::PluginProtocol::DataMessage dataMessage =
             createDefaultMessage(static_cast<Common::PluginProtocol::Commands>(20), "");
@@ -145,7 +145,7 @@ namespace
         EXPECT_EQ(reply.m_error, "Invalid request");
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry)
     {
         Common::PluginProtocol::DataMessage dataMessage =
             createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
@@ -162,7 +162,7 @@ namespace
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToGetHealth) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToGetHealth)
     {
         Common::PluginProtocol::DataMessage dataMessage =
             createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_HEALTH, "");
@@ -179,7 +179,7 @@ namespace
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction)
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
@@ -199,7 +199,7 @@ namespace
 
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyWithAppId) // NOLINT
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyWithAppId)
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));

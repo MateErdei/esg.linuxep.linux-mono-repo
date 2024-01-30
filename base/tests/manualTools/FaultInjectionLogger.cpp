@@ -49,7 +49,7 @@ void logForever(log4cplus::Logger logger)
         st << "Write this boring line";
         st << i++;
         LOG4CPLUS_INFO(logger, st.str());
-    }  // NOLINT
+    }
 }
 
 

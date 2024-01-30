@@ -6,8 +6,8 @@
 
 log4cplus::Logger& getQueryRunnerLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getQueryRunnerLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getQueryRunnerLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getQueryRunnerLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getQueryRunnerLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getQueryRunnerLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getQueryRunnerLogger(), x)
+#define LOGINFO(x) LOG4CPLUS_INFO(getQueryRunnerLogger(), x)
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getQueryRunnerLogger(), x)
+#define LOGWARN(x) LOG4CPLUS_WARN(getQueryRunnerLogger(), x)
+#define LOGERROR(x) LOG4CPLUS_ERROR(getQueryRunnerLogger(), x)

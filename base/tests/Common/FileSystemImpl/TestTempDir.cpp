@@ -5,14 +5,14 @@
 #include <gtest/gtest.h>
 
 // cppcheck-suppress syntaxError
-TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
+TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     Common::FileSystemImpl::TempDir td("", "ConstructorCreatesTheTemporaryDirectory");
     ASSERT_TRUE(fileSystem->isDirectory(td.dirPath()));
 }
 
-TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory) // NOLINT
+TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string dirPath;

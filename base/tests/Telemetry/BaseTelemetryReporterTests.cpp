@@ -50,7 +50,7 @@ class OutbreakTelemetryTests : public BaseTelemetryReporterTests
 {
 };
 
-TEST_F(BaseTelemetryReporterTests, extractCustomerIdOK) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractCustomerIdOK)
 {
     auto testCase = TelemetryTestCase{ R"(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -63,7 +63,7 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdOK) // NOLINT
     EXPECT_EQ(testCase.expectedValue, customerId.value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractCustomerIdXmlAttributeNoAvailable) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractCustomerIdXmlAttributeNoAvailable)
 {
     std::string policySnippet =  R"(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -73,7 +73,7 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdXmlAttributeNoAvailable) // 
     EXPECT_FALSE( customerId.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractCustomerIdWrongIdEntry) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractCustomerIdWrongIdEntry)
 {
     std::string policySnippet = R"(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -87,7 +87,7 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdWrongIdEntry) // NOLINT
     EXPECT_FALSE( customerId.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractCustomerIdInvalidXml) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractCustomerIdInvalidXml)
 {
     std::string policySnippet = R"(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -100,7 +100,7 @@ TEST_F(BaseTelemetryReporterTests, extractCustomerIdInvalidXml) // NOLINT
     EXPECT_FALSE( customerId.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile)
 {
     std::unique_ptr<MockFileSystem> mockfileSystemUniquePtr(new StrictMock<MockFileSystem>());
     MockFileSystem* mockFileSystemRawptr = mockfileSystemUniquePtr.get();
@@ -112,7 +112,7 @@ TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOL
     EXPECT_FALSE( endPointId.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractOverallHealthInvalidXml) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthInvalidXml)
 {
     testing::internal::CaptureStderr();
 
@@ -140,7 +140,7 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthInvalidXml) // NOLINT
     ASSERT_FALSE( overallHealth.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractOverallHealthNoItemsInXml) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthNoItemsInXml)
 {
     testing::internal::CaptureStderr();
 
@@ -157,7 +157,7 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthNoItemsInXml) // NOLINT
     ASSERT_FALSE( overallHealth.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractOverallHealthExpectedNameNotInXml) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthExpectedNameNotInXml)
 {
     testing::internal::CaptureStderr();
 
@@ -185,7 +185,7 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthExpectedNameNotInXml) // 
     ASSERT_FALSE( overallHealth.has_value());
 }
 
-TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml) // NOLINT
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml)
 {
     std::string shsStatusXml =
         R"(<?xml version="1.0" encoding="utf-8" ?>

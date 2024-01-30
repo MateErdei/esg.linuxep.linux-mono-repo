@@ -23,7 +23,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
-#define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
+#define LOGSUPPORT(x) std::cout << x << "\n";
 
 namespace Common::FileSystem
 {
@@ -181,7 +181,7 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("File does not exist");
         }
 
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(filePath.c_str(), &statbuf);
         if (ret != 0)
         {
@@ -199,7 +199,7 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("File does not exist");
         }
 
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(filePath.c_str(), &statbuf);
         if (ret != 0)
         {
@@ -296,7 +296,7 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("File does not exist");
         }
 
-        struct stat statbuf; // NOLINT
+        struct stat statbuf;
         int ret = stat(filePath.c_str(), &statbuf);
 
         if (ret != 0)

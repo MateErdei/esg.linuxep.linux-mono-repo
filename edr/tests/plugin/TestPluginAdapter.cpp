@@ -131,7 +131,7 @@ Plugin::Task defaultQueryTask()
 const std::chrono::seconds OneSecond { 1 };
 
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicyContent)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
     queueTask.pushPolicy("ALC", policyContent);
@@ -140,7 +140,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicy
     EXPECT_EQ(policyValue, policyContent);
 }
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueue)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
     Plugin::Task query = defaultQueryTask();
@@ -162,7 +162,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicy
 TEST_F(
     TestPluginAdapterWithoutLogger,
     waitForTheFirstPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueueButMayChangeOrderOfTasksAfter)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
     Plugin::Task query = defaultQueryTask();
@@ -189,7 +189,7 @@ TEST_F(
 }
 
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillTimeoutIfNoALCPolicyIsGivenButKeepQueueEntries)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     Plugin::Task query = defaultQueryTask();
     Plugin::Task query2 { query };
@@ -209,7 +209,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillTimeoutIfNoALCPo
 }
 
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillDetectPolicyProvidedAfterTheCallToWait)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     Plugin::Task query = defaultQueryTask();
     Plugin::Task query2 { query };
@@ -236,7 +236,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillDetectPolicyProv
 }
 
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillGiveUpWaitingAfterReceivingMoreThanMaxThresholdTasks)
-{ // NOLINT
+{
     Plugin::QueueTask queueTask;
     std::atomic<bool> keepRunning { true };
 
@@ -304,7 +304,7 @@ public:
 };
 
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsSingleFile)
-{ // NOLINT
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
@@ -320,7 +320,7 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsSingle
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChownIfExceptionThrown)
-{ // NOLINT
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
@@ -337,7 +337,7 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChown
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsMultipleFiles)
-{ // NOLINT
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
@@ -359,7 +359,7 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsMultip
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChownIfNoDirectory)
-{ // NOLINT
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
@@ -371,7 +371,7 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNotChown
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNothingIfDirectoryEmpty)
-{ // NOLINT
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
     std::vector<std::string> files;

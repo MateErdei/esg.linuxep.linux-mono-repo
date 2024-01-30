@@ -31,7 +31,7 @@ namespace
 
 TEST_F(TestEventTask, Construction)
 {
-    EXPECT_NO_THROW( // NOLINT
+    EXPECT_NO_THROW(
         ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}));
 }
 

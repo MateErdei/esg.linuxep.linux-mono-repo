@@ -27,13 +27,13 @@ class TestDetectionQueue : public LogOffInitializedTests
     }
 };
 
-TEST_F(TestDetectionQueue, TestQueueIntialisesToEmpty) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueIntialisesToEmpty)
 {
     Plugin::DetectionQueue queue;
     ASSERT_TRUE(queue.isEmpty());
 }
 
-TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached)
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
@@ -67,7 +67,7 @@ TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFullAndTelemetryIsIncrem
     EXPECT_EQ(modifiedTelemetry["detections-dropped-from-safestore-queue"], 1);
 }
 
-TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated)
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
@@ -80,7 +80,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NO
     ASSERT_FALSE(queue.isEmpty());
 }
 
-TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop)
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
@@ -94,7 +94,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop) // NOLINT
     ASSERT_FALSE(queue.isFull());
 }
 
-TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection)
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
@@ -112,7 +112,7 @@ TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection) /
     ASSERT_TRUE(queue.isEmpty());
 }
 
-TEST_F(TestDetectionQueue, DetectionsSentToTestQueueAreStillValidIfPushFails) // NOLINT
+TEST_F(TestDetectionQueue, DetectionsSentToTestQueueAreStillValidIfPushFails)
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
@@ -126,7 +126,7 @@ TEST_F(TestDetectionQueue, DetectionsSentToTestQueueAreStillValidIfPushFails) //
     ASSERT_TRUE(queue.push(detection2));
 }
 
-TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLINT
+TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop)
 {
     Plugin::DetectionQueue queue;
     auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
@@ -138,7 +138,7 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLIN
     EXPECT_FALSE(result.get().has_value());
 }
 
-TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
+TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately)
 {
     Plugin::DetectionQueue queue;
     auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
@@ -149,7 +149,7 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
     EXPECT_TRUE(result.get().has_value());
 }
 
-TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
+TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
 {
     Plugin::DetectionQueue queue;
 

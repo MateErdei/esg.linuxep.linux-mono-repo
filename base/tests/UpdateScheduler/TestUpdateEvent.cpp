@@ -84,7 +84,7 @@ void TestSerializeEvent::runTest(const UpdateEvent& event, const std::string& ex
     EXPECT_EQ(actualTree, expectedTree);
 }
 
-TEST_F(TestSerializeEvent, SuccessEvent) // NOLINT
+TEST_F(TestSerializeEvent, SuccessEvent)
 {
     static const std::string successEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -100,7 +100,7 @@ TEST_F(TestSerializeEvent, SuccessEvent) // NOLINT
     runTest(event, successEventXML);
 }
 
-TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
+TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache)
 {
     static const std::string successEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -123,7 +123,7 @@ TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
 }
 
 
-TEST_F(TestSerializeEvent, installFailedTwoProducts) // NOLINT
+TEST_F(TestSerializeEvent, installFailedTwoProducts)
 {
     static const std::string installFailedEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -145,7 +145,7 @@ TEST_F(TestSerializeEvent, installFailedTwoProducts) // NOLINT
     runTest(event, installFailedEventXML);
 }
 
-TEST_F(TestSerializeEvent, installCaughtErrorEvent) // NOLINT
+TEST_F(TestSerializeEvent, installCaughtErrorEvent)
 {
     static const std::string installCaughtErrorEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -166,7 +166,7 @@ TEST_F(TestSerializeEvent, installCaughtErrorEvent) // NOLINT
     runTest(event, installCaughtErrorEventXML);
 }
 
-TEST_F(TestSerializeEvent, downloadFailedEvent) // NOLINT
+TEST_F(TestSerializeEvent, downloadFailedEvent)
 {
     static const std::string downloadFailedEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -188,7 +188,7 @@ TEST_F(TestSerializeEvent, downloadFailedEvent) // NOLINT
     runTest(event, downloadFailedEventXML);
 }
 
-TEST_F(TestSerializeEvent, productMissing) // NOLINT
+TEST_F(TestSerializeEvent, productMissing)
 {
     static const std::string packageSourceMissingEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -209,7 +209,7 @@ TEST_F(TestSerializeEvent, productMissing) // NOLINT
     runTest(event, packageSourceMissingEventXML);
 }
 
-TEST_F(TestSerializeEvent, productsMissing) // NOLINT
+TEST_F(TestSerializeEvent, productsMissing)
 {
     static const std::string packagesSourceMissingEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -225,7 +225,7 @@ TEST_F(TestSerializeEvent, productsMissing) // NOLINT
     runTest(event, packagesSourceMissingEventXML);
 }
 
-TEST_F(TestSerializeEvent, connectionError) // NOLINT
+TEST_F(TestSerializeEvent, connectionError)
 {
     static const std::string connectionErrorEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
