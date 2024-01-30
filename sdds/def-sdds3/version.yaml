@@ -48,12 +48,12 @@
 
 # REMINDER: Update the default current shipping/previous dogfood branch in pipeline/pipeline.py for sprint/release builds
 version:
-  major: 2023.4       # increment this for each major release
+  major: 2024.1       # increment this for each major release
   minor: 0            # increment this for each "planned" minor release
 
   # For sprint builds, specify the sprint; automatically used in suite marketing versions
   # For non-sprint release builds, just comment this out or use 'null'
-  sprint: '2024.03'
+  #sprint: '2024.03'
 
   # set this to LTS if doing a warehouse build for LTS release
   static: 'FTS'

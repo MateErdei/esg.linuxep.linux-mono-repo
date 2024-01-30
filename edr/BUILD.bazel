@@ -6,7 +6,7 @@ load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 version_info(
     name = "version_info",
-    base_version = "1.1.11",
+    base_version = "1.1.12",
     component_name = "edr",
     visibility = ["//edr:__subpackages__"],
 )

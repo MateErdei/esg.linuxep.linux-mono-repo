@@ -4,7 +4,7 @@ load("//tools/config:sophos_versioning.bzl", "version_info")
 
 version_info(
     name = "version_info",
-    base_version = "1.0.7",
+    base_version = "1.0.8",
     component_name = "sspl-event-journaler-plugin",
     visibility = ["//eventjournaler:__subpackages__"],
 )

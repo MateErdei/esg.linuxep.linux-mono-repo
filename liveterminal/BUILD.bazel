@@ -6,7 +6,7 @@ load("//tools/config:sophos_versioning.bzl", "version_info")
 
 version_info(
     name = "version_info",
-    base_version = "1.7.3",
+    base_version = "1.7.4",
     component_name = "liveterminal_linux",
     visibility = ["//liveterminal:__subpackages__"],
 )

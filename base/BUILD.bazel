@@ -7,7 +7,7 @@ load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 version_info(
     name = "version_info",
-    base_version = "1.2.6",
+    base_version = "1.2.7",
     component_name = "sspl_base",
     visibility = ["//base:__subpackages__"],
 )
