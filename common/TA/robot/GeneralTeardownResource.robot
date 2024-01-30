@@ -2,6 +2,7 @@
 Library    OperatingSystem
 Library    ${COMMON_TEST_LIBS}/TeardownTools.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/CoreDumps.py
 
 Resource   InstallerResources.robot
 
