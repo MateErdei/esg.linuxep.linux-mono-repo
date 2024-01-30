@@ -70,8 +70,6 @@ def stage_di_tests(
                 continue
             inputs = load_inputs(context, build_output, outputs[x86_64], build)
             test_machines = get_test_machines(build, parameters)
-            if test_machines[0] is None:
-                continue
             robot_args = get_robot_args(parameters)
 
             for machine in test_machines:

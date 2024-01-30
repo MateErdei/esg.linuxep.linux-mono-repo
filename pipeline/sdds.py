@@ -263,8 +263,6 @@ def stage_sdds_tests(
                 fixed_versions_x86, fixed_versions_arm64
             )
             test_machines = get_test_machines(build, parameters)
-            if test_machines[0] is None:
-                continue
 
             robot_args = get_robot_args(parameters)
 

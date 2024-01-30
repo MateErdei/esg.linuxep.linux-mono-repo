@@ -95,8 +95,6 @@ def stage_liveterminal_tests(
                 continue
             inputs = get_inputs(context, build_output, build)
             test_machines = get_test_machines(build, parameters)
-            if test_machines[0] is None:
-                continue
 
             robot_args = get_robot_args(parameters)
 

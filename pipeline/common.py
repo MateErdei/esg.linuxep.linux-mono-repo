@@ -117,6 +117,7 @@ def get_test_machines(build: str, parameters: DotDict):
     elif build == "linux_x64_clang":
         return [FUZZ_TEMPLATE]
 
+    #If adjusting available environments for arch, change if statements below
     available_x64_environments = {
         'amazonlinux2': 'amzlinux2_x64_server_en_us',
         'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
@@ -188,131 +189,124 @@ def get_test_machines(build: str, parameters: DotDict):
 
     platform = 'amazonlinux2'
     if parameters.run_amazon_2 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_amazon_2 == "dont_run":
         test_environments["x64"].pop(platform, None)
-        test_environments["arm64"].pop(platform, None)
 
     platform = 'amazonlinux2023'
     if parameters.run_amazon_2023 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_amazon_2023 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'centos79'
     if parameters.run_centos_7 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_centos_7 == "dont_run":
         test_environments["x64"].pop(platform, None)
 
     platform = 'centos8stream'
     if parameters.run_centos_stream_8 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_centos_stream_8 == "dont_run":
         test_environments["x64"].pop(platform, None)
-        test_environments["arm64"].pop(platform, None)
 
     platform = 'centos9stream'
     if parameters.run_centos_stream_9 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_centos_stream_9 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'debian10'
     if parameters.run_debian_10 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_debian_10 == "dont_run":
         test_environments["x64"].pop(platform, None)
-        test_environments["arm64"].pop(platform, None)
 
     platform = 'debian11'
     if parameters.run_debian_11 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_debian_11 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'oracle7'
     if parameters.run_oracle_7 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_oracle_7 == "dont_run":
         test_environments["x64"].pop(platform, None)
 
     platform = 'oracle8'
     if parameters.run_oracle_8 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_oracle_8 == "dont_run":
         test_environments["x64"].pop(platform, None)
 
     platform = 'rhel7'
     if parameters.run_rhel_7 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_rhel_7 == "dont_run":
         test_environments["x64"].pop(platform, None)
 
     platform = 'rhel8'
     if parameters.run_rhel_8 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_rhel_8 == "dont_run":
         test_environments["x64"].pop(platform, None)
-        test_environments["arm64"].pop(platform, None)
 
     platform = 'rhel9'
     if parameters.run_rhel_9 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_rhel_9 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'sles12'
     if parameters.run_sles_12 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_sles_12 == "dont_run":
         test_environments["x64"].pop(platform, None)
 
     platform = 'sles15'
     if parameters.run_sles_15 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_sles_15 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'ubuntu1804'
     if parameters.run_ubuntu_18_04 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_ubuntu_18_04 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'ubuntu2004'
     if parameters.run_ubuntu_20_04 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_ubuntu_20_04 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     platform = 'ubuntu2204'
     if parameters.run_ubuntu_22_04 == "force_run":
-        test_environments["x64"][platform] = available_x64_environments.get(platform)
-        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_ubuntu_22_04 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
     arch = build.split("_")[1]
+
     return list(test_environments[arch].values())
 
 
