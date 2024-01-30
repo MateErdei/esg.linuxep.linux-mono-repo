@@ -128,14 +128,12 @@ Device Isolation Allows Localhost
     Should Be Equal As Integers  ${result.rc}  ${1}   "nft list ruleset failed incorrectly with rc=${result.rc}"
 
 Device Isolation Allows Sophos Processes
-    # LINUXDAR-8529: sudo --group does not seem to be available on all distros
-    [Tags]    EXCLUDE_AMZLINUX2    EXCLUDE_AMZLINUX2023    EXCLUDE_CENTOS7    EXCLUDE_CENTOS8STREAM    EXCLUDE_CENTOS9STREAM    EXCLUDE_ORACLE79_X64    EXCLUDE_ORACLE87_X64    EXCLUDE_RHEL79    EXCLUDE_RHEL87    EXCLUDE_RHEL91    EXCLUDE_SLES12
     ${is_oracle} =  Does File Contain Word  /etc/os-release  Oracle Linux
     Pass Execution If  ${is_oracle}  LINUXDAR-8529 - exclude tags not working for Oracle
     ${mark} =  Get Device Isolation Log Mark
 
     ${external_url} =    Set Variable    https://artifactory.sophos-ops.com
-    Can Curl Url As Group    ${external_url}    group=sophos-spl-group
+    Can Curl Url As User    ${external_url}    user=sophos-spl-user
 
     # Send policy with exclusions
     Send Isolation Policy With CI Exclusions
@@ -150,13 +148,13 @@ Device Isolation Allows Sophos Processes
     Should Contain    ${nft_rules}     table inet sophos_device_isolation
 
     # Check we can access sophos.com as sophos group due to accept rule.
-    Can Curl Url As Group    ${external_url}    group=sophos-spl-group
+    Can Curl Url As User    ${external_url}    user=sophos-spl-user
     # Check we cannot access sophos.com as non-sophos group because the EP is isolated.
-    Run Keyword And Expect Error    cannot reach url: ${external_url}    Can Curl Url As Group    ${external_url}    group=nogroup
+    Run Keyword And Expect Error    cannot reach url: ${external_url}    Can Curl Url    ${external_url}
 
     # Disable isolation
     Disable Device Isolation
-    Wait Until Keyword Succeeds    10s    1s    Can Curl Url As Group    ${external_url}    group=nogroup
+    Wait Until Keyword Succeeds    10s    1s    Can Curl Url    ${external_url}
 
     # Network filtering rules should be empty
     ${result} =   Run Process    ${COMPONENT_ROOT_PATH}/bin/nft    list    ruleset

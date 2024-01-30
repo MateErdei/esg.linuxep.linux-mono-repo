@@ -184,3 +184,7 @@ class UpdateServer(object):
         # Unfortunately this only works on certain distros
         if self.curl_url(url, proxy, f"sudo --group={group}") != 0:
             raise AssertionError("cannot reach url: {}".format(url))
+
+    def can_curl_url_as_user(self, url, proxy=None, user="sophos-spl-user"):
+        if self.curl_url(url, proxy, f"sudo --user={user}") != 0:
+            raise AssertionError("cannot reach url: {}".format(url))
