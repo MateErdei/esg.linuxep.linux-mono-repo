@@ -137,6 +137,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     mark_expected_error_in_log  ${AV_DIR}/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     mark_expected_error_in_log  ${AV_DIR}/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
+    # ZMQ error that is still in dogfood
+    mark_expected_error_in_log  ${AV_DIR}/log/av.log  No incoming data on ZMQ socket from getReply in BaseServiceAPI after
 
     IF    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
         Mark Expected Error In Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> supervisor entering dormant mode due to error
