@@ -40,7 +40,7 @@
         <intermediate artifact-path="deviceisolation/linux_arm64_rel/installer" dest-dir="sdds/redist/deviceisolation/latest/arm64" mode="dev,prod,999"/>
 
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999">
-            <release-version branch="release--sensor--version_5_8_0" build-id="20240123230206-df1387381fe69901b23be91e76d19c2a714e64f2-aVJlU5"/>
+            <release-version branch="release--sensor--version_5_8_0" build-id="20240130100803-2a593831fadbfd8da515bfc664dae43f41e41f3f-tVrcCA"/>
             <development-version branch="develop"/>
             <include artifact-path="SDDS-COMPONENT" dest-dir="sdds/redist/runtimedetections/latest/x64" mode="dev,999"/>
             <include artifact-path="SDDS-COMPONENT-arm64" dest-dir="sdds/redist/runtimedetections/latest/arm64" mode="dev,999"/>
