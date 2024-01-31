@@ -10,6 +10,7 @@ Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Library   ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
+Library   ${COMMON_TEST_LIBS}/FileUtils.py
 
 Suite Setup     Run keywords
 ...             Setup For Fake Cloud  AND
@@ -139,21 +140,14 @@ Test av can publish events for onaccess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
     Mark Livequery Log
-    ${av_mark} =    mark_log_size        ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    ${av_mark} =    mark_log_size   ${SOPHOS_INSTALL}/plugins/av/log/av.log
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
-    wait_for_log_contains_from_mark    ${av_mark}    Processing On Access Scanning settings from CORE policy     20
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  check_log_contains    On-access enabled: true  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  check_log_contains    Fanotify successfully initialised  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
+    wait_for_log_contains_from_mark    ${av_mark}    Processing On Access Scanning settings from CORE policy     ${20}
+    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  enabled  timeout=${20}
 
     # File needs to be detected by on-access
+    ${av_mark} =    mark_log_size   ${SOPHOS_INSTALL}/plugins/av/log/av.log
     Create File     /tmp/dirty_included_file    ${EICAR_STRING}
     wait_for_log_contains_from_mark    ${av_mark}    Threat cleaned up at path: '/tmp/dirty_included_file'     20
 

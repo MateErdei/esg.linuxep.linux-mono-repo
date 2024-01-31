@@ -1,7 +1,9 @@
 *** Settings ***
+Library     OperatingSystem
 Library     Process
 
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
+Library    ${COMMON_TEST_LIBS}/FileUtils.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${COMMON_TEST_LIBS}/OSUtils.py
 
@@ -96,13 +98,16 @@ Test Zip And Unzip Directory With Password
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    ${0}   "zip failed: Reason ${result.stderr}"
     Should Exist  ${zipFile}
+    FileUtils.assert_zip_file_is_password_protected  ${zipFile}
 
     Create Directory  ${UNPACK_DIRECTORY}
     Empty Directory  ${UNPACK_DIRECTORY}
     ${result} =    Run Process  ${unzipTool}  ${zipFile}  ${UNPACK_DIRECTORY}   env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/  stderr=STDOUT
-    Log  ${result.stdout}
-    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}
-    Log   ${Files}
+    Log   unziptool output: ${result.stdout}
+    ${Files} =  List Directory  ${UNPACK_DIRECTORY}
+    Log   List Directory ${Files}
+    ${lsOutput} =  Run Process  ls  -lR   ${UNPACK_DIRECTORY}   stderr=STDOUT
+    Log   ls -lR ${lsOutput.stdout}
     Should Not Be Equal As Integers    ${result.rc}    ${0}   "unzip utility unexpectedly succeeded without password"
 
     ${result} =    Run Process  ${unzipTool}  ${zipFile}  ${UNPACK_DIRECTORY}  ${password}   env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/  stderr=STDOUT
