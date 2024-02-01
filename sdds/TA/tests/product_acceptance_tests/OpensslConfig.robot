@@ -16,7 +16,7 @@ Resource    ProductAcceptanceTestsResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
+Test Setup       Product Acceptance Test Setup
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Force Tags  TAP_PARALLEL2    SMOKE

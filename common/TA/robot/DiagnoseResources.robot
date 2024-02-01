@@ -18,17 +18,22 @@ Display All Extracted Files
     ${result} =    Run Process  find   ${UNPACK_DIRECTORY}/${DiagnoseOutput}
     Log  ${result.stdout}
 
-Teardown
+Diagnose Test Setup
+    Should Exist  ${SOPHOS_INSTALL}/bin/sophos_diagnose
+    Register Cleanup    Remove Dir If Exists   ${TAR_FILE_DIRECTORY}
+    Register Cleanup    Remove Dir If Exists   ${UNPACK_DIRECTORY}
+    Register Cleanup    Remove Dir If Exists   /tmp/5mbarea
+    Register Cleanup    Remove Dir If Exists   /tmp/up
+    Register Cleanup    Run Process  umount  /tmp/up
+    Register On Fail    Display All Extracted Files
+    Register On Fail    Dump Log    /tmp/diagnose.log
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died wit with 1
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+    
+Diagnose Test Teardown
     General Test Teardown
-    Run Keyword If Test Failed    LogUtils.Dump Log    /tmp/diagnose.log
-    Run Keyword If Test Failed    Display All Extracted Files
-    Remove Dir If Exists   ${TAR_FILE_DIRECTORY}
-    Remove Dir If Exists   ${UNPACK_DIRECTORY}
-    Run Process  umount  /tmp/up
-    Remove Dir If Exists   /tmp/5mbarea
-    Remove Dir If Exists   /tmp/up
-
-
+    Run Teardown Functions
 
 Check Diagnose Base Output
     ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles

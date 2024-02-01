@@ -30,6 +30,14 @@ ${tmpLaunchDarkly}                              /tmp/launchdarkly
 ${staticflagfile}                               linuxep.json
 
 *** Keywords ***
+Upgrade Resources SDDS3 Test Setup
+    Require Uninstalled
+    Register Cleanup  Check All Product Logs Do Not Contain Error
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  suldownloader <> Failed to connect to repository:
+    Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+
 Upgrade Resources SDDS3 Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Run Teardown Functions

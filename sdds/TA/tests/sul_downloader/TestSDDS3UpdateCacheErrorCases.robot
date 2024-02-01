@@ -1,7 +1,7 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
+Test Setup       Upgrade Resources SDDS3 Test Setup
 Test Teardown    UC Error Test Teardown
 
 Test Timeout  10 mins
@@ -29,13 +29,13 @@ Force Tags  TAP_PARALLEL1  SULDOWNLOADER    sdds3updatecache_error_cases
 
 *** Keywords ***
 UC Error Test Teardown
+    Upgrade Resources Test Teardown
     run keyword if  "${GL_UC_handle}" != "${EMPTY}"  terminate process  ${GL_UC_handle}  True
     Set Suite Variable    $GL_UC_handle    ${EMPTY}
     Stop Local SDDS3 Server
     Clean up fake warehouse
     Remove Environment Variable   EXITCODE
     Remove Environment Variable   COMMAND
-    Upgrade Resources Test Teardown
 
 
 *** Test Cases ***

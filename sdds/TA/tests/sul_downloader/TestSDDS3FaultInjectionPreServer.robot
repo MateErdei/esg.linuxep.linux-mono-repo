@@ -6,6 +6,7 @@ Resource    ${COMMON_TEST_ROBOT}/GeneralUtilsResources.robot
 Resource    ${COMMON_TEST_ROBOT}/SulDownloaderResources.robot
 Resource    ${COMMON_TEST_ROBOT}/UpgradeResources.robot
 
+Test Setup     Upgrade Resources SDDS3 Test Setup
 Test Teardown  Upgrade Resources Test Teardown
 
 Force Tags  SULDOWNLOADER  TAP_PARALLEL1

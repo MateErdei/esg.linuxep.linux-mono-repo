@@ -517,15 +517,18 @@ class LogUtils(object):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
         self.check_all_product_logs_do_not_contain_string("FATAL", search_list)
 
-    def check_all_product_logs_do_not_contain_error(self):
-        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*",
-                       "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
+    def check_logs_do_not_contain_error(self, log_file_list):
         logger.info("Re-apply expected errors")
         for log_location, error_messages in self.__m_pending_mark_expected_errors.items():
             _mark_expected_errors_in_log(log_location, *error_messages)
         self.__m_pending_mark_expected_errors = {}
 
-        self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
+        self.check_all_product_logs_do_not_contain_string("]   ERROR [", log_file_list)
+
+    def check_all_product_logs_do_not_contain_error(self):
+        log_file_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*",
+                       "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
+        self.check_logs_do_not_contain_error(log_file_list)
 
     def verify_message_relay_failure_in_order(self, *messagerelays, **kwargs):
         mcs_address = kwargs.get("MCS_ADDRESS", "mcs.sandbox.sophos:443")

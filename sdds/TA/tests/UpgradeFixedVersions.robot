@@ -22,7 +22,7 @@ Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
+Test Setup       Upgrade Resources SDDS3 Test Setup
 Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  15 mins

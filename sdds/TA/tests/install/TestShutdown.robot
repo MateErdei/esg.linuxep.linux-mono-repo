@@ -11,6 +11,9 @@ Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource  ${COMMON_TEST_ROBOT}/ResponseActionsResources.robot
 Resource  ${COMMON_TEST_ROBOT}/SchedulerUpdateResources.robot
 
+Test Setup     Shutdown System Test Setup
+Test Teardown  Shutdown System Test Teardown
+
 Force Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN    TAP_PARALLEL2
 
 *** Test Cases ***
@@ -79,3 +82,12 @@ Test Components Shutdown Cleanly
     ...  1 secs
     ...  Check Log Contains   Update Scheduler Finished   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   UpdateSchedulerLog
 
+*** Keywords ***
+Shutdown System Test Setup
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+    Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with signal 1
+    Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+
+Shutdown System Test Teardown
+    General Test Teardown
+    Run Teardown Functions

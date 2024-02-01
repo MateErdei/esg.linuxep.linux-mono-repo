@@ -108,8 +108,6 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}        ${sophos_spl_group_gid_requested}
     Should Be Equal As Strings    ${sophos_spl_ipc_gid_after}          ${sophos_spl_ipc_gid_requested}
 
-    Verify Product is Running Without Error After ID Change
-
 Reconfigure All Sophos Users And Groups When Installing Product Using Thin Installer
     [Tags]    THININSTALLER    RTD_CHECKED
 
@@ -168,17 +166,16 @@ Reconfigure All Sophos Users And Groups When Installing Product Using Thin Insta
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}        ${sophos_spl_group_gid_requested}
     Should Be Equal As Strings    ${sophos_spl_ipc_gid_after}          ${sophos_spl_ipc_gid_requested}
 
-    Verify Product is Running Without Error After ID Change
-
 
 *** Keywords ***
-Verify Product is Running Without Error After ID Change
-    #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
-    Mark Expected Error In Log       ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> Could not enter supervised child process
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
 User Group Reconfiguration Test Setup
     Require Uninstalled
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+    Register Cleanup    Check All Product Logs Do Not Contain Critical
     Exclude RTD fallback error messages  ${SOPHOS_INSTALL}
+    #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> Could not enter supervised child process
+    # TODO: Remove once LINUXDAR-8666 is fixed
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
+    # TODO: Remove once LINUXDAR-8240 is fixed
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/sophos_managementagent died with signal 9

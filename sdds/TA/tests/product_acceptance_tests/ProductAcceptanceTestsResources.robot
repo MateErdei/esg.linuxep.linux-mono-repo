@@ -17,3 +17,10 @@ Wait for All Processes To Be Running
     Check Live Response Plugin Installed
 #    Check Device Isolation Executable Running
     Check Response Actions Executable Running
+
+Product Acceptance Test Setup
+    Upgrade Resources SDDS3 Test Setup
+    # TODO: Remove once LINUXDAR-8666 is fixed
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
+    # TODO: Remove once LINUXDAR-8240 is fixed
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/sophos_managementagent died with signal 9

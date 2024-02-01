@@ -2,7 +2,7 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
+Test Setup       Upgrade Resources SDDS3 Test Setup
 Test Teardown    Run Keywords
 ...                Clean up fake warehouse  AND
 ...                Upgrade Resources SDDS3 Test Teardown

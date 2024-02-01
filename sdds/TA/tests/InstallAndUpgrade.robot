@@ -879,5 +879,6 @@ Replace Group in package config
     Create File     ${SOPHOS_INSTALL}/base/update/var/package_config.xml    ${output}
 
 Install And Upgrade Test Setup
-    require_uninstalled
+    Require Uninstalled
     Exclude RTD fallback error messages  ${SOPHOS_INSTALL}
+    Register Cleanup    Check All Product Logs Do Not Contain Error

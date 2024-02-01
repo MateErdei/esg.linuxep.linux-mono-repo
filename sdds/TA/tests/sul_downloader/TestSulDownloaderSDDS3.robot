@@ -1,15 +1,8 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
-Test Teardown    Run Keywords
-...                Remove Environment Variable  http_proxy    AND
-...                Remove Environment Variable  https_proxy  AND
-...                Stop Proxy If Running    AND
-...                Stop Proxy Servers   AND
-...                Remove File  /tmp/tmpALC.xml   AND
-...                Clean up fake warehouse  AND
-...                Upgrade Resources SDDS3 Test Teardown
+Test Setup       Sul Downloader SDDS3 Test Setup
+Test Teardown    Sul Downloader SDDS3 Test Teardown
 
 Library     DateTime
 Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
@@ -329,3 +322,19 @@ Check MCS Envelope Contains Event with Update cache
     ${string}=  Check Log And Return Nth Occurrence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
     Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
 
+Sul Downloader SDDS3 Test Setup
+    Require Uninstalled
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  suldownloader <> Failed to connect to repository:
+    Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+
+Sul Downloader SDDS3 Test Teardown
+    Upgrade Resources SDDS3 Test Teardown
+    Remove Environment Variable  http_proxy
+    Remove Environment Variable  https_proxy
+    Stop Proxy If Running
+    Stop Proxy Servers
+    Remove File  /tmp/tmpALC.xml
+    Clean up fake warehouse

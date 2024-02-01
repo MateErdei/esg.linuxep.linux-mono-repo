@@ -8,31 +8,17 @@ Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource  ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
+Library   ${COMMON_TEST_LIBS}/FileUtils.py
 Library   ${COMMON_TEST_LIBS}/LiveQueryUtils.py
 Library   ${COMMON_TEST_LIBS}/LogUtils.py
-Library   ${COMMON_TEST_LIBS}/FileUtils.py
+Library   ${COMMON_TEST_LIBS}/OnFail.py
 
-Suite Setup     Run keywords
-...             Setup For Fake Cloud  AND
-...             Setup Event Journaler End To End
+Suite Setup     AV System Suite Setup
+Suite Teardown  AV System Suite Teardown
 
-Suite Teardown  Run Keywords
-...             dump_cloud_server_log  AND
-...             Require Uninstalled  AND
-...             Stop Local Cloud Server
+Test Setup     AV System Test Setup
+Test Teardown  AV System Test Teardown
 
-Test Teardown  Run Keywords
-...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
-...            dump_cloud_server_log  AND
-...            Remove File  /tmp/av_install.log  AND
-...            Stop AV Plugin  AND
-...            Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase  AND
-...            Start AV Plugin  AND
-...            Check AV Plugin Installed Directly  AND
-...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
-...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
-...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND
-...            General Test Teardown
 
 Force Tags  TAP_PARALLEL2  EVENT_JOURNALER_PLUGIN  AV_PLUGIN  EDR_PLUGIN
 
@@ -168,6 +154,33 @@ Test av can publish events for onaccess and that journaler can receive them
     Check Marked Livequery Log Contains  on_access
 
 *** Keywords ***
+AV System Test Setup
+    Register Cleanup    Remove File  /tmp/av_install.log
+    ${relevant_log_list} =    Create List    plugins/eventjournaler/log/*.log*  plugins/av/log/*.log*  plugins/av/log/sophos_threat_detector/*.log*
+    Register Cleanup    Check Logs Do Not Contain Error    ${relevant_log_list}
+    Register On Fail    dump_cloud_server_log
+    Register On Fail    Dump Teardown Log  /tmp/av_install.log
+
+AV System Test Teardown
+    Run Teardown Functions
+    Stop AV Plugin
+    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    Start AV Plugin
+    Check AV Plugin Installed Directly
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*
+    General Test Teardown
+
+AV System Suite Setup
+    Setup For Fake Cloud
+    Setup Event Journaler End To End
+
+AV System Suite Teardown
+    Dump Cloud Server Log
+    Require Uninstalled
+    Stop Local Cloud Server
+
 Wait Until Threat Report Socket Exists
     [Arguments]    ${time_to_wait}=5
     Wait Until Keyword Succeeds

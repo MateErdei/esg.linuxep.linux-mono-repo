@@ -17,8 +17,8 @@ Resource    ${COMMON_TEST_ROBOT}/RuntimeDetectionsResources.robot
 Suite Setup  Require Fresh Install
 Suite Teardown  Ensure Uninstalled
 
-Test Setup      Should Exist  ${SOPHOS_INSTALL}/bin/sophos_diagnose
-Test Teardown   Teardown
+Test Setup      Diagnose Test Setup
+Test Teardown   Diagnose Test Teardown
 
 Force Tags  TAP_PARALLEL2    DIAGNOSE
 

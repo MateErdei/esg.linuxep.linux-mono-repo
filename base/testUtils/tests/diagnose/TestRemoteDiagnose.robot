@@ -15,9 +15,9 @@ Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
 Suite Setup  Require Fresh Install
 Suite Teardown  Ensure Uninstalled
 
-Test Teardown   Teardown
+Test Setup      Remote Diagnose Test Setup
+Test Teardown   Remote Diagnose Test Teardown
 
-Test Setup   Setup Fake Cloud
 Force Tags  DIAGNOSE    TAP_PARALLEL2
 
 *** Variables ***
@@ -65,15 +65,15 @@ Test Remote Diagnose can handle two SDU actions
 check for processed tar files
     ${count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/remote-diagnose/output
     Should Be Equal As Integers  2   ${count}
-Setup Fake Cloud
+
+Remote Diagnose Test Setup
     Start Local Cloud Server
     Setup_MCS_Cert_Override
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
     HttpsServer.Start Https Server  ${COMMON_TEST_UTILS}/server_certs/server.crt    443  tlsv1_2
 
-
-Teardown
+Remote Diagnose Test Teardown
     Run Teardown Functions
     Stop Local Cloud Server
     MCSRouter Default Test Teardown

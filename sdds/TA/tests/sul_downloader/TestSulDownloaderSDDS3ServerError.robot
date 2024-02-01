@@ -498,3 +498,18 @@ CDN Fault Injection Server Responds With Generic Error
     Check SulDownloader Log Contains    Failed to synchronize repository
     Check SulDownloader Log Contains    : 500
 
+*** Keywords ***
+Sul Downloader SDDS3 Server Error Test Setup
+    Require Uninstalled
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+
+Sul Downloader SDDS3 Server Error Test Teardown
+    Upgrade Resources SDDS3 Test Teardown
+    Remove Environment Variable  http_proxy
+    Remove Environment Variable  https_proxy
+    Stop Proxy If Running
+    Stop Proxy Servers
+    Remove File  /tmp/tmpALC.xml
+    Clean up fake warehouse
+    Remove Environment Variable  COMMAND
+    Remove Environment Variable  EXITCODE

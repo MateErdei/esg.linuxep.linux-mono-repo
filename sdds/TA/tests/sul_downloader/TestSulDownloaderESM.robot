@@ -1,14 +1,8 @@
 *** Settings ***
 Suite Setup      Upgrade Resources Suite Setup
 
-Test Setup       Require Uninstalled
-Test Teardown    Run Keywords
-...                Remove Environment Variable  http_proxy    AND
-...                Remove Environment Variable  https_proxy  AND
-...                Stop Proxy If Running    AND
-...                Stop Proxy Servers   AND
-...                Clean up fake warehouse  AND
-...                Upgrade Resources SDDS3 Test Teardown
+Test Setup       Sul Downloader ESM Test Setup
+Test Teardown    Sul Downloader ESM Test Teardown
 
 Library     DateTime
 Library     ${COMMON_TEST_LIBS}/FakeSDDS3UpdateCacheUtils.py
@@ -35,6 +29,8 @@ ${staticflagfile}                           linuxep.json
 
 *** Test Cases ***
 Valid ESM Entry Is Requested By Suldownloader
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  suldownloader <> Failed to connect to repository:
+    Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1    f4d41a16-b751-4195-a7b2-1f109d49469d
     Create File  ${tmpPolicy}   ${esm_enabled_alc_policy}
     Register Cleanup  Remove File  ${tmpPolicy}
@@ -102,6 +98,9 @@ We Install Flags Correctly For Static Suites
 
 
 Invalid ESM Policy Entry Is Caught By Suldownloader
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  Policy <> ESM feature is not valid.
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  suldownloader <> Failed to run Suldownloader with error: Configuration data is invalid
+    Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
     #Invalid because we are only providing a name for the fixed_version
     ${esm_enabled_alc_policy} =    populate_fixed_version_with_normal_cloud_sub    LTS 2023.1.1
     Create File    ${tmpPolicy}    ${esm_enabled_alc_policy}
@@ -133,6 +132,8 @@ Invalid ESM Policy Entry Is Caught By Suldownloader
 
 
 Absent ESM Field Does Not Appear In Update Config
+    Register Cleanup  Mark Expected Error In Log  ${SULDOWNLOADER_LOG_PATH}  suldownloader <> Failed to connect to repository
+    Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
 
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
@@ -455,3 +456,18 @@ Check MCS Envelope Contains Event with Update cache
     ${string}=  Check Log And Return Nth Occurrence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
     Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
 
+Sul Downloader ESM Test Setup
+    Require Uninstalled
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+    Register Cleanup    Mark Expected Error In Log  ${MCS_ROUTER_LOG}    mcsrouter.utils.plugin_registry <> Failed to load plugin file
+    Register Cleanup    Mark Expected Error In Log  ${MCS_ROUTER_LOG}    mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied
+    Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+    Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+
+Sul Downloader ESM Test Teardown
+    Upgrade Resources SDDS3 Test Teardown
+    Remove Environment Variable  http_proxy
+    Remove Environment Variable  https_proxy
+    Stop Proxy If Running
+    Stop Proxy Servers
+    Clean up fake warehouse

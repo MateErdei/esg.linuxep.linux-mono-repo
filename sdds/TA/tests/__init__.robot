@@ -44,6 +44,7 @@ Global Setup Tasks
     Set Global Variable    ${MCS_ROUTER_LOG}              ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log
     Set Global Variable    ${MCS_ENVELOPE_LOG}            ${BASE_LOGS_DIR}/sophosspl/mcs_envelope.log
     Set Global Variable    ${SULDOWNLOADER_LOG_PATH}      ${BASE_LOGS_DIR}/suldownloader.log
+    Set Global Variable    ${UPDATESCHEDULER_LOG_PATH}    ${BASE_LOGS_DIR}/sophosspl/updatescheduler.log
     Set Global Variable    ${PLUGIN_REGISTRY_DIR}         ${SOPHOS_INSTALL}/base/pluginRegistry
     Set Global Variable    ${UPDATE_DIR}                  ${SOPHOS_INSTALL}/base/update
     Set Global Variable    ${UPDATE_CONFIG}               ${UPDATE_DIR}/var/updatescheduler/update_config.json

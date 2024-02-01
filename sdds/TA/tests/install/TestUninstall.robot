@@ -7,6 +7,9 @@ Resource   ${COMMON_TEST_ROBOT}/EDRResources.robot
 Resource   ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource   ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 
+Test Setup     Uninstall System Test Setup
+Test Teardown  Uninstall System Test Teardown
+
 Force Tags  UNINSTALL  TAP_PARALLEL1
 
 *** Test Cases ***
@@ -104,3 +107,13 @@ Test Uninstall Script Gives Return Code Zero
 
     ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
     Should Be Equal As Strings  ${result.rc}  0  "Return code was not 0, instead: ${result.rc}\nstdout: ${result.stdout}\nstderr: ${result.stderr}
+
+*** Keywords ***
+Uninstall System Test Setup
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died wit with 1
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Register Cleanup    Check All Product Logs Do Not Contain Error
+
+Uninstall System Test Teardown
+    General Test Teardown
+    Run Teardown Functions
