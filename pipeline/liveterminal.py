@@ -46,25 +46,6 @@ def get_inputs(context: tap.PipelineContext, build_output: ArtisanInput, build: 
 
 @tap.timeout(task_timeout=TEST_TASK_TIMEOUT_MINUTES)
 def run_liveterminal_component_tests(machine: tap.Machine):
-    # TODO LINUXDAR-8169 remove this section
-    exclude_proxy_test = [
-        "ubuntu1804_x64_aws_server_en_us",
-        "ubuntu2004_x64_aws_server_en_us",
-        "debian11_x64_aws_server_en_us",
-        "debian10_x64_aws_server_en_us",
-        "amzlinux2023_x64_server_en_us",
-        "amzlinux2_x64_server_en_us",
-        "ubuntu1804_arm64_server_en_us",
-        "ubuntu2004_arm64_server_en_us",
-        "debian11_arm64_server_en_us",
-        "debian10_arm64_server_en_us",
-        "amzlinux2023_arm64_server_en_us",
-        "amzlinux2_arm64_server_en_us",
-    ]
-
-    if machine.template in exclude_proxy_test:
-        machine.run("rm", "-rf", machine.inputs.pytest_scripts / "tests/functional/test_proxy_connection.py")
-
     os_packages = get_os_packages(machine)
     try:
         run_pytest_tests(machine, ["tests/functional"], os_packages, scripts="pytest_scripts")
