@@ -107,7 +107,6 @@ check_for_upgrade  "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" ${PROD
 TEMP_REG_FILE="${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json"
 sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
 "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
-rm -f "${TEMP_REG_FILE}"
 
 #Install files
 find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"

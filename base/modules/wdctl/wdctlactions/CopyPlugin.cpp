@@ -33,11 +33,12 @@ int CopyPlugin::run()
     }
 
     Path destination = Common::FileSystem::join(pluginRegistry, Common::FileSystem::basename(m_args.m_argument));
-
-    LOGINFO("Copying " << m_args.m_argument << " to " << destination);
+    LOGINFO("Moving " << m_args.m_argument << " to " << destination);
     try
     {
-        Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
+        Common::FileSystem::filePermissions()->chmod(m_args.m_argument, S_IRUSR | S_IWUSR | S_IRGRP);
+        Common::FileSystem::filePermissions()->chown(m_args.m_argument, "root", sophos::group());
+        Common::FileSystem::fileSystem()->moveFile(m_args.m_argument, destination);
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
@@ -45,16 +46,7 @@ int CopyPlugin::run()
         return 1;
     }
 
-    try
-    {
-        Common::FileSystem::filePermissions()->chmod(destination, S_IRUSR | S_IWUSR | S_IRGRP);
-        Common::FileSystem::filePermissions()->chown(destination, "root", sophos::group());
-    }
-    catch (Common::FileSystem::IFileSystemException& error)
-    {
-        LOGFATAL(error.what());
-        return 1;
-    }
+
 
     return 0;
 }

@@ -955,7 +955,8 @@ for F in "$DIST/installer/plugins"/*
 do
     if changed_or_added "${F#"$DIST"/}" "${DIST}" ${PRODUCT_LINE_ID}
     then
-       "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
+      cp "$F" "${SOPHOS_INSTALL}/tmp"
+      "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${SOPHOS_INSTALL}/tmp/"$(basename "$F") || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
     fi
 done
 

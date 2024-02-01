@@ -99,7 +99,7 @@ Test wdctl prints error message with unknown argument
     Should Contain   ${result.stderr}   Unknown command: Argument1
 
 Test wdctl prints error message with missing config
-    Wdctl Fails Command With Error Message  copyPluginRegistration  /tmp/NotAFile  source file does not exist.
+    Wdctl Fails Command With Error Message  copyPluginRegistration  /tmp/NotAFile  chmod failed to set file permissions to 416 on /tmp/NotAFile with error No such file or directory
 
 Test wdctl should print error message when trying to copy plugin with name longer than 20 chars
     Create File   ${SOPHOS_INSTALL}/tmp/123456789102345678920.json  Dummy Content
@@ -139,10 +139,12 @@ Test wdctl should print error message when starting plugin with junk content plu
     Should Fail Start  NotJsonFile
 
 Test wdctl should not print error message with incorrect json content plugin registration file
-    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json
+    Copy File   ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json     ${SOPHOS_INSTALL}/tmp
+    Copy Plugin Registry Should Succeed   ${SOPHOS_INSTALL}/tmp/sav.json
 
 Test wdctl should print error message when starting plugin with incorrect json content plugin registration
-    Copy Plugin Registry Should Succeed  ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json
+    Copy File   ${ROBOT_TESTS_DIR}/tests/mcs_router/installfiles/sav.json     ${SOPHOS_INSTALL}/tmp
+    Copy Plugin Registry Should Succeed   ${SOPHOS_INSTALL}/tmp/sav.json
     Should Fail Start  sav
 
 
