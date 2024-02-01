@@ -20,8 +20,8 @@ soph_cc_library(
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/XmlUtilities",
-        "//imports/thirdparty/nlohmann-json",
         "//liveterminal:AutoVersion",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//liveterminal/products/plugin:__pkg__",

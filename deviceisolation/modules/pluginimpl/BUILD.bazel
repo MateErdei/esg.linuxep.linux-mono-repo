@@ -25,7 +25,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//base/modules/Common/XmlUtilities",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//deviceisolation/products/plugin:__pkg__",

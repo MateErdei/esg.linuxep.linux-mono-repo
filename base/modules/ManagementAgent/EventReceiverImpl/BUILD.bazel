@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -13,7 +13,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:Uuid",
         "//base/modules/Common/XmlUtilities",
         "//base/modules/ManagementAgent/LoggerImpl",
-        "//imports/thirdparty/nlohmann-json:nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//base/modules/ManagementAgent/ManagementAgentImpl:__pkg__",

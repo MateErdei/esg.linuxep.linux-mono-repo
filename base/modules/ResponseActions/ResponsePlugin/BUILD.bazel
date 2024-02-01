@@ -36,7 +36,7 @@ soph_cc_library(
         "//base/modules/Common/Logging",
         "//base/modules/Common/TelemetryHelperImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//base/products/ResponseActions/plugin:__pkg__",

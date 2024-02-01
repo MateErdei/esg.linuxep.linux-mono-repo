@@ -29,8 +29,8 @@ soph_cc_binary(
         "//base/modules/Common/HttpRequestsImpl",
         "//base/modules/Common/Policy",
         "//common/modules/Common/Main",
-        "//imports/thirdparty/nlohmann-json",
         "@curl",
+        "@nlohmann_json//:json",
     ],
 )
 

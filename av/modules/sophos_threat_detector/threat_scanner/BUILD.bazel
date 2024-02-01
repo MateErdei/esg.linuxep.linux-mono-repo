@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -79,7 +79,7 @@ soph_cc_library(
         "//base/modules/Common/ObfuscationImpl",
         "//base/modules/Common/UtilityImpl:StringUtils",
         "//imports/internal/susi",
-        "//imports/thirdparty/nlohmann-json",
         "@log4cplus",
+        "@nlohmann_json//:json",
     ],
 )

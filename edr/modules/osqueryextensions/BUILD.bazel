@@ -12,7 +12,7 @@ soph_cc_library(
         "//base/modules/Common/FileSystem",
         "//base/modules/Common/Threads",
         "//edr/modules/EventJournalWrapperImpl",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//edr/manual/FuzzableLoggerExtension:__pkg__",

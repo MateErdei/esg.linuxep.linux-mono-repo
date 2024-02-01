@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -18,7 +18,7 @@ soph_cc_library(
         ":Logger",
         "//base/modules/Common/ApplicationConfiguration",
         "//base/modules/Common/FileSystem",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//av/modules/mount_monitor/mount_monitor:__pkg__",
@@ -47,7 +47,7 @@ soph_cc_library(
         "//av/modules/sophos_on_access_process/OnAccessTelemetryFields",
         "//av/modules/unixsocket/updateCompleteSocket:UpdateCompleteClientSocketThread",
         "//base/modules/Common/Logging",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
     visibility = [
         "//av/products/sophos_on_access_process:__pkg__",

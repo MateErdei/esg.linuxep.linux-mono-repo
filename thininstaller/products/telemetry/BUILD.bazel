@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_binary", "soph_cc_library")
 
@@ -20,7 +20,7 @@ soph_cc_library(
         "//base/modules/Common/UtilityImpl:TimeUtils",
         "//common/modules/Common/ConfigFile",
         "//common/modules/Common/Datatypes:Print",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
 )
 

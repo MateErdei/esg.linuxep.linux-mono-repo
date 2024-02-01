@@ -22,7 +22,7 @@ soph_cc_library(
         "//base/tests/LibFuzzerTests:__pkg__",
     ],
     deps = [
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
 )
 

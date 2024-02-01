@@ -33,7 +33,7 @@ soph_cc_library(
         "//common/livequery/OsquerySDK",
         "//edr:AutoVersion",
         "//edr/modules/queryrunner",
-        "//imports/thirdparty/nlohmann-json",
+        "@nlohmann_json//:json",
     ],
 )
 
