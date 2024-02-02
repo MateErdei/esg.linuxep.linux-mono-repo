@@ -228,6 +228,7 @@ def create_suite_autoversion(suitedef, suite, mode, multiple_instances):
             version=version,
             sprint=f'SPRINT {VERSION["sprint"]}' if 'sprint' in VERSION else '',
             static=static if is_static_suite_instance(suite) else '',
+            branch='',
             dash_special=f'-{special}' if special else '')
 
     suite['marketing_version'] = re.sub(pattern=r'\s+', string=suite['marketing_version'], repl=' ').strip()
