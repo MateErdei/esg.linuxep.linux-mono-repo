@@ -214,13 +214,21 @@ def create_suite_autoversion(suitedef, suite, mode, multiple_instances):
         raise NameError(f'{line_id}_{version}: missing marketing_version (required for prod builds)')
     if '{version}' not in suite['marketing_version'] and '{fullversion}' not in suite['marketing_version']:
         raise NameError(f'{line_id}_{version}: marketing_version does not contain {{version}} or {{fullversion}}')
-    if mode == 'dev':
-        suite['marketing_version'] = f"{version} ({_get_branch()})"
+    static = VERSION['static'] if 'static' in VERSION else ''
+    special = VERSION['special'] if 'special' in VERSION else ''
+    if mode != 'prod':
+        suite['marketing_version'] = suite['marketing_version'].format(
+            version=version,
+            sprint=f'SPRINT {VERSION["sprint"]}' if 'sprint' in VERSION else '',
+            branch=f'{_get_branch()}',
+            static=static if is_static_suite_instance(suite) else '',
+            dash_special=f'-{special}' if special else '')
     else:
         suite['marketing_version'] = suite['marketing_version'].format(
             version=version,
-            fullversion=fullversion,
-            sprint=f'SPRINT {VERSION["sprint"]}' if 'sprint' in VERSION else '')
+            sprint=f'SPRINT {VERSION["sprint"]}' if 'sprint' in VERSION else '',
+            static=static if is_static_suite_instance(suite) else '',
+            dash_special=f'-{special}' if special else '')
 
     suite['marketing_version'] = re.sub(pattern=r'\s+', string=suite['marketing_version'], repl=' ').strip()
 

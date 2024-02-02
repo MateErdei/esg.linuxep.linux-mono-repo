@@ -5,7 +5,7 @@ line-id: ServerProtectionLinux-Plugin-EDR
 instances:
   - tags: ["RECOMMENDED", "BETA"]
     generate_static: True
-    marketing_version: "{version} {sprint}"
+    marketing_version: "{static} {version}{dash_special} {sprint}"
     views:
       - platforms:
           - LINUX_INTEL_LIBC6

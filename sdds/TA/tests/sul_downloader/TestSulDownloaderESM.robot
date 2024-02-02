@@ -404,6 +404,12 @@ Install all plugins static then upgrade to all plugins static-999
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
     Check VUT Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
 
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   1 secs
+    ...   Check we send static tag up to central
+
+
     Setup SUS static 999
     ${fixed_version_token} =    read_token_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
     ${fixed_version_name} =    read_name_from_warehouse_linuxep_json    ${tmpLaunchDarkly}/${staticflagfile}
@@ -471,3 +477,11 @@ Sul Downloader ESM Test Teardown
     Stop Proxy If Running
     Stop Proxy Servers
     Clean up fake warehouse
+Check we send static tag up to central
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Log    ${StatusContent}
+    ${FTS present}=  Run Keyword And Return Status     Should Contain  ${StatusContent}  FTS
+    # don't want this test to fail on LTS builds
+    ${LTS present}=  Run Keyword And Return Status     Should Contain  ${StatusContent}  LTS
+
+    Run Keyword Unless    ${LTS present} or ${FTS present}   Fail  Static tag not present in subscription version
