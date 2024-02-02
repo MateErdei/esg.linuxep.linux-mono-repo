@@ -19,12 +19,12 @@ Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Err
     [Teardown]  Clean Up Files
     Require Fresh Install
 
-    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlCanAddANewPluginToRunningWatchdog   ${TEMPDIR}  testplugin
-    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlHandleBrokenPlugin                  ${TEMPDIR}  testbrokenplugin   testbrokenplugin.sh
+    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlCanAddANewPluginToRunningWatchdog   ${SOPHOS_INSTALL}/tmp  testplugin
+    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlHandleBrokenPlugin                  ${SOPHOS_INSTALL}/tmp  testbrokenplugin   testbrokenplugin.sh
     ## call wdctl to copy configuration
 
-    ${result1} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testbrokenplugin.json
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
+    ${result1} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${SOPHOS_INSTALL}/tmp/testbrokenplugin.json
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${SOPHOS_INSTALL}/tmp/testplugin.json
 
     # break plugin by preventing it from being able to execute.
     Run Process     chmod   -x     ${SOPHOS_INSTALL}/testbrokenplugin.sh
@@ -49,11 +49,6 @@ Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
     Require Fresh Install
 
    setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
-    ## call wdctl to copy configuration
-
-
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
-
 
     ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    fakePlugin
     sleep  2

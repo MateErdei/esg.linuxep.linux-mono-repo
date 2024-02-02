@@ -29,9 +29,9 @@ Test wdctl can ask watchdog to restart a process
 Test wdctl can add a new plugin to running watchdog
     Remove File  /tmp/TestWdctlCanAddANewPluginToRunningWatchdog
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/testplugin.json
-    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlCanAddANewPluginToRunningWatchdog   ${TEMPDIR}  testplugin
+    Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlCanAddANewPluginToRunningWatchdog   ${SOPHOS_INSTALL}/tmp  testplugin
     ## call wdctl to copy configuration
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${SOPHOS_INSTALL}/tmp/testplugin.json
 
     ## call wdctl to start plugin
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    testplugin
