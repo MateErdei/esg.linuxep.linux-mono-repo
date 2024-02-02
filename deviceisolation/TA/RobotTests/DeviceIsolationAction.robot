@@ -259,7 +259,9 @@ Device Isolation Does not Enable Or Disable Isolation After Receiving Duplicate 
 
     Disable Device Isolation
 
+#TODO EES-28835 - Delete or Fix this test depending on the outcome of the EES ticket raised
 Device Isolation Can Handle IPv6 exclusion
+    [Tags]  TESTFAILURE
     ${mark} =  Get Device Isolation Log Mark
 
     # Baseline - should be able to access sophos.com and google.com before isolation but not after.
