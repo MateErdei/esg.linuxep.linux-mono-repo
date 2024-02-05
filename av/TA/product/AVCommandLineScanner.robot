@@ -75,8 +75,6 @@ AVCommandLineScanner Test Setup
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Exclude Expected Sweep Errors
     Register Cleanup      Require No Unhandled Exception
-    Register Cleanup      Check For Coredumps  ${TEST NAME}
-    Register Cleanup      Check Dmesg For Segfaults
 
 AVCommandLineScanner Test TearDown
     Run Teardown Functions

@@ -275,8 +275,6 @@ ScanNow Test Setup
     Register Cleanup      Exclude On Access Scan Errors
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Require No Unhandled Exception
-    Register Cleanup      Check For Coredumps  ${TEST NAME}
-    Register Cleanup      Check Dmesg For Segfaults
 
 ScanNow Test Teardown
     Delete Eicars From Tmp

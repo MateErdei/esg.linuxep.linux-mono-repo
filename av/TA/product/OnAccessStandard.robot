@@ -53,8 +53,6 @@ On Access Test Setup
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors
     Register Cleanup  Require No Unhandled Exception
-    Register Cleanup  Check For Coredumps  ${TEST NAME}
-    Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
 
 

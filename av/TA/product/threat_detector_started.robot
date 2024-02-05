@@ -40,8 +40,6 @@ Threat Detector Suite Setup
 Threat Detector Test Setup
     Component Test Setup
     Register Cleanup  Require No Unhandled Exception
-    Register Cleanup  Check For Coredumps  ${TEST NAME}
-    Register Cleanup  Check Dmesg For Segfaults
     Register On Fail  Dump Log  ${AV_LOG_PATH}
     Start AV
     Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector

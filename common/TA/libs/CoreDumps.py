@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2022-2023 Sophos Limited. All rights reserved.
+# Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 import datetime
 import os
@@ -57,11 +57,14 @@ class CoreDumps(object):
 
     def __init__(self):
         self.__m_ignore_cores_segfaults = False
+        self.__m_ignore_cores_segfaults_test = None
         self.__m_log_keyword = "Dump Logs"
 
-    def enable_core_files(self, log_keyword="Dump Logs"):
+    def enable_core_files(self, log_keyword=None, watchdog_dump_on_timeout=True):
         logger.info("Enabling core dumps")
-        self.__m_log_keyword = log_keyword
+        if log_keyword is not None:
+            self.__m_log_keyword = log_keyword
+
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
@@ -76,15 +79,18 @@ class CoreDumps(object):
         with open("/proc/sys/kernel/core_pattern", "wb") as f:
             f.write(b"/z/core-%t-%P-%E")
 
-        os.environ['SOPHOS_CORE_DUMP_ON_PLUGIN_KILL'] = "1"
-        os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
+        if watchdog_dump_on_timeout:
+            os.environ['SOPHOS_CORE_DUMP_ON_PLUGIN_KILL'] = "1"
+            os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
 
-    def disable_core_files(self):
+    @staticmethod
+    def disable_core_files():
         logger.info("Disabling core dumps")
         os.environ.pop('SOPHOS_CORE_DUMP_ON_PLUGIN_KILL', None)
         os.environ.pop('SOPHOS_ENABLE_CORE_DUMP', None)
 
-    def dump_dmesg(self):
+    @staticmethod
+    def dump_dmesg():
         sp = subprocess
         dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
         stdout, stderr = dmesg_process.communicate()
@@ -127,7 +133,8 @@ class CoreDumps(object):
             testname = BuiltIn().get_variable_value("${TEST NAME}")
 
         RTD_SEGFAULT_RE = re.compile(r".* error [46] in sophos-subprocess-\d+-exec1 \(deleted\)\[.*")
-        CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
+        CLOUD_SETUP_SEGFAULT_RE = re.compile(
+            r"nm-cloud-setup\[\d+]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+]")
 
         all_segfaults_are_ignored = True
         for segfault in segfaults:
@@ -135,7 +142,9 @@ class CoreDumps(object):
                 logger.info("Ignoring segfault from RTD")
                 continue
             if CLOUD_SETUP_SEGFAULT_RE.search(segfault):
-                # [Tue Oct 18 10:19:41 2022] nm-cloud-setup[697]: segfault at 7ffc00000002 ip 00007f07931576ef sp 00007ffc28f16850 error 4 in libglib-2.0.so.0.6800.4[7f0793134000+90000]
+                # [Tue Oct 18 10:19:41 2022] nm-cloud-setup[697]:
+                #  segfault at 7ffc00000002 ip 00007f07931576ef sp 00007ffc28f16850 error 4
+                #  in libglib-2.0.so.0.6800.4[7f0793134000+90000]
                 logger.info("Ignoring segfault from nm-cloud-setup")
                 continue
             all_segfaults_are_ignored = False
@@ -146,7 +155,7 @@ class CoreDumps(object):
 
         # Subtract Base from IP to give offset
         IP_RE = re.compile(
-            r".*: segfault at [0-9a-f]+ ip ([0-9a-f]+) sp [0-9a-f]+ error \d+ in [^\[]+\[([0-9a-f]+)\+[0-9a-f]+\].*")
+            r".*: segfault at [0-9a-f]+ ip ([0-9a-f]+) sp [0-9a-f]+ error \d+ in [^\[]+\[([0-9a-f]+)\+[0-9a-f]+].*")
         for segfault in segfaults:
             segfault = segfault.strip()
             mo = IP_RE.match(segfault)
@@ -170,7 +179,7 @@ class CoreDumps(object):
 
             self.check_for_coredumps(testname)  # Do this immediately in case it isn't called
 
-            if self.__m_ignore_cores_segfaults:
+            if self.__should_ignore_coredumps_and_segfaults():
                 logger.debug("Ignoring segfaults in dmesg")
                 return ""
             elif all_segfaults_are_ignored:
@@ -180,7 +189,8 @@ class CoreDumps(object):
 
         return stdout
 
-    def __fail_test_on_core_dump_name(self, filename):
+    @staticmethod
+    def __fail_test_on_core_dump_name(filename):
         if "!opt!sophos-spl!base!bin!telemetry." in filename:
             return False
 
@@ -203,7 +213,7 @@ class CoreDumps(object):
         if not os.path.exists(CORE_DIR):
             return
 
-        coredumpnames = []
+        core_dump_names = []
         for file in os.listdir(CORE_DIR):
             if not file.startswith("core-"):
                 continue
@@ -212,7 +222,7 @@ class CoreDumps(object):
             if not os.path.isfile(file_path):
                 continue
 
-            if self.__m_ignore_cores_segfaults:
+            if self.__should_ignore_coredumps_and_segfaults():
                 logger.debug("Ignoring core dump:", file_path)
                 os.unlink(file_path)
                 continue
@@ -230,7 +240,7 @@ class CoreDumps(object):
             stat_result = os.stat(file_path)
             timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
             logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
-            coredumpnames.append(file)
+            core_dump_names.append(file)
 
             # Attempt to gdb core file
             attempt_backtrace_of_core(file_path)
@@ -238,11 +248,11 @@ class CoreDumps(object):
             self.__copy_to_coredump_dir(file_path, testname, timestamp=timestamp)
             os.remove(file_path)
 
-        if not coredumpnames:
+        if not core_dump_names:
             return
 
         all_cores_should_be_ignored = True
-        for core in coredumpnames:
+        for core in core_dump_names:
             core = ensure_text(core)
             if self.__fail_test_on_core_dump_name(core):
                 all_cores_should_be_ignored = False
@@ -251,18 +261,30 @@ class CoreDumps(object):
             # Disabled failing test run until we can sort the core files out
             raise AssertionError("Core dump(s) found")
 
-    def __copy_to_coredump_dir(self, filepath, testname, timestamp=None):
+    @staticmethod
+    def __copy_to_coredump_dir(filepath, testname, timestamp=None):
         if timestamp is None:
             timestamp = datetime.datetime.now()
         testname = (testname.replace("/", "_") + "_" + str(timestamp)).replace(" ", "_")
         coredump_dir = "/opt/test/coredumps"
         os.makedirs(coredump_dir, exist_ok=True)
-        dest = os.path.join(coredump_dir, testname)
-        logger.warn("Moving core file to %s" % dest)
-        shutil.copy(filepath, dest)
+        destination = os.path.join(coredump_dir, testname)
+        logger.warn("Moving core file to %s" % destination)
+        shutil.copy(filepath, destination)
 
     def ignore_coredumps_and_segfaults(self):
         self.__m_ignore_cores_segfaults = True
+        self.__m_ignore_cores_segfaults_test = BuiltIn().get_variable_value("${TEST NAME}")
+
+    def watch_coredumps_and_segfaults(self):
+        self.__m_ignore_cores_segfaults = False
+        self.__m_ignore_cores_segfaults_test = None
+
+    def __should_ignore_coredumps_and_segfaults(self):
+        if self.__m_ignore_cores_segfaults:
+            if self.__m_ignore_cores_segfaults_test and self.__m_ignore_cores_segfaults_test == BuiltIn().get_variable_value("${TEST NAME}"):
+                return True
+        return False
 
 
 def __main(argv):

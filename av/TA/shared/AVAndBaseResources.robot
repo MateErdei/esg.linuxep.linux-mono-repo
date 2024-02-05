@@ -20,8 +20,6 @@ AV and Base Setup
     Register Cleanup  analyse Journalctl   print_always=True
     Register Cleanup  Dump All Sophos Processes
     Register Cleanup  Log Status Of Sophos Spl
-    Register Cleanup  Check For Coredumps  ${TEST NAME}
-    Register Cleanup  Check Dmesg For Segfaults
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Require Plugin Installed and Running
     Send Alc Policy

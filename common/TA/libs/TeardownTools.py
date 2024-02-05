@@ -1,3 +1,4 @@
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 import datetime
 import os
 import shutil
@@ -197,7 +198,7 @@ class TeardownTools(object):
             os.makedirs(core_dump_dir)
         shutil.copy(filepath, core_dump_dir)
 
-    def mount_filer6(self):
+    def mount_filer6_DISABLED(self):
         filer6 = "/mnt/filer6/linux"
         sspl_filer_path = "/mnt/filer6/linux/SSPL"
 

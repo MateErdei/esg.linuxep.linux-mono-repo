@@ -5,12 +5,15 @@ Library         Process
 Library         ${COMMON_TEST_LIBS}/OSUtils.py
 Library         ${COMMON_TEST_LIBS}/PathManager.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 Library         ../Libs/InstallSet.py
 Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ${COMMON_TEST_LIBS}/TeardownTools.py
 Library         ${COMMON_TEST_LIBS}/DownloadAVSupplements.py
+
+Resource    DumpLog.robot
 
 *** Variables ***
 ${COMPONENT}        av
@@ -75,11 +78,17 @@ Global Setup Tasks
     Run Process    chmod    +x    ${SDDS3_BUILDER}
     Download Av Supplements
 
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+
     Create Install Set If Required
-    CoreDumps.Enable Core Files
+    CoreDumps.Enable Core Files  on fail dump logs
 
     Create test user and group
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    OnFail.register_default_cleanup_action  CoreDumps.Check For Coredumps
+    OnFail.register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All

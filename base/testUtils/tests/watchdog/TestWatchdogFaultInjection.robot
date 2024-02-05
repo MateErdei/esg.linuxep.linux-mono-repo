@@ -5,7 +5,9 @@ Library    Process
 Library    OperatingSystem
 Library    ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library    ${COMMON_TEST_LIBS}/Watchdog.py
+Library    ${COMMON_TEST_LIBS}/CoreDumps.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource    ${COMMON_TEST_ROBOT}/WatchdogResources.robot
@@ -43,12 +45,14 @@ Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Err
 
 Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
     # Exclude on SLES12 until LINUXDAR-7121 is fixed
-    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION    EXCLUDE_SLES12
+    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION    EXCLUDE_SLES12  EXPECTED_CORE_DUMP
     [Teardown]  Clean Up Files
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
+    CoreDumps.ignore_coredumps_and_segfaults
+
     Require Fresh Install
 
-   setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
+    setup_test_plugin_config_with_given_executable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/ignoreSignals
 
     ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    fakePlugin
     sleep  2

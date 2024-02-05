@@ -4,8 +4,11 @@ Suite Teardown   Global Cleanup Tasks
 
 Library    OperatingSystem
 Library    Process
+
+Library    CoreDumps.py
 Library    CentralUtils.py
 Library    FullInstallerUtils.py
+Library    OnFail.py
 Library    OSUtils.py
 Library    PathManager.py
 Library    TemporaryDirectoryManager.py
@@ -23,11 +26,6 @@ Global Setup Tasks
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
-
-    Uninstall_SSPL  ${SOPHOS_INSTALL}  ${True}
-
-    ${CLOUD_IP} =  Get Central Ip
-    Set Suite Variable    ${CLOUD_IP}     ${CLOUD_IP}   children=true
 
     ${placeholder} =  Get Environment Variable  SYSTEMPRODUCT_TEST_INPUT  default=/tmp/system-product-test-inputs
     Set Global Variable  ${SYSTEMPRODUCT_TEST_INPUT}  ${placeholder}
@@ -103,8 +101,6 @@ Global Setup Tasks
     Set Global Variable  ${ROBOT_TESTS_DIR}   ${TEST_INPUT_PATH}/test_scripts
     Set Global Variable  ${LIBS_DIRECTORY}    ${COMMON_TEST_LIBS}
 
-    install_system_ca_cert    ${COMMON_TEST_UTILS}/server_certs/server-root.crt
-
     Set Global Variable    ${VUT_WAREHOUSE_ROOT}                 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
     Set Global Variable    ${VUT_LAUNCH_DARKLY}                  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly
     Set Global Variable    ${VUT_LAUNCH_DARKLY_999}              ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999
@@ -112,6 +108,17 @@ Global Setup Tasks
     Set Global Variable    ${CURRENT_SHIPPING_WAREHOUSE_ROOT}    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping
 
     Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr
+
+    Uninstall_SSPL  ${SOPHOS_INSTALL}  ${True}
+
+    install_system_ca_cert    ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+
+    CoreDumps.Enable Core Files  watchdog_dump_on_timeout=${False}
+    OnFail.register_default_cleanup_action  CoreDumps.Check For Coredumps
+    OnFail.register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
 
 Global Cleanup Tasks
     Cleanup Temporary Folders

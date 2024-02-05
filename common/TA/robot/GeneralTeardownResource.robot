@@ -146,8 +146,8 @@ Check Disk Space
 General Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Require No Unhandled Exception
-    Check For Coredumps  ${TEST NAME}
-    Check Dmesg For Segfaults
+    CoreDumps.Check For Coredumps  ${TEST NAME}
+    CoreDumps.Check Dmesg For Segfaults
     Run Keyword If Test Failed    Dump All Logs    ${installDir}
     Remove File                   /tmp/sdds3_server.log
     Run Keyword If Test Failed    Check and Dump Journalctl

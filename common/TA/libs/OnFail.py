@@ -1,15 +1,24 @@
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 import robot.errors
 
 
+DEFAULT_CLEANUP_ACTIONS = []
+
+
 class OnFail(object):
     def __init__(self):
         self.__m_fail_actions = []
-        self.__m_cleanup_actions = []
+        self.__m_cleanup_actions = DEFAULT_CLEANUP_ACTIONS[:]
         self.__m_late_cleanup_actions = []
         self.__m_errors = []
         self.__m_builtin = BuiltIn()
+
+    @staticmethod
+    def register_default_cleanup_action(keyword, *args):
+        global DEFAULT_CLEANUP_ACTIONS
+        DEFAULT_CLEANUP_ACTIONS.append((keyword, args))
 
     def run_on_failure(self, keyword, *args):
         self.__m_fail_actions.append((keyword, args))

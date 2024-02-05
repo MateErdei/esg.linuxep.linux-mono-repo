@@ -60,8 +60,6 @@ On Access Test Setup
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors
     Register Cleanup  Require No Unhandled Exception
-    Register Cleanup  Check For Coredumps  ${TEST NAME}
-    Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
     Register On Fail  Dump log   ${ON_ACCESS_LOG_PATH}
     Register On Fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}

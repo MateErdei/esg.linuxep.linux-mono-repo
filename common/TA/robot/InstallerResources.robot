@@ -9,7 +9,7 @@ Library     ${COMMON_TEST_LIBS}/UpgradeUtils.py
 Library     ${COMMON_TEST_LIBS}/Watchdog.py
 
 Resource    GeneralTeardownResource.robot
-Resource    ${COMMON_TEST_ROBOT}/McsRouterResources.robot
+Resource    McsRouterResources.robot
 
 *** Variables ***
 ${MCSROUTER_PROCESS_NAME}  /opt/sophos-spl/base/bin/python3 -m mcsrouter

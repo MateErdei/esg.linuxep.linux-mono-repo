@@ -37,8 +37,6 @@ Threat Detector Test Setup
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Component Test Setup
     Register Cleanup  Require No Unhandled Exception
-    Register Cleanup  Check For Coredumps  ${TEST NAME}
-    Register Cleanup  Check Dmesg For Segfaults
     Create File  ${COMPONENT_ROOT_PATH}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
     Create File  ${COMPONENT_ROOT_PATH_CHROOT}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
 
