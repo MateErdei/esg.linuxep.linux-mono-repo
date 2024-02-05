@@ -326,7 +326,7 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath() });
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
-        m_session->httpConfig.connectTimeoutMs = 60000;
+        m_session->httpConfig.timeoutConfig.connectTimeoutMs = 60000;
 
         if (updateSetting.getUseSdds3DeltaV3())
         {
