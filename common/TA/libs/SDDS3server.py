@@ -329,6 +329,12 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
 
+    def cdn_hang(self):
+        secs_to_hang = 720
+        self.log_message(f'CDN GET request will now hang for {secs_to_hang/60} mins...')
+        time.sleep(secs_to_hang)
+        self.log_message('CDN GET request finished and will not send a response')
+
     def return_exitCode(self, exitCode):
         self.send_response(exitCode)
         self.send_header("Content-Length", "0")
@@ -339,6 +345,8 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             self.retry_5_times_get_request()
         elif os.environ.get("COMMAND") == "failure":
             self.return_202s_then_404()
+        elif os.environ.get("COMMAND") == "cdn_hang":
+            self.cdn_hang()
         elif os.environ.get("EXITCODE") is not None:
             self.return_exitCode(int(os.environ.get("EXITCODE")))
         else:
