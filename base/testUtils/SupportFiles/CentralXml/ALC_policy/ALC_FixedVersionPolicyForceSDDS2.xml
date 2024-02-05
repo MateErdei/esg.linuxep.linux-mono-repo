@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf502c" policyType="1"/>
+    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf5026" policyType="1"/>
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
-            <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="NotAPassword" UserName="NotAUserName" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCBklOD1TxHXBjcEE5F8AR366KSSp5czZfdALX0rdEtoIwJquBK4nBIox6JlIKeNfK4=" UserName="PRDSVSFXCL" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </primary_location>
         <secondary_location>
@@ -16,16 +16,17 @@
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
-            {{Subscriptions}}
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.1.0"/>
         </cloud_subscriptions>
-        {{fixed_version}}
+        <fixed_version>
+            <token/>
+            <name/>
+        </fixed_version>
         <delay_supplements enabled="true"/>
-        {{delay_updating}}
     </AUConfig>
     <Features>
         <Feature id="APPCNTRL"/>
         <Feature id="AV"/>
-        <Feature id="CLEAN"/>
         <Feature id="CORE"/>
         <Feature id="DLP"/>
         <Feature id="DVCCNTRL"/>
@@ -39,8 +40,28 @@
         <Feature id="SAV"/>
         <Feature id="SDU"/>
         <Feature id="WEBCNTRL"/>
-        <Feature id="XPD"/>
     </Features>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="mdr"/>
+        <Product id="xdr"/>
+    </Products>
+    <automatic_sdu_submission Enabled="true"/>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
-    <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
+    <sdds3 Enabled="true"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+        <telemetry>t1.sophosupd.com</telemetry>
+        <sdu>
+            <feedback>sdu-feedback.sophos.com</feedback>
+            <repairkit>sdu-auto-upload.sophosupd.com</repairkit>
+        </sdu>
+    </server_names>
+    <customer id="4719fc7e-2910-94ea-eb37-3f298e845fdd"/>
 </AUConfigurations>

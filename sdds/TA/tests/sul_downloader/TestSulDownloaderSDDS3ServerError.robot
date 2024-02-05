@@ -53,7 +53,7 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
 
 
 Sul Downloader Reports Update Failed When Requested Fixed Version Is Unsupported In SDDS3
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicyForceSDDS2.xml
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_FixedVersionPolicyForceSDDS2.xml
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -81,7 +81,7 @@ Sul Downloader Reports Update Failed When Requested Fixed Version Is Unsupported
     ...   File Should Contain    ${SOPHOS_INSTALL}/logs/base/suldownloader.log     Generating the report file in:
 
 Sul Downloader sdds3 sync Does not retry on curl errors
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -105,7 +105,7 @@ Sul Downloader sdds3 sync Does not retry on curl errors
 
 
 SUS Fault Injection Server Hangs
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_hang
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -128,7 +128,7 @@ SUS Fault Injection Server Hangs
 
 
 SUS Fault Injection Server Responds With Unauthorised
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_401
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -151,7 +151,7 @@ SUS Fault Injection Server Responds With Unauthorised
 
 
 SUS Fault Injection Server Responds With Not Found
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_404
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -174,7 +174,7 @@ SUS Fault Injection Server Responds With Not Found
 
 
 SUS Fault Injection Server Responds With Internal Server Error
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_500
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -197,7 +197,7 @@ SUS Fault Injection Server Responds With Internal Server Error
 
 
 SUS Fault Injection Server Responds With Service Unavailable
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_503
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -220,7 +220,7 @@ SUS Fault Injection Server Responds With Service Unavailable
 
 
 SUS Fault Injection Server Responds With Invalid JSON
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_invalid_json
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -244,7 +244,7 @@ SUS Fault Injection Server Responds With Invalid JSON
 
 
 SUS Fault Injection Server Responds With Large JSON
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_large_json
 
     ${sul_mark} =  mark_log_size  ${SUL_DOWNLOADER_LOG}
@@ -265,7 +265,7 @@ SUS Fault Injection Server Responds With Large JSON
     ${sul_mark} =  wait_for_log_contains_from_mark  ${sul_mark}  Update failed, with code: 107  timeout=${3}
 
 SUS Fault Injection Server Responds With Empty Body
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_missing_body
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -311,7 +311,7 @@ SUS Fault Injection Server response with static version not found
         ...  Update failed, with code: 107
 
 SUS Fault Injection Endpoint Does Not Have Certificates To Validate SUS Response
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -333,7 +333,7 @@ SUS Fault Injection Endpoint Does Not Have Certificates To Validate SUS Response
         ...  Update failed, with code: 107
 
 SUS Fault Injection Does Not Send Certificates
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_no_certs
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -355,7 +355,7 @@ SUS Fault Injection Does Not Send Certificates
         ...  Update failed, with code: 107
 
 SUS Fault Injection Signed With Unverified Key
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_unverifier_signer
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -377,7 +377,7 @@ SUS Fault Injection Signed With Unverified Key
         ...  Update failed, with code: 107
 
 SUS Fault Injection Signed With Corrupt Signature
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     Set Environment Variable  COMMAND   sus_corrupt_signature
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -399,7 +399,7 @@ SUS Fault Injection Signed With Corrupt Signature
         ...  Update failed, with code: 107
 
 CDN Fault Injection Does Not Contain Location Given By SUS
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Generate Warehouse From Local Base Input
     ${Files} =  List Files In Directory  ${SDDS3_FAKEPACKAGES}
     Remove File  ${SDDS3_FAKEPACKAGES}/${Files[0]}
@@ -425,7 +425,7 @@ CDN Fault Injection Does Not Contain Location Given By SUS
 
 
 CDN Fault Injection Server Responds With Unauthorised Error
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Set Environment Variable  EXITCODE   401
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
@@ -450,7 +450,7 @@ CDN Fault Injection Server Responds With Unauthorised Error
 
 
 CDN Fault Injection Server Responds With Not Found Error
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Set Environment Variable  EXITCODE   404
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
@@ -475,7 +475,7 @@ CDN Fault Injection Server Responds With Not Found Error
 
 
 CDN Fault Injection Server Responds With Generic Error
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Set Environment Variable  EXITCODE   500
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080

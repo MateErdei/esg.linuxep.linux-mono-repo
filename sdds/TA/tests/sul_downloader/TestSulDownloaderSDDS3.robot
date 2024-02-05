@@ -23,7 +23,7 @@ ${sdds3_server_output}                      ${sdds3_server_log}
 *** Test Cases ***
 Sul Downloader Requests Correct Package For Machine Architecture
     ${platform} =    machine_architecture
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -44,7 +44,7 @@ Sul Downloader Requests Correct Package For Machine Architecture
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 Sul Downloader Requests Fixed Version When Fixed Version In Policy
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_FixedVersionPolicySDDS3BaseOnly.xml
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -61,11 +61,11 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 2022.1.0.40 requested
+    ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 2022.7.22.7 requested
     wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 Update Now action triggers a product update even when updates are scheduled
-    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
+    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
     ${ScheduledDate} =  Add Time To Date  ${Date}  60 minutes
     ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
@@ -96,7 +96,7 @@ Update Now action triggers a product update even when updates are scheduled
 
 Sul Downloader Uses Current Proxy File for SUS Requests
     Start Proxy Server With Basic Auth  3129  user  password
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
@@ -137,7 +137,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
 
 Sul Downloader Installs SDDS3 Through Proxy
     Start Simple Proxy Server    1235
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -165,7 +165,7 @@ Sul Downloader Installs SDDS3 Through Proxy
     Log File  ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
 
 SDDS3 updates supplements
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -295,7 +295,7 @@ Sul Downloader falls back to direct when proxy and UC do not work
     Check SulDownloader Log Contains    Connecting to update source directly
 
 Sul Downloader sets sdds3 v3 delta if flag present
-    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     Generate Warehouse From Local Base Input  {"sdds3.delta-versioning.v3.enabled": "true"}
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}

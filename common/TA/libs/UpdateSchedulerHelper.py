@@ -338,7 +338,7 @@ exit 1
     def simulate_send_policy(self, original_file, **kwargs):
         """Usage: simulate_send_policy( path_to_xml, features to be added). For example:
 
-        simulate_send_policy( ALC_policy_direct.xml, add_features="MDR", remove_subscriptions="" )
+        simulate_send_policy( FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml, add_features="MDR", remove_subscriptions="" )
         remove_subscriptions could be any of: Base, MDR
         """
         temp_alc_path = os.path.join(self.get_install(), 'tmp/ALC-1_policy.xml')

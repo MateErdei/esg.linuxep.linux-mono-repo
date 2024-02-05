@@ -75,7 +75,7 @@ EDR disables curl tables when network available flag becomes false
 *** Keywords ***
 
 EDR Test Setup
-    Start Local Cloud Server   --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml
+    Start Local Cloud Server   --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Register With Fake Cloud
     Install EDR Directly
 

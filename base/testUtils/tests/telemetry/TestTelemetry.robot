@@ -110,7 +110,6 @@ Run Telemetry And Expect Field Missing
 
 *** Test Cases ***
 Telemetry Executable Generates System Base and Watchdog Telemetry
-    [Tags]  SMOKE  TELEMETRY
     [Documentation]    Telemetry Executable Generates Telemetry
 
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
@@ -124,7 +123,6 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}
 
 Telemetry Executable sets telemetry health to bad when it fails to get telemetry from a plugin
-    [Tags]    TELEMETRY
     ${result} =    Run Process   ${SOPHOS_INSTALL}/bin/wdctl     stop     updatescheduler
     Register Cleanup      Run Process    ${SOPHOS_INSTALL}/bin/wdctl     start     updatescheduler
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
@@ -142,7 +140,6 @@ Telemetry Executable Generates Cloud Platform Metadata
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "cloud-platform":"AWS"
 
 Telemetry Executable Generates mcs-connection when message relay
-    [Tags]  SMOKE  TELEMETRY
     [Teardown]  Teardown With Proxy Clear
     Start Simple Proxy Server    3000
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
@@ -157,7 +154,6 @@ Telemetry Executable Generates mcs-connection when message relay
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Message Relay"
 
 Telemetry Executable Generates mcs-connection when proxy
-    [Tags]  SMOKE  TELEMETRY
     [Teardown]  Teardown With Proxy Clear
     Start Simple Proxy Server    3001
     Set Environment Variable  https_proxy   http://localhost:3001
@@ -195,8 +191,6 @@ Telemetry Executable Generates Update Scheduler Telemetry
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
-    ...    set_edr=True
-    ...    set_av=True
     ...    install_state=0
     ...    download_state=0
 
@@ -295,7 +289,7 @@ Telemetry Executable Creates HTTP PUT Request
 
 Telemetry Executable Generates System Telemetry Without Cpu Cores
     [Documentation]    Telemetry Executable Generates System Telemetry when /usr/bin/lscpu fails to execute
-    [Tags]  FAULTINJECTION  TELEMETRY
+    [Tags]  FAULTINJECTION
     Break System Command    /usr/bin/lscpu
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -338,7 +332,7 @@ Telemetry Executable Telemetry Config File Data Size Exceeds Maximum Size
 
 Telemetry Executable Generates System Telemetry When Command Hangs
     [Documentation]    Telemetry Executable Generates System Telemetry when /bin/df hangs
-    [Tags]  FAULTINJECTION   TELEMETRY
+    [Tags]  FAULTINJECTION
     Hang System Command    /bin/df
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -349,7 +343,7 @@ Telemetry Executable Generates System Telemetry When Command Hangs
     Check Telemetry Log Contains   Failed to get telemetry item: disks, from command: /bin/df, exception: Process execution timed out running:
 
 Telemetry Executable Generates System Telemetry When Command crashes
-    [Tags]  FAULTINJECTION   TELEMETRY
+    [Tags]  FAULTINJECTION
     Crash System Command    /bin/df
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -358,7 +352,7 @@ Telemetry Executable Generates System Telemetry When Command crashes
     Check Telemetry Log Contains    Failed to get telemetry item: disks, from command: /bin/df, exception: Process execution returned non-zero exit code,
 
 Telemetry Executable Generates System Telemetry When Command has wrong permissions
-    [Tags]  FAULTINJECTION   TELEMETRY
+    [Tags]  FAULTINJECTION
     Permission Denied System Command    /bin/df
     Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -367,7 +361,7 @@ Telemetry Executable Generates System Telemetry When Command has wrong permissio
     Check Telemetry Log Contains     Failed to get telemetry item: disks, from command: /bin/df, exception: Process execution returned non-zero exit code, 'Exit Code: [13] Permission denied'
 
 Telemetry Executable Generates System Telemetry When Command writes too much to stdout
-    [Tags]  FAULTINJECTION   TELEMETRY
+    [Tags]  FAULTINJECTION
     Overload System Command    /usr/sbin/getenforce
     #executable will segfault if input is not trimmed properly as std::regex can only handle about 28k
     # therefore test passes as long as the executable runs without crashing
@@ -513,7 +507,6 @@ Test Outbreak Mode Telemetry
 
 
 Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
-    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
     [Documentation]    Telemetry Executable Generates Telemetry
 
     Cleanup Telemetry Server
@@ -540,8 +533,6 @@ Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
     LOG    ${telemetryFileContents}
 
     check_update_scheduler_telemetry_json_is_correct  ${telemetryFileContents}  0
-        ...    set_edr=True
-        ...    set_av=True
         ...    install_state=0
         ...    download_state=0
     check_base_telemetry_json_is_correct  ${telemetryFileContents}
@@ -551,7 +542,6 @@ Telemetry Executable Moves ESM to Top Level When ESM Not Enabled
 
 
 Telemetry Executable Moves ESM to Top Level When ESM Enabled
-    [Tags]  SMOKE  TELEMETRY  TAP_PARALLEL2
 
     ${esmname} =  Set Variable   LTS 2023.1.1
     ${esmtoken} =    Set Variable    f4d41a16-b751-4195-a7b2-1f109d49469d

@@ -28,7 +28,7 @@ Force Tags  THIN_INSTALLER
 
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log
-${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 
 *** Test Case ***
@@ -121,7 +121,7 @@ SDDS3 Thin Installer Attempts Install And Register Through Message Relays
 SDDS3 Thin Installer Digest Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
-    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
+    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
@@ -150,7 +150,7 @@ SDDS3 Thin Installer Digest Proxy
 SDDS3 Thin Installer Environment Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
-    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
+    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
     Should Not Exist    ${SOPHOS_INSTALL}
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}

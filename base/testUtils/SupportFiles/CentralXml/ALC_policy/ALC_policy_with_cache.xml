@@ -1,31 +1,54 @@
 <?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485e5" policyType="1"/>
+    <csc:Comp RevID="6eca47ea880567b5c5c07fbf4f199733a26f565ee3e9df62827ea7fa976a7566" policyType="1"/>
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
-            <server BandwidthLimit="0" AutoDial="false" Algorithm="AES256" UserPassword="CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E=" UserName="regruser" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCBklOD1TxHXBjcEE5F8AR366KSSp5czZfdALX0rdEtoIwJquBK4nBIox6JlIKeNfK4=" UserName="PRDSVSFXCL" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </primary_location>
         <secondary_location>
-            <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </secondary_location>
-        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="8" DetectDialUp="false"/>
-
+        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
-        <delay_supplements enabled="false"/>
+        <fixed_version>
+            <token/>
+            <name/>
+        </fixed_version>
+        <delay_supplements enabled="true"/>
     </AUConfig>
     <Features>
+        <Feature id="APPCNTRL"/>
+        <Feature id="AV"/>
         <Feature id="CORE"/>
+        <Feature id="DLP"/>
+        <Feature id="DVCCNTRL"/>
+        <Feature id="EFW"/>
+        <Feature id="HBT"/>
+        <Feature id="LIVEQUERY"/>
         <Feature id="LIVETERMINAL"/>
+        <Feature id="MDR"/>
+        <Feature id="MTD"/>
+        <Feature id="NTP"/>
+        <Feature id="SAV"/>
+        <Feature id="SDU"/>
+        <Feature id="WEBCNTRL"/>
     </Features>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="mdr"/>
+        <Product id="xdr"/>
+    </Products>
+    <automatic_sdu_submission Enabled="true"/>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <sdds3 Enabled="true"/>
     <update_cache>
         <intermediate_certificates>
             <intermediate_certificate id="cfe086255488e4a45ebe10956bb3606c7ab5dc6a.crt">-----BEGIN CERTIFICATE-----

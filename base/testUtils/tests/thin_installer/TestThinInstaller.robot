@@ -105,7 +105,7 @@ ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
-${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
@@ -151,7 +151,7 @@ Thin Installer Cannot Connect to Central timeout
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
+    Start Local Cloud Server   --tls   tlsv1_1    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
 
     TRY

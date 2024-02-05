@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    <csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/>
+    <csc:Comp RevID="6eca47ea880567b5c5c07fbf4f199733a26f565ee3e9df62827ea7fa976a7566" policyType="1"/>
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
-            <server BandwidthLimit="256" AutoDial="false" Algorithm="@ALGORITHM@" UserPassword="@PASSWORD@" UserName="@USERNAME@" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="@CONNECTIONADDRESS@" AllowLocalConfig="false"/>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCBklOD1TxHXBjcEE5F8AR366KSSp5czZfdALX0rdEtoIwJquBK4nBIox6JlIKeNfK4=" UserName="PRDSVSFXCL" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </primary_location>
         <secondary_location>
@@ -18,21 +18,50 @@
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
+        <fixed_version>
+            <token/>
+            <name/>
+        </fixed_version>
         <delay_supplements enabled="true"/>
     </AUConfig>
     <Features>
+        <Feature id="APPCNTRL"/>
+        <Feature id="AV"/>
         <Feature id="CORE"/>
+        <Feature id="DLP"/>
+        <Feature id="DVCCNTRL"/>
+        <Feature id="EFW"/>
+        <Feature id="HBT"/>
+        <Feature id="LIVEQUERY"/>
+        <Feature id="LIVETERMINAL"/>
+        <Feature id="MDR"/>
+        <Feature id="MTD"/>
+        <Feature id="NTP"/>
+        <Feature id="SAV"/>
         <Feature id="SDU"/>
+        <Feature id="WEBCNTRL"/>
     </Features>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="mdr"/>
+        <Product id="xdr"/>
+    </Products>
+    <automatic_sdu_submission Enabled="true"/>
+    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <sdds3 Enabled="true"/>
     <server_names>
         <sdds3>
-            <sus>sustest.sophosupd.com:8080</sus>
+            <sus>sustest.sophosupd.com</sus>
             <content_servers>
-                <server>sdds3test.sophosupd.com:8080</server>
-                <server>sdds3test.sophosupd.net:8080</server>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
             </content_servers>
         </sdds3>
+            <telemetry>test.sophosupd.net</telemetry>
+        <sdu>
+            <feedback>sdu-feedback.sophos.com</feedback>
+            <repairkit>sdu-auto-upload.sophosupd.com</repairkit>
+        </sdu>
     </server_names>
-    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
-    <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
+    <customer id="4719fc7e-2910-94ea-eb37-3f298e845fdd"/>
 </AUConfigurations>

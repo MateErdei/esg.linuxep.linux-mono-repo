@@ -32,7 +32,7 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     [Tags]  SMOKE
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     ${File}=  Get File   ${UPDATE_CONFIG}
-    Should Contain   ${File}  "sophosSusURL": "https://sustest.sophosupd.com"
+    Should Contain   ${File}  "https://sustest.sophosupd.com:8080"
     Should Contain   ${File}  "sophosCdnURLs": [
     Should Contain   ${File}  "https://sdds3test.sophosupd.com
     @{features}=  Create List   CORE
@@ -59,7 +59,7 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     File Should Not Exist  ${UPGRADING_MARKER_FILE}
 
 UpdateScheduler Does Not Create A Config For An Invalid Policy With No Base subscription
-    Simulate Send Policy   ALC_policy_invalid.xml
+    Simulate Send Policy   ALC_policy/ALC_policy_invalid.xml
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -201,7 +201,7 @@ Test Updatescheduler Adds Features That Get Installed On Subsequent Update
     Check Status Report Does Not Contain  Feature id="MDR"
     @{features}=  Create List   CORE  MDR
     Setup Base And Plugin Sync And Uptodate  ${features}
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -221,7 +221,7 @@ Test Updatescheduler Does Not Add Features That Failed To Install
 
     Setup Plugin Install Failed
     Remove File  ${statusPath}
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -371,7 +371,7 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     Check Status Report Does Not Contain  Feature id="MDR"
     Remove File  ${statusPath}
     Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -419,7 +419,7 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
 
     @{features}=  Create List   CORE  MDR
     Setup Base And Plugin Sync And Uptodate  ${features}
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -429,7 +429,7 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     Remove File  ${statusPath}
     @{features}=  Create List   CORE
     Setup Base And Plugin Sync And Uptodate  ${features}
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -494,6 +494,7 @@ UpdateScheduler Start and Restart
 
 UpdateScheduler SulDownloader Report Sync With Warehouse Success Via Update Cache
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_with_cache.xml
     Setup Base Uptodate Via Update Cache  2k12-64-ld55-df.eng.sophos:8191
 
     Simulate Update Now
@@ -522,7 +523,7 @@ UpdateScheduler Sends A Default Status If Its Status Is Requested Before An Upda
 UpdateScheduler Send Status After Receiving Policy
     [Documentation]  Verify LINUXEP-6534
     [Setup]  Setup Update Scheduler Environment and Stop All Services
-    Simulate Send Policy  ALC_policy_direct.xml
+    Simulate Send Policy  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Remove File  ${statusPath}
     Create Fake Report
     Create Empty Config File To Stop First Update On First Policy Received
@@ -540,7 +541,7 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -551,13 +552,13 @@ UpdateScheduler sends a status after recieving a policy that does not change fea
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
 
     Wait Until Keyword Succeeds
     ...  90 secs
     ...  10 secs
     ...  check_updatescheduler_log_contains_string_n_times   Sending status to Central  1
-    Send Policy To UpdateScheduler  ALC_BaseOnlyBetaPolicy.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_BaseOnlyBetaPolicy.xml
     Wait Until Keyword Succeeds
     ...  90 secs
     ...  10 secs
@@ -566,12 +567,13 @@ UpdateScheduler sends a status after recieving a policy that does not change fea
 UpdateScheduler Performs Scheduled Update
     [Tags]  SLOW  UPDATE_SCHEDULER
     [Timeout]    20 minutes
+    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     # There are three types of updates scheduled:
     # 1. Immediately after getting the first ALC policy - to install plugins
     # 2. 5-10 minutes after starting up - to ensure machines that have been switched off for a period get updated quickly
     # 3. Updates based off the update period (7 minutes for this policy)
-    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
+    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
     ${ScheduledDate} =  Add Time To Date  ${Date}  11 minutes
     ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
@@ -582,7 +584,8 @@ UpdateScheduler Performs Scheduled Update
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     Send Policy To UpdateScheduler  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-
+    ${ScheduledTimeLog}=     Get Substring     ${ScheduledTime}     0    4
+    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Scheduling product updates for ${ScheduledDay} at ${ScheduledTimeLog}    ${10}
     # Update on install
     ${eventPath} =  Check Event File Generated  wait_time_seconds=60
     Remove File  ${eventPath}
@@ -615,7 +618,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -625,7 +628,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct_with_sdu_feature.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
@@ -636,7 +639,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -646,7 +649,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
@@ -656,7 +659,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -666,7 +669,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_BaseOnlyBetaPolicy.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_FixedVersionPolicySDDS3BaseOnly.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
@@ -676,7 +679,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -686,7 +689,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_BaseOnlyFixedVersionPolicy.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_FixedVersionPolicySDDS3BaseOnly.xml
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -700,7 +703,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -710,7 +713,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
+    Send Policy To UpdateScheduler  FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
 
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
@@ -721,7 +724,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
     Check Status and Events Are Created
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
@@ -731,7 +734,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_BaseOnlyFixedVersionPolicy.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_FixedVersionPolicySDDS3BaseOnly.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
 
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.

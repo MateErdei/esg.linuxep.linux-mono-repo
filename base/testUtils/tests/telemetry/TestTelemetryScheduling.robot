@@ -27,7 +27,7 @@ Cleanup TelemetryScheduling Tests
     Uninstall SSPL
 
 Telemetry Scheduler Plugin Test Setup
-    Simulate Send Policy    ALC_policy_direct.xml
+    Simulate Send Policy    FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable
     Set Interval In Configuration File  ${TEST_INTERVAL}
@@ -38,7 +38,7 @@ Telemetry Scheduler Plugin Test Setup
     wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Setup with error telemetry executable
-    Simulate Send Policy    ALC_policy_direct.xml
+    Simulate Send Policy    FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable that exits with error
     Set Interval In Configuration File  ${TEST_INTERVAL}
@@ -340,7 +340,7 @@ Telemetry Scheduler Starts, Receives Policy And Runs Executable Then Receives A 
     Remove File    ${TELEMETRY_OUTPUT_JSON}
 
     # Receiving different policy and checking
-    Simulate Send Policy    ALC_policy_with_telemetry_hostname.xml
+    Simulate Send Policy    ALC_policy/ALC_policy_with_telemetry_hostname.xml
 
     wait until created    ${TELEMETRY_OUTPUT_JSON}    timeout=5 minutes
 

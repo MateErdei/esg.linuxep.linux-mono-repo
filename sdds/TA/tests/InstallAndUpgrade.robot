@@ -49,7 +49,7 @@ ${RPATHCheckerLog}                          /tmp/rpath_checker.log
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
-    start_local_cloud_server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_FakePlugin.xml
+    start_local_cloud_server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_FakePlugin.xml
     Start Local SDDS3 Server
 
     configure_and_run_SDDS3_thininstaller    ${18}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
@@ -639,7 +639,7 @@ SDDS3 updating respects ALC feature codes
     Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml  wait_for_policy=${True}
 
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    80
     # Core plugins should be installed
@@ -684,7 +684,7 @@ SDDS3 updating with changed unused feature codes do not change version
     &{installedVersionsBeforeUpdate} =    Get Current Installed Versions
 
     ${sul_mark} =  mark_log_size  ${SULDownloaderLog}
-    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
+    send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
 
     &{installedVersionsAfterUpdate} =    Get Current Installed Versions
@@ -738,7 +738,7 @@ SPL Can Be Installed To A Custom Location
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
-    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml
+    start_local_cloud_server
     Start Local SDDS3 Server
 
     ${all_plugins_logs_marks} =   Mark All Plugin Logs  ${CUSTOM_INSTALL_DIRECTORY}
@@ -807,7 +807,7 @@ Installing New Plugins Respects Custom Installation Location
     [Teardown]    Upgrade Resources SDDS3 Test Teardown    ${CUSTOM_INSTALL_DIRECTORY}
     Set Local Variable    ${SOPHOS_INSTALL}    ${CUSTOM_INSTALL_DIRECTORY}
 
-    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml
+    start_local_cloud_server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_no_av.xml
     Start Local SDDS3 Server
     ${all_plugins_logs_marks} =  Mark All Plugin Logs  ${CUSTOM_INSTALL_DIRECTORY}
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080
@@ -832,12 +832,13 @@ Installing New Plugins Respects Custom Installation Location
 
     #core plugins should be installed
     Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/eventjournaler
-    #other plugins should be uninstalled
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/deviceisolation
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
+    Directory Should Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/runtimedetections
+    #av plugin should be uninstalled
     Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/av
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/deviceisolation
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/edr
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/liveresponse
-    Directory Should Not Exist   ${CUSTOM_INSTALL_DIRECTORY}/plugins/rtd
+
 
     send_policy_file  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}    install_dir=${CUSTOM_INSTALL_DIRECTORY}
     Wait Until Keyword Succeeds
@@ -846,7 +847,7 @@ Installing New Plugins Respects Custom Installation Location
     ...   File Should Contain    ${CUSTOM_INSTALL_DIRECTORY}/base/update/var/updatescheduler/update_config.json    AV
     ${sul_mark} =  mark_log_size  ${CUSTOM_INSTALL_DIRECTORY}/logs/base/suldownloader.log
     trigger_update_now
-    
+
     # Expect all plugins to be installed
     wait_for_log_contains_from_mark  ${sul_mark}  Update success      120
     Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}    install_path=${CUSTOM_INSTALL_DIRECTORY}

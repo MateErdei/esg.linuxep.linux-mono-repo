@@ -136,7 +136,7 @@ Absent ESM Field Does Not Appear In Update Config
     Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
     ${update_mark} =  mark_log_size    ${UpdateSchedulerLog}
 
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
 

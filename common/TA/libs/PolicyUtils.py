@@ -11,7 +11,7 @@ import PathManager
 import xml.dom.minidom
 from robot.api import logger
 
-ALC_POLICY_TEMPLATE_PATH = os.path.join(PathManager.get_support_file_path(), "CentralXml/ALC_Template.xml")
+ALC_POLICY_TEMPLATE_PATH = os.path.join(PathManager.get_support_file_path(), "CentralXml/ALC_policy/ALC_Template.xml")
 DEFAULT_CLOUD_SUBSCRIPTION = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>'
 CLOUD_SUBSCRIPTION_WITH_PAUSED = '<subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.1.0.40"/>'
 

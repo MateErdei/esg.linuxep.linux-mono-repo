@@ -62,7 +62,7 @@ Setup base Install
     Should Be Equal As Integers   ${result.rc}  ${0}
 
 Setup Thininstaller Test
-    Start Local Cloud Server    --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_base_only.xml
+    Start Local Cloud Server     --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
     Setup Thininstaller Test Without Local Cloud Server
 
 Setup Thininstaller Test Without Local Cloud Server

@@ -19,14 +19,6 @@ Force Tags   SULDOWNLOADER  UPDATE_SCHEDULER  TAP_PARALLEL3
 
 *** Test Cases ***
 #TODO migrate test to SDDS3 - LINUXDAR-6948
-UpdateScheduler Delayed Updating
-    [Tags]   TESTFAILURE
-    #Removed [Setup]  Setup For Test With Warehouse Containing Base
-    ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-    Send Policy To UpdateScheduler  ALC_policy_delayed_updating.xml
-    wait_for_log_contains_from_mark    ${update_scheduler_mark}    Scheduling product updates for Sunday at 12:00    ${10}
-
-#TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Should Fail if Warehouse is missing multiple packages
     [Tags]   TESTFAILURE
     #Removed [Setup]  Setup For Test With Warehouse Containing Base

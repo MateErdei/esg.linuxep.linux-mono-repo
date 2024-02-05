@@ -219,7 +219,11 @@ Drop ALC Policy With ESM Into Place
     Drop sophos-spl-local File Into Place     ${tmpPolicy}  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop ALC Policy With Scheduled Updating Into Place
-    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_policy_delayed_updating.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_scheduled_update.xml
+    ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  SUNDAY
+    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  REPLACE_TIME  12:00:00
+    Create File  /tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
+    Drop sophos-spl-local File Into Place     /tmp/ALC_policy_scheduled_update.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop MCS Policy Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/MCS-25_policy.xml

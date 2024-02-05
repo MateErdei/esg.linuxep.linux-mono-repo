@@ -29,17 +29,8 @@ Send Policy To UpdateScheduler
     Wait For New Sul Downloader Config File Created
     Log File   ${UPDATE_CONFIG}
 
-Send Policy With Cache
-    [Arguments]    &{kwargs}
-    Remove File  ${UPDATECACHE_CERT_PATH}
-    Send Policy To UpdateScheduler  ALC_policy_with_cache.xml  &{kwargs}
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  3 secs
-    ...  Check CacheCertificates Is Created Correctly
-
 Send Policy With No Cache And No Proxy
-    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
 
 Send Mock Flags Policy
     [Arguments]    ${fileContents}
@@ -115,7 +106,7 @@ Setup Current Update Scheduler Environment
     Create Empty Config File To Stop First Update On First Policy Received
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent   DEBUG
     Set Log Level For Component And Reset and Return Previous Log  updatescheduler   DEBUG
-    Send Policy With Cache
+    Send Policy To UpdateScheduler  ALC_policy/ALC_policy_direct_just_base.xml
 
 Setup Current Update Scheduler Environment Without Policy
     Require Fresh Install

@@ -32,7 +32,7 @@ ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
-${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
 Thin Installer Installs Working Base But Failing Plugin And Base Is Persisted While Plugin Error Is Logged

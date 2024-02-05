@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf5026" policyType="1"/>
+    <csc:Comp RevID="6eca47ea880567b5c5c07fbf4f199733a26f565ee3e9df62827ea7fa976a7566" policyType="1"/>
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
@@ -11,7 +11,7 @@
             <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </secondary_location>
-        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+        <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="7" DetectDialUp="false"/>
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
@@ -23,6 +23,7 @@
             <name/>
         </fixed_version>
         <delay_supplements enabled="true"/>
+        <delay_updating Day="REPLACE_DAY" Time="REPLACE_TIME"/>
     </AUConfig>
     <Features>
         <Feature id="APPCNTRL"/>

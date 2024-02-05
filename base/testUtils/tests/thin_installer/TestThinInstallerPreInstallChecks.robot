@@ -73,11 +73,11 @@ ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{UNINSTALL_SAV_ARGUMENT} =  --uninstall-sav
-${BaseVUTPolicy}    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+${BaseVUTPolicy}    ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
 Thin Installer Fails to Install Due to Missing Package
-    Start Local Cloud Server
+    Start Local Cloud Server     --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy/ALC_policy_FakePlugin.xml
     Run Default Thininstaller  18    cleanup=False    temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
     ${errorMsg} =    Set Variable    Failed to install: Package source missing from repository
 
