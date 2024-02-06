@@ -92,6 +92,7 @@ def add_cloudserver_args(parser):
     parser.add_argument("--initial-sav-policy", help="define the initial sav policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_SAV_policy.xml"), dest="INITIAL_SAV_POLICY")
     parser.add_argument("--initial-core-policy", help="define the initial core policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORE_policy.xml"), dest="INITIAL_CORE_POLICY")
     parser.add_argument("--initial-corc-policy", help="define the initial corc policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORC_policy.xml"), dest="INITIAL_CORC_POLICY")
+    parser.add_argument("--initial-rtd-policy", help="define the initial rtd policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_RTD_policy.xml"), dest="INITIAL_RTD_POLICY")
     parser.add_argument("--initial-livequery-policy", help="define the initial livequery policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_LiveQuery_policy.xml"), dest="INITIAL_LIVEQUERY_POLICY")
     parser.add_argument("--initial-flags", help="define the initial flags used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_FLAGS.json"), dest="INITIAL_FLAGS")
     parser.add_argument("--tls", dest="tls", default=ssl.PROTOCOL_SSLv23, action=store_ssl_tls, help="Set tls option", \

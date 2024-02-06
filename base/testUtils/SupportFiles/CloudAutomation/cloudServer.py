@@ -661,6 +661,32 @@ class CorcEndpointManager(object):
         return self.__m_policy
 
 
+# RTD POLICY
+class RtdEndpointManager(object):
+    def __init__(self):
+        self.__m_policyID = "INITIAL_RTD_POLICY_ID"
+        self.__m_policy = INITIAL_RTD_POLICY
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def policyPending(self):
+        return self.__m_policyID is not None
+
+    def policyID(self):
+        return self.__m_policyID
+
+    def commandDeleted(self):
+        self.__m_policyID = None
+
+    def updatePolicy(self, body):
+        self.__m_policyID = f"Rtd {time.time()}"
+        self.__m_policy = body
+        logger.info(f"Updating Rtd policy: {self.__m_policyID}")
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def getPolicy(self):
+        return self.__m_policy
+
+
 class FlagsEndpointManager(object):
     def __init__(self):
         self.__m_policy = INITIAL_FLAGS
@@ -690,6 +716,7 @@ class Endpoint(object):
         self.__alc = ALCEndpointManager()
         self.__livequery = LiveQueryEndpointManager()
         self.__corc = CorcEndpointManager()
+        self.__rtd = RtdEndpointManager()
         self.__flags = FlagsEndpointManager()
         self.__m_doc = None
         self.__m_health = 0
@@ -1016,6 +1043,8 @@ class Endpoint(object):
             commands.append(self.policyCommand(app="CORE", policyID=self.__core.policyID(), policyType=36))
         if "CORC" in apps and self.__corc.policyPending():
             commands.append(self.policyCommand(app="CORC", policyID=self.__corc.policyID(), policyType=37))
+        if "RTD" in apps and self.__rtd.policyPending():
+            commands.append(self.policyCommand(app="RTD", policyID=self.__rtd.policyID(), policyType=91))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
@@ -1048,6 +1077,8 @@ class Endpoint(object):
                 self.__core.commandDeleted()
             elif c == "CORC":
                 self.__corc.commandDeleted()
+            elif c == "RTD":
+                self.__rtd.commandDeleted()
             else:
                 logger.error(f"Attempting to delete unknown command: {c}")
 
@@ -1060,17 +1091,6 @@ class Endpoint(object):
             self.__m_device_id = extracted_device_id
         self.__mcs.updatePolicy(body)
 
-    def updateLiveQueryPolicy(self, body):
-        self.__livequery.updatePolicy(body)
-
-    def updateCorePolicy(self, body):
-        self.__core.updatePolicy(body)
-
-    def updateCorcPolicy(self, body):
-        self.__corc.updatePolicy(body)
-
-    def updateSavPolicy(self, body):
-        self.__sav.updatePolicy(body)
 
     def updatePolicy(self, adapter, body):
         if adapter == "SAV":
@@ -1085,6 +1105,8 @@ class Endpoint(object):
             self.__core.updatePolicy(body)
         elif adapter == "CORC":
             self.__corc.updatePolicy(body)
+        elif adapter == "RTD":
+            self.__rtd.updatePolicy(body)
         else:
             logger.error(f"Unknown adapter in updatePolicy: {adapter}")
             return False
@@ -2087,6 +2109,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             GL_ENDPOINTS.updatePolicy("CORE", self.getBody())
         elif self.path.lower() == "/controller/corc/policy":
             GL_ENDPOINTS.updatePolicy("CORC", self.getBody())
+        elif self.path.lower() == "/controller/rtd/policy":
+            GL_ENDPOINTS.updatePolicy("RTD", self.getBody())
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
@@ -2258,6 +2282,7 @@ def setDefaultPolicies(options):
     global INITIAL_CORE_POLICY
     global INITIAL_CORC_POLICY
     global INITIAL_FLAGS
+    global INITIAL_RTD_POLICY
 
     with open(options.INITIAL_ALC_POLICY) as policy_file:
         INITIAL_ALC_POLICY = policy_file.read()
@@ -2276,6 +2301,9 @@ def setDefaultPolicies(options):
 
     with open(options.INITIAL_CORC_POLICY) as policy_file:
         INITIAL_CORC_POLICY = policy_file.read()
+
+    with open(options.INITIAL_RTD_POLICY) as policy_file:
+        INITIAL_RTD_POLICY = policy_file.read()
 
     with open(options.INITIAL_FLAGS) as policy_file:
         INITIAL_FLAGS = policy_file.read()
